@@ -113,6 +113,17 @@
 
 ---
 
+## Latest Variant Updates
+
+- **Molecules reclassified**: `Service Tiles`, `Promo Code`, `Headers`, and `Navigation` are documented as Molecules in the library.
+- **Headers icon rule**: headers use `fa-light`; only `Header / Logged Out` keeps user icon as solid (`fa-solid fa-circle-user`).
+- **Navigation icon rule**: active icon is `fa-solid`; non-active icons are `fa-regular`.
+- **Promo Code / Entered**: clear icon (`fa-circle-xmark`) uses `fa-solid` with `icon-medium-solid`.
+- **Summary Box**: in `checkout/payment` variants, label updated from `PAGAS` to `TOTAL`; other variants remain `PAGAS`.
+- **Widgets**: CTA added to `OFERTAS DEL DÍA` (`Comprar`) and `COMPARA TIPOS DE CAMBIO` (`Comparar`), aligned with `RECARGAS TIEMPO AIRE`.
+
+---
+
 ## Atoms
 
 ### 1. Buttons
@@ -256,7 +267,64 @@ Buttons are the most fundamental interactive elements with multiple variants acr
 
 ---
 
+### 5. Chips (Quantity Input)
+**Component IDs**:
+- Cart: `9fXxZ`
+- cart/removable: `KIyIt`
+- Add0 / Vales: `DsDmy`
+- Quantity / Giftcards: `QtFxr`
+- Add1 / Vales: `BEpku`
+- Add2 / Vales: `AotiP`
+
+**Cart Variant**:
+- `Chips/Cart`: count + cart icon
+- `Chips/cart/removable`: promo code chip + remove action (`x`)
+
+**Quantity Input Border Update**:
+- `Add0`, `Quantity`, `Add1`, and `Add2` use neutral border: `$Border Main`
+- Border radius for all Quantity Input variants is now `16px`
+- Heights: `Quantity/Gifcards` is `40px`; `Add1` and `Add2` are `40px`
+
+**Token Usage**:
+- Primary icons and numbers: `$Primary Main`
+- Neutral container borders: `$Border Main`
+- Error/removal icon: `$Error Dark`
+- `Chips/cart/removable`: `$Secondary Background` + `$Secondary Main` text + `$Secondary Dark` border
+- `Chips/cart/removable` close icon: `fa-solid fa-circle-xmark` with `icon-xsmall-solid` (12px, 900, line-height 12px), color `$Primary Main`
+
+---
+
+### 6. Discount Ribbon (Atom)
+Reusable discount atom used inside strips and lists.
+
+**Variants**:
+- `Discount Ribbon / Wrap` (`Ta86S`)
+- `Discount Ribbon / List` (`twV32`)
+
+**Size**:
+- Max width: `88px`
+- Height: `40px` (Wrap)
+- Height: `30px` (List)
+
+**Anatomy**:
+- `Wrap`: top-right notch (`6x6`) + body corner radius `[4,0,4,4]`
+- `List`: no notch + body corner radius `4`
+
+**Usage Rules**:
+- `Wrap`: absolute positioning on giftcard cards
+- `List`: only on product listing pages and cart
+
+**Token Usage**:
+- Background: `$Secondary Light`
+- Text color: `$Secondary Dark`
+- Text typography token: `price%`
+
+---
+
 ## Molecules
+
+> Updated scope in Atomic Design Library: this section now emphasizes `Service Tiles`, `Promo Code`, `Headers`, and `Navigation`.  
+> `List / PLP` and `List / Cart` are documented under **Organisms**.
 
 ### 1. Form Fields with Labels
 Input and dropdown components that include animated floating labels that move above the field when populated.
@@ -290,6 +358,37 @@ Input and dropdown components that include animated floating labels that move ab
 
 ### 3. Button Groups
 Combinations of buttons for related actions, typically seen in forms and action bars.
+
+---
+
+### 4. Lists
+Two list components added for reusable content blocks:
+
+#### List / PLP (`dsvtw`)
+- Product listing component (`360x422`)
+- Inner content width `328px` with `16px` padding
+- 3 vertical rows with divider between rows
+- Each row anatomy: product image `100x100` (radius `16px`, border `$Border Main`) + text stack + right action chip (`Add0` `40x40` or `Add1` `90x40`, radius `16px`, border `$Border Main`)
+- Product text token: Nunito Sans `14/600` + `$Primary Main`
+- Price tag token: `16/900` + `$Secondary Dark`
+- Regular price token: `13/400` + `$Disable Text`
+- Uses `Discount Ribbon / List` below price in every row (`10% OFF` placeholder)
+- Used on product listing pages (PLP)
+
+#### List / Cart (`Om56O`)
+- Cart list component (`307x436`) with corner radius `16px`
+- Border: `$Border Main` (inside stroke)
+- Inner padding: `16px`, with 3 vertical giftcard rows and divider between rows
+- Each row anatomy: image `80x51` + text stack + right quantity chip (`Chips/Quantity Input / Quantity/Gifcards/Giftcards` `65x40`, radius `16px`, border `$Border Main`)
+- Product text token: Nunito Sans `14/600` + `$Primary Main`
+- Price tag token: `16/900` + `$Secondary Dark`
+- Regular price token: `13/400` + `$Disable Text`
+- Uses `Discount Ribbon / List` below price in every row (`10% OFF` placeholder)
+
+#### Country Selector List
+- Radio row list with optional circular flag icon
+- Active/inactive/disabled row behavior
+- Tokenized text and border colors
 
 ---
 
@@ -543,10 +642,18 @@ Dashboard widgets displaying summarized information and quick actions.
 ### 8. Promotional Strips
 **Component ID**: `VeEVO`
 
-**Type**: Strips/Countdown/Offers
-**Usage**: Time-sensitive promotional banners with countdown timers
-**Layout**: Full-width horizontal strips
+**Variants**:
+- `Strips/Countdown/Offers` (`nf2yE`): timer + product cards + ribbon list below price
+- `Strips/No Countdown/Giftcards` (`pTOSN`): giftcard cards + ribbon list below price
+
+**Usage**: Promotional offers in card and list layouts
+**Layout**: Full-width containers (horizontal card scroller or vertical list rows)
 **Background**: White
+**Ribbon Atom**:
+- Use `List` on Countdown Offers and Giftcards (below price)
+- Use `List` on product listing and cart rows
+- Max width `88px` and height `30px` (List)
+- Keep ribbon text on `price%` token
 
 ---
 
@@ -559,23 +666,24 @@ Dashboard widgets displaying summarized information and quick actions.
 - Input Fields: 4 variants
 - Dropdowns: 4 variants
 - Status Bar: 1
+- Chips / Quantity Input: 6 variants
+- Discount Ribbon: 2 variants (Wrap, List)
 
-#### **Molecules** (14 components)
-- Search Bars: 2 variants
-- Form Fields with Labels: 4 variants
-- Button Groups: Variable
+#### **Molecules** (15 components)
+- Service Tiles: 13 components (10 Full + 3 Half)
+- Promo Code: 2 variants (Empty, Entered)
+- Headers: 5 variants (logged/cart states + page headers)
+- Navigation: 2 variants (Icon Only, With Labels)
 
 #### **Organisms** (30 components)
-- Headers: 2
-- Navigation: 2 (Icon Only + With Labels)
-- Macro Tiles (Full): 10
-- Macro Half Tiles: 3
 - Widgets: 5
+- Summary Box: multi-flow matrix variants (products, giftCards, billPayments)
+- Lists: 3 components (List / PLP, List / Cart, Country Selector List)
 - Category Cards: 1
 - Carousels: 1
-- Promotional Strips: 1
+- Promotional Strips: 2 variants
 
-### Total Components: 72
+### Total Components: 73
 
 ---
 

@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MARS Design System - Atomic Design Component Library</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,700&family=Nunito+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://ka-p.fontawesome.com/releases/v6.7.2/css/pro.min.css?token=b5a8f622db">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script>
+        window.FontAwesomeConfig = { autoReplaceSvg: false, observeMutations: false };
+    </script>
     <script src="https://kit.fontawesome.com/b5a8f622db.js" crossorigin="anonymous"></script>
     <style>
         * {
@@ -28,6 +33,7 @@
             --text-secondary: rgba(0,0,0,0.54);
             --disable-bg: rgba(0,0,0,0.12);
             --disable-text: rgba(0,0,0,0.38);
+            --disable-main: #e0e0e0;
             --divider: rgba(0,0,0,0.12);
             --background: #f5f5f5;
             --icon-medium-font-size: 24px;
@@ -39,6 +45,22 @@
             line-height: 1.6;
             color: var(--text-primary);
             background: var(--background);
+        }
+
+        /* Keep FA weights explicit so regular/solid states render correctly */
+        .fa-regular {
+            font-family: "Font Awesome 6 Pro";
+            font-weight: 400;
+        }
+
+        .fa-solid {
+            font-family: "Font Awesome 6 Pro";
+            font-weight: 900;
+        }
+
+        .fa-light {
+            font-family: "Font Awesome 6 Pro";
+            font-weight: 300;
         }
 
         .container {
@@ -308,59 +330,36 @@
         .icon-medium-solid,
         .icon-small-solid,
         .icon-xsmall-solid {
-            font-family: "Font Awesome 6 Pro";
             font-style: normal;
             display: inline-block;
             vertical-align: middle;
+            line-height: 1;
         }
 
-        .icon-large {
+        /* Size tokens only: FA prefix classes control font family + weight */
+        .icon-large,
+        .icon-large-solid {
             font-size: 48px;
-            font-weight: 300;
             line-height: 48px;
         }
 
-        .icon-medium {
+        .icon-medium,
+        .icon-medium-solid {
             font-size: 24px;
-            font-weight: 300;
             line-height: 24px;
             width: 24px;
             height: 24px;
         }
 
-        .icon-small {
-            font-size: 16px;
-            font-weight: 300;
-            line-height: 16px;
-        }
-
-        .icon-xsmall {
-            font-size: 12px;
-            font-weight: 300;
-            line-height: 12px;
-        }
-
-        .icon-large-solid {
-            font-size: 48px;
-            font-weight: 900;
-            line-height: 48px;
-        }
-
-        .icon-medium-solid {
-            font-size: 24px;
-            font-weight: 900;
-            line-height: 24px;
-        }
-
+        .icon-small,
         .icon-small-solid {
             font-size: 16px;
-            font-weight: 900;
             line-height: 16px;
         }
 
+        .icon-xsmall,
         .icon-xsmall-solid {
             font-size: 12px;
-            font-weight: 900;
             line-height: 12px;
         }
 
@@ -677,7 +676,7 @@
             align-items: center;
             justify-content: center;
             background: #ffffff;
-            border: 1px solid #552588;
+            border: 1px solid var(--border-main);
             color: #552588;
             border-radius: 16px;
             font-family: 'Lato', sans-serif;
@@ -707,6 +706,7 @@
             font-size: 18px;
         }
 
+
         .chip-ds-shadow {
             box-shadow: 0 4px 14px 4px rgba(0,0,0,0.08);
         }
@@ -714,25 +714,28 @@
         .chip-ds-add0 {
             width: 40px;
             height: 40px;
-            border-radius: 12px;
+            border-color: var(--border-main);
+            border-radius: 16px;
             padding: 8px;
         }
 
         .chip-ds-qty {
             width: 65px;
             max-width: 65px;
-            height: 32px;
+            height: 40px;
             padding: 8px 16px;
             gap: 8px;
+            border-radius: 16px;
         }
 
         .chip-ds-add1,
         .chip-ds-add2 {
             width: 90px;
             max-width: 90px;
-            height: 32px;
+            height: 40px;
             padding: 8px;
             gap: 16px;
+            border-radius: 16px;
         }
 
         .chip-ds-pill-icon {
@@ -1332,6 +1335,7 @@
             text-align: left;
             gap: 8px;
             padding: 4px 8px;
+            position: relative;
         }
         .strip-container-giftcards .strip-product-img {
             width: 80px;
@@ -1355,6 +1359,11 @@
         .strip-container-giftcards .strip-product-prices {
             justify-content: flex-start;
             gap: 10px;
+        }
+        .strip-container-giftcards .discount-ribbon-wrap {
+            position: static;
+            top: auto;
+            right: auto;
         }
         .strip-add-btn {
             margin-top: 2px;
@@ -1400,26 +1409,780 @@
 
         /* Discount ribbon component */
         .discount-ribbon {
+            position: relative;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: max-content;
-            min-width: 80px;
-            height: 30px;
-            padding: 0 10px 0 10px;
+            width: 88px;
+            max-width: 88px;
+            height: 40px;
+            padding: 4px 8px;
+            box-sizing: border-box;
+        }
+        .discount-ribbon-wrap {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            z-index: 2;
+            padding-top: 6px;
+            background: transparent;
+            border-radius: 0;
+            overflow: visible;
+        }
+        .discount-ribbon-wrap::before {
+            content: "";
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            top: 0;
+            right: 0;
+            background: var(--secondary-dark);
+            clip-path: polygon(0 100%, 0 0, 100% 100%, 0 100%);
+            z-index: 1;
+        }
+        .discount-ribbon-wrap::after {
+            content: "";
+            position: absolute;
+            top: 6px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 4px 0 4px 4px;
             background: var(--secondary-light);
+            z-index: 0;
+        }
+        .discount-ribbon-list {
+            width: 88px;
+            max-width: 88px;
+            height: 30px;
+            justify-content: center;
+            position: static;
             border-radius: 4px;
-            clip-path: polygon(0 0, 100% 0, 90% 50%, 100% 100%, 0 100%);
+            background: var(--secondary-light);
         }
         .discount-ribbon .discount-ribbon-text {
             text-decoration: none;
             white-space: nowrap;
+            position: relative;
+            z-index: 2;
+            color: var(--secondary-dark);
+            text-align: center;
+            font-feature-settings: 'liga' off, 'clig' off;
+            font-family: 'Lato', sans-serif;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 1.6;
+            letter-spacing: 0.15px;
         }
         .ribbon-usecases {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             align-items: center;
+        }
+        .ribbon-usecase-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 220px;
+        }
+        .ribbon-usecase-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .strip-list-variant {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            padding: 0 16px 12px;
+        }
+        .strip-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            border: 1px solid var(--divider);
+            border-radius: 12px;
+            padding: 8px;
+            background: #fff;
+        }
+        .strip-list-media {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .strip-list-product-img {
+            width: 56px;
+            height: 56px;
+            border-radius: 8px;
+            border: 1px solid var(--divider);
+            overflow: hidden;
+            background: var(--white);
+        }
+        .strip-list-product-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .strip-list-brand-img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid var(--divider);
+            overflow: hidden;
+            background: var(--white);
+        }
+        .strip-list-brand-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .strip-list-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+        .strip-list-copy .strip-product-name {
+            margin: 0;
+        }
+        .list-cart-anatomy {
+            width: 307px;
+            max-width: 100%;
+            border: 1px solid var(--border-main);
+            border-radius: 16px;
+            background: var(--white);
+            overflow: hidden;
+        }
+        .list-cart-inner {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .list-cart-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            width: 100%;
+        }
+        .list-cart-image {
+            width: 80px;
+            height: 51px;
+            border-radius: 4px;
+            border: 1px solid var(--divider);
+            overflow: hidden;
+            background: var(--white);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .list-cart-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .list-cart-copy {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            flex: 1;
+            min-width: 0;
+        }
+        .token-product-text-cart {
+            color: var(--primary-main);
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 140%;
+            letter-spacing: 0.15px;
+        }
+        .list-cart-prices {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 32px;
+        }
+        .token-price-tag-cart {
+            color: var(--secondary-dark);
+            font-family: 'Lato', sans-serif;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 900;
+            line-height: 157%;
+            letter-spacing: 0.5px;
+        }
+        .token-price-cart {
+            color: var(--disable-text);
+            font-family: 'Lato', sans-serif;
+            font-size: 13px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 157%;
+            letter-spacing: 0.5px;
+            text-decoration: line-through;
+        }
+        .list-cart-row .discount-ribbon-list {
+            width: 88px;
+            height: 30px;
+            max-width: 88px;
+        }
+        .list-cart-qty {
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .list-cart-divider {
+            border-top: 0.5px solid var(--divider);
+            width: 100%;
+        }
+        .list-plp-anatomy {
+            width: 360px;
+            max-width: 100%;
+            background: var(--white);
+            overflow: hidden;
+        }
+        .list-plp-inner {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .list-plp-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            width: 100%;
+        }
+        .list-plp-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            border: 1px solid var(--border-main);
+            overflow: hidden;
+            background: var(--white);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .list-plp-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .list-plp-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            flex: 1;
+            min-width: 0;
+        }
+        .token-product-text-plp {
+            color: var(--primary-main);
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 140%;
+            letter-spacing: 0.15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .list-plp-prices {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 32px;
+        }
+        .token-price-tag-plp {
+            color: var(--secondary-dark);
+            font-family: 'Lato', sans-serif;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 900;
+            line-height: 157%;
+            letter-spacing: 0.5px;
+        }
+        .token-price-plp {
+            color: var(--disable-text);
+            font-family: 'Lato', sans-serif;
+            font-size: 13px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 157%;
+            letter-spacing: 0.5px;
+            text-decoration: line-through;
+        }
+        .list-plp-row .discount-ribbon-list {
+            width: 88px;
+            height: 30px;
+            max-width: 88px;
+        }
+        .list-plp-action {
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .list-plp-chip-add0 {
+            width: 40px;
+            height: 40px;
+            border-color: var(--border-main);
+            border-radius: 16px;
+            padding: 8px;
+        }
+        .list-plp-chip-add1 {
+            width: 89px;
+            height: 40px;
+            border-color: var(--border-main);
+            border-radius: 16px;
+        }
+        .list-plp-divider {
+            border-top: 0.5px solid var(--divider);
+            width: 100%;
+        }
+
+        /* PROMO CODE (Molecule) */
+        .promo-code-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: min(360px, 100%);
+        }
+        .promo-code-molecule {
+            width: 328px;
+            max-width: 100%;
+            min-height: 48px;
+            border-radius: 16px;
+            border: 1px solid var(--secondary-main);
+            background: rgba(32, 243, 229, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 12px;
+        }
+        .promo-code-leading {
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-dark);
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .promo-code-leading img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            display: block;
+        }
+        .promo-code-copy {
+            flex: 1;
+            min-width: 0;
+            color: var(--secondary-dark);
+            font-family: 'Lato', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.75;
+            letter-spacing: 0.15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .promo-code-copy .promo-code-prefix {
+            font-weight: 400;
+        }
+        .promo-code-action {
+            width: 24px;
+            height: 24px;
+            border: 0;
+            background: transparent;
+            color: var(--primary-main);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 99px;
+            flex-shrink: 0;
+        }
+        .promo-code-action:focus-visible {
+            outline: 2px solid var(--primary-main);
+            outline-offset: 2px;
+        }
+        .promo-code-action.promo-clear {
+            color: var(--primary-main);
+        }
+        .promo-code-action.promo-open {
+            color: var(--primary-main);
+        }
+        .promo-code-molecule[data-state="entered"] .promo-open {
+            display: none;
+        }
+        .promo-code-molecule[data-state="empty"] .promo-clear {
+            display: none;
+        }
+        .promo-code-behavior-note {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .promo-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.32);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1200;
+        }
+        .promo-modal[aria-hidden="false"] {
+            display: flex;
+        }
+        .promo-modal-panel {
+            width: min(360px, 100%);
+            border-radius: 16px;
+            background: var(--white);
+            border: 1px solid var(--border-main);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .promo-modal-title {
+            color: var(--primary-main);
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+        .promo-modal-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .promo-modal-input {
+            width: 100%;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--border-main);
+            color: var(--text-primary);
+            font-family: 'Lato', sans-serif;
+            font-size: 16px;
+            padding: 0 12px;
+        }
+        .promo-modal-input:focus-visible {
+            outline: 2px solid var(--primary-main);
+            outline-offset: 2px;
+        }
+        .promo-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .promo-modal-actions .btn {
+            min-width: 112px;
+        }
+
+        /* SUMMARY BOX (Organism) */
+        .summary-matrix {
+            width: min(1120px, 100%);
+            overflow-x: auto;
+            border: 1px solid var(--border-main);
+            border-radius: 12px;
+            background: var(--white);
+        }
+
+        .summary-matrix table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 860px;
+        }
+
+        .summary-matrix th,
+        .summary-matrix td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--divider);
+            border-right: 1px solid var(--divider);
+            text-align: left;
+            vertical-align: top;
+            font-size: 13px;
+        }
+
+        .summary-matrix th:last-child,
+        .summary-matrix td:last-child {
+            border-right: 0;
+        }
+
+        .summary-matrix tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .summary-flow {
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-main);
+            white-space: nowrap;
+        }
+
+        .summary-variant-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .summary-variant-chip {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--border-main);
+            border-radius: 999px;
+            padding: 3px 8px;
+            font-family: 'Lato', sans-serif;
+            font-size: 11px;
+            line-height: 1.4;
+            color: var(--primary-main);
+            background: var(--white);
+            white-space: nowrap;
+        }
+
+        .summary-variant-chip.missing {
+            color: var(--disable-text);
+            border-color: var(--divider);
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 18px;
+            align-items: start;
+        }
+
+        .summary-box {
+            position: relative;
+            width: 328px;
+            max-width: 328px;
+            max-height: 224px;
+            border-radius: 20px;
+            margin-top: 14px;
+        }
+
+        .summary-box.summary-box-compact {
+            max-height: 200px;
+        }
+
+        .summary-box.summary-box-narrow {
+            width: 307px;
+            max-width: 307px;
+        }
+
+        .summary-box.summary-box-narrow .summary-type-overlay {
+            width: 278px;
+            max-width: 278px;
+        }
+
+        .summary-type-overlay {
+            position: relative;
+            left: 0;
+            top: 0;
+            transform: none;
+            z-index: 1;
+            width: 300px;
+            max-width: 300px;
+            height: 24px;
+            margin-left: auto;
+            margin-right: auto;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            border-left: 1px solid var(--disable-main);
+            border-right: 1px solid var(--disable-main);
+            border-top: 1px solid var(--disable-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.17);
+            background: linear-gradient(177.2918deg, #fcfcfc 18.827%, #f1f2f5 40.998%);
+        }
+
+        .token-exchange {
+            font-family: 'Lato', sans-serif;
+            font-size: 10px;
+            font-weight: 400;
+            line-height: 1.2;
+            letter-spacing: 0.9px;
+            text-transform: uppercase;
+            color: var(--primary-main);
+        }
+
+        .summary-card {
+            position: relative;
+            z-index: 3;
+            border-radius: 20px;
+            background: var(--white);
+            box-shadow:
+                0 1px 14px 0 rgba(0, 0, 0, 0.12),
+                0 5px 8px 0 rgba(0, 0, 0, 0.14),
+                0 3px 5px -1px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .summary-box.with-overlap .summary-card {
+            margin-top: -2px;
+        }
+
+        .summary-card-body {
+            padding: 8px 16px 0 16px;
+        }
+
+        .summary-row {
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .summary-label {
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.75;
+            letter-spacing: 0.15px;
+            color: var(--primary-main);
+        }
+
+        .summary-label-strong {
+            font-family: 'Lato', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.75;
+            letter-spacing: 0.15px;
+            color: var(--primary-main);
+        }
+
+        .summary-value-old {
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.75;
+            letter-spacing: 0.15px;
+            text-decoration: line-through;
+            color: var(--disable-text);
+        }
+
+        .summary-value-new {
+            font-family: 'Lato', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.75;
+            letter-spacing: 0.15px;
+            color: var(--secondary-dark);
+        }
+
+        .summary-value-success {
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.43;
+            letter-spacing: 0.15px;
+            color: var(--secondary-dark);
+        }
+
+        .summary-divider {
+            border-top: 1px solid var(--disable-main);
+            margin: 0 16px;
+        }
+
+        .summary-cta-row {
+            padding: 8px 16px 16px 16px;
+        }
+
+        .summary-cta-row.double {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+
+        .summary-savings-row {
+            height: 32px;
+            border-top: 1px solid var(--disable-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: var(--secondary-dark);
+            font-family: 'Lato', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.43;
+            letter-spacing: 0.15px;
+        }
+
+        .summary-savings-row .fa-solid {
+            font-size: 16px;
+            color: var(--secondary-dark);
+        }
+
+        .summary-cta-row.double .btn-medium {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 33px;
+            min-height: 33px;
+            line-height: 33px;
+            white-space: nowrap;
+            padding-top: 0;
+            padding-bottom: 0;
+            padding-left: 12px;
+            padding-right: 12px;
+            box-sizing: border-box;
+            transform: translateY(-0.5px);
+        }
+
+        .summary-btn {
+            width: 100%;
+            height: 40px;
+            border-radius: 32px;
+            font-family: 'Lato', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 24px;
+            letter-spacing: 0.25px;
+        }
+
+        .summary-btn.btn-primary {
+            background: var(--primary-main);
+            color: var(--white);
+        }
+
+        .summary-btn.btn-outlined {
+            background: var(--white);
+            color: var(--primary-main);
+            border: 1px solid var(--primary-main);
+        }
+
+        .summary-btn .fa-regular,
+        .summary-btn .fa-solid {
+            font-size: 14px;
+            margin-right: 8px;
+        }
+
+        .summary-example-caption {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
         }
 
         /* HEADER STYLES */
@@ -2227,7 +2990,7 @@
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number">72</div>
+                    <div class="stat-number">73</div>
                     <div class="stat-label">Total Components</div>
                 </div>
                 <div class="stat-card">
@@ -3044,7 +3807,7 @@
 
             <div class="component-section">
                 <h3>Size Reference</h3>
-                <p>Use <code>icon-medium</code> as default. Regular tokens are 48/24/16/12 at weight 300; solid tokens mirror sizes at weight 900.</p>
+                <p>Use <code>icon-medium</code> as default. Tokens define sizes (48/24/16/12); style/weight comes from <code>fa-regular</code> or <code>fa-solid</code>.</p>
 
                 <div style="background: var(--white); border-radius: 8px; border: 1px solid var(--border-main); overflow: hidden; margin-top: 15px;">
                     <div style="display: flex; gap: 16px; padding: 10px 16px; background: var(--background); font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
@@ -3060,7 +3823,7 @@
                             <i class="fa-regular fa-house icon-large"></i>
                         </div>
                         <span class="icon-label">icon-xsmall / small / medium / large</span>
-                        <span class="icon-usage"><code>fa-regular</code> + token classes (12/16/24/48, line-height 100%, weight 300)</span>
+                        <span class="icon-usage"><code>fa-regular</code> + token classes (12/16/24/48, line-height 100%)</span>
                     </div>
                     <div class="icon-size-row">
                         <div class="icon-sizes">
@@ -3070,7 +3833,7 @@
                             <i class="fa-solid fa-house icon-large-solid"></i>
                         </div>
                         <span class="icon-label">icon-xsmall / small / medium / large-solid</span>
-                        <span class="icon-usage">Solid tokens preview (12/16/24/48, weight 900). Use for active bottom-nav icon behavior.</span>
+                        <span class="icon-usage">Solid tokens preview (12/16/24/48). Use for active bottom-nav icon behavior.</span>
                     </div>
                     <div class="icon-size-row">
                         <div class="icon-sizes">
@@ -3895,6 +4658,7 @@
             </div>
 
             <h3>5. Chips</h3>
+            <p><strong>Quantity Input update:</strong> All Quantity Input variants use border <code>$Border Main</code> and border-radius <code>16px</code> (<code>Add0</code>, <code>Quantity</code>, <code>Add1</code>, <code>Add2</code>).</p>
 
             <div class="example-showcase">
                 <div class="example-title">Visual Examples - Chips</div>
@@ -3905,19 +4669,19 @@
                             <span class="homecard-variant-sublabel">ID: <code>9fXxZ</code> · 58×40 · radius 16</span>
                             <span class="chip-ds chip-ds-cart">
                                 <span>1</span>
-                                <i class="fa-regular fa-cart-shopping"></i>
+                                <i class="fa-light fa-cart-shopping"></i>
                             </span>
                         </div>
                         <div class="chip-variant-item">
                             <code>Chips/Quantity Input / Add0 / Vales</code>
-                            <span class="homecard-variant-sublabel">ID: <code>DsDmy</code> · 40×40 · radius 12</span>
+                            <span class="homecard-variant-sublabel">ID: <code>DsDmy</code> · 40×40 · radius 16</span>
                             <span class="chip-ds chip-ds-add0 chip-ds-shadow">
                                 <i class="fa-regular fa-plus"></i>
                             </span>
                         </div>
                         <div class="chip-variant-item">
                             <code>Chips/Quantity Input / Quantity/Gifcards/Giftcards</code>
-                            <span class="homecard-variant-sublabel">ID: <code>QtFxr</code> · max 65×32 · radius 16</span>
+                            <span class="homecard-variant-sublabel">ID: <code>QtFxr</code> · max 65×40 · radius 16</span>
                             <span class="chip-ds chip-ds-qty chip-ds-shadow">
                                 <i class="fa-regular fa-trash chip-ds-pill-icon chip-ds-trash"></i>
                                 <span class="chip-ds-number">1</span>
@@ -3925,7 +4689,7 @@
                         </div>
                         <div class="chip-variant-item">
                             <code>Chips/Quantity Input / Add1 / Vales</code>
-                            <span class="homecard-variant-sublabel">ID: <code>BEpku</code> · max 90×32 · radius 16</span>
+                            <span class="homecard-variant-sublabel">ID: <code>BEpku</code> · max 90×40 · radius 16</span>
                             <span class="chip-ds chip-ds-add1 chip-ds-shadow">
                                 <i class="fa-regular fa-trash chip-ds-pill-icon chip-ds-trash"></i>
                                 <span class="chip-ds-number">1</span>
@@ -3934,7 +4698,7 @@
                         </div>
                         <div class="chip-variant-item">
                             <code>Chips/Quantity Input / Add2 / Vales</code>
-                            <span class="homecard-variant-sublabel">ID: <code>AotiP</code> · max 90×32 · radius 16</span>
+                            <span class="homecard-variant-sublabel">ID: <code>AotiP</code> · max 90×40 · radius 16</span>
                             <span class="chip-ds chip-ds-add2 chip-ds-shadow">
                                 <i class="fa-regular fa-minus chip-ds-pill-icon"></i>
                                 <span class="chip-ds-number">2</span>
@@ -3943,6 +4707,15 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="info-box">
+                <h4>Chip Variants (Atoms)</h4>
+                <p><strong>Chips/Quantity Input / Add0 / Vales (ID: DsDmy):</strong> <code>40×40</code> · radius <code>16px</code> · border <code>$Border Main</code></p>
+                <p><strong>Chips/Quantity Input / Quantity/Gifcards/Giftcards (ID: QtFxr):</strong> <code>65×40</code> · radius <code>16px</code> · border <code>$Border Main</code></p>
+                <p><strong>Chips/Quantity Input / Add1 / Vales (ID: BEpku):</strong> <code>90×40</code> · radius <code>16px</code> · border <code>$Border Main</code></p>
+                <p><strong>Chips/Quantity Input / Add2 / Vales (ID: AotiP):</strong> <code>90×40</code> · radius <code>16px</code> · border <code>$Border Main</code></p>
+                <p><strong>Token usage:</strong> <code>$Primary Main</code> (icons/count), <code>$Border Main</code> (neutral borders), <code>price%</code> only inside ribbon atom.</p>
             </div>
 
             <button class="toggle-code" onclick="toggleCode(this)">
@@ -3972,18 +4745,20 @@
 <span class="syntax-keyword">const</span> <span class="syntax-function">Chip</span> = <span class="syntax-bracket">({</span>
   <span class="syntax-prop">variant</span>,
   <span class="syntax-prop">count</span> = <span class="syntax-string">1</span>,
+  <span class="syntax-prop">promoCode</span> = <span class="syntax-string">'verano26'</span>,
   <span class="syntax-prop">onDecrement</span>,
   <span class="syntax-prop">onIncrement</span>,
   <span class="syntax-prop">onRemove</span>,
   ...props
 <span class="syntax-bracket">}</span>) => <span class="syntax-bracket">{</span>
   <span class="syntax-keyword">const</span> purple = <span class="syntax-string">'#552588'</span>;
+  <span class="syntax-keyword">const</span> borderMain = <span class="syntax-string">'rgba(0,0,0,0.23)'</span>;
   <span class="syntax-keyword">const</span> shadow = <span class="syntax-string">'0 4px 14px 4px rgba(0,0,0,0.08)'</span>;
   <span class="syntax-keyword">const</span> base = <span class="syntax-bracket">{</span>
     display: <span class="syntax-string">'inline-flex'</span>,
     alignItems: <span class="syntax-string">'center'</span>,
     justifyContent: <span class="syntax-string">'center'</span>,
-    border: <span class="syntax-string">`1px solid ${purple}`</span>,
+    border: <span class="syntax-string">`1px solid ${borderMain}`</span>,
     borderRadius: <span class="syntax-string">'16px'</span>,
     background: <span class="syntax-string">'#fff'</span>,
     color: purple,
@@ -3993,16 +4768,27 @@
 
   <span class="syntax-keyword">if</span> (variant === CHIP_VARIANTS.CART) {
     <span class="syntax-keyword">return</span> (
-      <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> ...base, width: <span class="syntax-string">'58px'</span>, height: <span class="syntax-string">'40px'</span>, borderRadius: <span class="syntax-string">'16px'</span>, background: purple, color: <span class="syntax-string">'#fff'</span>, gap: <span class="syntax-string">'6px'</span>, padding: <span class="syntax-string">'4px 8px'</span>, justifyContent: <span class="syntax-string">'flex-end'</span>, fontSize: <span class="syntax-string">'16px'</span>, fontWeight: <span class="syntax-string">'700'</span> <span class="syntax-bracket">}}</span> {...props}<span class="syntax-tag">&gt;</span>
+      <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> ...base, width: <span class="syntax-string">'58px'</span>, height: <span class="syntax-string">'40px'</span>, borderColor: purple, borderRadius: <span class="syntax-string">'16px'</span>, background: purple, color: <span class="syntax-string">'#fff'</span>, gap: <span class="syntax-string">'6px'</span>, padding: <span class="syntax-string">'4px 8px'</span>, justifyContent: <span class="syntax-string">'flex-end'</span>, fontSize: <span class="syntax-string">'16px'</span>, fontWeight: <span class="syntax-string">'700'</span> <span class="syntax-bracket">}}</span> {...props}<span class="syntax-tag">&gt;</span>
         <span class="syntax-tag">&lt;span&gt;</span><span class="syntax-bracket">{</span>count<span class="syntax-bracket">}</span><span class="syntax-tag">&lt;/span&gt;</span>
-        <span class="syntax-tag">&lt;i</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"fa-regular fa-cart-shopping"</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> fontSize: <span class="syntax-string">'18px'</span> <span class="syntax-bracket">}}</span> <span class="syntax-tag">/&gt;</span>
+        <span class="syntax-tag">&lt;i</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"fa-light fa-cart-shopping"</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> fontSize: <span class="syntax-string">'18px'</span> <span class="syntax-bracket">}}</span> <span class="syntax-tag">/&gt;</span>
+      <span class="syntax-tag">&lt;/div&gt;</span>
+    );
+  }
+
+  <span class="syntax-keyword">if</span> (variant === CHIP_VARIANTS.CART_REMOVABLE) {
+    <span class="syntax-keyword">return</span> (
+      <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> ...base, width: <span class="syntax-string">'89px'</span>, height: <span class="syntax-string">'22px'</span>, borderColor: <span class="syntax-string">'#057a73'</span>, borderRadius: <span class="syntax-string">'8px'</span>, background: <span class="syntax-string">'rgba(32,243,229,0.08)'</span>, color: <span class="syntax-string">'#18afa5'</span>, gap: <span class="syntax-string">'8px'</span>, padding: <span class="syntax-string">'0 8px'</span>, justifyContent: <span class="syntax-string">'center'</span>, fontSize: <span class="syntax-string">'13px'</span>, fontWeight: <span class="syntax-string">'400'</span> <span class="syntax-bracket">}}</span> {...props}<span class="syntax-tag">&gt;</span>
+        <span class="syntax-tag">&lt;span&gt;</span><span class="syntax-bracket">{</span>promoCode<span class="syntax-bracket">}</span><span class="syntax-tag">&lt;/span&gt;</span>
+        <span class="syntax-tag">&lt;button</span> <span class="syntax-prop">type</span>=<span class="syntax-string">"button"</span> <span class="syntax-prop">onClick</span>=<span class="syntax-bracket">{</span>onRemove<span class="syntax-bracket">}</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> border: <span class="syntax-string">'none'</span>, background: <span class="syntax-string">'transparent'</span>, color: <span class="syntax-string">'#552588'</span>, cursor: <span class="syntax-string">'pointer'</span>, padding: <span class="syntax-string">0</span> <span class="syntax-bracket">}}</span><span class="syntax-tag">&gt;</span>
+          <span class="syntax-tag">&lt;i</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"fa-solid fa-circle-xmark icon-xsmall-solid"</span> <span class="syntax-tag">/&gt;</span>
+        <span class="syntax-tag">&lt;/button&gt;</span>
       <span class="syntax-tag">&lt;/div&gt;</span>
     );
   }
 
   <span class="syntax-keyword">if</span> (variant === CHIP_VARIANTS.ADD0_VALES) {
     <span class="syntax-keyword">return</span> (
-      <span class="syntax-tag">&lt;button</span> <span class="syntax-prop">type</span>=<span class="syntax-string">"button"</span> <span class="syntax-prop">onClick</span>=<span class="syntax-bracket">{</span>onIncrement<span class="syntax-bracket">}</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> ...base, width: <span class="syntax-string">'40px'</span>, height: <span class="syntax-string">'40px'</span>, borderRadius: <span class="syntax-string">'12px'</span>, padding: <span class="syntax-string">'8px'</span>, boxShadow: shadow <span class="syntax-bracket">}}</span> {...props}<span class="syntax-tag">&gt;</span>
+      <span class="syntax-tag">&lt;button</span> <span class="syntax-prop">type</span>=<span class="syntax-string">"button"</span> <span class="syntax-prop">onClick</span>=<span class="syntax-bracket">{</span>onIncrement<span class="syntax-bracket">}</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> ...base, width: <span class="syntax-string">'40px'</span>, height: <span class="syntax-string">'40px'</span>, borderColor: borderMain, borderRadius: <span class="syntax-string">'16px'</span>, padding: <span class="syntax-string">'8px'</span>, boxShadow: shadow <span class="syntax-bracket">}}</span> {...props}<span class="syntax-tag">&gt;</span>
         <span class="syntax-tag">&lt;i</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"fa-regular fa-plus"</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> fontSize: <span class="syntax-string">'12px'</span>, color: purple <span class="syntax-bracket">}}</span> <span class="syntax-tag">/&gt;</span>
       <span class="syntax-tag">&lt;/button&gt;</span>
     );
@@ -4012,7 +4798,7 @@
   <span class="syntax-keyword">const</span> isQuantityGiftcards = variant === CHIP_VARIANTS.QTY_GIFTCARDS;
   <span class="syntax-keyword">const</span> pillStyle = <span class="syntax-bracket">{</span>
     ...base,
-    height: <span class="syntax-string">'32px'</span>,
+    height: <span class="syntax-string">'40px'</span>,
     padding: isQuantityGiftcards ? <span class="syntax-string">'8px 16px'</span> : <span class="syntax-string">'8px'</span>,
     gap: isQuantityGiftcards ? <span class="syntax-string">'8px'</span> : <span class="syntax-string">'16px'</span>,
     boxShadow: shadow,
@@ -4037,6 +4823,7 @@
 
 <span class="syntax-comment">// Usage Examples:</span>
 <span class="syntax-tag">&lt;Chip</span> <span class="syntax-prop">variant</span>=<span class="syntax-bracket">{</span>CHIP_VARIANTS.CART<span class="syntax-bracket">}</span> <span class="syntax-prop">count</span>=<span class="syntax-bracket">{</span>1<span class="syntax-bracket">}</span> <span class="syntax-tag">/&gt;</span>
+<span class="syntax-tag">&lt;Chip</span> <span class="syntax-prop">variant</span>=<span class="syntax-bracket">{</span>CHIP_VARIANTS.CART_REMOVABLE<span class="syntax-bracket">}</span> <span class="syntax-prop">promoCode</span>=<span class="syntax-string">"verano26"</span> <span class="syntax-prop">onRemove</span>=<span class="syntax-bracket">{</span>removePromo<span class="syntax-bracket">}</span> <span class="syntax-tag">/&gt;</span>
 <span class="syntax-tag">&lt;Chip</span> <span class="syntax-prop">variant</span>=<span class="syntax-bracket">{</span>CHIP_VARIANTS.ADD0_VALES<span class="syntax-bracket">}</span> <span class="syntax-prop">onIncrement</span>=<span class="syntax-bracket">{</span>addItem<span class="syntax-bracket">}</span> <span class="syntax-tag">/&gt;</span>
 <span class="syntax-tag">&lt;Chip</span> <span class="syntax-prop">variant</span>=<span class="syntax-bracket">{</span>CHIP_VARIANTS.QTY_GIFTCARDS<span class="syntax-bracket">}</span> <span class="syntax-prop">count</span>=<span class="syntax-bracket">{</span>1<span class="syntax-bracket">}</span> <span class="syntax-prop">onRemove</span>=<span class="syntax-bracket">{</span>removeItem<span class="syntax-bracket">}</span> <span class="syntax-prop">onIncrement</span>=<span class="syntax-bracket">{</span>addItem<span class="syntax-bracket">}</span> <span class="syntax-tag">/&gt;</span>
 <span class="syntax-tag">&lt;Chip</span> <span class="syntax-prop">variant</span>=<span class="syntax-bracket">{</span>CHIP_VARIANTS.ADD1_VALES<span class="syntax-bracket">}</span> <span class="syntax-prop">count</span>=<span class="syntax-bracket">{</span>1<span class="syntax-bracket">}</span> <span class="syntax-prop">onRemove</span>=<span class="syntax-bracket">{</span>removeItem<span class="syntax-bracket">}</span> <span class="syntax-prop">onIncrement</span>=<span class="syntax-bracket">{</span>addItem<span class="syntax-bracket">}</span> <span class="syntax-tag">/&gt;</span>
@@ -4046,7 +4833,87 @@
                 </div>
             </div>
 
-            <h3>6. Status Bar</h3>
+            <h3>6. Discount Ribbon</h3>
+            <p>Discount ribbon atom reused across giftcards, product listing pages and cart. Synced with DS-MARS2.pen component names and variants.</p>
+
+            <div class="example-showcase">
+                <div class="example-title">Discount Ribbon Variants (Atom)</div>
+                <div class="ribbon-usecases">
+                    <div class="ribbon-usecase-group">
+                        <span class="ribbon-usecase-label">Wrap</span>
+                        <div style="position: relative; width: 140px; height: 68px; border: 1px dashed var(--divider); border-radius: 8px;">
+                            <div class="discount-ribbon discount-ribbon-wrap">
+                                <span class="discount-ribbon-text token-price-percent">10% OFF</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ribbon-usecase-group">
+                        <span class="ribbon-usecase-label">List</span>
+                        <div class="discount-ribbon discount-ribbon-list">
+                            <span class="discount-ribbon-text token-price-percent">10% OFF</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>Discount Ribbon Specs (Atom)</h4>
+                <p><strong>Wrap component:</strong> <code>Discount Ribbon / Wrap</code> (ID: <code>Ta86S</code>)</p>
+                <p><strong>List variant:</strong> <code>Discount Ribbon / List</code> (ID: <code>twV32</code>)</p>
+                <p><strong>Size:</strong> max-width <code>88px</code> · height <code>40px</code> (Wrap) · height <code>30px</code> (List)</p>
+                <p><strong>Anatomy / Wrap:</strong> top-right notch (<code>6×6</code>) + body radius <code>[4,0,4,4]</code></p>
+                <p><strong>Anatomy / List:</strong> no notch + body radius <code>4</code></p>
+                <p><strong>Wrap usage:</strong> reserved for absolute overlays when needed</p>
+                <p><strong>List usage:</strong> product listing pages and cart only</p>
+                <p><strong>Token usage:</strong> bg <code>$Secondary Light</code> · text <code>$Secondary Dark</code> · font token <code>price%</code></p>
+            </div>
+
+            <button class="toggle-code" onclick="toggleCode(this)">
+                <i class="fa-regular fa-code"></i>
+                <span>Show React Code</span>
+            </button>
+
+            <div class="code-snippet-container code-hidden">
+                <div class="code-header">
+                    <span class="code-label">DiscountRibbon.jsx</span>
+                    <button class="copy-btn" onclick="copyCode(this)">
+                        <i class="fa-regular fa-copy" style="font-size: 13px;"></i>
+                        Copy
+                    </button>
+                </div>
+                <div class="code-content">
+                    <pre><code>import React from 'react';
+
+export default function DiscountRibbon({ variant = 'list', value = '10% OFF' }) {
+  const isWrap = variant === 'wrap';
+  const ribbonClass = isWrap
+    ? 'discount-ribbon discount-ribbon-wrap'
+    : 'discount-ribbon discount-ribbon-list';
+
+  if (isWrap) {
+    return (
+      &lt;div style={{ position: 'relative', width: 140, height: 68 }}&gt;
+        &lt;div className={ribbonClass}&gt;
+          &lt;span className="discount-ribbon-text token-price-percent"&gt;{value}&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    );
+  }
+
+  return (
+    &lt;div className={ribbonClass}&gt;
+      &lt;span className="discount-ribbon-text token-price-percent"&gt;{value}&lt;/span&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Usage:
+// &lt;DiscountRibbon variant="wrap" value="10% OFF" /&gt;
+// &lt;DiscountRibbon variant="list" value="10% OFF" /&gt;</code></pre>
+                </div>
+            </div>
+
+            <h3>7. Status Bar</h3>
 
             <div class="example-showcase">
                 <div class="example-title">Visual Example - iOS Status Bar</div>
@@ -4063,7 +4930,7 @@
 
         <section id="molecules">
             <h2>Molecules</h2>
-            <span class="badge badge-molecule">14 Components</span>
+            <span class="badge badge-molecule">15 Components</span>
 
             <h3>1. Service Tiles</h3>
             <p>Interactive category tiles for service selection. Two sizes: Full (103×130px) and Half (103×85px). Built from icon + label atoms — classified as molecules per DS-MARS2.pen (<code>Macro/Tile/*</code>, <code>Macro/HalfTile/*</code>).</p>
@@ -4185,147 +5052,51 @@
                 </div>
             </div>
 
-            <h3>2. Strips</h3>
-            <p>Product listing strips for offers and promotions. Combine product cards, pricing atoms, discount ribbons and action buttons into a horizontally scrollable layout. Two variants per DS-MARS2.pen (<code>Strips/Countdown/Offers</code>, <code>Strips/No Countdown/Giftcards</code>).</p>
-
-            <h4>Strips / Countdown / Offers</h4>
-            <p>Features a countdown timer badge alongside the section title. Used for time-limited promotional offers.</p>
+            <h3>2. Promo Code</h3>
+            <p>Molecule for promo input status with two states from Figma node <code>6437:28971</code>: <code>Entered</code> and <code>Empty</code>. Uses tokens from Theme Colors and typography tokens already used in the library.</p>
 
             <div class="example-showcase">
-                <div class="example-title">Visual Example - Countdown Offers Strip</div>
-                <div class="strip-container strip-container-offers">
-                    <div class="strip-header">
-                        <span class="strip-title">Promos de $1.00</span>
-                        <div class="strip-countdown">
-                            <i class="fa-regular fa-clock"></i>
-                            <span>Termina en 20:43:32</span>
-                        </div>
+                <div class="example-title">Visual Variants - Promo Code</div>
+                <div class="promo-code-layout">
+                    <div class="promo-code-molecule" data-flow="products" data-step="cart" data-state="entered">
+                        <span class="promo-code-leading" aria-hidden="true"><img src="./images/PROMOS@2x.webp" alt=""></span>
+                        <p class="promo-code-copy"><span class="promo-code-prefix">Código Promo:</span> verano26</p>
+                        <button class="promo-code-action promo-clear" type="button" aria-label="Quitar código">
+                            <i class="fa-solid fa-circle-xmark icon-medium-solid"></i>
+                        </button>
+                        <button class="promo-code-action promo-open" type="button" aria-label="Ingresar código">
+                            <i class="fa-regular fa-chevron-right icon-medium"></i>
+                        </button>
                     </div>
-                    <div class="strip-divider" style="margin: 12px 20px;"></div>
-                    <div class="strip-products">
-                        <div class="strip-product-card">
-                            <div class="strip-product-img">
-                                <img src="./images/nuggets.webp" alt="Cajita Feliz de Nuggets de Pollo">
-                            </div>
-                            <div class="strip-product-name">Cajita Feliz de Nuggets de Pollo</div>
-                            <div class="discount-ribbon">
-                                <span class="discount-ribbon-text token-price-percent">93% OFF</span>
-                            </div>
-                            <div class="strip-product-prices">
-                                <span class="strip-product-original token-price">$28.69</span>
-                                <span class="strip-product-sale token-price-tag">$1.00</span>
-                            </div>
-                            <button class="btn btn-outlined btn-small strip-add-btn">
-                                <i class="fa-regular fa-plus" style="font-size: 12px;"></i> Agregar
-                            </button>
-                        </div>
-                        <div class="strip-product-card">
-                            <div class="strip-product-img">
-                                <img src="./images/combo.webp" alt="Combo Celebración">
-                            </div>
-                            <div class="strip-product-name">Combo Celebración</div>
-                            <div class="discount-ribbon">
-                                <span class="discount-ribbon-text token-price-percent">95% OFF</span>
-                            </div>
-                            <div class="strip-product-prices">
-                                <span class="strip-product-original token-price">$25.69</span>
-                                <span class="strip-product-sale token-price-tag">$1.00</span>
-                            </div>
-                            <button class="btn btn-outlined btn-small strip-add-btn">
-                                <i class="fa-regular fa-plus" style="font-size: 12px;"></i> Agregar
-                            </button>
-                        </div>
-                        <div class="strip-product-card">
-                            <div class="strip-product-img">
-                                <img src="./images/nuggets.webp" alt="Combo Familiar">
-                            </div>
-                            <div class="strip-product-name">Combo Familiar</div>
-                            <div class="discount-ribbon">
-                                <span class="discount-ribbon-text token-price-percent">88% OFF</span>
-                            </div>
-                            <div class="strip-product-prices">
-                                <span class="strip-product-original token-price">$32.00</span>
-                                <span class="strip-product-sale token-price-tag">$3.99</span>
-                            </div>
-                            <button class="btn btn-outlined btn-small strip-add-btn">
-                                <i class="fa-regular fa-plus" style="font-size: 12px;"></i> Agregar
-                            </button>
-                        </div>
+
+                    <div class="promo-code-molecule" data-flow="products" data-step="cart" data-state="empty">
+                        <span class="promo-code-leading" aria-hidden="true"><img src="./images/PROMOS@2x.webp" alt=""></span>
+                        <p class="promo-code-copy">Ingresa el código promocional</p>
+                        <button class="promo-code-action promo-clear" type="button" aria-label="Quitar código">
+                            <i class="fa-regular fa-circle-xmark icon-medium"></i>
+                        </button>
+                        <button class="promo-code-action promo-open" type="button" aria-label="Ingresar código">
+                            <i class="fa-regular fa-chevron-right icon-medium"></i>
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <h4>Strips / No Countdown / Giftcards</h4>
-            <p>Similar layout without countdown timer. Features a promotional badge instead. Used for gift card listings and non-time-sensitive offers.</p>
-
             <div class="example-showcase">
-                <div class="example-title">Visual Example - Gift Cards Strip</div>
-                <div class="strip-container strip-container-giftcards">
-                    <div class="strip-header">
-                        <span class="strip-title">Promos</span>
+                <div class="example-title">Interactive Behavior - User Flow</div>
+                <div class="promo-code-layout">
+                    <div class="promo-code-molecule" id="promo-code-demo" data-flow="giftCards" data-step="checkout" data-state="empty">
+                        <span class="promo-code-leading" aria-hidden="true"><img src="./images/PROMOS@2x.webp" alt=""></span>
+                        <p class="promo-code-copy">Ingresa el código promocional</p>
+                        <button class="promo-code-action promo-clear" type="button" aria-label="Quitar código">
+                            <i class="fa-solid fa-circle-xmark icon-medium-solid"></i>
+                        </button>
+                        <button class="promo-code-action promo-open" type="button" aria-label="Ingresar código">
+                            <i class="fa-regular fa-chevron-right icon-medium"></i>
+                        </button>
                     </div>
-                    <div class="strip-divider" style="margin: 12px 20px;"></div>
-                    <div class="strip-products">
-                        <div class="strip-product-card">
-                            <div class="strip-product-img">
-                                <img src="./images/target.webp" alt="eGiftcard de Target">
-                            </div>
-                            <div class="strip-product-name">eGiftcard de Target</div>
-                            <div class="discount-ribbon">
-                                <span class="discount-ribbon-text token-price-percent">Ahorre $10</span>
-                            </div>
-                            <div class="strip-product-prices">
-                                <span class="strip-product-original token-price">$50.00</span>
-                                <span class="strip-product-sale token-price-tag">$40.00</span>
-                            </div>
-                            <button class="btn btn-outlined btn-small strip-add-btn">
-                                <i class="fa-regular fa-plus" style="font-size: 12px;"></i> Agregar
-                            </button>
-                        </div>
-                        <div class="strip-product-card">
-                            <div class="strip-product-img">
-                                <img src="./images/macys.webp" alt="eGiftcard de Macy's">
-                            </div>
-                            <div class="strip-product-name">eGiftcard de Macy's</div>
-                            <div class="discount-ribbon">
-                                <span class="discount-ribbon-text token-price-percent">10% OFF</span>
-                            </div>
-                            <div class="strip-product-prices">
-                                <span class="strip-product-original token-price">$25.00</span>
-                                <span class="strip-product-sale token-price-tag">$20.00</span>
-                            </div>
-                            <button class="btn btn-outlined btn-small strip-add-btn">
-                                <i class="fa-regular fa-plus" style="font-size: 12px;"></i> Agregar
-                            </button>
-                        </div>
-                        <div class="strip-product-card">
-                            <div class="strip-product-img">
-                                <img src="./images/apple.webp" alt="eGiftcard de Apple">
-                            </div>
-                            <div class="strip-product-name">eGiftcard de Apple</div>
-                            <div class="discount-ribbon">
-                                <span class="discount-ribbon-text token-price-percent">Ahorre $2.50</span>
-                            </div>
-                            <div class="strip-product-prices">
-                                <span class="strip-product-original token-price">$25.00</span>
-                                <span class="strip-product-sale token-price-tag">$22.50</span>
-                            </div>
-                            <button class="btn btn-outlined btn-small strip-add-btn">
-                                <i class="fa-regular fa-plus" style="font-size: 12px;"></i> Agregar
-                            </button>
-                        </div>
-                    </div>
+                    <p class="promo-code-behavior-note">Behavior: empty state opens modal → apply code changes to entered state → close icon returns to empty state.</p>
                 </div>
-            </div>
-
-            <div class="info-box">
-                <h4>Strip Component Specs (DS-MARS2.pen)</h4>
-                <p><strong>Strips/Countdown/Offers (ID: nf2yE):</strong> Countdown timer badge · product image 110×110px · percentage ribbon</p>
-                <p><strong>Strips/No Countdown/Giftcards (ID: pTOSN):</strong> No timer · brand image 80×50px · swallow-tail ribbon</p>
-                <p><strong>Title:</strong> Nunito Sans 20px/700 · color <code>$Primary Main</code></p>
-                <p><strong>Countdown badge:</strong> Background <code>$Accent Color</code> (#ffb400) · border-radius 8px · height 32px</p>
-                <p><strong>Ribbon:</strong> Background <code>$Secondary Light</code> · text <code>$Secondary Dark</code> · border-radius 12px · font 11px/700</p>
-                <p><strong>"Agregar" button:</strong> <code>.btn.btn-outlined.btn-small</code></p>
             </div>
 
             <button class="toggle-code" onclick="toggleCode(this)">
@@ -4335,72 +5106,100 @@
 
             <div class="code-snippet-container code-hidden">
                 <div class="code-header">
-                    <span class="code-label">ProductStrip.jsx</span>
+                    <span class="code-label">PromoCode.jsx</span>
                     <button class="copy-btn" onclick="copyCode(this)">
                         <i class="fa-regular fa-copy" style="font-size: 13px;"></i>
                         Copy
                     </button>
                 </div>
                 <div class="code-content">
-                    <pre><code><span class="syntax-keyword">import</span> React <span class="syntax-keyword">from</span> <span class="syntax-string">'react'</span>;
+                    <pre><code>import React from 'react';
 
-<span class="syntax-keyword">const</span> <span class="syntax-function">ProductCard</span> = <span class="syntax-bracket">({</span> <span class="syntax-prop">image</span>, <span class="syntax-prop">name</span>, <span class="syntax-prop">originalPrice</span>, <span class="syntax-prop">salePrice</span>, <span class="syntax-prop">discount</span>, <span class="syntax-prop">onAdd</span> <span class="syntax-bracket">}</span>) => <span class="syntax-bracket">(</span>
-  <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> minWidth: <span class="syntax-string">'164px'</span>, textAlign: <span class="syntax-string">'left'</span>, padding: <span class="syntax-string">'4px 8px'</span> <span class="syntax-bracket">}}</span><span class="syntax-tag">&gt;</span>
-    <span class="syntax-tag">&lt;img</span> <span class="syntax-prop">src</span>=<span class="syntax-bracket">{</span>image<span class="syntax-bracket">}</span> <span class="syntax-prop">alt</span>=<span class="syntax-bracket">{</span>name<span class="syntax-bracket">}</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> width: <span class="syntax-string">'80px'</span>, height: <span class="syntax-string">'50px'</span>, objectFit: <span class="syntax-string">'contain'</span> <span class="syntax-bracket">}}</span> <span class="syntax-tag">/&gt;</span>
-    <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> fontWeight: <span class="syntax-string">700</span>, fontSize: <span class="syntax-string">'14px'</span> <span class="syntax-bracket">}}</span><span class="syntax-tag">&gt;</span><span class="syntax-bracket">{</span>name<span class="syntax-bracket">}</span><span class="syntax-tag">&lt;/div&gt;</span>
-    <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> display: <span class="syntax-string">'flex'</span>, gap: <span class="syntax-string">'6px'</span> <span class="syntax-bracket">}}</span><span class="syntax-tag">&gt;</span>
-      <span class="syntax-tag">&lt;span</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"token-price"</span><span class="syntax-tag">&gt;</span><span class="syntax-bracket">{</span>originalPrice<span class="syntax-bracket">}</span><span class="syntax-tag">&lt;/span&gt;</span>
-      <span class="syntax-tag">&lt;span</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"token-price-tag"</span><span class="syntax-tag">&gt;</span><span class="syntax-bracket">{</span>salePrice<span class="syntax-bracket">}</span><span class="syntax-tag">&lt;/span&gt;</span>
-    <span class="syntax-tag">&lt;/div&gt;</span>
-    <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"discount-ribbon"</span><span class="syntax-tag">&gt;</span>
-      <span class="syntax-tag">&lt;span</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"discount-ribbon-text token-price-percent"</span><span class="syntax-tag">&gt;</span><span class="syntax-bracket">{</span>discount<span class="syntax-bracket">}</span><span class="syntax-tag">&lt;/span&gt;</span>
-    <span class="syntax-tag">&lt;/div&gt;</span>
-    <span class="syntax-tag">&lt;button</span> <span class="syntax-prop">onClick</span>=<span class="syntax-bracket">{</span>onAdd<span class="syntax-bracket">}</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"btn btn-outlined btn-small strip-add-btn"</span><span class="syntax-tag">&gt;</span>
-      <span class="syntax-tag">&lt;i</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"fa-regular fa-plus"</span> <span class="syntax-tag">/&gt;</span> Agregar
-    <span class="syntax-tag">&lt;/button&gt;</span>
-  <span class="syntax-tag">&lt;/div&gt;</span>
-<span class="syntax-bracket">)</span>;
+export default function PromoCode({ initialCode = '' }) {
+  const [code, setCode] = React.useState(initialCode);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [draft, setDraft] = React.useState('');
 
-<span class="syntax-keyword">const</span> <span class="syntax-function">ProductStrip</span> = <span class="syntax-bracket">({</span> <span class="syntax-prop">title</span>, <span class="syntax-prop">countdown</span>, <span class="syntax-prop">products</span> <span class="syntax-bracket">}</span>) => <span class="syntax-bracket">(</span>
-  <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> background: <span class="syntax-string">'white'</span> <span class="syntax-bracket">}}</span><span class="syntax-tag">&gt;</span>
-    <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> display: <span class="syntax-string">'flex'</span>, justifyContent: <span class="syntax-string">'space-between'</span>, padding: <span class="syntax-string">'16px 20px 0'</span> <span class="syntax-bracket">}}</span><span class="syntax-tag">&gt;</span>
-      <span class="syntax-tag">&lt;span</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> fontSize: <span class="syntax-string">'20px'</span>, fontWeight: <span class="syntax-string">700</span>, color: <span class="syntax-string">'#410088'</span> <span class="syntax-bracket">}}</span><span class="syntax-tag">&gt;</span><span class="syntax-bracket">{</span>title<span class="syntax-bracket">}</span><span class="syntax-tag">&lt;/span&gt;</span>
-      <span class="syntax-bracket">{</span>countdown && <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span>
-        background: <span class="syntax-string">'#ffb400'</span>, borderRadius: <span class="syntax-string">'8px'</span>, padding: <span class="syntax-string">'0 8px'</span>,
-        height: <span class="syntax-string">'32px'</span>, display: <span class="syntax-string">'flex'</span>, alignItems: <span class="syntax-string">'center'</span>, gap: <span class="syntax-string">'4px'</span>,
-      <span class="syntax-bracket">}}</span><span class="syntax-tag">&gt;</span>
-        <span class="syntax-tag">&lt;i</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"fa-regular fa-clock"</span> <span class="syntax-tag">/&gt;</span> <span class="syntax-tag">&lt;span&gt;</span>Termina en <span class="syntax-bracket">{</span>countdown<span class="syntax-bracket">}</span><span class="syntax-tag">&lt;/span&gt;</span>
-      <span class="syntax-tag">&lt;/div&gt;</span><span class="syntax-bracket">}</span>
-    <span class="syntax-tag">&lt;/div&gt;</span>
-    <span class="syntax-tag">&lt;hr</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> border: <span class="syntax-string">'none'</span>, borderTop: <span class="syntax-string">'1px solid rgba(0,0,0,0.12)'</span>, margin: <span class="syntax-string">'12px 20px'</span> <span class="syntax-bracket">}}</span> <span class="syntax-tag">/&gt;</span>
-    <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">style</span>=<span class="syntax-bracket">{{</span> display: <span class="syntax-string">'flex'</span>, gap: <span class="syntax-string">'4px'</span>, overflowX: <span class="syntax-string">'auto'</span>, padding: <span class="syntax-string">'0 8px 12px'</span> <span class="syntax-bracket">}}</span><span class="syntax-tag">&gt;</span>
-      <span class="syntax-bracket">{</span>products.<span class="syntax-function">map</span>((p, i) => <span class="syntax-tag">&lt;ProductCard</span> <span class="syntax-prop">key</span>=<span class="syntax-bracket">{</span>i<span class="syntax-bracket">}</span> {...p} <span class="syntax-tag">/&gt;</span>)<span class="syntax-bracket">}</span>
-    <span class="syntax-tag">&lt;/div&gt;</span>
-  <span class="syntax-tag">&lt;/div&gt;</span>
-<span class="syntax-bracket">)</span>;
+  const isEntered = code.trim().length &gt; 0;
 
-<span class="syntax-keyword">export</span> <span class="syntax-bracket">{</span> ProductStrip, ProductCard <span class="syntax-bracket">}</span>;</code></pre>
+  function openModal() {
+    setDraft('');
+    setIsModalOpen(true);
+  }
+
+  function closeModal() {
+    setIsModalOpen(false);
+  }
+
+  function applyCode() {
+    const value = draft.trim();
+    if (!value) return;
+    setCode(value);
+    setIsModalOpen(false);
+  }
+
+  function clearCode() {
+    setCode('');
+  }
+
+  return (
+    &lt;&gt;
+      &lt;div className={`promo-code-molecule ${isEntered ? 'entered' : 'empty'}`}&gt;
+        &lt;span className="promo-code-leading" aria-hidden="true"&gt;
+          &lt;img src="./images/PROMOS@2x.webp" alt="" /&gt;
+        &lt;/span&gt;
+
+        &lt;p className="promo-code-copy"&gt;
+          {isEntered ? (&lt;&gt;&lt;span className="promo-code-prefix"&gt;Código Promo:&lt;/span&gt; {code}&lt;/&gt;) : 'Ingresa el código promocional'}
+        &lt;/p&gt;
+
+        {isEntered ? (
+          &lt;button className="promo-code-action promo-clear" type="button" onClick={clearCode} aria-label="Quitar código"&gt;
+            &lt;i className="fa-solid fa-circle-xmark icon-medium-solid" /&gt;
+          &lt;/button&gt;
+        ) : (
+          &lt;button className="promo-code-action promo-open" type="button" onClick={openModal} aria-label="Ingresar código"&gt;
+            &lt;i className="fa-regular fa-chevron-right icon-medium" /&gt;
+          &lt;/button&gt;
+        )}
+      &lt;/div&gt;
+
+      {isModalOpen &amp;&amp; (
+        &lt;div className="promo-modal" role="dialog" aria-modal="true"&gt;
+          &lt;div className="promo-modal-panel"&gt;
+            &lt;h4 className="promo-modal-title"&gt;Ingresa tu código promo&lt;/h4&gt;
+            &lt;input
+              className="promo-modal-input"
+              value={draft}
+              onChange={(e) =&gt; setDraft(e.target.value)}
+              placeholder="Ej: verano26"
+            /&gt;
+            &lt;div className="promo-modal-actions"&gt;
+              &lt;button className="btn btn-outlined btn-medium" type="button" onClick={closeModal}&gt;Cancelar&lt;/button&gt;
+              &lt;button className="btn btn-primary btn-medium" type="button" onClick={applyCode}&gt;Aplicar&lt;/button&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      )}
+    &lt;/&gt;
+  );
+}</code></pre>
                 </div>
             </div>
 
-        </section>
 
-        <section id="organisms">
-            <h2>Organisms</h2>
-            <span class="badge badge-organism">30 Components</span>
-
-            <h3>1. Headers</h3>
+            <h3>3. Headers</h3>
 
             <h4>Header / Logged / Empty Cart</h4>
             <div class="example-showcase">
                 <div class="example-title">Visual Example - Header / Logged / Empty Cart</div>
                 <div class="app-header">
                     <div class="header-left-group">
-                        <div class="header-icon"><i class="fa-regular fa-wallet icon-medium"></i></div>
+                        <div class="header-icon"><i class="fa-light fa-wallet icon-medium"></i></div>
                     </div>
                     <img class="header-logo" src="images/logo-oky.svg" alt="OKY logo">
                     <div class="header-icon">
-                        <i class="fa-regular fa-cart-shopping icon-medium"></i>
+                        <i class="fa-light fa-cart-shopping icon-medium"></i>
                     </div>
                 </div>
             </div>
@@ -4410,10 +5209,10 @@
                 <div class="example-title">Visual Example - Header / Logged Out</div>
                 <div class="app-header">
                     <div class="header-left-group">
-                        <div class="header-icon"><i class="fa-regular fa-wallet icon-medium"></i></div>
+                        <div class="header-icon"><i class="fa-light fa-wallet icon-medium"></i></div>
                     </div>
                     <img class="header-logo" src="images/logo-oky.svg" alt="OKY logo">
-                    <div class="header-icon"><i class="fa-regular fa-circle-user icon-medium"></i></div>
+                    <div class="header-icon"><i class="fa-solid fa-circle-user icon-medium-solid"></i></div>
                 </div>
             </div>
 
@@ -4422,12 +5221,12 @@
                 <div class="example-title">Visual Example - Header / Logged / Cart Full</div>
                 <div class="app-header">
                     <div class="header-left-group">
-                        <div class="header-icon"><i class="fa-regular fa-wallet icon-medium"></i></div>
+                        <div class="header-icon"><i class="fa-light fa-wallet icon-medium"></i></div>
                     </div>
                     <img class="header-logo" src="images/logo-oky.svg" alt="OKY logo">
                     <div class="header-cart-chip header-cart-full">
                         <span class="header-cart-count">1</span>
-                        <i class="fa-regular fa-cart-shopping icon-medium"></i>
+                        <i class="fa-light fa-cart-shopping icon-medium"></i>
                     </div>
                 </div>
             </div>
@@ -4436,9 +5235,9 @@
             <div class="example-showcase">
                 <div class="example-title">Visual Example - Page Header / Screens</div>
                 <div class="page-header-screen">
-                    <div class="header-icon header-icon-light"><i class="fa-regular fa-arrow-left icon-medium"></i></div>
+                    <div class="header-icon header-icon-light"><i class="fa-light fa-arrow-left icon-medium"></i></div>
                     <div class="page-header-title">Page Title</div>
-                    <div class="header-icon header-icon-light"><i class="fa-regular fa-cart-shopping icon-medium"></i></div>
+                    <div class="header-icon header-icon-light"><i class="fa-light fa-cart-shopping icon-medium"></i></div>
                 </div>
             </div>
 
@@ -4446,23 +5245,23 @@
             <div class="example-showcase">
                 <div class="example-title">Visual Example - Page Header / Modal</div>
                 <div class="page-header-modal">
-                    <div class="header-icon header-icon-placeholder"><i class="fa-regular fa-circle icon-medium"></i></div>
+                    <div class="header-icon header-icon-placeholder"><i class="fa-light fa-circle icon-medium"></i></div>
                     <div class="page-header-title">Modal Title</div>
-                    <div class="header-icon"><i class="fa-regular fa-xmark icon-medium"></i></div>
+                    <div class="header-icon"><i class="fa-light fa-xmark icon-medium"></i></div>
                 </div>
             </div>
 
             <div class="info-box">
                 <h4>Header Component Specs (Synced with DS-MARS2.pen)</h4>
                 <p><strong>Base size:</strong> all header variants are reusable organisms at <code>360x56</code> with white background and 1px bottom divider.</p>
-                <p><strong>Header/Logged/Empty Cart (ID: WO8oM):</strong> left <code>fa-regular fa-wallet icon-medium</code>, centered OKY logo, right <code>fa-regular fa-cart-shopping icon-medium</code>.</p>
-                <p><strong>Header/Not Loggeg (ID: ZPc9u):</strong> logged-out state (typo preserved from source), left <code>fa-regular fa-wallet icon-medium</code>, centered logo, right <code>fa-regular fa-circle-user icon-medium</code>.</p>
-                <p><strong>Header/Logged/Cart Full (ID: ArMsV):</strong> left <code>fa-regular fa-wallet icon-medium</code>, centered logo, right <code>Chips/Cart</code> (ID: <code>9fXxZ</code>) with count + <code>fa-regular fa-cart-shopping icon-medium</code>.</p>
-                <p><strong>Page Header / Screens (ID: 6IKuE):</strong> left <code>fa-regular fa-arrow-left icon-medium</code>, center <code>Page Title</code> in Lato 24/700, right <code>fa-regular fa-cart-shopping icon-medium</code>.</p>
-                <p><strong>Page Header / Modal (ID: 5mGYt):</strong> centered <code>Modal Title</code> in Lato 24/700, right <code>fa-regular fa-xmark icon-medium</code>, left side reserved spacer.</p>
+                <p><strong>Header/Logged/Empty Cart (ID: WO8oM):</strong> left <code>fa-light fa-wallet icon-medium</code>, centered OKY logo, right <code>fa-light fa-cart-shopping icon-medium</code>.</p>
+                <p><strong>Header/Not Loggeg (ID: ZPc9u):</strong> logged-out state (typo preserved from source), left <code>fa-light fa-wallet icon-medium</code>, centered logo, right <code>fa-light fa-circle-user icon-medium</code>.</p>
+                <p><strong>Header/Logged/Cart Full (ID: ArMsV):</strong> left <code>fa-light fa-wallet icon-medium</code>, centered logo, right <code>Chips/Cart</code> (ID: <code>9fXxZ</code>) with count + <code>fa-light fa-cart-shopping icon-medium</code>.</p>
+                <p><strong>Page Header / Screens (ID: 6IKuE):</strong> left <code>fa-light fa-arrow-left icon-medium</code>, center <code>Page Title</code> in Lato 24/700, right <code>fa-light fa-cart-shopping icon-medium</code>.</p>
+                <p><strong>Page Header / Modal (ID: 5mGYt):</strong> centered <code>Modal Title</code> in Lato 24/700, right <code>fa-light fa-xmark icon-medium</code>, left side reserved spacer.</p>
             </div>
 
-            <h3>2. Navigation</h3>
+            <h3>4. Navigation</h3>
 
             <div class="example-showcase">
                 <div class="example-title">Visual Example - Bottom Navigation / Icon Only</div>
@@ -4582,7 +5381,13 @@ export function BottomNavWithLabels(props) {
                 </div>
             </div>
 
-            <h3>3. Widgets</h3>
+        </section>
+
+        <section id="organisms">
+            <h2>Organisms</h2>
+            <span class="badge badge-organism">30 Components</span>
+
+            <h3>1. Widgets</h3>
             <p>Dashboard widgets (218x130px) for summarized information and quick actions.</p>
 
             <div class="example-showcase">
@@ -4616,14 +5421,18 @@ export function BottomNavWithLabels(props) {
                         </div>
                         <div class="widget-content widget-content-daily">
                             <div class="widget-media-square">
-                                <img src="./images/chicken-burger.png" alt="Hamburguesa de Pollo">
+                                <img src="./images/chicken-burger.png?v=2" alt="Hamburguesa de Pollo">
                             </div>
                             <div class="widget-info">
-                                <div class="widget-title-strong">Hamburguesa de Pollo</div>
+                                <div class="widget-title-strong">Chicken Burger</div>
                                 <div class="widget-metrics">
                                     <span class="widget-meta">$8.69</span>
                                     <span class="widget-value">$5.69</span>
                                 </div>
+                                <button class="btn btn-primary btn-small widget-cta">
+                                    <span>Comprar</span>
+                                    <i class="fa-regular fa-arrow-right" style="font-size: 12px;"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -4642,6 +5451,10 @@ export function BottomNavWithLabels(props) {
                                     <span class="widget-meta">TC</span>
                                     <span class="widget-value">Q7.6998</span>
                                 </div>
+                                <button class="btn btn-primary btn-small widget-cta">
+                                    <span>Comparar</span>
+                                    <i class="fa-regular fa-arrow-right" style="font-size: 12px;"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -4748,12 +5561,319 @@ export function BottomNavWithLabels(props) {
   <span class="syntax-prop">meta</span>=<span class="syntax-string">"$8.69"</span>
   <span class="syntax-prop">value</span>=<span class="syntax-string">"$5.69"</span>
   <span class="syntax-prop">image</span>=<span class="syntax-string">"/images/pollo-campero.webp"</span>
+  <span class="syntax-prop">ctaLabel</span>=<span class="syntax-string">"Comprar"</span>
+<span class="syntax-tag">/&gt;</span>
+
+<span class="syntax-tag">&lt;Widget</span>
+  <span class="syntax-prop">variant</span>=<span class="syntax-string">"remittances"</span>
+  <span class="syntax-prop">header</span>=<span class="syntax-string">"COMPARA TIPOS DE CAMBIO"</span>
+  <span class="syntax-prop">title</span>=<span class="syntax-string">"Western Union"</span>
+  <span class="syntax-prop">meta</span>=<span class="syntax-string">"TC"</span>
+  <span class="syntax-prop">value</span>=<span class="syntax-string">"Q7.6998"</span>
+  <span class="syntax-prop">image</span>=<span class="syntax-string">"/images/wu.webp"</span>
+  <span class="syntax-prop">ctaLabel</span>=<span class="syntax-string">"Comparar"</span>
 <span class="syntax-tag">/&gt;</span>
 
 <span class="syntax-keyword">export default</span> Widget;</code></pre>
                 </div>
             </div>
-            <h3>5. Carrousel</h3>
+
+            <h3>2. Summary Box</h3>
+            <p>Organism synced from Figma frame <code>Summary Box</code> (<code>6959:56843</code>) with matrix by flow and step. Variants use existing tokens, nested FA icons, DS button variants, overlap for <em>tipo de cambio</em>, and original shadows/gradient.</p>
+
+            <div class="summary-matrix">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Flow</th>
+                            <th>PDP</th>
+                            <th>PLP</th>
+                            <th>Cart</th>
+                            <th>Checkout</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="summary-flow">products</td>
+                            <td>
+                                <div class="summary-variant-list">
+                                    <span class="summary-variant-chip">saving / add=no / voucherify=no</span>
+                                    <span class="summary-variant-chip">saving / add=yes / voucherify=no</span>
+                                    <span class="summary-variant-chip">normal / add=no / voucherify=no</span>
+                                    <span class="summary-variant-chip">normal / add=yes / voucherify=no</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="summary-variant-list">
+                                    <span class="summary-variant-chip">plp / add=yes</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="summary-variant-list">
+                                    <span class="summary-variant-chip">saving / voucherify=no</span>
+                                    <span class="summary-variant-chip">saving / voucherify=yes</span>
+                                    <span class="summary-variant-chip">normal / voucherify=no</span>
+                                    <span class="summary-variant-chip">normal / voucherify=yes</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="summary-variant-list">
+                                    <span class="summary-variant-chip">saving / voucherify=no</span>
+                                    <span class="summary-variant-chip">saving / voucherify=yes</span>
+                                    <span class="summary-variant-chip">normal / voucherify=no</span>
+                                    <span class="summary-variant-chip">normal / voucherify=yes</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="summary-flow">giftCards</td>
+                            <td>
+                                <div class="summary-variant-list">
+                                    <span class="summary-variant-chip">saving / add=no / voucherify=no</span>
+                                    <span class="summary-variant-chip">saving / add=yes / voucherify=no</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="summary-variant-list">
+                                    <span class="summary-variant-chip">plp / add=yes</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="summary-variant-list">
+                                    <span class="summary-variant-chip">saving / voucherify=no</span>
+                                    <span class="summary-variant-chip">saving / voucherify=yes</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="summary-variant-list">
+                                    <span class="summary-variant-chip">saving / voucherify=no</span>
+                                    <span class="summary-variant-chip">saving / voucherify=yes</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="summary-flow">billPayments</td>
+                            <td>
+                                <div class="summary-variant-list">
+                                    <span class="summary-variant-chip">servicios / add=no / voucherify=no</span>
+                                </div>
+                            </td>
+                            <td><span class="summary-variant-chip missing">No variant in Figma</span></td>
+                            <td><span class="summary-variant-chip missing">No variant in Figma</span></td>
+                            <td>
+                                <div class="summary-variant-list">
+                                    <span class="summary-variant-chip">servicios / add=no / voucherify=no</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="summary-example-caption"><strong>Note:</strong> Payment-step variants also exist in Figma for all flows, but the matrix above follows PDP/PLP/Cart/Checkout.</p>
+
+            <div class="example-showcase">
+                <div class="example-title">Visual Examples - Summary Box (Organism)</div>
+                <div class="summary-grid">
+                    <div>
+                        <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="pdp">
+                            <div class="summary-type-overlay">
+                                <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-card-body">
+                                    <div class="summary-row">
+                                        <span class="summary-label-strong">Producto</span>
+                                        <span><span class="summary-value-old">$57.31</span> <span class="summary-value-new">$32.69</span></span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span class="summary-label">Costo por servicio</span>
+                                        <span><span class="summary-value-old">$15.00</span> <span class="summary-label">$7.50</span></span>
+                                    </div>
+                                    <div class="summary-row" style="padding-bottom: 8px;">
+                                        <span class="summary-label-strong">PAGAS</span>
+                                        <span class="summary-label-strong">$37.69</span>
+                                    </div>
+                                </div>
+                                <div class="summary-divider"></div>
+                                <div class="summary-cta-row">
+                                    <button class="btn btn-primary summary-btn">
+                                        <i class="fa-regular fa-plus"></i>Agregar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="summary-example-caption"><code>SummaryBox/flow=products/step=pdp</code></p>
+                    </div>
+
+                    <div>
+                        <div class="summary-box with-overlap summary-box-compact summary-box-narrow" data-flow="giftCards" data-step="plp">
+                            <div class="summary-type-overlay">
+                                <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-card-body">
+                                    <div class="summary-row">
+                                        <span class="summary-label-strong">3 Productos</span>
+                                        <span class="summary-label-strong">$100.00</span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span class="summary-label">Costo por servicio</span>
+                                        <span><span class="summary-value-old">$15.00</span> <span class="summary-label">$7.50</span></span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span class="summary-value-success">Código promo</span>
+                                        <span class="summary-value-success">-$5.00</span>
+                                    </div>
+                                    <div class="summary-row" style="padding-bottom: 8px;">
+                                        <span class="summary-label-strong">PAGAS</span>
+                                        <span class="summary-label-strong">$102.50</span>
+                                    </div>
+                                </div>
+                                <div class="summary-savings-row">
+                                    <i class="fa-solid fa-tags"></i>
+                                    <span>¡Ahorro total $12.50!</span>
+                                </div>
+                                <div class="summary-cta-row double">
+                                    <button class="btn btn-outlined btn-medium" style="width: 100%;">Seguir comprando</button>
+                                    <button class="btn btn-primary btn-medium" style="width: 100%;">Ir a caja</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="summary-example-caption"><code>SummaryBox/flow=giftCards/step=plp (voucherify)</code></p>
+                    </div>
+
+                    <div>
+                        <div class="summary-box with-overlap" data-flow="billPayments" data-step="checkout">
+                            <div class="summary-type-overlay">
+                                <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-card-body">
+                                    <div class="summary-row">
+                                        <span class="summary-label">Monto en moneda local</span>
+                                        <span class="summary-label">Q144.00</span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span class="summary-label-strong">Monto a pagar</span>
+                                        <span class="summary-label-strong">$50.00</span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span class="summary-label">Costo por servicio</span>
+                                        <span class="summary-label">$1.00</span>
+                                    </div>
+                                    <div class="summary-row" style="padding-bottom: 8px;">
+                                        <span class="summary-label-strong">TOTAL</span>
+                                        <span class="summary-label-strong">$51.00</span>
+                                    </div>
+                                </div>
+                                <div class="summary-divider"></div>
+                                <div class="summary-cta-row">
+                                    <button class="btn btn-primary summary-btn">Ir a pagar</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="summary-example-caption"><code>SummaryBox/flow=billPayments/step=checkout</code></p>
+                    </div>
+
+                    <div>
+                        <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="cart">
+                            <div class="summary-type-overlay">
+                                <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-card-body">
+                                    <div class="summary-row">
+                                        <span class="summary-label-strong">3 Productos</span>
+                                        <span><span class="summary-value-old">$100.00</span> <span class="summary-label-strong">$70.00</span></span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span class="summary-label">Costo por servicio</span>
+                                        <span><span class="summary-value-old">$15.00</span> <span class="summary-label">$7.50</span></span>
+                                    </div>
+                                    <div class="summary-row" style="padding-bottom: 8px;">
+                                        <span class="summary-label-strong">PAGAS</span>
+                                        <span class="summary-label-strong">$77.50</span>
+                                    </div>
+                                </div>
+                                <div class="summary-divider"></div>
+                                <div class="summary-cta-row">
+                                    <button class="btn btn-primary summary-btn">Ir a caja</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="summary-example-caption"><code>SummaryBox/flow=products/step=cart</code></p>
+                    </div>
+
+                    <div>
+                        <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="checkout">
+                            <div class="summary-type-overlay">
+                                <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-card-body">
+                                    <div class="summary-row">
+                                        <span class="summary-label-strong">3 Productos</span>
+                                        <span><span class="summary-value-old">$100.00</span> <span class="summary-label-strong">$70.00</span></span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span class="summary-label">Costo por servicio</span>
+                                        <span><span class="summary-value-old">$15.00</span> <span class="summary-label">$7.50</span></span>
+                                    </div>
+                                    <div class="summary-row" style="padding-bottom: 8px;">
+                                        <span class="summary-label-strong">TOTAL</span>
+                                        <span class="summary-label-strong">$77.50</span>
+                                    </div>
+                                </div>
+                                <div class="summary-divider"></div>
+                                <div class="summary-cta-row">
+                                    <button class="btn btn-primary summary-btn">Proceder al pago</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="summary-example-caption"><code>SummaryBox/flow=products/step=checkout</code></p>
+                    </div>
+
+                    <div>
+                        <div class="summary-box with-overlap summary-box-compact" data-flow="giftCards" data-step="cart">
+                            <div class="summary-type-overlay">
+                                <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-card-body">
+                                    <div class="summary-row">
+                                        <span class="summary-label-strong">3 Productos</span>
+                                        <span><span class="summary-value-old">$100.00</span> <span class="summary-label-strong">$70.00</span></span>
+                                    </div>
+                                    <div class="summary-row">
+                                        <span class="summary-label">PAGAS</span>
+                                        <span class="summary-label-strong">$77.50</span>
+                                    </div>
+                                </div>
+                                <div class="summary-divider"></div>
+                                <div class="summary-cta-row double">
+                                    <button class="btn btn-outlined btn-medium" style="width: 100%;">Seguir comprando</button>
+                                    <button class="btn btn-primary btn-medium" style="width: 100%;">Ir a caja</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="summary-example-caption"><code>SummaryBox/flow=giftCards/step=cart</code></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>Summary Box Specs (Synced with Figma 6959:56843)</h4>
+                <p><strong>Naming + data attrs:</strong> <code>SummaryBox/flow=&lt;products|giftCards|billPayments&gt;/step=&lt;pdp|plp|cart|checkout&gt;</code> + HTML attrs <code>data-flow</code> and <code>data-step</code>.</p>
+                <p><strong>Text tokens used:</strong> <code>Exchange</code> (10/400/uppercase), <code>subtitle1</code> (16/700), <code>sumText</code> (14/400), <code>sumTotal</code> (16/700), <code>buttonLg</code> (20/700), <code>iconMd</code> for FA in CTA.</p>
+                <p><strong>Color tokens (Theme / Colors):</strong> <code>$Primary Main</code>, <code>$Secondary Dark</code>, <code>$Disable Main</code>, <code>$Disable Text</code>, <code>$White</code>.</p>
+                <p><strong>Shadows:</strong> card uses <code>Shadow / 5</code>; overlap bar uses <code>Tipo de cambio</code> drop shadow.</p>
+                <p><strong>Gradient:</strong> overlap bar keeps original gradient (<code>#FCFCFC → #F1F2F5</code>, ~177.29°).</p>
+                <p><strong>Max size constraints:</strong> width <code>307/324/328px</code> by variant; max height <code>200/224px</code>; overlap width <code>300px</code>.</p>
+                <p><strong>Nested atoms:</strong> buttons use existing DS variants (<code>Primary</code>, <code>Outlined</code>), FA icon is nested inside CTA button text.</p>
+            </div>
+
+            <h3>3. Carrousel</h3>
             <p>Horizontal scrolling containers for promotional banners and gift card content. Two variants based on content type.</p>
 
             <h4>Carrousel / Banners</h4>
@@ -4895,8 +6015,8 @@ export function BottomNavWithLabels(props) {
                 </div>
             </div>
 
-            <h3>6. Strips</h3>
-            <p>Product listing strips for offers and promotions. Display product cards in a horizontally scrollable grid with pricing, discounts, and action buttons. Two variants available.</p>
+            <h3>4. Strips</h3>
+            <p>Product listing strips for offers and promotions. Display product cards in reusable layouts with pricing, the Discount Ribbon atom, and action buttons. Two strip variants available.</p>
 
             <h4>Strips / Countdown / Offers</h4>
             <p>Features a countdown timer badge alongside the section title. Used for time-limited promotional offers.</p>
@@ -4918,12 +6038,12 @@ export function BottomNavWithLabels(props) {
                                 <img src="./images/nuggets.webp" alt="Cajita Feliz de Nuggets de Pollo">
                             </div>
                             <div class="strip-product-name">Cajita Feliz de Nuggets de Pollo</div>
-                            <div class="discount-ribbon">
-                                <span class="discount-ribbon-text token-price-percent">93% OFF</span>
-                            </div>
                             <div class="strip-product-prices">
                                 <span class="strip-product-original token-price">$28.69</span>
                                 <span class="strip-product-sale token-price-tag">$1.00</span>
+                            </div>
+                            <div class="discount-ribbon discount-ribbon-list">
+                                <span class="discount-ribbon-text token-price-percent">93% OFF</span>
                             </div>
                             <button class="btn btn-outlined btn-small strip-add-btn">
                                 <i class="fa-regular fa-plus" style="font-size: 12px;"></i> Agregar
@@ -4934,12 +6054,12 @@ export function BottomNavWithLabels(props) {
                                 <img src="./images/combo.webp" alt="Combo Celebración">
                             </div>
                             <div class="strip-product-name">Combo Celebración</div>
-                            <div class="discount-ribbon">
-                                <span class="discount-ribbon-text token-price-percent">95% OFF</span>
-                            </div>
                             <div class="strip-product-prices">
                                 <span class="strip-product-original token-price">$25.69</span>
                                 <span class="strip-product-sale token-price-tag">$1.00</span>
+                            </div>
+                            <div class="discount-ribbon discount-ribbon-list">
+                                <span class="discount-ribbon-text token-price-percent">95% OFF</span>
                             </div>
                             <button class="btn btn-outlined btn-small strip-add-btn">
                                 <i class="fa-regular fa-plus" style="font-size: 12px;"></i> Agregar
@@ -4950,12 +6070,12 @@ export function BottomNavWithLabels(props) {
                                 <img src="./images/nuggets.webp" alt="Combo Familiar">
                             </div>
                             <div class="strip-product-name">Combo Familiar</div>
-                            <div class="discount-ribbon">
-                                <span class="discount-ribbon-text token-price-percent">88% OFF</span>
-                            </div>
                             <div class="strip-product-prices">
                                 <span class="strip-product-original token-price">$32.00</span>
                                 <span class="strip-product-sale token-price-tag">$3.99</span>
+                            </div>
+                            <div class="discount-ribbon discount-ribbon-list">
+                                <span class="discount-ribbon-text token-price-percent">88% OFF</span>
                             </div>
                             <button class="btn btn-outlined btn-small strip-add-btn">
                                 <i class="fa-regular fa-plus" style="font-size: 12px;"></i> Agregar
@@ -4981,12 +6101,12 @@ export function BottomNavWithLabels(props) {
                                 <img src="./images/target.webp" alt="eGiftcard de Target">
                             </div>
                             <div class="strip-product-name">eGiftcard de Target</div>
-                            <div class="discount-ribbon">
-                                <span class="discount-ribbon-text token-price-percent">Ahorre $10</span>
-                            </div>
                             <div class="strip-product-prices">
                                 <span class="strip-product-original token-price">$50.00</span>
                                 <span class="strip-product-sale token-price-tag">$40.00</span>
+                            </div>
+                            <div class="discount-ribbon discount-ribbon-list">
+                                <span class="discount-ribbon-text token-price-percent">10% OFF</span>
                             </div>
                             <button class="btn btn-outlined btn-small strip-add-btn">
                                 <i class="fa-regular fa-plus" style="font-size: 12px;"></i> Agregar
@@ -4997,12 +6117,12 @@ export function BottomNavWithLabels(props) {
                                 <img src="./images/macys.webp" alt="eGiftcard de Macy's">
                             </div>
                             <div class="strip-product-name">eGiftcard de Macy's</div>
-                            <div class="discount-ribbon">
-                                <span class="discount-ribbon-text token-price-percent">10% OFF</span>
-                            </div>
                             <div class="strip-product-prices">
                                 <span class="strip-product-original token-price">$25.00</span>
                                 <span class="strip-product-sale token-price-tag">$20.00</span>
+                            </div>
+                            <div class="discount-ribbon discount-ribbon-list">
+                                <span class="discount-ribbon-text token-price-percent">10% OFF</span>
                             </div>
                             <button class="btn btn-outlined btn-small strip-add-btn">
                                 <i class="fa-regular fa-plus" style="font-size: 12px;"></i> Agregar
@@ -5013,12 +6133,12 @@ export function BottomNavWithLabels(props) {
                                 <img src="./images/apple.webp" alt="eGiftcard de Apple">
                             </div>
                             <div class="strip-product-name">eGiftcard de Apple</div>
-                            <div class="discount-ribbon">
-                                <span class="discount-ribbon-text token-price-percent">Ahorre $2.50</span>
-                            </div>
                             <div class="strip-product-prices">
                                 <span class="strip-product-original token-price">$25.00</span>
                                 <span class="strip-product-sale token-price-tag">$22.50</span>
+                            </div>
+                            <div class="discount-ribbon discount-ribbon-list">
+                                <span class="discount-ribbon-text token-price-percent">10% OFF</span>
                             </div>
                             <button class="btn btn-outlined btn-small strip-add-btn">
                                 <i class="fa-regular fa-plus" style="font-size: 12px;"></i> Agregar
@@ -5028,21 +6148,141 @@ export function BottomNavWithLabels(props) {
                 </div>
             </div>
 
+            <h4>List / PLP</h4>
+            <p>Deep anatomy from DS-MARS2.pen (<code>dsvtw</code>): 3 vertical PLP rows with product photo, tokenized text/price stack, <code>Discount Ribbon / List</code> under price, and right action chip (<code>Add0</code>/<code>Add1</code>).</p>
+
             <div class="example-showcase">
-                <div class="example-title">Discount Ribbon Component - Use Cases</div>
-                <div class="ribbon-usecases">
-                    <div class="discount-ribbon">
-                        <span class="discount-ribbon-text token-price-percent">Ahorre $3</span>
-                    </div>
-                    <div class="discount-ribbon">
-                        <span class="discount-ribbon-text token-price-percent">15% OFF</span>
-                    </div>
-                    <div class="discount-ribbon">
-                        <span class="discount-ribbon-text token-price-percent">Ahorre $12</span>
+                <div class="example-title">Visual Example - List / PLP</div>
+                <div class="list-plp-anatomy">
+                    <div class="list-plp-inner">
+                        <div class="list-plp-row">
+                            <div class="list-plp-image">
+                                <img src="./images/combo.webp" alt="Combo Celebración">
+                            </div>
+                            <div class="list-plp-copy">
+                                <div class="token-product-text-plp">Combo Celebración</div>
+                                <div class="list-plp-prices">
+                                    <span class="token-price-tag token-price-tag-plp">$40.00</span>
+                                    <span class="token-price token-price-plp">$50.00</span>
+                                </div>
+                                <div class="discount-ribbon discount-ribbon-list">
+                                    <span class="discount-ribbon-text token-price-percent">10% OFF</span>
+                                </div>
+                            </div>
+                            <span class="chip-ds chip-ds-add0 chip-ds-shadow list-plp-action list-plp-chip-add0">
+                                <i class="fa-regular fa-plus"></i>
+                            </span>
+                        </div>
+                        <div class="list-plp-divider"></div>
+                        <div class="list-plp-row">
+                            <div class="list-plp-image">
+                                <img src="./images/nuggets.webp" alt="McCombo de McNuggets de Pollo">
+                            </div>
+                            <div class="list-plp-copy">
+                                <div class="token-product-text-plp">McCombo de McNuggets de Pollo</div>
+                                <div class="list-plp-prices">
+                                    <span class="token-price-tag token-price-tag-plp">$20.00</span>
+                                    <span class="token-price token-price-plp">$25.00</span>
+                                </div>
+                                <div class="discount-ribbon discount-ribbon-list">
+                                    <span class="discount-ribbon-text token-price-percent">10% OFF</span>
+                                </div>
+                            </div>
+                            <span class="chip-ds chip-ds-add1 chip-ds-shadow list-plp-action list-plp-chip-add1">
+                                <i class="fa-regular fa-trash chip-ds-pill-icon chip-ds-trash"></i>
+                                <span class="chip-ds-number">1</span>
+                                <i class="fa-regular fa-plus chip-ds-pill-icon"></i>
+                            </span>
+                        </div>
+                        <div class="list-plp-divider"></div>
+                        <div class="list-plp-row">
+                            <div class="list-plp-image">
+                                <img src="./images/chicken-burger.png?v=2" alt="Hamburguesa de Pollo">
+                            </div>
+                            <div class="list-plp-copy">
+                                <div class="token-product-text-plp">Hamburguesa de Pollo</div>
+                                <div class="list-plp-prices">
+                                    <span class="token-price-tag token-price-tag-plp">$20.00</span>
+                                    <span class="token-price token-price-plp">$25.00</span>
+                                </div>
+                                <div class="discount-ribbon discount-ribbon-list">
+                                    <span class="discount-ribbon-text token-price-percent">10% OFF</span>
+                                </div>
+                            </div>
+                            <span class="chip-ds chip-ds-add0 chip-ds-shadow list-plp-action list-plp-chip-add0">
+                                <i class="fa-regular fa-plus"></i>
+                            </span>
+                        </div>
                     </div>
                 </div>
-                <div style="margin-top: 10px; color: var(--text-secondary); font-size: 13px;">
-                    Use this ribbon for fixed savings (Ahorre $X), percentage discounts (% OFF), and seasonal promo amounts.
+            </div>
+
+            <h4>List / Cart</h4>
+            <p>Deep anatomy from DS-MARS2.pen (<code>Om56O</code>): 3 vertical giftcard rows with right-side quantity chip, tokenized product typography, and <code>Discount Ribbon / List</code> under price.</p>
+            <div class="example-showcase">
+                <div class="example-title">Visual Example - List / Cart</div>
+                <div class="list-cart-anatomy">
+                    <div class="list-cart-inner">
+                        <div class="list-cart-row">
+                            <div class="list-cart-image">
+                                <img src="./images/target.webp" alt="eGift Card de Target">
+                            </div>
+                            <div class="list-cart-copy">
+                                <div class="token-product-text-cart">eGift Card de Target</div>
+                                <div class="list-cart-prices">
+                                    <span class="token-price-tag token-price-tag-cart">$40.00</span>
+                                    <span class="token-price token-price-cart">$50.00</span>
+                                </div>
+                                <div class="discount-ribbon discount-ribbon-list">
+                                    <span class="discount-ribbon-text token-price-percent">10% OFF</span>
+                                </div>
+                            </div>
+                            <span class="chip-ds chip-ds-qty chip-ds-shadow list-cart-qty">
+                                <i class="fa-regular fa-trash chip-ds-pill-icon chip-ds-trash"></i>
+                                <span class="chip-ds-number">1</span>
+                            </span>
+                        </div>
+                        <div class="list-cart-divider"></div>
+                        <div class="list-cart-row">
+                            <div class="list-cart-image">
+                                <img src="./images/macys.webp" alt="eGift Card de Macy's">
+                            </div>
+                            <div class="list-cart-copy">
+                                <div class="token-product-text-cart">eGift Card de Macy's</div>
+                                <div class="list-cart-prices">
+                                    <span class="token-price-tag token-price-tag-cart">$20.00</span>
+                                    <span class="token-price token-price-cart">$25.00</span>
+                                </div>
+                                <div class="discount-ribbon discount-ribbon-list">
+                                    <span class="discount-ribbon-text token-price-percent">10% OFF</span>
+                                </div>
+                            </div>
+                            <span class="chip-ds chip-ds-qty chip-ds-shadow list-cart-qty">
+                                <i class="fa-regular fa-trash chip-ds-pill-icon chip-ds-trash"></i>
+                                <span class="chip-ds-number">1</span>
+                            </span>
+                        </div>
+                        <div class="list-cart-divider"></div>
+                        <div class="list-cart-row">
+                            <div class="list-cart-image">
+                                <img src="./images/apple.webp" alt="eGift Card de Apple">
+                            </div>
+                            <div class="list-cart-copy">
+                                <div class="token-product-text-cart">eGift Card de Apple</div>
+                                <div class="list-cart-prices">
+                                    <span class="token-price-tag token-price-tag-cart">$20.00</span>
+                                    <span class="token-price token-price-cart">$25.00</span>
+                                </div>
+                                <div class="discount-ribbon discount-ribbon-list">
+                                    <span class="discount-ribbon-text token-price-percent">10% OFF</span>
+                                </div>
+                            </div>
+                            <span class="chip-ds chip-ds-qty chip-ds-shadow list-cart-qty">
+                                <i class="fa-regular fa-trash chip-ds-pill-icon chip-ds-trash"></i>
+                                <span class="chip-ds-number">1</span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -5054,12 +6294,25 @@ export function BottomNavWithLabels(props) {
                 <p><strong>Countdown / Offers Variant:</strong> Product image <code>110×110px</code>, left-aligned content, percentage ribbon, and visible countdown timer</p>
                 <p><strong>Discount Badge:</strong> Background <code>$Accent Color</code>, border-radius 12px, font 11px 700 weight</p>
                 <p><strong>"Agregar" Button:</strong> Outlined style, 2px border <code>$Primary Main</code>, border-radius 20px, font 13px 700 weight</p>
-                <p><strong>Giftcards Variant:</strong> Left-aligned content, brand image <code>80×50px</code>, discount ribbon component with swallow-tail end</p>
-                <p><strong>Typography Tokens:</strong> Use <code>price%</code> for ribbon text (<em>Ahorre $X</em> or %), <code>priceTag</code> for final price, and <code>price</code> for regular price</p>
-                <p><strong>Ribbon Spacing:</strong> Hug-width with 4px right inner spacing, 4px corner radius, and swallow-tail edge</p>
+                <p><strong>Giftcards Variant:</strong> Left-aligned content, brand image <code>80×50px</code>, <code>Discount Ribbon / List</code> below price</p>
+                <p><strong>List / PLP (ID: dsvtw):</strong> Container <code>360×422</code> · inner width <code>328px</code> + <code>16px</code> padding · 3 product rows with divider</p>
+                <p><strong>List / PLP row anatomy:</strong> image <code>100×100</code> (radius <code>16px</code>, border <code>$Border Main</code>) · tokenized text + price + ribbon · right chip (<code>Add0</code>: <code>40×40</code>; <code>Add1</code>: <code>90×40</code>; radius <code>16px</code>; border <code>$Border Main</code>)</p>
+                <p><strong>List / Cart (ID: Om56O):</strong> Container <code>307×436</code> · padding <code>16px</code> · radius <code>16px</code> · border <code>$Border Main</code> · 3 giftcard rows</p>
+                <p><strong>List / Cart row anatomy:</strong> image <code>80×51</code> · text stack + ribbon · quantity chip on the right (<code>Chips/Quantity Input / Quantity/Gifcards/Giftcards</code>, radius <code>16px</code>, border <code>$Border Main</code>)</p>
+                <p><strong>Typography Tokens:</strong> product text: Nunito Sans 14/600 + <code>$Primary Main</code>; priceTag: 16/900 + <code>$Secondary Dark</code>; price: 13/400 + <code>$Disable Text</code>; ribbon text: <code>price%</code> with placeholder <code>10% OFF</code></p>
+                <p><strong>Discount Ribbon atom:</strong> use <code>List</code> on both Countdown Offers and Giftcards cards (below price), and on product listing/cart · max-width <code>88px</code> · height <code>30px</code> (List)</p>
                 <p><strong>Ribbon Color:</strong> Background <code>$Secondary Light</code>; text uses <code>$Secondary Dark</code> via <code>price%</code></p>
                 <p><strong>Buttons:</strong> Use DS button component <code>.btn.btn-outlined.btn-small</code> for "Agregar"</p>
                 <p><strong>Divider:</strong> 1px solid <code>$Divider</code> (rgba(0,0,0,0.12))</p>
+            </div>
+
+            <h3>5. Lists</h3>
+            <p>Two list components added for reusable layouts where atoms stay tokenized and consistent.</p>
+            <div class="info-box">
+                <h4>List Components</h4>
+                <p><strong>List / PLP (ID: dsvtw):</strong> Product listing component (<code>360×422</code>) with 3 rows, <code>100×100</code> product image, and right-side action chip (<code>Add0</code>/<code>Add1</code>).</p>
+                <p><strong>List / Cart (ID: Om56O):</strong> Cart list component (<code>307×436</code>) with <code>16px</code> radius, <code>$Border Main</code> border, and 3 rows with right-side quantity chips.</p>
+                <p><strong>List/Country Selector:</strong> Radio-based country rows with optional flag icon and tokenized text/border colors.</p>
             </div>
 
             <button class="toggle-code" onclick="toggleCode(this)">
@@ -5091,7 +6344,7 @@ export function BottomNavWithLabels(props) {
         <span class="syntax-bracket">{</span>salePrice<span class="syntax-bracket">}</span>
       <span class="syntax-tag">&lt;/span&gt;</span>
     <span class="syntax-tag">&lt;/div&gt;</span>
-    <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"discount-ribbon"</span><span class="syntax-tag">&gt;</span>
+    <span class="syntax-tag">&lt;div</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"discount-ribbon discount-ribbon-list"</span><span class="syntax-tag">&gt;</span>
       <span class="syntax-tag">&lt;span</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"discount-ribbon-text token-price-percent"</span><span class="syntax-tag">&gt;</span><span class="syntax-bracket">{</span>discount<span class="syntax-bracket">}</span><span class="syntax-tag">&lt;/span&gt;</span>
     <span class="syntax-tag">&lt;/div&gt;</span>
     <span class="syntax-tag">&lt;button</span> <span class="syntax-prop">onClick</span>=<span class="syntax-bracket">{</span>onAdd<span class="syntax-bracket">}</span> <span class="syntax-prop">className</span>=<span class="syntax-string">"btn btn-outlined btn-small strip-add-btn"</span><span class="syntax-tag">&gt;</span>
@@ -5136,7 +6389,7 @@ export function BottomNavWithLabels(props) {
                 </div>
             </div>
 
-            <h3>7. HomeCard</h3>
+            <h3>6. HomeCard</h3>
             <p>HomeCard is a complex organism that displays a categorized grid of brands, gift cards, or services. It supports two behaviors: <strong>Expandable</strong> (full brand grid with a "Ver más" CTA) and <strong>NonExpandable</strong> (compact view, fewer brands, no CTA button).</p>
 
             <div class="example-showcase">
@@ -5590,6 +6843,18 @@ export function BottomNavWithLabels(props) {
         <p>Last Updated: 2026-02-09</p>
     </footer>
 
+    <div class="promo-modal" id="promo-code-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="promo-modal-title">
+        <div class="promo-modal-panel">
+            <h4 class="promo-modal-title" id="promo-modal-title">Ingresa tu código promo</h4>
+            <p class="promo-modal-text">Aplica un código válido para actualizar el resumen.</p>
+            <input class="promo-modal-input" id="promo-code-input" type="text" placeholder="Ej: verano26" maxlength="24">
+            <div class="promo-modal-actions">
+                <button class="btn btn-outlined btn-medium" id="promo-code-cancel" type="button">Cancelar</button>
+                <button class="btn btn-primary btn-medium" id="promo-code-apply" type="button">Aplicar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Copy code to clipboard functionality
         function copyCode(button) {
@@ -5721,6 +6986,73 @@ export function BottomNavWithLabels(props) {
             input.value   = '';
             btn.style.display = 'none';
             input.focus();
+        }
+
+        // ── Molecule/Promo Code — states + modal ─────────────────────────────
+        const promoCodeDemo = document.getElementById('promo-code-demo');
+        const promoModal = document.getElementById('promo-code-modal');
+        const promoInput = document.getElementById('promo-code-input');
+        const promoApply = document.getElementById('promo-code-apply');
+        const promoCancel = document.getElementById('promo-code-cancel');
+
+        function renderPromoCodeState(component, state, codeValue) {
+            if (!component) return;
+            const copyNode = component.querySelector('.promo-code-copy');
+            component.setAttribute('data-state', state);
+
+            if (state === 'entered') {
+                copyNode.innerHTML = `<span class="promo-code-prefix">Código Promo:</span> ${codeValue}`;
+            } else {
+                copyNode.textContent = 'Ingresa el código promocional';
+            }
+        }
+
+        function openPromoModal() {
+            if (!promoModal) return;
+            promoModal.setAttribute('aria-hidden', 'false');
+            promoInput.value = '';
+            setTimeout(() => promoInput.focus(), 0);
+        }
+
+        function closePromoModal() {
+            if (!promoModal) return;
+            promoModal.setAttribute('aria-hidden', 'true');
+        }
+
+        if (promoCodeDemo) {
+            promoCodeDemo.addEventListener('click', (event) => {
+                const clearBtn = event.target.closest('.promo-clear');
+                const openBtn = event.target.closest('.promo-open');
+                const currentState = promoCodeDemo.getAttribute('data-state');
+
+                if (clearBtn && currentState === 'entered') {
+                    renderPromoCodeState(promoCodeDemo, 'empty', '');
+                    return;
+                }
+
+                if (openBtn && currentState === 'empty') {
+                    openPromoModal();
+                }
+            });
+        }
+
+        if (promoApply) {
+            promoApply.addEventListener('click', () => {
+                const nextCode = promoInput.value.trim();
+                if (!nextCode) return;
+                renderPromoCodeState(promoCodeDemo, 'entered', nextCode);
+                closePromoModal();
+            });
+        }
+
+        if (promoCancel) {
+            promoCancel.addEventListener('click', closePromoModal);
+        }
+
+        if (promoModal) {
+            promoModal.addEventListener('click', (event) => {
+                if (event.target === promoModal) closePromoModal();
+            });
         }
     </script>
 </body>
