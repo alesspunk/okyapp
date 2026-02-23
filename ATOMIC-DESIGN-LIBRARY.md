@@ -120,6 +120,7 @@
 - **Navigation icon rule**: active icon is `fa-solid`; non-active icons are `fa-regular`.
 - **Promo Code / Entered**: clear icon (`fa-circle-xmark`) uses `fa-solid` with `icon-medium-solid`.
 - **Summary Box**: in `checkout/payment` variants, label updated from `PAGAS` to `TOTAL`; other variants remain `PAGAS`.
+- **Summary Box / crossed-out prices**: all crossed-out price values now use `#057a73ff` (`$Secondary Dark`) across documented variants.
 - **Widgets**: CTA added to `OFERTAS DEL DÍA` (`Comprar`) and `COMPARA TIPOS DE CAMBIO` (`Comparar`), aligned with `RECARGAS TIEMPO AIRE`.
 
 ---

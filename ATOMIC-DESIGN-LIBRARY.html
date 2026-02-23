@@ -36,6 +36,7 @@
             --disable-main: #e0e0e0;
             --divider: rgba(0,0,0,0.12);
             --background: #f5f5f5;
+            --summary-crossed-price: #057a73ff;
             --icon-medium-font-size: 24px;
             --icon-medium-line-height: 24px;
         }
@@ -2079,7 +2080,7 @@
             line-height: 1.75;
             letter-spacing: 0.15px;
             text-decoration: line-through;
-            color: var(--disable-text);
+            color: var(--summary-crossed-price);
         }
 
         .summary-value-new {
@@ -5867,10 +5868,123 @@ export function BottomNavWithLabels(props) {
                 <p><strong>Naming + data attrs:</strong> <code>SummaryBox/flow=&lt;products|giftCards|billPayments&gt;/step=&lt;pdp|plp|cart|checkout&gt;</code> + HTML attrs <code>data-flow</code> and <code>data-step</code>.</p>
                 <p><strong>Text tokens used:</strong> <code>Exchange</code> (10/400/uppercase), <code>subtitle1</code> (16/700), <code>sumText</code> (14/400), <code>sumTotal</code> (16/700), <code>buttonLg</code> (20/700), <code>iconMd</code> for FA in CTA.</p>
                 <p><strong>Color tokens (Theme / Colors):</strong> <code>$Primary Main</code>, <code>$Secondary Dark</code>, <code>$Disable Main</code>, <code>$Disable Text</code>, <code>$White</code>.</p>
+                <p><strong>Crossed-out price color:</strong> all <code>.summary-value-old</code> values use <code>#057a73ff</code> (<code>$Secondary Dark</code>) across documented Summary Box variants.</p>
                 <p><strong>Shadows:</strong> card uses <code>Shadow / 5</code>; overlap bar uses <code>Tipo de cambio</code> drop shadow.</p>
                 <p><strong>Gradient:</strong> overlap bar keeps original gradient (<code>#FCFCFC → #F1F2F5</code>, ~177.29°).</p>
                 <p><strong>Max size constraints:</strong> width <code>307/324/328px</code> by variant; max height <code>200/224px</code>; overlap width <code>300px</code>.</p>
                 <p><strong>Nested atoms:</strong> buttons use existing DS variants (<code>Primary</code>, <code>Outlined</code>), FA icon is nested inside CTA button text.</p>
+            </div>
+
+            <button class="toggle-code" onclick="toggleCode(this)">
+                <i class="fa-regular fa-code"></i>
+                <span>Show React Code</span>
+            </button>
+
+            <div class="code-snippet-container code-hidden">
+                <div class="code-header">
+                    <span class="code-label">SummaryBox.jsx</span>
+                    <button class="copy-btn" onclick="copyCode(this)">
+                        <i class="fa-regular fa-copy" style="font-size: 13px;"></i>
+                        Copy
+                    </button>
+                </div>
+                <div class="code-content">
+                    <pre><code>import React from 'react';
+
+export default function SummaryBox({
+  flow = 'products',
+  step = 'cart',
+  compact = true,
+  narrow = false,
+  exchangeRate = 'Q 7.55',
+  rows = [],
+  ctas = [],
+  savingsText = '',
+}) {
+  const boxClass = [
+    'summary-box',
+    'with-overlap',
+    compact ? 'summary-box-compact' : '',
+    narrow ? 'summary-box-narrow' : '',
+  ].filter(Boolean).join(' ');
+
+  return (
+    &lt;div className={boxClass} data-flow={flow} data-step={step}&gt;
+      &lt;div className="summary-type-overlay"&gt;
+        &lt;span className="token-exchange"&gt;TIPO DE CAMBIO: {exchangeRate}&lt;/span&gt;
+      &lt;/div&gt;
+
+      &lt;div className="summary-card"&gt;
+        &lt;div className="summary-card-body"&gt;
+          {rows.map((row, index) =&gt; (
+            &lt;div className="summary-row" key={`${row.label}-${index}`}&gt;
+              &lt;span className={row.strong ? 'summary-label-strong' : 'summary-label'}&gt;
+                {row.label}
+              &lt;/span&gt;
+              &lt;span className={row.strong ? 'summary-label-strong' : 'summary-label'}&gt;
+                {row.value}
+              &lt;/span&gt;
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+
+        {Boolean(savingsText) &amp;&amp; (
+          &lt;div className="summary-savings-row"&gt;
+            &lt;i className="fa-solid fa-tags"&gt;&lt;/i&gt;
+            &lt;span&gt;{savingsText}&lt;/span&gt;
+          &lt;/div&gt;
+        )}
+
+        &lt;div className="summary-divider"&gt;&lt;/div&gt;
+        &lt;div className={`summary-cta-row ${ctas.length &gt; 1 ? 'double' : ''}`.trim()}&gt;
+          {ctas.map((cta) =&gt; (
+            &lt;button
+              key={cta.label}
+              className={cta.variant === 'outlined' ? 'btn btn-outlined btn-medium' : 'btn btn-primary summary-btn'}
+              style={ctas.length &gt; 1 ? { width: '100%' } : undefined}
+              type="button"
+              onClick={cta.onClick}
+            &gt;
+              {cta.icon ? &lt;i className={cta.icon}&gt;&lt;/i&gt; : null}
+              {cta.label}
+            &lt;/button&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Usage - products / checkout (TOTAL)
+&lt;SummaryBox
+  flow="products"
+  step="checkout"
+  rows={[
+    { label: '3 Productos', value: '$70.00', strong: true },
+    { label: 'Costo por servicio', value: '$7.50' },
+    { label: 'TOTAL', value: '$77.50', strong: true },
+  ]}
+  ctas={[{ label: 'Proceder al pago', variant: 'primary' }]}
+/&gt;
+
+// Usage - giftCards / plp (voucherify)
+&lt;SummaryBox
+  flow="giftCards"
+  step="plp"
+  compact
+  narrow
+  rows={[
+    { label: '3 Productos', value: '$100.00', strong: true },
+    { label: 'Costo por servicio', value: '$7.50' },
+    { label: 'PAGAS', value: '$102.50', strong: true },
+  ]}
+  savingsText="¡Ahorro total $12.50!"
+  ctas={[
+    { label: 'Seguir comprando', variant: 'outlined' },
+    { label: 'Ir a caja', variant: 'primary' },
+  ]}
+/&gt;</code></pre>
+                </div>
             </div>
 
             <h3>3. Carrousel</h3>
