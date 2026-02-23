@@ -2088,6 +2088,12 @@
             color: var(--secondary-dark);
         }
 
+        /* In rows with crossed-out prices, the row label also uses Secondary Dark */
+        .summary-box .summary-row:has(.summary-value-old) > .summary-label,
+        .summary-box .summary-row:has(.summary-value-old) > .summary-label-strong {
+            color: var(--secondary-dark);
+        }
+
         .summary-value-new {
             font-family: 'Lato', sans-serif;
             font-size: 16px;
@@ -5874,6 +5880,7 @@ export function BottomNavWithLabels(props) {
                 <p><strong>Text tokens used:</strong> <code>Exchange</code> (10/400/uppercase), <code>subtitle1</code> (16/700), <code>sumText</code> (14/400), <code>sumTotal</code> (16/700), <code>buttonLg</code> (20/700), <code>iconMd</code> for FA in CTA.</p>
                 <p><strong>Color tokens (Theme / Colors):</strong> <code>$Primary Main</code>, <code>$Secondary Dark</code>, <code>$Disable Main</code>, <code>$Disable Text</code>, <code>$White</code>.</p>
                 <p><strong>Crossed-out price color:</strong> all <code>.summary-value-old</code> values use <code>$Disable Text</code>.</p>
+                <p><strong>Label in crossed-price rows:</strong> row labels (for example <code>3 Productos</code>) use <code>$Secondary Dark</code>.</p>
                 <p><strong>Regular price with crossed-out value:</strong> the current price next to a crossed-out amount uses <code>$Secondary Dark</code>.</p>
                 <p><strong>Shadows:</strong> card uses <code>Shadow / 5</code>; overlap bar uses <code>Tipo de cambio</code> drop shadow.</p>
                 <p><strong>Gradient:</strong> overlap bar keeps original gradient (<code>#FCFCFC → #F1F2F5</code>, ~177.29°).</p>
