@@ -36,7 +36,6 @@
             --disable-main: #e0e0e0;
             --divider: rgba(0,0,0,0.12);
             --background: #f5f5f5;
-            --summary-crossed-price: #057a73ff;
             --icon-medium-font-size: 24px;
             --icon-medium-line-height: 24px;
         }
@@ -2080,7 +2079,13 @@
             line-height: 1.75;
             letter-spacing: 0.15px;
             text-decoration: line-through;
-            color: var(--summary-crossed-price);
+            color: var(--disable-text);
+        }
+
+        /* In rows with crossed-out prices, the regular/current price uses Secondary Dark */
+        .summary-box .summary-value-old + .summary-label,
+        .summary-box .summary-value-old + .summary-label-strong {
+            color: var(--secondary-dark);
         }
 
         .summary-value-new {
@@ -5868,7 +5873,8 @@ export function BottomNavWithLabels(props) {
                 <p><strong>Naming + data attrs:</strong> <code>SummaryBox/flow=&lt;products|giftCards|billPayments&gt;/step=&lt;pdp|plp|cart|checkout&gt;</code> + HTML attrs <code>data-flow</code> and <code>data-step</code>.</p>
                 <p><strong>Text tokens used:</strong> <code>Exchange</code> (10/400/uppercase), <code>subtitle1</code> (16/700), <code>sumText</code> (14/400), <code>sumTotal</code> (16/700), <code>buttonLg</code> (20/700), <code>iconMd</code> for FA in CTA.</p>
                 <p><strong>Color tokens (Theme / Colors):</strong> <code>$Primary Main</code>, <code>$Secondary Dark</code>, <code>$Disable Main</code>, <code>$Disable Text</code>, <code>$White</code>.</p>
-                <p><strong>Crossed-out price color:</strong> all <code>.summary-value-old</code> values use <code>#057a73ff</code> (<code>$Secondary Dark</code>) across documented Summary Box variants.</p>
+                <p><strong>Crossed-out price color:</strong> all <code>.summary-value-old</code> values use <code>$Disable Text</code>.</p>
+                <p><strong>Regular price with crossed-out value:</strong> the current price next to a crossed-out amount uses <code>$Secondary Dark</code>.</p>
                 <p><strong>Shadows:</strong> card uses <code>Shadow / 5</code>; overlap bar uses <code>Tipo de cambio</code> drop shadow.</p>
                 <p><strong>Gradient:</strong> overlap bar keeps original gradient (<code>#FCFCFC → #F1F2F5</code>, ~177.29°).</p>
                 <p><strong>Max size constraints:</strong> width <code>307/324/328px</code> by variant; max height <code>200/224px</code>; overlap width <code>300px</code>.</p>
