@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OKY - Mood 2</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://kit.fontawesome.com/b5a8f622db.js" crossorigin="anonymous"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            width: 360px;
+            height: 800px;
+            background: #ffffff;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: #ffffff;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-bar .time {
+            letter-spacing: -0.28px;
+        }
+
+        .status-bar .indicators {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .battery {
+            width: 24px;
+            height: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.35);
+            border-radius: 3px;
+            position: relative;
+            padding: 2px;
+        }
+
+        .battery::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 0 1px 1px 0;
+        }
+
+        .battery-fill {
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            border-radius: 1px;
+        }
+
+        /* Header */
+        .header {
+            background: #ffffff;
+            padding: 21px 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            height: 56px;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .header-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #410088;
+            font-size: 24px;
+        }
+
+        .logo {
+            flex: 1;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo svg {
+            height: 31px;
+            width: auto;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: #ffffff;
+            padding: 8px 16px;
+        }
+
+        .search-bar {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: 12px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 10px;
+        }
+
+        .search-bar .fa-magnifying-glass {
+            color: rgba(0, 0, 0, 0.38);
+            font-size: 24px;
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            flex: 1;
+            height: 100%;
+            font-size: 16px;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.54);
+            letter-spacing: 0.15px;
+            line-height: 1.43;
+            font-family: 'Nunito Sans', sans-serif;
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(0, 0, 0, 0.54);
+        }
+
+        /* Half Tile Section */
+        .half-tile-section {
+            background: #ffffff;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .tile {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid #ffb400;
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-height: 85px;
+            justify-content: space-between;
+        }
+
+        .tile-title {
+            color: #410088;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
+            text-align: center;
+            width: 100%;
+        }
+
+        .tile-image {
+            width: 55px;
+            height: 55px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .tile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+        }
+
+        /* Carousel Section */
+        .carousel-section {
+            background: #ffffff;
+            padding: 16px;
+        }
+
+        .carousel {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .carousel-item {
+            min-width: 292px;
+            height: 136px;
+            background: linear-gradient(135deg, #410088 0%, #7b3ba8 50%, #bc9edc 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.23);
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            color: #ffffff;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel-item::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .carousel-promo-title {
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 8px;
+            z-index: 1;
+        }
+
+        .carousel-promo-subtitle {
+            font-size: 14px;
+            font-weight: 400;
+            margin-bottom: 12px;
+            z-index: 1;
+        }
+
+        .carousel-promo-badge {
+            background: #ffb400;
+            color: #000000;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 1;
+        }
+
+        .carousel-item.promo-special {
+            background: linear-gradient(135deg, #1a237e 0%, #3949ab 50%, #5c6bc0 100%);
+        }
+
+        /* Content Section */
+        .content-section {
+            flex: 1;
+            background: #ffffff;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+        /* Offers Card */
+        .offers-card {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.23);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 10.5px 10.5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .offer-icon {
+            width: 54px;
+            height: 54px;
+            background: #FFF3E0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .offer-icon .fa-solid {
+            color: #FF5722;
+            font-size: 28px;
+        }
+
+        .offer-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .offer-title {
+            color: #410088;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .offer-subtitle {
+            color: rgba(0, 0, 0, 0.54);
+            font-size: 12px;
+        }
+
+        .offer-detail {
+            color: rgba(0, 0, 0, 0.38);
+            font-size: 11px;
+        }
+
+        .promo-badge {
+            background: #E8F5E9;
+            color: #388E3C;
+            border-radius: 12px;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Notifications Card */
+        .notifications-card {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.23);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 10.5px 10.5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .notif-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notif-icon {
+            color: #410088;
+            font-size: 24px;
+        }
+
+        .notif-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .notif-title {
+            color: rgba(0, 0, 0, 0.87);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .notif-subtitle {
+            color: rgba(0, 0, 0, 0.54);
+            font-size: 11px;
+        }
+
+        .toggle {
+            width: 44px;
+            height: 24px;
+            background: #E0E0E0;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .toggle-knob {
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+            transition: left 0.3s;
+        }
+
+        .toggle.active {
+            background: #18afa5;
+        }
+
+        .toggle.active .toggle-knob {
+            left: 22px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: #ffffff;
+            height: 56px;
+            border-top: 1px solid rgba(0, 0, 0, 0.23);
+            display: flex;
+            padding: 4px 8px;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 12.5px 16px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #410088;
+        }
+
+        .nav-item .fa-solid,
+        .nav-item .fa-regular {
+            color: #410088;
+            font-size: 20px;
+        }
+
+        .nav-logo {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-logo svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        @media (max-width: 400px) {
+            .phone-frame {
+                width: 100%;
+                max-width: 360px;
+                height: 100vh;
+                max-height: 800px;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="indicators">
+                <div class="battery">
+                    <div class="battery-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header / Logged / Empty Cart -->
+        <div class="header">
+            <div class="header-icon">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+            <div class="logo">
+                <svg viewBox="0 0 83.19 31" fill="#410088" xmlns="http://www.w3.org/2000/svg">
+                    <!-- O -->
+                    <path d="M40.15 0c-7.94 0-15.7 2.354-22.3 6.764-6.6 4.41-11.75 10.68-14.79 18.014-3.04 7.335-3.84 15.406-2.29 23.194 1.547 7.787 5.368 14.941 10.98 20.557 5.612 5.617 12.763 9.443 20.55 10.996 7.786 1.552 15.858 0.761 23.195-2.273 7.337-3.034 13.61-8.176 18.025-14.774 4.415-6.599 6.775-14.358 6.781-22.298-0.003-10.65-4.233-20.864-11.761-28.398C61.303 4.249 51.092 0.011 40.443 0h-0.293zm0 70.71c-6.048 0-11.96-1.794-16.988-5.155-5.028-3.361-8.946-8.138-11.259-13.726-2.313-5.588-2.916-11.737-1.733-17.668 1.183-5.931 4.098-11.378 8.378-15.652 4.279-4.274 9.73-7.182 15.663-8.357 5.932-1.175 12.08-0.564 17.666 1.756 5.585 2.32 10.357 6.244 13.711 11.277 3.354 5.032 5.14 10.947 5.133 16.995-0.019 8.098-3.247 15.859-8.977 21.582-5.73 5.722-13.495 8.94-21.593 8.948z" transform="scale(0.4) translate(-0.004, 0.687)"/>
+                    <!-- K vertical bar -->
+                    <path d="M4.785 0c-1.268 0-2.484 0.504-3.38 1.4C0.509 2.297 0.005 3.512 0.005 4.78v66.26c-0.03 0.647 0.072 1.293 0.3 1.9 0.227 0.606 0.575 1.16 1.022 1.628 0.447 0.468 0.985 0.841 1.58 1.095 0.595 0.255 1.236 0.386 1.883 0.386s1.288-0.131 1.884-0.386c0.595-0.254 1.133-0.627 1.58-1.095 0.447-0.468 0.795-1.022 1.022-1.628 0.227-0.607 0.329-1.253 0.3-1.9V4.78c0-0.629-0.124-1.251-0.365-1.832-0.241-0.58-0.594-1.108-1.039-1.552-0.445-0.444-0.973-0.796-1.554-1.036C6.036 0.121 5.414-0.001 4.785 0z" transform="scale(0.4) translate(33.92, 1.529)"/>
+                    <!-- K diagonal -->
+                    <path d="M38.252 1.23c-0.943-0.849-2.185-1.289-3.452-1.224-1.268 0.066-2.457 0.632-3.308 1.574l-30.26 33.58c-0.805 0.893-1.245 2.056-1.232 3.259 0.013 1.202 0.478 2.356 1.302 3.231l29.83 31.68c0.871 0.928 2.076 1.472 3.348 1.513 1.272 0.04 2.509-0.427 3.437-1.298 0.928-0.871 1.472-2.076 1.513-3.348 0.04-1.272-0.427-2.509-1.298-3.437l-26.84-28.46 27.28-30.31c0.424-0.465 0.751-1.008 0.964-1.6 0.213-0.591 0.308-1.219 0.278-1.847-0.03-0.628-0.183-1.244-0.451-1.812-0.268-0.569-0.646-1.079-1.111-1.501z" transform="scale(0.4) translate(39.43, 1.74)"/>
+                    <!-- Y -->
+                    <path d="M52.491 0.901c-0.563-0.279-1.176-0.444-1.803-0.486-0.627-0.042-1.257 0.04-1.852 0.242-0.595 0.201-1.145 0.518-1.618 0.933-0.473 0.414-0.859 0.918-1.137 1.482L27.631 40.4l-18.37-37.33c-0.239-0.622-0.605-1.187-1.075-1.66-0.47-0.472-1.033-0.841-1.654-1.084-0.621-0.242-1.285-0.352-1.951-0.323-0.666 0.029-1.318 0.197-1.915 0.492-0.597 0.296-1.126 0.712-1.553 1.224-0.427 0.511-0.743 1.106-0.927 1.747-0.184 0.64-0.232 1.312-0.142 1.972 0.09 0.66 0.317 1.294 0.667 1.862l22.21 45.14v18c0 1.27 0.505 2.489 1.403 3.387 0.898 0.898 2.117 1.403 3.387 1.403s2.489-0.505 3.387-1.403c0.898-0.898 1.403-2.117 1.403-3.387V52.23l22.21-44.92c0.277-0.566 0.44-1.182 0.478-1.811 0.039-0.63-0.048-1.26-0.254-1.856-0.206-0.596-0.529-1.145-0.948-1.616-0.42-0.471-0.928-0.854-1.496-1.127z" transform="scale(0.4) translate(57.502, 1.589)"/>
+                    <!-- R superscript -->
+                    <path d="M0.002 4.611c0-0.413 0.058-0.823 0.17-1.22 0.104-0.386 0.258-0.755 0.46-1.1 0.197-0.347 0.443-0.663 0.73-0.94 0.555-0.559 1.243-0.969 2-1.19C3.773 0.048 4.197-0.006 4.622 0c0.415-0.002 0.829 0.052 1.23 0.16 0.755 0.226 1.442 0.635 2 1.19 0.281 0.28 0.523 0.596 0.72 0.94 0.419 0.701 0.637 1.504 0.63 2.32 0.003 0.416-0.051 0.83-0.16 1.23-0.22 0.767-0.632 1.466-1.197 2.029-0.565 0.563-1.265 0.973-2.033 1.191-0.401 0.109-0.815 0.162-1.23 0.16-0.412 0.003-0.823-0.051-1.22-0.16-0.389-0.107-0.762-0.265-1.11-0.47-0.339-0.2-0.652-0.441-0.93-0.72-0.285-0.275-0.53-0.588-0.73-0.93-0.2-0.345-0.355-0.715-0.46-1.1-0.1-0.402-0.143-0.816-0.13-1.23zm1 0c-0.002 0.503 0.093 1.002 0.28 1.47 0.174 0.442 0.432 0.846 0.76 1.19 0.321 0.339 0.709 0.608 1.14 0.79 0.443 0.199 0.924 0.298 1.41 0.29 0.459 0.006 0.914-0.079 1.34-0.25 0.411-0.166 0.787-0.407 1.11-0.71l-1.34 0c-0.093 0.009-0.187-0.009-0.27-0.051-0.083-0.043-0.153-0.108-0.2-0.189l-0.57-1.43c-0.037-0.062-0.088-0.113-0.15-0.15-0.066-0.041-0.143-0.059-0.22-0.05h-0.2v1.87h-1.66V0.8h2.18c0.36-0.006 0.72 0.034 1.07 0.12 0.265 0.058 0.516 0.167 0.74 0.32 0.185 0.132 0.33 0.312 0.42 0.52 0.095 0.224 0.143 0.466 0.14 0.71 0.006 0.178-0.011 0.356-0.05 0.53-0.044 0.154-0.108 0.302-0.19 0.44-0.094 0.134-0.205 0.255-0.33 0.36-0.15 0.089-0.311 0.156-0.48 0.2 0.114 0.057 0.216 0.135 0.3 0.23 0.087 0.11 0.164 0.227 0.23 0.35l0.76 1.6c0.654-0.711 1.011-1.644 1-2.61 0.002-0.338-0.042-0.674-0.13-1-0.078-0.315-0.199-0.618-0.36-0.9-0.151-0.278-0.34-0.533-0.56-0.76-0.215-0.229-0.461-0.428-0.73-0.59-0.273-0.16-0.566-0.284-0.87-0.37-0.787-0.229-1.629-0.176-2.38 0.15-0.43 0.192-0.817 0.468-1.14 0.81-0.328 0.347-0.586 0.755-0.76 1.2-0.182 0.479-0.27 0.988-0.26 1.5h-0.03zm3.08-0.23h0.4c0.153 0.019 0.307 0.019 0.46 0 0.097-0.018 0.187-0.063 0.26-0.13 0.061-0.058 0.1-0.136 0.11-0.22 0.006-0.1 0.006-0.2 0-0.3 0.006-0.093 0.006-0.187 0-0.28-0.011-0.079-0.046-0.152-0.1-0.21-0.058-0.065-0.135-0.11-0.22-0.13-0.129-0.019-0.261-0.019-0.39 0h-0.52v1.27z" transform="scale(0.4) translate(79.696, 0)"/>
+                    <!-- Infinity/heart shape -->
+                    <path d="M33.889 0.594l-0.1-0.06c-0.498-0.277-1.048-0.45-1.614-0.51-0.567-0.06-1.14-0.006-1.686 0.16-0.503 0.152-0.971 0.401-1.378 0.734-0.407 0.333-0.744 0.743-0.992 1.206-0.506 0.84-1.1 1.624-1.77 2.34-0.099 0.062-0.189 0.136-0.27 0.22-0.19 0.21-0.4 0.41-0.58 0.58-0.56 0.486-1.17 0.912-1.82 1.27-1.219 0.763-2.58 1.27-4 1.49l-0.62 0.08h-0.5l-1.19 0h-0.6l-0.53-0.07c-1.447-0.233-2.832-0.757-4.07-1.54-0.606-0.337-1.176-0.735-1.7-1.19-0.21-0.2-0.42-0.4-0.62-0.61-0.074-0.08-0.158-0.151-0.25-0.21-0.651-0.693-1.231-1.45-1.73-2.26-0.251-0.477-0.595-0.899-1.01-1.242-0.415-0.343-0.895-0.601-1.41-0.758-0.567-0.166-1.161-0.215-1.747-0.144-0.586 0.07-1.152 0.259-1.663 0.554-0.949 0.568-1.635 1.488-1.908 2.559-0.274 1.072-0.112 2.208 0.448 3.161 0.802 1.443 1.772 2.786 2.89 4 0.055 0.095 0.122 0.183 0.2 0.26 1.283 1.273 2.709 2.394 4.25 3.34 0.851 0.474 1.733 0.892 2.64 1.25 0.26 0.11 0.53 0.21 0.79 0.3l0.2 0.07c0.36 0.13 0.72 0.24 1.18 0.37 0.46 0.13 0.82 0.21 1.3 0.31l1 0.18 0.64 0.08h0.48l0.69 0.06h0.77 0.8 0.65l0.7-0.06h0.47l0.63-0.08c0.35-0.05 0.7-0.11 1.09-0.19 0.39-0.08 0.83-0.19 1.32-0.33 0.49-0.14 0.74-0.21 1.1-0.34l0.19-0.06 0.79-0.3c0.937-0.358 1.849-0.779 2.73-1.26 0.819-0.507 1.601-1.072 2.34-1.69 0.651-0.521 1.269-1.082 1.85-1.68 0.072-0.079 0.139-0.162 0.2-0.25 1.112-1.217 2.078-2.56 2.88-4 0.564-0.956 0.728-2.096 0.454-3.171-0.274-1.076-0.962-1.999-1.914-2.569z" transform="scale(0.4) translate(8.398, 17.007)"/>
+                </svg>
+            </div>
+            <div class="header-icon">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Buscas marcas">
+            </div>
+        </div>
+
+        <!-- Half Tile Section -->
+        <div class="half-tile-section">
+            <div class="tile">
+                <div class="tile-title">Navidad</div>
+                <div class="tile-image"><img src="./images/navidad.webp" alt="Navidad"></div>
+            </div>
+            <div class="tile">
+                <div class="tile-title">Multimarca</div>
+                <div class="tile-image"><img src="./images/multimarca.webp" alt="Multimarca"></div>
+            </div>
+            <div class="tile">
+                <div class="tile-title">Recargas</div>
+                <div class="tile-image"><img src="./images/recargas.webp" alt="Recargas"></div>
+            </div>
+        </div>
+
+        <!-- Carousel Section -->
+        <div class="carousel-section">
+            <div class="carousel">
+                <div class="carousel-item">
+                    <div class="carousel-promo-title">Para todos<br>los días...</div>
+                    <div class="carousel-promo-subtitle">...y para los especiales</div>
+                    <div class="carousel-promo-badge">Descubre más</div>
+                </div>
+                <div class="carousel-item promo-special">
+                    <div class="carousel-promo-title">Compra ahora,<br>paga después</div>
+                    <div class="carousel-promo-subtitle">Hasta 12 meses sin intereses</div>
+                    <div class="carousel-promo-badge">Ver más</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content-section">
+            <!-- Offers Card -->
+            <div class="offers-card">
+                <div class="offer-icon">
+                    <i class="fa-solid fa-fire"></i>
+                </div>
+                <div class="offer-content">
+                    <div class="offer-title">Ver Ofertas</div>
+                    <div class="offer-subtitle">Combo celebración</div>
+                    <div class="offer-detail">Details here</div>
+                </div>
+                <div class="promo-badge">PROMO $1</div>
+            </div>
+
+            <!-- Notifications Card -->
+            <div class="notifications-card">
+                <div class="notif-left">
+                    <i class="fa-solid fa-bullhorn notif-icon"></i>
+                    <div class="notif-content">
+                        <div class="notif-title">Entérate de las ofertas</div>
+                        <div class="notif-subtitle">Activa las notificaciones en tu teléfono</div>
+                    </div>
+                </div>
+                <div class="toggle" onclick="this.classList.toggle('active')">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <i class="fa-solid fa-house"></i>
+            </div>
+            <div class="nav-item">
+                <i class="fa-regular fa-location-dot"></i>
+            </div>
+            <div class="nav-item">
+                <div class="nav-logo">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="14" r="13" stroke="#410088" stroke-width="2" fill="none"/>
+                        <path d="M8 14 L20 14 M14 8 L14 20" stroke="#410088" stroke-width="2"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="nav-item">
+                <i class="fa-regular fa-comment"></i>
+            </div>
+            <div class="nav-item">
+                <i class="fa-regular fa-bars"></i>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
