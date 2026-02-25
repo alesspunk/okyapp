@@ -1,0 +1,20 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "npm run build-storybook",
+  "outputDirectory": "storybook-static",
+  "rewrites": [
+    {
+      "source": "/atomic",
+      "destination": "/public/ATOMIC-DESIGN-LIBRARY.html"
+    },
+    {
+      "source": "/storybook",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/storybook/:path*",
+      "destination": "/:path*"
+    }
+  ]
+}

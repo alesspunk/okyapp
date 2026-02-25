@@ -1,4 +1,4 @@
-import dsHtml from "../ATOMIC-DESIGN-LIBRARY.html?raw";
+import dsHtml from "../public/ATOMIC-DESIGN-LIBRARY.html?raw";
 
 const iframeStyle =
   "width:100%;height:85vh;border:1px solid rgba(0,0,0,0.12);border-radius:12px;background:#fff;";

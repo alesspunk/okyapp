@@ -13,5 +13,5 @@ export default {
   docs: {
     autodocs: true,
   },
-  staticDirs: ["../images"],
+  staticDirs: ["../images", { from: "../public", to: "/public" }],
 };
