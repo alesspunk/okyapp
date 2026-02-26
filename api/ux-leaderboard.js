@@ -2,13 +2,25 @@ const LEADERBOARD_KEY = "ux:detective:leaderboard";
 const SESSION_PREFIX = "ux:detective:session:";
 const MAX_LIMIT = 50;
 
+function getRedisEnv() {
+  const url =
+    process.env.KV_REST_API_URL ||
+    process.env.UPSTASH_REDIS_REST_URL ||
+    process.env.REDIS_REST_URL;
+  const token =
+    process.env.KV_REST_API_TOKEN ||
+    process.env.UPSTASH_REDIS_REST_TOKEN ||
+    process.env.REDIS_REST_TOKEN;
+  return { url, token };
+}
+
 function hasKVConfig() {
-  return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+  const { url, token } = getRedisEnv();
+  return Boolean(url && token);
 }
 
 async function kvCommand(...args) {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
+  const { url, token } = getRedisEnv();
 
   if (!url || !token) {
     throw new Error("KV no configurado.");
@@ -135,7 +147,7 @@ module.exports = async function handler(req, res) {
     return json(res, 503, {
       ok: false,
       message:
-        "Leaderboard global no configurado. Define KV_REST_API_URL y KV_REST_API_TOKEN en Vercel.",
+        "Leaderboard global no configurado. Conecta Upstash/Redis en Vercel (KV_REST_* o UPSTASH_REDIS_REST_*).",
       entries: [],
     });
   }
