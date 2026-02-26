@@ -70,12 +70,13 @@ function getPool() {
 
 function mapEntry(row) {
   if (!row) return null;
+  const status = String(row.status || "").trim().toLowerCase();
   return {
     id: row.id,
     displayName: row.display_name,
     statements: [row.statement_one, row.statement_two, row.statement_three],
     lieIndex: row.lie_index,
-    status: row.status,
+    status,
     submittedAt: row.submitted_at,
     roundStartedAt: row.round_started_at,
     revealedAt: row.revealed_at,
@@ -181,7 +182,7 @@ export async function getQueueAhead(token) {
     SELECT COUNT(*)::INT AS count
     FROM truth_lie_entries e
     JOIN target t ON true
-    WHERE e.status = 'queued'
+    WHERE LOWER(TRIM(e.status)) = 'queued'
       AND (
         e.submitted_at < t.submitted_at
         OR (e.submitted_at = t.submitted_at AND e.id < t.id)
@@ -197,7 +198,7 @@ export async function countQueued() {
   const result = await sql`
     SELECT COUNT(*)::INT AS count
     FROM truth_lie_entries
-    WHERE status = 'queued'
+    WHERE LOWER(TRIM(status)) = 'queued'
   `;
   return Number(result.rows[0]?.count || 0);
 }
@@ -208,7 +209,7 @@ export async function getCurrentRound() {
   const result = await sql`
     SELECT *
     FROM truth_lie_entries
-    WHERE status IN ('active', 'revealed')
+    WHERE LOWER(TRIM(status)) IN ('active', 'revealed')
     ORDER BY round_started_at DESC NULLS LAST, id DESC
     LIMIT 1
   `;
@@ -223,7 +224,7 @@ export async function getNextQueued() {
   const result = await sql`
     SELECT *
     FROM truth_lie_entries
-    WHERE status = 'queued'
+    WHERE LOWER(TRIM(status)) = 'queued'
     ORDER BY submitted_at ASC, id ASC
     LIMIT 1
   `;
@@ -246,6 +247,22 @@ export async function listSubmissions() {
 
 export async function startRound(entryId) {
   await ensureSchema();
+  const sql = getPool().sql.bind(getPool());
+
+  const existingResult = await sql`
+    SELECT id, status
+    FROM truth_lie_entries
+    WHERE id = ${entryId}
+    LIMIT 1
+  `;
+  const existing = existingResult.rows[0];
+  if (!existing) {
+    return null;
+  }
+  const normalizedStatus = String(existing.status || "").trim().toLowerCase();
+  if (normalizedStatus !== "queued") {
+    return null;
+  }
 
   const client = await getPool().connect();
   try {
@@ -254,7 +271,7 @@ export async function startRound(entryId) {
     await client.sql`
       UPDATE truth_lie_entries
       SET status = 'archived', archived_at = NOW()
-      WHERE status IN ('active', 'revealed')
+      WHERE LOWER(TRIM(status)) IN ('active', 'revealed')
     `;
 
     const result = await client.sql`
@@ -265,11 +282,10 @@ export async function startRound(entryId) {
         revealed_at = NULL,
         archived_at = NULL
       WHERE id = ${entryId}
-        AND status = 'queued'
       RETURNING *
     `;
 
-    if (result.rowCount === 0) {
+    if (!result.rows?.length) {
       await client.sql`ROLLBACK`;
       return null;
     }
@@ -296,7 +312,7 @@ export async function revealRound(entryId) {
     UPDATE truth_lie_entries
     SET status = 'revealed', revealed_at = NOW()
     WHERE id = ${entryId}
-      AND status = 'active'
+      AND LOWER(TRIM(status)) = 'active'
     RETURNING *
   `;
 
@@ -311,7 +327,7 @@ export async function archiveRound(entryId) {
     UPDATE truth_lie_entries
     SET status = 'archived', archived_at = NOW()
     WHERE id = ${entryId}
-      AND status IN ('active', 'revealed')
+      AND LOWER(TRIM(status)) IN ('active', 'revealed')
     RETURNING *
   `;
 
