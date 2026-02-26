@@ -724,7 +724,7 @@ const PREGUNTAS_POR_COMPONENTE = 3;
 const TOTAL_PREGUNTAS = COMPONENTES.length * PREGUNTAS_POR_COMPONENTE;
 const LEADERBOARD_API_URL = "/api/ux-leaderboard";
 const LEADERBOARD_LOCAL_KEY = "uxDetectiveLeaderboardLocalV2";
-const LEADERBOARD_POLL_MS = 3000;
+const LEADERBOARD_POLL_MS = 1000;
 let leaderboardTimerId = null;
 
 const estado = {
@@ -734,7 +734,6 @@ const estado = {
   locked: false,
   playerName: "",
   sessionId: "",
-  savedToLeaderboard: false,
 };
 
 const startScreen = document.getElementById("start-screen");
@@ -835,6 +834,9 @@ function submitAnswer(selectedIndex) {
     <span>${question.explanation}</span>
   `;
 
+  // Sync inmediato por pregunta para multijugador en vivo.
+  void registerScore();
+
   nextBtn.textContent = estado.step === TOTAL_PREGUNTAS - 1 ? "Ver resultados" : "Siguiente pregunta";
   nextBtn.classList.remove("hidden");
 }
@@ -930,7 +932,7 @@ function renderLeaderboard(entries) {
 }
 
 function registrarPuntajeLocal() {
-  if (estado.savedToLeaderboard || !estado.playerName) return;
+  if (!estado.playerName || !estado.sessionId) return;
 
   const now = new Date().toISOString();
   const entries = loadLocalLeaderboard();
@@ -956,7 +958,6 @@ function registrarPuntajeLocal() {
 
   const ordered = sortLeaderboard(entries).slice(0, 30);
   saveLocalLeaderboard(ordered);
-  estado.savedToLeaderboard = true;
   leaderboardStatus.textContent =
     "Modo local: no se pudo conectar al API global. El ranking se guarda solo en este navegador.";
 }
@@ -1004,7 +1005,7 @@ function iniciarPollingLeaderboard() {
 }
 
 async function registerScore() {
-  if (estado.savedToLeaderboard || !estado.playerName || !estado.sessionId) return;
+  if (!estado.playerName || !estado.sessionId) return;
 
   const payload = {
     sessionId: estado.sessionId,
@@ -1028,7 +1029,6 @@ async function registerScore() {
     }
 
     leaderboardStatus.textContent = "Conectado: ranking global en tiempo real.";
-    estado.savedToLeaderboard = true;
     await refreshLeaderboard();
   } catch {
     registrarPuntajeLocal();
@@ -1076,7 +1076,6 @@ function resetGame() {
   estado.score = 0;
   estado.misses = new Set();
   estado.locked = false;
-  estado.savedToLeaderboard = false;
 }
 
 function startGame() {
@@ -1097,6 +1096,8 @@ function startGame() {
   endScreen.classList.add("hidden");
   gameScreen.classList.remove("hidden");
   renderQuestion();
+  // Registra sesión con score 0 al iniciar.
+  void registerScore();
 }
 
 function backToStart() {

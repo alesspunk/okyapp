@@ -78,7 +78,7 @@ async function getLeaderboard(limit) {
 
   const entries = [];
   sessionIds.forEach((sessionId, index) => {
-    if (sessionId === "smoke-test-session") return;
+    if (sessionId === "smoke-test-session" || sessionId.startsWith("live-test-")) return;
     const raw = Array.isArray(records) ? records[index] : null;
     if (!raw) return;
 
