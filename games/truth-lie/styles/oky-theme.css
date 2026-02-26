@@ -1,0 +1,95 @@
+:root {
+  --primary-main: #410088;
+  --primary-dark: #230741;
+  --primary-light: #bc9edc;
+  --secondary-main: #18afa5;
+  --secondary-dark: #057a73;
+  --text-primary: rgba(0, 0, 0, 0.87);
+  --text-secondary: rgba(0, 0, 0, 0.62);
+  --border-main: rgba(0, 0, 0, 0.16);
+  --divider: rgba(0, 0, 0, 0.12);
+  --white: #ffffff;
+  --danger-main: #b73345;
+  --warning-main: #ff9800;
+  --ok-main: #0f8f60;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Nunito Sans", "Segoe UI", sans-serif;
+  color: var(--text-primary);
+  background: radial-gradient(circle at 12% 0%, #5f1ab5 0%, #360966 45%, #1d0738 100%);
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+.btn {
+  border: none;
+  border-radius: 999px;
+  min-height: 40px;
+  padding: 10px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.14s ease, filter 0.14s ease;
+}
+
+.btn:hover {
+  filter: brightness(1.03);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary-main);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: var(--primary-main);
+}
+
+.btn-outlined {
+  background: transparent;
+  color: var(--primary-main);
+  border: 1px solid var(--primary-main);
+}
+
+.btn-small {
+  min-height: 30px;
+  font-size: 12px;
+  padding: 6px 10px;
+}
