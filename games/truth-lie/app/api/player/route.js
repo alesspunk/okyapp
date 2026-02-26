@@ -1,5 +1,12 @@
 import { getClientIp } from "../../../lib/auth";
-import { countQueued, getCurrentRound, getQueueAhead, getSubmissionByToken } from "../../../lib/db/client";
+import {
+  countQueued,
+  getCurrentRound,
+  getDatabaseDebugInfo,
+  getQueueAhead,
+  getSubmissionByToken,
+  listSubmissions,
+} from "../../../lib/db/client";
 import { json } from "../../../lib/http";
 import { consumeRateLimit } from "../../../lib/rate-limit";
 
@@ -19,6 +26,7 @@ export async function GET(request) {
   }
 
   const token = request.nextUrl.searchParams.get("token")?.trim() || "";
+  const debug = request.nextUrl.searchParams.get("debug") === "1";
   if (!isValidToken(token)) {
     return json({ ok: false, message: "Token inválido." }, 400);
   }
@@ -40,7 +48,7 @@ export async function GET(request) {
         ? entry.statements[entry.lieIndex]
         : null;
 
-    return json({
+    const response = {
       ok: true,
       entry: {
         id: entry.id,
@@ -58,7 +66,18 @@ export async function GET(request) {
             status: currentRound.status,
           }
         : null,
-    });
+    };
+
+    if (debug) {
+      const all = await listSubmissions();
+      response.debug = {
+        ...getDatabaseDebugInfo(),
+        totalEntries: all.length,
+        firstEntryIds: all.slice(0, 10).map((item) => item.id),
+      };
+    }
+
+    return json(response);
   } catch (error) {
     return json(
       {

@@ -1,5 +1,11 @@
 import { getClientIp } from "../../../lib/auth";
-import { countQueued, getCurrentRound, getNextQueued } from "../../../lib/db/client";
+import {
+  countQueued,
+  getCurrentRound,
+  getDatabaseDebugInfo,
+  getNextQueued,
+  listSubmissions,
+} from "../../../lib/db/client";
 import { json } from "../../../lib/http";
 import { consumeRateLimit } from "../../../lib/rate-limit";
 
@@ -9,6 +15,7 @@ const BOARD_LIMIT = 300;
 const BOARD_WINDOW_MS = 60 * 1000;
 
 export async function GET(request) {
+  const debug = request.nextUrl.searchParams.get("debug") === "1";
   const ip = getClientIp(request);
   if (!consumeRateLimit(`board:${ip}`, BOARD_LIMIT, BOARD_WINDOW_MS)) {
     return json({ ok: false, message: "Demasiadas peticiones." }, 429);
@@ -22,17 +29,28 @@ export async function GET(request) {
     ]);
 
     if (!currentRound) {
-      return json({
+      const response = {
         ok: true,
         currentRound: null,
         queuedCount,
         nextQueued: nextQueued ? { id: nextQueued.id, displayName: nextQueued.displayName } : null,
-      });
+      };
+
+      if (debug) {
+        const all = await listSubmissions();
+        response.debug = {
+          ...getDatabaseDebugInfo(),
+          totalEntries: all.length,
+          firstEntryIds: all.slice(0, 10).map((item) => item.id),
+        };
+      }
+
+      return json(response);
     }
 
     const revealLie = currentRound.status === "revealed";
 
-    return json({
+    const response = {
       ok: true,
       queuedCount,
       nextQueued: nextQueued ? { id: nextQueued.id, displayName: nextQueued.displayName } : null,
@@ -46,7 +64,18 @@ export async function GET(request) {
           isLie: revealLie && index === currentRound.lieIndex,
         })),
       },
-    });
+    };
+
+    if (debug) {
+      const all = await listSubmissions();
+      response.debug = {
+        ...getDatabaseDebugInfo(),
+        totalEntries: all.length,
+        firstEntryIds: all.slice(0, 10).map((item) => item.id),
+      };
+    }
+
+    return json(response);
   } catch (error) {
     return json(
       {

@@ -7,6 +7,16 @@ function isPooledConnectionString(connectionString) {
   return typeof connectionString === "string" && connectionString.includes("-pooler.");
 }
 
+function describeConnectionString(connectionString) {
+  if (typeof connectionString !== "string" || !connectionString) return "unset";
+  try {
+    const parsed = new URL(connectionString);
+    return `${parsed.protocol}//${parsed.hostname}${parsed.pathname}`;
+  } catch {
+    return "invalid";
+  }
+}
+
 function resolveDatabaseEnv() {
   const forced = process.env.TRUTH_LIE_DATABASE_URL;
   const forcedUnpooled = process.env.TRUTH_LIE_DATABASE_URL_UNPOOLED;
@@ -83,6 +93,17 @@ function getPool() {
 
 function query(strings, ...values) {
   return getPool().sql(strings, ...values);
+}
+
+export function getDatabaseDebugInfo() {
+  const { pooled, direct } = resolveDatabaseEnv();
+  const selected = pooled || direct || "";
+  return {
+    mode: pooled ? "pooled" : "direct",
+    selected: describeConnectionString(selected),
+    pooled: describeConnectionString(pooled),
+    direct: describeConnectionString(direct),
+  };
 }
 
 function mapEntry(row) {
