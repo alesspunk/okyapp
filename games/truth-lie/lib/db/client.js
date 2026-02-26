@@ -81,6 +81,10 @@ function getPool() {
   return poolInstance;
 }
 
+function query(strings, ...values) {
+  return getPool().sql(strings, ...values);
+}
+
 function mapEntry(row) {
   if (!row) return null;
   const status = String(row.status || "").trim().toLowerCase();
@@ -100,7 +104,7 @@ function mapEntry(row) {
 export async function ensureSchema() {
   if (!schemaPromise) {
     schemaPromise = (async () => {
-      const sql = getPool().sql.bind(getPool());
+      const sql = query;
 
       await sql`
         CREATE TABLE IF NOT EXISTS truth_lie_entries (
@@ -140,7 +144,7 @@ export async function ensureSchema() {
 
 export async function insertSubmission({ token, displayName, statements, lieIndex, ipAddress }) {
   await ensureSchema();
-  const sql = getPool().sql.bind(getPool());
+  const sql = query;
 
   const result = await sql`
     INSERT INTO truth_lie_entries (
@@ -169,7 +173,7 @@ export async function insertSubmission({ token, displayName, statements, lieInde
 
 export async function getSubmissionByToken(token) {
   await ensureSchema();
-  const sql = getPool().sql.bind(getPool());
+  const sql = query;
 
   const result = await sql`
     SELECT *
@@ -183,7 +187,7 @@ export async function getSubmissionByToken(token) {
 
 export async function getSubmissionById(entryId) {
   await ensureSchema();
-  const sql = getPool().sql.bind(getPool());
+  const sql = query;
 
   const result = await sql`
     SELECT *
@@ -197,7 +201,7 @@ export async function getSubmissionById(entryId) {
 
 export async function getQueueAhead(token) {
   await ensureSchema();
-  const sql = getPool().sql.bind(getPool());
+  const sql = query;
 
   const result = await sql`
     WITH target AS (
@@ -221,7 +225,7 @@ export async function getQueueAhead(token) {
 
 export async function countQueued() {
   await ensureSchema();
-  const sql = getPool().sql.bind(getPool());
+  const sql = query;
   const result = await sql`
     SELECT COUNT(*)::INT AS count
     FROM truth_lie_entries
@@ -232,7 +236,7 @@ export async function countQueued() {
 
 export async function getCurrentRound() {
   await ensureSchema();
-  const sql = getPool().sql.bind(getPool());
+  const sql = query;
   const result = await sql`
     SELECT *
     FROM truth_lie_entries
@@ -246,7 +250,7 @@ export async function getCurrentRound() {
 
 export async function getNextQueued() {
   await ensureSchema();
-  const sql = getPool().sql.bind(getPool());
+  const sql = query;
 
   const result = await sql`
     SELECT *
@@ -261,7 +265,7 @@ export async function getNextQueued() {
 
 export async function listSubmissions() {
   await ensureSchema();
-  const sql = getPool().sql.bind(getPool());
+  const sql = query;
 
   const result = await sql`
     SELECT *
@@ -274,7 +278,7 @@ export async function listSubmissions() {
 
 export async function startRound(entryId) {
   await ensureSchema();
-  const sql = getPool().sql.bind(getPool());
+  const sql = query;
 
   const existingResult = await sql`
     SELECT id, status
@@ -333,7 +337,7 @@ export async function startRound(entryId) {
 
 export async function revealRound(entryId) {
   await ensureSchema();
-  const sql = getPool().sql.bind(getPool());
+  const sql = query;
 
   const result = await sql`
     UPDATE truth_lie_entries
@@ -350,7 +354,7 @@ export async function revealRound(entryId) {
 
 export async function archiveRound(entryId) {
   await ensureSchema();
-  const sql = getPool().sql.bind(getPool());
+  const sql = query;
 
   const result = await sql`
     UPDATE truth_lie_entries
