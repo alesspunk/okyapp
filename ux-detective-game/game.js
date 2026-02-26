@@ -697,7 +697,7 @@ const COMPONENTES = [
           "Los headers conservan contexto y habilitan acciones clave como volver, cerrar, carrito y perfil.",
       },
       {
-        text: "¿Qué variante corresponde a un modal con título centrado y cierre?",
+        text: "En los Modales de OKY hay un CTA para cerrar. ¿Qué variante de Header corresponde a ese patrón?",
         options: ["App Header", "Page Header / Modal", "Bottom Nav", "Summary Box"],
         answer: 1,
         explanation:
