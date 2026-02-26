@@ -31,7 +31,7 @@ Alternativa: abrir `/Users/alessandroperez/Documents/OKY/ux-detective-game/index
 - `stories/Atoms.Chips.stories.js`
 - `stories/Atoms.DiscountRibbon.stories.js`
 - `stories/Atoms.Radio.stories.js`
-- `stories/Organisms.CarouselPromoBanners.stories.js`
+- `stories/Molecules.QuantityInput.stories.js`
 - `stories/Molecules.PromoCode.stories.js`
 - `stories/Molecules.Tiles.stories.js`
 - `stories/Organisms.Lists.stories.js`
@@ -47,7 +47,7 @@ Alternativa: abrir `/Users/alessandroperez/Documents/OKY/ux-detective-game/index
 
 ## Despliegue en Vercel (multiusuario)
 
-1. Crear un store de **Vercel KV** en tu proyecto de Vercel.
+1. Crear/conectar un store de **Upstash Redis** en tu proyecto de Vercel (Storage).
 2. Verificar que estén disponibles las variables de entorno:
    - `KV_REST_API_URL`
    - `KV_REST_API_TOKEN`

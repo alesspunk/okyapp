@@ -95,7 +95,7 @@ const COMPONENTES = [
               <div class="input-label">Área</div>
             </div>
             <div class="input-wrapper" style="min-width:0;flex:1">
-              <span class="input-flag-left"><img src="../images/guatemala-flag.png" alt="Guatemala" /></span>
+              <span class="input-flag-left"><img src="/images/guatemala-flag.png" alt="Guatemala" /></span>
               <input class="input-field input-has-flag input-has-clear" value="6696-3223" />
               <div class="input-label" style="left:46px">Número de teléfono</div>
               <span class="clear-icon" style="display:flex">${icono("cerrar")}</span>
@@ -253,7 +253,7 @@ const COMPONENTES = [
           </div>
           <div class="radio-row">
             <span class="radio-control"></span>
-            <span class="radio-flag-xl"><img src="../images/guatemala-flag.png" alt="Guatemala" /></span>
+            <span class="radio-flag-xl"><img src="/images/guatemala-flag.png" alt="Guatemala" /></span>
             <span class="radio-label">Estados Unidos</span>
           </div>
         </div>
@@ -294,63 +294,62 @@ const COMPONENTES = [
     ],
   },
   {
-    id: "carousel",
-    name: "Carrusel de promos",
-    source: "stories/Organisms.CarouselPromoBanners.stories.js",
+    id: "quantity-input",
+    name: "Quantity Input",
+    source: "stories/Molecules.QuantityInput.stories.js",
     preview: () => `
       <div class="mars-story">
-        <div class="mars-label">Organisms/Carousel Promo Banners</div>
-        <div class="promo-banner promo-banner--dark">
-          <div class="promo-banner-slide">
-            <div class="promo-banner-content">
-              <span class="promo-banner-label">Expedia</span>
-              <div class="promo-banner-title">Hasta 25% de descuento</div>
-              <p class="promo-banner-desc">Hasta 3% de cash back</p>
-              <button class="btn btn-medium promo-banner-cta">Comprar</button>
-            </div>
-            <div class="promo-banner-image">
-              <img src="../images/promo-strips2.webp" alt="Promo Expedia" />
-            </div>
-          </div>
-          <div class="promo-banner-dots">
-            <span class="promo-dot"></span>
-            <span class="promo-dot promo-dot-active"></span>
-            <span class="promo-dot"></span>
-          </div>
+        <div class="mars-label">Molecules/Quantity Input · Add0, Add1, Add2, Giftcard</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <span class="chip-ds chip-ds-add0 chip-ds-shadow">${icono("mas")}</span>
+          <span class="chip-ds chip-ds-add1 chip-ds-shadow" style="width:auto;padding:8px 12px">
+            <span style="width:14px;display:inline-flex"></span>
+            <span class="chip-ds-number">1</span>
+            ${icono("mas")}
+          </span>
+          <span class="chip-ds chip-ds-add2 chip-ds-shadow" style="width:auto;padding:8px 12px">
+            ${icono("menos")}
+            <span class="chip-ds-number">2</span>
+            ${icono("mas")}
+          </span>
+          <span class="chip-ds chip-ds-qty chip-ds-shadow" style="width:auto;padding:8px 12px">
+            ${icono("borrar")}
+            <span class="chip-ds-number">1</span>
+          </span>
         </div>
       </div>
     `,
     questions: [
       {
-        text: "¿Cuál es el propósito principal del carrusel promocional?",
+        text: "¿Para qué nos sirve Quantity Input en el sistema MARS?",
         options: [
-          "Destacar campañas con mensaje claro y CTA.",
-          "Reemplazar la navegación global.",
-          "Mostrar historial de órdenes.",
-          "Capturar el número telefónico.",
+          "Para ajustar cantidades rápido (sumar, restar o eliminar) sin salir del flujo.",
+          "Para reemplazar el buscador de productos.",
+          "Para navegar entre secciones de la app.",
+          "Para mostrar banners promocionales.",
         ],
         answer: 0,
         explanation:
-          "Este organismo comunica propuesta de valor rápida: contexto, beneficio y acción.",
+          "Es un patrón de microinteracción clave en MARS: permite controlar cantidades de forma clara y continua.",
       },
       {
-        text: "Si la superficie del hero es oscura, ¿qué tema conviene usar?",
-        options: ["Light", "Dark", "Outlined", "Disabled"],
-        answer: 1,
+        text: "Si el usuario todavía no ha agregado nada, ¿qué estado conviene mostrar?",
+        options: ["Add0", "Add2", "Giftcard", "Summary Box"],
+        answer: 0,
         explanation:
-          "La variante dark mantiene contraste y coherencia visual en fondos oscuros.",
+          "Add0 es el inicio natural: una sola acción para agregar y avanzar sin fricción.",
       },
       {
-        text: "¿Qué regla de accesibilidad es más importante en carruseles?",
+        text: "¿Qué detalle UX ayuda a que este componente se sienta más fácil de usar?",
         options: [
-          "Dar controles/indicadores claros y evitar movimiento forzado sin pausa.",
-          "Rotar automáticamente cada segundo sin controles.",
-          "Ocultar cantidad de slides para simplificar.",
-          "Permitir solo swipe; teclado opcional.",
+          "Mostrar cambios de cantidad al instante y mantener botones fáciles de tocar.",
+          "Ocultar la cantidad para simplificar la UI.",
+          "Reducir el tamaño del touch target al mínimo.",
+          "Actualizar cantidad solo al recargar la página.",
         ],
         answer: 0,
         explanation:
-          "El usuario debe poder comprender y controlar el carrusel sin pérdida de contexto.",
+          "Cuando el feedback es inmediato y los controles son cómodos, la experiencia se vuelve natural y confiable.",
       },
     ],
   },
@@ -363,7 +362,7 @@ const COMPONENTES = [
         <div class="mars-label">Molecules/Promo Code · entered</div>
         <div class="promo-code-molecule" data-state="entered">
           <span class="promo-code-leading" aria-hidden="true">
-            <img src="../images/PROMOS@2x.webp" alt="" />
+            <img src="/images/PROMOS@2x.webp" alt="" />
           </span>
           <p class="promo-code-copy"><span class="promo-code-prefix">Código Promo:</span> verano26</p>
           <button class="promo-code-action promo-clear" type="button" aria-label="Quitar código">${icono("cerrar")}</button>
@@ -414,11 +413,11 @@ const COMPONENTES = [
         <div class="mars-label">Molecules/Tiles · Full + Half</div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">
           <div class="service-tile">
-            <div class="tile-icon"><img src="../images/remesas.webp" alt="Comparar remesas" /></div>
+            <div class="tile-icon"><img src="/images/remesas.webp" alt="Comparar remesas" /></div>
             <div class="tile-label">Comparar remesas</div>
           </div>
           <div class="service-tile service-tile-half">
-            <div class="tile-icon tile-icon-half"><img src="../images/navidad.webp" alt="Navidad" /></div>
+            <div class="tile-icon tile-icon-half"><img src="/images/navidad.webp" alt="Navidad" /></div>
             <div class="tile-label">Navidad</div>
           </div>
         </div>
@@ -469,7 +468,7 @@ const COMPONENTES = [
           <div class="list-plp-anatomy">
             <div class="list-plp-inner">
               <div class="list-plp-row">
-                <div class="list-plp-image"><img src="../images/combo.webp" alt="Combo celebración" /></div>
+                <div class="list-plp-image"><img src="/images/combo.webp" alt="Combo celebración" /></div>
                 <div class="list-plp-copy">
                   <div class="token-product-text-plp">Combo celebración</div>
                   <div class="list-plp-prices">
@@ -485,7 +484,7 @@ const COMPONENTES = [
           <div class="list-cart-anatomy">
             <div class="list-cart-inner">
               <div class="list-cart-row">
-                <div class="list-cart-image"><img src="../images/target.webp" alt="Gift card Target" /></div>
+                <div class="list-cart-image"><img src="/images/target.webp" alt="Gift card Target" /></div>
                 <div class="list-cart-copy">
                   <div class="token-product-text-cart">Gift card de Target</div>
                   <div class="list-cart-prices">
@@ -670,7 +669,7 @@ const COMPONENTES = [
               <div class="header-left-group">
                 <div class="header-icon">${icono("billetera")}</div>
               </div>
-              <img class="header-logo" src="../images/logo-oky.svg" alt="OKY" />
+              <img class="header-logo" src="/images/logo-oky.svg" alt="OKY" />
               <div class="header-cart-chip header-cart-full"><span class="header-cart-count">1</span>${icono("carrito")}</div>
             </div>
           </div>
@@ -829,9 +828,9 @@ function submitAnswer(selectedIndex) {
   feedbackEl.classList.remove("hidden");
   feedbackEl.classList.add(isCorrect ? "success" : "error");
   feedbackEl.innerHTML = `
-    <strong>${isCorrect ? "Correcto" : "Incorrecto"}</strong>
+    <strong>${isCorrect ? "¡Bien hecho!" : "Casi, vas muy bien"}</strong>
     <span><strong>Respuesta correcta:</strong> ${question.options[question.answer]}</span>
-    <span>${question.explanation}</span>
+    <span><strong>Tip MARS:</strong> ${question.explanation}</span>
   `;
 
   // Sync inmediato por pregunta para multijugador en vivo.
