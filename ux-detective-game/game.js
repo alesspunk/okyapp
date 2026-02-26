@@ -569,7 +569,7 @@ const COMPONENTES = [
             </div>
             <div class="summary-divider"></div>
             <div class="summary-cta-row">
-              <button class="btn btn-primary summary-btn">Ir a caja</button>
+              <button class="btn btn-primary summary-btn" style="color:#fff">Ir a caja</button>
             </div>
           </div>
         </div>
