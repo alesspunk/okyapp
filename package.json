@@ -2,7 +2,7 @@
   "scripts": {
     "storybook": "STORYBOOK_DISABLE_TELEMETRY=1 storybook dev --port 7007 --host 127.0.0.1 --exact-port",
     "build-storybook": "STORYBOOK_DISABLE_TELEMETRY=1 storybook build",
-    "build:vercel": "npm run build-storybook && mkdir -p storybook-static/ux-detective-game && cp -R ux-detective-game/. storybook-static/ux-detective-game/"
+    "build:vercel": "npm run build-storybook && mkdir -p storybook-static/ux-detective-game storybook-static/images && cp -R ux-detective-game/. storybook-static/ux-detective-game/ && cp -R images/. storybook-static/images/"
   },
   "dependencies": {
     "@awesome.me/kit-b5a8f622db": "^1.0.5"
