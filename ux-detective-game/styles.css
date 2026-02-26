@@ -209,6 +209,16 @@ p {
   height: 16px;
 }
 
+.ux-component-preview .chip-ds-cart,
+.ux-component-preview .chip-ds-cart span {
+  color: #fff;
+}
+
+.ux-component-preview .chip-ds-cart .ux-inline-icon {
+  color: #fff;
+  stroke: #fff;
+}
+
 .options {
   margin: 14px 0;
   display: grid;
