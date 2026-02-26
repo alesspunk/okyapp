@@ -95,7 +95,7 @@ const COMPONENTES = [
               <div class="input-label">Área</div>
             </div>
             <div class="input-wrapper" style="min-width:0;flex:1">
-              <span class="input-flag-left"><img src="/images/guatemala-flag.png" alt="Guatemala" /></span>
+              <span class="input-flag-left"><img src="/guatemala-flag.png" alt="Guatemala" /></span>
               <input class="input-field input-has-flag input-has-clear" value="6696-3223" />
               <div class="input-label" style="left:46px">Número de teléfono</div>
               <span class="clear-icon" style="display:flex">${icono("cerrar")}</span>
@@ -253,7 +253,7 @@ const COMPONENTES = [
           </div>
           <div class="radio-row">
             <span class="radio-control"></span>
-            <span class="radio-flag-xl"><img src="/images/guatemala-flag.png" alt="Guatemala" /></span>
+            <span class="radio-flag-xl"><img src="/guatemala-flag.png" alt="Guatemala" /></span>
             <span class="radio-label">Estados Unidos</span>
           </div>
         </div>
@@ -362,7 +362,7 @@ const COMPONENTES = [
         <div class="mars-label">Molecules/Promo Code · entered</div>
         <div class="promo-code-molecule" data-state="entered">
           <span class="promo-code-leading" aria-hidden="true">
-            <img src="/images/PROMOS@2x.webp" alt="" />
+            <img src="/PROMOS@2x.webp" alt="" />
           </span>
           <p class="promo-code-copy"><span class="promo-code-prefix">Código Promo:</span> verano26</p>
           <button class="promo-code-action promo-clear" type="button" aria-label="Quitar código">${icono("cerrar")}</button>
@@ -413,11 +413,11 @@ const COMPONENTES = [
         <div class="mars-label">Molecules/Tiles · Full + Half</div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">
           <div class="service-tile">
-            <div class="tile-icon"><img src="/images/remesas.webp" alt="Comparar remesas" /></div>
+            <div class="tile-icon"><img src="/remesas.webp" alt="Comparar remesas" /></div>
             <div class="tile-label">Comparar remesas</div>
           </div>
           <div class="service-tile service-tile-half">
-            <div class="tile-icon tile-icon-half"><img src="/images/navidad.webp" alt="Navidad" /></div>
+            <div class="tile-icon tile-icon-half"><img src="/navidad.webp" alt="Navidad" /></div>
             <div class="tile-label">Navidad</div>
           </div>
         </div>
@@ -468,7 +468,7 @@ const COMPONENTES = [
           <div class="list-plp-anatomy">
             <div class="list-plp-inner">
               <div class="list-plp-row">
-                <div class="list-plp-image"><img src="/images/combo.webp" alt="Combo celebración" /></div>
+                <div class="list-plp-image"><img src="/combo.webp" alt="Combo celebración" /></div>
                 <div class="list-plp-copy">
                   <div class="token-product-text-plp">Combo celebración</div>
                   <div class="list-plp-prices">
@@ -484,7 +484,7 @@ const COMPONENTES = [
           <div class="list-cart-anatomy">
             <div class="list-cart-inner">
               <div class="list-cart-row">
-                <div class="list-cart-image"><img src="/images/target.webp" alt="Gift card Target" /></div>
+                <div class="list-cart-image"><img src="/target.webp" alt="Gift card Target" /></div>
                 <div class="list-cart-copy">
                   <div class="token-product-text-cart">Gift card de Target</div>
                   <div class="list-cart-prices">
@@ -669,7 +669,7 @@ const COMPONENTES = [
               <div class="header-left-group">
                 <div class="header-icon">${icono("billetera")}</div>
               </div>
-              <img class="header-logo" src="/images/logo-oky.svg" alt="OKY" />
+              <img class="header-logo" src="/logo-oky.svg" alt="OKY" />
               <div class="header-cart-chip header-cart-full"><span class="header-cart-count">1</span>${icono("carrito")}</div>
             </div>
           </div>
