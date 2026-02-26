@@ -31,6 +31,7 @@ export default function HostDashboard() {
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [busyAction, setBusyAction] = useState("");
   const [data, setData] = useState({ entries: [], currentRound: null, queuedCount: 0 });
 
@@ -86,6 +87,7 @@ export default function HostDashboard() {
 
     setBusyAction(`${action}-${entryId || "current"}`);
     setError("");
+    setInfo("");
 
     try {
       const response = await fetch(`${BASE_PATH}/api/host/round`, {
@@ -103,6 +105,7 @@ export default function HostDashboard() {
         throw new Error(payload.message || "No se pudo aplicar la acción.");
       }
 
+      setInfo(payload.info || "");
       await load();
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Error inesperado.");
@@ -115,6 +118,7 @@ export default function HostDashboard() {
     () => data.entries.filter((entry) => entry.status === "queued"),
     [data.entries],
   );
+  const currentRoundId = data.currentRound ? Number(data.currentRound.id) : null;
 
   if (!ready) {
     return (
@@ -200,9 +204,17 @@ export default function HostDashboard() {
             {data.currentRound.statements.map((statement, index) => (
               <li key={index} className={data.currentRound.status === "revealed" && index === data.currentRound.lieIndex ? "is-lie" : ""}>
                 {statement}
+                {data.currentRound.status === "revealed" && index === data.currentRound.lieIndex ? (
+                  <span className="tl-lie-chip">MENTIRA</span>
+                ) : null}
               </li>
             ))}
           </ol>
+          {data.currentRound.status === "revealed" ? (
+            <p className="tl-reveal-copy">
+              Mentira revelada: <strong>Enunciado {Number(data.currentRound.lieIndex) + 1}</strong>
+            </p>
+          ) : null}
           <div className="tl-inline-actions">
             <button
               className="btn btn-primary"
@@ -213,17 +225,18 @@ export default function HostDashboard() {
               {busyAction === `reveal-${data.currentRound.id}` ? "Revelando..." : "Reveal Lie"}
             </button>
             <button
-              className="btn btn-outlined"
+              className="btn btn-secondary"
               type="button"
-              disabled={!["active", "revealed"].includes(data.currentRound.status) || busyAction !== ""}
-              onClick={() => runAction("archive", data.currentRound.id)}
+              disabled={data.currentRound.status !== "revealed" || busyAction !== ""}
+              onClick={() => runAction("next", data.currentRound.id)}
             >
-              {busyAction === `archive-${data.currentRound.id}` ? "Archivando..." : "Archivar ronda"}
+              {busyAction === `next-${data.currentRound.id}` ? "Avanzando..." : "Pasar al siguiente"}
             </button>
           </div>
         </article>
       ) : null}
 
+      {info ? <p className="tl-info-banner">{info}</p> : null}
       {error ? <p className="tl-error">{error}</p> : null}
 
       <section className="tl-card tl-table-card">
@@ -244,28 +257,38 @@ export default function HostDashboard() {
               {data.entries.map((entry, index) => {
                 const startBusy = busyAction === `start-${entry.id}`;
                 const revealBusy = busyAction === `reveal-${entry.id}`;
-                const archiveBusy = busyAction === `archive-${entry.id}`;
+                const nextBusy = busyAction === `next-${entry.id}`;
+                const entryId = Number(entry.id);
+                const effectiveStatus =
+                  currentRoundId !== null && entryId === currentRoundId
+                    ? data.currentRound.status
+                    : entry.status;
+                const isCurrentRound = currentRoundId !== null && entryId === currentRoundId;
 
                 return (
-                  <tr key={entry.id}>
+                  <tr key={entry.id} className={isCurrentRound ? "tl-row-current" : ""}>
                     <td>{index + 1}</td>
                     <td>
                       <strong>{entry.displayName}</strong>
+                      {isCurrentRound ? <span className="tl-current-badge">En vivo</span> : null}
                     </td>
                     <td>
                       <ol className="tl-statement-list tl-statement-list-compact">
                         {entry.statements.map((statement, statementIndex) => (
                           <li
                             key={statementIndex}
-                            className={entry.status === "revealed" && entry.lieIndex === statementIndex ? "is-lie" : ""}
+                            className={effectiveStatus === "revealed" && entry.lieIndex === statementIndex ? "is-lie" : ""}
                           >
                             {statement}
+                            {effectiveStatus === "revealed" && entry.lieIndex === statementIndex ? (
+                              <span className="tl-lie-chip">MENTIRA</span>
+                            ) : null}
                           </li>
                         ))}
                       </ol>
                     </td>
                     <td>
-                      <span className={`tl-status tl-status-${entry.status}`}>{statusLabel(entry.status)}</span>
+                      <span className={`tl-status tl-status-${effectiveStatus}`}>{statusLabel(effectiveStatus)}</span>
                     </td>
                     <td>{formatDate(entry.submittedAt)}</td>
                     <td>
@@ -273,7 +296,7 @@ export default function HostDashboard() {
                         <button
                           className="btn btn-primary btn-small"
                           type="button"
-                          disabled={entry.status !== "queued" || !!busyAction}
+                          disabled={effectiveStatus !== "queued" || !!busyAction}
                           onClick={() => runAction("start", entry.id)}
                         >
                           {startBusy ? "Iniciando..." : "Start Round"}
@@ -281,7 +304,7 @@ export default function HostDashboard() {
                         <button
                           className="btn btn-secondary btn-small"
                           type="button"
-                          disabled={entry.status !== "active" || !!busyAction}
+                          disabled={effectiveStatus !== "active" || !!busyAction}
                           onClick={() => runAction("reveal", entry.id)}
                         >
                           {revealBusy ? "Revelando..." : "Reveal"}
@@ -289,10 +312,10 @@ export default function HostDashboard() {
                         <button
                           className="btn btn-outlined btn-small"
                           type="button"
-                          disabled={!["active", "revealed"].includes(entry.status) || !!busyAction}
-                          onClick={() => runAction("archive", entry.id)}
+                          disabled={effectiveStatus !== "revealed" || !!busyAction}
+                          onClick={() => runAction("next", entry.id)}
                         >
-                          {archiveBusy ? "Archivando..." : "Archivar"}
+                          {nextBusy ? "Avanzando..." : "Pasar al siguiente"}
                         </button>
                       </div>
                     </td>

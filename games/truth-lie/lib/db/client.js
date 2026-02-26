@@ -168,6 +168,20 @@ export async function getSubmissionByToken(token) {
   return mapEntry(result.rows[0]);
 }
 
+export async function getSubmissionById(entryId) {
+  await ensureSchema();
+  const sql = getPool().sql.bind(getPool());
+
+  const result = await sql`
+    SELECT *
+    FROM truth_lie_entries
+    WHERE id = ${entryId}
+    LIMIT 1
+  `;
+
+  return mapEntry(result.rows[0]);
+}
+
 export async function getQueueAhead(token) {
   await ensureSchema();
   const sql = getPool().sql.bind(getPool());

@@ -9,6 +9,7 @@ export default function PublicBoard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [data, setData] = useState({ currentRound: null, queuedCount: 0, nextQueued: null });
+  const lieStatement = data.currentRound?.statements?.find((item) => item.isLie);
 
   useEffect(() => {
     let mounted = true;
@@ -81,6 +82,11 @@ export default function PublicBoard() {
               </li>
             ))}
           </ol>
+          {data.currentRound.status === "revealed" ? (
+            <p className="tl-reveal-copy">
+              Mentira revelada: <strong>Enunciado {typeof lieStatement?.index === "number" ? lieStatement.index + 1 : "-"}</strong>
+            </p>
+          ) : null}
         </article>
       )}
     </section>
