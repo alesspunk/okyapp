@@ -219,6 +219,16 @@ p {
   stroke: #fff;
 }
 
+.ux-component-preview .summary-btn,
+.ux-component-preview .summary-btn span {
+  color: #fff;
+}
+
+.ux-component-preview .summary-btn .ux-inline-icon {
+  color: #fff;
+  stroke: #fff;
+}
+
 .options {
   margin: 14px 0;
   display: grid;
