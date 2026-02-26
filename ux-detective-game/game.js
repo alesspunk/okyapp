@@ -313,7 +313,7 @@ const COMPONENTES = [
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
           <span class="chip-ds chip-ds-add0 chip-ds-shadow">${icono("mas")}</span>
           <span class="chip-ds chip-ds-add1 chip-ds-shadow" style="width:auto;padding:8px 12px">
-            <span style="width:14px;display:inline-flex"></span>
+            <span style="display:inline-flex;color:var(--error-main,#f44336)">${icono("borrar")}</span>
             <span class="chip-ds-number">1</span>
             ${icono("mas")}
           </span>
