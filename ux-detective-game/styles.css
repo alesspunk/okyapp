@@ -192,8 +192,7 @@ p {
 .ux-component-preview .nav-item,
 .ux-component-preview .chip-ds,
 .ux-component-preview .promo-code-action,
-.ux-component-preview .summary-btn,
-.ux-component-preview .header-cart-chip {
+.ux-component-preview .summary-btn {
   color: inherit;
 }
 
@@ -225,6 +224,16 @@ p {
 }
 
 .ux-component-preview .summary-btn .ux-inline-icon {
+  color: #fff;
+  stroke: #fff;
+}
+
+.ux-component-preview .header-cart-chip.header-cart-full,
+.ux-component-preview .header-cart-chip.header-cart-full span {
+  color: #fff;
+}
+
+.ux-component-preview .header-cart-chip.header-cart-full .ux-inline-icon {
   color: #fff;
   stroke: #fff;
 }
