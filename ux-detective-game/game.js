@@ -596,16 +596,16 @@ const COMPONENTES = [
           "En PDP se concentra la acción de agregar. Cart y checkout priorizan confirmación y pago.",
       },
       {
-        text: "¿Qué regla UX/accesibilidad es esencial para los totales?",
+        text: "En Summary Box, ¿qué comunican las líneas en color Secondary Dark?",
         options: [
-          "Actualizar totales como texto y anunciar cambios relevantes.",
-          "Renderizar totales solo como imagen decorativa.",
-          "Ocultar tipo de cambio a lectores de pantalla.",
-          "Actualizar montos únicamente al recargar página.",
+          "Descuentos/promociones (incluyendo líneas de Promo Code).",
+          "Precios regulares sin descuento.",
+          "Solo títulos de sección sin valor económico.",
+          "Estados de error del formulario.",
         ],
         answer: 0,
         explanation:
-          "Los cambios de precio son información crítica y deben percibirse inmediatamente.",
+          "En MARS, Secondary Dark destaca ahorro y promociones. Las líneas en Primary Main quedan para precios regulares o base.",
       },
     ],
   },
