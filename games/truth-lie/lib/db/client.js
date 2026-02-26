@@ -22,12 +22,23 @@ function resolveDatabaseEnv() {
   const forcedUnpooled = process.env.TRUTH_LIE_DATABASE_URL_UNPOOLED;
 
   if (typeof forced === "string" && forced.length > 0) {
+    const forcedDirectCandidates = [
+      forcedUnpooled,
+      process.env.POSTGRES_URL_NON_POOLING,
+      process.env.DATABASE_URL_UNPOOLED,
+      process.env.POSTGRES_URL,
+      process.env.DATABASE_URL,
+      forced,
+    ];
+    const forcedDirect = forcedDirectCandidates.find(
+      (value) => typeof value === "string" && value.length > 0,
+    );
+
+    // Importante: para evitar desincronías de lectura/escritura en pooler,
+    // cuando TRUTH_LIE_DATABASE_URL está definido usamos conexión directa.
     return {
-      pooled: isPooledConnectionString(forced) ? forced : undefined,
-      direct:
-        (typeof forcedUnpooled === "string" && forcedUnpooled.length > 0
-          ? forcedUnpooled
-          : forced),
+      pooled: undefined,
+      direct: forcedDirect,
     };
   }
 

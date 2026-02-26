@@ -29,7 +29,7 @@ HOST_CODE=tu_codigo_host
 
 # Recomendado: fija una sola conexión para evitar apuntar a DB equivocada
 TRUTH_LIE_DATABASE_URL=
-TRUTH_LIE_DATABASE_URL_UNPOOLED=
+TRUTH_LIE_DATABASE_URL_UNPOOLED=   # recomendado (direct/non-pooling)
 
 # Vercel Postgres (las agrega Vercel automáticamente al conectar Storage)
 POSTGRES_URL=
@@ -40,6 +40,10 @@ POSTGRES_HOST=
 POSTGRES_PASSWORD=
 POSTGRES_DATABASE=
 ```
+
+Nota:
+- Si defines `TRUTH_LIE_DATABASE_URL`, la app prioriza conexión directa (unpooled) para consistencia de cola/rondas.
+- Si no defines `TRUTH_LIE_DATABASE_URL_UNPOOLED`, intentará usar `POSTGRES_URL_NON_POOLING` automáticamente.
 
 ## Desarrollo local
 
