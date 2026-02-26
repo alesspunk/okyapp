@@ -82,13 +82,8 @@ const COMPONENTES = [
     source: "stories/Atoms.Inputs.stories.js",
     preview: () => `
       <div class="mars-story">
-        <div class="mars-label">Atoms/Inputs · Búsqueda + Teléfono</div>
+        <div class="mars-label">Atoms/Inputs · Teléfono</div>
         <div style="display:grid;gap:10px;max-width:328px">
-          <div class="input-wrapper">
-            <span class="search-icon">${icono("buscar")}</span>
-            <input class="input-field search-input" placeholder="Buscar marcas" value="Pollo Campero" />
-            <span class="clear-icon">${icono("cerrar")}</span>
-          </div>
           <div style="display:flex;gap:8px;align-items:flex-start;max-width:328px">
             <div class="input-wrapper" style="min-width:88px;width:88px;flex-shrink:0">
               <input class="input-field" value="+502" style="padding-right:8px" />
