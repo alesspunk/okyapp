@@ -351,6 +351,29 @@
   gap: 10px;
 }
 
+.tl-board-stage {
+  aspect-ratio: 16 / 9;
+  min-height: 620px;
+  grid-template-rows: auto 1fr;
+}
+
+.tl-board-game-head {
+  display: grid;
+  gap: 6px;
+}
+
+.tl-board-game-head h1 {
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.05;
+  color: var(--primary-dark);
+}
+
+.tl-board-content {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
 .tl-board-head {
   display: flex;
   justify-content: space-between;
@@ -362,7 +385,7 @@
 .tl-empty-board {
   border: 1px dashed var(--divider);
   border-radius: 12px;
-  padding: 18px;
+  padding: clamp(18px, 3vw, 36px);
   text-align: center;
   background: #fafafa;
 }
@@ -370,8 +393,25 @@
 .tl-round-card {
   border: 1px solid #e8daff;
   border-radius: 12px;
-  padding: 12px;
+  padding: clamp(12px, 2vw, 20px);
   background: #fcf9ff;
+}
+
+.tl-rules-card {
+  display: grid;
+  gap: 10px;
+}
+
+.tl-rules-list {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+}
+
+.tl-rules-list li {
+  color: var(--text-primary);
+  line-height: 1.45;
 }
 
 @media (max-width: 640px) {
@@ -392,5 +432,10 @@
 
   .tl-inline-actions .btn {
     width: 100%;
+  }
+
+  .tl-board-stage {
+    aspect-ratio: auto;
+    min-height: auto;
   }
 }

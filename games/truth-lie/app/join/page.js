@@ -12,6 +12,17 @@ export default function JoinPage() {
         </p>
       </section>
 
+      <section className="tl-card tl-rules-card">
+        <h3>Reglas del juego</h3>
+        <ol className="tl-rules-list">
+          <li>Escribe 3 enunciados sobre ti: 2 verdaderos y 1 falso.</li>
+          <li>Hazlos claros y cortos para que todos puedan votar rápido.</li>
+          <li>Solo tú y el host saben cuál es la mentira hasta el reveal.</li>
+          <li>Cuando el host te active, todos adivinan tu mentira en Zoom.</li>
+          <li>Al final del reveal, el host pasa al siguiente jugador.</li>
+        </ol>
+      </section>
+
       <JoinForm />
 
       <div className="tl-inline-actions">

@@ -46,49 +46,63 @@ export default function PublicBoard() {
   }, []);
 
   return (
-    <section className="tl-card tl-board">
-      <header className="tl-board-head">
-        <h2>Board público</h2>
-        <span className="tl-chip">En cola: {data.queuedCount}</span>
+    <section className="tl-card tl-board tl-board-stage">
+      <header className="tl-board-game-head">
+        <p className="tl-kicker">OKY Game Night</p>
+        <h1>Dos Verdades y Una Mentira</h1>
+        <p className="tl-muted">Escucha, vota en Zoom y descubre la mentira.</p>
       </header>
-      <p className="tl-muted">Actualización automática cada 2.5 segundos.</p>
 
-      {loading ? <p className="tl-muted">Cargando board...</p> : null}
-      {error ? <p className="tl-error">{error}</p> : null}
-
-      {!data.currentRound ? (
-        <div className="tl-empty-board">
-          <h3>Aún no hay ronda activa</h3>
-          <p className="tl-muted">
-            {data.nextQueued
-              ? `Siguiente sugerido: ${data.nextQueued.displayName}`
-              : "Esperando participantes."}
-          </p>
+      <div className="tl-board-content">
+        <div className="tl-board-head">
+          <span className="tl-chip">En cola: {data.queuedCount}</span>
+          <span className="tl-chip">
+            {data.currentRound ? "Ronda activa" : "Esperando ronda"}
+          </span>
         </div>
-      ) : (
-        <article className="tl-round-card">
-          <div className="tl-current-head">
-            <h3>{data.currentRound.displayName}</h3>
-            <span className={`tl-status tl-status-${data.currentRound.status}`}>
-              {data.currentRound.status === "active" ? "Votación" : "Revelado"}
-            </span>
-          </div>
+        <p className="tl-muted">Actualización automática cada 2.5 segundos.</p>
 
-          <ol className="tl-statement-list">
-            {data.currentRound.statements.map((statement) => (
-              <li key={statement.index} className={statement.isLie ? "is-lie" : ""}>
-                {statement.text}
-                {statement.isLie ? <span className="tl-lie-chip">Mentira</span> : null}
-              </li>
-            ))}
-          </ol>
-          {data.currentRound.status === "revealed" ? (
-            <p className="tl-reveal-copy">
-              Mentira revelada: <strong>Enunciado {typeof lieStatement?.index === "number" ? lieStatement.index + 1 : "-"}</strong>
+        {loading ? <p className="tl-muted">Cargando board...</p> : null}
+        {error ? <p className="tl-error">{error}</p> : null}
+
+        {!data.currentRound ? (
+          <div className="tl-empty-board">
+            <h3>Aún no hay ronda activa</h3>
+            <p className="tl-muted">
+              {data.nextQueued
+                ? `Siguiente sugerido: ${data.nextQueued.displayName}`
+                : "Esperando participantes."}
             </p>
-          ) : null}
-        </article>
-      )}
+          </div>
+        ) : (
+          <article className="tl-round-card">
+            <div className="tl-current-head">
+              <h3>{data.currentRound.displayName}</h3>
+              <span className={`tl-status tl-status-${data.currentRound.status}`}>
+                {data.currentRound.status === "active" ? "Votación" : "Revelado"}
+              </span>
+            </div>
+
+            <ol className="tl-statement-list">
+              {data.currentRound.statements.map((statement) => (
+                <li key={statement.index} className={statement.isLie ? "is-lie" : ""}>
+                  {statement.text}
+                  {statement.isLie ? <span className="tl-lie-chip">Mentira</span> : null}
+                </li>
+              ))}
+            </ol>
+            {data.currentRound.status === "revealed" ? (
+              <p className="tl-reveal-copy">
+                Mentira revelada:{" "}
+                <strong>
+                  Enunciado{" "}
+                  {typeof lieStatement?.index === "number" ? lieStatement.index + 1 : "-"}
+                </strong>
+              </p>
+            ) : null}
+          </article>
+        )}
+      </div>
     </section>
   );
 }
