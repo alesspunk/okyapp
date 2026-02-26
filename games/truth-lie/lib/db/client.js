@@ -1,6 +1,72 @@
-import { db, sql } from "@vercel/postgres";
+import { createClient, createPool } from "@vercel/postgres";
 
 let schemaPromise;
+let poolInstance;
+
+function isPooledConnectionString(connectionString) {
+  return typeof connectionString === "string" && connectionString.includes("-pooler.");
+}
+
+function resolveDatabaseEnv() {
+  const pooledCandidates = [
+    process.env.POSTGRES_URL,
+    process.env.POSTGRES_PRISMA_URL,
+    process.env.DATABASE_URL,
+  ];
+  const pooled = pooledCandidates.find((value) => isPooledConnectionString(value));
+
+  const directCandidates = [
+    process.env.POSTGRES_URL_NON_POOLING,
+    process.env.DATABASE_URL_UNPOOLED,
+    process.env.DATABASE_URL,
+    process.env.POSTGRES_URL,
+  ];
+  const direct = directCandidates.find((value) => typeof value === "string" && value.length > 0);
+
+  return { pooled, direct };
+}
+
+function getPool() {
+  if (poolInstance) {
+    return poolInstance;
+  }
+
+  const { pooled, direct } = resolveDatabaseEnv();
+
+  if (pooled) {
+    poolInstance = createPool({ connectionString: pooled });
+    return poolInstance;
+  }
+
+  if (!direct) {
+    throw new Error(
+      "No hay conexión de base de datos. Configura POSTGRES_URL o DATABASE_URL en Vercel.",
+    );
+  }
+
+  // Fallback para proyectos Neon que solo exponen DATABASE_URL.
+  poolInstance = {
+    sql: async (strings, ...values) => {
+      const client = createClient({ connectionString: direct });
+      await client.connect();
+      try {
+        return await client.sql(strings, ...values);
+      } finally {
+        await client.end();
+      }
+    },
+    connect: async () => {
+      const client = createClient({ connectionString: direct });
+      await client.connect();
+      return {
+        sql: (...args) => client.sql(...args),
+        release: async () => client.end(),
+      };
+    },
+  };
+
+  return poolInstance;
+}
 
 function mapEntry(row) {
   if (!row) return null;
@@ -20,6 +86,8 @@ function mapEntry(row) {
 export async function ensureSchema() {
   if (!schemaPromise) {
     schemaPromise = (async () => {
+      const sql = getPool().sql.bind(getPool());
+
       await sql`
         CREATE TABLE IF NOT EXISTS truth_lie_entries (
           id BIGSERIAL PRIMARY KEY,
@@ -58,6 +126,7 @@ export async function ensureSchema() {
 
 export async function insertSubmission({ token, displayName, statements, lieIndex, ipAddress }) {
   await ensureSchema();
+  const sql = getPool().sql.bind(getPool());
 
   const result = await sql`
     INSERT INTO truth_lie_entries (
@@ -86,6 +155,7 @@ export async function insertSubmission({ token, displayName, statements, lieInde
 
 export async function getSubmissionByToken(token) {
   await ensureSchema();
+  const sql = getPool().sql.bind(getPool());
 
   const result = await sql`
     SELECT *
@@ -99,6 +169,7 @@ export async function getSubmissionByToken(token) {
 
 export async function getQueueAhead(token) {
   await ensureSchema();
+  const sql = getPool().sql.bind(getPool());
 
   const result = await sql`
     WITH target AS (
@@ -122,6 +193,7 @@ export async function getQueueAhead(token) {
 
 export async function countQueued() {
   await ensureSchema();
+  const sql = getPool().sql.bind(getPool());
   const result = await sql`
     SELECT COUNT(*)::INT AS count
     FROM truth_lie_entries
@@ -132,6 +204,7 @@ export async function countQueued() {
 
 export async function getCurrentRound() {
   await ensureSchema();
+  const sql = getPool().sql.bind(getPool());
   const result = await sql`
     SELECT *
     FROM truth_lie_entries
@@ -145,6 +218,7 @@ export async function getCurrentRound() {
 
 export async function getNextQueued() {
   await ensureSchema();
+  const sql = getPool().sql.bind(getPool());
 
   const result = await sql`
     SELECT *
@@ -159,6 +233,7 @@ export async function getNextQueued() {
 
 export async function listSubmissions() {
   await ensureSchema();
+  const sql = getPool().sql.bind(getPool());
 
   const result = await sql`
     SELECT *
@@ -172,7 +247,7 @@ export async function listSubmissions() {
 export async function startRound(entryId) {
   await ensureSchema();
 
-  const client = await db.connect();
+  const client = await getPool().connect();
   try {
     await client.sql`BEGIN`;
 
@@ -209,12 +284,13 @@ export async function startRound(entryId) {
     }
     throw error;
   } finally {
-    client.release();
+    await client.release();
   }
 }
 
 export async function revealRound(entryId) {
   await ensureSchema();
+  const sql = getPool().sql.bind(getPool());
 
   const result = await sql`
     UPDATE truth_lie_entries
@@ -229,6 +305,7 @@ export async function revealRound(entryId) {
 
 export async function archiveRound(entryId) {
   await ensureSchema();
+  const sql = getPool().sql.bind(getPool());
 
   const result = await sql`
     UPDATE truth_lie_entries
