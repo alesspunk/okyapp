@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OKY UX Detective</title>
+    <link rel="stylesheet" href="../stories/mars.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <section id="start-screen" class="screen">
+        <div class="hero-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="ux-inline-icon" role="img">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="M21 21l-4.35-4.35"></path>
+            <path d="M11 8v6"></path>
+            <path d="M8 11h6"></path>
+          </svg>
+        </div>
+        <p class="eyebrow">Entrenamiento Design System OKY</p>
+        <h1>Detective UX</h1>
+        <p class="lead">
+          Resuelve 36 retos sobre 12 componentes reales del DS. Elige el uso, variante
+          y regla de accesibilidad correcta.
+        </p>
+        <div class="player-register">
+          <label for="player-name">Nombre del participante</label>
+          <input id="player-name" type="text" maxlength="40" placeholder="Ej: Alejandro" />
+          <p id="start-error" class="start-error hidden">Ingresa tu nombre para comenzar.</p>
+        </div>
+        <button id="start-btn" class="btn btn-primary btn-large">Iniciar investigación</button>
+      </section>
+
+      <section id="game-screen" class="screen hidden" aria-live="polite">
+        <header class="game-header">
+          <p id="progress-text" class="eyebrow">Pregunta 1 de 36</p>
+          <div class="meta-row">
+            <span id="component-text" class="meta-pill">Componente 1 de 12</span>
+            <span id="score-text" class="meta-pill">Puntaje: 0</span>
+            <span id="player-text" class="meta-pill"></span>
+          </div>
+        </header>
+
+        <section class="component-panel">
+          <h2 id="component-name">Button</h2>
+          <p id="component-source" class="source-line"></p>
+          <div id="component-preview" class="ux-component-preview"></div>
+        </section>
+
+        <section class="question-panel">
+          <h3 id="question-text"></h3>
+          <div id="options" class="options"></div>
+          <div id="feedback" class="feedback hidden"></div>
+          <button id="next-btn" class="btn btn-primary btn-medium hidden">Siguiente pregunta</button>
+        </section>
+      </section>
+
+      <section id="end-screen" class="screen hidden">
+        <p class="eyebrow">Caso cerrado</p>
+        <h2>Puntaje final: <span id="final-score">0</span>/36</h2>
+        <p id="final-player" class="eyebrow"></p>
+        <p id="result-copy" class="lead"></p>
+
+        <div class="summary-card-game">
+          <h3>Componentes fallados</h3>
+          <ul id="missed-list" class="missed-list"></ul>
+        </div>
+
+        <button id="play-again-btn" class="btn btn-primary btn-medium">Jugar de nuevo</button>
+      </section>
+
+      <section id="leaderboard-section" class="screen leaderboard-panel">
+        <h3>Tabla de posiciones</h3>
+        <p class="leaderboard-copy">
+          Ranking global en tiempo real por respuestas correctas (cada sesión se registra de forma individual).
+        </p>
+        <p id="leaderboard-status" class="leaderboard-status">Conectando ranking en tiempo real...</p>
+        <div id="winner-banner" class="winner-banner">Ganador actual: esperando puntajes...</div>
+        <div class="leaderboard-table-wrap">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Participante</th>
+                <th>Puntaje</th>
+                <th>Actualizado</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="./game.js"></script>
+  </body>
+</html>

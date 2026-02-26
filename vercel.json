@@ -1,9 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": "npm run build-storybook",
+  "buildCommand": "npm run build:vercel",
   "outputDirectory": "storybook-static",
   "rewrites": [
+    {
+      "source": "/ux-detective-game",
+      "destination": "/ux-detective-game/index.html"
+    },
     {
       "source": "/atomic",
       "destination": "/public/ATOMIC-DESIGN-LIBRARY.html"
