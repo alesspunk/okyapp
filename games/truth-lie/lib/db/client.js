@@ -8,6 +8,19 @@ function isPooledConnectionString(connectionString) {
 }
 
 function resolveDatabaseEnv() {
+  const forced = process.env.TRUTH_LIE_DATABASE_URL;
+  const forcedUnpooled = process.env.TRUTH_LIE_DATABASE_URL_UNPOOLED;
+
+  if (typeof forced === "string" && forced.length > 0) {
+    return {
+      pooled: isPooledConnectionString(forced) ? forced : undefined,
+      direct:
+        (typeof forcedUnpooled === "string" && forcedUnpooled.length > 0
+          ? forcedUnpooled
+          : forced),
+    };
+  }
+
   const pooledCandidates = [
     process.env.POSTGRES_URL,
     process.env.POSTGRES_PRISMA_URL,

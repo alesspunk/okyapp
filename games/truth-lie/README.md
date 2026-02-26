@@ -27,6 +27,10 @@ Crea `games/truth-lie/.env.local` con:
 ```bash
 HOST_CODE=tu_codigo_host
 
+# Recomendado: fija una sola conexión para evitar apuntar a DB equivocada
+TRUTH_LIE_DATABASE_URL=
+TRUTH_LIE_DATABASE_URL_UNPOOLED=
+
 # Vercel Postgres (las agrega Vercel automáticamente al conectar Storage)
 POSTGRES_URL=
 POSTGRES_PRISMA_URL=
