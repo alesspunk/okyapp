@@ -610,63 +610,6 @@ const COMPONENTES = [
     ],
   },
   {
-    id: "navegacion",
-    name: "Navegación",
-    source: "stories/Organisms.Navigation.stories.js",
-    preview: () => `
-      <div class="mars-story">
-        <div class="mars-label">Organisms/Navigation · Bottom Nav</div>
-        <div class="mars-mobile">
-          <div class="bottom-nav">
-            <div class="nav-item">${icono("casa")}<span class="nav-label">Inicio</span></div>
-            <div class="nav-item">${icono("grid")}<span class="nav-label">Categorías</span></div>
-            <div class="nav-item active">${icono("fuego")}<span class="nav-label">Destacados</span></div>
-            <div class="nav-item">${icono("recibo")}<span class="nav-label">Órdenes</span></div>
-            <div class="nav-item">${icono("usuario")}<span class="nav-label">Perfil</span></div>
-          </div>
-        </div>
-      </div>
-    `,
-    questions: [
-      {
-        text: "¿Cuál es el propósito principal de Bottom Navigation?",
-        options: [
-          "Cambiar entre secciones principales de la app.",
-          "Mostrar totales de transacciones.",
-          "Capturar código promocional.",
-          "Mostrar etiquetas de descuento de productos.",
-        ],
-        answer: 0,
-        explanation:
-          "Bottom nav organiza la IA principal. Debe contener destinos estables, no acciones contextuales.",
-      },
-      {
-        text: "¿Qué regla visual aplica para tabs activas vs inactivas?",
-        options: [
-          "La activa debe tener mayor énfasis visual que las inactivas.",
-          "Todas deben verse idénticas para consistencia.",
-          "Solo las inactivas deben mostrar texto.",
-          "En activa se pueden ocultar íconos.",
-        ],
-        answer: 0,
-        explanation:
-          "La ubicación actual debe identificarse en menos de un segundo.",
-      },
-      {
-        text: "¿Qué regla de accesibilidad debe cumplirse en navegación?",
-        options: [
-          "Mostrar etiqueta de destino y estado actual del tab.",
-          "Ocultar etiquetas y depender de memoria visual del ícono.",
-          "Excluir tabs de foco de teclado.",
-          "Usar solo color para indicar tab activa.",
-        ],
-        answer: 0,
-        explanation:
-          "Las etiquetas y el estado actual son esenciales para orientación y tecnología asistiva.",
-      },
-    ],
-  },
-  {
     id: "headers",
     name: "Headers",
     source: "stories/Organisms.Headers.stories.js",
@@ -785,7 +728,7 @@ function renderQuestion() {
   const globalQuestion = estado.step + 1;
 
   progressText.textContent = `Pregunta ${globalQuestion} de ${TOTAL_PREGUNTAS}`;
-  componentText.textContent = `${component.name} · ${questionIndex + 1}/3 (Componente ${componentIndex + 1}/12)`;
+  componentText.textContent = `${component.name} · ${questionIndex + 1}/3 (Componente ${componentIndex + 1}/${COMPONENTES.length})`;
   scoreText.textContent = `Puntaje: ${estado.score}`;
   playerText.textContent = `Participante: ${estado.playerName}`;
 
@@ -904,11 +847,13 @@ function sortLeaderboard(entries) {
 }
 
 function normalizarEntry(entry) {
+  const total = Number(entry.total || TOTAL_PREGUNTAS);
+  const score = Number(entry.score || 0);
   return {
     sessionId: String(entry.sessionId || ""),
     name: String(entry.name || "Sin nombre"),
-    score: Number(entry.score || 0),
-    total: Number(entry.total || TOTAL_PREGUNTAS),
+    score: Math.max(0, Math.min(score, total)),
+    total,
     updatedAt: entry.updatedAt || new Date().toISOString(),
   };
 }
@@ -925,7 +870,7 @@ function renderLeaderboard(entries) {
   }
 
   const ganador = entries[0];
-  winnerBanner.textContent = `Ganador actual: ${ganador.name} con ${ganador.score}/${TOTAL_PREGUNTAS}`;
+  winnerBanner.textContent = `Ganador actual: ${ganador.name} con ${ganador.score}/${ganador.total}`;
 
   entries.forEach((entry, index) => {
     const row = document.createElement("tr");
@@ -933,7 +878,7 @@ function renderLeaderboard(entries) {
     row.innerHTML = `
       <td>${index + 1}º</td>
       <td>${entry.name}</td>
-      <td>${entry.score}/${TOTAL_PREGUNTAS}</td>
+      <td>${entry.score}/${entry.total}</td>
       <td>${formatDate(entry.updatedAt)}</td>
     `;
     leaderboardBody.appendChild(row);
@@ -1052,10 +997,13 @@ function showEndScreen() {
   finalScore.textContent = String(estado.score);
   finalPlayer.textContent = `Participante: ${estado.playerName}`;
 
-  if (estado.score >= 32) {
+  const umbralExcelente = Math.ceil(TOTAL_PREGUNTAS * 0.9);
+  const umbralBueno = Math.ceil(TOTAL_PREGUNTAS * 0.65);
+
+  if (estado.score >= umbralExcelente) {
     resultCopy.textContent =
       "Excelente trabajo de detective UX. Aplicaste uso, variante y accesibilidad con mucha consistencia.";
-  } else if (estado.score >= 24) {
+  } else if (estado.score >= umbralBueno) {
     resultCopy.textContent =
       "Buen resultado. Revisa los componentes fallados para afinar decisiones de variante y reglas de uso.";
   } else {

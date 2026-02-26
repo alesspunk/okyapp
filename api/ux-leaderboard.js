@@ -1,6 +1,8 @@
 const LEADERBOARD_KEY = "ux:detective:leaderboard";
 const SESSION_PREFIX = "ux:detective:session:";
 const MAX_LIMIT = 50;
+const DEFAULT_TOTAL = 33;
+const MAX_TOTAL = 100;
 
 function getRedisEnv() {
   const url =
@@ -56,11 +58,13 @@ function clamp(value, min, max) {
 }
 
 function normalizeEntry(entry) {
+  const total = Number(entry.total || DEFAULT_TOTAL);
+  const score = Number(entry.score || 0);
   return {
     sessionId: String(entry.sessionId || ""),
     name: String(entry.name || "Sin nombre"),
-    score: Number(entry.score || 0),
-    total: Number(entry.total || 36),
+    score: Math.max(0, Math.min(score, total)),
+    total,
     updatedAt: entry.updatedAt || new Date().toISOString(),
   };
 }
@@ -104,7 +108,11 @@ async function submitScore(body) {
   const sessionId = String(body?.sessionId || "").trim();
   const name = String(body?.name || "").trim();
   const score = Number(body?.score);
-  const total = 36;
+  const incomingTotal = Number(body?.total);
+  const total =
+    Number.isInteger(incomingTotal) && incomingTotal > 0 && incomingTotal <= MAX_TOTAL
+      ? incomingTotal
+      : DEFAULT_TOTAL;
 
   if (!sessionId || sessionId.length > 120) {
     return { ok: false, status: 400, message: "sessionId inválido." };

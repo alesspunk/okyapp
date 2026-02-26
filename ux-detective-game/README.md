@@ -14,8 +14,8 @@ Alternativa: abrir `/Users/alessandroperez/Documents/OKY/ux-detective-game/index
 
 ## Qué incluye
 
-- 12 componentes del DS tomados de stories existentes
-- 3 preguntas de opción múltiple por componente (36 en total)
+- 11 componentes del DS tomados de stories existentes
+- 3 preguntas de opción múltiple por componente (33 en total)
 - Feedback inmediato después de cada respuesta
 - Puntaje final y resumen de componentes fallados
 - Pantallas de inicio, juego y cierre con opción de volver a jugar
@@ -36,7 +36,6 @@ Alternativa: abrir `/Users/alessandroperez/Documents/OKY/ux-detective-game/index
 - `stories/Molecules.Tiles.stories.js`
 - `stories/Organisms.Lists.stories.js`
 - `stories/Organisms.SummaryBox.stories.js`
-- `stories/Organisms.Navigation.stories.js`
 - `stories/Organisms.Headers.stories.js`
 
 ## Notas
