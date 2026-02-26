@@ -352,8 +352,39 @@ export async function archiveRound(entryId) {
 
 export async function clearAllEntries() {
   await ensureSchema();
-  const sql = getPool().sql.bind(getPool());
+  const client = await getPool().connect();
+  try {
+    await client.sql`BEGIN`;
 
-  await sql`TRUNCATE TABLE truth_lie_entries RESTART IDENTITY`;
-  return true;
+    await client.sql`DELETE FROM truth_lie_entries`;
+
+    // Si la secuencia existe, reiniciamos IDs para una nueva sesión limpia.
+    try {
+      await client.sql`ALTER SEQUENCE truth_lie_entries_id_seq RESTART WITH 1`;
+    } catch {
+      // ignore sequence reset errors on managed DB variants
+    }
+
+    const countResult = await client.sql`
+      SELECT COUNT(*)::INT AS count
+      FROM truth_lie_entries
+    `;
+    const remaining = Number(countResult.rows[0]?.count || 0);
+    if (remaining !== 0) {
+      await client.sql`ROLLBACK`;
+      throw new Error("No se pudieron limpiar todos los registros.");
+    }
+
+    await client.sql`COMMIT`;
+    return true;
+  } catch (error) {
+    try {
+      await client.sql`ROLLBACK`;
+    } catch {
+      // ignore rollback errors
+    }
+    throw error;
+  } finally {
+    await client.release();
+  }
 }

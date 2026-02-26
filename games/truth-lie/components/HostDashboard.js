@@ -134,7 +134,13 @@ export default function HostDashboard() {
             typeof payload.queuedCount === "number" ? payload.queuedCount : previous.queuedCount,
         };
       });
-      await load();
+      if (action === "reset") {
+        window.setTimeout(() => {
+          load();
+        }, 1200);
+      } else {
+        await load();
+      }
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Error inesperado.");
     } finally {
