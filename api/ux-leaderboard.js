@@ -78,6 +78,7 @@ async function getLeaderboard(limit) {
 
   const entries = [];
   sessionIds.forEach((sessionId, index) => {
+    if (sessionId === "smoke-test-session") return;
     const raw = Array.isArray(records) ? records[index] : null;
     if (!raw) return;
 
