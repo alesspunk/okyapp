@@ -80,25 +80,40 @@ const COMPONENTES = [
     id: "inputs",
     name: "Inputs",
     source: "stories/Atoms.Inputs.stories.js",
-    preview: () => `
-      <div class="mars-story">
-        <div class="mars-label">Atoms/Inputs · Teléfono</div>
-        <div style="display:grid;gap:10px;max-width:328px">
-          <div style="display:flex;gap:8px;align-items:flex-start;max-width:328px">
-            <div class="input-wrapper" style="min-width:88px;width:88px;flex-shrink:0">
-              <input class="input-field" value="+502" style="padding-right:8px" />
-              <div class="input-label">Área</div>
-            </div>
-            <div class="input-wrapper" style="min-width:0;flex:1">
-              <span class="input-flag-left"><img src="/guatemala-flag.png" alt="Guatemala" /></span>
-              <input class="input-field input-has-flag input-has-clear" value="6696-3223" />
-              <div class="input-label" style="left:46px">Número de teléfono</div>
+    preview: (questionIndex = 0) => {
+      if (questionIndex === 1) {
+        return `
+          <div class="mars-story">
+            <div class="mars-label">Atoms/Inputs · Search</div>
+            <div class="input-wrapper" style="max-width:328px">
+              <span class="search-icon">${icono("buscar")}</span>
+              <input class="input-field search-input" placeholder="Buscar marcas" value="Pollo Campero" />
               <span class="clear-icon" style="display:flex">${icono("cerrar")}</span>
             </div>
           </div>
+        `;
+      }
+
+      return `
+        <div class="mars-story">
+          <div class="mars-label">Atoms/Inputs · Teléfono</div>
+          <div style="display:grid;gap:10px;max-width:328px">
+            <div style="display:flex;gap:8px;align-items:flex-start;max-width:328px">
+              <div class="input-wrapper" style="min-width:88px;width:88px;flex-shrink:0">
+                <input class="input-field" value="+502" style="padding-right:8px" />
+                <div class="input-label">Área</div>
+              </div>
+              <div class="input-wrapper" style="min-width:0;flex:1">
+                <span class="input-flag-left"><img src="/guatemala-flag.png" alt="Guatemala" /></span>
+                <input class="input-field input-has-flag input-has-clear" value="6696-3223" />
+                <div class="input-label" style="left:46px">Número de teléfono</div>
+                <span class="clear-icon" style="display:flex">${icono("cerrar")}</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    `,
+      `;
+    },
     questions: [
       {
         text: "¿Cuál es el objetivo principal de los Inputs en OKY DS?",
@@ -113,11 +128,11 @@ const COMPONENTES = [
           "Los inputs están diseñados para captura de datos. Placeholder, etiqueta e íconos deben reducir errores.",
       },
       {
-        text: "Un flujo pide código de país y número telefónico. ¿Qué variante debes usar?",
+        text: "Si el usuario quiere encontrar una marca o producto rápido, ¿qué variante es la más adecuada?",
         options: ["Input/Search", "Input/Phone", "Dropdown/Country", "Radio/Simple"],
-        answer: 1,
+        answer: 0,
         explanation:
-          "Input/Phone ya cubre formato dividido y contexto visual por país según el patrón del DS.",
+          "Input/Search es ideal para búsquedas rápidas porque prioriza texto corto, ícono de búsqueda y limpieza inmediata.",
       },
       {
         text: "¿Qué regla UX/accesibilidad aplica en estos inputs?",
@@ -776,7 +791,7 @@ function renderQuestion() {
 
   componentName.textContent = component.name;
   componentSource.textContent = `Fuente: ${component.source}`;
-  componentPreview.innerHTML = component.preview();
+  componentPreview.innerHTML = component.preview(questionIndex);
 
   questionText.textContent = question.text;
   optionsEl.innerHTML = "";
