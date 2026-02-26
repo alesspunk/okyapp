@@ -1,6 +1,7 @@
 import { getClientIp, requireHost } from "../../../../lib/auth";
 import {
   archiveRound,
+  clearAllEntries,
   countQueued,
   getCurrentRound,
   getNextQueued,
@@ -68,18 +69,6 @@ export async function POST(request) {
       }
       updated = await revealRound(targetId);
       if (!updated) {
-        const existing = await getSubmissionById(targetId);
-        if (existing && existing.status === "revealed") {
-          const [currentRound, queuedCount] = await Promise.all([getCurrentRound(), countQueued()]);
-          return json({
-            ok: true,
-            action,
-            updated: existing,
-            currentRound,
-            queuedCount,
-            info: "La mentira ya estaba revelada.",
-          });
-        }
         return json({ ok: false, message: "La ronda no está activa para revelar." }, 409);
       }
       info = "Mentira revelada.";
@@ -94,30 +83,55 @@ export async function POST(request) {
       }
       info = "Ronda cerrada.";
     } else if (action === "next") {
-      const current = await getCurrentRound();
+      const candidate = parsedId ? await getSubmissionById(parsedId) : null;
+      const current =
+        candidate && (candidate.status === "active" || candidate.status === "revealed")
+          ? candidate
+          : await getCurrentRound();
       if (!current) {
         return json({ ok: false, message: "No hay ronda actual para avanzar." }, 409);
       }
 
       const nextQueued = await getNextQueued();
-      if (nextQueued) {
+      if (nextQueued && nextQueued.id !== current.id) {
         updated = await startRound(nextQueued.id);
         if (!updated) {
-          return json({ ok: false, message: "No se pudo iniciar el siguiente jugador." }, 409);
+          const maybeActive = await getSubmissionById(nextQueued.id);
+          if (maybeActive && maybeActive.status === "active") {
+            updated = maybeActive;
+          } else {
+            return json({ ok: false, message: "No se pudo iniciar el siguiente jugador." }, 409);
+          }
         }
         info = "Avanzaste al siguiente jugador.";
       } else {
         updated = await archiveRound(current.id);
         if (!updated) {
-          return json({ ok: false, message: "No se pudo cerrar la ronda actual." }, 409);
+          const maybeArchived = await getSubmissionById(current.id);
+          if (maybeArchived && maybeArchived.status === "archived") {
+            updated = maybeArchived;
+          } else {
+            return json({ ok: false, message: "No se pudo cerrar la ronda actual." }, 409);
+          }
         }
         info = "No hay más jugadores en cola. Ronda cerrada.";
       }
+    } else if (action === "reset") {
+      await clearAllEntries();
+      info = "Juego reiniciado. Se limpiaron jugadores y rondas.";
     } else {
       return json({ ok: false, message: "Acción inválida." }, 400);
     }
 
-    const [currentRound, queuedCount] = await Promise.all([getCurrentRound(), countQueued()]);
+    let [currentRound, queuedCount] = await Promise.all([getCurrentRound(), countQueued()]);
+
+    if (action === "reveal" && updated && updated.status === "revealed") {
+      currentRound = updated;
+    }
+    if (action === "reset") {
+      currentRound = null;
+      queuedCount = 0;
+    }
 
     return json({
       ok: true,

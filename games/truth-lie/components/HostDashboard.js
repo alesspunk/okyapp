@@ -26,6 +26,10 @@ function statusLabel(status) {
   }
 }
 
+function canAdvance(status) {
+  return status === "active" || status === "revealed";
+}
+
 export default function HostDashboard() {
   const [hostCode, setHostCode] = useState("");
   const [ready, setReady] = useState(false);
@@ -106,6 +110,30 @@ export default function HostDashboard() {
       }
 
       setInfo(payload.info || "");
+      setData((previous) => {
+        if (action === "reset") {
+          return {
+            entries: [],
+            currentRound: null,
+            queuedCount: 0,
+          };
+        }
+
+        const nextEntries =
+          payload.updated && payload.updated.id
+            ? previous.entries.map((entry) =>
+                Number(entry.id) === Number(payload.updated.id) ? { ...entry, ...payload.updated } : entry,
+              )
+            : previous.entries;
+
+        return {
+          entries: nextEntries,
+          currentRound:
+            payload.currentRound !== undefined ? payload.currentRound : previous.currentRound,
+          queuedCount:
+            typeof payload.queuedCount === "number" ? payload.queuedCount : previous.queuedCount,
+        };
+      });
       await load();
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Error inesperado.");
@@ -162,6 +190,17 @@ export default function HostDashboard() {
         <div className="tl-inline-actions">
           <button className="btn btn-outlined" type="button" onClick={() => load()} disabled={loading}>
             {loading ? "Actualizando..." : "Actualizar"}
+          </button>
+          <button
+            className="btn btn-danger"
+            type="button"
+            disabled={!!busyAction}
+            onClick={() => {
+              if (!window.confirm("Esto borrará todas las rondas y jugadores. ¿Continuar?")) return;
+              runAction("reset");
+            }}
+          >
+            Reiniciar juego
           </button>
           <button
             className="btn btn-secondary"
@@ -227,7 +266,7 @@ export default function HostDashboard() {
             <button
               className="btn btn-secondary"
               type="button"
-              disabled={data.currentRound.status !== "revealed" || busyAction !== ""}
+              disabled={!canAdvance(data.currentRound.status) || busyAction !== ""}
               onClick={() => runAction("next", data.currentRound.id)}
             >
               {busyAction === `next-${data.currentRound.id}` ? "Avanzando..." : "Pasar al siguiente"}
@@ -312,7 +351,7 @@ export default function HostDashboard() {
                         <button
                           className="btn btn-outlined btn-small"
                           type="button"
-                          disabled={effectiveStatus !== "revealed" || !!busyAction}
+                          disabled={!canAdvance(effectiveStatus) || !!busyAction}
                           onClick={() => runAction("next", entry.id)}
                         >
                           {nextBusy ? "Avanzando..." : "Pasar al siguiente"}

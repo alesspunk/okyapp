@@ -324,9 +324,11 @@ export async function revealRound(entryId) {
 
   const result = await sql`
     UPDATE truth_lie_entries
-    SET status = 'revealed', revealed_at = NOW()
+    SET
+      status = 'revealed',
+      revealed_at = COALESCE(revealed_at, NOW())
     WHERE id = ${entryId}
-      AND LOWER(TRIM(status)) = 'active'
+      AND LOWER(TRIM(status)) IN ('active', 'revealed')
     RETURNING *
   `;
 
@@ -346,4 +348,12 @@ export async function archiveRound(entryId) {
   `;
 
   return mapEntry(result.rows[0]);
+}
+
+export async function clearAllEntries() {
+  await ensureSchema();
+  const sql = getPool().sql.bind(getPool());
+
+  await sql`TRUNCATE TABLE truth_lie_entries RESTART IDENTITY`;
+  return true;
 }

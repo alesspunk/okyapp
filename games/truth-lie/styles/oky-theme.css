@@ -88,6 +88,12 @@ p {
   border: 1px solid var(--primary-main);
 }
 
+.btn-danger {
+  background: #fff4f6;
+  color: var(--danger-main);
+  border: 1px solid rgba(183, 51, 69, 0.35);
+}
+
 .btn-small {
   min-height: 30px;
   font-size: 12px;
