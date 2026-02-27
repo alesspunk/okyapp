@@ -21,6 +21,35 @@ function hasKVConfig() {
   return Boolean(url && token);
 }
 
+function getResetSecret() {
+  return String(process.env.UX_LEADERBOARD_ADMIN_KEY || process.env.HOST_CODE || "").trim();
+}
+
+function resolveResetKey(req, body) {
+  const headerKey =
+    req.headers["x-admin-key"] ||
+    req.headers["x-host-code"] ||
+    req.headers["X-Admin-Key"] ||
+    req.headers["X-Host-Code"];
+  const queryKey = req.query?.adminKey || req.query?.hostCode;
+  const bodyKey = body?.adminKey || body?.hostCode;
+  return String(headerKey || queryKey || bodyKey || "").trim();
+}
+
+function isResetAuthorized(req, body) {
+  const expected = getResetSecret();
+  if (!expected) {
+    return { ok: false, status: 503, message: "Falta UX_LEADERBOARD_ADMIN_KEY o HOST_CODE." };
+  }
+
+  const provided = resolveResetKey(req, body);
+  if (!provided || provided !== expected) {
+    return { ok: false, status: 401, message: "No autorizado para limpiar leaderboard." };
+  }
+
+  return { ok: true };
+}
+
 async function kvCommand(...args) {
   const { url, token } = getRedisEnv();
 
@@ -158,6 +187,25 @@ async function submitScore(body) {
   return { ok: true, status: 200, entries };
 }
 
+async function resetLeaderboard() {
+  const sessionIds = await kvCommand("ZRANGE", LEADERBOARD_KEY, 0, -1);
+  const ids = Array.isArray(sessionIds) ? sessionIds : [];
+
+  if (ids.length > 0) {
+    const sessionKeys = ids.map((id) => `${SESSION_PREFIX}${id}`);
+    await kvCommand("DEL", ...sessionKeys);
+  }
+
+  await kvCommand("DEL", LEADERBOARD_KEY);
+  return {
+    ok: true,
+    status: 200,
+    message: "Leaderboard reiniciado.",
+    deletedSessions: ids.length,
+    entries: [],
+  };
+}
+
 module.exports = async function handler(req, res) {
   if (!hasKVConfig()) {
     return json(res, 503, {
@@ -169,19 +217,40 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    let parsedBody = null;
+    if (req.method === "POST" || req.method === "DELETE") {
+      try {
+        parsedBody = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
+      } catch {
+        return json(res, 400, { ok: false, message: "JSON inválido." });
+      }
+    }
+
     if (req.method === "GET") {
       const entries = await getLeaderboard(req.query?.limit);
       return json(res, 200, { ok: true, entries });
     }
 
     if (req.method === "POST") {
-      let body;
-      try {
-        body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body;
-      } catch {
-        return json(res, 400, { ok: false, message: "JSON inválido." });
+      if (String(parsedBody?.action || "").toLowerCase() === "reset") {
+        const auth = isResetAuthorized(req, parsedBody);
+        if (!auth.ok) {
+          return json(res, auth.status, { ok: false, message: auth.message });
+        }
+        const result = await resetLeaderboard();
+        return json(res, result.status, result);
       }
-      const result = await submitScore(body);
+
+      const result = await submitScore(parsedBody);
+      return json(res, result.status, result);
+    }
+
+    if (req.method === "DELETE") {
+      const auth = isResetAuthorized(req, parsedBody);
+      if (!auth.ok) {
+        return json(res, auth.status, { ok: false, message: auth.message });
+      }
+      const result = await resetLeaderboard();
       return json(res, result.status, result);
     }
 
