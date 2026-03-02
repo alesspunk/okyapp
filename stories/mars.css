@@ -947,113 +947,106 @@ body {
 
 /* ── Promo Strip (Organism) ───────────────────────────── */
 .promo-strip-mobile-shell {
-  background: var(--background);
-  padding: 12px;
+  width: 358px;
+  max-width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: var(--white);
+  padding: 0 0 20px;
 }
 
 .promo-strip-stack {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
 }
 
 .promo-strip-organism {
   width: 100%;
-  border: 1px solid var(--divider);
-  border-radius: 16px;
   background: var(--white);
-  padding: 12px;
 }
 
-.promo-strip-header {
+.promo-strip-organism-compact {
+  padding-top: 0;
+}
+
+.promo-strip-heading-wrap {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px 0;
+}
+
+.token-h6 {
+  margin: 0;
+  color: var(--primary-main);
+  font-family: "Lato", sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.15px;
+}
+
+.token-brand {
+  margin: 0;
+  color: var(--primary-main);
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.15px;
 }
 
 .promo-strip-heading {
-  color: var(--primary-main);
-  margin-bottom: 2px;
-}
-
-.promo-strip-subheading {
-  margin: 0;
-}
-
-.promo-strip-countdown {
-  flex-shrink: 0;
-  height: 30px;
-  border-radius: 20px;
-  border: 1px solid var(--border-active);
-  color: var(--primary-main);
-  background: var(--white);
-  display: inline-flex;
-  align-items: center;
-  padding: 0 10px;
-  font-size: 12px;
-  font-weight: 700;
+  width: 100%;
 }
 
 .promo-strip-divider {
-  margin: 10px 0 12px;
+  margin: 8px 0 0;
   border-top: 1px solid var(--divider);
 }
 
-.promo-strip-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+.promo-strip-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 16px 0;
 }
 
-.promo-strip-card {
-  border: 1px solid var(--divider);
-  border-radius: 12px;
-  background: var(--white);
-  overflow: hidden;
+.promo-strip-item {
+  width: 167px;
   display: flex;
   flex-direction: column;
+  gap: 8px;
+  position: relative;
 }
 
-.promo-strip-card-media {
-  width: 100%;
-  aspect-ratio: 1.45 / 1;
+.promo-strip-image-box {
+  position: relative;
+  width: 167px;
+  height: 105px;
+  border-radius: 8px;
+  overflow: visible;
   background: var(--background);
 }
 
-.promo-strip-card-media img {
+.promo-strip-image-box img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 8px;
 }
 
-.promo-strip-card-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 8px 0;
+.promo-strip-image-box > .discount-ribbon-wrap-small {
+  top: 14px;
+  right: -5px;
 }
 
 .promo-strip-card-brand {
-  margin: 0;
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-.promo-strip-card-title {
-  font-size: 14px;
-  line-height: 1.35;
-  min-height: 38px;
-}
-
-.promo-strip-card-prices {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.promo-strip-ribbon {
-  margin: 8px;
+  width: 100%;
 }
 
 .story-table {
@@ -1821,6 +1814,9 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  --discount-ribbon-bg: var(--secondary-light);
+  --discount-ribbon-text: var(--secondary-dark);
+  --discount-ribbon-notch: var(--secondary-dark);
   width: 88px;
   max-width: 88px;
   height: 40px;
@@ -1833,11 +1829,18 @@ body {
   position: absolute;
   top: 8px;
   right: 8px;
+  width: 75px;
+  max-width: 75px;
   z-index: 2;
   padding-top: 6px;
   background: transparent;
   border-radius: 0;
   overflow: visible;
+}
+
+.discount-ribbon-wrap-small {
+  width: 50px;
+  max-width: 50px;
 }
 
 .discount-ribbon-wrap::before {
@@ -1847,7 +1850,7 @@ body {
   height: 6px;
   top: 0;
   right: 0;
-  background: var(--secondary-dark);
+  background: var(--discount-ribbon-notch);
   clip-path: polygon(0 100%, 0 0, 100% 100%, 0 100%);
   z-index: 1;
 }
@@ -1860,7 +1863,7 @@ body {
   right: 0;
   bottom: 0;
   border-radius: 4px 0 4px 4px;
-  background: var(--secondary-light);
+  background: var(--discount-ribbon-bg);
   z-index: 0;
 }
 
@@ -1872,7 +1875,7 @@ body {
   justify-content: center;
   position: static;
   border-radius: 4px;
-  background: var(--secondary-light);
+  background: var(--discount-ribbon-bg);
 }
 
 .discount-ribbon .discount-ribbon-text {
@@ -1880,7 +1883,7 @@ body {
   white-space: nowrap;
   position: relative;
   z-index: 2;
-  color: var(--secondary-dark);
+  color: var(--discount-ribbon-text);
   text-align: center;
   font-feature-settings: 'liga' off, 'clig' off;
   font-family: 'Lato', sans-serif;
@@ -1889,4 +1892,253 @@ body {
   font-weight: 700;
   line-height: 1.6;
   letter-spacing: 0.15px;
+}
+
+/* Type variant — marketing tactic */
+.discount-ribbon-type-normal {
+  --discount-ribbon-bg: var(--secondary-light);
+  --discount-ribbon-text: var(--secondary-dark);
+  --discount-ribbon-notch: var(--secondary-dark);
+}
+
+.discount-ribbon-type-por-tiempo {
+  --discount-ribbon-bg: var(--warning-main);
+  --discount-ribbon-text: var(--warning-text);
+  --discount-ribbon-notch: var(--warning-text);
+}
+
+.discount-ribbon-type-finito {
+  --discount-ribbon-bg: var(--error-main);
+  --discount-ribbon-text: var(--white);
+  --discount-ribbon-notch: var(--error-text);
+}
+
+.discount-ribbon-type-por-temporada {
+  --discount-ribbon-bg: var(--info-main);
+  --discount-ribbon-text: var(--white);
+  --discount-ribbon-notch: var(--info-text);
+}
+
+.discount-ribbon-type-oky {
+  --discount-ribbon-bg: var(--primary-light);
+  --discount-ribbon-text: var(--primary-main);
+  --discount-ribbon-notch: var(--primary-dark);
+}
+
+/* ── Super Ribbon (Atom) ─────────────────────────────── */
+.super-ribbon {
+  --super-ribbon-bg: var(--secondary-light);
+  --super-ribbon-text: var(--secondary-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--super-ribbon-bg);
+  color: var(--super-ribbon-text);
+  box-shadow: 0 4px 16px 4px rgba(0, 0, 0, 0.08);
+}
+
+.super-ribbon-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.super-ribbon-icon i {
+  font-size: 12px;
+  line-height: 12px;
+  color: var(--super-ribbon-text);
+}
+
+.super-ribbon-text {
+  color: var(--super-ribbon-text);
+  text-align: center;
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.15px;
+  white-space: nowrap;
+}
+
+.super-ribbon-type-por-tiempo {
+  --super-ribbon-bg: var(--accent-color);
+  --super-ribbon-text: var(--warning-text);
+}
+
+.super-ribbon-type-finito {
+  --super-ribbon-bg: var(--error-main);
+  --super-ribbon-text: var(--white);
+}
+
+.super-ribbon-type-normal {
+  --super-ribbon-bg: var(--secondary-light);
+  --super-ribbon-text: var(--secondary-dark);
+}
+
+.super-ribbon-type-por-temporada {
+  --super-ribbon-bg: var(--info-main);
+  --super-ribbon-text: var(--white);
+}
+
+.super-ribbon-type-oky {
+  --super-ribbon-bg: var(--primary-light);
+  --super-ribbon-text: var(--primary-main);
+}
+
+/* ── Tactic Strips (Organism) ────────────────────────── */
+.tactic-strip-mobile-shell {
+  width: 358px;
+  max-width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: var(--background);
+}
+
+.tactic-strip-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 32px 0;
+}
+
+.tactic-strip {
+  width: 358px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tactic-strip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-right: 8px;
+}
+
+.tactic-strip-title {
+  padding: 0 20px;
+}
+
+.tactic-strip-carousel-window {
+  width: 358px;
+  overflow: hidden;
+}
+
+.tactic-strip-carousel-track {
+  display: flex;
+  align-items: flex-start;
+  width: 565px;
+}
+
+.tactic-offer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.tactic-offer-left {
+  width: 275px;
+  padding: 8px 0 8px 8px;
+}
+
+.tactic-offer-right {
+  width: 290px;
+  padding: 8px 16px;
+}
+
+.tactic-offer-hero-wrap {
+  position: relative;
+}
+
+.tactic-offer-left .tactic-offer-hero-wrap {
+  width: 220px;
+  height: 145px;
+}
+
+.tactic-offer-right .tactic-offer-hero-wrap {
+  width: 219px;
+  height: 145px;
+}
+
+.tactic-offer-left .tactic-offer-hero {
+  width: 220px;
+  height: 145px;
+}
+
+.tactic-offer-right .tactic-offer-hero {
+  width: 219px;
+  height: 145px;
+}
+
+.tactic-offer-hero {
+  position: absolute;
+  top: 0;
+  left: 54px;
+  display: block;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+.tactic-logo-wrap {
+  position: absolute;
+  top: 42px;
+  width: 95px;
+  height: 60px;
+  border-radius: 12px;
+  border: 1px solid var(--border-main);
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.tactic-logo-wrap-left {
+  left: 20px;
+}
+
+.tactic-logo-wrap-right {
+  left: 20px;
+}
+
+.tactic-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.tactic-discount-wrap {
+  position: absolute;
+  top: 107px;
+}
+
+.tactic-discount-wrap-left {
+  left: 205px;
+}
+
+.tactic-discount-wrap-right {
+  left: 205px;
+}
+
+.tactic-discount-wrap .discount-ribbon-wrap {
+  position: relative;
+  top: 0;
+  right: 0;
+}
+
+.tactic-brand-row {
+  padding: 8px 8px 8px 63px;
+}
+
+.tactic-brand {
+  white-space: nowrap;
 }

@@ -300,25 +300,58 @@ Reusable discount atom used inside strips and lists.
 
 **Variants**:
 - `Discount Ribbon / Wrap` (`Ta86S`)
+- `Discount Ribbon / Wrap / Small` (derived variant for compact cards)
 - `Discount Ribbon / List` (`twV32`)
 
 **Size**:
-- Max width: `88px`
-- Height: `40px` (Wrap)
+- Width: `75px` (Wrap)
+- Width: `50px` (Wrap Small)
 - Height: `30px` (List)
 
 **Anatomy**:
 - `Wrap`: top-right notch (`6x6`) + body corner radius `[4,0,4,4]`
+- `Wrap Small`: same anatomy as `Wrap`, compact width
 - `List`: no notch + body corner radius `4`
+
+**Figma Naming Convention**:
+- `Tipo`: `Wrap` | `List`
+- `Type`: `Normal` | `Por tiempo` | `Finito` | `Por temporada` | `OKY`
 
 **Usage Rules**:
 - `Wrap`: absolute positioning on giftcard cards
+- `Wrap Small`: compact cards like promo strip cards
 - `List`: only on product listing pages and cart
 
 **Token Usage**:
-- Background: `$Secondary Light`
-- Text color: `$Secondary Dark`
+- `Type=Normal`: `$Secondary Light` / `$Secondary Dark`
+- `Type=Por tiempo`: `$Warning Main` / `$Warning Text`
+- `Type=Finito`: `$Error Main` / `$White`
+- `Type=Por temporada`: `$Info Main` / `$White`
+- `Type=OKY`: `$Primary Light` / `$Primary Main`
 - Text typography token: `price%`
+
+---
+
+### 7. Super Ribbon (Atom)
+Status ribbon used as a headline tactic indicator in strip organisms.
+
+**Component ID set**: `7295:52143`
+
+**Figma Naming Convention**:
+- `Property 1`: `Por tiempo` | `Finito` | `Normal` | `Por temporada` | `OKY`
+
+**Specifications**:
+- Height: `32px`
+- Corner radius: `8px`
+- Shadow: elevation/8
+- Icon slot: Font Awesome solid (`12px`)
+
+**Token Usage by Property 1**:
+- `Por tiempo`: `$Accent Color` + `$Warning Text`
+- `Finito`: `$Error Main` + `$White`
+- `Normal`: `$Secondary Light` + `$Secondary Dark`
+- `Por temporada`: `$Info Main` + `$White`
+- `OKY`: `$Primary Light` + `$Primary Main`
 
 ---
 
@@ -640,12 +673,14 @@ Dashboard widgets displaying summarized information and quick actions.
 
 ---
 
-### 8. Promotional Strips
-**Component ID**: `VeEVO`
+### 8. Promotional Strips / Promo Strip
+**Component IDs**: `VeEVO`, `72353:23990`, `72353:23953`
 
 **Variants**:
 - `Strips/Countdown/Offers` (`nf2yE`): timer + product cards + ribbon list below price
 - `Strips/No Countdown/Giftcards` (`pTOSN`): giftcard cards + ribbon list below price
+- `Promo Strip / Single` (`72353:23990`): 2-card row + `Discount Ribbon / Wrap Small`
+- `Promo Strip / Double` (`72353:23953`): stacked rows + `Discount Ribbon / Wrap Small`
 
 **Usage**: Promotional offers in card and list layouts
 **Layout**: Full-width containers (horizontal card scroller or vertical list rows)
@@ -658,17 +693,42 @@ Dashboard widgets displaying summarized information and quick actions.
 
 ---
 
+### 9. Tactic Strips
+**Component ID set**: `7295:52040`
+
+**Variants (`Property 1`)**:
+- `Por tiempo`
+- `Finita`
+- `Normal`
+- `Por temporada`
+- `OKY`
+
+**Composition**:
+- Header title (`token-h6`)
+- Nested atom: `Super Ribbon` (variant by `Property 1`)
+- Two-card horizontal strip with logos
+- Nested atom: `Discount Ribbon / Wrap` (variant by tactic `Type`)
+
+**Layout Specs**:
+- Container width: `358px`
+- Card hero height: `145px`
+- Brand logo tile: `95x60`
+- Discount ribbon overlay anchored on each card edge
+
+---
+
 ## Component Index
 
 ### By Category
 
-#### **Atoms** (28 components)
+#### **Atoms** (29 components)
 - Buttons: 54 variants (Primary/Secondary/Outlined × Large/Medium/Small × Default/Left Icon/Right Icon × Active/Disabled)
 - Input Fields: 4 variants
 - Dropdowns: 4 variants
 - Status Bar: 1
 - Chips / Quantity Input: 6 variants
-- Discount Ribbon: 2 variants (Wrap, List)
+- Discount Ribbon: 3 variants (Wrap, Wrap Small, List) + `Type` tactic variants
+- Super Ribbon: 5 variants (`Property 1`)
 
 #### **Molecules** (15 components)
 - Service Tiles: 13 components (10 Full + 3 Half)
@@ -676,15 +736,16 @@ Dashboard widgets displaying summarized information and quick actions.
 - Headers: 5 variants (logged/cart states + page headers)
 - Navigation: 2 variants (Icon Only, With Labels)
 
-#### **Organisms** (30 components)
+#### **Organisms** (31 components)
 - Widgets: 5
 - Summary Box: multi-flow matrix variants (products, giftCards, billPayments)
 - Lists: 3 components (List / PLP, List / Cart, Country Selector List)
 - Category Cards: 1
 - Carousels: 1
-- Promotional Strips: 2 variants
+- Promotional Strips / Promo Strip: 4 variants
+- Tactic Strips: 5 variants
 
-### Total Components: 73
+### Total Components: 75
 
 ---
 

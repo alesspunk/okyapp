@@ -1,45 +1,39 @@
 function discountRibbon(label) {
   return `
-    <div class="discount-ribbon discount-ribbon-list promo-strip-ribbon">
+    <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal">
       <span class="discount-ribbon-text token-price-percent">${label}</span>
     </div>`;
 }
 
-function promoCard({ image, brand, title, priceNow, priceBefore, ribbon }) {
+function promoCard({ image, brand, ribbon }) {
   return `
-    <article class="promo-strip-card">
-      <div class="promo-strip-card-media">
-        <img src="${image}" alt="${title}">
+    <article class="promo-strip-item">
+      <div class="promo-strip-image-box">
+        <img src="${image}" alt="${brand}">
+        ${discountRibbon(ribbon)}
       </div>
-      <div class="promo-strip-card-copy">
-        <div class="promo-strip-card-brand mars-label">${brand}</div>
-        <div class="token-product-text-plp promo-strip-card-title">${title}</div>
-        <div class="promo-strip-card-prices">
-          <span class="token-price-tag-plp">${priceNow}</span>
-          <span class="token-price-plp">${priceBefore}</span>
-        </div>
-      </div>
-      ${discountRibbon(ribbon)}
+      <p class="token-brand promo-strip-brand">${brand}</p>
     </article>`;
 }
 
 function promoStripBlock({
   heading,
-  subheading,
-  countdown,
   cards,
+  compact = false,
 }) {
   return `
-    <section class="promo-strip-organism">
-      <div class="promo-strip-header">
-        <div>
-          <div class="token-product-text-plp promo-strip-heading">${heading}</div>
-          <p class="mars-subtitle promo-strip-subheading">${subheading}</p>
-        </div>
-        <div class="promo-strip-countdown">${countdown}</div>
+    <section class="promo-strip-organism${compact ? " promo-strip-organism-compact" : ""}">
+      ${
+        compact
+          ? ""
+          : `
+      <div class="promo-strip-heading-wrap">
+        <h3 class="token-h6 promo-strip-heading">${heading}</h3>
       </div>
       <div class="promo-strip-divider"></div>
-      <div class="promo-strip-grid">
+      `
+      }
+      <div class="promo-strip-row">
         ${cards.map((card) => promoCard(card)).join("")}
       </div>
     </section>`;
@@ -49,37 +43,25 @@ const baseCards = [
   {
     image: "target.webp",
     brand: "Target",
-    title: "Gift Card Target",
-    priceNow: "$40.00",
-    priceBefore: "$50.00",
-    ribbon: "20% OFF",
+    ribbon: "-23%",
   },
   {
     image: "google.webp",
     brand: "Google Play",
-    title: "Gift Card Google Play",
-    priceNow: "$35.00",
-    priceBefore: "$50.00",
-    ribbon: "30% OFF",
+    ribbon: "-23%",
   },
 ];
 
 const secondCards = [
   {
-    image: "promo-strips1.webp",
-    brand: "Especial",
-    title: "Pack Combos",
-    priceNow: "$15.00",
-    priceBefore: "$20.00",
-    ribbon: "25% OFF",
+    image: "xbox.png",
+    brand: "Xbox",
+    ribbon: "-23%",
   },
   {
-    image: "promo-strips2.webp",
-    brand: "Express",
-    title: "Delivery Promos",
-    priceNow: "$12.00",
-    priceBefore: "$18.00",
-    ribbon: "33% OFF",
+    image: "twitch.png",
+    brand: "Twitch",
+    ribbon: "-23%",
   },
 ];
 
@@ -91,7 +73,7 @@ export default {
       description: {
         component:
           "Organismo Promo Strip en dos variantes de layout: **Single** y **Double**. " +
-          "Anida el átomo **Discount Ribbon (List)** en cada card de oferta.",
+          "Replica anatomy de Figma con 2 cards por fila y anida el átomo **Discount Ribbon (Wrap)** en cada card.",
       },
     },
   },
@@ -100,33 +82,37 @@ export default {
 export const Playground = {
   args: {
     variant: "Single",
-    heading: "Promociones de hoy",
-    subheading: "Explora ofertas activas de gift cards.",
-    countdown: "20:43:32",
+    singleHeading: "Tus compras online",
+    doubleHeading: "Todas estas 25% menos",
+    discount: "25%",
   },
   argTypes: {
     variant: {
       control: { type: "inline-radio" },
       options: ["Single", "Double"],
-      description: "Single muestra un bloque de promo. Double apila dos bloques.",
+      description: "Single muestra 1 fila. Double muestra 2 filas.",
     },
-    heading: { control: "text" },
-    subheading: { control: "text" },
-    countdown: { control: "text" },
+    singleHeading: { control: "text" },
+    doubleHeading: { control: "text" },
+    discount: { control: "text" },
   },
-  render: ({ variant, heading, subheading, countdown }) => {
-    const firstBlock = promoStripBlock({
-      heading,
-      subheading,
-      countdown,
-      cards: baseCards,
+  render: ({ variant, singleHeading, doubleHeading, discount }) => {
+    const cardsA = baseCards.map((card) => ({ ...card, ribbon: discount }));
+    const cardsB = secondCards.map((card) => ({ ...card, ribbon: discount }));
+
+    const singleBlock = promoStripBlock({
+      heading: singleHeading,
+      cards: cardsA,
     });
 
-    const secondBlock = promoStripBlock({
-      heading: "Más ofertas para ti",
-      subheading: "Variantes adicionales en la misma sección.",
-      countdown,
-      cards: secondCards,
+    const doubleTop = promoStripBlock({
+      heading: doubleHeading,
+      cards: cardsA,
+    });
+    const doubleBottom = promoStripBlock({
+      heading: "",
+      cards: cardsB,
+      compact: true,
     });
 
     return `
@@ -134,8 +120,7 @@ export const Playground = {
         <div class="mars-label">Promo Strip / ${variant} · IDs .pen: 72353:23990 · 72353:23953</div>
         <div class="mars-mobile promo-strip-mobile-shell">
           <div class="promo-strip-stack">
-            ${firstBlock}
-            ${variant === "Double" ? secondBlock : ""}
+            ${variant === "Double" ? `${doubleTop}${doubleBottom}` : singleBlock}
           </div>
         </div>
       </div>`;
@@ -149,9 +134,7 @@ export const Single = {
       <div class="mars-label">Promo Strip / Single · ID .pen: 72353:23990</div>
       <div class="mars-mobile promo-strip-mobile-shell">
         ${promoStripBlock({
-          heading: "Promociones de hoy",
-          subheading: "Explora ofertas activas de gift cards.",
-          countdown: "20:43:32",
+          heading: "Tus compras online",
           cards: baseCards,
         })}
       </div>
@@ -166,16 +149,12 @@ export const Double = {
       <div class="mars-mobile promo-strip-mobile-shell">
         <div class="promo-strip-stack">
           ${promoStripBlock({
-            heading: "Promociones de hoy",
-            subheading: "Explora ofertas activas de gift cards.",
-            countdown: "20:43:32",
+            heading: "Todas estas 25% menos",
             cards: baseCards,
           })}
           ${promoStripBlock({
-            heading: "Más ofertas para ti",
-            subheading: "Variantes adicionales en la misma sección.",
-            countdown: "20:43:32",
             cards: secondCards,
+            compact: true,
           })}
         </div>
       </div>

@@ -1,3 +1,31 @@
+const TYPE_OPTIONS = ["Normal", "Por tiempo", "Finito", "Por temporada", "OKY"];
+
+function typeClass(type) {
+  return `discount-ribbon-type-${type
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")}`;
+}
+
+function buildRibbon({ tipo, type, label, size }) {
+  const typeToken = typeClass(type);
+
+  if (tipo === "Wrap") {
+    return `
+      <div style="position:relative;width:170px;height:90px;border:1px dashed var(--divider);border-radius:8px;">
+        <div class="discount-ribbon discount-ribbon-wrap ${size === "Small" ? "discount-ribbon-wrap-small" : ""} ${typeToken}">
+          <span class="discount-ribbon-text token-price-percent">${label}</span>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="discount-ribbon discount-ribbon-list ${typeToken}">
+      <span class="discount-ribbon-text token-price-percent">${label}</span>
+    </div>`;
+}
+
 export default {
   title: "Atoms/Discount Ribbon",
   tags: ["autodocs"],
@@ -6,87 +34,110 @@ export default {
       description: {
         component:
           "Átomo de descuento reutilizado en Gift Cards, PLP y carrito. " +
-          "Dos variantes: **Wrap** (overlay absoluto con muesca) y **List** (badge estático inline). " +
-          "Ref. .pen: `Ta86S` (Wrap) · `twV32` (List).",
+          "Convención Figma: **Tipo** (`List` | `Wrap`) y **Type** (`Normal`, `Por tiempo`, `Finito`, `Por temporada`, `OKY`). " +
+          "`Wrap` usa ancho **75px** y `Small` (solo wrap) usa **50px**.",
       },
     },
   },
 };
 
-/* ── Helper ──────────────────────────────────────────── */
-function buildRibbon({ variant, label }) {
-  if (variant === "Wrap") {
-    return `
-      <div style="position:relative;width:140px;height:68px;border:1px dashed var(--divider);border-radius:8px;">
-        <div class="discount-ribbon discount-ribbon-wrap">
-          <span class="discount-ribbon-text token-price-percent">${label}</span>
-        </div>
-      </div>`;
-  }
-  return `
-    <div class="discount-ribbon discount-ribbon-list">
-      <span class="discount-ribbon-text token-price-percent">${label}</span>
-    </div>`;
-}
-
-/* ── Playground ──────────────────────────────────────── */
-export const Playground = {
+export const DocsPlayground = {
+  name: "Docs Playground",
   args: {
-    variant: "List",
-    label: "10% OFF",
+    tipo: "List",
+    type: "Normal",
+    size: "Default",
+    label: "25% OFF",
   },
   argTypes: {
-    variant: {
+    tipo: {
+      name: "Tipo",
       control: { type: "inline-radio" },
-      options: ["Wrap", "List"],
-      description: "**Wrap** — overlay absoluto con muesca top-right (uso: cards de producto). **List** — badge estático (uso: PLP, carrito).",
+      options: ["List", "Wrap"],
+      description: "Estructura visual base del componente.",
+    },
+    type: {
+      name: "Type",
+      control: { type: "select" },
+      options: TYPE_OPTIONS,
+      description: "Táctica de marketing que define color de fondo y texto.",
+    },
+    size: {
+      name: "Wrap Size",
+      control: { type: "inline-radio" },
+      options: ["Default", "Small"],
+      if: { arg: "tipo", eq: "Wrap" },
+      description: "Solo para Wrap: Default (75px) o Small (50px).",
     },
     label: {
       control: "text",
-      description: "Texto del descuento (ej. `10% OFF`, `93% OFF`).",
+      description: "Texto del badge (ej. `25% OFF`).",
     },
   },
   render: (args) => `
     <div class="mars-story">
-      <div class="mars-label">
-        Discount Ribbon / ${args.variant} · ID .pen: ${args.variant === "Wrap" ? "Ta86S" : "twV32"}
-      </div>
+      <div class="mars-label">Discount Ribbon · Tipo=${args.tipo} · Type=${args.type}${args.tipo === "Wrap" ? ` · Size=${args.size}` : ""}</div>
       ${buildRibbon(args)}
     </div>`,
 };
 
-/* ── BothVariants — referencia estática ─────────────── */
-export const BothVariants = {
-  name: "Both Variants",
+export const TypeMatrix = {
+  name: "Type Matrix",
   parameters: {
     controls: { disable: true },
     docs: {
       description: {
         story:
-          "Referencia visual de ambas variantes lado a lado. " +
-          "**Wrap** se posiciona de forma absoluta sobre su contenedor (simula una card). " +
-          "**List** es un elemento de bloque inline bajo el precio en listas y carrito.",
+          "Referencia de colores por **Type** en ambos **Tipo** (`List` y `Wrap`), incluyendo `Wrap Small`.",
       },
     },
   },
   render: () => `
-    <div class="mars-story" style="display:flex;gap:40px;align-items:center;flex-wrap:wrap;">
-
-      <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
-        <span style="font-size:11px;color:var(--text-secondary);font-family:Lato,sans-serif;">Wrap · Ta86S</span>
-        <div style="position:relative;width:140px;height:68px;border:1px dashed var(--divider);border-radius:8px;">
-          <div class="discount-ribbon discount-ribbon-wrap">
-            <span class="discount-ribbon-text token-price-percent">10% OFF</span>
-          </div>
+    <div class="mars-story" style="display:flex;flex-direction:column;gap:20px;">
+      <div>
+        <div class="mars-label" style="margin-bottom:8px;">Tipo = List</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;">
+          ${TYPE_OPTIONS.map((type) => `
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+              <div class="discount-ribbon discount-ribbon-list ${typeClass(type)}">
+                <span class="discount-ribbon-text token-price-percent">25% OFF</span>
+              </div>
+              <span style="font-size:11px;color:var(--text-secondary)">${type}</span>
+            </div>
+          `).join("")}
         </div>
       </div>
 
-      <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
-        <span style="font-size:11px;color:var(--text-secondary);font-family:Lato,sans-serif;">List · twV32</span>
-        <div class="discount-ribbon discount-ribbon-list">
-          <span class="discount-ribbon-text token-price-percent">10% OFF</span>
+      <div>
+        <div class="mars-label" style="margin-bottom:8px;">Tipo = Wrap (75px)</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;">
+          ${TYPE_OPTIONS.map((type) => `
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+              <div style="position:relative;width:170px;height:90px;border:1px dashed var(--divider);border-radius:8px;">
+                <div class="discount-ribbon discount-ribbon-wrap ${typeClass(type)}">
+                  <span class="discount-ribbon-text token-price-percent">25% OFF</span>
+                </div>
+              </div>
+              <span style="font-size:11px;color:var(--text-secondary)">${type}</span>
+            </div>
+          `).join("")}
         </div>
       </div>
 
+      <div>
+        <div class="mars-label" style="margin-bottom:8px;">Tipo = Wrap Small (50px)</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;">
+          ${TYPE_OPTIONS.map((type) => `
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+              <div style="position:relative;width:170px;height:90px;border:1px dashed var(--divider);border-radius:8px;">
+                <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small ${typeClass(type)}">
+                  <span class="discount-ribbon-text token-price-percent">-23%</span>
+                </div>
+              </div>
+              <span style="font-size:11px;color:var(--text-secondary)">${type}</span>
+            </div>
+          `).join("")}
+        </div>
+      </div>
     </div>`,
 };

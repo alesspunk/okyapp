@@ -100,32 +100,26 @@ export const HomeCardCarouselAndStrips = {
           <div class="mars-mobile promo-strip-mobile-shell">
             <div class="promo-strip-stack">
               <section class="promo-strip-organism">
-                <div class="promo-strip-header">
-                  <div>
-                    <div class="token-product-text-plp promo-strip-heading">Promociones de hoy</div>
-                    <p class="mars-subtitle promo-strip-subheading">Explora ofertas activas de gift cards.</p>
-                  </div>
-                  <div class="promo-strip-countdown">20:43:32</div>
-                </div>
+                <div class="promo-strip-heading-wrap"><h3 class="token-h6 promo-strip-heading">Tus compras online</h3></div>
                 <div class="promo-strip-divider"></div>
-                <div class="promo-strip-grid">
-                  <article class="promo-strip-card">
-                    <div class="promo-strip-card-media"><img src="target.webp" alt="Target"></div>
-                    <div class="promo-strip-card-copy">
-                      <div class="promo-strip-card-brand mars-label">Target</div>
-                      <div class="token-product-text-plp promo-strip-card-title">Gift Card Target</div>
-                      <div class="promo-strip-card-prices"><span class="token-price-tag-plp">$40.00</span><span class="token-price-plp">$50.00</span></div>
+                <div class="promo-strip-row">
+                  <article class="promo-strip-item">
+                    <div class="promo-strip-image-box">
+                      <img src="target.webp" alt="Target">
+                      <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal">
+                        <span class="discount-ribbon-text token-price-percent">-23%</span>
+                      </div>
                     </div>
-                    <div class="discount-ribbon discount-ribbon-list promo-strip-ribbon"><span class="discount-ribbon-text token-price-percent">20% OFF</span></div>
+                    <p class="token-brand promo-strip-card-brand">Target</p>
                   </article>
-                  <article class="promo-strip-card">
-                    <div class="promo-strip-card-media"><img src="google.webp" alt="Google Play"></div>
-                    <div class="promo-strip-card-copy">
-                      <div class="promo-strip-card-brand mars-label">Google Play</div>
-                      <div class="token-product-text-plp promo-strip-card-title">Gift Card Google Play</div>
-                      <div class="promo-strip-card-prices"><span class="token-price-tag-plp">$35.00</span><span class="token-price-plp">$50.00</span></div>
+                  <article class="promo-strip-item">
+                    <div class="promo-strip-image-box">
+                      <img src="google.webp" alt="Google Play">
+                      <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal">
+                        <span class="discount-ribbon-text token-price-percent">-23%</span>
+                      </div>
                     </div>
-                    <div class="discount-ribbon discount-ribbon-list promo-strip-ribbon"><span class="discount-ribbon-text token-price-percent">30% OFF</span></div>
+                    <p class="token-brand promo-strip-card-brand">Google Play</p>
                   </article>
                 </div>
               </section>

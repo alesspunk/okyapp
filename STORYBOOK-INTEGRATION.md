@@ -19,8 +19,12 @@
 - `Foundations/Tokens`: paleta base.
 - `Atoms/Buttons`: playground + matriz.
 - `Atoms/Inputs`: search + phone.
+- `Atoms/Discount Ribbon`: docs playground + matrix (`Tipo` + `Type`, incluye `Wrap Small`).
+- `Atoms/Super Ribbon`: docs playground + matrix (`Property 1`).
 - `Molecules/Tiles`: tiles de servicio.
 - `Organisms/Navigation`: bottom nav con regla FA (`fa-solid` solo activo).
+- `Organisms/Promo Strip`: variantes `Single` y `Double`, anidando `Discount Ribbon`.
+- `Organisms/Tactic Strips`: variantes por táctica, anidando `Super Ribbon` + `Discount Ribbon`.
 
 ## Regla de consistencia
 - Si hay diferencia visual entre historias generadas y la librería real, tomar como verdad `Exact HTML/Library/*`.
