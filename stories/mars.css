@@ -1902,7 +1902,7 @@ body {
 }
 
 .discount-ribbon-type-por-tiempo {
-  --discount-ribbon-bg: var(--warning-main);
+  --discount-ribbon-bg: var(--accent-color);
   --discount-ribbon-text: var(--warning-text);
   --discount-ribbon-notch: var(--warning-text);
 }
