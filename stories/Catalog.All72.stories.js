@@ -17,7 +17,7 @@ const organisms = [
   ["Macro Tiles Full", 10, "g0RAt ... Rvm1L"],
   ["Macro Tiles Half", 3, "AqHu9, pEubm, fHlYu"],
   ["Widgets", 5, "dvBFn, wnaYi, Eoc3A, JhhAI, eCjrS"],
-  ["Category Card", 1, "IqRGM"],
+  ["Category Card", 2, "IqRGM (Default, With Photo)"],
   ["Carousel", 1, "62kJL"],
   ["Promotional Strips", 2, "72353:23990, 72353:23953"],
   ["Derived organism variants", 5, "Doc variants from HTML/MD"],
