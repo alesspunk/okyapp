@@ -229,6 +229,12 @@ body {
   transition: border-color 0.2s;
 }
 
+.dropdown-control:focus-visible {
+  outline: none;
+  border-color: var(--primary-main);
+  box-shadow: 0 0 0 2px rgba(85, 37, 136, 0.18);
+}
+
 .dropdown-icon-left {
   color: var(--disable-text);
   flex-shrink: 0;
@@ -299,6 +305,22 @@ body {
   top: 50%;
   transform: translateY(-50%);
   color: var(--disable-text);
+}
+
+.icon-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.icon-button:focus-visible {
+  outline: none;
+  color: var(--primary-main);
 }
 
 .input-has-clear {
@@ -621,6 +643,23 @@ body {
   border-bottom: 1px solid var(--divider);
 }
 
+.radio-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.radio-native {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+
 .radio-control {
   width: 22px;
   height: 22px;
@@ -633,11 +672,11 @@ body {
   flex-shrink: 0;
 }
 
-.radio-control.active {
+.radio-native:checked + .radio-control {
   border-color: var(--primary-main);
 }
 
-.radio-control.active::after {
+.radio-native:checked + .radio-control::after {
   content: "";
   width: 12px;
   height: 12px;
@@ -645,8 +684,12 @@ body {
   background: var(--primary-main);
 }
 
-.radio-control.disabled {
+.radio-native:disabled + .radio-control {
   border-color: var(--disable-text);
+}
+
+.radio-native:focus-visible + .radio-control {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(85, 37, 136, 0.32);
 }
 
 .radio-label {
@@ -688,11 +731,30 @@ body {
 }
 
 .radio-dots {
+  border: 0;
+  background: transparent;
   color: var(--text-secondary);
   font-size: 18px;
   cursor: pointer;
   flex-shrink: 0;
   padding: 0 4px;
+}
+
+.radio-dots:focus-visible {
+  outline: none;
+  color: var(--primary-main);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .widget-card {
@@ -1864,6 +1926,10 @@ body {
   bottom: 0;
   border-radius: 4px 0 4px 4px;
   background: var(--discount-ribbon-bg);
+  box-shadow:
+    0 3px 3px -2px rgba(0, 0, 0, 0.2),
+    0 3px 4px 0 rgba(0, 0, 0, 0.14),
+    0 1px 8px 0 rgba(0, 0, 0, 0.12);
   z-index: 0;
 }
 

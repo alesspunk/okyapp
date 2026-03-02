@@ -35,7 +35,8 @@ export const Playground = {
   render: ({ variant, state, label, showDots }) => {
     const isActive = state === "Active";
     const isDisabled = state === "Disabled";
-    const controlClasses = `radio-control ${isActive ? "active" : ""} ${isDisabled ? "disabled" : ""}`;
+    const radioId = `radio-${variant.replace("/", "-").toLowerCase()}-${state.toLowerCase()}`;
+    const groupLabel = variant === "Radio/Simple" ? "Selección simple" : "Selección por bandera";
     const labelClasses = `radio-label ${isActive ? "active" : ""} ${isDisabled ? "disabled" : ""}`;
 
     if (variant === "Radio/Simple") {
@@ -43,12 +44,23 @@ export const Playground = {
         <div class="mars-story">
           <div class="mars-label">Variant: ${variant} · State: ${state}</div>
           <div class="mars-label">Reference: simple radio states (Atoms)</div>
-          <div class="radio-group" style="max-width:420px">
+          <fieldset class="radio-group" style="max-width:420px">
+            <legend class="sr-only">${groupLabel}</legend>
             <div class="radio-row">
-              <span class="${controlClasses}"></span>
-              <span class="${labelClasses}">${label}</span>
+              <label class="radio-option" for="${radioId}">
+                <input
+                  id="${radioId}"
+                  class="radio-native"
+                  type="radio"
+                  name="radio-simple"
+                  ${isActive ? "checked" : ""}
+                  ${isDisabled ? "disabled" : ""}
+                />
+                <span class="radio-control" aria-hidden="true"></span>
+                <span class="${labelClasses}">${label}</span>
+              </label>
             </div>
-          </div>
+          </fieldset>
         </div>
       `;
     }
@@ -57,16 +69,31 @@ export const Playground = {
       <div class="mars-story">
         <div class="mars-label">Variant: ${variant} · State: ${state}</div>
         <div class="mars-label">Reference: country selector list (Atoms)</div>
-        <div class="radio-group" style="max-width:420px">
+        <fieldset class="radio-group" style="max-width:420px">
+          <legend class="sr-only">${groupLabel}</legend>
           <div class="radio-row">
-            <span class="${controlClasses}"></span>
-            <span class="radio-flag-xl ${isActive ? "active" : ""}">
-              <img src="./images/guatemala-flag.png" alt="Guatemala">
-            </span>
-            <span class="${labelClasses}">${label}</span>
-            ${showDots ? '<i class="fa-regular fa-ellipsis-vertical radio-dots"></i>' : ""}
+            <label class="radio-option" for="${radioId}">
+              <input
+                id="${radioId}"
+                class="radio-native"
+                type="radio"
+                name="radio-flag"
+                ${isActive ? "checked" : ""}
+                ${isDisabled ? "disabled" : ""}
+              />
+              <span class="radio-control" aria-hidden="true"></span>
+              <span class="radio-flag-xl ${isActive ? "active" : ""}" aria-hidden="true">
+                <img src="./images/guatemala-flag.png" alt="">
+              </span>
+              <span class="${labelClasses}">${label}</span>
+            </label>
+            ${
+              showDots
+                ? '<button type="button" class="radio-dots" aria-label="Más acciones"><i class="fa-regular fa-ellipsis-vertical" aria-hidden="true"></i></button>'
+                : ""
+            }
           </div>
-        </div>
+        </fieldset>
       </div>
     `;
   },

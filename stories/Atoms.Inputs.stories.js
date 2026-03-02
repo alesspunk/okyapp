@@ -35,26 +35,64 @@ export const InputPlayground = {
     phone: { control: "text" },
   },
   render: ({ variant, state, placeholder, value, areaCode, phone }) => {
+    const safeState = state.toLowerCase();
+
     if (variant === "Input/Phone") {
       const isHasValue = state === "Hasvalue";
+      const areaInputId = `input-phone-area-${safeState}`;
+      const phoneInputId = `input-phone-number-${safeState}`;
+      const areaLabelId = `${areaInputId}-label`;
+      const phoneLabelId = `${phoneInputId}-label`;
+
       return `
         <div class="mars-story">
           <div class="mars-label">Variant: ${variant} · State: ${state}</div>
           <div class="mars-label">IDs .pen: ${isHasValue ? "XjC9T" : "FEiGu"}</div>
           <div style="display:flex;gap:8px;align-items:flex-start;max-width:328px">
             <div class="input-wrapper" style="min-width:0;width:88px;flex-shrink:0">
-              <input class="input-field" value="${isHasValue ? areaCode : ""}" placeholder="+502" style="padding-right:8px" />
-              ${isHasValue ? '<div class="input-label">Área</div>' : ""}
+              <input
+                id="${areaInputId}"
+                class="input-field"
+                type="tel"
+                inputmode="tel"
+                name="area-code"
+                value="${isHasValue ? areaCode : ""}"
+                placeholder="+502"
+                style="padding-right:8px"
+                ${isHasValue ? `aria-labelledby="${areaLabelId}"` : 'aria-label="Código de área"'}
+              />
+              ${
+                isHasValue
+                  ? `<label id="${areaLabelId}" class="input-label" for="${areaInputId}">Área</label>`
+                  : ""
+              }
             </div>
             <div class="input-wrapper" style="min-width:0;flex:1">
               ${
                 isHasValue
-                  ? '<span class="input-flag-left"><img src="./images/guatemala-flag.png" alt="Guatemala"></span>'
+                  ? '<span class="input-flag-left" aria-hidden="true"><img src="./images/guatemala-flag.png" alt=""></span>'
                   : ""
               }
-              <input class="input-field ${isHasValue ? "input-has-flag input-has-clear" : ""}" value="${isHasValue ? phone : ""}" placeholder="6696-3223" />
-              ${isHasValue ? '<div class="input-label" style="left:46px">Número de teléfono</div>' : ""}
-              ${isHasValue ? '<i class="fa-regular fa-circle-xmark clear-icon icon-medium" style="display:flex"></i>' : ""}
+              <input
+                id="${phoneInputId}"
+                class="input-field ${isHasValue ? "input-has-flag input-has-clear" : ""}"
+                type="tel"
+                inputmode="tel"
+                name="phone-number"
+                value="${isHasValue ? phone : ""}"
+                placeholder="6696-3223"
+                ${isHasValue ? `aria-labelledby="${phoneLabelId}"` : 'aria-label="Número de teléfono"'}
+              />
+              ${
+                isHasValue
+                  ? `<label id="${phoneLabelId}" class="input-label" style="left:46px" for="${phoneInputId}">Número de teléfono</label>`
+                  : ""
+              }
+              ${
+                isHasValue
+                  ? '<button class="icon-button clear-icon icon-medium" type="button" aria-label="Limpiar número de teléfono"><i class="fa-regular fa-circle-xmark" aria-hidden="true"></i></button>'
+                  : ""
+              }
             </div>
           </div>
         </div>
@@ -62,14 +100,28 @@ export const InputPlayground = {
     }
 
     const isHasValue = state === "Hasvalue";
+    const searchInputId = `input-search-${safeState}`;
+
     return `
       <div class="mars-story">
         <div class="mars-label">Variant: ${variant} · State: ${state}</div>
         <div class="mars-label">IDs .pen: ${isHasValue ? "xmKHs" : "PGNyG"}</div>
         <div class="input-wrapper">
-          <i class="fa-regular fa-magnifying-glass search-icon"></i>
-          <input class="input-field search-input" placeholder="${placeholder}" value="${isHasValue ? value : ""}" />
-          ${isHasValue ? '<i class="fa-regular fa-circle-xmark clear-icon"></i>' : ""}
+          <i class="fa-regular fa-magnifying-glass search-icon" aria-hidden="true"></i>
+          <input
+            id="${searchInputId}"
+            class="input-field search-input"
+            type="search"
+            name="search"
+            placeholder="${placeholder}"
+            value="${isHasValue ? value : ""}"
+            aria-label="${placeholder}"
+          />
+          ${
+            isHasValue
+              ? '<button class="icon-button clear-icon" type="button" aria-label="Limpiar búsqueda"><i class="fa-regular fa-circle-xmark" aria-hidden="true"></i></button>'
+              : ""
+          }
         </div>
       </div>
     `;
@@ -105,31 +157,45 @@ export const DropdownPlayground = {
       : isHasValue
         ? "P0EWf"
         : "1rSxD";
+    const controlId = `dropdown-${isCountry ? "country" : "province"}-${state.toLowerCase()}`;
+    const labelId = `${controlId}-label`;
+    const displayId = `${controlId}-value`;
+    const listboxId = `${controlId}-listbox`;
 
     return `
       <div class="mars-story">
         <div class="mars-label">Variant: ${variant} · State: ${state}</div>
         <div class="mars-label">ID .pen: ${variantId}</div>
         <div class="input-wrapper">
-          <div class="dropdown-control" role="combobox" aria-expanded="false">
+          ${
+            isHasValue
+              ? `<label id="${labelId}" class="dropdown-label" for="${controlId}">${isCountry ? "País" : "Provincia"}</label>`
+              : ""
+          }
+          <div
+            id="${controlId}"
+            class="dropdown-control"
+            role="combobox"
+            aria-expanded="false"
+            aria-haspopup="listbox"
+            aria-controls="${listboxId}"
+            aria-labelledby="${isHasValue ? `${labelId} ${displayId}` : displayId}"
+            tabindex="0"
+          >
             ${
               isCountry && !isHasValue
-                ? '<span class="dropdown-icon-left"><i class="fa-regular fa-globe"></i></span>'
+                ? '<span class="dropdown-icon-left" aria-hidden="true"><i class="fa-regular fa-globe"></i></span>'
                 : ""
             }
             ${
               isCountry && isHasValue
-                ? '<span class="dropdown-flag-sm"><img src="./images/us.webp" alt="Estados Unidos"></span>'
+                ? '<span class="dropdown-flag-sm" aria-hidden="true"><img src="./images/us.webp" alt=""></span>'
                 : ""
             }
-            <span class="dropdown-text ${isHasValue ? "value" : "placeholder"}">${isHasValue ? value : placeholder}</span>
-            <i class="fa-regular fa-chevron-down dropdown-chevron"></i>
+            <span id="${displayId}" class="dropdown-text ${isHasValue ? "value" : "placeholder"}">${isHasValue ? value : placeholder}</span>
+            <i class="fa-regular fa-chevron-down dropdown-chevron" aria-hidden="true"></i>
           </div>
-          ${
-            isHasValue
-              ? `<div class="dropdown-label">${isCountry ? "País" : "Provincia"}</div>`
-              : ""
-          }
+          <ul id="${listboxId}" role="listbox" hidden aria-label="Opciones de ${isCountry ? "país" : "provincia"}"></ul>
         </div>
       </div>
     `;
