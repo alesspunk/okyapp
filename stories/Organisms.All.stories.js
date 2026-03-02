@@ -76,7 +76,7 @@ export const HomeCardCarouselAndStrips = {
   render: () => `
     <div class="mars-story">
       <h3 style="margin:0 0 10px;color:var(--primary-main)">HomeCard + Carousel + Strips</h3>
-      <div class="mars-subtitle">IDs: IqRGM, 62kJL, VeEVO</div>
+      <div class="mars-subtitle">IDs: IqRGM, 62kJL, 72353:23990, 72353:23953</div>
       <div class="mars-grid">
         <div class="story-card">
           <div class="mars-label">HomeCard (IqRGM)</div>
@@ -96,12 +96,39 @@ export const HomeCardCarouselAndStrips = {
           </div>
         </div>
         <div class="story-card">
-          <div class="mars-label">Strip countdown (VeEVO)</div>
-          <div class="strip-container">
-            <div class="strip-header"><span class="strip-title">Promos de $1.00</span><span class="strip-countdown"><i class="fa-regular fa-clock"></i><span>20:43:32</span></span></div>
-            <div class="strip-products">
-              <div class="strip-product-card"><div class="strip-product-img"><img src="nuggets.webp"/></div><div class="strip-product-name">Nuggets</div><div class="strip-product-prices"><span style="text-decoration:line-through;color:var(--text-secondary)">$28.69</span><strong style="color:var(--primary-main)">$1.00</strong></div></div>
-              <div class="strip-product-card"><div class="strip-product-img"><img src="combo.webp"/></div><div class="strip-product-name">Combo</div><div class="strip-product-prices"><span style="text-decoration:line-through;color:var(--text-secondary)">$25.69</span><strong style="color:var(--primary-main)">$1.00</strong></div></div>
+          <div class="mars-label">Promo Strip / Single + Double</div>
+          <div class="mars-mobile promo-strip-mobile-shell">
+            <div class="promo-strip-stack">
+              <section class="promo-strip-organism">
+                <div class="promo-strip-header">
+                  <div>
+                    <div class="token-product-text-plp promo-strip-heading">Promociones de hoy</div>
+                    <p class="mars-subtitle promo-strip-subheading">Explora ofertas activas de gift cards.</p>
+                  </div>
+                  <div class="promo-strip-countdown">20:43:32</div>
+                </div>
+                <div class="promo-strip-divider"></div>
+                <div class="promo-strip-grid">
+                  <article class="promo-strip-card">
+                    <div class="promo-strip-card-media"><img src="target.webp" alt="Target"></div>
+                    <div class="promo-strip-card-copy">
+                      <div class="promo-strip-card-brand mars-label">Target</div>
+                      <div class="token-product-text-plp promo-strip-card-title">Gift Card Target</div>
+                      <div class="promo-strip-card-prices"><span class="token-price-tag-plp">$40.00</span><span class="token-price-plp">$50.00</span></div>
+                    </div>
+                    <div class="discount-ribbon discount-ribbon-list promo-strip-ribbon"><span class="discount-ribbon-text token-price-percent">20% OFF</span></div>
+                  </article>
+                  <article class="promo-strip-card">
+                    <div class="promo-strip-card-media"><img src="google.webp" alt="Google Play"></div>
+                    <div class="promo-strip-card-copy">
+                      <div class="promo-strip-card-brand mars-label">Google Play</div>
+                      <div class="token-product-text-plp promo-strip-card-title">Gift Card Google Play</div>
+                      <div class="promo-strip-card-prices"><span class="token-price-tag-plp">$35.00</span><span class="token-price-plp">$50.00</span></div>
+                    </div>
+                    <div class="discount-ribbon discount-ribbon-list promo-strip-ribbon"><span class="discount-ribbon-text token-price-percent">30% OFF</span></div>
+                  </article>
+                </div>
+              </section>
             </div>
           </div>
         </div>

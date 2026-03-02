@@ -19,7 +19,7 @@ const organisms = [
   ["Widgets", 5, "dvBFn, wnaYi, Eoc3A, JhhAI, eCjrS"],
   ["Category Card", 1, "IqRGM"],
   ["Carousel", 1, "62kJL"],
-  ["Promotional Strips", 1, "VeEVO"],
+  ["Promotional Strips", 2, "72353:23990, 72353:23953"],
   ["Derived organism variants", 5, "Doc variants from HTML/MD"],
 ];
 
@@ -59,14 +59,14 @@ export const CoverageIndex = {
         <tbody>${rows(molecules)}</tbody>
       </table>
 
-      <h3 style="margin:16px 0 8px;color:var(--primary-main)">Organisms (30)</h3>
+      <h3 style="margin:16px 0 8px;color:var(--primary-main)">Organisms (31)</h3>
       <table class="story-table">
         <thead><tr><th>Grupo</th><th>Total</th><th>IDs / referencia</th></tr></thead>
         <tbody>${rows(organisms)}</tbody>
       </table>
 
       <div style="margin-top:14px;padding:10px;border-radius:8px;background:#fff3e0;border:1px solid #ffdf9f">
-        <strong>Total catalogado en Storybook:</strong> 72 componentes.
+        <strong>Total catalogado en Storybook:</strong> 73 componentes.
       </div>
     </div>
   `,

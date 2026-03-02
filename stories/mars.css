@@ -945,6 +945,117 @@ body {
   align-items: center;
 }
 
+/* ── Promo Strip (Organism) ───────────────────────────── */
+.promo-strip-mobile-shell {
+  background: var(--background);
+  padding: 12px;
+}
+
+.promo-strip-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.promo-strip-organism {
+  width: 100%;
+  border: 1px solid var(--divider);
+  border-radius: 16px;
+  background: var(--white);
+  padding: 12px;
+}
+
+.promo-strip-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.promo-strip-heading {
+  color: var(--primary-main);
+  margin-bottom: 2px;
+}
+
+.promo-strip-subheading {
+  margin: 0;
+}
+
+.promo-strip-countdown {
+  flex-shrink: 0;
+  height: 30px;
+  border-radius: 20px;
+  border: 1px solid var(--border-active);
+  color: var(--primary-main);
+  background: var(--white);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.promo-strip-divider {
+  margin: 10px 0 12px;
+  border-top: 1px solid var(--divider);
+}
+
+.promo-strip-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.promo-strip-card {
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  background: var(--white);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.promo-strip-card-media {
+  width: 100%;
+  aspect-ratio: 1.45 / 1;
+  background: var(--background);
+}
+
+.promo-strip-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.promo-strip-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 8px 0;
+}
+
+.promo-strip-card-brand {
+  margin: 0;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.promo-strip-card-title {
+  font-size: 14px;
+  line-height: 1.35;
+  min-height: 38px;
+}
+
+.promo-strip-card-prices {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.promo-strip-ribbon {
+  margin: 8px;
+}
+
 .story-table {
   width: 100%;
   border-collapse: collapse;
