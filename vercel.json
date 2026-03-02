@@ -5,10 +5,6 @@
   "outputDirectory": "storybook-static",
   "rewrites": [
     {
-      "source": "/ux-detective-game",
-      "destination": "/ux-detective-game/index.html"
-    },
-    {
       "source": "/atomic",
       "destination": "/public/ATOMIC-DESIGN-LIBRARY.html"
     },
