@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup 4 - OKY</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,700&family=Nunito+Sans:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://ka-p.fontawesome.com/releases/v6.7.2/css/pro.min.css?token=b5a8f622db" />
+    <script>
+      window.FontAwesomeConfig = { autoReplaceSvg: false, observeMutations: false };
+    </script>
+    <script src="https://kit.fontawesome.com/b5a8f622db.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./stories/mars.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: auto;
+        background: #eef1f6;
+        font-family: "Nunito Sans", sans-serif;
+      }
+
+      .mockup-shell {
+        width: 360px;
+        height: 800px;
+        margin: 0;
+        background: #fff;
+        border: 1px solid #cfd4dc;
+        border-radius: 20px;
+        position: relative;
+        padding-bottom: 72px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        box-shadow: none;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      .mockup-shell::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+        display: none;
+      }
+
+      .mockup-block {
+        width: 100%;
+        background: #fff;
+      }
+
+
+      .mockup-discovery-sticky {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        background: #fff;
+      }
+
+      .discovery-scroll-header .dh-app,
+      .discovery-scroll-header .dh-folder,
+      .discovery-scroll-header .dh-search,
+      .discovery-scroll-header .dh-plateu {
+        overflow: hidden;
+        transition: max-height 220ms ease, opacity 220ms ease, transform 220ms ease, padding 220ms ease;
+      }
+
+      .discovery-scroll-header .dh-app {
+        max-height: 56px;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .discovery-scroll-header .dh-folder {
+        max-height: 77px;
+      }
+
+      .discovery-scroll-header .dh-search {
+        max-height: 52px;
+      }
+
+      .discovery-scroll-header .dh-plateu {
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(-8px);
+        pointer-events: none;
+      }
+
+      .discovery-scroll-header[data-state="State 2"] .dh-folder,
+      .discovery-scroll-header[data-state="State 3"] .dh-folder {
+        max-height: 35px;
+      }
+
+      .discovery-scroll-header[data-state="State 3"] .dh-app {
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(-12px);
+        pointer-events: none;
+      }
+
+      .discovery-scroll-header[data-state="State 3"] .dh-search {
+        max-height: 48px;
+      }
+
+      .discovery-scroll-header[data-state="State 3"] .dh-plateu {
+        max-height: 80px;
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .mockup-block.homecard {
+        padding: 12px 15px 4px;
+      }
+
+      .mockup-block + .mockup-block {
+        border-top: none;
+      }
+
+      .mockup-shell .folder-control {
+        overflow: hidden;
+      }
+
+      .fa-regular {
+        font-family: "Font Awesome 6 Pro";
+        font-weight: 400;
+      }
+
+      .fa-solid {
+        font-family: "Font Awesome 6 Pro";
+        font-weight: 900;
+      }
+
+      .fa-light {
+        font-family: "Font Awesome 6 Pro";
+        font-weight: 300;
+      }
+
+      .mockup-app-nav {
+        position: fixed;
+        left: 50%;
+        width: 360px;
+        transform: translateX(-50%);
+        bottom: max(0px, calc((100vh - 800px) / 2));
+        z-index: 90;
+        display: flex;
+        justify-content: center;
+        pointer-events: none;
+      }
+
+      .mockup-app-nav .bottom-nav {
+        pointer-events: auto;
+      }
+
+      .mockup-app-nav .nav-item i {
+        font-size: 24px;
+        line-height: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="mockup-shell" aria-label="Mockup 4">
+      <!-- 1) Discovery Header / Right / State 1 -->
+      <section class="mockup-block mockup-discovery-sticky" data-pen-id="7333:70235">
+        <section id="mockup4-discovery-header" class="discovery-header-organism discovery-scroll-header" data-side="Right" data-state="State 1">
+          <section class="dh-status" data-pen-id="vf35d">
+            <div class="status-bar">
+              <div>9:41</div>
+              <div style="display:flex;gap:8px">
+                <i class="fa-regular fa-signal" aria-hidden="true"></i>
+                <i class="fa-regular fa-wifi" aria-hidden="true"></i>
+                <i class="fa-regular fa-battery-full" aria-hidden="true"></i>
+              </div>
+            </div>
+          </section>
+
+          <section class="dh-app" data-pen-id="ArMsV">
+            <div class="app-header is-logged-cart">
+              <div class="header-left-group">
+                <div class="header-icon"><i class="fa-light fa-wallet icon-medium" aria-hidden="true"></i></div>
+              </div>
+              <img class="header-logo" src="./images/logo-oky.svg" alt="OKY" />
+              <div class="header-cart-chip header-cart-full">
+                <span class="header-cart-count">2</span>
+                <i class="fa-light fa-cart-shopping" aria-hidden="true"></i>
+              </div>
+            </div>
+          </section>
+
+          <section class="dh-folder" data-pen-id="7296:48471">
+            <div class="folder-responsive-host is-expanded">
+              <div class="folder-control is-right">
+                <span class="folder-layer folder-layer-bottom">
+                  <svg width="360" height="60" viewBox="0 0 360 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M0 20.8834V55.3381V59.5878H360V55.3381H201.263C180.084 55.3381 178.285 42.3198 178.183 40.7798C177.839 35.5878 177.839 30.5878 177.839 17.1072C177.839 -1.19395 157.392 0.016522 147.84 0.0165218L26.31 0.0165217C4.44822 0.0165205 0 14.2513 0 20.8834Z" fill="url(#paint0_linear_7295_52287_story_m4)"/>
+                    <defs>
+                      <linearGradient id="paint0_linear_7295_52287_story_m4" x1="180" y1="0" x2="180" y2="59.5878" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#F1F2F5"/>
+                        <stop offset="0.880066" stop-color="#ECEFF8"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </span>
+
+                <span class="folder-layer folder-layer-top">
+                  <svg width="360" height="77" viewBox="0 0 360 77" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <g filter="url(#filter0_d_7295_52299_story_m4)">
+                      <path d="M360 36.9611V72.4925V77H0V72.4925H149.33C170.453 72.4925 174.009 59.0328 174.344 57.4792C175.782 50.801 176.011 48.5296 176.567 33.0669C177.242 14.28 202.06 15.3481 211.586 15.4421C242.899 15.1085 310.973 14.6414 332.763 15.4421C354.553 16.2428 360 30.1217 360 36.9611Z" fill="white"/>
+                    </g>
+                    <defs>
+                      <filter id="filter0_d_7295_52299_story_m4" x="-24" y="-5" width="408" height="110" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                        <feOffset dy="4"/>
+                        <feGaussianBlur stdDeviation="12"/>
+                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.17 0"/>
+                        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_7295_52299"/>
+                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_7295_52299" result="shape"/>
+                      </filter>
+                    </defs>
+                  </svg>
+                </span>
+
+                <div class="folder-options">
+                  <span class="folder-option is-inactive" style="left:54px">
+                    <span class="folder-flag" aria-hidden="true"><img src="./images/guatemala-flag.png" alt="Guatemala flag" /></span>
+                    <span class="folder-code">GUA</span>
+                  </span>
+                  <span class="folder-option is-active" style="left:235px">
+                    <span class="folder-flag" aria-hidden="true"><img src="./images/usa-flag.png" alt="USA flag" /></span>
+                    <span class="folder-code">USA</span>
+                  </span>
+                </div>
+
+                <span class="folder-selection-line" style="left:235px;width:66px" aria-hidden="true"></span>
+              </div>
+            </div>
+          </section>
+
+          <section class="discovery-header-search dh-search" data-pen-id="PGNyG">
+            <div class="input-wrapper">
+              <i class="fa-regular fa-magnifying-glass search-icon" aria-hidden="true"></i>
+              <input
+                class="input-field search-input search-input-empty"
+                type="search"
+                name="search"
+                placeholder="Buscar marcas USA"
+                aria-label="Buscar marcas USA"
+              />
+            </div>
+          </section>
+        </section>
+      </section>
+
+      <!-- 2) Carrusel -->
+      <section class="mockup-block" data-pen-id="6449:41089">
+        <section class="carrusel-organism" aria-label="Carrusel de banners">
+          <div class="carrusel-content">
+            <div class="carrusel-viewport">
+              <div class="carrusel-track">
+                <article class="carrusel-slide" data-node-id="6449:41078"><img src="./images/promo-strips5.png" alt="Promo strips 5" /></article>
+                <article class="carrusel-slide" data-node-id="6449:41079"><img src="./images/banner/san valentin/OKY_SanValentin_WebBanner2_4.webp" alt="Banner San Valentin 2" /></article>
+              </div>
+            </div>
+            <div class="carrusel-dots-wrap" aria-hidden="true">
+              <div class="carrusel-dots">
+                <span class="carrusel-dot is-active"></span><span class="carrusel-dot"></span><span class="carrusel-dot"></span><span class="carrusel-dot"></span><span class="carrusel-dot"></span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- 3) Promo Strip / Double / Streaming & Gaming -->
+      <section class="mockup-block" data-pen-id="72353:23953">
+        <div class="mars-mobile promo-strip-mobile-shell">
+          <div class="promo-strip-stack">
+            <section class="promo-strip-organism">
+              <div class="promo-strip-heading-wrap"><h3 class="token-h6 promo-strip-heading">Streaming & Gaming USA</h3></div>
+              <div class="promo-strip-divider"></div>
+              <div class="promo-strip-row">
+                <article class="promo-strip-item">
+                  <div class="promo-strip-image-box">
+                    <img src="./images/twitch.png" alt="Twitch" />
+                    <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal"><span class="discount-ribbon-text token-price-percent">-18%</span></div>
+                  </div>
+                  <p class="token-brand promo-strip-brand">Twitch</p>
+                </article>
+                <article class="promo-strip-item">
+                  <div class="promo-strip-image-box">
+                    <img src="./images/xbox.png" alt="Xbox" />
+                    <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal"><span class="discount-ribbon-text token-price-percent">-22%</span></div>
+                  </div>
+                  <p class="token-brand promo-strip-brand">Xbox</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="promo-strip-organism promo-strip-organism-compact">
+              <div class="promo-strip-row">
+                <article class="promo-strip-item">
+                  <div class="promo-strip-image-box">
+                    <img src="./images/google.webp" alt="Google Play" />
+                    <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal"><span class="discount-ribbon-text token-price-percent">-12%</span></div>
+                  </div>
+                  <p class="token-brand promo-strip-brand">Google Play</p>
+                </article>
+                <article class="promo-strip-item">
+                  <div class="promo-strip-image-box">
+                    <img src="./images/apple.webp" alt="Apple" />
+                    <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal"><span class="discount-ribbon-text token-price-percent">-9%</span></div>
+                  </div>
+                  <p class="token-brand promo-strip-brand">Apple</p>
+                </article>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4) Tactic Strip / Tech -->
+      <section class="mockup-block" data-pen-id="7295:52040">
+        <div class="mars-mobile tactic-strip-mobile-shell">
+          <section class="tactic-strip">
+            <header class="tactic-strip-header">
+              <h3 class="token-h6 tactic-strip-title">Tech para tu día</h3>
+              <div class="super-ribbon super-ribbon-type-por-tiempo">
+                <span class="super-ribbon-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+                <span class="super-ribbon-text">Flash USA · 12:59:10</span>
+              </div>
+            </header>
+
+            <div class="tactic-strip-carousel-window">
+              <div class="tactic-strip-carousel-track">
+                <article class="tactic-offer tactic-offer-left">
+                  <div class="tactic-offer-hero-wrap">
+                    <img class="tactic-offer-hero" src="./images/promo-image7.png" alt="Best Buy" />
+                    <div class="tactic-logo-wrap tactic-logo-wrap-left"><img class="tactic-logo" src="./images/bestbuy.jpg" alt="Best Buy logo" /></div>
+                    <div class="tactic-discount-wrap tactic-discount-wrap-left">
+                      <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-type-por-tiempo"><span class="discount-ribbon-text token-price-percent">24% OFF</span></div>
+                    </div>
+                  </div>
+                  <div class="tactic-brand-row"><p class="token-brand tactic-brand">Best Buy</p></div>
+                </article>
+
+                <article class="tactic-offer tactic-offer-right">
+                  <div class="tactic-offer-hero-wrap">
+                    <img class="tactic-offer-hero" src="./images/promo-image5.jpeg" alt="eBay" />
+                    <div class="tactic-logo-wrap tactic-logo-wrap-right"><img class="tactic-logo" src="./images/ebay.png" alt="eBay logo" /></div>
+                    <div class="tactic-discount-wrap tactic-discount-wrap-right">
+                      <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-type-por-tiempo"><span class="discount-ribbon-text token-price-percent">18% OFF</span></div>
+                    </div>
+                  </div>
+                  <div class="tactic-brand-row"><p class="token-brand tactic-brand">eBay</p></div>
+                </article>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- 5) HomeCard / Default / Gift Cards USA -->
+      <section class="mockup-block homecard" data-pen-id="IqRGM">
+        <section class="homecard-organism">
+          <header class="homecard-header"><h3 class="token-h6 homecard-title">Gift Cards USA populares</h3></header>
+          <div class="homecard-content homecard-content-default">
+            <div class="homecard-grid">
+              <article class="homecard-tile"><div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/amazon.png" alt="Amazon logo" /></div><p class="token-brand homecard-tile-name">Amazon</p></article>
+              <article class="homecard-tile"><div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/target.webp" alt="Target logo" /></div><p class="token-brand homecard-tile-name">Target</p></article>
+              <article class="homecard-tile"><div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/macys.png" alt="Macy's logo" /></div><p class="token-brand homecard-tile-name">Macy's</p></article>
+              <article class="homecard-tile"><div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/bestbuy.jpg" alt="Best Buy logo" /></div><p class="token-brand homecard-tile-name">Best Buy</p></article>
+              <article class="homecard-tile"><div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/google.webp" alt="Google Play logo" /></div><p class="token-brand homecard-tile-name">Google Play</p></article>
+              <article class="homecard-tile"><div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/apple.webp" alt="Apple logo" /></div><p class="token-brand homecard-tile-name">Apple</p></article>
+            </div>
+          </div>
+          <footer class="homecard-footer"><button class="btn btn-primary btn-small" type="button">Ver más</button></footer>
+        </section>
+      </section>
+
+      <!-- 6) Promo Strip / Single / Fast Food -->
+      <section class="mockup-block" data-pen-id="72353:23990">
+        <div class="mars-mobile promo-strip-mobile-shell">
+          <div class="promo-strip-stack">
+            <section class="promo-strip-organism">
+              <div class="promo-strip-heading-wrap"><h3 class="token-h6 promo-strip-heading">Comida rápida USA</h3></div>
+              <div class="promo-strip-divider"></div>
+              <div class="promo-strip-row">
+                <article class="promo-strip-item">
+                  <div class="promo-strip-image-box">
+                    <img src="./images/mcdonalds.webp" alt="McDonald's" />
+                    <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal"><span class="discount-ribbon-text token-price-percent">-20%</span></div>
+                  </div>
+                  <p class="token-brand promo-strip-brand">McDonald's</p>
+                </article>
+                <article class="promo-strip-item">
+                  <div class="promo-strip-image-box">
+                    <img src="./images/burguerking.webp" alt="Burger King" />
+                    <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal"><span class="discount-ribbon-text token-price-percent">-25%</span></div>
+                  </div>
+                  <p class="token-brand promo-strip-brand">Burger King</p>
+                </article>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="mockup-app-nav" data-pen-id="MHKUc" aria-label="Navegación principal">
+        <div class="bottom-nav is-no-label">
+          <div class="nav-item"><i class="fa-light fa-home icon-medium" aria-label="Inicio"></i></div>
+          <div class="nav-item"><i class="fa-light fa-map icon-medium" aria-label="Canje"></i></div>
+          <div class="nav-item active"><i class="fa-solid fa-fire icon-medium" aria-label="Ofertas"></i></div>
+          <div class="nav-item"><i class="fa-light fa-messages icon-medium" aria-label="Ayuda"></i></div>
+          <div class="nav-item"><i class="fa-light fa-bars icon-medium" aria-label="Menú"></i></div>
+        </div>
+      </section>
+    </main>
+  
+    <script>
+      (function initDiscoveryHeaderStacking() {
+        const shell = document.querySelector(".mockup-shell");
+        const discoveryHeader = document.getElementById("mockup4-discovery-header");
+
+        if (!shell || !discoveryHeader) return;
+
+        const stickyBlock = discoveryHeader.closest(".mockup-block");
+        const folderHost = discoveryHeader.querySelector(".folder-responsive-host");
+        const folderControl = discoveryHeader.querySelector(".folder-control");
+        const folderSection = folderHost?.closest("section");
+        const searchSection = discoveryHeader.querySelector(".discovery-header-search");
+        const folderOptions = folderControl ? Array.from(folderControl.querySelectorAll(".folder-option")) : [];
+        const leftOption = folderOptions[0] || null;
+        const rightOption = folderOptions[1] || null;
+        const leftFlag = leftOption?.querySelector(".folder-flag") || null;
+        const rightFlag = rightOption?.querySelector(".folder-flag") || null;
+        const leftCode = leftOption?.querySelector(".folder-code") || null;
+        const rightCode = rightOption?.querySelector(".folder-code") || null;
+        const selectionLine = folderControl?.querySelector(".folder-selection-line") || null;
+
+        const plateuSection = document.createElement("section");
+        plateuSection.className = "discovery-header-plateu dh-plateu";
+        plateuSection.dataset.penId = "7331:50399";
+        plateuSection.innerHTML = `
+          <section class="plateu-molecule is-scrolling is-home" style="width:360px;height:80px" aria-label="Plateu State=Home, Telco=No, Scrolling=Yes">
+            <div class="plateu-track is-scrolling">
+              <div class="plateu-item plateu-item-fixed">
+                <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu4.webp" alt="MODA" /></div>
+                <span class="plateu-chip">MODA</span>
+              </div>
+              <div class="plateu-item plateu-item-fixed">
+                <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu1.webp" alt="TECNOLOGÍA" /></div>
+                <span class="plateu-label">TECNOLOGÍA</span>
+              </div>
+              <div class="plateu-item plateu-item-fixed">
+                <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu3.webp" alt="LENTES" /></div>
+                <span class="plateu-label">LENTES</span>
+              </div>
+              <div class="plateu-item plateu-item-fixed">
+                <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu2.webp" alt="ONLINE" /></div>
+                <span class="plateu-label">ONLINE</span>
+              </div>
+            </div>
+          </section>
+        `;
+        discoveryHeader.appendChild(plateuSection);
+
+        const setExpandedFolder = () => {
+          if (!folderHost || !folderControl) return;
+          folderHost.classList.add("is-expanded");
+          folderHost.classList.remove("is-collapsed");
+          folderControl.classList.remove("is-collapsed");
+          folderControl.classList.add("is-right");
+
+          if (leftFlag) leftFlag.style.removeProperty("display");
+          if (rightFlag) rightFlag.style.removeProperty("display");
+          if (leftOption) leftOption.style.left = "54px";
+          if (rightOption) rightOption.style.left = "235px";
+          if (leftCode) {
+            leftCode.style.removeProperty("margin-left");
+            leftCode.style.removeProperty("transform");
+          }
+          if (rightCode) {
+            rightCode.style.removeProperty("margin-left");
+            rightCode.style.removeProperty("transform");
+          }
+          if (selectionLine) {
+            selectionLine.style.left = "235px";
+            selectionLine.style.width = "66px";
+            selectionLine.style.removeProperty("top");
+          }
+        };
+
+        const setCollapsedFolder = () => {
+          if (!folderHost || !folderControl) return;
+          folderHost.classList.add("is-collapsed");
+          folderHost.classList.remove("is-expanded");
+          folderControl.classList.add("is-collapsed", "is-right");
+
+          if (leftFlag) leftFlag.style.display = "none";
+          if (rightFlag) rightFlag.style.display = "none";
+          if (leftOption) leftOption.style.left = "64px";
+          if (rightOption) rightOption.style.left = "245px";
+          if (leftCode) {
+            leftCode.style.removeProperty("margin-left");
+            leftCode.style.transform = "translateY(-5px)";
+          }
+          if (rightCode) {
+            rightCode.style.marginLeft = "20px";
+            rightCode.style.transform = "translateY(-3px)";
+          }
+          if (selectionLine) {
+            selectionLine.style.left = "245px";
+            selectionLine.style.width = "66px";
+            selectionLine.style.top = "30px";
+          }
+        };
+
+        const stateMeta = {
+          1: { penId: "7333:70235", folderPenId: "7296:48471", label: "State 1" },
+          2: { penId: "7333:70236", folderPenId: "7296:48473", label: "State 2" },
+          3: { penId: "7333:70237", folderPenId: "7296:48473", label: "State 3" },
+        };
+
+        let currentState = 0;
+
+        const applyState = (nextState) => {
+          const state = Math.min(3, Math.max(1, nextState));
+          if (state === currentState) return;
+
+          const meta = stateMeta[state];
+          currentState = state;
+          discoveryHeader.dataset.state = meta.label;
+          discoveryHeader.dataset.penId = meta.penId;
+          if (stickyBlock) stickyBlock.dataset.penId = meta.penId;
+          if (folderSection) folderSection.dataset.penId = meta.folderPenId;
+
+          if (state === 1) {
+            if (searchSection) searchSection.classList.remove("is-compact");
+            setExpandedFolder();
+          } else if (state === 2) {
+            if (searchSection) searchSection.classList.remove("is-compact");
+            setCollapsedFolder();
+          } else {
+            if (searchSection) searchSection.classList.add("is-compact");
+            setCollapsedFolder();
+          }
+        };
+
+        const DOWN_TO_STATE_2 = 56;
+        const DOWN_TO_STATE_3 = 140;
+        const UP_TO_STATE_2 = 124;
+        const UP_TO_STATE_1 = 24;
+
+        const stateFromInitialScroll = (scrollTop) => {
+          if (scrollTop >= DOWN_TO_STATE_3) return 3;
+          if (scrollTop >= DOWN_TO_STATE_2) return 2;
+          return 1;
+        };
+
+        let lastScrollTop = shell.scrollTop;
+
+        const resolveNextState = (scrollTop) => {
+          const isScrollingDown = scrollTop > lastScrollTop;
+          const isScrollingUp = scrollTop < lastScrollTop;
+          let nextState = currentState;
+
+          if (isScrollingDown) {
+            if (currentState === 1 && scrollTop >= DOWN_TO_STATE_2) {
+              nextState = 2;
+            } else if (currentState === 2 && scrollTop >= DOWN_TO_STATE_3) {
+              nextState = 3;
+            }
+          } else if (isScrollingUp) {
+            if (currentState === 3 && scrollTop <= UP_TO_STATE_2) {
+              nextState = 2;
+            } else if (currentState === 2 && scrollTop <= UP_TO_STATE_1) {
+              nextState = 1;
+            }
+          }
+
+          lastScrollTop = scrollTop;
+          return nextState;
+        };
+
+        applyState(stateFromInitialScroll(shell.scrollTop));
+        shell.addEventListener(
+          "scroll",
+          () => {
+            applyState(resolveNextState(shell.scrollTop));
+          },
+          { passive: true }
+        );
+      })();
+    </script>
+  </body>
+</html>

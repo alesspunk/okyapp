@@ -26,6 +26,7 @@ export const AppHeaderPlayground = {
   name: "App Header — Playground",
   args: {
     variant: "logged-empty",
+    leftButtons: "single",
     cartCount: 2,
   },
   argTypes: {
@@ -39,19 +40,41 @@ export const AppHeaderPlayground = {
       },
       description: "Variante del App Header principal.",
     },
+    leftButtons: {
+      control: "select",
+      options: ["single", "double"],
+      labels: {
+        single: "1 botón izquierdo",
+        double: "2 botones izquierdos",
+      },
+      description:
+        "Configura si el header usa un solo ícono izquierdo (wallet) o dos (wallet + search).",
+    },
     cartCount: {
       control: { type: "number", min: 0, max: 99 },
       description: "Cantidad de items en carrito (solo aplica en Cart Full).",
     },
   },
-  render: ({ variant, cartCount }) => {
+  render: ({ variant, leftButtons, cartCount }) => {
     const penIds = {
       "logged-empty": "WO8oM",
       "logged-cart":  "ArMsV",
       "not-logged":   "ZPc9u",
     };
 
-    const leftGroup = `
+    const isDualLeft = leftButtons === "double";
+
+    const leftGroup = isDualLeft
+      ? `
+      <div class="header-left-group header-side-cluster">
+        <div class="header-icon">
+          <i class="fa-light fa-wallet icon-medium"></i>
+        </div>
+        <div class="header-icon">
+          <i class="fa-light fa-magnifying-glass icon-medium"></i>
+        </div>
+      </div>`
+      : `
       <div class="header-left-group">
         <div class="header-icon">
           <i class="fa-light fa-wallet icon-medium"></i>
@@ -60,30 +83,35 @@ export const AppHeaderPlayground = {
 
     const logo = `<img class="header-logo" src="logo-oky.svg" alt="OKY">`;
 
+    const wrapRight = (content) =>
+      isDualLeft
+        ? `<div class="header-side-cluster header-side-cluster-right">${content}</div>`
+        : content;
+
     let right;
     if (variant === "logged-empty") {
-      right = `
+      right = wrapRight(`
         <div class="header-icon">
           <i class="fa-light fa-cart-shopping icon-medium"></i>
-        </div>`;
+        </div>`);
     } else if (variant === "logged-cart") {
-      right = `
+      right = wrapRight(`
         <div class="header-cart-chip header-cart-full">
           <span class="header-cart-count">${cartCount}</span>
           <i class="fa-light fa-cart-shopping"></i>
-        </div>`;
+        </div>`);
     } else {
-      right = `
+      right = wrapRight(`
         <div class="header-icon">
           <i class="fa-solid fa-circle-user icon-medium-solid"></i>
-        </div>`;
+        </div>`);
     }
 
     return `
       <div class="mars-story">
-        <div class="mars-label">App Header / ${variant} · ID .pen: ${penIds[variant]}</div>
+        <div class="mars-label">App Header / ${variant} / ${leftButtons}-left · ID .pen: ${penIds[variant]}</div>
         <div class="mars-mobile">
-          <div class="app-header">
+          <div class="app-header ${variant === "logged-cart" ? "is-logged-cart" : ""}">
             ${leftGroup}
             ${logo}
             ${right}
@@ -156,7 +184,7 @@ export const AllHeaders = {
     controls: { disable: true },
     docs: {
       description: {
-        story: "Referencia visual de las 5 variantes de header. Todos los íconos usan `fa-light` + `icon-medium`, excepto `fa-circle-user` que usa `fa-solid` + `icon-medium-solid`.",
+        story: "Referencia visual de las variantes de header. Todos los íconos usan `fa-light` + `icon-medium`, excepto `fa-circle-user` que usa `fa-solid` + `icon-medium-solid`.",
       },
     },
   },
@@ -178,6 +206,22 @@ export const AllHeaders = {
         </div>
 
         <div>
+          <div class="mars-label" style="margin-bottom:8px">Header / Logged / Empty Cart + Search Left · NEW</div>
+          <div class="mars-mobile">
+            <div class="app-header">
+              <div class="header-left-group header-side-cluster">
+                <div class="header-icon"><i class="fa-light fa-wallet icon-medium"></i></div>
+                <div class="header-icon"><i class="fa-light fa-magnifying-glass icon-medium"></i></div>
+              </div>
+              <img class="header-logo" src="logo-oky.svg" alt="OKY">
+              <div class="header-side-cluster header-side-cluster-right">
+                <div class="header-icon"><i class="fa-light fa-cart-shopping icon-medium"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
           <div class="mars-label" style="margin-bottom:8px">Header / Not Logged · ZPc9u</div>
           <div class="mars-mobile">
             <div class="app-header">
@@ -193,7 +237,7 @@ export const AllHeaders = {
         <div>
           <div class="mars-label" style="margin-bottom:8px">Header / Logged / Cart Full · ArMsV</div>
           <div class="mars-mobile">
-            <div class="app-header">
+            <div class="app-header is-logged-cart">
               <div class="header-left-group">
                 <div class="header-icon"><i class="fa-light fa-wallet icon-medium"></i></div>
               </div>

@@ -1,5 +1,4 @@
 const VARIANT_OPTIONS = ["Por tiempo", "Finita", "Normal", "Por temporada", "OKY"];
-
 const VARIANT_DATA = {
   "Por tiempo": {
     heading: "Solo por hoy",
@@ -86,7 +85,7 @@ function toClassSuffix(type) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-function superRibbon(type) {
+function superRibbon(type, label = "") {
   const ribbonType = `super-ribbon-type-${toClassSuffix(type)}`;
   const iconByType = {
     "Por tiempo": "fa-clock",
@@ -102,24 +101,25 @@ function superRibbon(type) {
     "Por temporada": "Ofertas del mes de Abril",
     OKY: "Para la persona que quieres",
   };
+  const ribbonText = typeof label === "string" && label.trim().length > 0 ? label : textByType[type];
 
   return `
     <div class="super-ribbon ${ribbonType}">
       <span class="super-ribbon-icon"><i class="fa-solid ${iconByType[type]}"></i></span>
-      <span class="super-ribbon-text">${textByType[type]}</span>
+      <span class="super-ribbon-text">${ribbonText}</span>
     </div>`;
 }
 
-function discountRibbon(type, label = "17% OFF") {
+function discountRibbon(type, label = "") {
   const ribbonType = `discount-ribbon-type-${toClassSuffix(type)}`;
+  const discountText = typeof label === "string" && label.trim().length > 0 ? label : "17% OFF";
   return `
     <div class="discount-ribbon discount-ribbon-wrap ${ribbonType}">
-      <span class="discount-ribbon-text token-price-percent">${label}</span>
+      <span class="discount-ribbon-text token-price-percent">${discountText}</span>
     </div>`;
 }
 
-function offerCard({ side, hero, logo, brand, discountType }) {
-  const isLeft = side === "left";
+function offerCard({ side, hero, logo, brand, discountType, discountLabel }) {
   return `
     <article class="tactic-offer tactic-offer-${side}">
       <div class="tactic-offer-hero-wrap">
@@ -128,7 +128,7 @@ function offerCard({ side, hero, logo, brand, discountType }) {
           <img class="tactic-logo" src="${logo}" alt="${brand} logo">
         </div>
         <div class="tactic-discount-wrap tactic-discount-wrap-${side}">
-          ${discountRibbon(discountType)}
+          ${discountRibbon(discountType, discountLabel)}
         </div>
       </div>
       <div class="tactic-brand-row">
@@ -137,19 +137,49 @@ function offerCard({ side, hero, logo, brand, discountType }) {
     </article>`;
 }
 
-function tacticStrip({ property1 }) {
+function withFallback(value, fallback) {
+  return typeof value === "string" && value.trim().length > 0 ? value : fallback;
+}
+
+function tacticStrip({
+  property1,
+  titleText = "",
+  superRibbonText = "",
+  discountRibbonText = "",
+  leftDiscountRibbonText = "",
+  rightDiscountRibbonText = "",
+  leftBrandText = "",
+  rightBrandText = "",
+}) {
   const config = VARIANT_DATA[property1];
+  const title = withFallback(titleText, config.heading);
+  const leftBrand = withFallback(leftBrandText, config.left.brand);
+  const rightBrand = withFallback(rightBrandText, config.right.brand);
+  const leftDiscount = withFallback(leftDiscountRibbonText, discountRibbonText);
+  const rightDiscount = withFallback(rightDiscountRibbonText, discountRibbonText);
   return `
     <section class="tactic-strip">
       <header class="tactic-strip-header">
-        <h3 class="token-h6 tactic-strip-title">${config.heading}</h3>
-        ${superRibbon(config.superType)}
+        <h3 class="token-h6 tactic-strip-title">${title}</h3>
+        ${superRibbon(config.superType, superRibbonText)}
       </header>
 
       <div class="tactic-strip-carousel-window">
         <div class="tactic-strip-carousel-track">
-          ${offerCard({ side: "left", ...config.left, discountType: config.discountType })}
-          ${offerCard({ side: "right", ...config.right, discountType: config.discountType })}
+          ${offerCard({
+            side: "left",
+            ...config.left,
+            brand: leftBrand,
+            discountType: config.discountType,
+            discountLabel: leftDiscount,
+          })}
+          ${offerCard({
+            side: "right",
+            ...config.right,
+            brand: rightBrand,
+            discountType: config.discountType,
+            discountLabel: rightDiscount,
+          })}
         </div>
       </div>
     </section>`;
@@ -174,6 +204,13 @@ export const DocsPlayground = {
   name: "Docs Playground",
   args: {
     property1: "Por tiempo",
+    titleText: "",
+    superRibbonText: "",
+    discountRibbonText: "",
+    leftDiscountRibbonText: "",
+    rightDiscountRibbonText: "",
+    leftBrandText: "",
+    rightBrandText: "",
   },
   argTypes: {
     property1: {
@@ -182,12 +219,65 @@ export const DocsPlayground = {
       options: VARIANT_OPTIONS,
       description: "Variante de tactic strip definida en Figma.",
     },
+    titleText: {
+      name: "Title Text",
+      control: { type: "text" },
+      description: "Texto libre del título del organismo. Si queda vacío, usa el título por defecto de la variante.",
+    },
+    superRibbonText: {
+      name: "Super Ribbon Text",
+      control: { type: "text" },
+      description: "Texto libre dentro de Super Ribbon. Si queda vacío, usa el texto por defecto de la variante.",
+    },
+    discountRibbonText: {
+      name: "Discount Ribbon Text",
+      control: { type: "text" },
+      description: "Texto libre global para ambos Discount Ribbon (Wrap). Si queda vacío, usa `17% OFF`.",
+    },
+    leftDiscountRibbonText: {
+      name: "Left Discount Text",
+      control: { type: "text" },
+      description: "Override del Discount Ribbon izquierdo. Si queda vacío, usa `Discount Ribbon Text`.",
+    },
+    rightDiscountRibbonText: {
+      name: "Right Discount Text",
+      control: { type: "text" },
+      description: "Override del Discount Ribbon derecho. Si queda vacío, usa `Discount Ribbon Text`.",
+    },
+    leftBrandText: {
+      name: "Left Brand Text",
+      control: { type: "text" },
+      description: "Texto libre para marca izquierda. Si queda vacío, usa la marca por defecto de la variante.",
+    },
+    rightBrandText: {
+      name: "Right Brand Text",
+      control: { type: "text" },
+      description: "Texto libre para marca derecha. Si queda vacío, usa la marca por defecto de la variante.",
+    },
   },
-  render: ({ property1 }) => `
+  render: ({
+    property1,
+    titleText,
+    superRibbonText,
+    discountRibbonText,
+    leftDiscountRibbonText,
+    rightDiscountRibbonText,
+    leftBrandText,
+    rightBrandText,
+  }) => `
     <div class="mars-story">
       <div class="mars-label">Tactic Strips · Property 1=${property1} · ID set .pen: 7295:52040</div>
       <div class="mars-mobile tactic-strip-mobile-shell">
-        ${tacticStrip({ property1 })}
+        ${tacticStrip({
+          property1,
+          titleText,
+          superRibbonText,
+          discountRibbonText,
+          leftDiscountRibbonText,
+          rightDiscountRibbonText,
+          leftBrandText,
+          rightBrandText,
+        })}
       </div>
     </div>`,
 };

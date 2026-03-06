@@ -215,6 +215,40 @@ body {
   line-height: calc(var(--search-input-height) - 2px);
 }
 
+.search-input::-webkit-search-decoration,
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-results-button,
+.search-input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.search-input::-ms-clear,
+.search-input::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.search-input-empty {
+  padding-left: 56px;
+  padding-right: 56px;
+  text-align: center;
+}
+
+.search-input-empty::placeholder {
+  text-align: center;
+}
+
+.search-input-empty:not(:placeholder-shown) {
+  text-align: left;
+}
+
+.search-input-hasvalue {
+  padding-right: 34px;
+}
+
 .dropdown-control {
   width: 100%;
   height: 56px;
@@ -305,6 +339,10 @@ body {
   top: 50%;
   transform: translateY(-50%);
   color: var(--disable-text);
+}
+
+.search-clear-icon {
+  right: 6px;
 }
 
 .icon-button {
@@ -401,11 +439,22 @@ body {
   width: 360px;
   height: 56px;
   background: white;
-  border-top: 1px solid var(--border-main);
+  border-top: 1px solid var(--other-border, rgba(0, 0, 0, 0.23));
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 1px 8px -2px rgba(16, 24, 40, 0.1);
   display: flex;
   align-items: center;
   justify-content: space-around;
   padding: 0 8px;
+}
+
+.mars-mobile-nav-shell {
+  width: 360px;
+  max-width: 100%;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--white);
 }
 
 .nav-item {
@@ -427,6 +476,20 @@ body {
   font-size: 10px;
 }
 
+.bottom-nav.is-no-label {
+  height: 56px;
+}
+
+.bottom-nav.is-no-label .nav-item {
+  gap: 0;
+  padding: 0 12px;
+}
+
+.bottom-nav.is-no-label .nav-item i {
+  font-size: 24px;
+  line-height: 1;
+}
+
 .status-bar {
   width: 360px;
   height: 44px;
@@ -442,7 +505,8 @@ body {
   width: 360px;
   height: 56px;
   background: white;
-  border-bottom: 1px solid var(--border-main);
+  border-bottom: none;
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -453,6 +517,10 @@ body {
   width: 100px;
   height: 38px;
   object-fit: contain;
+}
+
+.app-header.is-logged-cart .header-logo {
+  transform: translateX(13px);
 }
 
 .header-balance {
@@ -497,6 +565,18 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.header-side-cluster {
+  width: 70px;
+  min-width: 70px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-side-cluster-right {
+  justify-content: flex-end;
 }
 
 .header-cart-chip {
@@ -828,6 +908,75 @@ body {
   object-fit: cover;
 }
 
+/* ── Carrusel (Organism) ───────────────────────────── */
+.carrusel-organism {
+  width: 360px;
+  height: 172px;
+  padding: 8px 0;
+  background: var(--white);
+}
+
+.carrusel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.carrusel-viewport {
+  width: 328px;
+  overflow: hidden;
+}
+
+.carrusel-track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+}
+
+.carrusel-slide {
+  width: 292px;
+  height: 136px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.54);
+  overflow: hidden;
+  background: var(--white);
+  flex: 0 0 auto;
+}
+
+.carrusel-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carrusel-dots-wrap {
+  width: 343px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carrusel-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.carrusel-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #d9d9d9;
+}
+
+.carrusel-dot.is-active {
+  background: #6750a3;
+  border: 1px solid var(--white);
+}
+
 /* ── Promo Banner carousel ──────────────────────────────── */
 .promo-carousel-track {
   display: flex;
@@ -1155,7 +1304,8 @@ body {
   width: 360px;
   height: 56px;
   background: white;
-  border-bottom: 1px solid var(--border-main);
+  border-bottom: none;
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1195,7 +1345,8 @@ body {
   width: 360px;
   height: 56px;
   background: var(--white);
-  border-bottom: 1px solid var(--divider);
+  border-bottom: none;
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1206,6 +1357,8 @@ body {
   width: 360px;
   height: 56px;
   background: var(--white);
+  border-bottom: none;
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2070,8 +2223,8 @@ body {
 .tactic-strip-stack {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 32px 0;
+  gap: 0;
+  padding: 0;
 }
 
 .tactic-strip {
@@ -2079,6 +2232,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding: 32px 0;
+  border-top: 1px solid var(--border-main);
+  border-bottom: 1px solid var(--border-main);
 }
 
 .tactic-strip-header {
@@ -2213,6 +2369,7 @@ body {
 .homecard-organism {
   width: 330px;
   min-height: 526px;
+  margin-bottom: 20px;
   border-radius: 16px;
   border: 1px solid var(--border-main);
   background: var(--white);
@@ -2410,4 +2567,403 @@ body {
   display: flex;
   justify-content: center;
   padding-top: 12px;
+}
+
+/* ── Folder (Molecule) ─────────────────────────────── */
+.folder-responsive-host {
+  width: min(100%, 360px);
+  margin-inline: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  --folder-scale: 1;
+  --folder-base-height: 77px;
+  min-height: calc(var(--folder-base-height) * var(--folder-scale));
+}
+
+.folder-responsive-host.is-collapsed {
+  --folder-base-height: 35px;
+}
+
+@supports (width: 1cqw) {
+  .folder-responsive-host {
+    container-type: inline-size;
+  }
+
+  .folder-responsive-host {
+    --folder-scale: clamp(0.8889, calc(100cqw / 360), 1);
+  }
+}
+
+.mars-story-folder {
+  width: fit-content;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.folder-control {
+  --folder-primary: #552588;
+  width: 360px;
+  height: 77px;
+  position: relative;
+  font-family: "Lato", sans-serif;
+  overflow: visible;
+  transform: scale(var(--folder-scale));
+  transform-origin: top center;
+}
+
+.folder-control.is-collapsed {
+  height: 35px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f1f2f5 0%, #eceff8 88.01%);
+}
+
+.folder-control.is-collapsed::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #f1f2f5 0%, #eceff8 88.01%);
+  transform: matrix(-1, 0, 0, 1, 0, 0);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.folder-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.folder-layer-bottom {
+  z-index: 1;
+  transform: translateY(15px);
+}
+
+.folder-control.is-collapsed .folder-layer-bottom {
+  display: none;
+}
+
+.folder-depth-shadow {
+  display: none;
+  position: absolute;
+  width: 25px;
+  height: 178px;
+  background: linear-gradient(90deg, rgba(235, 235, 235, 0) 22.58%, rgba(0, 0, 0, 0.0416) 100%);
+  border-radius: 210px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.folder-depth-shadow-left {
+  left: 182px;
+  top: 47px;
+  transform: rotate(90deg);
+}
+
+.folder-depth-shadow-right {
+  left: 153px;
+  top: 48px;
+  transform: rotate(90deg) scaleY(-1);
+}
+
+.folder-layer-top {
+  z-index: 3;
+}
+
+.folder-control.is-collapsed .folder-layer-top {
+  transform: translateY(-41px);
+}
+
+.folder-layer svg {
+  display: block;
+  width: 360px;
+}
+
+.folder-options {
+  z-index: 4;
+  position: absolute;
+  inset: 0;
+}
+
+.folder-option {
+  position: absolute;
+  top: 31px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.folder-control.is-collapsed .folder-option {
+  top: 7px;
+}
+
+.folder-option.is-active .folder-code {
+  font-weight: 700;
+}
+
+.folder-option.is-inactive .folder-code {
+  font-weight: 800;
+}
+
+.folder-flag {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 0.5px solid var(--secondary-main);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--white);
+}
+
+.folder-flag img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.folder-code {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--folder-primary);
+  font-size: 14px;
+  line-height: 1.57;
+}
+
+.folder-chevron-stack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 10px;
+  line-height: 1;
+}
+
+.folder-chevron-stack img {
+  display: block;
+  width: 12px;
+  height: 10px;
+}
+
+.folder-selection-line {
+  position: absolute;
+  top: 74px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--folder-primary);
+  z-index: 5;
+}
+
+.folder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(384px, 1fr));
+  gap: 16px;
+}
+
+.folder-story-card {
+  background: var(--white);
+  border: 1px solid #ececf2;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+/* ── Plateu (Molecule) ─────────────────────────────── */
+.plateu-mobile-shell {
+  display: flex;
+  justify-content: center;
+}
+
+.plateu-molecule {
+  background: var(--white);
+  overflow: hidden;
+}
+
+.plateu-molecule.is-default {
+  border-radius: 20px;
+  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.17);
+}
+
+.plateu-molecule.is-home {
+  border-radius: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.23);
+  box-shadow: none;
+}
+
+.plateu-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.plateu-track.is-static {
+  align-items: flex-end;
+  gap: 16px;
+  padding: 40px 20px 16px;
+}
+
+.plateu-track.is-scrolling {
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+}
+
+.plateu-molecule.is-scrolling.is-default .plateu-track.is-scrolling {
+  padding: 8px 8px 0 26px;
+}
+
+.plateu-molecule.is-home .plateu-track.is-scrolling {
+  gap: 8px;
+  padding: 8px 8px 0 16px;
+}
+
+.plateu-item {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.plateu-item-fixed {
+  width: 80px;
+  flex: 0 0 80px;
+}
+
+.plateu-icon-wrap {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.plateu-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+}
+
+.plateu-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 19px;
+  padding: 3px 0;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.38);
+  font-family: "Lato", sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.72px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.plateu-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 19px;
+  padding: 3px 6px;
+  border-radius: 13px;
+  background: #ffb400;
+  color: #663d00;
+  font-family: "Lato", sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1.57;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.plateu-molecule.is-home .plateu-chip,
+.plateu-molecule.is-home .plateu-label {
+  transform: translateY(-4px);
+}
+
+.plateu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(388px, 1fr));
+  gap: 16px;
+}
+
+.plateu-story-card {
+  background: var(--white);
+  border: 1px solid #ececf2;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ── Discovery Header (Organism) ───────────────────── */
+.discovery-header-organism {
+  width: 360px;
+  max-width: 100%;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+}
+
+.discovery-header-search {
+  width: 360px;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 6px 0;
+  background: var(--white);
+}
+
+.discovery-header-search.is-compact {
+  padding: 4px 0;
+}
+
+.discovery-header-plateu {
+  width: 360px;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  background: var(--white);
+}
+
+.discovery-header-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(392px, 1fr));
+  gap: 16px;
+}
+
+.discovery-header-card {
+  background: var(--white);
+  border: 1px solid #ececf2;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+@media (max-width: 780px) {
+  .folder-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plateu-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .discovery-header-grid {
+    grid-template-columns: 1fr;
+  }
 }

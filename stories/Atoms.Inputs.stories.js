@@ -110,7 +110,7 @@ export const InputPlayground = {
           <i class="fa-regular fa-magnifying-glass search-icon" aria-hidden="true"></i>
           <input
             id="${searchInputId}"
-            class="input-field search-input"
+            class="input-field search-input ${isHasValue ? "search-input-hasvalue" : "search-input-empty"}"
             type="search"
             name="search"
             placeholder="${placeholder}"
@@ -119,7 +119,7 @@ export const InputPlayground = {
           />
           ${
             isHasValue
-              ? '<button class="icon-button clear-icon" type="button" aria-label="Limpiar búsqueda"><i class="fa-regular fa-circle-xmark" aria-hidden="true"></i></button>'
+              ? '<button class="icon-button clear-icon search-clear-icon" type="button" aria-label="Limpiar búsqueda"><i class="fa-regular fa-circle-xmark" aria-hidden="true"></i></button>'
               : ""
           }
         </div>

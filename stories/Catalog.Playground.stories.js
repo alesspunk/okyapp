@@ -100,7 +100,7 @@ export const FullPlayground = {
 
         <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-start">
           <div class="mars-mobile" style="overflow:hidden">
-            <div class="app-header">
+            <div class="app-header is-logged-cart">
               <button style="background:none;border:none;cursor:pointer;color:#552588;font-size:22px"><i class="fa-regular fa-bars"></i></button>
               <img class="header-logo" src="logo-oky.svg" alt="OKY" style="margin:0 auto" />
               <div class="header-left-group">

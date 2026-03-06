@@ -83,10 +83,10 @@ export const InputsDropdownsStatus = {
         <div class="story-card">
           <div class="mars-label">Search empty/value (PGNyG, xmKHs)</div>
           <div class="input-wrapper" style="margin-bottom:8px">
-            <i class="fa-regular fa-magnifying-glass search-icon"></i><input class="input-field search-input" placeholder="Buscas marcas" />
+            <i class="fa-regular fa-magnifying-glass search-icon"></i><input class="input-field search-input search-input-empty" placeholder="Buscas marcas" />
           </div>
           <div class="input-wrapper">
-            <i class="fa-regular fa-magnifying-glass search-icon"></i><input class="input-field search-input" value="Pollo Campero" /><i class="fa-regular fa-circle-xmark clear-icon"></i>
+            <i class="fa-regular fa-magnifying-glass search-icon"></i><input class="input-field search-input search-input-hasvalue" value="Pollo Campero" /><i class="fa-regular fa-circle-xmark clear-icon search-clear-icon"></i>
           </div>
         </div>
         <div class="story-card">
