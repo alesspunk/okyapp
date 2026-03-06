@@ -125,6 +125,60 @@
         overflow: hidden;
       }
 
+      #mockup4-content-left[hidden],
+      #mockup4-content-right[hidden] {
+        display: none !important;
+      }
+
+      
+      .mockup-left-tiles {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 4px 8px 24px;
+        background: #fff;
+      }
+
+      .mockup-left-tiles-block {
+        padding-top: 10px;
+      }
+
+      .mockup-tiles-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 12px;
+      }
+
+      .mockup-half-tile-wrap {
+        position: relative;
+      }
+
+      .mockup-half-chip {
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+        min-width: 50px;
+        height: 18px;
+        border-radius: 999px;
+        background: #00b8b0;
+        color: #fff;
+        font-family: "Lato", sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 18px;
+        letter-spacing: 0.4px;
+        text-align: center;
+        text-transform: uppercase;
+        padding: 0 8px;
+      }
+
+      .mockup-left-tiles .service-tile-half.is-secondary-border {
+        border-color: var(--secondary-main);
+      }
+
       .fa-regular {
         font-family: "Font Awesome 6 Pro";
         font-weight: 400;
@@ -257,6 +311,145 @@
       </section>
 
       <!-- 2) Carrusel -->
+      <section id="mockup4-content-left" hidden>
+        <section class="mockup-block" data-pen-id="76102:40872-carrusel">
+          <section class="carrusel-organism" aria-label="Carrusel de banners lado izquierdo">
+            <div class="carrusel-content">
+              <div class="carrusel-viewport">
+                <div class="carrusel-track">
+                  <article class="carrusel-slide">
+                    <img src="./images/promo-strips1.webp" alt="Promo strips 1" />
+                  </article>
+                  <article class="carrusel-slide">
+                    <img src="./images/promo-strips4.png" alt="Promociones destacadas" />
+                  </article>
+                </div>
+              </div>
+              <div class="carrusel-dots-wrap" aria-hidden="true">
+                <div class="carrusel-dots">
+                  <span class="carrusel-dot is-active"></span>
+                  <span class="carrusel-dot"></span>
+                  <span class="carrusel-dot"></span>
+                  <span class="carrusel-dot"></span>
+                  <span class="carrusel-dot"></span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="mockup-block mockup-left-tiles-block" data-pen-id="76102:40872-tiles">
+          <div class="mockup-left-tiles">
+            <div class="mockup-tiles-row">
+              <article class="mockup-half-tile-wrap">
+                <span class="mockup-half-chip">Nuevo</span>
+                <div class="service-tile service-tile-half is-secondary-border">
+                  <div class="tile-icon tile-icon-half"><img src="./images/multimarca.webp" alt="Multimarca" /></div>
+                  <div class="tile-label">Multimarca</div>
+                </div>
+              </article>
+              <div class="service-tile service-tile-half">
+                <div class="tile-icon tile-icon-half"><img src="./images/navidad.webp" alt="Navidad" /></div>
+                <div class="tile-label">Navidad</div>
+              </div>
+              <div class="service-tile service-tile-half">
+                <div class="tile-icon tile-icon-half"><img src="./images/hot.webp" alt="Ofertas" /></div>
+                <div class="tile-label">Ofertas</div>
+              </div>
+            </div>
+
+            <div class="mockup-tiles-row">
+              <div class="service-tile">
+                <div class="tile-icon"><img src="./images/remesas.webp" alt="Hacer Remesas" /></div>
+                <div class="tile-label">Hacer<br />Remesas</div>
+              </div>
+              <div class="service-tile">
+                <div class="tile-icon"><img src="./images/invitar.webp" alt="Invitar a Comer" /></div>
+                <div class="tile-label">Invitar<br />a Comer</div>
+              </div>
+              <div class="service-tile">
+                <div class="tile-icon"><img src="./images/servicios.webp" alt="Pagar Servicios" /></div>
+                <div class="tile-label">Pagar<br />Servicios</div>
+              </div>
+            </div>
+
+            <div class="mockup-tiles-row">
+              <div class="service-tile">
+                <div class="tile-icon"><img src="./images/doctor.webp" alt="Cuidar su Salud" /></div>
+                <div class="tile-label">Cuidar<br />su Salud</div>
+              </div>
+              <div class="service-tile">
+                <div class="tile-icon"><img src="./images/super.webp" alt="Mandar el Super" /></div>
+                <div class="tile-label">Mandar<br />el Super</div>
+              </div>
+              <div class="service-tile">
+                <div class="tile-icon"><img src="./images/recargar.webp" alt="Recargar el Móvil" /></div>
+                <div class="tile-label">Recargar<br />el Móvil</div>
+              </div>
+            </div>
+
+            <div class="mockup-tiles-row">
+              <div class="service-tile">
+                <div class="tile-icon"><img src="./images/regalos.webp" alt="Enviar Regalos" /></div>
+                <div class="tile-label">Enviar<br />Regalos</div>
+              </div>
+              <div class="service-tile">
+                <div class="tile-icon"><img src="./images/gas.webp" alt="Llenar el Tanque" /></div>
+                <div class="tile-label">Llenar<br />el Tanque</div>
+              </div>
+              <div class="service-tile">
+                <div class="tile-icon"><img src="./images/recargas.webp" alt="Recargas" /></div>
+                <div class="tile-label">Recargas</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="mockup-block homecard" data-pen-id="76102:40872-homecard-comida-rapida">
+          <section class="homecard-organism">
+            <header class="homecard-header">
+              <h3 class="token-h6 homecard-title">Comida Rápida</h3>
+            </header>
+
+            <div class="homecard-content homecard-content-default">
+              <div class="homecard-grid">
+                <article class="homecard-tile">
+                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/mcdonalds.webp" alt="McDonald's logo" /></div>
+                  <p class="token-brand homecard-tile-name">McDonald's</p>
+                </article>
+                <article class="homecard-tile">
+                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/pollo-campero.webp" alt="Pollo Campero logo" /></div>
+                  <p class="token-brand homecard-tile-name">Pollo Campero</p>
+                </article>
+                <article class="homecard-tile">
+                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/burguerking.webp" alt="Burger King logo" /></div>
+                  <p class="token-brand homecard-tile-name">Burger King</p>
+                </article>
+                <article class="homecard-tile">
+                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/pollo-granjero.webp" alt="Pollo Granjero logo" /></div>
+                  <p class="token-brand homecard-tile-name">Pollo Granjero</p>
+                </article>
+                <article class="homecard-tile">
+                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/ihop.webp" alt="iHop logo" /></div>
+                  <p class="token-brand homecard-tile-name">iHop</p>
+                </article>
+                <article class="homecard-tile">
+                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/applebees.webp" alt="Applebee's logo" /></div>
+                  <p class="token-brand homecard-tile-name">Applebee's</p>
+                </article>
+              </div>
+            </div>
+
+            <footer class="homecard-footer">
+              <button class="btn btn-primary btn-small" type="button">Ver más</button>
+            </footer>
+          </section>
+        </section>
+      
+      </section>
+
+      <section id="mockup4-content-right">
+
       <section class="mockup-block" data-pen-id="6449:41089">
         <section class="carrusel-organism" aria-label="Carrusel de banners">
           <div class="carrusel-content">
@@ -408,6 +601,209 @@
           </div>
         </div>
       </section>
+        <!-- EXTRA STACK MOCKUP 4 START -->
+        <section class="mockup-block" data-pen-id="extra-m4-promo-double">
+          <div class="mars-mobile promo-strip-mobile-shell">
+            <div class="promo-strip-stack">
+              <section class="promo-strip-organism">
+                <div class="promo-strip-heading-wrap">
+                  <h3 class="token-h6 promo-strip-heading">Outdoor y aventura</h3>
+                </div>
+                <div class="promo-strip-divider"></div>
+                <div class="promo-strip-row">
+                <article class="promo-strip-item">
+                  <div class="promo-strip-image-box">
+                    <img src="./images/rei.png" alt="REI" />
+                    <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal">
+                      <span class="discount-ribbon-text token-price-percent">-12%</span>
+                    </div>
+                  </div>
+                  <p class="token-brand promo-strip-brand">REI</p>
+                </article>
+                <article class="promo-strip-item">
+                  <div class="promo-strip-image-box">
+                    <img src="./images/bassproshops.png" alt="Bass Pro Shops" />
+                    <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal">
+                      <span class="discount-ribbon-text token-price-percent">-15%</span>
+                    </div>
+                  </div>
+                  <p class="token-brand promo-strip-brand">Bass Pro Shops</p>
+                </article>
+                </div>
+              </section>
+              <section class="promo-strip-organism promo-strip-organism-compact">
+                <div class="promo-strip-row">
+                <article class="promo-strip-item">
+                  <div class="promo-strip-image-box">
+                    <img src="./images/nike.png" alt="Nike" />
+                    <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal">
+                      <span class="discount-ribbon-text token-price-percent">-10%</span>
+                    </div>
+                  </div>
+                  <p class="token-brand promo-strip-brand">Nike</p>
+                </article>
+                <article class="promo-strip-item">
+                  <div class="promo-strip-image-box">
+                    <img src="./images/adidas.png" alt="Adidas" />
+                    <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-wrap-small discount-ribbon-type-normal">
+                      <span class="discount-ribbon-text token-price-percent">-11%</span>
+                    </div>
+                  </div>
+                  <p class="token-brand promo-strip-brand">Adidas</p>
+                </article>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+        <section class="mockup-block" data-pen-id="extra-m4-tactic">
+          <div class="mars-mobile tactic-strip-mobile-shell">
+            <section class="tactic-strip">
+              <header class="tactic-strip-header">
+                <h3 class="token-h6 tactic-strip-title">Escapate este finde</h3>
+                <div class="super-ribbon super-ribbon-type-por-tiempo">
+                  <span class="super-ribbon-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+                  <span class="super-ribbon-text">Termina en 09:31:05</span>
+                </div>
+              </header>
+              <div class="tactic-strip-carousel-window">
+                <div class="tactic-strip-carousel-track">
+            <article class="tactic-offer tactic-offer-left">
+              <div class="tactic-offer-hero-wrap">
+                <img class="tactic-offer-hero" src="./images/promo-image8.png" alt="REI" />
+                <div class="tactic-logo-wrap tactic-logo-wrap-left">
+                  <img class="tactic-logo" src="./images/rei.png" alt="REI logo" />
+                </div>
+                <div class="tactic-discount-wrap tactic-discount-wrap-left">
+                  <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-type-por-tiempo">
+                    <span class="discount-ribbon-text token-price-percent">17% OFF</span>
+                  </div>
+                </div>
+              </div>
+              <div class="tactic-brand-row"><p class="token-brand tactic-brand">REI</p></div>
+            </article>
+            <article class="tactic-offer tactic-offer-right">
+              <div class="tactic-offer-hero-wrap">
+                <img class="tactic-offer-hero" src="./images/promo-image7.png" alt="Bass Pro Shops" />
+                <div class="tactic-logo-wrap tactic-logo-wrap-right">
+                  <img class="tactic-logo" src="./images/bassproshops.png" alt="Bass Pro Shops logo" />
+                </div>
+                <div class="tactic-discount-wrap tactic-discount-wrap-right">
+                  <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-type-por-tiempo">
+                    <span class="discount-ribbon-text token-price-percent">19% OFF</span>
+                  </div>
+                </div>
+              </div>
+              <div class="tactic-brand-row"><p class="token-brand tactic-brand">Bass Pro Shops</p></div>
+            </article>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+        <section class="mockup-block homecard" data-pen-id="extra-m4-home-grid">
+          <section class="homecard-organism">
+            <header class="homecard-header">
+              <h3 class="token-h6 homecard-title">Comida al instante</h3>
+            </header>
+            <div class="homecard-content homecard-content-default">
+              <div class="homecard-grid">
+                  <article class="homecard-tile">
+                    <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/uber.png" alt="Uber logo" /></div>
+                    <p class="token-brand homecard-tile-name">Uber</p>
+                  </article>
+                  <article class="homecard-tile">
+                    <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/doordash.png" alt="DoorDash logo" /></div>
+                    <p class="token-brand homecard-tile-name">DoorDash</p>
+                  </article>
+                  <article class="homecard-tile">
+                    <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/dominos.png" alt="Domino's logo" /></div>
+                    <p class="token-brand homecard-tile-name">Domino's</p>
+                  </article>
+                  <article class="homecard-tile">
+                    <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/mcdonalds.webp" alt="McDonald's logo" /></div>
+                    <p class="token-brand homecard-tile-name">McDonald's</p>
+                  </article>
+                  <article class="homecard-tile">
+                    <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/burguerking.webp" alt="Burger King logo" /></div>
+                    <p class="token-brand homecard-tile-name">Burger King</p>
+                  </article>
+                  <article class="homecard-tile">
+                    <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="./images/starbucks.webp" alt="Starbucks logo" /></div>
+                    <p class="token-brand homecard-tile-name">Starbucks</p>
+                  </article>
+              </div>
+            </div>
+            <footer class="homecard-footer">
+              <button class="btn btn-primary btn-small" type="button">Ver más</button>
+            </footer>
+          </section>
+        </section>
+        <section class="mockup-block homecard" data-pen-id="extra-m4-home-photo">
+          <section class="homecard-organism homecard-organism-photo">
+            <header class="homecard-header">
+              <h3 class="token-h6 homecard-title">Favoritos para cenar</h3>
+            </header>
+            <div class="homecard-content homecard-content-photo">
+              <div class="homecard-photo-track">
+                <article class="homecard-photo-item">
+                  <div class="homecard-photo-media-wrap">
+                    <img class="homecard-photo-hero" src="./images/promo-image1.png" alt="Domino's" />
+                    <div class="homecard-photo-ribbon-wrap">
+                      <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-type-normal">
+                        <span class="discount-ribbon-text token-price-percent">21% OFF</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="homecard-photo-logo-stack">
+                    <div class="homecard-photo-logo-wrap">
+                      <img class="homecard-photo-logo" src="./images/dominos.png" alt="Domino's logo" />
+                    </div>
+                    <p class="token-brand homecard-photo-name">Domino's</p>
+                  </div>
+                </article>
+                <article class="homecard-photo-item">
+                  <div class="homecard-photo-media-wrap">
+                    <img class="homecard-photo-hero" src="./images/promo-image2.png" alt="Burger King" />
+                    <div class="homecard-photo-ribbon-wrap">
+                      <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-type-normal">
+                        <span class="discount-ribbon-text token-price-percent">18% OFF</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="homecard-photo-logo-stack">
+                    <div class="homecard-photo-logo-wrap">
+                      <img class="homecard-photo-logo" src="./images/burguerking.webp" alt="Burger King logo" />
+                    </div>
+                    <p class="token-brand homecard-photo-name">Burger King</p>
+                  </div>
+                </article>
+                <article class="homecard-photo-item">
+                  <div class="homecard-photo-media-wrap">
+                    <img class="homecard-photo-hero" src="./images/promo-image4.png" alt="iHop" />
+                    <div class="homecard-photo-ribbon-wrap">
+                      <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-type-normal">
+                        <span class="discount-ribbon-text token-price-percent">12% OFF</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="homecard-photo-logo-stack">
+                    <div class="homecard-photo-logo-wrap">
+                      <img class="homecard-photo-logo" src="./images/ihop.webp" alt="iHop logo" />
+                    </div>
+                    <p class="token-brand homecard-photo-name">iHop</p>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <footer class="homecard-footer">
+              <button class="btn btn-primary btn-small" type="button">Ver más</button>
+            </footer>
+          </section>
+        </section>
+        <!-- EXTRA STACK MOCKUP 4 END -->
+
+      </section>
 
       <section class="mockup-app-nav" data-pen-id="MHKUc" aria-label="Navegación principal">
         <div class="bottom-nav is-no-label">
@@ -420,10 +816,12 @@
       </section>
     </main>
   
-    <script>
+        <script>
       (function initDiscoveryHeaderStacking() {
         const shell = document.querySelector(".mockup-shell");
-        const discoveryHeader = document.getElementById("mockup4-discovery-header");
+        const discoveryHeader = document.querySelector(".discovery-scroll-header");
+        const leftContent = document.getElementById("mockup4-content-left");
+        const rightContent = document.getElementById("mockup4-content-right");
 
         if (!shell || !discoveryHeader) return;
 
@@ -432,6 +830,8 @@
         const folderControl = discoveryHeader.querySelector(".folder-control");
         const folderSection = folderHost?.closest("section");
         const searchSection = discoveryHeader.querySelector(".discovery-header-search");
+        const layerBottom = folderControl?.querySelector(".folder-layer-bottom");
+        const layerTop = folderControl?.querySelector(".folder-layer-top");
         const folderOptions = folderControl ? Array.from(folderControl.querySelectorAll(".folder-option")) : [];
         const leftOption = folderOptions[0] || null;
         const rightOption = folderOptions[1] || null;
@@ -440,11 +840,79 @@
         const leftCode = leftOption?.querySelector(".folder-code") || null;
         const rightCode = rightOption?.querySelector(".folder-code") || null;
         const selectionLine = folderControl?.querySelector(".folder-selection-line") || null;
+        const RIGHT_BOTTOM_SVG = layerBottom?.innerHTML || "";
+        const RIGHT_TOP_SVG = layerTop?.innerHTML || "";
+        const LEFT_BOTTOM_SVG = `
+          <svg width="360" height="60" viewBox="0 0 360 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M360 21.0188V55.6968V60H0V55.6968H159.294C180.415 55.6968 182.209 42.5942 182.311 41.0441C182.654 35.8185 182.654 30.7861 182.654 17.2181C182.654 -1.20169 203.044 0.0166291 212.569 0.0166289H333.763C355.564 0.0166276 360 14.3437 360 21.0188Z" fill="url(#paint0_linear_7295_52258_story)"/>
+            <defs>
+              <linearGradient id="paint0_linear_7295_52258_story" x1="180" y1="0" x2="180" y2="60" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#F1F2F5"/>
+                <stop offset="0.880066" stop-color="#ECEFF8"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        `;
+        const LEFT_TOP_SVG = `
+          <svg width="360" height="77" viewBox="0 0 360 77" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g filter="url(#filter0_d_7295_52268_story)">
+              <path d="M0 36.9611V72.4925V77H360V72.4925H210.086C189.022 72.4925 185.476 59.0328 185.142 57.4792C183.708 50.801 183.479 48.5296 182.925 33.0669C182.251 14.28 157.502 15.3481 148.003 15.4421C116.776 15.1085 48.8908 14.6414 27.1616 15.4421C5.43231 16.2428 0 30.1217 0 36.9611Z" fill="white"/>
+            </g>
+            <defs>
+              <filter id="filter0_d_7295_52268_story" x="-24" y="-5" width="408" height="110" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dy="4"/>
+                <feGaussianBlur stdDeviation="12"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.17 0"/>
+                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_7295_52268"/>
+                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_7295_52268" result="shape"/>
+              </filter>
+            </defs>
+          </svg>
+        `;
+
+        const setLayerShapes = (side) => {
+          if (layerBottom) {
+            layerBottom.innerHTML = side === "left" ? LEFT_BOTTOM_SVG : RIGHT_BOTTOM_SVG;
+          }
+          if (layerTop) {
+            layerTop.innerHTML = side === "left" ? LEFT_TOP_SVG : RIGHT_TOP_SVG;
+          }
+        };
+
+        const setOptionActiveSide = (side) => {
+          if (leftOption) {
+            leftOption.classList.toggle("is-active", side === "left");
+            leftOption.classList.toggle("is-inactive", side !== "left");
+            leftOption.setAttribute("aria-selected", side === "left" ? "true" : "false");
+          }
+          if (rightOption) {
+            rightOption.classList.toggle("is-active", side === "right");
+            rightOption.classList.toggle("is-inactive", side !== "right");
+            rightOption.setAttribute("aria-selected", side === "right" ? "true" : "false");
+          }
+        };
+
+        const toggleLeftChevron = (show) => {
+          if (!leftOption) return;
+          const existing = leftOption.querySelector(".folder-chevron-stack");
+          if (show) {
+            if (!existing) {
+              leftOption.insertAdjacentHTML(
+                "beforeend",
+                '<span class="folder-chevron-stack" aria-hidden="true"><img src="./images/chevron.svg" alt=""></span>'
+              );
+            }
+            return;
+          }
+          if (existing) existing.remove();
+        };
 
         const plateuSection = document.createElement("section");
         plateuSection.className = "discovery-header-plateu dh-plateu";
         plateuSection.dataset.penId = "7331:50399";
-        plateuSection.innerHTML = `
+        const RIGHT_PLATEU_HTML = `
           <section class="plateu-molecule is-scrolling is-home" style="width:360px;height:80px" aria-label="Plateu State=Home, Telco=No, Scrolling=Yes">
             <div class="plateu-track is-scrolling">
               <div class="plateu-item plateu-item-fixed">
@@ -466,19 +934,48 @@
             </div>
           </section>
         `;
+        const LEFT_PLATEU_HTML = `
+          <section class="plateu-molecule is-scrolling is-home" style="width:360px;height:80px" aria-label="Plateu State=Home, Telco=No, Scrolling=Yes Left">
+            <div class="plateu-track is-scrolling">
+              <div class="plateu-item plateu-item-fixed">
+                <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/invitar.webp" alt="Comida rapida" /></div>
+                <span class="plateu-chip">COMIDA RAPIDA</span>
+              </div>
+              <div class="plateu-item plateu-item-fixed">
+                <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu12.png" alt="Pasteleria" /></div>
+                <span class="plateu-label">PASTELERIA</span>
+              </div>
+              <div class="plateu-item plateu-item-fixed">
+                <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu13.png" alt="Restaurantes" /></div>
+                <span class="plateu-label">RESTAURANTES</span>
+              </div>
+              <div class="plateu-item plateu-item-fixed">
+                <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu14.png" alt="Cafeterias" /></div>
+                <span class="plateu-label">CAFETERIAS</span>
+              </div>
+            </div>
+          </section>
+        `;
         discoveryHeader.appendChild(plateuSection);
 
-        const setExpandedFolder = () => {
+        const setPlateuBySide = (side) => {
+          plateuSection.innerHTML = side === "left" ? LEFT_PLATEU_HTML : RIGHT_PLATEU_HTML;
+        };
+
+        const setExpandedFolder = (side) => {
           if (!folderHost || !folderControl) return;
           folderHost.classList.add("is-expanded");
           folderHost.classList.remove("is-collapsed");
-          folderControl.classList.remove("is-collapsed");
-          folderControl.classList.add("is-right");
+          folderControl.classList.remove("is-collapsed", "is-left", "is-right");
+          folderControl.classList.add(side === "left" ? "is-left" : "is-right");
+          setLayerShapes(side);
+          setOptionActiveSide(side);
+          toggleLeftChevron(side === "left");
 
-          if (leftFlag) leftFlag.style.removeProperty("display");
-          if (rightFlag) rightFlag.style.removeProperty("display");
-          if (leftOption) leftOption.style.left = "54px";
-          if (rightOption) rightOption.style.left = "235px";
+          if (leftFlag) leftFlag.style.display = "inline-flex";
+          if (rightFlag) rightFlag.style.display = "inline-flex";
+          if (leftOption) leftOption.style.left = side === "left" ? "55px" : "54px";
+          if (rightOption) rightOption.style.left = side === "left" ? "245px" : "235px";
           if (leftCode) {
             leftCode.style.removeProperty("margin-left");
             leftCode.style.removeProperty("transform");
@@ -488,51 +985,74 @@
             rightCode.style.removeProperty("transform");
           }
           if (selectionLine) {
-            selectionLine.style.left = "235px";
-            selectionLine.style.width = "66px";
+            selectionLine.style.left = side === "left" ? "51px" : "235px";
+            selectionLine.style.width = side === "left" ? "86px" : "66px";
             selectionLine.style.removeProperty("top");
           }
         };
 
-        const setCollapsedFolder = () => {
+        const setCollapsedFolder = (side) => {
           if (!folderHost || !folderControl) return;
           folderHost.classList.add("is-collapsed");
           folderHost.classList.remove("is-expanded");
-          folderControl.classList.add("is-collapsed", "is-right");
+          folderControl.classList.remove("is-left", "is-right");
+          folderControl.classList.add("is-collapsed", side === "left" ? "is-left" : "is-right");
+          setLayerShapes(side);
+          setOptionActiveSide(side);
+          toggleLeftChevron(false);
 
           if (leftFlag) leftFlag.style.display = "none";
           if (rightFlag) rightFlag.style.display = "none";
           if (leftOption) leftOption.style.left = "64px";
           if (rightOption) rightOption.style.left = "245px";
           if (leftCode) {
-            leftCode.style.removeProperty("margin-left");
-            leftCode.style.transform = "translateY(-5px)";
+            leftCode.style.marginLeft = side === "left" ? "7px" : "";
+            leftCode.style.transform = side === "left" ? "translateY(-2px)" : "translateY(-5px)";
           }
           if (rightCode) {
-            rightCode.style.marginLeft = "20px";
-            rightCode.style.transform = "translateY(-3px)";
+            rightCode.style.marginLeft = side === "left" ? "15px" : "20px";
+            rightCode.style.transform = side === "left" ? "translateY(-5px)" : "translateY(-3px)";
           }
           if (selectionLine) {
-            selectionLine.style.left = "245px";
+            selectionLine.style.left = side === "left" ? "55px" : "245px";
             selectionLine.style.width = "66px";
-            selectionLine.style.top = "30px";
+            selectionLine.style.top = side === "left" ? "31px" : "30px";
           }
         };
 
         const stateMeta = {
-          1: { penId: "7333:70235", folderPenId: "7296:48471", label: "State 1" },
-          2: { penId: "7333:70236", folderPenId: "7296:48473", label: "State 2" },
-          3: { penId: "7333:70237", folderPenId: "7296:48473", label: "State 3" },
+          left: {
+            1: { penId: "7333:70238", folderPenId: "7296:48469", label: "State 1" },
+            2: { penId: "7333:70233", folderPenId: "7296:48472", label: "State 2" },
+            3: { penId: "7333:70234", folderPenId: "7296:48472", label: "State 3" },
+          },
+          right: {
+            1: { penId: "7333:70235", folderPenId: "7296:48471", label: "State 1" },
+            2: { penId: "7333:70236", folderPenId: "7296:48473", label: "State 2" },
+            3: { penId: "7333:70237", folderPenId: "7296:48473", label: "State 3" },
+          },
         };
 
+        let currentSide = discoveryHeader.dataset.side === "Left" ? "left" : "right";
         let currentState = 0;
+        let lastScrollTop = shell.scrollTop;
 
-        const applyState = (nextState) => {
+        const setContentBySide = (side) => {
+          if (!leftContent || !rightContent) return;
+          const showLeft = side === "left";
+          leftContent.hidden = !showLeft;
+          rightContent.hidden = showLeft;
+        };
+
+        const applyState = (nextState, force = false) => {
           const state = Math.min(3, Math.max(1, nextState));
-          if (state === currentState) return;
+          if (!force && state === currentState) return;
 
-          const meta = stateMeta[state];
+          const meta = stateMeta[currentSide][state];
           currentState = state;
+          setContentBySide(currentSide);
+        setPlateuBySide(currentSide);
+          discoveryHeader.dataset.side = currentSide === "left" ? "Left" : "Right";
           discoveryHeader.dataset.state = meta.label;
           discoveryHeader.dataset.penId = meta.penId;
           if (stickyBlock) stickyBlock.dataset.penId = meta.penId;
@@ -540,15 +1060,45 @@
 
           if (state === 1) {
             if (searchSection) searchSection.classList.remove("is-compact");
-            setExpandedFolder();
+            setExpandedFolder(currentSide);
           } else if (state === 2) {
             if (searchSection) searchSection.classList.remove("is-compact");
-            setCollapsedFolder();
+            setCollapsedFolder(currentSide);
           } else {
             if (searchSection) searchSection.classList.add("is-compact");
-            setCollapsedFolder();
+            setCollapsedFolder(currentSide);
           }
         };
+
+        const setSide = (nextSide) => {
+          const safeSide = nextSide === "left" ? "left" : "right";
+          if (safeSide === currentSide) {
+            setContentBySide(currentSide);
+            return;
+          }
+          currentSide = safeSide;
+          setContentBySide(currentSide);
+          shell.scrollTop = 0;
+          lastScrollTop = 0;
+          applyState(1, true);
+        };
+
+        [
+          { option: leftOption, side: "left" },
+          { option: rightOption, side: "right" },
+        ].forEach(({ option, side }) => {
+          if (!option) return;
+          option.style.cursor = "pointer";
+          option.setAttribute("role", "tab");
+          option.setAttribute("tabindex", "0");
+          option.addEventListener("click", () => setSide(side));
+          option.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              setSide(side);
+            }
+          });
+        });
 
         const DOWN_TO_STATE_2 = 56;
         const DOWN_TO_STATE_3 = 140;
@@ -560,8 +1110,6 @@
           if (scrollTop >= DOWN_TO_STATE_2) return 2;
           return 1;
         };
-
-        let lastScrollTop = shell.scrollTop;
 
         const resolveNextState = (scrollTop) => {
           const isScrollingDown = scrollTop > lastScrollTop;
@@ -586,6 +1134,7 @@
           return nextState;
         };
 
+        setPlateuBySide(currentSide);
         applyState(stateFromInitialScroll(shell.scrollTop));
         shell.addEventListener(
           "scroll",
