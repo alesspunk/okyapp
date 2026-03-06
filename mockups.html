@@ -16,33 +16,57 @@
       body {
         margin: 0;
         min-height: 100vh;
-        padding: 24px;
+        padding: 24px 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        overflow: auto;
+        overflow: hidden;
         font-family: "Nunito Sans", Arial, sans-serif;
         background: #e8ebf1;
       }
 
-      .mockups-row {
+      .mockups-carousel {
+        width: min(100%, 520px);
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
-        gap: 140px;
-        width: 100%;
-        margin: 0 auto;
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding-bottom: 8px;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
+        gap: 12px;
       }
 
-      .mockups-row::-webkit-scrollbar {
-        width: 0;
-        height: 0;
-        display: none;
+      .carousel-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        border: 1px solid #c9cfda;
+        background: #ffffff;
+        color: #596273;
+        font-size: 22px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+      }
+
+      .carousel-btn:hover:not(:disabled) {
+        background: #eef1f7;
+      }
+
+      .carousel-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .mockups-viewport {
+        width: min(100%, 420px);
+        overflow: hidden;
+      }
+
+      .mockups-track {
+        display: flex;
+        width: 100%;
+        transition: transform 260ms ease;
       }
 
       .mockup-frame {
@@ -57,7 +81,8 @@
 
       .mockup-slot {
         position: relative;
-        flex: 0 0 auto;
+        flex: 0 0 100%;
+        width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -75,29 +100,89 @@
         letter-spacing: 0.2px;
         pointer-events: none;
       }
+
+      .carousel-status {
+        margin-top: 10px;
+        text-align: center;
+        color: #7e8795;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+
+      @media (max-width: 460px) {
+        .mockup-frame {
+          width: min(360px, calc(100vw - 88px));
+        }
+      }
     </style>
   </head>
   <body>
-    <main class="mockups-row">
-      <div class="mockup-slot">
-        <iframe class="mockup-frame" src="./mockup-1.html" title="Mockup 1"></iframe>
-      </div>
-      <div class="mockup-slot">
-        <iframe class="mockup-frame" src="./mockup-2.html" title="Mockup 2"></iframe>
-        <span class="mockup-badge">Creada por la IA</span>
-      </div>
-      <div class="mockup-slot">
-        <iframe class="mockup-frame" src="./mockup-3.html" title="Mockup 3"></iframe>
-        <span class="mockup-badge">Creada por la IA</span>
-      </div>
-      <div class="mockup-slot">
-        <iframe class="mockup-frame" src="./mockup-4.html" title="Mockup 4"></iframe>
-        <span class="mockup-badge">Creada por la IA</span>
-      </div>
-      <div class="mockup-slot">
-        <iframe class="mockup-frame" src="./mockup-5.html" title="Mockup 5"></iframe>
-        <span class="mockup-badge">Creada por la IA</span>
-      </div>
-    </main>
+    <div>
+      <main class="mockups-carousel" aria-label="Carrusel de mockups">
+        <button class="carousel-btn" id="mockups-prev" type="button" aria-label="Mockup anterior">‹</button>
+        <div class="mockups-viewport">
+          <div class="mockups-track" id="mockups-track">
+            <div class="mockup-slot">
+              <iframe class="mockup-frame" src="./mockup-1.html" title="Mockup 1"></iframe>
+            </div>
+            <div class="mockup-slot">
+              <iframe class="mockup-frame" src="./mockup-2.html" title="Mockup 2"></iframe>
+              <span class="mockup-badge">Creada por la IA</span>
+            </div>
+            <div class="mockup-slot">
+              <iframe class="mockup-frame" src="./mockup-3.html" title="Mockup 3"></iframe>
+              <span class="mockup-badge">Creada por la IA</span>
+            </div>
+            <div class="mockup-slot">
+              <iframe class="mockup-frame" src="./mockup-4.html" title="Mockup 4"></iframe>
+              <span class="mockup-badge">Creada por la IA</span>
+            </div>
+            <div class="mockup-slot">
+              <iframe class="mockup-frame" src="./mockup-5.html" title="Mockup 5"></iframe>
+              <span class="mockup-badge">Creada por la IA</span>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-btn" id="mockups-next" type="button" aria-label="Mockup siguiente">›</button>
+      </main>
+      <p class="carousel-status" id="mockups-status" aria-live="polite">1 / 5</p>
+    </div>
+
+    <script>
+      (function initMockupsCarousel() {
+        const track = document.getElementById("mockups-track");
+        const prev = document.getElementById("mockups-prev");
+        const next = document.getElementById("mockups-next");
+        const status = document.getElementById("mockups-status");
+        if (!track || !prev || !next || !status) return;
+
+        const slides = Array.from(track.querySelectorAll(".mockup-slot"));
+        const maxIndex = Math.max(0, slides.length - 1);
+        let current = 0;
+
+        const render = () => {
+          track.style.transform = `translateX(-${current * 100}%)`;
+          prev.disabled = current <= 0;
+          next.disabled = current >= maxIndex;
+          status.textContent = `${current + 1} / ${slides.length}`;
+        };
+
+        const goTo = (index) => {
+          current = Math.min(maxIndex, Math.max(0, index));
+          render();
+        };
+
+        prev.addEventListener("click", () => goTo(current - 1));
+        next.addEventListener("click", () => goTo(current + 1));
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "ArrowLeft") goTo(current - 1);
+          if (event.key === "ArrowRight") goTo(current + 1);
+        });
+
+        render();
+      })();
+    </script>
   </body>
 </html>
