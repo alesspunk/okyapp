@@ -255,6 +255,7 @@
           "/public/fontawesome-free/css/all.min.css",
           "/public/fontawesome-kit/css/custom-icons.min.css",
         ];
+        const KIT_SCRIPT_SRC = "https://kit.fontawesome.com/b5a8f622db.js";
 
         const ensureIconStylesInFrame = (frame) => {
           try {
@@ -267,6 +268,12 @@
               link.href = href;
               doc.head.appendChild(link);
             });
+            if (!doc.querySelector(`script[src="${KIT_SCRIPT_SRC}"]`)) {
+              const script = doc.createElement("script");
+              script.src = KIT_SCRIPT_SRC;
+              script.crossOrigin = "anonymous";
+              doc.head.appendChild(script);
+            }
           } catch (error) {
             // Same-origin expected; ignore silently if frame is not ready yet.
           }
