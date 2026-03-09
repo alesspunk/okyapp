@@ -92,6 +92,9 @@ export const Playground = {
         <div class="mars-label">
           Chips/Quantity Input / ${state} · ID .pen: ${penIds[state]}
         </div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Recomendado: cantidad de 1-2 caracteres (1-99).
+        </div>
         <div style="padding:24px 0">
           ${chips[state]()}
         </div>

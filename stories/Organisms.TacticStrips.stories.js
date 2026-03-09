@@ -267,6 +267,9 @@ export const DocsPlayground = {
   }) => `
     <div class="mars-story">
       <div class="mars-label">Tactic Strips · Property 1=${property1} · ID set .pen: 7295:52040</div>
+      <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+        Recomendado: título máx. 14 ("Ofertas del día") · Super Ribbon máx. 24 ("Ofertas del mes de Abril") · Discount máx. 7 ("17% OFF") · marca máx. 11 ("Ultra Beauty").
+      </div>
       <div class="mars-mobile tactic-strip-mobile-shell">
         ${tacticStrip({
           property1,

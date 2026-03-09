@@ -110,6 +110,9 @@ export const AppHeaderPlayground = {
     return `
       <div class="mars-story">
         <div class="mars-label">App Header / ${variant} / ${leftButtons}-left · ID .pen: ${penIds[variant]}</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Recomendado: contador de carrito de 1-2 caracteres (0-99). Este playground no usa texto libre largo.
+        </div>
         <div class="mars-mobile">
           <div class="app-header ${variant === "logged-cart" ? "is-logged-cart" : ""}">
             ${leftGroup}
@@ -166,6 +169,9 @@ export const PageHeaderPlayground = {
     return `
       <div class="mars-story">
         <div class="mars-label">Page Header / ${variant} · ID .pen: ${penId}</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Recomendado: máximo 11 caracteres en título (base: "Modal Title").
+        </div>
         <div class="mars-mobile">
           <div class="${containerClass}">
             ${left}

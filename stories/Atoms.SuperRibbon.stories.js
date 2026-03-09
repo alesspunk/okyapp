@@ -78,6 +78,9 @@ export const DocsPlayground = {
   render: (args) => `
     <div class="mars-story">
       <div class="mars-label">Super Ribbon · Property 1=${args.type} · ID set .pen: 7295:52143</div>
+      <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+        Recomendado: máximo 24 caracteres en texto (base más larga: "Ofertas del mes de Abril").
+      </div>
       ${buildRibbon(args)}
     </div>`,
 };

@@ -180,12 +180,19 @@ function buildPlateu({ property1 }) {
   `;
 }
 
-function renderPlateuStory(args) {
+function renderPlateuStory(args, showRecommendation = false) {
   const variantKey = VARIANT_OPTIONS.includes(args.property1) ? args.property1 : VARIANT_OPTIONS[0];
   const penId = PLATEU_VARIANTS[variantKey].penId;
   return `
     <div class="mars-story">
       <div class="mars-label">Plateu · ${variantKey} · ID .pen: ${penId}</div>
+      ${
+        showRecommendation
+          ? `<div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+              Recomendado: labels de categoría de máximo 13 caracteres (base más larga: "COMIDA RÁPIDA").
+            </div>`
+          : ""
+      }
       <div class="mars-mobile plateu-mobile-shell">
         ${buildPlateu({ property1: variantKey })}
       </div>
@@ -221,7 +228,7 @@ export const DocsPlayground = {
       description: "Variante exacta del set Plateu en Figma.",
     },
   },
-  render: (args) => renderPlateuStory(args),
+  render: (args) => renderPlateuStory(args, true),
 };
 
 export const VariantMatrix = {

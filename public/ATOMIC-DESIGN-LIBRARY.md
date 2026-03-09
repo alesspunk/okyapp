@@ -8,7 +8,8 @@ Scope: updated components/variants requested and aligned to current stories.
 2. [Atoms](#atoms)
 3. [Molecules](#molecules)
 4. [Organisms](#organisms)
-5. [Show/Hide Code Best Practice](#showhide-code-best-practice)
+5. [Character Recommendations](#character-recommendations)
+6. [Show/Hide Code Best Practice](#showhide-code-best-practice)
 
 ---
 
@@ -671,6 +672,39 @@ export function SummaryBox(props: SummaryBoxProps) {
 }
 ```
 </details>
+
+---
+
+## Character Recommendations
+
+Current Storybook guidance lines added in Playground/Docs Playground:
+
+### Atoms
+- `Buttons`: label max `9` chars (`Continuar`).
+- `Inputs/Search`: placeholder/value max `13` chars (`Buscas marcas`).
+- `Inputs/Phone`: area code max `4` chars (`+502`), phone max `9` chars (`6696-3223`).
+- `Dropdown/Country-Province`: placeholder max `16` chars (`Seleccionar país`), value max `14` chars (`Estados Unidos`).
+- `Radio`: label max `9` chars (`Guatemala`).
+- `Chips/New item`: tag max `5` chars (`Nuevo`); counters `1-2` chars (`0-99` / `1-99`).
+- `Discount Ribbon`: label max `7` chars (`25% OFF`).
+- `Super Ribbon`: text max `24` chars (`Ofertas del mes de Abril`).
+- `Icons`: icon name control max `20` chars.
+
+### Molecules
+- `Folder`: country codes max `3` chars (`GUA` / `USA`).
+- `Plateu`: category labels max `13` chars (`COMIDA RÁPIDA`).
+- `Promo Code`: placeholder max `29` chars (`Ingresa el código promocional`), promo code max `8` chars (`verano26`).
+- `Quantity Input`: quantity max `2` chars (`1-99`).
+- `Tiles`: label max `16` chars (`Comparar Remesas`).
+- `Headers`: cart count max `2` chars (`0-99`), page title max `11` chars (`Modal Title`).
+- `Navigation`: tab label max `7` chars (`Ofertas`).
+
+### Organisms (only with title/text controls)
+- `HomeCard`: title max `11` chars (`Solo por hoy`).
+- `Promo Strip`: single heading max `17` (`Tus compras online`), double heading max `20` (`Todas estas 25% menos`), discount max `7` (`25% OFF`).
+- `Tactic Strips`: title max `14` (`Ofertas del día`), Super Ribbon text max `24`, Discount text max `7`, brand max `11` (`Ultra Beauty`).
+
+Excluded in this pass (no title control in Playground): `Carrusel`, `Discovery Header`, `Lists`, `Summary Box`.
 
 ---
 

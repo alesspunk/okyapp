@@ -34,6 +34,9 @@ export const Playground = {
     return `
       <div class="mars-story">
         <div class="mars-label">IDs de referencia (.pen): C6tBo, dkm5S, 5Jb7s</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Recomendado: máximo 9 caracteres en label (base: "Continuar").
+        </div>
         <button class="${base}" style="min-width:${min}px" ${disabled ? "disabled" : ""}>
           ${withIcon && iconSide === "left" ? icon : ""}
           ${label}

@@ -47,6 +47,9 @@ export const InputPlayground = {
       return `
         <div class="mars-story">
           <div class="mars-label">Variant: ${variant} · State: ${state}</div>
+          <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+            Recomendado: Área máx. 4 caracteres (+502) · Número máx. 9 caracteres (6696-3223).
+          </div>
           <div class="mars-label">IDs .pen: ${isHasValue ? "XjC9T" : "FEiGu"}</div>
           <div style="display:flex;gap:8px;align-items:flex-start;max-width:328px">
             <div class="input-wrapper" style="min-width:0;width:88px;flex-shrink:0">
@@ -105,6 +108,9 @@ export const InputPlayground = {
     return `
       <div class="mars-story">
         <div class="mars-label">Variant: ${variant} · State: ${state}</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Recomendado: máximo 13 caracteres en placeholder/value (base: "Buscas marcas").
+        </div>
         <div class="mars-label">IDs .pen: ${isHasValue ? "xmKHs" : "PGNyG"}</div>
         <div class="input-wrapper">
           <i class="fa-regular fa-magnifying-glass search-icon" aria-hidden="true"></i>
@@ -165,6 +171,9 @@ export const DropdownPlayground = {
     return `
       <div class="mars-story">
         <div class="mars-label">Variant: ${variant} · State: ${state}</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Recomendado: placeholder máx. 16 caracteres (base: "Seleccionar país") · value máx. 14 ("Estados Unidos").
+        </div>
         <div class="mars-label">ID .pen: ${variantId}</div>
         <div class="input-wrapper">
           ${

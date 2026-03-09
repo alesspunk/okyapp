@@ -80,6 +80,9 @@ export const Playground = {
       <div class="mars-label">
         Promo Code / state=${args.state} · ID .pen: 6437:28971
       </div>
+      <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+        Recomendado: placeholder máx. 29 caracteres ("Ingresa el código promocional") · código máx. 8 ("verano26").
+      </div>
       ${buildPromoCode(args)}
     </div>`,
 };

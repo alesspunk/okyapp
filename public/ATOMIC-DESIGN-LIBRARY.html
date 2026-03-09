@@ -214,6 +214,7 @@
         <li><a href="#atoms">Atoms</a></li>
         <li><a href="#molecules">Molecules</a></li>
         <li><a href="#organisms">Organisms</a></li>
+        <li><a href="#charlimits">Character Limits</a></li>
         <li><a href="#showhide">Show/Hide Code</a></li>
       </ul>
     </nav>
@@ -593,6 +594,48 @@ export function SummaryBox(props: {
   );
 }</code></pre>
         </details>
+      </div>
+    </section>
+
+    <section id="charlimits">
+      <h2>Character Recommendations</h2>
+
+      <div class="component">
+        <h4>Atoms</h4>
+        <ul>
+          <li><code>Buttons</code>: label max 9 chars (<code>Continuar</code>).</li>
+          <li><code>Inputs/Search</code>: placeholder/value max 13 chars (<code>Buscas marcas</code>).</li>
+          <li><code>Inputs/Phone</code>: area max 4 (<code>+502</code>), phone max 9 (<code>6696-3223</code>).</li>
+          <li><code>Dropdown/Country-Province</code>: placeholder max 16, value max 14 (<code>Estados Unidos</code>).</li>
+          <li><code>Radio</code>: label max 9 (<code>Guatemala</code>).</li>
+          <li><code>Chips/New item</code>: tag max 5 (<code>Nuevo</code>); counters 1-2 chars.</li>
+          <li><code>Discount Ribbon</code>: label max 7 (<code>25% OFF</code>).</li>
+          <li><code>Super Ribbon</code>: text max 24 (<code>Ofertas del mes de Abril</code>).</li>
+          <li><code>Icons</code>: icon name control max 20 chars.</li>
+        </ul>
+      </div>
+
+      <div class="component">
+        <h4>Molecules</h4>
+        <ul>
+          <li><code>Folder</code>: country code max 3 (<code>GUA</code> / <code>USA</code>).</li>
+          <li><code>Plateu</code>: category label max 13 (<code>COMIDA RÁPIDA</code>).</li>
+          <li><code>Promo Code</code>: placeholder max 29, code max 8 (<code>verano26</code>).</li>
+          <li><code>Quantity Input</code>: quantity 1-2 chars (<code>1-99</code>).</li>
+          <li><code>Tiles</code>: label max 16 (<code>Comparar Remesas</code>).</li>
+          <li><code>Headers</code>: cart count 1-2 chars; page title max 11 (<code>Modal Title</code>).</li>
+          <li><code>Navigation</code>: tab label max 7 (<code>Ofertas</code>).</li>
+        </ul>
+      </div>
+
+      <div class="component">
+        <h4>Organisms with title controls</h4>
+        <ul>
+          <li><code>HomeCard</code>: title max 11 (<code>Solo por hoy</code>).</li>
+          <li><code>Promo Strip</code>: single heading max 17, double heading max 20, discount max 7.</li>
+          <li><code>Tactic Strips</code>: title max 14, super ribbon text max 24, discount max 7, brand max 11.</li>
+        </ul>
+        <p class="small">Excluded (no title control in Playground): Carrusel, Discovery Header, Lists, Summary Box.</p>
       </div>
     </section>
 

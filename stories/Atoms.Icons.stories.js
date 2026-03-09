@@ -41,6 +41,9 @@ export const Playground = {
     return `
       <div class="mars-story">
         <div class="mars-label">Icon/FA/${size}/${state} · ID .pen: ${penId}</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Recomendado: máximo 20 caracteres en el nombre del ícono (control icon).
+        </div>
         <span class="fa-icon ${sizeClass}${activeClass}">
           <i class="${iconWeight} fa-${icon}"></i>
         </span>

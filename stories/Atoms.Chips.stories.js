@@ -37,10 +37,23 @@ export const Playground = {
     tagText: { control: "text" },
   },
   render: ({ variant, count, tagText }) => {
+    const recommendationByVariant = {
+      "Chips/New item": 'Recomendado: máximo 5 caracteres en tag (base: "Nuevo").',
+      "Chips/Cart": "Recomendado: contador de 1-2 caracteres (0-99).",
+      "Chips/Quantity Input / Add0 / Vales": "Recomendado: sin texto libre (solo ícono).",
+      "Chips/Quantity Input / Quantity/Gifcards/Giftcards": "Recomendado: cantidad de 1-2 caracteres (1-99).",
+      "Chips/Quantity Input / Add1 / Vales": "Recomendado: cantidad de 1-2 caracteres (1-99).",
+      "Chips/Quantity Input / Add2 / Vales": "Recomendado: cantidad de 1-2 caracteres (1-99).",
+    };
+    const recommendation =
+      recommendationByVariant[variant] ??
+      "Recomendado: mantener textos cortos para preservar legibilidad.";
+
     if (variant === "Chips/New item") {
       return `
         <div class="mars-story">
           <div class="mars-label">Variant: ${variant} · ID Figma: 1913:1659</div>
+          <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">${recommendation}</div>
           <span class="chip-ds chip-ds-new-item">${tagText || "Nuevo"}</span>
         </div>
       `;
@@ -50,6 +63,7 @@ export const Playground = {
       return `
         <div class="mars-story">
           <div class="mars-label">Variant: ${variant} · ID .pen: 9fXxZ</div>
+          <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">${recommendation}</div>
           <span class="chip-ds chip-ds-cart">
             <span>${count}</span>
             <i class="fa-regular fa-cart-shopping"></i>
@@ -62,6 +76,7 @@ export const Playground = {
       return `
         <div class="mars-story">
           <div class="mars-label">Variant: ${variant} · ID .pen: DsDmy</div>
+          <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">${recommendation}</div>
           <span class="chip-ds chip-ds-add0 chip-ds-shadow">
             <i class="fa-regular fa-plus"></i>
           </span>
@@ -73,6 +88,7 @@ export const Playground = {
       return `
         <div class="mars-story">
           <div class="mars-label">Variant: ${variant} · ID .pen: QtFxr</div>
+          <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">${recommendation}</div>
           <span class="chip-ds chip-ds-qty chip-ds-shadow">
             <i class="fa-regular fa-trash chip-ds-pill-icon chip-ds-trash"></i>
             <span class="chip-ds-number">${count}</span>
@@ -85,6 +101,7 @@ export const Playground = {
       return `
         <div class="mars-story">
           <div class="mars-label">Variant: ${variant} · ID .pen: BEpku</div>
+          <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">${recommendation}</div>
           <span class="chip-ds chip-ds-add1 chip-ds-shadow">
             <i class="fa-regular fa-trash chip-ds-pill-icon chip-ds-trash"></i>
             <span class="chip-ds-number">${count}</span>
@@ -97,6 +114,7 @@ export const Playground = {
     return `
       <div class="mars-story">
         <div class="mars-label">Variant: ${variant} · ID .pen: AotiP</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">${recommendation}</div>
         <span class="chip-ds chip-ds-add2 chip-ds-shadow">
           <i class="fa-regular fa-minus chip-ds-pill-icon"></i>
           <span class="chip-ds-number">${count}</span>

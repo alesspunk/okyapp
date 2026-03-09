@@ -120,6 +120,9 @@ export const Playground = {
     return `
       <div class="mars-story">
         <div class="mars-label">Variant: ${tile.path} · Size: ${isHalf ? "Half (103x85)" : "Full (103x130)"}</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Recomendado: máximo 16 caracteres en label (base más larga: "Comparar Remesas").
+        </div>
         ${showMeta ? `<div class="mars-label">ID .pen: ${tile.id}</div>` : ""}
         ${renderTile(tile, isHalf)}
       </div>

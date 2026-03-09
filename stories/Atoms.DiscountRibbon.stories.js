@@ -77,6 +77,9 @@ export const DocsPlayground = {
   render: (args) => `
     <div class="mars-story">
       <div class="mars-label">Discount Ribbon · Tipo=${args.tipo} · Type=${args.type}${args.tipo === "Wrap" ? ` · Size=${args.size}` : ""}</div>
+      <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+        Recomendado: máximo 7 caracteres en label (base: "25% OFF").
+      </div>
       ${buildRibbon(args)}
     </div>`,
 };

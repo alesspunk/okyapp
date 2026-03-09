@@ -113,6 +113,9 @@ export const DocsPlayground = {
   render: ({ variant, title }) => `
     <div class="mars-story">
       <div class="mars-label">HomeCard · Variant=${variant} · ID base .pen: IqRGM</div>
+      <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+        Recomendado: máximo 11 caracteres en título (base: "Solo por hoy").
+      </div>
       ${homeCard({ variant, title })}
     </div>`,
 };

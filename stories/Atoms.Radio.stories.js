@@ -43,6 +43,9 @@ export const Playground = {
       return `
         <div class="mars-story">
           <div class="mars-label">Variant: ${variant} · State: ${state}</div>
+          <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+            Recomendado: máximo 9 caracteres en label (base: "Guatemala").
+          </div>
           <div class="mars-label">Reference: simple radio states (Atoms)</div>
           <fieldset class="radio-group" style="max-width:420px">
             <legend class="sr-only">${groupLabel}</legend>
@@ -68,6 +71,9 @@ export const Playground = {
     return `
       <div class="mars-story">
         <div class="mars-label">Variant: ${variant} · State: ${state}</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Recomendado: máximo 9 caracteres en label (base: "Guatemala").
+        </div>
         <div class="mars-label">Reference: country selector list (Atoms)</div>
         <fieldset class="radio-group" style="max-width:420px">
           <legend class="sr-only">${groupLabel}</legend>

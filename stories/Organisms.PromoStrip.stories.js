@@ -118,6 +118,9 @@ export const Playground = {
     return `
       <div class="mars-story">
         <div class="mars-label">Promo Strip / ${variant} · IDs .pen: 72353:23990 · 72353:23953</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Recomendado: Single heading máx. 17 ("Tus compras online") · Double heading máx. 20 ("Todas estas 25% menos") · descuento máx. 7 ("25% OFF").
+        </div>
         <div class="mars-mobile promo-strip-mobile-shell">
           <div class="promo-strip-stack">
             ${variant === "Double" ? `${doubleTop}${doubleBottom}` : singleBlock}

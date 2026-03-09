@@ -250,11 +250,18 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
   `;
 }
 
-function renderFolderStory(args) {
+function renderFolderStory(args, showRecommendation = false) {
   const variant = DOCS_VARIANT_OPTIONS.includes(args.property1) ? args.property1 : "Left";
   return `
     <div class="mars-story mars-story-folder">
       <div class="mars-label">Folder · Property 1=${variant} · ID .pen: ${VARIANT_IDS[variant]}</div>
+      ${
+        showRecommendation
+          ? `<div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+              Recomendado: códigos de país de máximo 3 caracteres (base: GUA / USA).
+            </div>`
+          : ""
+      }
       ${buildFolder(args)}
     </div>
   `;
@@ -301,7 +308,7 @@ export const DocsPlayground = {
       description: "Muestra chevrons en el pais seleccionado.",
     },
   },
-  render: (args) => renderFolderStory(args),
+  render: (args) => renderFolderStory(args, true),
 };
 
 export const VariantMatrix = {

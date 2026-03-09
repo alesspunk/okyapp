@@ -51,6 +51,9 @@ export const Playground = {
     return `
       <div class="mars-story">
         <div class="mars-label">Molecule: Navigation · Variant: ${variant} · Height: 56px</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Recomendado: máximo 7 caracteres por label (base más larga: "Ofertas").
+        </div>
         <div class="mars-mobile mars-mobile-nav-shell">
           <div class="bottom-nav ${isNoLabel ? "is-no-label" : ""}">${items}</div>
         </div>
