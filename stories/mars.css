@@ -1495,6 +1495,13 @@ body {
   content: var(--fa);
 }
 
+/* Keep custom kit semantic class while local package exposes fa-asset-3 glyph */
+.fa-kit.fa-wallet,
+.fak.fa-wallet {
+  --fa: "\e000";
+  --fa--fa: "\e000\e000";
+}
+
 .fa-messages {
   --fa: "\f27a";
 }
@@ -2702,6 +2709,19 @@ body {
   overflow: visible;
   transform: scale(var(--folder-scale));
   transform-origin: top center;
+}
+
+.folder-control.is-left:not(.is-collapsed)::after {
+  content: "";
+  position: absolute;
+  left: 228px;
+  top: 73px;
+  width: 84px;
+  height: 4px;
+  border-radius: 999px;
+  background: #fff;
+  pointer-events: none;
+  z-index: 6;
 }
 
 .folder-control.is-collapsed {
