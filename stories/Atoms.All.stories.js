@@ -118,8 +118,12 @@ export const RadioAndChips = {
   render: () => `
     <div class="mars-story">
       <h3 style="margin:0 0 10px;color:var(--primary-main)">Radio + Chips</h3>
-      <div class="mars-subtitle">Chips IDs: 9fXxZ, DsDmy, QtFxr, BEpku, AotiP</div>
+      <div class="mars-subtitle">Chips IDs: 1913:1659, 9fXxZ, DsDmy, QtFxr, BEpku, AotiP</div>
       <div class="mars-grid">
+        <div class="story-card">
+          <div class="mars-label">Chip new item (1913:1659)</div>
+          <span class="chip-ds chip-ds-new-item">Nuevo</span>
+        </div>
         <div class="story-card">
           <div class="mars-label">Radio simple</div>
           <div style="display:flex;flex-direction:column;gap:8px">

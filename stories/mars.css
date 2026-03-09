@@ -643,6 +643,28 @@ body {
   line-height: 1;
 }
 
+.chip-ds-new-item {
+  width: 45px;
+  min-width: 45px;
+  min-height: 15px;
+  border: 0;
+  border-radius: 4px;
+  padding: 2px 4px;
+  background: var(--secondary-main);
+  color: #fff;
+  justify-content: center;
+  font-family: "Lato", sans-serif;
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1.57;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow:
+    0 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
+}
+
 .chip-ds-cart {
   width: 58px;
   height: 40px;

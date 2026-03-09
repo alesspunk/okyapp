@@ -54,7 +54,7 @@ const semanticGroups = [
   },
 ];
 
-// Full 29-token typography scale — DS-MARS2.pen source of truth
+// Full 30-token typography scale — DS-MARS2.pen source of truth
 const typographyTokens = [
   // ── Display / Headings ──────────────────────────────────────
   { token: "H1",          size: "96px", weight: "700", style: "",       cas: "",          ls: "-1.5px", lh: "1.167" },
@@ -89,6 +89,7 @@ const typographyTokens = [
   { token: "PLATEU",      size: "10px", weight: "700", style: "",       cas: "UPPERCASE", ls: "1px",    lh: "1.6"   },
   { token: "CARDLABEL",   size: "10px", weight: "500", style: "",       cas: "UPPERCASE", ls: "0px",    lh: "1.6"   },
   { token: "EXCHANGE",    size: "10px", weight: "400", style: "",       cas: "UPPERCASE", ls: "1px",    lh: "1.6"   },
+  { token: "TAG",         size: "7px",  weight: "700", style: "",       cas: "UPPERCASE", ls: "1px",    lh: "1.57", family: "Lato" },
   // ── Material Icons Outlined ──────────────────────────────────
   { token: "Icon/24",     size: "24px", weight: "300", style: "",       cas: "",          ls: "—",      lh: "1",    isIcon: true },
   { token: "Icon/16",     size: "16px", weight: "300", style: "",       cas: "",          ls: "—",      lh: "1",    isIcon: true },
@@ -98,6 +99,7 @@ const typographyTokens = [
 function previewStyle(t) {
   const size = Math.min(parseInt(t.size), 28);
   const textTransform = t.cas === "UPPERCASE" ? "uppercase" : "none";
+  const family = t.family === "Lato" ? '"Lato",sans-serif' : '"Nunito Sans",sans-serif';
   return [
     `font-size:${size}px`,
     `font-weight:${t.weight}`,
@@ -105,7 +107,7 @@ function previewStyle(t) {
     `letter-spacing:${t.ls}`,
     `line-height:${t.lh}`,
     `text-transform:${textTransform}`,
-    `font-family:"Nunito Sans",sans-serif`,
+    `font-family:${family}`,
   ].join(";");
 }
 
@@ -115,7 +117,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Core design tokens: color palette, semantic palettes and full typography scale (29 tokens).",
+        component: "Core design tokens: color palette, semantic palettes and full typography scale (30 tokens).",
       },
     },
   },
@@ -182,7 +184,7 @@ export const TypographyScale = {
   render: () => `
     <div class="mars-story">
       <h3 style="margin:0 0 4px;color:var(--primary-main)">Typography Tokens</h3>
-      <p class="mars-subtitle">Nunito Sans (text) · Material Icons Outlined (icons) — 29 tokens.</p>
+      <p class="mars-subtitle">Nunito Sans + Lato (text) · Material Icons Outlined (icons) — 30 tokens.</p>
       <table class="type-table">
         <thead>
           <tr>
@@ -206,7 +208,7 @@ export const TypographyScale = {
                 ${
                   t.isIcon
                     ? `<span class="material-icons-outlined" style="font-size:${t.size};color:var(--text-primary)">home</span>`
-                    : `<span class="type-preview" style="${previewStyle(t)}">Nunito Sans</span>`
+                    : `<span class="type-preview" style="${previewStyle(t)}">${t.family || "Nunito Sans"}</span>`
                 }
               </td>
               <td>${t.size}</td>

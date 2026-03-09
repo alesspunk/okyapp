@@ -184,6 +184,48 @@ export const FullPlayground = {
         </table>
       </div>
 
+      <!-- ── CHIPS ─────────────────────────────────── -->
+      <div class="mars-label" style="margin-bottom:8px">CHIPS</div>
+      <div style="background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.06);padding:20px;margin-bottom:24px">
+        <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+            <span class="chip-ds chip-ds-new-item">Nuevo</span>
+            <span style="font-size:10px;color:rgba(0,0,0,0.54)">New item · 1913:1659</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+            <span class="chip-ds chip-ds-cart"><span>1</span><i class="fa-regular fa-cart-shopping"></i></span>
+            <span style="font-size:10px;color:rgba(0,0,0,0.54)">Cart · 9fXxZ</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+            <span class="chip-ds chip-ds-add0 chip-ds-shadow"><i class="fa-regular fa-plus"></i></span>
+            <span style="font-size:10px;color:rgba(0,0,0,0.54)">Add0 · DsDmy</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+            <span class="chip-ds chip-ds-qty chip-ds-shadow">
+              <i class="fa-regular fa-trash chip-ds-pill-icon chip-ds-trash"></i>
+              <span class="chip-ds-number">1</span>
+            </span>
+            <span style="font-size:10px;color:rgba(0,0,0,0.54)">Quantity · QtFxr</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+            <span class="chip-ds chip-ds-add1 chip-ds-shadow">
+              <i class="fa-regular fa-trash chip-ds-pill-icon chip-ds-trash"></i>
+              <span class="chip-ds-number">1</span>
+              <i class="fa-regular fa-plus chip-ds-pill-icon"></i>
+            </span>
+            <span style="font-size:10px;color:rgba(0,0,0,0.54)">Add1 · BEpku</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">
+            <span class="chip-ds chip-ds-add2 chip-ds-shadow">
+              <i class="fa-regular fa-minus chip-ds-pill-icon"></i>
+              <span class="chip-ds-number">2</span>
+              <i class="fa-regular fa-plus chip-ds-pill-icon"></i>
+            </span>
+            <span style="font-size:10px;color:rgba(0,0,0,0.54)">Add2 · AotiP</span>
+          </div>
+        </div>
+      </div>
+
       <!-- ── MACRO TILES ───────────────────────────── -->
       <div class="mars-label" style="margin-bottom:8px">MACRO TILES</div>
       <div style="background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,0.06);padding:20px;margin-bottom:24px">
