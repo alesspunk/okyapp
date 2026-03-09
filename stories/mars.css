@@ -1411,19 +1411,64 @@ body {
   color: var(--primary-main);
 }
 
-/* ── Font Awesome compatibility (kit custom + local FA6 free) ── */
+/* ── Font Awesome compatibility (kit custom + local FA6 pro) ── */
+@font-face {
+  font-family: "Font Awesome 6 Pro";
+  font-style: normal;
+  font-weight: 300;
+  font-display: block;
+  src: url("/public/fontawesome-pro/webfonts/fa-pro-light-300.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Pro";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/public/fontawesome-pro/webfonts/fa-pro-regular-400.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Pro";
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url("/public/fontawesome-pro/webfonts/fa-pro-solid-900.otf") format("opentype");
+}
+
+.fa-regular,
+.far,
+.fa-solid,
+.fas,
 .fa-light {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   display: var(--fa-display, inline-block);
-  font-family: "Font Awesome 6 Free";
+  font-family: "Font Awesome 6 Pro";
   font-style: normal;
   font-variant: normal;
-  font-weight: 900;
   line-height: 1;
   text-rendering: auto;
 }
 
+.fa-regular,
+.far {
+  font-weight: 400;
+}
+
+.fa-solid,
+.fas {
+  font-weight: 900;
+}
+
+.fa-light {
+  font-weight: 300;
+}
+
+.fa-regular::before,
+.far::before,
+.fa-solid::before,
+.fas::before,
 .fa-light::before {
   content: var(--fa);
 }
