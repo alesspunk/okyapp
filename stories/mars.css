@@ -1503,6 +1503,41 @@ body {
   --fa: "\f0db";
 }
 
+/* Local custom icon fallback for FA kit (wallet alias -> available custom glyph). */
+@font-face {
+  font-family: "Font Awesome Kit";
+  font-style: normal;
+  font-display: block;
+  src: url("/public/fontawesome-kit/webfonts/custom-icons.woff2") format("woff2"),
+    url("/public/fontawesome-kit/webfonts/custom-icons.ttf") format("truetype");
+}
+
+.fak,
+.fa-kit {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: var(--fa-display, inline-block);
+  font-family: "Font Awesome Kit";
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 400;
+  line-height: 1;
+  text-rendering: auto;
+}
+
+.fak::before,
+.fa-kit::before {
+  content: var(--fa);
+}
+
+.fak.fa-wallet,
+.fa-kit.fa-wallet,
+.fak.fa-asset-3,
+.fa-kit.fa-asset-3 {
+  --fa: "\e000";
+  --fa--fa: "\e000\e000";
+}
+
 /* ── Semantic swatch palette ──────────────────────────── */
 .semantic-palette {
   display: grid;

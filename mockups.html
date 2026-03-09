@@ -236,7 +236,6 @@
         if (!track || !prev || !next || !status || !viewport) return;
 
         const slides = Array.from(track.querySelectorAll(".mockup-slot"));
-        const frames = Array.from(track.querySelectorAll(".mockup-frame"));
         const maxIndex = Math.max(0, slides.length - 1);
         const dots = slides.map((_, index) => {
           if (!dotsRoot) return null;
@@ -250,31 +249,6 @@
         });
         let current = 0;
         let touchStartX = null;
-
-        const ICON_STYLES = ["/public/fontawesome-free/css/all.min.css"];
-        const KIT_SCRIPT_SRC = "https://kit.fontawesome.com/b5a8f622db.js";
-
-        const ensureIconStylesInFrame = (frame) => {
-          try {
-            const doc = frame.contentDocument;
-            if (!doc || !doc.head) return;
-            ICON_STYLES.forEach((href) => {
-              if (doc.querySelector(`link[rel="stylesheet"][href="${href}"]`)) return;
-              const link = doc.createElement("link");
-              link.rel = "stylesheet";
-              link.href = href;
-              doc.head.appendChild(link);
-            });
-            if (!doc.querySelector(`script[src="${KIT_SCRIPT_SRC}"]`)) {
-              const script = doc.createElement("script");
-              script.src = KIT_SCRIPT_SRC;
-              script.crossOrigin = "anonymous";
-              doc.head.appendChild(script);
-            }
-          } catch (error) {
-            // Same-origin expected; ignore silently if frame is not ready yet.
-          }
-        };
 
         const render = () => {
           track.style.transform = `translateX(-${current * 100}%)`;
@@ -299,9 +273,6 @@
 
         prev.addEventListener("click", () => goTo(current - 1));
         next.addEventListener("click", () => goTo(current + 1));
-        frames.forEach((frame) => frame.addEventListener("load", () => ensureIconStylesInFrame(frame)));
-        frames.forEach((frame) => ensureIconStylesInFrame(frame));
-        setTimeout(() => frames.forEach((frame) => ensureIconStylesInFrame(frame)), 150);
 
         document.addEventListener("keydown", (event) => {
           if (event.key === "ArrowLeft") goTo(current - 1);
