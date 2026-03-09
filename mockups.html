@@ -135,22 +135,22 @@
         <div class="mockups-viewport">
           <div class="mockups-track" id="mockups-track">
             <div class="mockup-slot">
-              <iframe class="mockup-frame" src="./mockup-1.html" title="Mockup 1"></iframe>
+              <iframe class="mockup-frame" src="/mockup-1.html?v=fa-render-2" title="Mockup 1"></iframe>
             </div>
             <div class="mockup-slot">
-              <iframe class="mockup-frame" src="./mockup-2.html" title="Mockup 2"></iframe>
+              <iframe class="mockup-frame" src="/mockup-2.html?v=fa-render-2" title="Mockup 2"></iframe>
               <span class="mockup-badge">Creada por la IA</span>
             </div>
             <div class="mockup-slot">
-              <iframe class="mockup-frame" src="./mockup-3.html" title="Mockup 3"></iframe>
+              <iframe class="mockup-frame" src="/mockup-3.html?v=fa-render-2" title="Mockup 3"></iframe>
               <span class="mockup-badge">Creada por la IA</span>
             </div>
             <div class="mockup-slot">
-              <iframe class="mockup-frame" src="./mockup-4.html" title="Mockup 4"></iframe>
+              <iframe class="mockup-frame" src="/mockup-4.html?v=fa-render-2" title="Mockup 4"></iframe>
               <span class="mockup-badge">Creada por la IA</span>
             </div>
             <div class="mockup-slot">
-              <iframe class="mockup-frame" src="./mockup-5.html" title="Mockup 5"></iframe>
+              <iframe class="mockup-frame" src="/mockup-5.html?v=fa-render-2" title="Mockup 5"></iframe>
               <span class="mockup-badge">Creada por la IA</span>
             </div>
           </div>
@@ -169,8 +169,30 @@
         if (!track || !prev || !next || !status) return;
 
         const slides = Array.from(track.querySelectorAll(".mockup-slot"));
+        const frames = Array.from(track.querySelectorAll(".mockup-frame"));
         const maxIndex = Math.max(0, slides.length - 1);
         let current = 0;
+
+        const ICON_STYLES = [
+          "/public/fontawesome-free/css/all.min.css",
+          "/public/fontawesome-kit/css/custom-icons.min.css",
+        ];
+
+        const ensureIconStylesInFrame = (frame) => {
+          try {
+            const doc = frame.contentDocument;
+            if (!doc || !doc.head) return;
+            ICON_STYLES.forEach((href) => {
+              if (doc.querySelector(`link[rel="stylesheet"][href="${href}"]`)) return;
+              const link = doc.createElement("link");
+              link.rel = "stylesheet";
+              link.href = href;
+              doc.head.appendChild(link);
+            });
+          } catch (error) {
+            // Same-origin expected; ignore silently if frame is not ready yet.
+          }
+        };
 
         const render = () => {
           track.style.transform = `translateX(-${current * 100}%)`;
@@ -186,6 +208,9 @@
 
         prev.addEventListener("click", () => goTo(current - 1));
         next.addEventListener("click", () => goTo(current + 1));
+        frames.forEach((frame) => frame.addEventListener("load", () => ensureIconStylesInFrame(frame)));
+        frames.forEach((frame) => ensureIconStylesInFrame(frame));
+        setTimeout(() => frames.forEach((frame) => ensureIconStylesInFrame(frame)), 150);
 
         document.addEventListener("keydown", (event) => {
           if (event.key === "ArrowLeft") goTo(current - 1);
