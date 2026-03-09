@@ -914,6 +914,24 @@
         const leftCode = leftOption?.querySelector(".folder-code") || null;
         const rightCode = rightOption?.querySelector(".folder-code") || null;
         const selectionLine = folderControl?.querySelector(".folder-selection-line") || null;
+        const ensureNewItemChip = () => {
+          if (!folderControl) return null;
+          let chip = folderControl.querySelector(".folder-new-item-chip");
+          if (!chip) {
+            folderControl.insertAdjacentHTML(
+              "beforeend",
+              '<span class="folder-new-item-chip chip-ds chip-ds-new-item" aria-label="New item">Nuevo</span>'
+            );
+            chip = folderControl.querySelector(".folder-new-item-chip");
+          }
+          return chip;
+        };
+
+        const setNewItemChipVisible = (show) => {
+          const chip = ensureNewItemChip();
+          if (!chip) return;
+          chip.style.display = show && !hasDismissedNewItemChip ? "inline-flex" : "none";
+        };
         const RIGHT_BOTTOM_SVG = layerBottom?.innerHTML || "";
         const RIGHT_TOP_SVG = layerTop?.innerHTML || "";
         const LEFT_BOTTOM_SVG = `
@@ -1062,6 +1080,7 @@
             selectionLine.style.left = side === "left" ? "51px" : "235px";
             selectionLine.style.width = side === "left" ? "86px" : "66px";
             selectionLine.style.removeProperty("top");
+            setNewItemChipVisible(side === "left");
           }
         };
 
@@ -1091,6 +1110,7 @@
             selectionLine.style.left = side === "left" ? "55px" : "245px";
             selectionLine.style.width = "66px";
             selectionLine.style.top = side === "left" ? "31px" : "30px";
+            setNewItemChipVisible(false);
           }
         };
 
@@ -1108,6 +1128,7 @@
         };
 
         let currentSide = discoveryHeader.dataset.side === "Left" ? "left" : "right";
+        let hasDismissedNewItemChip = false;
         let currentState = 0;
         let lastScrollTop = shell.scrollTop;
 
@@ -1153,6 +1174,10 @@
 
         const setSide = (nextSide) => {
           const safeSide = nextSide === "left" ? "left" : "right";
+          if (safeSide === "right") {
+            hasDismissedNewItemChip = true;
+            setNewItemChipVisible(false);
+          }
           if (safeSide === currentSide) {
             setContentBySide(currentSide);
             return;
