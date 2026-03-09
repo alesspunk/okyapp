@@ -1530,8 +1530,6 @@ body {
   content: var(--fa);
 }
 
-.fak.fa-wallet,
-.fa-kit.fa-wallet,
 .fak.fa-asset-3,
 .fa-kit.fa-asset-3 {
   --fa: "\e000";
