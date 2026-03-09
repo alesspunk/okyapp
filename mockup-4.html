@@ -9,6 +9,13 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="https://ka-p.fontawesome.com/releases/v6.7.2/css/pro.min.css?token=b5a8f622db" />
+    <script>
+      window.FontAwesomeConfig = {
+        autoReplaceSvg: "nest",
+        observeMutations: true,
+        searchPseudoElements: true,
+      };
+    </script>
     <script src="https://kit.fontawesome.com/b5a8f622db.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="./stories/mars.css" />
     <style>
@@ -1041,6 +1048,12 @@
           rightContent.hidden = showLeft;
         };
 
+        const refreshFontAwesome = (node = discoveryHeader) => {
+          if (window.FontAwesome?.dom?.i2svg) {
+            window.FontAwesome.dom.i2svg({ node });
+          }
+        };
+
         const applyState = (nextState, force = false) => {
           const state = Math.min(3, Math.max(1, nextState));
           if (!force && state === currentState) return;
@@ -1065,6 +1078,7 @@
             if (searchSection) searchSection.classList.add("is-compact");
             setCollapsedFolder(currentSide);
           }
+                  refreshFontAwesome(discoveryHeader);
         };
 
         const setSide = (nextSide) => {
