@@ -1411,6 +1411,31 @@ body {
   color: var(--primary-main);
 }
 
+/* ── Font Awesome compatibility (kit custom + local FA6 free) ── */
+.fa-light {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: var(--fa-display, inline-block);
+  font-family: "Font Awesome 6 Free";
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 900;
+  line-height: 1;
+  text-rendering: auto;
+}
+
+.fa-light::before {
+  content: var(--fa);
+}
+
+.fa-messages {
+  --fa: "\f27a";
+}
+
+.fa-grid-2 {
+  --fa: "\f0db";
+}
+
 /* ── Semantic swatch palette ──────────────────────────── */
 .semantic-palette {
   display: grid;

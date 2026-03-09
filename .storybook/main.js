@@ -16,6 +16,5 @@ export default {
   staticDirs: [
     "../images",
     { from: "../public", to: "/public" },
-    { from: "../node_modules/@awesome.me/kit-b5a8f622db/icons", to: "/fontawesome" },
   ],
 };
