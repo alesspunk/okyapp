@@ -121,9 +121,73 @@
         letter-spacing: 0.3px;
       }
 
-      @media (max-width: 460px) {
+      .mockups-dots {
+        display: none;
+      }
+
+      .mockups-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        border: 0;
+        background: #c9cfda;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .mockups-dot.is-active {
+        width: 22px;
+        background: #6e7786;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 16px 0 12px;
+          overflow: auto;
+        }
+
+        .mockups-shell {
+          min-height: 100%;
+          justify-content: flex-start;
+        }
+
+        .mockups-carousel {
+          width: 100%;
+          gap: 0;
+        }
+
+        .carousel-btn {
+          display: none;
+        }
+
+        .mockups-viewport {
+          width: 100vw;
+          max-width: 100vw;
+          overflow: hidden;
+        }
+
+        .mockup-slot {
+          width: 100vw;
+          padding: 0;
+        }
+
         .mockup-frame {
-          width: min(360px, calc(100vw - 88px));
+          width: 360px;
+          min-width: 360px;
+          max-width: 360px;
+          margin: 0 auto;
+        }
+
+        .carousel-status {
+          display: none;
+        }
+
+        .mockups-dots {
+          margin-top: 12px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
         }
       }
     </style>
@@ -158,6 +222,7 @@
         <button class="carousel-btn" id="mockups-next" type="button" aria-label="Mockup siguiente">›</button>
       </main>
       <p class="carousel-status" id="mockups-status" aria-live="polite">1 / 5</p>
+      <nav class="mockups-dots" id="mockups-dots" aria-label="Navegación de mockups"></nav>
     </div>
 
     <script>
@@ -166,12 +231,25 @@
         const prev = document.getElementById("mockups-prev");
         const next = document.getElementById("mockups-next");
         const status = document.getElementById("mockups-status");
-        if (!track || !prev || !next || !status) return;
+        const dotsRoot = document.getElementById("mockups-dots");
+        const viewport = document.querySelector(".mockups-viewport");
+        if (!track || !prev || !next || !status || !viewport) return;
 
         const slides = Array.from(track.querySelectorAll(".mockup-slot"));
         const frames = Array.from(track.querySelectorAll(".mockup-frame"));
         const maxIndex = Math.max(0, slides.length - 1);
+        const dots = slides.map((_, index) => {
+          if (!dotsRoot) return null;
+          const dot = document.createElement("button");
+          dot.type = "button";
+          dot.className = "mockups-dot";
+          dot.setAttribute("aria-label", `Ir al mockup ${index + 1}`);
+          dot.addEventListener("click", () => goTo(index));
+          dotsRoot.appendChild(dot);
+          return dot;
+        });
         let current = 0;
+        let touchStartX = null;
 
         const ICON_STYLES = [
           "/public/fontawesome-free/css/all.min.css",
@@ -199,6 +277,15 @@
           prev.disabled = current <= 0;
           next.disabled = current >= maxIndex;
           status.textContent = `${current + 1} / ${slides.length}`;
+          dots.forEach((dot, index) => {
+            if (!dot) return;
+            dot.classList.toggle("is-active", index === current);
+            if (index === current) {
+              dot.setAttribute("aria-current", "true");
+            } else {
+              dot.removeAttribute("aria-current");
+            }
+          });
         };
 
         const goTo = (index) => {
@@ -216,6 +303,28 @@
           if (event.key === "ArrowLeft") goTo(current - 1);
           if (event.key === "ArrowRight") goTo(current + 1);
         });
+
+        viewport.addEventListener(
+          "touchstart",
+          (event) => {
+            touchStartX = event.touches[0]?.clientX ?? null;
+          },
+          { passive: true }
+        );
+
+        viewport.addEventListener(
+          "touchend",
+          (event) => {
+            const endX = event.changedTouches[0]?.clientX ?? null;
+            if (touchStartX === null || endX === null) return;
+            const deltaX = endX - touchStartX;
+            if (Math.abs(deltaX) > 42) {
+              goTo(current + (deltaX < 0 ? 1 : -1));
+            }
+            touchStartX = null;
+          },
+          { passive: true }
+        );
 
         render();
       })();
