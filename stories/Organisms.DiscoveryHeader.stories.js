@@ -163,7 +163,7 @@ function renderAppHeader(kind) {
       <div class="${headerClass}">
         <div class="header-left-group">
           <div class="header-icon">
-            <i class="fak fa-kit fa-wallet2 icon-medium" aria-hidden="true"></i>
+            <i class="fak fa-kit fa-wallet icon-medium" aria-hidden="true"></i>
           </div>
         </div>
         <img class="header-logo" src="logo-oky.svg" alt="OKY" />

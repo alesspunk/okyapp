@@ -5,7 +5,7 @@
     "build:vercel": "npm run build-storybook && mkdir -p storybook-static/images storybook-static/stories && cp -R images/. storybook-static/images/ && cp mockup-*.html mockups.html storybook-static/ && cp stories/mars.css stories/Organisms.Carrusel.template.js storybook-static/stories/"
   },
   "dependencies": {
-    "@awesome.me/kit-b5a8f622db": "^1.0.5"
+    "@awesome.me/kit-b5a8f622db": "1.0.17"
   },
   "devDependencies": {
     "@storybook/addon-a11y": "^8.6.14",

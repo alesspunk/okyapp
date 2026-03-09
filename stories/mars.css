@@ -1530,15 +1530,17 @@ body {
   content: var(--fa);
 }
 
-.fak.fa-wallet2,
-.fa-kit.fa-wallet2 {
-  /* wallet2 must come strictly from FA Kit custom icons (no FA Pro fallback). */
+.fak.fa-wallet,
+.fa-kit.fa-wallet {
+  /* Force custom-kit wallet glyph even though FA Pro also ships a fa-wallet name. */
+  --fa: "\e002";
+  --fa--fa: "\e002\e002";
   font-family: "Font Awesome Kit";
   font-weight: 400;
 }
 
-.fak.fa-wallet2::before,
-.fa-kit.fa-wallet2::before {
+.fak.fa-wallet::before,
+.fa-kit.fa-wallet::before {
   content: var(--fa);
 }
 
