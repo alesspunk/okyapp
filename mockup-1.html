@@ -124,6 +124,19 @@
       .mockup-shell .folder-control {
         overflow: hidden;
       }
+
+      .mockup-shell .folder-control.is-left::after {
+        content: "";
+        position: absolute;
+        left: 235px;
+        top: 74px;
+        width: 66px;
+        height: 3px;
+        background: #fff;
+        border-radius: 999px;
+        pointer-events: none;
+        z-index: 6;
+      }
       #mockup1-content-left[hidden],
       #mockup1-content-right[hidden] {
         display: none !important;
@@ -158,19 +171,6 @@
         left: 50%;
         transform: translateX(-50%);
         z-index: 2;
-        min-width: 50px;
-        height: 18px;
-        border-radius: 999px;
-        background: #00b8b0;
-        color: #fff;
-        font-family: "Lato", sans-serif;
-        font-size: 10px;
-        font-weight: 700;
-        line-height: 18px;
-        letter-spacing: 0.4px;
-        text-align: center;
-        text-transform: uppercase;
-        padding: 0 8px;
       }
 
       .mockup-left-tiles .service-tile-half.is-secondary-border {
@@ -218,7 +218,7 @@
           <section class="dh-app" data-pen-id="ArMsV">
             <div class="app-header is-logged-cart">
               <div class="header-left-group">
-                <div class="header-icon"><i class="fa-light fa-wallet icon-medium" aria-hidden="true"></i></div>
+                <div class="header-icon"><i class="fa-kit fa-wallet icon-medium" aria-hidden="true"></i></div>
               </div>
               <img class="header-logo" src="./images/logo-oky.svg" alt="OKY" />
               <div class="header-cart-chip header-cart-full">
@@ -325,7 +325,7 @@
           <div class="mockup-left-tiles">
             <div class="mockup-tiles-row">
               <article class="mockup-half-tile-wrap">
-                <span class="mockup-half-chip">Nuevo</span>
+                <span class="mockup-half-chip chip-ds chip-ds-new-item">Nuevo</span>
                 <div class="service-tile service-tile-half is-secondary-border">
                   <div class="tile-icon tile-icon-half"><img src="./images/multimarca.webp" alt="Multimarca" /></div>
                   <div class="tile-label">Multimarca</div>
@@ -728,7 +728,7 @@
             appHeaderSection.innerHTML = `
               <div class="app-header">
                 <div class="header-left-group">
-                  <div class="header-icon"><i class="fa-light fa-wallet icon-medium" aria-hidden="true"></i></div>
+                  <div class="header-icon"><i class="fa-kit fa-wallet icon-medium" aria-hidden="true"></i></div>
                 </div>
                 <img class="header-logo" src="./images/logo-oky.svg" alt="OKY" />
                 <div class="header-icon"><i class="fa-light fa-cart-shopping icon-medium" aria-hidden="true"></i></div>
@@ -741,7 +741,7 @@
           appHeaderSection.innerHTML = `
             <div class="app-header is-logged-cart">
               <div class="header-left-group">
-                <div class="header-icon"><i class="fa-light fa-wallet icon-medium" aria-hidden="true"></i></div>
+                <div class="header-icon"><i class="fa-kit fa-wallet icon-medium" aria-hidden="true"></i></div>
               </div>
               <img class="header-logo" src="./images/logo-oky.svg" alt="OKY" />
               <div class="header-cart-chip header-cart-full">
