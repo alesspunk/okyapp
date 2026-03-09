@@ -1,899 +1,701 @@
-# MARS Design System - Atomic Design Component Library v1.0.1
+# MARS Design System - Atomic Design Library (Synced with Storybook)
+
+Last update: 2026-03-09  
+Scope: updated components/variants requested and aligned to current stories.
 
 ## Table of Contents
-1. [Design Tokens (Foundation)](#design-tokens)
+1. [Foundation Tokens](#foundation-tokens)
 2. [Atoms](#atoms)
 3. [Molecules](#molecules)
 4. [Organisms](#organisms)
-5. [Component Index](#component-index)
+5. [Show/Hide Code Best Practice](#showhide-code-best-practice)
 
 ---
 
-## Design Tokens
+## Foundation Tokens
 
-### Color Palette
+### Color & semantic tokens (from `stories/mars.css`)
+- `--primary-main: #410088`
+- `--primary-light: #bc9edc`
+- `--primary-dark: #230741`
+- `--secondary-main: #18afa5`
+- `--secondary-light: #8adad7`
+- `--secondary-dark: #057a73`
+- `--accent-color: #ffb400`
+- Semantic sets:
+  - Success: `--success-*`
+  - Warning: `--warning-*`
+  - Error: `--error-*`
+  - Info: `--info-*`
 
-#### Primary Colors
-- **Primary Main**: `#552588` - Main brand color
-- **Primary Light**: `#bc9edc` - Light variant
-- **Primary Dark**: `#230741` - Dark variant
-- **Primary Background**: `#8620f314` - Background tint
-- **Primary Text**: `#000000de` - Primary text color
+### Typography scale updates (from `Foundations/Tokens`)
+- Full scale: 30 tokens.
+- New/important tag token:
+  - `TAG`: `7px`, `700`, uppercase, `letter-spacing: 1px`, family `Lato`.
+- Related small-label tokens used in latest components:
+  - `PLATEU`, `CARDLABEL`, `EXCHANGE`.
 
-#### Secondary Colors
-- **Secondary Main**: `#18afa5`
-- **Secondary Light**: `#a8faf5`
-- **Secondary Dark**: `#057a73`
-- **Secondary Background**: `#20f3e514`
-- **Secondary Text**: `#0000008a`
+### Icon system (current implementation)
+- Local assets (no runtime dependency on remote kit script):
+  - `/public/fontawesome-free/css/all.min.css`
+  - `/public/fontawesome-kit/css/custom-icons.min.css`
+- Header wallet custom icon:
+  - class: `fak fa-kit fa-wallet icon-medium`
+- Navigation and general icon rule in current stories:
+  - `fa-light` by default.
+  - active state uses `fa-solid` only where specified (e.g. `fa-fire`).
 
-#### Accent & Utility Colors
-- **Accent Color**: `#ffb400`
-- **White**: `#ffffff`
-- **Backdrop**: `#00000080`
+<details>
+<summary><strong>Show React snippet (theme + icon setup)</strong></summary>
 
-#### Border Colors
-- **Border Main**: `#0000003b`
-- **Border Active**: `#410088`
-- **Border Secondary**: `#20f3e580`
-- **Divider**: `#0000001f`
+```tsx
+// app/theme/tokens.ts
+export const marsTokens = {
+  color: {
+    primaryMain: '#410088',
+    secondaryMain: '#18afa5',
+    secondaryDark: '#057a73',
+    secondaryLight: '#8adad7',
+    accent: '#ffb400',
+  },
+  typography: {
+    TAG: {
+      fontFamily: 'Lato, sans-serif',
+      fontSize: 7,
+      fontWeight: 700,
+      letterSpacing: '1px',
+      textTransform: 'uppercase' as const,
+      lineHeight: 1.57,
+    },
+  },
+};
 
-#### State Colors
-
-**Disabled States:**
-- **Disable Main**: `#e0e0e0`
-- **Disable Background**: `#0000001f`
-- **Disable Text**: `#00000061`
-- **Disable Selected**: `#00000014`
-- **Disable Hover**: `#0000000a`
-- **Disable Focus**: `#0000001f`
-
-**Success:**
-- **Success Icon**: `#4caf50`
-- **Success Light**: `#7bc67e`
-- **Success Dark**: `#3b873e`
-- **Success Background**: `#edf7ed`
-- **Success Text**: `#1e4620`
-
-**Error:**
-- **Error Icon**: `#f44336`
-- **Error Light**: `#f88078`
-- **Error Dark**: `#e31b0c`
-- **Error Background**: `#feeceb`
-- **Error Text**: `#621b16`
-
-**Warning:**
-- **Warning Icon**: `#ff9800`
-- **Warning Light**: `#faab5c`
-- **Warning Dark**: `#f57c00`
-- **Warning Background**: `#fff5e0`
-- **Warning Text**: `#734500`
-
-**Info:**
-- **Info Icon**: `#2196f3`
-- **Info Light**: `#64b6f7`
-- **Info Dark**: `#0b79d0`
-- **Info Background**: `#e9f5fe`
-- **Info Text**: `#0d3c61`
-
-#### Other
-- **Snackbar**: `#323232`
-- **Knob Active**: `#fafafa`
-
-### Typography Tokens
-- **H1-H6**: Heading styles
-- **body1**: Body text
-- **subtitle1, subtitle2**: Subtitle styles
-- **button, buttonLg, buttonSm**: Button text styles
-- **caption**: Caption text
-- **OVERLINE**: Uppercase labels
-- **PLATEU**: Platform-specific text
-- **productText**: Product descriptions
-- **descriptionText**: Descriptions
-- **price, price%, priceTag**: Price formatting
-- **sumText, sumTotal**: Summary text
-- **iconSm, iconMd, iconLg**: Icon sizes
-
-### Icon Rules (Font Awesome 6 Pro)
-- **Kit**: `https://kit.fontawesome.com/b5a8f622db.js`
-- **Default icon style**: `fa-regular`
-- **Solid usage**: `fa-solid` is reserved for the **active** icon in bottom navigation
-
-#### Icon Size Tokens
-- **Regular**
-- `icon-large`: 48px / weight 300 / line-height 48px
-- `icon-medium`: 24px / weight 300 / line-height 24px
-- `icon-small`: 16px / weight 300 / line-height 16px
-- `icon-xsmall`: 12px / weight 300 / line-height 12px
-- **Solid**
-- `icon-large-solid`: 48px / weight 900 / line-height 48px
-- `icon-medium-solid`: 24px / weight 900 / line-height 24px
-- `icon-small-solid`: 16px / weight 900 / line-height 16px
-- `icon-xsmall-solid`: 12px / weight 900 / line-height 12px
-
----
-
-## Latest Variant Updates
-
-- **Molecules reclassified**: `Service Tiles`, `Promo Code`, `Headers`, and `Navigation` are documented as Molecules in the library.
-- **Headers icon rule**: headers use `fa-light`; only `Header / Logged Out` keeps user icon as solid (`fa-solid fa-circle-user`).
-- **Navigation icon rule**: active icon is `fa-solid`; non-active icons are `fa-regular`.
-- **Promo Code / Entered**: clear icon (`fa-circle-xmark`) uses `fa-solid` with `icon-medium-solid`.
-- **Summary Box**: in `checkout/payment` variants, label updated from `PAGAS` to `TOTAL`; other variants remain `PAGAS`.
-- **Summary Box / crossed-out prices**: crossed-out values use `$Disable Text`; row label + regular/current price in those rows use `$Secondary Dark` (ej. `3 Productos`).
-- **Widgets**: CTA added to `OFERTAS DEL DÍA` (`Comprar`) and `COMPARA TIPOS DE CAMBIO` (`Comparar`), aligned with `RECARGAS TIEMPO AIRE`.
+// app/layout.tsx
+export function FontAwesomeAssets() {
+  return (
+    <>
+      <link rel="stylesheet" href="/public/fontawesome-free/css/all.min.css" />
+      <link rel="stylesheet" href="/public/fontawesome-kit/css/custom-icons.min.css" />
+    </>
+  );
+}
+```
+</details>
 
 ---
 
 ## Atoms
 
-### 1. Buttons
+### Chips (`Atoms/Chips`)
+Variants in Playground:
+- `Chips/New item` (Figma: `1913:1659`)
+- `Chips/Cart` (`9fXxZ`)
+- `Chips/Quantity Input / Add0 / Vales` (`DsDmy`)
+- `Chips/Quantity Input / Quantity/Gifcards/Giftcards` (`QtFxr`)
+- `Chips/Quantity Input / Add1 / Vales` (`BEpku`)
+- `Chips/Quantity Input / Add2 / Vales` (`AotiP`)
 
-Buttons are the most fundamental interactive elements with multiple variants across three dimensions: **Type**, **Size**, and **State**.
+New item chip spec:
+- class: `chip-ds chip-ds-new-item`
+- size: `45x15`
+- text style mapped to TAG-like treatment (`7px`, uppercase, 1px tracking)
+- color: background `--secondary-main`, text white
 
-#### Button Types
+<details>
+<summary><strong>Show React snippet (Chips/New item)</strong></summary>
 
-##### Primary Buttons
-**Usage**: Main call-to-action buttons
-**Component IDs**:
-- Large: `C6tBo` (Default), `AQ2sd` (Icon), `Pc8pk` (Disabled)
-- Medium: `dkm5S` (Default), `RUWiD` (Icon), `ecoVn` (Disabled)
-- Small: `5Jb7s` (Default), `Vcveu` (Icon), `izVsr` (Disabled)
+```tsx
+type ChipsVariant =
+  | 'Chips/New item'
+  | 'Chips/Cart'
+  | 'Chips/Quantity Input / Add0 / Vales'
+  | 'Chips/Quantity Input / Quantity/Gifcards/Giftcards'
+  | 'Chips/Quantity Input / Add1 / Vales'
+  | 'Chips/Quantity Input / Add2 / Vales';
 
-**Styling**:
-- Fill: `$Primary Main (#552588)`
-- Text: White
-- Corner Radius: 20-44px (size dependent)
-- Shadow: Multi-layer drop shadow effect
-- Min width (no icon): Large `328px`, Medium `129px`, Small `84px`
-- Min width (with icon): Large `328px`, Medium `167px`, Small `100px`
+export function ChipNewItem({ text = 'Nuevo' }: { text?: string }) {
+  return <span className="chip-ds chip-ds-new-item">{text}</span>;
+}
+```
+</details>
 
-##### Secondary Buttons
-**Usage**: Secondary actions, less emphasis
-**Component IDs**:
-- Large: `eTIc3` (Default), `Aimqt` (Icon), `bESQi` (Disabled)
-- Medium: `WLCy3` (Default), `iYEgi` (Icon), `s9Kk0` (Disabled)
-- Small: `Ve25H` (Default), `Mjdl6` (Icon), `A6gci` (Disabled)
+### Discount Ribbon (`Atoms/Discount Ribbon`)
+Dimensions:
+- Tipo: `List` | `Wrap`
+- Type: `Normal`, `Por tiempo`, `Finito`, `Por temporada`, `OKY`
+- Wrap size: `Default (75px)` | `Small (50px)`
 
-**Styling**:
-- Fill: `$White`
-- Text: Primary color
-- Corner Radius: 20-44px
-- No shadow
-- Disabled state: white fill + `$Disable Text`
-- Min width (no icon): Large `328px`, Medium `129px`, Small `84px`
-- Min width (with icon): Large `328px`, Medium `167px`, Small `100px`
+Design behavior:
+- `Wrap` uses notch + elevated overlay.
+- `List` uses inline rectangular badge.
+- Text style uses `token-price-percent`.
 
-##### Outlined Buttons
-**Usage**: Tertiary actions, minimal emphasis
-**Component IDs**:
-- Large: `CG4TO` (Default), `nVicC` (Icon), `QaRKY` (Disabled)
-- Medium: `4DRvJ` (Default), `9fjW4` (Icon), `P5PPg` (Disabled)
-- Small: `TE00F` (Default), `yZZVs` (Icon), `cYmLO` (Disabled)
+<details>
+<summary><strong>Show React snippet (Discount Ribbon)</strong></summary>
 
-**Styling**:
-- Fill: `$White`
-- Stroke: `$Border Active` (1px)
-- Text: Primary color
-- Corner Radius: 20-44px
-- Disabled state: white fill + `$Disable Selected` border + `$Disable Text`
-- Min width (no icon): Large `328px`, Medium `129px`, Small `84px`
-- Min width (with icon): Large `328px`, Medium `167px`, Small `100px`
+```tsx
+type DiscountTipo = 'List' | 'Wrap';
+type DiscountType = 'Normal' | 'Por tiempo' | 'Finito' | 'Por temporada' | 'OKY';
 
-#### Button Sizes
-- **Large**: Height 41-49px, Padding 8-24px, Font size 24px
-- **Medium**: Height ~33px, Padding 8-16px, Font size 17px
-- **Small**: Height ~30px, Padding 4-8px, Font size 22px
+export function DiscountRibbon({
+  tipo = 'List',
+  type = 'Normal',
+  small = false,
+  label = '25% OFF',
+}: {
+  tipo?: DiscountTipo;
+  type?: DiscountType;
+  small?: boolean;
+  label?: string;
+}) {
+  const typeClass = `discount-ribbon-type-${type
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')}`;
 
-#### Button States
-- **Default**: Normal interactive state
-- **Icon**: Includes icon (left or right)
-- **Disabled**: Non-interactive state with reduced opacity
+  if (tipo === 'Wrap') {
+    return (
+      <div className={`discount-ribbon discount-ribbon-wrap ${small ? 'discount-ribbon-wrap-small' : ''} ${typeClass}`}>
+        <span className="discount-ribbon-text token-price-percent">{label}</span>
+      </div>
+    );
+  }
 
----
+  return (
+    <div className={`discount-ribbon discount-ribbon-list ${typeClass}`}>
+      <span className="discount-ribbon-text token-price-percent">{label}</span>
+    </div>
+  );
+}
+```
+</details>
 
-### 2. Input Fields
+### Super Ribbon (`Atoms/Super Ribbon`)
+`Property 1` variants:
+- `Por tiempo`
+- `Finito`
+- `Normal`
+- `Por temporada`
+- `OKY`
 
-#### Text Input
-**Component IDs**:
-- Phone Empty: `FEiGu`
-- Phone With Value: `XjC9T`
+Rules:
+- Fixed height `32px`.
+- Changes by variant: background, text color, icon, copy.
+- Supports text/icon override in Playground.
 
-**Styling**:
-- Corner Radius: 20px
-- Height: 56px
-- Padding: 0-16px
-- Stroke: `$Border Main` (1px)
-- Background: `$White`
+<details>
+<summary><strong>Show React snippet (Super Ribbon)</strong></summary>
 
-**Features**:
-- Floating label when value present
-- Label animation
-- Border color changes on focus
+```tsx
+type SuperRibbonType = 'Por tiempo' | 'Finito' | 'Normal' | 'Por temporada' | 'OKY';
 
-#### Search Input
-**Component IDs**:
-- Empty: `PGNyG`
-- With Value: `xmKHs`
+const defaults: Record<SuperRibbonType, { icon: string; text: string; className: string }> = {
+  'Por tiempo': { icon: 'fa-clock', text: 'Termina en 20:43:32', className: 'super-ribbon-type-por-tiempo' },
+  Finito: { icon: 'fa-fire-flame-simple', text: 'Últimas 20 unidades', className: 'super-ribbon-type-finito' },
+  Normal: { icon: 'fa-tags', text: 'Descuentos de temporada', className: 'super-ribbon-type-normal' },
+  'Por temporada': { icon: 'fa-sun', text: 'Ofertas del mes de Abril', className: 'super-ribbon-type-por-temporada' },
+  OKY: { icon: 'fa-heart', text: 'Para la persona que quieres', className: 'super-ribbon-type-oky' },
+};
 
-**Styling**:
-- Corner Radius: 12px
-- Height: 40px
-- Padding: 0-16px
-- Left icon: Search icon
-- Right icon: Clear icon (when has value)
-
-**Features**:
-- Search icon prefix
-- Clear button suffix
-- Placeholder text
-
----
-
-### 3. Dropdowns
-
-#### Country Dropdown
-**Component IDs**:
-- Empty: `OVdKu`
-- With Value: `FaPFl`
-
-**Features**:
-- Flag icon display
-- Dropdown arrow icon
-- Floating label
-- Corner Radius: 20px
-- Height: 56px
-
-#### Province Dropdown
-**Component IDs**:
-- Empty: `1rSxD`
-- With Value: `P0EWf`
-
-**Features**:
-- Dropdown arrow icon
-- Floating label
-- Corner Radius: 20px
-- Height: 56px
-
----
-
-### 4. Status Bar
-**Component ID**: `vf35d`
-
-**Specifications**:
-- Height: 44px
-- Width: 360px
-- Background: `$White`
-- Contains: Time, battery, signal indicators
-
----
-
-### 5. Chips (Quantity Input)
-**Component IDs**:
-- Cart: `9fXxZ`
-- cart/removable: `KIyIt`
-- Add0 / Vales: `DsDmy`
-- Quantity / Giftcards: `QtFxr`
-- Add1 / Vales: `BEpku`
-- Add2 / Vales: `AotiP`
-
-**Cart Variant**:
-- `Chips/Cart`: count + cart icon
-- `Chips/cart/removable`: promo code chip + remove action (`x`)
-
-**Quantity Input Border Update**:
-- `Add0`, `Quantity`, `Add1`, and `Add2` use neutral border: `$Border Main`
-- Border radius for all Quantity Input variants is now `16px`
-- Heights: `Quantity/Gifcards` is `40px`; `Add1` and `Add2` are `40px`
-
-**Token Usage**:
-- Primary icons and numbers: `$Primary Main`
-- Neutral container borders: `$Border Main`
-- Error/removal icon: `$Error Dark`
-- `Chips/cart/removable`: `$Secondary Background` + `$Secondary Main` text + `$Secondary Dark` border
-- `Chips/cart/removable` close icon: `fa-solid fa-circle-xmark` with `icon-xsmall-solid` (12px, 900, line-height 12px), color `$Primary Main`
-
----
-
-### 6. Discount Ribbon (Atom)
-Reusable discount atom used inside strips and lists.
-
-**Variants**:
-- `Discount Ribbon / Wrap` (`Ta86S`)
-- `Discount Ribbon / Wrap / Small` (derived variant for compact cards)
-- `Discount Ribbon / List` (`twV32`)
-
-**Size**:
-- Width: `75px` (Wrap)
-- Width: `50px` (Wrap Small)
-- Height: `30px` (List)
-
-**Anatomy**:
-- `Wrap`: top-right notch (`6x6`) + body corner radius `[4,0,4,4]`
-- `Wrap Small`: same anatomy as `Wrap`, compact width
-- `List`: no notch + body corner radius `4`
-
-**Figma Naming Convention**:
-- `Tipo`: `Wrap` | `List`
-- `Type`: `Normal` | `Por tiempo` | `Finito` | `Por temporada` | `OKY`
-
-**Usage Rules**:
-- `Wrap`: absolute positioning on giftcard cards
-- `Wrap Small`: compact cards like promo strip cards
-- `List`: only on product listing pages and cart
-
-**Token Usage**:
-- `Type=Normal`: `$Secondary Light` / `$Secondary Dark`
-- `Type=Por tiempo`: `$Warning Main` / `$Warning Text`
-- `Type=Finito`: `$Error Main` / `$White`
-- `Type=Por temporada`: `$Info Main` / `$White`
-- `Type=OKY`: `$Primary Light` / `$Primary Main`
-- Text typography token: `price%`
-
----
-
-### 7. Super Ribbon (Atom)
-Status ribbon used as a headline tactic indicator in strip organisms.
-
-**Component ID set**: `7295:52143`
-
-**Figma Naming Convention**:
-- `Property 1`: `Por tiempo` | `Finito` | `Normal` | `Por temporada` | `OKY`
-
-**Specifications**:
-- Height: `32px`
-- Corner radius: `8px`
-- Shadow: elevation/8
-- Icon slot: Font Awesome solid (`12px`)
-
-**Token Usage by Property 1**:
-- `Por tiempo`: `$Accent Color` + `$Warning Text`
-- `Finito`: `$Error Main` + `$White`
-- `Normal`: `$Secondary Light` + `$Secondary Dark`
-- `Por temporada`: `$Info Main` + `$White`
-- `OKY`: `$Primary Light` + `$Primary Main`
+export function SuperRibbon({ type = 'Por tiempo', text, icon }: { type?: SuperRibbonType; text?: string; icon?: string }) {
+  const meta = defaults[type];
+  return (
+    <div className={`super-ribbon ${meta.className}`}>
+      <span className="super-ribbon-icon"><i className={`fa-solid ${icon || meta.icon}`} /></span>
+      <span className="super-ribbon-text">{text || meta.text}</span>
+    </div>
+  );
+}
+```
+</details>
 
 ---
 
 ## Molecules
 
-> Updated scope in Atomic Design Library: this section now emphasizes `Service Tiles`, `Promo Code`, `Headers`, and `Navigation`.  
-> `List / PLP` and `List / Cart` are documented under **Organisms**.
+### Folder (`Molecules/Folder`)
+Variants:
+- Expanded: `Left (7296:48469)`, `Right (7296:48471)`
+- Collapsed: `Collapsed Left (7296:48472)`, `Collapsed Right (7296:48473)`
 
-### 1. Form Fields with Labels
-Input and dropdown components that include animated floating labels that move above the field when populated.
+Key behavior:
+- `showNewItemChip` affects expanded `Left` only.
+- Left active tab can show chevrons (`GUA` case).
+- Active line only under active side.
 
-**Components**:
-- Phone Input + Label
-- Country Dropdown + Flag + Label
-- Province Dropdown + Label
-- Search Input + Icons
+<details>
+<summary><strong>Show React snippet (Folder + toggle chip)</strong></summary>
 
-**Behavior**:
-- Label floats on focus/value
-- Icon indicators for state
-- Validation states
+```tsx
+type FolderVariant = 'Left' | 'Right' | 'Collapsed Left' | 'Collapsed Right';
 
----
+export function Folder({
+  property1 = 'Left',
+  leftCode = 'GUA',
+  rightCode = 'USA',
+  showChevrons = true,
+  showNewItemChip = true,
+}: {
+  property1?: FolderVariant;
+  leftCode?: string;
+  rightCode?: string;
+  showChevrons?: boolean;
+  showNewItemChip?: boolean;
+}) {
+  const isLeftExpanded = property1 === 'Left';
+  return (
+    <div className={`folder-control ${property1.includes('Right') ? 'is-right' : 'is-left'}`}>
+      {/* top + bottom svg layers */}
+      {isLeftExpanded && showNewItemChip ? <span className="chip-ds chip-ds-new-item">Nuevo</span> : null}
+      {/* flags/text/active-line */}
+    </div>
+  );
+}
+```
+</details>
 
-### 2. Search Bar
-**Component IDs**: `PGNyG`, `xmKHs`
+### Plateu (`Molecules/Plateu`)
+Property 1 options:
+- `State=Productos, Telco=No, Scrolling=No` (`6944:57168`)
+- `State=Vales, Telco=No, Scrolling=No` (`6944:57208`)
+- `State=Ofertas, Telco=No, Scrolling=No` (`6944:57307`)
+- `State=Paquetes, Telco=Yes, Scrolling=No` (`6985:152026`)
+- `State=Internet, Telco=Yes, Scrolling=No` (`6985:152223`)
+- `State=Recargas, Telco=Yes, Scrolling=No` (`6989:110025`)
+- `State=Paquetes, Telco=Yes, Scrolling=Yes` (`6985:152321`)
+- `State=Pasteleria, Telco=Yes, Scrolling=Yes` (`6996:111868`)
+- `State=Restaurantes, Telco=Yes, Scrolling=Yes` (`7016:135942`)
+- `State=Home, Telco=No, Scrolling=Yes` (`7331:50399`)
 
-**Composition**:
-- Search icon (left)
-- Text input field
-- Clear button (right, conditional)
+Latest behavior:
+- Home scrolling variant keeps visual spacing (`8px`) between items.
+- Active chip and inactive labels share reduced scale updated in latest round.
 
-**States**:
-- Empty with placeholder
-- Active with value and clear button
+<details>
+<summary><strong>Show React snippet (Plateu by property1)</strong></summary>
 
----
+```tsx
+export function Plateu({ property1 }: { property1: string }) {
+  const variant = plateuVariants[property1] ?? plateuVariants['State=Productos, Telco=No, Scrolling=No'];
+  return (
+    <section className={`plateu-molecule ${variant.scrolling ? 'is-scrolling' : 'is-static'} ${variant.home ? 'is-home' : ''}`}>
+      <div className={`plateu-track ${variant.scrolling ? 'is-scrolling' : 'is-static'}`}>
+        {variant.items.map((item) => (
+          <div key={item.key} className="plateu-item">
+            <img className="plateu-icon" src={item.image} alt={item.label} />
+            {item.active ? <span className="plateu-chip">{item.label}</span> : <span className="plateu-label">{item.label}</span>}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+```
+</details>
 
-### 3. Button Groups
-Combinations of buttons for related actions, typically seen in forms and action bars.
+### Promo Code (`Molecules/Promo Code`)
+States:
+- `empty`
+- `entered`
 
----
+Pen: `6437:28971`
 
-### 4. Lists
-Two list components added for reusable content blocks:
+Behavior:
+- `empty`: shows placeholder + chevron.
+- `entered`: shows applied code + clear action.
 
-#### List / PLP (`dsvtw`)
-- Product listing component (`360x422`)
-- Inner content width `328px` with `16px` padding
-- 3 vertical rows with divider between rows
-- Each row anatomy: product image `100x100` (radius `16px`, border `$Border Main`) + text stack + right action chip (`Add0` `40x40` or `Add1` `90x40`, radius `16px`, border `$Border Main`)
-- Product text token: Nunito Sans `14/600` + `$Primary Main`
-- Price tag token: `16/900` + `$Secondary Dark`
-- Regular price token: `13/400` + `$Disable Text`
-- Uses `Discount Ribbon / List` below price in every row (`10% OFF` placeholder)
-- Used on product listing pages (PLP)
+<details>
+<summary><strong>Show React snippet (Promo Code states)</strong></summary>
 
-#### List / Cart (`Om56O`)
-- Cart list component (`307x436`) with corner radius `16px`
-- Border: `$Border Main` (inside stroke)
-- Inner padding: `16px`, with 3 vertical giftcard rows and divider between rows
-- Each row anatomy: image `80x51` + text stack + right quantity chip (`Chips/Quantity Input / Quantity/Gifcards/Giftcards` `65x40`, radius `16px`, border `$Border Main`)
-- Product text token: Nunito Sans `14/600` + `$Primary Main`
-- Price tag token: `16/900` + `$Secondary Dark`
-- Regular price token: `13/400` + `$Disable Text`
-- Uses `Discount Ribbon / List` below price in every row (`10% OFF` placeholder)
+```tsx
+type PromoState = 'empty' | 'entered';
 
-#### Country Selector List
-- Radio row list with optional circular flag icon
-- Active/inactive/disabled row behavior
-- Tokenized text and border colors
+export function PromoCode({
+  state = 'empty',
+  promoCode = 'verano26',
+  placeholder = 'Ingresa el código promocional',
+}: {
+  state?: PromoState;
+  promoCode?: string;
+  placeholder?: string;
+}) {
+  return (
+    <div className="promo-code-molecule" data-state={state}>
+      <span className="promo-code-leading"><img src="PROMOS@2x.webp" alt="" /></span>
+      <p className="promo-code-copy">
+        {state === 'entered' ? <><span className="promo-code-prefix">Código Promo:</span> {promoCode}</> : placeholder}
+      </p>
+      <button className="promo-code-action promo-clear" aria-label="Quitar código"><i className="fa-solid fa-circle-xmark icon-medium" /></button>
+      <button className="promo-code-action promo-open" aria-label="Ingresar código"><i className="fa-solid fa-chevron-right icon-medium" /></button>
+    </div>
+  );
+}
+```
+</details>
+
+### Tiles (`Molecules/Tiles`)
+Full variants:
+- `Macro/Tile/Food` (`g0RAt`)
+- `Macro/Tile/Money` (`X1bOv`)
+- `Macro/Tile/Mobile Topup` (`1Zzry`)
+- `Macro/Tile/Bill Payment` (`GY8MG`)
+
+Half variants:
+- `Macro/HalfTile/Seasonal` (`AqHu9`)
+- `Macro/HalfTile/Topup` (`pEubm`)
+- `Macro/HalfTile/Multi-Brand` (`fHlYu`)
+
+<details>
+<summary><strong>Show React snippet (Tile renderer)</strong></summary>
+
+```tsx
+export function ServiceTile({
+  label,
+  image,
+  half = false,
+}: {
+  label: string;
+  image: string;
+  half?: boolean;
+}) {
+  return (
+    <div className={half ? 'service-tile service-tile-half' : 'service-tile'}>
+      <div className={half ? 'tile-icon tile-icon-half' : 'tile-icon'}>
+        <img src={image} alt={label} />
+      </div>
+      <div className="tile-label">{label}</div>
+    </div>
+  );
+}
+```
+</details>
+
+### Headers (`Molecules/Headers`)
+App Header variants:
+- `logged-empty` (`WO8oM`)
+- `logged-cart` (`ArMsV`)
+- `not-logged` (`ZPc9u`)
+- extra toggle: `leftButtons = single | double`
+
+Page Header variants:
+- `screens` (`6IKuE`)
+- `modal` (`5mGYt`)
+
+Rules:
+- custom wallet icon: `fak fa-kit fa-wallet`
+- non-wallet icons in header: `fa-light`
+- `fa-circle-user` is solid in `not-logged`
+
+<details>
+<summary><strong>Show React snippet (App Header)</strong></summary>
+
+```tsx
+type AppHeaderVariant = 'logged-empty' | 'logged-cart' | 'not-logged';
+
+export function AppHeader({
+  variant = 'logged-empty',
+  leftButtons = 'single',
+  cartCount = 2,
+}: {
+  variant?: AppHeaderVariant;
+  leftButtons?: 'single' | 'double';
+  cartCount?: number;
+}) {
+  return (
+    <div className={`app-header ${variant === 'logged-cart' ? 'is-logged-cart' : ''}`}>
+      <div className={`header-left-group ${leftButtons === 'double' ? 'header-side-cluster' : ''}`}>
+        <div className="header-icon"><i className="fak fa-kit fa-wallet icon-medium" /></div>
+        {leftButtons === 'double' ? <div className="header-icon"><i className="fa-light fa-magnifying-glass icon-medium" /></div> : null}
+      </div>
+      <img className="header-logo" src="logo-oky.svg" alt="OKY" />
+      {variant === 'logged-cart' ? (
+        <div className="header-cart-chip header-cart-full"><span className="header-cart-count">{cartCount}</span><i className="fa-light fa-cart-shopping" /></div>
+      ) : variant === 'not-logged' ? (
+        <div className="header-icon"><i className="fa-solid fa-circle-user icon-medium-solid" /></div>
+      ) : (
+        <div className="header-icon"><i className="fa-light fa-cart-shopping icon-medium" /></div>
+      )}
+    </div>
+  );
+}
+```
+</details>
+
+### Navigation (`Molecules/Navigation`)
+Variants:
+- `Con label`
+- `Sin label` (icon-only, height `56px`)
+
+Items:
+- Inicio (`fa-home`)
+- Canje (`fa-map`)
+- Ofertas (`fa-fire`, active solid)
+- Ayuda (`fa-messages`)
+- Menú (`fa-bars`)
+
+Shell style:
+- border radius: `0 0 24px 24px`
+- top border and shadow enabled
+- fixed-bottom behavior used in mockups
+
+<details>
+<summary><strong>Show React snippet (Bottom Nav)</strong></summary>
+
+```tsx
+const navItems = [
+  { key: 'inicio', label: 'Inicio', icon: 'home' },
+  { key: 'canje', label: 'Canje', icon: 'map' },
+  { key: 'ofertas', label: 'Ofertas', icon: 'fire' },
+  { key: 'ayuda', label: 'Ayuda', icon: 'messages' },
+  { key: 'menu', label: 'Menú', icon: 'bars' },
+];
+
+export function BottomNavigation({ variant = 'Sin label', activeTab = 'ofertas' }) {
+  const noLabel = variant === 'Sin label';
+  return (
+    <nav className={`bottom-nav ${noLabel ? 'is-no-label' : ''}`}>
+      {navItems.map((item) => {
+        const active = item.key === activeTab;
+        const iconWeight = item.key === 'ofertas' && active ? 'fa-solid' : 'fa-light';
+        return (
+          <div key={item.key} className={`nav-item ${active ? 'active' : ''}`}>
+            <i className={`${iconWeight} fa-${item.icon} icon-medium`} />
+            {!noLabel ? <span className="nav-label">{item.label}</span> : null}
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
+```
+</details>
 
 ---
 
 ## Organisms
 
-### 1. Navigation
-
-#### Top Navigation Bar (Navbar)
-**Component ID**: `MHKUc`
-
-**Specifications**:
-- Height: 56px
-- Width: 360px (full width)
-- Background: `$White`
-- Border: Top stroke `$Border Main`
-
-**Composition**:
-- 5 navigation items
-- Active state indicator (bottom border)
-- Icons only (base component)
-- Equal width distribution
-
-**Navigation Items**:
-- Home
-- Categories
-- Featured (with active state)
-- Orders
-- Profile
-
-#### Bottom Nav / With Labels (Variant)
-**Variant type**: Documentation/UI variant based on `MHKUc`
-
-**Specifications**:
-- Height: 56px
-- Width: 360px (full width)
-- Same structure and active indicator as base Navbar
-- Label style: Nunito Sans, 10px
-
-**Composition**:
-- 5 navigation items
-- `fa-regular` icon + text label per item
-- Active nav item icon uses `fa-solid`
-- Equal width distribution
-
-**FA rule**:
-- Use kit loader `https://kit.fontawesome.com/b5a8f622db.js`
-- Use `fa-regular` for inactive icons
-- Use `fa-solid` only for the active nav icon
-
----
-
-### 2. Headers
-
-#### Logged Header
-**Component ID**: `WO8oM`
-
-**Specifications**:
-- Height: 56px
-- Width: 360px
-- Padding: 21px 16px
-- Bottom border: 1px
-
-**Composition**:
-- Left: Logo (OKY)
-- Center: Balance display
-- Right: Action icon
-
-#### Logout Header
-**Component ID**: `HpR9Z`
-
-**Specifications**:
-- Same as Logged Header
-- Different icon state on right
-
----
-
-### 3. Macro Tiles (Full Size)
-
-Category action tiles for primary services.
-
-#### Available Tiles:
-
-**Food** (`g0RAt`)
-- Title: "Invitar a Comer"
-- Image: invitar.png
-- Size: 103x130px
-
-**Money/Remittances** (`X1bOv`)
-- Title: "Comparar Remesas"
-- Image: Slice 2.png
-
-**Mobile Topup** (`1Zzry`)
-- Title: "Recargar el Móvil"
-- Image: recargas.png
-
-**Bill Payment** (`GY8MG`)
-- Title: "Pagar Servicios"
-- Image: servicios.png
-
-**Supermarket** (`i6hZs`)
-- Title: "Mandar el Super"
-- Image: super-1.png
-
-**Doctor/Health** (`98sOw`)
-- Title: "Cuidar la Salud"
-- Image: doctor-1.png
-
-**Gifts** (`9GR0B`)
-- Title: "Equipo su Hogar"
-- Image: regalos-1.png
-
-**Gas** (`oesZs`)
-- Title: "Llenar el Tanque"
-- Image: gas-1.png
-
-**Home** (`2yJIx`)
-- Title: "Mejorar el Hogar"
-- Image: avadora-1.png
-
-**Offers** (`Rvm1L`)
-- Title: "Ver Ofertas"
-- Image: image 3.png
-
-**Styling**:
-- Corner Radius: 12px
-- Size: 103x130px
-- Padding: 8px
-- Shadow: 10.5px blur
-- Stroke: `$Border Main` (1px)
-- Background: `$White`
-
-**Layout**:
-- Vertical layout
-- Image: 80x80px
-- Title: 14px, font-weight 600
-- Gap: 4px between image and title
-
----
-
-### 4. Macro Half Tiles
-
-Smaller category tiles for secondary services.
-
-**Seasonal** (`AqHu9`)
-- Title: "Navidad"
-- Size: 103x85px
-- Border: `$Accent Color`
-
-**Topup** (`pEubm`)
-- Title: "Recargas"
-- Size: 103x85px
-
-**Multi-Brand** (`fHlYu`)
-- Title: "Multimarca"
-- Size: 103x85px
-
-**Styling**:
-- Corner Radius: 12px
-- Size: 103x85px
-- Image: 55x55px
-- Same shadow and stroke as full tiles
-
----
-
-### 5. Widgets
-
-Dashboard widgets displaying summarized information and quick actions.
-
-#### Topups Widget
-**Component ID**: `dvBFn`
-
-**Size**: 218x130px
-**Content**:
-- Header: "RECARGAS TIEMPO AIRE"
-- List item with icon and text
-- Action button
-
-#### Daily Offers Widget
-**Component IDs**: `wnaYi`, `Eoc3A`
-
-**Size**: 218x130px
-**Content**:
-- Header: "Ofertas del día" / "OFERTA DEL DÍA"
-- Featured offer with image
-- Description text
-- Price/discount info
-
-#### Remittances Widget
-**Component ID**: `JhhAI`
-
-**Size**: 218x130px
-**Content**:
-- Header: "COMPARA TIPOS DE CAMBIO"
-- Exchange rate comparison
-- Currency info
-
-#### Bill Payment Widget
-**Component ID**: `eCjrS`
-
-**Size**: 218x130px
-**Content**:
-- Header: "ESTE MES DESDE PAGAR"
-- Monthly bill summary
-- Payment amount
-
-**Common Widget Styling**:
-- Corner Radius: 12px
-- Shadow: 10.5px blur
-- Padding: 8px
-- Background: `$White`
-- Border: `$Border Main` (1px)
-- Gap: 4px between elements
-
----
-
-### 6. Category Card (Expandable)
-**Component ID**: `IqRGM`
-
-**Specifications**:
-- Size: 330x526px
-- Corner Radius: 16px
-- Padding: 4px 0px 16px 0px
-- Shadow: 10.5px blur
-
-**Composition**:
-- Header section (52px)
-- Scrollable content area (407px)
-- "Ver más" button at bottom
-- Gradient fade at bottom of scroll area
-
-**Usage**: Display expandable lists of brands or categories with thumbnails
-
----
-
-### 7. Carousel
-**Component ID**: `62kJL`
-
-**Specifications**:
-- Promotional image carousel
-- Image size: ~300x136px
-- Corner Radius: 12px
-- Horizontal scrolling
-- Multiple promotional strips
-
-**Content**:
-- promo-strips1.png
-- promo-strips2.png
-
----
-
-### 8. Promotional Strips / Promo Strip
-**Component IDs**: `VeEVO`, `72353:23990`, `72353:23953`
-
-**Variants**:
-- `Strips/Countdown/Offers` (`nf2yE`): timer + product cards + ribbon list below price
-- `Strips/No Countdown/Giftcards` (`pTOSN`): giftcard cards + ribbon list below price
-- `Promo Strip / Single` (`72353:23990`): 2-card row + `Discount Ribbon / Wrap Small`
-- `Promo Strip / Double` (`72353:23953`): stacked rows + `Discount Ribbon / Wrap Small`
-
-**Usage**: Promotional offers in card and list layouts
-**Layout**: Full-width containers (horizontal card scroller or vertical list rows)
-**Background**: White
-**Ribbon Atom**:
-- Use `List` on Countdown Offers and Giftcards (below price)
-- Use `List` on product listing and cart rows
-- Max width `88px` and height `30px` (List)
-- Keep ribbon text on `price%` token
-
----
-
-### 9. Tactic Strips
-**Component ID set**: `7295:52040`
-
-**Variants (`Property 1`)**:
-- `Por tiempo`
-- `Finita`
-- `Normal`
-- `Por temporada`
-- `OKY`
-
-**Composition**:
-- Header title (`token-h6`)
-- Nested atom: `Super Ribbon` (variant by `Property 1`)
-- Two-card horizontal strip with logos
-- Nested atom: `Discount Ribbon / Wrap` (variant by tactic `Type`)
-
-**Layout Specs**:
-- Container width: `358px`
-- Card hero height: `145px`
-- Brand logo tile: `95x60`
-- Discount ribbon overlay anchored on each card edge
-
----
-
-## Component Index
-
-### By Category
-
-#### **Atoms** (29 components)
-- Buttons: 54 variants (Primary/Secondary/Outlined × Large/Medium/Small × Default/Left Icon/Right Icon × Active/Disabled)
-- Input Fields: 4 variants
-- Dropdowns: 4 variants
-- Status Bar: 1
-- Chips / Quantity Input: 6 variants
-- Discount Ribbon: 3 variants (Wrap, Wrap Small, List) + `Type` tactic variants
-- Super Ribbon: 5 variants (`Property 1`)
-
-#### **Molecules** (15 components)
-- Service Tiles: 13 components (10 Full + 3 Half)
-- Promo Code: 2 variants (Empty, Entered)
-- Headers: 5 variants (logged/cart states + page headers)
-- Navigation: 2 variants (Icon Only, With Labels)
-
-#### **Organisms** (31 components)
-- Widgets: 5
-- Summary Box: multi-flow matrix variants (products, giftCards, billPayments)
-- Lists: 3 components (List / PLP, List / Cart, Country Selector List)
-- Category Cards: 1
-- Carousels: 1
-- Promotional Strips / Promo Strip: 4 variants
-- Tactic Strips: 5 variants
-
-### Total Components: 75
-
----
-
-## Component Naming Convention
-
-The design system follows a hierarchical naming pattern:
-
+### Carrusel (`Organisms/Carrusel`)
+- Pen: `6449:41089`
+- Mobile viewport 360px
+- 2 banners visible (second partial)
+- 5 dots pagination, controllable by `activeDot`
+
+<details>
+<summary><strong>Show React snippet (Carrusel)</strong></summary>
+
+```tsx
+export function Carrusel({ activeDot = 1 }: { activeDot?: number }) {
+  return (
+    <section className="carrusel-organism" data-pen-id="6449:41089">
+      {/* banner track */}
+      <div className="carrusel-dots">
+        {[1, 2, 3, 4, 5].map((dot) => (
+          <span key={dot} className={dot === activeDot ? 'is-active' : ''} />
+        ))}
+      </div>
+    </section>
+  );
+}
 ```
-Category/Type/Size/State
+</details>
+
+### Discovery Header (`Organisms/Discovery Header`)
+Structure (composed only from existing molecules):
+- Status Bar
+- Header
+- Folder (expanded/collapsed)
+- Input/Search (Empty)
+- Plateu Home (state 3)
+
+Sides/states:
+- Left:
+  - State 1 (`7333:70238`)
+  - State 2 (`7333:70233`)
+  - State 3 (`7333:70234`)
+- Right:
+  - State 1 (`7333:70235`)
+  - State 2 (`7333:70236`)
+  - State 3 (`7333:70237`)
+
+Playground controls:
+- `side`
+- `state`
+- `showNewItemChip` (affects `Left + State 1`)
+
+<details>
+<summary><strong>Show React snippet (Discovery Header composition)</strong></summary>
+
+```tsx
+export function DiscoveryHeader({
+  side = 'Left',
+  state = 'State 1',
+  showNewItemChip = true,
+}: {
+  side?: 'Left' | 'Right';
+  state?: 'State 1' | 'State 2' | 'State 3';
+  showNewItemChip?: boolean;
+}) {
+  const cfg = discoveryConfig[side][state];
+  return (
+    <section className="discovery-header-organism" data-side={side} data-state={state}>
+      <StatusBar />
+      {cfg.header !== 'none' ? <AppHeader variant={cfg.header} /> : null}
+      <Folder property1={cfg.folder} showNewItemChip={showNewItemChip} />
+      <SearchInput state="empty" compact={cfg.searchCompact} />
+      {cfg.plateu ? <Plateu property1="State=Home, Telco=No, Scrolling=Yes" /> : null}
+    </section>
+  );
+}
 ```
+</details>
 
-**Examples**:
-- `Button/Primary/Large/Default`
-- `Button/Outlined/Medium/Icon`
-- `Macro/Tile/Food`
-- `Widget/Daily Offers`
-- `Input/Phone/Hasvalue`
-- `Dropdown/Country/Empty`
+### HomeCard (`Organisms/HomeCard`)
+Variants:
+- `Default`
+- `With Photo`
 
----
+Base container: `IqRGM`
 
-## Usage Guidelines
+<details>
+<summary><strong>Show React snippet (HomeCard)</strong></summary>
 
-### Button Selection
-1. **Primary**: Use for main actions (Submit, Confirm, Buy)
-2. **Secondary**: Use for alternative actions (Cancel, Back)
-3. **Outlined**: Use for tertiary actions (Learn More, Details)
+```tsx
+export function HomeCard({
+  variant = 'Default',
+  title = 'Solo por hoy',
+}: {
+  variant?: 'Default' | 'With Photo';
+  title?: string;
+}) {
+  return (
+    <section className={`homecard-organism ${variant === 'With Photo' ? 'homecard-organism-photo' : ''}`}>
+      <header className="homecard-header"><h3 className="token-h6 homecard-title">{title}</h3></header>
+      <div className={`homecard-content ${variant === 'With Photo' ? 'homecard-content-photo' : 'homecard-content-default'}`}>
+        {/* grid or photo track */}
+      </div>
+      <footer className="homecard-footer"><button className="btn btn-primary btn-small">Ver más</button></footer>
+    </section>
+  );
+}
+```
+</details>
 
-### Size Selection
-- **Large**: Hero sections, important CTAs
-- **Medium**: Standard forms, dialogs
-- **Small**: Compact interfaces, mobile optimized
+### Promo Strip (`Organisms/Promo Strip`)
+Variants:
+- `Single` (`72353:23990`)
+- `Double` (`72353:23953`)
 
-### Tile Usage
-- **Full Tiles**: Main service categories on homepage
-- **Half Tiles**: Secondary services, seasonal promotions
-- **Widgets**: Dashboard summaries, quick access
+Rules:
+- Uses nested `Discount Ribbon (Wrap Small)` on each card.
+- `Playground` controls heading and discount label.
 
-### Color Application
-- Primary color (#552588) for brand elements and CTAs
-- Secondary color (#18afa5) for accents and highlights
-- Accent color (#ffb400) for special promotions
-- Maintain WCAG AA contrast ratios for accessibility
+<details>
+<summary><strong>Show React snippet (Promo Strip)</strong></summary>
 
----
+```tsx
+export function PromoStrip({
+  variant = 'Single',
+  singleHeading = 'Tus compras online',
+  doubleHeading = 'Todas estas 25% menos',
+  discount = '25%',
+}: {
+  variant?: 'Single' | 'Double';
+  singleHeading?: string;
+  doubleHeading?: string;
+  discount?: string;
+}) {
+  const cardsA = baseCards.map((c) => ({ ...c, ribbon: discount }));
+  const cardsB = secondCards.map((c) => ({ ...c, ribbon: discount }));
 
-## Responsive Considerations
+  return (
+    <div className="promo-strip-stack">
+      <PromoStripBlock heading={variant === 'Double' ? doubleHeading : singleHeading} cards={cardsA} />
+      {variant === 'Double' ? <PromoStripBlock cards={cardsB} compact /> : null}
+    </div>
+  );
+}
+```
+</details>
 
-**Base Width**: 360px (mobile-first)
-**Layout**: Vertical stack for mobile
-**Spacing**: 8px grid system
+### Summary Box (`Organisms/Summary Box`)
+Pen: `6959:56843`
 
-### Component Scaling
-- Buttons maintain fixed heights, width adapts
-- Tiles maintain aspect ratios
-- Widgets stack vertically on mobile
-- Navigation remains fixed at bottom
+Dimensions in stories:
+- `flow`: `products | giftCards | billPayments`
+- `step`: `pdp | plp | cart | checkout`
+- `pricing`: `saving | normal`
+- toggles: `showAddButton`, `withVoucherify`
+- dynamic fields: `exchangeRate`, `productLabel`, `productCount`
 
----
+Special handling:
+- in `checkout` and `billPayments` total label changes to `TOTAL`
+- includes exchange strip + white card + CTA area
 
-## Accessibility
+<details>
+<summary><strong>Show React snippet (Summary Box API)</strong></summary>
 
-### Color Contrast
-All text meets WCAG AA standards:
-- Primary text on white: 14.8:1
-- Secondary text on white: 4.5:1
-- Disabled text on white: 3.1:1
+```tsx
+type SummaryFlow = 'products' | 'giftCards' | 'billPayments';
+type SummaryStep = 'pdp' | 'plp' | 'cart' | 'checkout';
 
-### Touch Targets
-Minimum 44x44px touch targets for all interactive elements
+type SummaryBoxProps = {
+  flow?: SummaryFlow;
+  step?: SummaryStep;
+  pricing?: 'saving' | 'normal';
+  showAddButton?: boolean;
+  withVoucherify?: boolean;
+  exchangeRate?: string;
+  productLabel?: string;
+  productCount?: number;
+};
 
-### Focus States
-All interactive elements have visible focus indicators
+export function SummaryBox(props: SummaryBoxProps) {
+  const {
+    flow = 'giftCards',
+    step = 'cart',
+    pricing = 'saving',
+    showAddButton = true,
+    withVoucherify = false,
+    exchangeRate = 'Q 7.55',
+    productLabel = 'Producto, Gift Card',
+    productCount = 3,
+  } = props;
 
-### Labels
-All form inputs include proper labels for screen readers
-
----
-
-## File Reference
-
-**Design File**: `DS-MARS2.pen`
-**Theme**: MARS (Light)
-**Last Updated**: 2026-02-18
-
----
-
-## Quick Reference Tables
-
-### Button Component Matrix
-
-| Type | Size | State | Component ID |
-|------|------|-------|--------------|
-| Primary | Large | Default | C6tBo |
-| Primary | Large | Icon | AQ2sd |
-| Primary | Large | Disabled (Right Icon) | Pc8pk |
-| Primary | Medium | Default | dkm5S |
-| Primary | Medium | Icon | RUWiD |
-| Primary | Medium | Disabled (Right Icon) | ecoVn |
-| Primary | Small | Default | 5Jb7s |
-| Primary | Small | Icon | Vcveu |
-| Primary | Small | Disabled (Right Icon) | izVsr |
-| Secondary | Large | Default | eTIc3 |
-| Secondary | Large | Icon | Aimqt |
-| Secondary | Large | Disabled (Right Icon) | bESQi |
-| Secondary | Medium | Default | WLCy3 |
-| Secondary | Medium | Icon | iYEgi |
-| Secondary | Medium | Disabled (Right Icon) | s9Kk0 |
-| Secondary | Small | Default | Ve25H |
-| Secondary | Small | Icon | Mjdl6 |
-| Secondary | Small | Disabled (Right Icon) | A6gci |
-| Outlined | Large | Default | CG4TO |
-| Outlined | Large | Icon | nVicC |
-| Outlined | Large | Disabled (Right Icon) | QaRKY |
-| Outlined | Medium | Default | 4DRvJ |
-| Outlined | Medium | Icon | 9fjW4 |
-| Outlined | Medium | Disabled (Right Icon) | P5PPg |
-| Outlined | Small | Default | TE00F |
-| Outlined | Small | Icon | yZZVs |
-| Outlined | Small | Disabled (Right Icon) | cYmLO |
-
-### Service Tiles Matrix
-
-| Service | Tile Type | Title | Component ID |
-|---------|-----------|-------|--------------|
-| Food | Full | Invitar a Comer | g0RAt |
-| Money | Full | Comparar Remesas | X1bOv |
-| Mobile Topup | Full | Recargar el Móvil | 1Zzry |
-| Bill Payment | Full | Pagar Servicios | GY8MG |
-| Supermarket | Full | Mandar el Super | i6hZs |
-| Doctor | Full | Cuidar la Salud | 98sOw |
-| Gifts | Full | Equipo su Hogar | 9GR0B |
-| Gas | Full | Llenar el Tanque | oesZs |
-| Home | Full | Mejorar el Hogar | 2yJIx |
-| Offers | Full | Ver Ofertas | Rvm1L |
-| Seasonal | Half | Navidad | AqHu9 |
-| Topup | Half | Recargas | pEubm |
-| Multi-Brand | Half | Multimarca | fHlYu |
-
-### Widget Types
-
-| Widget | Purpose | Component ID |
-|--------|---------|--------------|
-| Topups | Mobile recharge quick access | dvBFn |
-| Daily Offers | Featured daily deals | wnaYi, Eoc3A |
-| Remittances | Exchange rate comparison | JhhAI |
-| Bill Payment | Monthly bill summary | eCjrS |
+  return (
+    <section className="summary-box with-overlap" data-flow={flow} data-step={step}>
+      <div className="summary-type-overlay">TIPO DE CAMBIO: {exchangeRate}</div>
+      <div className="summary-card">{/* body rows + ctas based on flow/step/pricing */}</div>
+    </section>
+  );
+}
+```
+</details>
 
 ---
 
-**End of Component Library Documentation**
+## Show/Hide Code Best Practice
+
+Recommended pattern for Docs/Playground pages:
+- Keep code hidden by default to prioritize visual review.
+- Use one snippet per variant API (not one massive file dump).
+- Use semantic disclosure with `<details><summary>Show React snippet</summary>...</details>`.
+- Keep snippet minimal but production-oriented (typed props + defaults + tokens/classes).
+
+Reusable snippet wrapper:
+
+```tsx
+type CodeExampleProps = {
+  title?: string;
+  children: React.ReactNode;
+};
+
+export function CodeExample({ title = 'Show React snippet', children }: CodeExampleProps) {
+  return (
+    <details>
+      <summary><strong>{title}</strong></summary>
+      <pre><code>{children}</code></pre>
+    </details>
+  );
+}
+```
