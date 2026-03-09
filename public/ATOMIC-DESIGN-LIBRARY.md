@@ -283,7 +283,7 @@ export function Plateu({ property1 }: { property1: string }) {
       <div className={`plateu-track ${variant.scrolling ? 'is-scrolling' : 'is-static'}`}>
         {variant.items.map((item) => (
           <div key={item.key} className="plateu-item">
-            <img className="plateu-icon" src={item.image} alt={item.label} />
+            <img className="plateu-icon" src={`/images/${item.image}`} alt={item.label} />
             {item.active ? <span className="plateu-chip">{item.label}</span> : <span className="plateu-label">{item.label}</span>}
           </div>
         ))}
@@ -362,7 +362,7 @@ export function ServiceTile({
   return (
     <div className={half ? 'service-tile service-tile-half' : 'service-tile'}>
       <div className={half ? 'tile-icon tile-icon-half' : 'tile-icon'}>
-        <img src={image} alt={label} />
+        <img src={`/images/${image}`} alt={label} />
       </div>
       <div className="tile-label">{label}</div>
     </div>

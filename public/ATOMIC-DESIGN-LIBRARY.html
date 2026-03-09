@@ -392,7 +392,7 @@ export function FontAwesomeAssets() {
       &lt;div className={`plateu-track ${variant.scrolling ? 'is-scrolling' : 'is-static'}`}&gt;
         {variant.items.map((item) =&gt; (
           &lt;div key={item.key} className="plateu-item"&gt;
-            &lt;img className="plateu-icon" src={item.image} alt={item.label} /&gt;
+            &lt;img className="plateu-icon" src={`/images/${item.image}`} alt={item.label} /&gt;
             {item.active ? &lt;span className="plateu-chip"&gt;{item.label}&lt;/span&gt; : &lt;span className="plateu-label"&gt;{item.label}&lt;/span&gt;}
           &lt;/div&gt;
         ))}
@@ -431,7 +431,7 @@ export function FontAwesomeAssets() {
           <pre><code>export function ServiceTile({ label, image, half = false }) {
   return (
     &lt;div className={half ? 'service-tile service-tile-half' : 'service-tile'}&gt;
-      &lt;img src={image} alt={label} /&gt;
+      &lt;img src={`/images/${image}`} alt={label} /&gt;
       &lt;div className="tile-label"&gt;{label}&lt;/div&gt;
     &lt;/div&gt;
   );
