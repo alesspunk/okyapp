@@ -1495,13 +1495,6 @@ body {
   content: var(--fa);
 }
 
-/* Map semantic custom icon name "wallet" to the local kit glyph codepoint */
-.fa-kit.fa-wallet,
-.fak.fa-wallet {
-  --fa: "\e000";
-  --fa--fa: "\e000\e000";
-}
-
 .fa-messages {
   --fa: "\f27a";
 }
