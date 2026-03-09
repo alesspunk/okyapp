@@ -211,7 +211,7 @@ function renderFolderOption({
   `;
 }
 
-function renderFolder(property1) {
+function renderFolder(property1, { showNewItemChip = true } = {}) {
   const isCollapsed = property1.startsWith("Collapsed");
   const isLeft = property1 === "Left" || property1 === "Collapsed Left";
 
@@ -264,6 +264,7 @@ function renderFolder(property1) {
   }
 
   const selectedSide = isLeft ? "left" : "right";
+  const showChipOnLeftExpanded = property1 === "Left" && showNewItemChip;
   return `
     <section data-pen-id="${isLeft ? "7296:48469" : "7296:48471"}">
       <div class="folder-responsive-host is-expanded">
@@ -294,6 +295,11 @@ function renderFolder(property1) {
               showChevrons: true,
             })}
           </div>
+          ${
+            showChipOnLeftExpanded
+              ? `<span class="folder-new-item-chip chip-ds chip-ds-new-item" aria-label="New item">Nuevo</span>`
+              : ""
+          }
           <span class="folder-selection-line" style="left:${isLeft ? 51 : 235}px;width:${isLeft ? 86 : 66}px" aria-hidden="true"></span>
         </div>
       </div>
@@ -349,7 +355,7 @@ function renderPlateuHome() {
   `;
 }
 
-function renderDiscoveryHeader({ side, state }) {
+function renderDiscoveryHeader({ side, state, showNewItemChip = true }) {
   const safeSide = SIDE_OPTIONS.includes(side) ? side : "Left";
   const safeState = STATE_OPTIONS.includes(state) ? state : "State 1";
   const config = DISCOVERY_CONFIG[safeSide][safeState];
@@ -358,7 +364,7 @@ function renderDiscoveryHeader({ side, state }) {
     <section class="discovery-header-organism" data-side="${safeSide}" data-state="${safeState}" data-pen-id="${config.penId}">
       ${renderStatusBar()}
       ${renderAppHeader(config.header)}
-      ${renderFolder(config.folder)}
+      ${renderFolder(config.folder, { showNewItemChip })}
       ${renderSearchInput({ compact: config.searchCompact })}
       ${config.plateu ? renderPlateuHome() : ""}
     </section>
@@ -388,7 +394,8 @@ export default {
           "`Status Bar`, `Header`, `Folder` (expanded/collapsed), `Input/Search (Empty)` y " +
           "`Plateu · State=Home, Telco=No, Scrolling=Yes (7331:50399)`. " +
           "Incluye 3 states por lado (`Left` y `Right`) segun el orden del frame de Figma `7333:70239`. " +
-          "El Plateu Home usa separacion horizontal de `8px` entre items.",
+          "El Plateu Home usa separacion horizontal de `8px` entre items. " +
+          "En Docs Playground puedes alternar `Show New Item Chip` para la vista `Left · State 1`.",
       },
     },
   },
@@ -399,6 +406,7 @@ export const DocsPlayground = {
   args: {
     side: "Left",
     state: "State 1",
+    showNewItemChip: true,
   },
   argTypes: {
     side: {
@@ -413,8 +421,13 @@ export const DocsPlayground = {
       options: STATE_OPTIONS,
       description: "State visual dentro del lado seleccionado.",
     },
+    showNewItemChip: {
+      name: "Show New Item Chip",
+      control: "boolean",
+      description: "Muestra el chip New item solo en Folder Left expandido (State 1).",
+    },
   },
-  render: ({ side, state }) => {
+  render: ({ side, state, showNewItemChip }) => {
     const safeSide = SIDE_OPTIONS.includes(side) ? side : "Left";
     const safeState = STATE_OPTIONS.includes(state) ? state : "State 1";
     const penId = DISCOVERY_CONFIG[safeSide][safeState].penId;
@@ -423,7 +436,7 @@ export const DocsPlayground = {
       <div class="mars-story">
         <div class="mars-label">Discovery Header · ${safeSide} · ${safeState} · ID .pen: ${penId}</div>
         <div class="mars-mobile">
-          ${renderDiscoveryHeader({ side: safeSide, state: safeState })}
+          ${renderDiscoveryHeader({ side: safeSide, state: safeState, showNewItemChip })}
         </div>
       </div>
     `;

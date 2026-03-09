@@ -2788,6 +2788,14 @@ body {
   line-height: 1;
 }
 
+.folder-new-item-chip {
+  position: absolute;
+  left: 252px;
+  top: 9px;
+  z-index: 6;
+  pointer-events: none;
+}
+
 .folder-control.is-collapsed .folder-option {
   top: 7px;
 }

@@ -132,7 +132,7 @@ function renderFolderOption({
   `;
 }
 
-function buildFolder({ property1, leftCode, rightCode, showChevrons }) {
+function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItemChip = true }) {
   const variant = DOCS_VARIANT_OPTIONS.includes(property1) ? property1 : "Left";
   const isCollapsed = variant.startsWith("Collapsed");
   const side = variant === "Right" ? "right" : "left";
@@ -206,6 +206,7 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons }) {
   const rightX = isLeft ? 245 : 235;
   const lineX = isLeft ? 51 : 235;
   const lineWidth = isLeft ? 86 : 66;
+  const showChipOnLeftExpanded = variant === "Left" && showNewItemChip;
 
   return `
     <div class="folder-responsive-host is-expanded">
@@ -237,6 +238,11 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons }) {
           showChevrons,
         })}
       </div>
+      ${
+        showChipOnLeftExpanded
+          ? `<span class="folder-new-item-chip chip-ds chip-ds-new-item" aria-label="New item">Nuevo</span>`
+          : ""
+      }
 
       <span class="folder-selection-line" style="left:${lineX}px;width:${lineWidth}px" aria-hidden="true"></span>
     </div>
