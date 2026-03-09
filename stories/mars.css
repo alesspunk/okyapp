@@ -1530,6 +1530,18 @@ body {
   content: var(--fa);
 }
 
+.fak.fa-wallet2,
+.fa-kit.fa-wallet2 {
+  /* Prefer custom kit glyph when available, fallback to FA Pro wallet when kit is blocked. */
+  font-family: "Font Awesome Kit", "Font Awesome 6 Pro";
+  font-weight: 300;
+}
+
+.fak.fa-wallet2::before,
+.fa-kit.fa-wallet2::before {
+  content: var(--fa, "\f555");
+}
+
 .fak.fa-asset-3,
 .fa-kit.fa-asset-3 {
   --fa: "\e000";
