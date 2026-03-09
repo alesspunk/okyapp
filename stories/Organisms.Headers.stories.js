@@ -1,6 +1,6 @@
 /**
  * Headers — DS-MARS v2
- * Icon rule: fa-kit fa-wallet fa-asset-3 for wallet icon · fa-light for remaining header icons · fa-solid only for fa-circle-user (not-logged)
+ * Icon rule: fa-kit fa-wallet for wallet icon · fa-light for remaining header icons · fa-solid only for fa-circle-user (not-logged)
  * Icon token: icon-medium (24px) inside .header-icon wrapper
  * App Header: WO8oM · ZPc9u · ArMsV  |  Page Header: 6IKuE · 5mGYt
  */
@@ -13,7 +13,7 @@ export default {
       description: {
         component:
           "Headers del app OKY. " +
-          "**Regla de íconos:** `fa-kit fa-wallet fa-asset-3` para wallet · `fa-light` para el resto de íconos de header · " +
+          "**Regla de íconos:** `fa-kit fa-wallet` para wallet · `fa-light` para el resto de íconos de header · " +
           "`fa-solid` solo para `fa-circle-user` (estado Not Logged). " +
           "Token de tamaño: `icon-medium` (24px) dentro de wrapper `.header-icon`.",
       },
@@ -68,7 +68,7 @@ export const AppHeaderPlayground = {
       ? `
       <div class="header-left-group header-side-cluster">
         <div class="header-icon">
-          <i class="fa-kit fa-wallet fa-asset-3 icon-medium"></i>
+          <i class="fa-kit fa-wallet icon-medium"></i>
         </div>
         <div class="header-icon">
           <i class="fa-light fa-magnifying-glass icon-medium"></i>
@@ -77,7 +77,7 @@ export const AppHeaderPlayground = {
       : `
       <div class="header-left-group">
         <div class="header-icon">
-          <i class="fa-kit fa-wallet fa-asset-3 icon-medium"></i>
+          <i class="fa-kit fa-wallet icon-medium"></i>
         </div>
       </div>`;
 
@@ -184,7 +184,7 @@ export const AllHeaders = {
     controls: { disable: true },
     docs: {
       description: {
-        story: "Referencia visual de las variantes de header. Wallet usa `fa-kit fa-wallet fa-asset-3` + `icon-medium`; el resto usa `fa-light` + `icon-medium`, excepto `fa-circle-user` que usa `fa-solid` + `icon-medium-solid`.",
+        story: "Referencia visual de las variantes de header. Wallet usa `fa-kit fa-wallet` + `icon-medium`; el resto usa `fa-light` + `icon-medium`, excepto `fa-circle-user` que usa `fa-solid` + `icon-medium-solid`.",
       },
     },
   },
@@ -197,7 +197,7 @@ export const AllHeaders = {
           <div class="mars-mobile">
             <div class="app-header">
               <div class="header-left-group">
-                <div class="header-icon"><i class="fa-kit fa-wallet fa-asset-3 icon-medium"></i></div>
+                <div class="header-icon"><i class="fa-kit fa-wallet icon-medium"></i></div>
               </div>
               <img class="header-logo" src="logo-oky.svg" alt="OKY">
               <div class="header-icon"><i class="fa-light fa-cart-shopping icon-medium"></i></div>
@@ -210,7 +210,7 @@ export const AllHeaders = {
           <div class="mars-mobile">
             <div class="app-header">
               <div class="header-left-group header-side-cluster">
-                <div class="header-icon"><i class="fa-kit fa-wallet fa-asset-3 icon-medium"></i></div>
+                <div class="header-icon"><i class="fa-kit fa-wallet icon-medium"></i></div>
                 <div class="header-icon"><i class="fa-light fa-magnifying-glass icon-medium"></i></div>
               </div>
               <img class="header-logo" src="logo-oky.svg" alt="OKY">
@@ -226,7 +226,7 @@ export const AllHeaders = {
           <div class="mars-mobile">
             <div class="app-header">
               <div class="header-left-group">
-                <div class="header-icon"><i class="fa-kit fa-wallet fa-asset-3 icon-medium"></i></div>
+                <div class="header-icon"><i class="fa-kit fa-wallet icon-medium"></i></div>
               </div>
               <img class="header-logo" src="logo-oky.svg" alt="OKY">
               <div class="header-icon"><i class="fa-solid fa-circle-user icon-medium-solid"></i></div>
@@ -239,7 +239,7 @@ export const AllHeaders = {
           <div class="mars-mobile">
             <div class="app-header is-logged-cart">
               <div class="header-left-group">
-                <div class="header-icon"><i class="fa-kit fa-wallet fa-asset-3 icon-medium"></i></div>
+                <div class="header-icon"><i class="fa-kit fa-wallet icon-medium"></i></div>
               </div>
               <img class="header-logo" src="logo-oky.svg" alt="OKY">
               <div class="header-cart-chip header-cart-full">

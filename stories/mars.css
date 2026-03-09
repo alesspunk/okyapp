@@ -510,7 +510,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px 0 8px;
+  padding: 0 16px;
 }
 
 .header-logo {
@@ -1331,7 +1331,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px 0 8px;
+  padding: 0 16px;
   gap: 8px;
 }
 
@@ -1495,7 +1495,7 @@ body {
   content: var(--fa);
 }
 
-/* Keep custom kit semantic class while local package exposes fa-asset-3 glyph */
+/* Map semantic custom icon name "wallet" to the local kit glyph codepoint */
 .fa-kit.fa-wallet,
 .fak.fa-wallet {
   --fa: "\e000";
