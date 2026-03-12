@@ -997,8 +997,18 @@
           setOptionActiveSide(side);
           toggleLeftChevron(side === "left");
 
-          if (leftFlag) leftFlag.style.display = "inline-flex";
-          if (rightFlag) rightFlag.style.display = "inline-flex";
+          const leftFlagImg = leftFlag?.querySelector("img");
+          const rightFlagImg = rightFlag?.querySelector("img");
+          if (leftFlag) {
+            leftFlag.style.display = "inline-flex";
+            leftFlag.classList.remove("is-rect");
+          }
+          if (rightFlag) {
+            rightFlag.style.display = "inline-flex";
+            rightFlag.classList.remove("is-rect");
+          }
+          if (leftFlagImg) leftFlagImg.src = "./images/guatemala-flag.png";
+          if (rightFlagImg) rightFlagImg.src = "./images/usa-flag.png";
           if (leftOption) leftOption.style.left = side === "left" ? "55px" : "54px";
           if (rightOption) rightOption.style.left = side === "left" ? "245px" : "235px";
           if (leftCode) {
@@ -1025,24 +1035,34 @@
           folderControl.classList.add("is-collapsed", side === "left" ? "is-left" : "is-right");
           setLayerShapes(side);
           setOptionActiveSide(side);
-          toggleLeftChevron(false);
+          toggleLeftChevron(side === "left");
 
-          if (leftFlag) leftFlag.style.display = "none";
-          if (rightFlag) rightFlag.style.display = "none";
-          if (leftOption) leftOption.style.left = "64px";
-          if (rightOption) rightOption.style.left = "245px";
+          const leftFlagImg = leftFlag?.querySelector("img");
+          const rightFlagImg = rightFlag?.querySelector("img");
+          if (leftFlag) {
+            leftFlag.style.display = "inline-flex";
+            leftFlag.classList.add("is-rect");
+          }
+          if (rightFlag) {
+            rightFlag.style.display = "inline-flex";
+            rightFlag.classList.add("is-rect");
+          }
+          if (leftFlagImg) leftFlagImg.src = "./images/flag-guate.png";
+          if (rightFlagImg) rightFlagImg.src = "./images/flag-usa.png";
+          if (leftOption) leftOption.style.left = "57px";
+          if (rightOption) rightOption.style.left = "248px";
           if (leftCode) {
-            leftCode.style.marginLeft = side === "left" ? "7px" : "";
-            leftCode.style.transform = side === "left" ? "translateY(-2px)" : "translateY(-5px)";
+            leftCode.style.removeProperty("margin-left");
+            leftCode.style.removeProperty("transform");
           }
           if (rightCode) {
-            rightCode.style.marginLeft = side === "left" ? "15px" : "20px";
-            rightCode.style.transform = side === "left" ? "translateY(-5px)" : "translateY(-3px)";
+            rightCode.style.removeProperty("margin-left");
+            rightCode.style.removeProperty("transform");
           }
           if (selectionLine) {
-            selectionLine.style.left = side === "left" ? "55px" : "245px";
-            selectionLine.style.width = "66px";
-            selectionLine.style.top = side === "left" ? "31px" : "30px";
+            selectionLine.style.left = side === "left" ? "52px" : "245px";
+            selectionLine.style.width = side === "left" ? "90px" : "66px";
+            selectionLine.style.top = "30px";
             setNewItemChipVisible(false);
           }
         };
