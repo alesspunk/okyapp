@@ -1,0 +1,125 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  background: #f5f5f5;
+  font-family: "Nunito Sans", sans-serif;
+}
+
+.pdp-page-shell {
+  width: 360px;
+  height: 800px;
+  margin: 0;
+  background: #fff;
+  border: 1px solid #cfd4dc;
+  border-radius: 20px;
+  position: relative;
+  padding-bottom: 92px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-shadow: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.pdp-page-shell::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.pdp-page-section {
+  width: 100%;
+  background: #fff;
+}
+
+.pdp-page-header {
+  width: 358px;
+  padding: 0 8px;
+}
+
+.pdp-page-stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 0 9px 0;
+  box-sizing: border-box;
+}
+
+.pdp-page-brand-slot,
+.pdp-page-plateu-slot,
+.pdp-page-card-slot,
+.pdp-page-input-slot,
+.pdp-page-slider-slot,
+.pdp-page-summary-slot {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.pdp-page-brand-slot {
+  position: relative;
+  z-index: 2;
+  margin-top: -55px;
+}
+
+.pdp-page-plateu-slot {
+  position: relative;
+  z-index: 1;
+}
+
+.pdp-page-shell.has-plateu .pdp-page-plateu-slot {
+  margin-top: -40px;
+}
+
+.pdp-page-shell .middle-card-shell {
+  max-width: 100%;
+}
+
+.pdp-page-slider-slot {
+  padding-top: 4px;
+}
+
+.pdp-page-content-gap {
+  height: 12px;
+}
+
+.pdp-page-summary-wrap {
+  position: sticky;
+  bottom: 56px;
+  z-index: 15;
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 18%, #fff 100%);
+}
+
+.pdp-page-nav {
+  position: fixed;
+  left: 50%;
+  width: 360px;
+  transform: translateX(-50%);
+  bottom: max(0px, calc((100vh - 800px) / 2));
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.pdp-page-nav .bottom-nav {
+  pointer-events: auto;
+}
+
+.pdp-page-nav .nav-item i {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.pdp-page-footer-spacer {
+  height: 24px;
+}

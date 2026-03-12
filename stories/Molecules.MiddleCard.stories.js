@@ -1,48 +1,11 @@
-const middleCardVariants = [
-  {
-    path: "Molecule/Middle Card/Vale de Monto",
-    key: "vale-de-monto",
-    id: "6991:146235",
-    kind: "amount",
-    title: "Vale de Monto",
-    currency: "Q",
-    amount: "1,000",
-    leftLabel: "Mostrar al cajero",
-    rightLabel: "Como canjear",
-    image: "",
-    recommendation: 'Recomendado: título máx. 14 caracteres ("Vale de Monto") · monto máx. 5 dígitos + separadores.',
-  },
-  {
-    path: "Molecule/Middle Card/Vale de Producto",
-    key: "vale-de-producto",
-    id: "6991:146181",
-    kind: "product",
-    title: "Cajita Feliz de McNuggets + Cono Vainilla y Juguete incluido",
-    currency: "",
-    amount: "",
-    leftLabel: "Mostrar al cajero",
-    rightLabel: "Como canjear",
-    image: "middle-card-vale-de-producto.png",
-    recommendation:
-      'Recomendado: título máx. 60 caracteres (base Figma: "Cajita Feliz de McNuggets + Cono Vainilla y Juguete incluido").',
-  },
-  {
-    path: "Molecule/Middle Card/eGift Card",
-    key: "egift-card",
-    id: "6991:146335",
-    kind: "egift",
-    title: "Brand Name eGift Card",
-    currency: "$",
-    amount: "10",
-    leftLabel: "In Store, Online",
-    rightLabel: "Redemption Instructions",
-    image: "",
-    recommendation:
-      'Recomendado: título máx. 21 caracteres ("Brand Name eGift Card") · monto máx. 2 dígitos para esta composición.',
-  },
-];
-
-const variantPaths = middleCardVariants.map((variant) => variant.path);
+import {
+  DISCOUNT_RIBBON_TYPES,
+  findMiddleCard,
+  MIDDLE_CARD_PATHS,
+  MIDDLE_CARD_VARIANTS,
+  renderMiddleCard,
+  resolveMiddleCard,
+} from "./_shared/middleCard";
 
 const typographyMapping = [
   {
@@ -79,79 +42,6 @@ const typographyMapping = [
   },
 ];
 
-function findVariant(path) {
-  return middleCardVariants.find((variant) => variant.path === path) ?? middleCardVariants[0];
-}
-
-function resolveCard(args = {}) {
-  const base = findVariant(args.variantPath);
-  return {
-    ...base,
-    pageContext: args.pageContext || "PDP",
-    title: args.title?.trim() || base.title,
-    currency: args.currency?.trim() || base.currency,
-    amount: args.amount?.trim() || base.amount,
-    leftLabel: args.leftLabel?.trim() || base.leftLabel,
-    rightLabel: args.rightLabel?.trim() || base.rightLabel,
-    image: args.image?.trim() || base.image,
-  };
-}
-
-function renderFooter(card) {
-  return `
-    <div class="middle-card-footer">
-      <span class="middle-card-footer-start">${card.leftLabel}</span>
-      <span class="middle-card-footer-end">${card.rightLabel}</span>
-      <span class="fa-icon fa-icon-card-use middle-card-link-icon" aria-hidden="true">
-        <i class="fa-thin fa-arrow-up-right-from-square"></i>
-      </span>
-    </div>
-  `;
-}
-
-function renderBody(card) {
-  if (card.kind === "product") {
-    return `
-      <div class="middle-card-content">
-        <div class="middle-card-main">
-          <p class="middle-card-title">${card.title}</p>
-          <div class="middle-card-center">
-            <figure class="middle-card-product-figure">
-              <img src="${card.image}" alt="${card.title}" />
-            </figure>
-          </div>
-        </div>
-        ${renderFooter(card)}
-      </div>
-    `;
-  }
-
-  return `
-    <div class="middle-card-content">
-      <div class="middle-card-main">
-        <p class="middle-card-title">${card.title}</p>
-        <div class="middle-card-center">
-          <div class="middle-card-value">
-            <span class="middle-card-currency">${card.currency}</span>
-            <p class="middle-card-amount">${card.amount}</p>
-          </div>
-        </div>
-      </div>
-      ${renderFooter(card)}
-    </div>
-  `;
-}
-
-function renderMiddleCard(card) {
-  return `
-    <div class="middle-card-shell is-${card.pageContext.toLowerCase()}" data-pen-id="${card.id}">
-      <article class="middle-card-molecule is-${card.kind}">
-        ${renderBody(card)}
-      </article>
-    </div>
-  `;
-}
-
 function renderReferenceItem(card) {
   return `
     <div class="middle-card-reference">
@@ -173,6 +63,7 @@ export default {
           "Incluye tres variantes iniciales: **Vale de Monto**, **Vale de Producto** y **eGift Card**. " +
           "Mantiene el mismo footer de acciones, usa tipografía del sistema basada en `Nunito Sans`, shadow suave, radial surface y CTA secundario con `arrow-up-right-from-square`. " +
           "Incluye además un switch de contexto para **PDP** y **Checkout**, cambiando tamaño sin alterar la anatomía. " +
+          "También permite montar opcionalmente un **Discount Ribbon / Wrap** en la esquina superior derecha, reutilizando el átomo existente sin romper su set de variantes. " +
           "La variante de producto usa `mix-blend-mode: darken` sobre la imagen para respetar el tratamiento visual de Figma. " +
           "Tipografía asignada: **Title → productText**, **Currency prefix → subtitle2**, **Amount → H2**, **Footer labels → CARDLABEL**. " +
           "El shell usa el token de efecto **PDP Card** y la superficie **Card Middle**.",
@@ -182,7 +73,7 @@ export default {
   argTypes: {
     variantPath: {
       control: "select",
-      options: variantPaths,
+      options: MIDDLE_CARD_PATHS,
       description: "Selecciona la variante base del componente.",
     },
     pageContext: {
@@ -214,6 +105,24 @@ export default {
       control: "text",
       description: "Imagen para la variante Vale de Producto.",
     },
+    showDiscountRibbon: {
+      control: "boolean",
+      description: "Prende o apaga el Discount Ribbon / Wrap montado en la esquina superior derecha.",
+    },
+    discountRibbonType: {
+      control: "select",
+      options: DISCOUNT_RIBBON_TYPES,
+      description: "Type del Discount Ribbon reutilizado sobre el card.",
+    },
+    discountRibbonLabel: {
+      control: "text",
+      description: "Texto del Discount Ribbon montado.",
+    },
+    discountRibbonSize: {
+      control: "inline-radio",
+      options: ["Default", "Small"],
+      description: "Size del Wrap: Default para PDP o Small para tarjetas más compactas.",
+    },
     showMeta: {
       control: "boolean",
       description: "Muestra el ID .pen debajo del playground.",
@@ -232,18 +141,22 @@ export const DocsPlayground = {
     leftLabel: "Mostrar al cajero",
     rightLabel: "Como canjear",
     image: "middle-card-vale-de-producto.png",
+    showDiscountRibbon: true,
+    discountRibbonType: "Por tiempo",
+    discountRibbonLabel: "25% OFF",
+    discountRibbonSize: "Default",
     showMeta: true,
   },
   render: (args) => {
-    const card = resolveCard(args);
+    const card = resolveMiddleCard(args);
     return `
       <div class="mars-story">
         <div class="mars-label">Variant: ${card.path} · Page: ${card.pageContext}</div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-          ${findVariant(card.path).recommendation}
+          ${findMiddleCard(card.path).recommendation}
         </div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-          Typography: Title → productText · Currency → subtitle2 · Amount → H2 · Footer labels → CARDLABEL.
+          Typography: Title → productText · Currency → subtitle2 · Amount → H2 · Footer labels → CARDLABEL. Discount Ribbon / Wrap opcional desde el switch.
         </div>
         ${args.showMeta ? `<div class="mars-label">ID .pen: ${card.id}</div>` : ""}
         ${renderMiddleCard(card)}
@@ -262,12 +175,12 @@ export const AllVariants = {
     },
   },
   render: () => `
-    <div class="mars-story">
-      <div class="mars-label">Middle Card · Three Variants</div>
-      <div class="middle-card-grid">
-        ${middleCardVariants.map((card) => renderReferenceItem(card)).join("")}
+      <div class="mars-story">
+        <div class="mars-label">Middle Card · Three Variants</div>
+        <div class="middle-card-grid">
+        ${MIDDLE_CARD_VARIANTS.map((card) => renderReferenceItem(card)).join("")}
+        </div>
       </div>
-    </div>
   `,
 };
 
@@ -281,18 +194,18 @@ export const PageContexts = {
     },
   },
   render: () => {
-    const sample = middleCardVariants[0];
+    const sample = MIDDLE_CARD_VARIANTS[0];
     return `
       <div class="mars-story">
         <div class="mars-label">Middle Card · Page Context Switch</div>
         <div class="middle-card-grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
           <div class="middle-card-reference">
             <div class="mars-label">PDP · 342x194</div>
-            ${renderMiddleCard({ ...sample, pageContext: "PDP" })}
+            ${renderMiddleCard({ ...sample, pageContext: "PDP", showDiscountRibbon: true, discountRibbonType: "Por tiempo", discountRibbonLabel: "25% OFF", discountRibbonSize: "Default" })}
           </div>
           <div class="middle-card-reference">
             <div class="mars-label">Checkout · 300x177</div>
-            ${renderMiddleCard({ ...sample, pageContext: "Checkout" })}
+            ${renderMiddleCard({ ...sample, pageContext: "Checkout", showDiscountRibbon: true, discountRibbonType: "Por tiempo", discountRibbonLabel: "25% OFF", discountRibbonSize: "Small" })}
           </div>
         </div>
       </div>

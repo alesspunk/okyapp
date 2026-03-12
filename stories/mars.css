@@ -3615,10 +3615,11 @@ body {
 .middle-card-shell {
   --border-main: #e0e0e0;
   width: min(342px, 100%);
+  position: relative;
   border-radius: 16px;
   background: var(--white);
   filter: var(--pdp-card-shadow);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .middle-card-molecule {
@@ -3629,6 +3630,7 @@ body {
   border-radius: 16px;
   background: var(--card-middle);
   padding-top: 8px;
+  overflow: hidden;
 }
 
 .middle-card-shell.is-checkout {
@@ -3637,6 +3639,18 @@ body {
 
 .middle-card-shell.is-checkout .middle-card-molecule {
   min-height: 177px;
+}
+
+.middle-card-ribbon-slot {
+  position: absolute;
+  top: 14px;
+  right: -6px;
+  z-index: 3;
+}
+
+.middle-card-shell.is-checkout .middle-card-ribbon-slot {
+  top: 12px;
+  right: -5px;
 }
 
 .middle-card-content {

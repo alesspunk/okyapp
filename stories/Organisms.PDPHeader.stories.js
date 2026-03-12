@@ -1,3 +1,10 @@
+import {
+  DISCOUNT_RIBBON_TYPES,
+  findMiddleCard,
+  MIDDLE_CARD_PATHS,
+  renderMiddleCard,
+  resolveMiddleCard,
+} from "./_shared/middleCard";
 import { buildPlateu, PLATEU_VARIANT_OPTIONS, PLATEU_VARIANTS } from "./_shared/plateu";
 
 const BRAND_PRESETS = [
@@ -16,55 +23,10 @@ const BRAND_PRESETS = [
 const BRAND_VARIANTS = ["With label", "No label"];
 const PAGE_HEADER_VARIANTS = ["screens", "modal", "no-title"];
 const PDP_HEADER_LAYOUTS = ["Default", "With Plateu"];
-const MIDDLE_CARD_VARIANTS = [
-  {
-    path: "Molecule/Middle Card/Vale de Monto",
-    id: "6991:146235",
-    kind: "amount",
-    title: "Vale de Monto",
-    currency: "Q",
-    amount: "1,000",
-    leftLabel: "Mostrar al cajero",
-    rightLabel: "Como canjear",
-    image: "",
-    recommendation: 'Card title máx. 14 caracteres (base: "Vale de Monto").',
-  },
-  {
-    path: "Molecule/Middle Card/Vale de Producto",
-    id: "6991:146181",
-    kind: "product",
-    title: "Cajita Feliz de McNuggets + Cono Vainilla y Juguete incluido",
-    currency: "",
-    amount: "",
-    leftLabel: "Mostrar al cajero",
-    rightLabel: "Como canjear",
-    image: "middle-card-vale-de-producto.png",
-    recommendation:
-      'Card title máx. 60 caracteres (base: "Cajita Feliz de McNuggets + Cono Vainilla y Juguete incluido").',
-  },
-  {
-    path: "Molecule/Middle Card/eGift Card",
-    id: "6991:146335",
-    kind: "egift",
-    title: "Brand Name eGift Card",
-    currency: "$",
-    amount: "10",
-    leftLabel: "In Store, Online",
-    rightLabel: "Redemption Instructions",
-    image: "",
-    recommendation: 'Card title máx. 21 caracteres (base: "Brand Name eGift Card").',
-  },
-];
-
-const MIDDLE_CARD_PATHS = MIDDLE_CARD_VARIANTS.map((variant) => variant.path);
 const DYNAMIC_INPUT_STATES = ["Empty", "Hasvalue"];
 
 function findBrand(key) {
   return BRAND_PRESETS.find((brand) => brand.key === key) ?? BRAND_PRESETS[0];
-}
-
-function findMiddleCard(path) {
-  return MIDDLE_CARD_VARIANTS.find((variant) => variant.path === path) ?? MIDDLE_CARD_VARIANTS[0];
 }
 
 function renderPageHeader({ variant, title, showAction }) {
@@ -112,56 +74,6 @@ function renderBrandItem({ variant, brandKey, label, image, background }) {
           <img src="${resolvedImage}" alt="${resolvedLabel}" />
         </div>
       </div>
-    </div>
-  `;
-}
-
-function renderMiddleCard(card) {
-  const footer = `
-    <div class="middle-card-footer">
-      <span class="middle-card-footer-start">${card.leftLabel}</span>
-      <span class="middle-card-footer-end">${card.rightLabel}</span>
-      <span class="fa-icon fa-icon-card-use middle-card-link-icon" aria-hidden="true">
-        <i class="fa-thin fa-arrow-up-right-from-square"></i>
-      </span>
-    </div>
-  `;
-
-  const content =
-    card.kind === "product"
-      ? `
-        <div class="middle-card-content">
-          <div class="middle-card-main">
-            <p class="middle-card-title">${card.title}</p>
-            <div class="middle-card-center">
-              <figure class="middle-card-product-figure">
-                <img src="${card.image}" alt="${card.title}" />
-              </figure>
-            </div>
-          </div>
-          ${footer}
-        </div>
-      `
-      : `
-        <div class="middle-card-content">
-          <div class="middle-card-main">
-            <p class="middle-card-title">${card.title}</p>
-            <div class="middle-card-center">
-              <div class="middle-card-value">
-                <span class="middle-card-currency">${card.currency}</span>
-                <p class="middle-card-amount">${card.amount}</p>
-              </div>
-            </div>
-          </div>
-          ${footer}
-        </div>
-      `;
-
-  return `
-    <div class="middle-card-shell is-${card.pageContext.toLowerCase()}" data-pen-id="${card.id}">
-      <article class="middle-card-molecule is-${card.kind}">
-        ${content}
-      </article>
     </div>
   `;
 }
@@ -224,8 +136,8 @@ function resolveArgs(args = {}) {
       currencySymbol: args.dynamicCurrencySymbol || "$",
       helperText: args.dynamicHelperText?.trim() || "Desde 10 hasta 1000",
     },
-    middleCard: {
-      ...middle,
+    middleCard: resolveMiddleCard({
+      variantPath: middle.path,
       pageContext: args.cardContext || "PDP",
       title: args.cardTitle?.trim() || middle.title,
       currency: args.currency?.trim() || middle.currency,
@@ -233,7 +145,11 @@ function resolveArgs(args = {}) {
       leftLabel: args.leftLabel?.trim() || middle.leftLabel,
       rightLabel: args.rightLabel?.trim() || middle.rightLabel,
       image: args.cardImage?.trim() || middle.image,
-    },
+      showDiscountRibbon: args.showDiscountRibbon,
+      discountRibbonType: args.discountRibbonType,
+      discountRibbonLabel: args.discountRibbonLabel,
+      discountRibbonSize: args.discountRibbonSize,
+    }),
   };
 }
 
@@ -292,7 +208,7 @@ export default {
           "Organismo **PDP Header** compuesto únicamente con componentes ya existentes del sistema: " +
           "`Page Header`, `Brand Item`, `Plateu`, `Middle Card` e `Input/Dinamic`. " +
           "Se presenta como stack vertical para encabezados de PDP y usa por defecto la variante `Page Header / No title`. " +
-          "Puede mostrarse con o sin `Plateu`, reutilizando las variantes ya documentadas del componente existente.",
+          "Puede mostrarse con o sin `Plateu`, y también prender/apagar el `Discount Ribbon / Wrap` del `Middle Card`, reutilizando en ambos casos las variantes ya documentadas de los componentes existentes.",
       },
     },
   },
@@ -386,6 +302,24 @@ export default {
       control: "text",
       description: "Imagen del Middle Card de producto.",
     },
+    showDiscountRibbon: {
+      control: "boolean",
+      description: "Prende o apaga el Discount Ribbon / Wrap en la esquina superior derecha del Middle Card.",
+    },
+    discountRibbonType: {
+      control: "select",
+      options: DISCOUNT_RIBBON_TYPES,
+      description: "Type del Discount Ribbon montado sobre Middle Card.",
+    },
+    discountRibbonLabel: {
+      control: "text",
+      description: "Texto del Discount Ribbon / Wrap.",
+    },
+    discountRibbonSize: {
+      control: "inline-radio",
+      options: ["Default", "Small"],
+      description: "Size del Wrap para PDP Header.",
+    },
     dynamicInputState: {
       control: "inline-radio",
       options: DYNAMIC_INPUT_STATES,
@@ -433,6 +367,10 @@ export const DocsPlayground = {
     leftLabel: "Mostrar al cajero",
     rightLabel: "Como canjear",
     cardImage: "middle-card-vale-de-producto.png",
+    showDiscountRibbon: true,
+    discountRibbonType: "Por tiempo",
+    discountRibbonLabel: "25% OFF",
+    discountRibbonSize: "Default",
     dynamicInputState: "Empty",
     dynamicPlaceholder: "Ingresa el monto",
     dynamicValue: "40.00",
@@ -485,6 +423,10 @@ export const ReferenceStacks = {
               brandKey: "mcdonalds",
               middleCardPath: "Molecule/Middle Card/Vale de Monto",
               cardContext: "PDP",
+              showDiscountRibbon: true,
+              discountRibbonType: "Por tiempo",
+              discountRibbonLabel: "25% OFF",
+              discountRibbonSize: "Default",
               dynamicInputState: "Empty",
             })}
           </div>
@@ -502,6 +444,7 @@ export const ReferenceStacks = {
               brandKey: "mcdonalds",
               middleCardPath: "Molecule/Middle Card/Vale de Producto",
               cardContext: "PDP",
+              showDiscountRibbon: false,
               dynamicInputState: "Hasvalue",
             })}
           </div>
@@ -520,6 +463,10 @@ export const ReferenceStacks = {
               brandKey: "apple",
               middleCardPath: "Molecule/Middle Card/eGift Card",
               cardContext: "Checkout",
+              showDiscountRibbon: true,
+              discountRibbonType: "Por tiempo",
+              discountRibbonLabel: "18% OFF",
+              discountRibbonSize: "Small",
               dynamicInputState: "Hasvalue",
               dynamicCurrencySymbol: "$",
             })}
