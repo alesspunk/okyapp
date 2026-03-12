@@ -8,16 +8,16 @@ import {
 import { buildPlateu, PLATEU_VARIANT_OPTIONS, PLATEU_VARIANTS } from "./_shared/plateu";
 
 const BRAND_PRESETS = [
-  { key: "mcdonalds", label: "McDonald's", image: "mcdonalds.webp", background: "#fe0015" },
-  { key: "starbucks", label: "Starbucks", image: "starbucks.webp", background: "#006241" },
-  { key: "uber", label: "Uber", image: "uber.png", background: "#111111" },
-  { key: "target", label: "Target", image: "target.webp", background: "#cc0000" },
-  { key: "apple", label: "Apple", image: "apple.webp", background: "#111111" },
-  { key: "xbox", label: "Xbox", image: "xbox.png", background: "#107c10" },
-  { key: "amazon", label: "Amazon", image: "amazon.png", background: "#131921" },
-  { key: "twitch", label: "Twitch", image: "twitch.png", background: "#9146ff" },
-  { key: "nike", label: "Nike", image: "nike.png", background: "#111111" },
-  { key: "doordash", label: "DoorDash", image: "doordash.png", background: "#ff3008" },
+  { key: "mcdonalds", label: "McDonald's", image: "mcdonalds.webp" },
+  { key: "starbucks", label: "Starbucks", image: "starbucks.webp" },
+  { key: "uber", label: "Uber", image: "uber.png" },
+  { key: "target", label: "Target", image: "target.webp" },
+  { key: "apple", label: "Apple", image: "apple.webp" },
+  { key: "xbox", label: "Xbox", image: "xbox.png" },
+  { key: "amazon", label: "Amazon", image: "amazon.png" },
+  { key: "twitch", label: "Twitch", image: "twitch.png" },
+  { key: "nike", label: "Nike", image: "nike.png" },
+  { key: "doordash", label: "DoorDash", image: "doordash.png" },
 ];
 
 const BRAND_VARIANTS = ["With label", "No label"];
@@ -63,7 +63,7 @@ function renderBrandItem({ variant, brandKey, label, image, background }) {
   const brand = findBrand(brandKey);
   const resolvedLabel = label?.trim() || brand.label;
   const resolvedImage = image?.trim() || brand.image;
-  const resolvedBackground = background?.trim() || brand.background;
+  const resolvedBackground = background?.trim() || "transparent";
   const showLabel = variant === "With label";
 
   return `
@@ -128,7 +128,7 @@ function resolveArgs(args = {}) {
     brandKey: brand.key,
     brandLabel: args.brandLabel?.trim() || brand.label,
     brandImage: args.brandImage?.trim() || brand.image,
-    brandBackground: args.brandBackground?.trim() || brand.background,
+    brandBackground: args.brandBackground?.trim() || "transparent",
     dynamicInput: {
       state: DYNAMIC_INPUT_STATES.includes(args.dynamicInputState) ? args.dynamicInputState : "Empty",
       placeholder: args.dynamicPlaceholder?.trim() || "Ingresa el monto",
@@ -253,7 +253,7 @@ export default {
     brandKey: {
       control: "select",
       options: BRAND_PRESETS.map((brand) => brand.key),
-      description: "Preset de marca para poblar imagen, fondo y label base.",
+      description: "Preset de marca para poblar imagen y label base.",
     },
     brandLabel: {
       control: "text",
@@ -266,7 +266,7 @@ export default {
     },
     brandBackground: {
       control: "color",
-      description: "Override del color de fondo del Brand Item.",
+      description: "Override del color de fondo del Brand Item. Si está vacío, usa transparent.",
     },
     middleCardPath: {
       control: "select",

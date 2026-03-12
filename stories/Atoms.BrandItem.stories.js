@@ -1,14 +1,14 @@
 const BRAND_PRESETS = [
-  { key: "mcdonalds", label: "McDonald's", image: "mcdonalds.webp", background: "#fe0015" },
-  { key: "starbucks", label: "Starbucks", image: "starbucks.webp", background: "#006241" },
-  { key: "uber", label: "Uber", image: "uber.png", background: "#111111" },
-  { key: "target", label: "Target", image: "target.webp", background: "#cc0000" },
-  { key: "apple", label: "Apple", image: "apple.webp", background: "#111111" },
-  { key: "xbox", label: "Xbox", image: "xbox.png", background: "#107c10" },
-  { key: "amazon", label: "Amazon", image: "amazon.png", background: "#131921" },
-  { key: "twitch", label: "Twitch", image: "twitch.png", background: "#9146ff" },
-  { key: "nike", label: "Nike", image: "nike.png", background: "#111111" },
-  { key: "doordash", label: "DoorDash", image: "doordash.png", background: "#ff3008" },
+  { key: "mcdonalds", label: "McDonald's", image: "mcdonalds.webp" },
+  { key: "starbucks", label: "Starbucks", image: "starbucks.webp" },
+  { key: "uber", label: "Uber", image: "uber.png" },
+  { key: "target", label: "Target", image: "target.webp" },
+  { key: "apple", label: "Apple", image: "apple.webp" },
+  { key: "xbox", label: "Xbox", image: "xbox.png" },
+  { key: "amazon", label: "Amazon", image: "amazon.png" },
+  { key: "twitch", label: "Twitch", image: "twitch.png" },
+  { key: "nike", label: "Nike", image: "nike.png" },
+  { key: "doordash", label: "DoorDash", image: "doordash.png" },
 ];
 
 const VARIANT_OPTIONS = ["With label", "No label", "Big"];
@@ -26,7 +26,7 @@ function buildBrandItem({ variant = "With label", brandKey = "mcdonalds", label,
   const brand = findBrand(brandKey);
   const resolvedLabel = label?.trim() || brand.label;
   const resolvedImage = image?.trim() || brand.image;
-  const resolvedBackground = background?.trim() || brand.background;
+  const resolvedBackground = background?.trim() || "transparent";
   const showLabel = variant === "With label";
   const variantClass =
     variant === "Big"
@@ -62,6 +62,7 @@ export default {
           "Incluye tres variantes: **With label**, **No label** y **Big**. " +
           "Respeta la huella visual de Figma (`112px` wrapper con label, `111x70` base, bordes redondeados, borde blanco interno) " +
           "y usa el token tipográfico **productText** para el label. " +
+          "El fondo base del componente es **transparent**, y en Storybook puede probarse con override manual si se necesita para otro contexto. " +
           "La variante **Big** toma como guía visual la misma familia del nodo `7359:69327`, pero sin label, en `343x215px`, con stroke gris de `1px` usando `border-main` y `card-shadow` para un uso más card-like.",
       },
     },
@@ -87,7 +88,7 @@ export const DocsPlayground = {
     brandKey: {
       control: "select",
       options: BRAND_PRESETS.map((brand) => brand.key),
-      description: "Preset de marca para cambiar imagen, label y color de fondo de referencia.",
+      description: "Preset de marca para cambiar imagen y label base.",
     },
     label: {
       control: "text",
@@ -100,7 +101,7 @@ export const DocsPlayground = {
     },
     background: {
       control: "color",
-      description: "Override manual del fondo. Si está vacío, usa el preset seleccionado.",
+      description: "Override manual del fondo. Si está vacío, el componente usa transparent.",
     },
     showMeta: {
       control: "boolean",
@@ -114,7 +115,7 @@ export const DocsPlayground = {
       brandKey,
       label: label || brand.label,
       image: image || brand.image,
-      background: background || brand.background,
+      background: background || "transparent",
     };
 
     return `
