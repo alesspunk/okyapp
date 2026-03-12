@@ -508,16 +508,20 @@ body {
   line-height: 1;
 }
 
-.toast-banner-icon-success {
+.icon-main-success {
   color: var(--success-main);
 }
 
-.toast-banner-icon-warning {
+.icon-main-warning {
   color: var(--warning-main);
 }
 
-.toast-banner-icon-error {
+.icon-main-error {
   color: var(--error-main);
+}
+
+.icon-main-info {
+  color: var(--info-main);
 }
 
 .toast-banner-message {
@@ -3645,13 +3649,13 @@ body {
 .middle-card-ribbon-slot {
   position: absolute;
   top: 14px;
-  right: -11px;
+  right: -14px;
   z-index: 3;
 }
 
 .middle-card-shell.is-checkout .middle-card-ribbon-slot {
   top: 12px;
-  right: -10px;
+  right: -13px;
 }
 
 .middle-card-content {

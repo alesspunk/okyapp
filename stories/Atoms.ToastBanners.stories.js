@@ -8,6 +8,11 @@ const TOAST_ICON_OPTIONS = [
   "circle-info",
 ];
 const TOAST_MESSAGE_LIMIT = 30;
+const TOAST_ICON_TONES = {
+  Success: "icon-main-success",
+  Warning: "icon-main-warning",
+  Error: "icon-main-error",
+};
 
 const TOAST_CONFIG = {
   Success: {
@@ -55,6 +60,7 @@ function resolveToast(args = {}) {
     ...base,
     variant,
     icon,
+    iconToneClass: TOAST_ICON_TONES[variant],
     message,
   };
 }
@@ -64,7 +70,7 @@ function renderToastBanner(args = {}) {
 
   return `
     <article class="toast-banner toast-banner-${toast.variant.toLowerCase()}" data-figma-node="${toast.nodeId}">
-      <span class="fa-icon toast-banner-icon toast-banner-icon-${toast.variant.toLowerCase()}" aria-hidden="true">
+      <span class="fa-icon toast-banner-icon ${toast.iconToneClass}" aria-hidden="true">
         <i class="${toast.iconWeight} fa-${toast.icon}"></i>
       </span>
       <p class="token-body1 toast-banner-message">${toast.message}</p>
