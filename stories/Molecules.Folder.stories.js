@@ -100,6 +100,7 @@ function renderFolderOption({
   codeOffset = 0,
   codeOffsetY = 0,
   withFlag = true,
+  flagVariant = "round",
 }) {
   const isActive = side === selectedSide;
   const showChevronForOption = showChevrons && isActive && side === "left";
@@ -115,7 +116,7 @@ function renderFolderOption({
     <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="left:${x}px">
       ${
         withFlag
-          ? `<span class="folder-flag" aria-hidden="true">
+          ? `<span class="folder-flag ${flagVariant === "rect" ? "is-rect" : ""}" aria-hidden="true">
                <img src="${flag}" alt="${alt}">
              </span>`
           : ""
@@ -153,11 +154,11 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
   };
 
   if (isCollapsed) {
-    const leftX = 64;
+    const leftX = 55;
     const rightX = 245;
     const lineX = isCollapsedLeft ? 55 : 245;
     const lineWidth = 66;
-    const lineTop = isCollapsedLeft ? 31 : 30;
+    const lineTop = 30;
 
     return `
       <div class="folder-responsive-host is-collapsed">
@@ -178,9 +179,8 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
             flag: countries.left.flag,
             alt: countries.left.alt,
             showChevrons: false,
-            codeOffset: isCollapsedLeft ? 7 : 0,
-            codeOffsetY: isCollapsedLeft ? -2 : -5,
-            withFlag: false,
+            withFlag: true,
+            flagVariant: "rect",
           })}
           ${renderFolderOption({
             x: rightX,
@@ -190,9 +190,8 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
             flag: countries.right.flag,
             alt: countries.right.alt,
             showChevrons: false,
-            codeOffset: isCollapsedLeft ? 15 : 20,
-            codeOffsetY: isCollapsedLeft ? -5 : -3,
-            withFlag: false,
+            withFlag: true,
+            flagVariant: "rect",
           })}
         </div>
 

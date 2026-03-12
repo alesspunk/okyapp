@@ -2858,6 +2858,8 @@ body {
 
 .folder-control.is-collapsed .folder-option {
   top: 7px;
+  height: 18px;
+  gap: 6px;
 }
 
 .folder-option.is-active .folder-code {
@@ -2888,6 +2890,21 @@ body {
   display: block;
 }
 
+.folder-control.is-collapsed .folder-flag {
+  width: 28px;
+  height: 18px;
+  border-radius: 3px;
+  border: 0.5px solid rgba(85, 37, 136, 0.18);
+  box-shadow: none;
+}
+
+.folder-control.is-collapsed .folder-flag.is-rect img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
 .folder-code {
   margin: 0;
   text-transform: uppercase;
@@ -2895,6 +2912,10 @@ body {
   color: var(--folder-primary);
   font-size: 14px;
   line-height: 1.57;
+}
+
+.folder-control.is-collapsed .folder-code {
+  line-height: 1;
 }
 
 .folder-chevron-stack {
