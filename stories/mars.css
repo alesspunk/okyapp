@@ -108,6 +108,14 @@ body {
   padding: 12px;
 }
 
+.token-product-text {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.15px;
+}
+
 .btn {
   font-family: "Nunito Sans", sans-serif;
   border: none;
@@ -1458,6 +1466,61 @@ body {
 
 .fa-icon-active {
   color: var(--primary-main);
+}
+
+/* ── Brand Item (Atom) ───────────────────────────────── */
+.brand-item-atom {
+  width: 112px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.brand-item-atom.is-no-label {
+  width: 111px;
+}
+
+.brand-item-label {
+  width: 81px;
+  min-height: 18px;
+  margin: 0;
+  color: #421771;
+  text-align: center;
+}
+
+.brand-item-frame {
+  width: 111px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: clip;
+  border-radius: 6px;
+}
+
+.brand-item-base {
+  width: 111px;
+  height: 70px;
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.brand-item-base img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.brand-item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 16px;
+  align-items: start;
 }
 
 /* ── Font Awesome compatibility (kit custom + local FA6 pro) ── */
@@ -3188,25 +3251,32 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
 }
 
 .middle-card-shell.is-checkout .middle-card-content {
   min-height: 169px;
 }
 
-.middle-card-top {
+.middle-card-main {
   width: 100%;
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
+  justify-content: flex-start;
 }
 
-.middle-card-molecule.is-product .middle-card-top {
-  gap: 8px;
+.middle-card-center {
+  width: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.middle-card-molecule.is-product .middle-card-center {
+  padding-top: 8px;
 }
 
 .middle-card-title {
@@ -3231,6 +3301,10 @@ body {
 
 .middle-card-molecule.is-product .middle-card-title {
   min-height: 44px;
+}
+
+.middle-card-shell.is-checkout .middle-card-molecule.is-product .middle-card-title {
+  min-height: 40px;
 }
 
 .middle-card-value {
@@ -3302,6 +3376,7 @@ body {
   gap: 4px;
   padding: 8px 20px;
   color: #552588;
+  margin-top: auto;
 }
 
 .middle-card-shell.is-checkout .middle-card-footer {

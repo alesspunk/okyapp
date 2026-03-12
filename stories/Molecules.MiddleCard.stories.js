@@ -113,11 +113,13 @@ function renderBody(card) {
   if (card.kind === "product") {
     return `
       <div class="middle-card-content">
-        <div class="middle-card-top">
+        <div class="middle-card-main">
           <p class="middle-card-title">${card.title}</p>
-          <figure class="middle-card-product-figure">
-            <img src="${card.image}" alt="${card.title}" />
-          </figure>
+          <div class="middle-card-center">
+            <figure class="middle-card-product-figure">
+              <img src="${card.image}" alt="${card.title}" />
+            </figure>
+          </div>
         </div>
         ${renderFooter(card)}
       </div>
@@ -126,11 +128,13 @@ function renderBody(card) {
 
   return `
     <div class="middle-card-content">
-      <div class="middle-card-top">
+      <div class="middle-card-main">
         <p class="middle-card-title">${card.title}</p>
-        <div class="middle-card-value">
-          <span class="middle-card-currency">${card.currency}</span>
-          <p class="middle-card-amount">${card.amount}</p>
+        <div class="middle-card-center">
+          <div class="middle-card-value">
+            <span class="middle-card-currency">${card.currency}</span>
+            <p class="middle-card-amount">${card.amount}</p>
+          </div>
         </div>
       </div>
       ${renderFooter(card)}
