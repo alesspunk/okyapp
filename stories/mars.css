@@ -3644,13 +3644,13 @@ body {
 .middle-card-ribbon-slot {
   position: absolute;
   top: 14px;
-  right: -6px;
+  right: -26px;
   z-index: 3;
 }
 
 .middle-card-shell.is-checkout .middle-card-ribbon-slot {
   top: 12px;
-  right: -5px;
+  right: -25px;
 }
 
 .middle-card-content {
