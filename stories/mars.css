@@ -1772,6 +1772,12 @@ body {
   width: 111px;
 }
 
+.brand-item-atom.is-big {
+  width: 343px;
+  height: 215px;
+  gap: 0;
+}
+
 .brand-item-label {
   width: 81px;
   min-height: 18px;
@@ -1790,6 +1796,14 @@ body {
   border-radius: 6px;
 }
 
+.brand-item-atom.is-big .brand-item-frame {
+  width: 343px;
+  height: 215px;
+  border-radius: 16px;
+  overflow: visible;
+  filter: var(--card-shadow);
+}
+
 .brand-item-base {
   width: 111px;
   height: 70px;
@@ -1801,10 +1815,35 @@ body {
   overflow: hidden;
 }
 
+.brand-item-atom.is-big .brand-item-base {
+  width: 343px;
+  height: 215px;
+  border: 1px solid var(--border-main);
+  border-radius: 16px;
+  box-sizing: border-box;
+  position: relative;
+}
+
 .brand-item-base img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+.brand-item-atom.is-big .brand-item-base img {
+  object-fit: contain;
+  mix-blend-mode: screen;
+  padding: 28px 40px;
+  box-sizing: border-box;
+}
+
+.brand-item-atom.is-big .brand-item-base::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border: 2px solid #ffffff;
+  border-radius: 15px;
+  pointer-events: none;
 }
 
 .brand-item-grid {
@@ -1812,6 +1851,10 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
   gap: 16px;
   align-items: start;
+}
+
+.brand-item-grid-big {
+  grid-template-columns: repeat(auto-fit, minmax(343px, 1fr));
 }
 
 /* ── Font Awesome compatibility (kit custom + local FA6 pro) ── */

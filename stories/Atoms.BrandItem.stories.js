@@ -11,10 +11,11 @@ const BRAND_PRESETS = [
   { key: "doordash", label: "DoorDash", image: "doordash.png", background: "#ff3008" },
 ];
 
-const VARIANT_OPTIONS = ["With label", "No label"];
+const VARIANT_OPTIONS = ["With label", "No label", "Big"];
 const VARIANT_IDS = {
   "With label": "7359:69325",
   "No label": "7359:69326",
+  Big: "7360:96832",
 };
 
 function findBrand(key) {
@@ -27,9 +28,15 @@ function buildBrandItem({ variant = "With label", brandKey = "mcdonalds", label,
   const resolvedImage = image?.trim() || brand.image;
   const resolvedBackground = background?.trim() || brand.background;
   const showLabel = variant === "With label";
+  const variantClass =
+    variant === "Big"
+      ? "is-big"
+      : showLabel
+        ? "is-with-label"
+        : "is-no-label";
 
   return `
-    <div class="brand-item-atom ${showLabel ? "is-with-label" : "is-no-label"}" data-pen-id="${VARIANT_IDS[variant]}">
+    <div class="brand-item-atom ${variantClass}" data-pen-id="${VARIANT_IDS[variant]}">
       ${
         showLabel
           ? `<p class="brand-item-label token-product-text" aria-label="${resolvedLabel}">${resolvedLabel}</p>`
@@ -52,9 +59,10 @@ export default {
       description: {
         component:
           "**Brand Item** es el átomo de marca para cards y listados. " +
-          "Incluye dos variantes: **With label** y **No label**. " +
+          "Incluye tres variantes: **With label**, **No label** y **Big**. " +
           "Respeta la huella visual de Figma (`112px` wrapper con label, `111x70` base, bordes redondeados, borde blanco interno) " +
-          "y usa el token tipográfico **productText** para el label.",
+          "y usa el token tipográfico **productText** para el label. " +
+          "La variante **Big** toma como guía visual la misma familia del nodo `7359:69327`, pero sin label, en `343x215px`, con stroke gris de `1px` usando `border-main` y `card-shadow` para un uso más card-like.",
       },
     },
   },
@@ -113,7 +121,7 @@ export const DocsPlayground = {
       <div class="mars-story">
         <div class="mars-label">Brand Item · Variant: ${variant}</div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-          Recomendado: máximo 12 caracteres en label (base: "McDonald's"). Typography token: productText.
+          Recomendado: máximo 12 caracteres en label para With label (base: "McDonald's"). Big no utiliza label.
         </div>
         ${showMeta ? `<div class="mars-label">ID .pen: ${VARIANT_IDS[variant]}</div>` : ""}
         ${buildBrandItem(resolved)}
@@ -142,6 +150,10 @@ export const Variants = {
           <div class="mars-label">No label · ${VARIANT_IDS["No label"]}</div>
           ${buildBrandItem({ variant: "No label", brandKey: "mcdonalds" })}
         </div>
+        <div class="story-card">
+          <div class="mars-label">Big · ${VARIANT_IDS.Big}</div>
+          ${buildBrandItem({ variant: "Big", brandKey: "mcdonalds" })}
+        </div>
       </div>
     </div>
   `,
@@ -162,6 +174,10 @@ export const BrandMatrix = {
       <div class="mars-label">Brand presets</div>
       <div class="brand-item-grid">
         ${BRAND_PRESETS.map((brand) => buildBrandItem({ variant: "With label", brandKey: brand.key })).join("")}
+      </div>
+      <div class="mars-label" style="margin-top:16px">Brand presets · Big</div>
+      <div class="brand-item-grid brand-item-grid-big">
+        ${BRAND_PRESETS.slice(0, 4).map((brand) => buildBrandItem({ variant: "Big", brandKey: brand.key })).join("")}
       </div>
     </div>
   `,
