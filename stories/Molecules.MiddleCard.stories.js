@@ -142,7 +142,7 @@ export const DocsPlayground = {
     rightLabel: "Como canjear",
     image: "middle-card-vale-de-producto.png",
     showDiscountRibbon: true,
-    discountRibbonType: "Por tiempo",
+    discountRibbonType: "Normal",
     discountRibbonLabel: "25% OFF",
     discountRibbonSize: "Default",
     showMeta: true,
@@ -201,11 +201,11 @@ export const PageContexts = {
         <div class="middle-card-grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
           <div class="middle-card-reference">
             <div class="mars-label">PDP · 342x194</div>
-            ${renderMiddleCard({ ...sample, pageContext: "PDP", showDiscountRibbon: true, discountRibbonType: "Por tiempo", discountRibbonLabel: "25% OFF", discountRibbonSize: "Default" })}
+            ${renderMiddleCard({ ...sample, pageContext: "PDP", showDiscountRibbon: true, discountRibbonType: "Normal", discountRibbonLabel: "25% OFF", discountRibbonSize: "Default" })}
           </div>
           <div class="middle-card-reference">
             <div class="mars-label">Checkout · 300x177</div>
-            ${renderMiddleCard({ ...sample, pageContext: "Checkout", showDiscountRibbon: true, discountRibbonType: "Por tiempo", discountRibbonLabel: "25% OFF", discountRibbonSize: "Small" })}
+            ${renderMiddleCard({ ...sample, pageContext: "Checkout", showDiscountRibbon: true, discountRibbonType: "Normal", discountRibbonLabel: "25% OFF", discountRibbonSize: "Small" })}
           </div>
         </div>
       </div>

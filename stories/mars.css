@@ -1800,11 +1800,14 @@ body {
 }
 
 .brand-item-label {
-  width: 81px;
+  width: auto;
+  max-width: none;
   min-height: 18px;
   margin: 0;
   color: #421771;
   text-align: center;
+  white-space: nowrap;
+  align-self: center;
 }
 
 .brand-item-frame {
@@ -3805,14 +3808,17 @@ body {
   font-weight: 500;
   line-height: 1.6;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .middle-card-footer-start {
-  flex: 1 1 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .middle-card-footer-end {
-  flex: 1 1 0;
+  flex: 0 1 auto;
   text-align: right;
 }
 
