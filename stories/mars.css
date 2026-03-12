@@ -1832,7 +1832,6 @@ body {
 
 .brand-item-atom.is-big .brand-item-base img {
   object-fit: contain;
-  mix-blend-mode: screen;
   padding: 28px 40px;
   box-sizing: border-box;
 }

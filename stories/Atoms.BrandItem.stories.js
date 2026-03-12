@@ -152,7 +152,7 @@ export const Variants = {
         </div>
         <div class="story-card">
           <div class="mars-label">Big · ${VARIANT_IDS.Big}</div>
-          ${buildBrandItem({ variant: "Big", brandKey: "mcdonalds" })}
+          ${buildBrandItem({ variant: "Big", brandKey: "amazon" })}
         </div>
       </div>
     </div>
@@ -177,7 +177,9 @@ export const BrandMatrix = {
       </div>
       <div class="mars-label" style="margin-top:16px">Brand presets · Big</div>
       <div class="brand-item-grid brand-item-grid-big">
-        ${BRAND_PRESETS.slice(0, 4).map((brand) => buildBrandItem({ variant: "Big", brandKey: brand.key })).join("")}
+        ${["amazon", "apple", "target", "xbox"]
+          .map((key) => buildBrandItem({ variant: "Big", brandKey: key }))
+          .join("")}
       </div>
     </div>
   `,
