@@ -64,7 +64,7 @@ export const InputsDropdownsStatus = {
   render: () => `
     <div class="mars-story">
       <h3 style="margin:0 0 10px;color:var(--primary-main)">Inputs + Dropdowns + Status</h3>
-      <div class="mars-subtitle">Atoms IDs: FEiGu, XjC9T, PGNyG, xmKHs, OVdKu, FaPFl, 1rSxD, P0EWf, vf35d</div>
+      <div class="mars-subtitle">Atoms IDs: FEiGu, XjC9T, PGNyG, xmKHs, 7359:96511, 7359:96469, OVdKu, FaPFl, 1rSxD, P0EWf, vf35d</div>
       <div class="mars-grid">
         <div class="story-card">
           <div class="mars-label">Phone empty (FEiGu)</div>
@@ -87,6 +87,17 @@ export const InputsDropdownsStatus = {
           </div>
           <div class="input-wrapper">
             <i class="fa-regular fa-magnifying-glass search-icon"></i><input class="input-field search-input search-input-hasvalue" value="Pollo Campero" /><i class="fa-regular fa-circle-xmark clear-icon search-clear-icon"></i>
+          </div>
+        </div>
+        <div class="story-card">
+          <div class="mars-label">Dynamic empty/value (7359:96511, 7359:96469)</div>
+          <div class="input-wrapper" style="margin-bottom:8px">
+            <input class="input-field input-dinamic input-dinamic-empty" placeholder="Ingresa el monto" />
+          </div>
+          <div class="input-wrapper">
+            <span class="input-dinamic-prefix">$</span>
+            <input class="input-field input-dinamic input-dinamic-hasvalue" value="40.00" />
+            <span class="input-label input-label-dinamic">Desde 10 hasta 1000</span>
           </div>
         </div>
         <div class="story-card">
