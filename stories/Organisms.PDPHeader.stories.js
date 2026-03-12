@@ -1,3 +1,5 @@
+import { buildPlateu, PLATEU_VARIANT_OPTIONS, PLATEU_VARIANTS } from "./_shared/plateu";
+
 const BRAND_PRESETS = [
   { key: "mcdonalds", label: "McDonald's", image: "mcdonalds.webp", background: "#fe0015" },
   { key: "starbucks", label: "Starbucks", image: "starbucks.webp", background: "#006241" },
@@ -13,6 +15,7 @@ const BRAND_PRESETS = [
 
 const BRAND_VARIANTS = ["With label", "No label"];
 const PAGE_HEADER_VARIANTS = ["screens", "modal", "no-title"];
+const PDP_HEADER_LAYOUTS = ["Default", "With Plateu"];
 const MIDDLE_CARD_VARIANTS = [
   {
     path: "Molecule/Middle Card/Vale de Monto",
@@ -197,8 +200,15 @@ function renderDynamicInput({ state, placeholder, value, currencySymbol, helperT
 function resolveArgs(args = {}) {
   const brand = findBrand(args.brandKey);
   const middle = findMiddleCard(args.middleCardPath);
+  const layoutVariant = PDP_HEADER_LAYOUTS.includes(args.layoutVariant) ? args.layoutVariant : "Default";
+  const showPlateu = typeof args.showPlateu === "boolean" ? args.showPlateu : layoutVariant === "With Plateu";
 
   return {
+    layoutVariant,
+    showPlateu,
+    plateuVariant: PLATEU_VARIANT_OPTIONS.includes(args.plateuVariant)
+      ? args.plateuVariant
+      : "State=Productos, Telco=No, Scrolling=No",
     pageHeaderVariant: PAGE_HEADER_VARIANTS.includes(args.pageHeaderVariant) ? args.pageHeaderVariant : "no-title",
     pageTitle: args.pageTitle?.trim() || brand.label,
     showAction: args.showAction !== false,
@@ -229,9 +239,16 @@ function resolveArgs(args = {}) {
 
 function renderPdpHeader(args = {}) {
   const resolved = resolveArgs(args);
+  const hasPlateu = resolved.showPlateu;
+  const plateuPenId = PLATEU_VARIANTS[resolved.plateuVariant]?.penId;
 
   return `
-    <section class="pdp-header-organism" data-header-variant="${resolved.pageHeaderVariant}" data-card-context="${resolved.middleCard.pageContext}">
+    <section
+      class="pdp-header-organism ${hasPlateu ? "has-plateu" : "has-no-plateu"}"
+      data-header-variant="${resolved.pageHeaderVariant}"
+      data-card-context="${resolved.middleCard.pageContext}"
+      data-plateu-variant="${resolved.plateuVariant}"
+    >
       ${renderPageHeader({
         variant: resolved.pageHeaderVariant,
         title: resolved.pageTitle,
@@ -247,6 +264,13 @@ function renderPdpHeader(args = {}) {
             background: resolved.brandBackground,
           })}
         </div>
+        ${
+          hasPlateu
+            ? `<div class="pdp-header-plateu-slot" data-pen-id="${plateuPenId}">
+                ${buildPlateu({ property1: resolved.plateuVariant })}
+              </div>`
+            : ""
+        }
         <div class="pdp-header-card-slot">
           ${renderMiddleCard(resolved.middleCard)}
         </div>
@@ -266,12 +290,27 @@ export default {
       description: {
         component:
           "Organismo **PDP Header** compuesto únicamente con componentes ya existentes del sistema: " +
-          "`Page Header`, `Brand Item`, `Middle Card` e `Input/Dinamic`. " +
-          "Se presenta como stack vertical para encabezados de PDP y usa por defecto la variante `Page Header / No title`, permitiendo probar distintas configuraciones desde Docs Playground sin alterar los átomos o moléculas base.",
+          "`Page Header`, `Brand Item`, `Plateu`, `Middle Card` e `Input/Dinamic`. " +
+          "Se presenta como stack vertical para encabezados de PDP y usa por defecto la variante `Page Header / No title`. " +
+          "Puede mostrarse con o sin `Plateu`, reutilizando las variantes ya documentadas del componente existente.",
       },
     },
   },
   argTypes: {
+    layoutVariant: {
+      control: "inline-radio",
+      options: PDP_HEADER_LAYOUTS,
+      description: "Activa la composición base o la composición con Plateu entre Brand Item y Middle Card.",
+    },
+    showPlateu: {
+      control: "boolean",
+      description: "Permite prender o apagar Plateu dentro del stack.",
+    },
+    plateuVariant: {
+      control: "select",
+      options: PLATEU_VARIANT_OPTIONS,
+      description: "Variante existente de Plateu usada dentro del organismo.",
+    },
     pageHeaderVariant: {
       control: "inline-radio",
       options: PAGE_HEADER_VARIANTS,
@@ -375,6 +414,9 @@ export default {
 export const DocsPlayground = {
   name: "Docs Playground",
   args: {
+    layoutVariant: "With Plateu",
+    showPlateu: true,
+    plateuVariant: "State=Productos, Telco=No, Scrolling=No",
     pageHeaderVariant: "no-title",
     pageTitle: "McDonald's",
     showAction: true,
@@ -400,12 +442,13 @@ export const DocsPlayground = {
   render: (args) => {
     const resolved = resolveArgs(args);
     const cardMeta = findMiddleCard(args.middleCardPath);
+    const plateuMeta = PLATEU_VARIANTS[resolved.plateuVariant];
 
     return `
       <div class="mars-story">
-        <div class="mars-label">PDP Header · Page Header ${resolved.pageHeaderVariant} · Brand ${resolved.brandKey} · Card ${cardMeta.path}</div>
+        <div class="mars-label">PDP Header · ${resolved.layoutVariant} · Page Header ${resolved.pageHeaderVariant} · Brand ${resolved.brandKey} · Card ${cardMeta.path}</div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-          Recomendado: Brand label máx. 12 caracteres · ${cardMeta.recommendation} · Input placeholder máx. 16 caracteres.
+          Recomendado: Brand label máx. 12 caracteres · Plateu activo: ${resolved.showPlateu ? plateuMeta.penId : "off"} · ${cardMeta.recommendation} · Input placeholder máx. 16 caracteres.
         </div>
         <div class="mars-mobile">
           ${renderPdpHeader(args)}
@@ -429,9 +472,12 @@ export const ReferenceStacks = {
     <div class="mars-story">
       <div class="mars-grid">
         <article class="story-card">
-          <div class="mars-label">PDP Header · Vale de Monto</div>
+          <div class="mars-label">PDP Header · Vale de Monto + Plateu</div>
           <div class="mars-mobile">
             ${renderPdpHeader({
+              layoutVariant: "With Plateu",
+              showPlateu: true,
+              plateuVariant: "State=Productos, Telco=No, Scrolling=No",
               pageHeaderVariant: "no-title",
               pageTitle: "McDonald's",
               showAction: true,
@@ -447,6 +493,8 @@ export const ReferenceStacks = {
           <div class="mars-label">PDP Header · Vale de Producto</div>
           <div class="mars-mobile">
             ${renderPdpHeader({
+              layoutVariant: "Default",
+              showPlateu: false,
               pageHeaderVariant: "no-title",
               pageTitle: "McDonald's",
               showAction: true,
@@ -459,9 +507,12 @@ export const ReferenceStacks = {
           </div>
         </article>
         <article class="story-card">
-          <div class="mars-label">PDP Header · eGift Card</div>
+          <div class="mars-label">PDP Header · eGift Card + Plateu</div>
           <div class="mars-mobile">
             ${renderPdpHeader({
+              layoutVariant: "With Plateu",
+              showPlateu: true,
+              plateuVariant: "State=Vales, Telco=No, Scrolling=No",
               pageHeaderVariant: "no-title",
               pageTitle: "Apple",
               showAction: true,

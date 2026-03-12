@@ -3579,16 +3579,32 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  padding: 12px 9px 20px;
+  padding: 0 9px 20px;
   box-sizing: border-box;
 }
 
 .pdp-header-brand-slot,
+.pdp-header-plateu-slot,
 .pdp-header-card-slot,
 .pdp-header-input-slot {
   width: 100%;
   display: flex;
   justify-content: center;
+}
+
+.pdp-header-brand-slot {
+  position: relative;
+  z-index: 2;
+  margin-top: -55px;
+}
+
+.pdp-header-plateu-slot {
+  position: relative;
+  z-index: 1;
+}
+
+.pdp-header-organism.has-plateu .pdp-header-plateu-slot {
+  margin-top: -40px;
 }
 
 .pdp-header-card-slot .middle-card-shell {
