@@ -9,11 +9,11 @@ const iframeStyle =
   "width:100%;height:860px;border:1px solid rgba(0,0,0,0.12);border-radius:16px;background:#f5f5f5;";
 
 const MOCKUPS = [
-  { key: "mockup-1", name: "Mockup 1", file: "mockup-1.html", html: mockup1Html },
-  { key: "mockup-2", name: "Mockup 2", file: "mockup-2.html", html: mockup2Html },
-  { key: "mockup-3", name: "Mockup 3", file: "mockup-3.html", html: mockup3Html },
-  { key: "mockup-4", name: "Mockup 4", file: "mockup-4.html", html: mockup4Html },
-  { key: "mockup-5", name: "Mockup 5", file: "mockup-5.html", html: mockup5Html },
+  { key: "homepage-1", name: "Homepage 1", file: "mockup-1.html", html: mockup1Html },
+  { key: "homepage-2", name: "Homepage 2", file: "mockup-2.html", html: mockup2Html },
+  { key: "homepage-3", name: "Homepage 3", file: "mockup-3.html", html: mockup3Html },
+  { key: "homepage-4", name: "Homepage 4", file: "mockup-4.html", html: mockup4Html },
+  { key: "homepage-5", name: "Homepage 5", file: "mockup-5.html", html: mockup5Html },
 ];
 
 function inlineMarsCss(html) {
@@ -31,25 +31,62 @@ function buildSrcdoc(html) {
   return withBaseHref(inlineMarsCss(html));
 }
 
-function renderIndex() {
+function renderViewer() {
+  const iframeId = "pages-homepages-iframe";
+  const buttonGroupId = "pages-homepages-buttons";
+  const srcdocs = Object.fromEntries(MOCKUPS.map((mockup) => [mockup.key, buildSrcdoc(mockup.html)]));
   const items = MOCKUPS.map(
     (mockup) => `
-      <li style="padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.08)">
-        <div style="font-weight:700;color:#552588">${mockup.name}</div>
-        <div style="font-size:13px;color:rgba(0,0,0,0.6)">${mockup.file}</div>
-      </li>`,
+      <button
+        type="button"
+        data-key="${mockup.key}"
+        style="border:1px solid rgba(0,0,0,0.12);background:#fff;border-radius:999px;padding:8px 14px;font:700 14px/1 'Nunito Sans',sans-serif;color:#552588;cursor:pointer"
+      >
+        ${mockup.name}
+      </button>`,
   ).join("");
 
   return `
-    <div class="mars-story" style="max-width:960px">
-      <div class="mars-label">Pages · Mockups</div>
+    <div class="mars-story" style="max-width:1100px">
+      <div class="mars-label">Pages · Homepages</div>
       <div class="mars-label" style="margin-bottom:16px;color:var(--text-secondary)">
-        Referencia de las 5 páginas HTML de mockups disponibles en el repo.
+        Selector simple para navegar y visualizar las 5 páginas HTML de homepage.
       </div>
       <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:16px;padding:20px 24px">
-        <ul style="list-style:none;margin:0;padding:0">${items}</ul>
+        <div id="${buttonGroupId}" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">${items}</div>
+        <iframe id="${iframeId}" title="Homepages Viewer" style="${iframeStyle}"></iframe>
       </div>
     </div>
+    <script>
+      (function () {
+        var iframe = document.getElementById(${JSON.stringify(iframeId)});
+        var root = document.getElementById(${JSON.stringify(buttonGroupId)});
+        if (!iframe || !root) return;
+        var srcdocs = ${JSON.stringify(srcdocs)};
+        var defaultKey = ${JSON.stringify(MOCKUPS[0].key)};
+        var buttons = Array.from(root.querySelectorAll("button[data-key]"));
+
+        function render(key) {
+          var safeKey = srcdocs[key] ? key : defaultKey;
+          iframe.srcdoc = srcdocs[safeKey];
+          buttons.forEach(function (button) {
+            var active = button.getAttribute("data-key") === safeKey;
+            button.setAttribute("aria-pressed", active ? "true" : "false");
+            button.style.background = active ? "#552588" : "#fff";
+            button.style.color = active ? "#fff" : "#552588";
+            button.style.borderColor = active ? "#552588" : "rgba(0,0,0,0.12)";
+          });
+        }
+
+        buttons.forEach(function (button) {
+          button.addEventListener("click", function () {
+            render(button.getAttribute("data-key"));
+          });
+        });
+
+        render(defaultKey);
+      })();
+    </script>
   `;
 }
 
@@ -74,45 +111,45 @@ function renderMockup(mockup) {
 }
 
 export default {
-  title: "Pages/Mockups",
+  title: "Pages/Homepages",
   tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
     docs: {
       description: {
         component:
-          "Sección Pages para listar y visualizar los 5 mockups HTML existentes del proyecto, embebidos directamente en Storybook.",
+          "Sección Pages para navegar de forma simple entre las 5 homepages HTML del proyecto, embebidas directamente en Storybook.",
       },
     },
   },
 };
 
-export const Index = {
-  name: "Index",
-  render: () => renderIndex(),
+export const Viewer = {
+  name: "Viewer",
+  render: () => renderViewer(),
 };
 
-export const Mockup1 = {
-  name: "Mockup 1",
+export const Homepage1 = {
+  name: "Homepage 1",
   render: () => renderMockup(MOCKUPS[0]),
 };
 
-export const Mockup2 = {
-  name: "Mockup 2",
+export const Homepage2 = {
+  name: "Homepage 2",
   render: () => renderMockup(MOCKUPS[1]),
 };
 
-export const Mockup3 = {
-  name: "Mockup 3",
+export const Homepage3 = {
+  name: "Homepage 3",
   render: () => renderMockup(MOCKUPS[2]),
 };
 
-export const Mockup4 = {
-  name: "Mockup 4",
+export const Homepage4 = {
+  name: "Homepage 4",
   render: () => renderMockup(MOCKUPS[3]),
 };
 
-export const Mockup5 = {
-  name: "Mockup 5",
+export const Homepage5 = {
+  name: "Homepage 5",
   render: () => renderMockup(MOCKUPS[4]),
 };
