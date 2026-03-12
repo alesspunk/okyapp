@@ -32,82 +32,77 @@ function buildSrcdoc(html) {
 }
 
 function renderViewer() {
-  const iframeId = "pages-homepages-iframe";
-  const buttonGroupId = "pages-homepages-buttons";
   const srcdocs = Object.fromEntries(MOCKUPS.map((mockup) => [mockup.key, buildSrcdoc(mockup.html)]));
-  const items = MOCKUPS.map(
-    (mockup) => `
-      <button
-        type="button"
-        data-key="${mockup.key}"
-        style="border:1px solid rgba(0,0,0,0.12);background:#fff;border-radius:999px;padding:8px 14px;font:700 14px/1 'Nunito Sans',sans-serif;color:#552588;cursor:pointer"
-      >
-        ${mockup.name}
-      </button>`,
-  ).join("");
+  const defaultKey = MOCKUPS[0].key;
+  const root = document.createElement("div");
+  root.className = "mars-story";
+  root.style.maxWidth = "1100px";
 
-  return `
-    <div class="mars-story" style="max-width:1100px">
-      <div class="mars-label">Pages · Homepages</div>
-      <div class="mars-label" style="margin-bottom:16px;color:var(--text-secondary)">
-        Selector simple para navegar y visualizar las 5 páginas HTML de homepage.
-      </div>
-      <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:16px;padding:20px 24px">
-        <div id="${buttonGroupId}" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">${items}</div>
-        <iframe id="${iframeId}" title="Homepages Viewer" style="${iframeStyle}"></iframe>
-      </div>
+  root.innerHTML = `
+    <div class="mars-label">Pages · Homepages</div>
+    <div class="mars-label" style="margin-bottom:16px;color:var(--text-secondary)">
+      Selector simple para navegar y visualizar las 5 páginas HTML de homepage.
     </div>
-    <script>
-      (function () {
-        var iframe = document.getElementById(${JSON.stringify(iframeId)});
-        var root = document.getElementById(${JSON.stringify(buttonGroupId)});
-        if (!iframe || !root) return;
-        var srcdocs = ${JSON.stringify(srcdocs)};
-        var defaultKey = ${JSON.stringify(MOCKUPS[0].key)};
-        var buttons = Array.from(root.querySelectorAll("button[data-key]"));
-
-        function render(key) {
-          var safeKey = srcdocs[key] ? key : defaultKey;
-          iframe.srcdoc = srcdocs[safeKey];
-          buttons.forEach(function (button) {
-            var active = button.getAttribute("data-key") === safeKey;
-            button.setAttribute("aria-pressed", active ? "true" : "false");
-            button.style.background = active ? "#552588" : "#fff";
-            button.style.color = active ? "#fff" : "#552588";
-            button.style.borderColor = active ? "#552588" : "rgba(0,0,0,0.12)";
-          });
-        }
-
-        buttons.forEach(function (button) {
-          button.addEventListener("click", function () {
-            render(button.getAttribute("data-key"));
-          });
-        });
-
-        render(defaultKey);
-      })();
-    </script>
+    <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:16px;padding:20px 24px">
+      <div data-role="buttons" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px"></div>
+      <iframe title="Homepages Viewer" style="${iframeStyle}"></iframe>
+    </div>
   `;
+
+  const iframe = root.querySelector("iframe");
+  const buttonGroup = root.querySelector('[data-role="buttons"]');
+  const buttons = MOCKUPS.map((mockup) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.key = mockup.key;
+    button.textContent = mockup.name;
+    button.style.border = "1px solid rgba(0,0,0,0.12)";
+    button.style.background = "#fff";
+    button.style.borderRadius = "999px";
+    button.style.padding = "8px 14px";
+    button.style.font = "700 14px/1 'Nunito Sans',sans-serif";
+    button.style.color = "#552588";
+    button.style.cursor = "pointer";
+    buttonGroup.appendChild(button);
+    return button;
+  });
+
+  function updateActiveState(activeKey) {
+    buttons.forEach((button) => {
+      const active = button.dataset.key === activeKey;
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+      button.style.background = active ? "#552588" : "#fff";
+      button.style.color = active ? "#fff" : "#552588";
+      button.style.borderColor = active ? "#552588" : "rgba(0,0,0,0.12)";
+    });
+  }
+
+  function render(key) {
+    const safeKey = srcdocs[key] ? key : defaultKey;
+    iframe.srcdoc = srcdocs[safeKey];
+    updateActiveState(safeKey);
+  }
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => render(button.dataset.key));
+  });
+
+  render(defaultKey);
+  return root;
 }
 
 function renderMockup(mockup) {
-  const iframeId = `pages-${mockup.key}-iframe`;
   const srcdoc = buildSrcdoc(mockup.html);
-
-  return `
-    <div class="mars-story" style="max-width:420px">
-      <div class="mars-label">${mockup.name}</div>
-      <div class="mars-label" style="margin-bottom:12px;color:var(--text-secondary)">${mockup.file}</div>
-      <iframe id="${iframeId}" title="${mockup.name}" style="${iframeStyle}"></iframe>
-    </div>
-    <script>
-      (function () {
-        var iframe = document.getElementById(${JSON.stringify(iframeId)});
-        if (!iframe) return;
-        iframe.srcdoc = ${JSON.stringify(srcdoc)};
-      })();
-    </script>
+  const root = document.createElement("div");
+  root.className = "mars-story";
+  root.style.maxWidth = "420px";
+  root.innerHTML = `
+    <div class="mars-label">${mockup.name}</div>
+    <div class="mars-label" style="margin-bottom:12px;color:var(--text-secondary)">${mockup.file}</div>
+    <iframe title="${mockup.name}" style="${iframeStyle}"></iframe>
   `;
+  root.querySelector("iframe").srcdoc = srcdoc;
+  return root;
 }
 
 export default {
