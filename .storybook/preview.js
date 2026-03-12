@@ -6,7 +6,7 @@ const preview = {
     controls: { expanded: true, matchers: { color: /(background|color)$/i } },
     options: {
       storySort: {
-        order: ["MARS", "Foundations", "Atoms", "Molecules", "Organisms", "Pages", "Exact HTML", "Legacy"],
+        order: ["MARS", "Foundations", "Atoms", "Molecules", "Organisms", "Pages", "React code", "Legacy"],
       },
     },
     backgrounds: {

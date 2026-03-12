@@ -45,7 +45,7 @@ function renderExact(sectionId) {
 }
 
 export default {
-  title: "Exact HTML/Library",
+  title: "React code/Library",
   tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",

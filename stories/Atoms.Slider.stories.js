@@ -69,11 +69,11 @@ function renderSlider(args = {}) {
         oninput="this.parentElement.style.setProperty('--slider-progress', (((this.value - this.min) / (this.max - this.min)) * 100) + '%')"
         aria-label="${slider.currencySymbol} slider desde ${slider.min} hasta ${slider.max}"
       />
-      <div class="slider-values token-h5">
+      <div class="slider-values token-body1">
         <span>${slider.currencySymbol} ${slider.min}</span>
         <span>${slider.currencySymbol} ${slider.max}</span>
       </div>
-      <div class="slider-labels token-body1">
+      <div class="slider-labels token-caption">
         <span>${slider.minLabel}</span>
         <span>${slider.maxLabel}</span>
       </div>
@@ -90,7 +90,7 @@ export default {
         component:
           "Átomo **Slider** para seleccionar montos en dinero. " +
           "Se construye como `input[type=range]` estilizado para que sea operativo en Storybook, " +
-          "con variantes para **Q** y **$**. Usa tokens del sistema: **H5** para los montos y **body1** para los labels de rango.",
+          "con variantes para **Q** y **$**. Usa tokens del sistema: **body1** para los montos y **caption** para los labels de rango.",
       },
     },
   },

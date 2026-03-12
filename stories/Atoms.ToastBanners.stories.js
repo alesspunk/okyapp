@@ -1,41 +1,54 @@
 const TOAST_VARIANTS = ["Success", "Warning", "Error"];
-const WARNING_ICON_OPTIONS = ["Gift", "Clock"];
+const TOAST_ICON_OPTIONS = [
+  "circle-check",
+  "gift",
+  "clock",
+  "circle-exclamation",
+  "triangle-exclamation",
+  "circle-info",
+];
+const TOAST_MESSAGE_LIMIT = 30;
 
 const TOAST_CONFIG = {
   Success: {
     nodeId: "1807:17380",
     icon: "circle-check",
     iconWeight: "fa-light",
-    message: "José Ramos te envió un OKY Vale 😀",
+    message: "Vale enviado correctamente",
     description: "Toast de confirmación usando semantic tokens de success.",
   },
   Warning: {
     nodeId: "1807:18261 / 2189:10119",
     icon: "gift",
     iconWeight: "fa-light",
-    message: "José Ramos te envió una tarjeta 🥳",
+    message: "Revisa las condiciones del vale",
     description: "Toast preventivo o informativo usando semantic tokens de warning.",
   },
   Error: {
     nodeId: "2189:10151",
     icon: "circle-exclamation",
     iconWeight: "fa-light",
-    message: "Esto es un error",
+    message: "No pudimos procesar tu vale",
     description: "Toast de error sin acción secundaria.",
   },
 };
 
+function limitToastMessage(message) {
+  const trimmed = message?.trim() || "";
+  if (trimmed.length <= TOAST_MESSAGE_LIMIT) return trimmed;
+  return `${trimmed.slice(0, TOAST_MESSAGE_LIMIT - 1).trimEnd()}…`;
+}
+
 function resolveToast(args = {}) {
   const variant = TOAST_VARIANTS.includes(args.variant) ? args.variant : "Success";
   const base = TOAST_CONFIG[variant];
-  const warningIcon = WARNING_ICON_OPTIONS.includes(args.warningIcon) ? args.warningIcon : "Gift";
+  const requestedIcon = TOAST_ICON_OPTIONS.includes(args.icon) ? args.icon : base.icon;
 
-  let icon = base.icon;
-  let message = args.message?.trim() || base.message;
+  let icon = requestedIcon;
+  let message = limitToastMessage(args.message || base.message);
 
-  if (variant === "Warning" && warningIcon === "Clock") {
-    icon = "clock";
-    message = args.message?.trim() || "El vale no se muestra en tiempo real";
+  if (variant === "Warning" && !args.message && requestedIcon === "clock") {
+    message = "Puede tardar unos minutos";
   }
 
   return {
@@ -43,7 +56,6 @@ function resolveToast(args = {}) {
     variant,
     icon,
     message,
-    warningIcon,
   };
 }
 
@@ -79,10 +91,10 @@ export default {
       options: TOAST_VARIANTS,
       description: "Severidad principal del toast.",
     },
-    warningIcon: {
-      control: "inline-radio",
-      options: WARNING_ICON_OPTIONS,
-      description: "Solo para `Warning`: permite usar gift o clock, según el caso del mensaje.",
+    icon: {
+      control: "select",
+      options: TOAST_ICON_OPTIONS,
+      description: "Permite probar distintos íconos de Font Awesome en el visor. El color sigue dependiendo del estado.",
     },
     message: {
       control: "text",
@@ -95,7 +107,7 @@ export const DocsPlayground = {
   name: "Docs Playground",
   args: {
     variant: "Success",
-    warningIcon: "Gift",
+    icon: "circle-check",
     message: "",
   },
   render: (args) => {
@@ -105,7 +117,7 @@ export const DocsPlayground = {
       <div class="mars-story">
         <div class="mars-label">Toast Banner · ${toast.variant} · Ref Figma: ${toast.nodeId}</div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-          Recomendado: máximo 36 caracteres en el mensaje para mantener una línea cómoda en 328px.
+          Recomendado: máximo ${TOAST_MESSAGE_LIMIT} caracteres para mantener una sola línea en 328px.
         </div>
         ${renderToastBanner(args)}
       </div>
@@ -120,7 +132,7 @@ export const VariantMatrix = {
     docs: {
       description: {
         story:
-          "Referencia de las variantes del átomo. Warning se muestra en dos contextos visuales, usando icono `gift` y `clock`.",
+          "Referencia de las variantes del átomo con copys ajustados al límite de una línea.",
       },
     },
   },
@@ -128,8 +140,8 @@ export const VariantMatrix = {
     <div class="mars-story">
       <div style="display:flex;flex-direction:column;gap:20px;max-width:328px">
         ${renderToastBanner({ variant: "Success" })}
-        ${renderToastBanner({ variant: "Warning", warningIcon: "Gift" })}
-        ${renderToastBanner({ variant: "Warning", warningIcon: "Clock" })}
+        ${renderToastBanner({ variant: "Warning", icon: "gift" })}
+        ${renderToastBanner({ variant: "Warning", icon: "clock" })}
         ${renderToastBanner({ variant: "Error" })}
       </div>
     </div>

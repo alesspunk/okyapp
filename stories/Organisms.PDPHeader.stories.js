@@ -12,7 +12,7 @@ const BRAND_PRESETS = [
 ];
 
 const BRAND_VARIANTS = ["With label", "No label"];
-const PAGE_HEADER_VARIANTS = ["screens", "modal"];
+const PAGE_HEADER_VARIANTS = ["screens", "modal", "no-title"];
 const MIDDLE_CARD_VARIANTS = [
   {
     path: "Molecule/Middle Card/Vale de Monto",
@@ -80,10 +80,15 @@ function renderPageHeader({ variant, title, showAction }) {
       : `<div class="header-icon header-icon-placeholder"></div>`;
   }
 
+  const titleMarkup =
+    variant === "no-title"
+      ? `<div class="page-header-title page-header-title-empty" aria-hidden="true"></div>`
+      : `<div class="page-header-title">${title}</div>`;
+
   return `
     <div class="${variant === "modal" ? "page-header-modal" : "page-header-screen"}">
       ${left}
-      <div class="page-header-title">${title}</div>
+      ${titleMarkup}
       ${right}
     </div>
   `;
@@ -194,7 +199,7 @@ function resolveArgs(args = {}) {
   const middle = findMiddleCard(args.middleCardPath);
 
   return {
-    pageHeaderVariant: PAGE_HEADER_VARIANTS.includes(args.pageHeaderVariant) ? args.pageHeaderVariant : "screens",
+    pageHeaderVariant: PAGE_HEADER_VARIANTS.includes(args.pageHeaderVariant) ? args.pageHeaderVariant : "no-title",
     pageTitle: args.pageTitle?.trim() || brand.label,
     showAction: args.showAction !== false,
     brandVariant: BRAND_VARIANTS.includes(args.brandVariant) ? args.brandVariant : "With label",
@@ -262,7 +267,7 @@ export default {
         component:
           "Organismo **PDP Header** compuesto únicamente con componentes ya existentes del sistema: " +
           "`Page Header`, `Brand Item`, `Middle Card` e `Input/Dinamic`. " +
-          "Se presenta como stack vertical para encabezados de PDP y permite probar distintas configuraciones desde Docs Playground sin alterar los átomos o moléculas base.",
+          "Se presenta como stack vertical para encabezados de PDP y usa por defecto la variante `Page Header / No title`, permitiendo probar distintas configuraciones desde Docs Playground sin alterar los átomos o moléculas base.",
       },
     },
   },
@@ -273,6 +278,7 @@ export default {
       labels: {
         screens: "Screens",
         modal: "Modal",
+        "no-title": "No title",
       },
       description: "Variante del Page Header usado en el organismo.",
     },
@@ -369,7 +375,7 @@ export default {
 export const DocsPlayground = {
   name: "Docs Playground",
   args: {
-    pageHeaderVariant: "screens",
+    pageHeaderVariant: "no-title",
     pageTitle: "McDonald's",
     showAction: true,
     brandVariant: "With label",
@@ -399,7 +405,7 @@ export const DocsPlayground = {
       <div class="mars-story">
         <div class="mars-label">PDP Header · Page Header ${resolved.pageHeaderVariant} · Brand ${resolved.brandKey} · Card ${cardMeta.path}</div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-          Recomendado: Page Header title máx. 11 caracteres · Brand label máx. 12 caracteres · ${cardMeta.recommendation} · Input placeholder máx. 16 caracteres.
+          Recomendado: Brand label máx. 12 caracteres · ${cardMeta.recommendation} · Input placeholder máx. 16 caracteres.
         </div>
         <div class="mars-mobile">
           ${renderPdpHeader(args)}
@@ -426,7 +432,7 @@ export const ReferenceStacks = {
           <div class="mars-label">PDP Header · Vale de Monto</div>
           <div class="mars-mobile">
             ${renderPdpHeader({
-              pageHeaderVariant: "screens",
+              pageHeaderVariant: "no-title",
               pageTitle: "McDonald's",
               showAction: true,
               brandVariant: "With label",
@@ -441,7 +447,7 @@ export const ReferenceStacks = {
           <div class="mars-label">PDP Header · Vale de Producto</div>
           <div class="mars-mobile">
             ${renderPdpHeader({
-              pageHeaderVariant: "screens",
+              pageHeaderVariant: "no-title",
               pageTitle: "McDonald's",
               showAction: true,
               brandVariant: "With label",
@@ -456,7 +462,7 @@ export const ReferenceStacks = {
           <div class="mars-label">PDP Header · eGift Card</div>
           <div class="mars-mobile">
             ${renderPdpHeader({
-              pageHeaderVariant: "modal",
+              pageHeaderVariant: "no-title",
               pageTitle: "Apple",
               showAction: true,
               brandVariant: "No label",

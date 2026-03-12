@@ -135,12 +135,13 @@ export const PageHeaderPlayground = {
   argTypes: {
     variant: {
       control: "inline-radio",
-      options: ["screens", "modal"],
+      options: ["screens", "modal", "no-title"],
       labels: {
         screens: "Screens (6IKuE)",
         modal:   "Modal (5mGYt)",
+        "no-title": "No title (PDP)",
       },
-      description: "**Screens** — con flecha atrás y acción derecha. **Modal** — título centrado y cierre.",
+      description: "**Screens** — con flecha atrás y acción derecha. **Modal** — título centrado y cierre. **No title** — header de PDP sin título centrado.",
     },
     title:      { control: "text" },
     showAction: {
@@ -149,7 +150,7 @@ export const PageHeaderPlayground = {
     },
   },
   render: ({ variant, title, showAction }) => {
-    const penId = variant === "modal" ? "5mGYt" : "6IKuE";
+    const penId = variant === "modal" ? "5mGYt" : variant === "no-title" ? "PDP" : "6IKuE";
     const containerClass = variant === "modal" ? "page-header-modal" : "page-header-screen";
 
     let left, right;
@@ -166,16 +167,25 @@ export const PageHeaderPlayground = {
         : `<div class="header-icon header-icon-placeholder"></div>`;
     }
 
+    const titleMarkup =
+      variant === "no-title"
+        ? `<div class="page-header-title page-header-title-empty" aria-hidden="true"></div>`
+        : `<div class="page-header-title">${title}</div>`;
+
     return `
       <div class="mars-story">
         <div class="mars-label">Page Header / ${variant} · ID .pen: ${penId}</div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-          Recomendado: máximo 11 caracteres en título (base: "Modal Title").
+          ${
+            variant === "no-title"
+              ? "Esta variante oculta el título central para usos como PDP Header."
+              : 'Recomendado: máximo 11 caracteres en título (base: "Modal Title").'
+          }
         </div>
         <div class="mars-mobile">
           <div class="${containerClass}">
             ${left}
-            <div class="page-header-title">${title}</div>
+            ${titleMarkup}
             ${right}
           </div>
         </div>
@@ -274,6 +284,17 @@ export const AllHeaders = {
               <div class="header-icon header-icon-placeholder"><i class="fa-light fa-circle icon-medium"></i></div>
               <div class="page-header-title">Modal Title</div>
               <div class="header-icon"><i class="fa-light fa-xmark icon-medium"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="mars-label" style="margin-bottom:8px">Page Header / No Title · PDP</div>
+          <div class="mars-mobile">
+            <div class="page-header-screen">
+              <div class="header-icon header-icon-light"><i class="fa-light fa-arrow-left icon-medium"></i></div>
+              <div class="page-header-title page-header-title-empty" aria-hidden="true"></div>
+              <div class="header-icon header-icon-light"><i class="fa-light fa-cart-shopping icon-medium"></i></div>
             </div>
           </div>
         </div>

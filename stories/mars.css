@@ -124,6 +124,14 @@ body {
   letter-spacing: 0.15px;
 }
 
+.token-caption {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.66;
+  letter-spacing: 0.4px;
+}
+
 .token-button-sm {
   font-family: "Nunito Sans", sans-serif;
   font-size: 13px;
@@ -464,7 +472,8 @@ body {
 
 /* ── Toast Banners (Atom) ────────────────────────────── */
 .toast-banner {
-  width: min(328px, 100%);
+  width: 328px;
+  max-width: 100%;
   min-height: 46px;
   display: flex;
   align-items: center;
@@ -514,6 +523,9 @@ body {
 .toast-banner-message {
   margin: 0;
   min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .toast-banner-success .toast-banner-message {
@@ -538,7 +550,8 @@ body {
 }
 
 .slider-atom {
-  width: min(328px, 100%);
+  width: 100%;
+  max-width: 328px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -548,14 +561,14 @@ body {
 .slider-track-shell {
   position: relative;
   width: 100%;
-  height: 44px;
+  height: 36px;
   display: flex;
   align-items: center;
 }
 
 .slider-track {
   width: 100%;
-  height: 22px;
+  height: 20px;
   border-radius: 999px;
   background: var(--primary-light);
 }
@@ -570,7 +583,7 @@ body {
   position: absolute;
   top: 50%;
   width: 4px;
-  height: 16px;
+  height: 14px;
   border-radius: 999px;
   background: rgba(85, 37, 136, 0.12);
   transform: translate(-50%, -50%);
@@ -580,7 +593,7 @@ body {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 44px;
+  height: 36px;
   margin: 0;
   background: transparent;
   -webkit-appearance: none;
@@ -593,13 +606,13 @@ body {
 }
 
 .slider-range::-webkit-slider-runnable-track {
-  height: 22px;
+  height: 20px;
   background: transparent;
   border: none;
 }
 
 .slider-range::-moz-range-track {
-  height: 22px;
+  height: 20px;
   background: transparent;
   border: none;
 }
@@ -607,22 +620,22 @@ body {
 .slider-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 0;
   background: var(--primary-main);
-  margin-top: -11px;
-  box-shadow: 0 2px 8px rgba(85, 37, 136, 0.16);
+  margin-top: -8px;
+  filter: var(--card-shadow);
 }
 
 .slider-range::-moz-range-thumb {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 0;
   background: var(--primary-main);
-  box-shadow: 0 2px 8px rgba(85, 37, 136, 0.16);
+  filter: var(--card-shadow);
 }
 
 .slider-values,
@@ -638,7 +651,7 @@ body {
 }
 
 .slider-labels {
-  color: var(--text-secondary);
+  color: var(--disable-text);
 }
 
 .service-tile {
@@ -1664,6 +1677,10 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.page-header-title-empty {
+  visibility: hidden;
 }
 
 .page-header-screen {
