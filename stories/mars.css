@@ -558,7 +558,7 @@ body {
   max-width: 328px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 7px;
   position: relative;
 }
 
@@ -656,6 +656,7 @@ body {
 
 .slider-labels {
   color: var(--disable-text);
+  margin-top: -6px;
 }
 
 .service-tile {
