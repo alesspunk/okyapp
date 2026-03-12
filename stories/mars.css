@@ -116,6 +116,22 @@ body {
   letter-spacing: 0.15px;
 }
 
+.token-body1 {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.15px;
+}
+
+.token-button-sm {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.75;
+  letter-spacing: 0.4px;
+}
+
 .btn {
   font-family: "Nunito Sans", sans-serif;
   border: none;
@@ -444,6 +460,185 @@ body {
 
 .input-has-flag {
   padding-left: 48px;
+}
+
+/* ── Toast Banners (Atom) ────────────────────────────── */
+.toast-banner {
+  width: min(328px, 100%);
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.toast-banner-success {
+  background: var(--success-bg);
+}
+
+.toast-banner-warning {
+  background: var(--warning-bg);
+}
+
+.toast-banner-error {
+  background: var(--error-bg);
+}
+
+.toast-banner-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 0;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.toast-banner-icon i {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.toast-banner-icon-success {
+  color: var(--success-main);
+}
+
+.toast-banner-icon-warning {
+  color: var(--warning-main);
+}
+
+.toast-banner-icon-error {
+  color: var(--error-main);
+}
+
+.toast-banner-message {
+  margin: 0;
+  min-width: 0;
+}
+
+.toast-banner-success .toast-banner-message {
+  color: var(--success-text);
+}
+
+.toast-banner-warning .toast-banner-message {
+  color: var(--warning-text);
+}
+
+.toast-banner-error .toast-banner-message {
+  color: var(--error-text);
+}
+
+/* ── Slider (Atom) ───────────────────────────────────── */
+.token-h5 {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.334;
+  letter-spacing: 0;
+}
+
+.slider-atom {
+  width: min(328px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+
+.slider-track-shell {
+  position: relative;
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.slider-track {
+  width: 100%;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--primary-light);
+}
+
+.slider-ticks {
+  position: absolute;
+  inset: 0 14px;
+  pointer-events: none;
+}
+
+.slider-tick {
+  position: absolute;
+  top: 50%;
+  width: 4px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(85, 37, 136, 0.12);
+  transform: translate(-50%, -50%);
+}
+
+.slider-range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.slider-range:focus-visible {
+  outline: none;
+}
+
+.slider-range::-webkit-slider-runnable-track {
+  height: 22px;
+  background: transparent;
+  border: none;
+}
+
+.slider-range::-moz-range-track {
+  height: 22px;
+  background: transparent;
+  border: none;
+}
+
+.slider-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--primary-main);
+  margin-top: -11px;
+  box-shadow: 0 2px 8px rgba(85, 37, 136, 0.16);
+}
+
+.slider-range::-moz-range-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--primary-main);
+  box-shadow: 0 2px 8px rgba(85, 37, 136, 0.16);
+}
+
+.slider-values,
+.slider-labels {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slider-values {
+  color: var(--primary-main);
+}
+
+.slider-labels {
+  color: var(--text-secondary);
 }
 
 .service-tile {
@@ -786,6 +981,57 @@ body {
   text-align: center;
   color: #552588;
   letter-spacing: 0.15px;
+}
+
+.chip-ds-status {
+  min-width: 52px;
+  height: 32px;
+  border-radius: 8px;
+  border-color: var(--primary-main);
+  padding: 4px 10px;
+  gap: 8px;
+  font-family: "Nunito Sans", sans-serif;
+}
+
+.chip-ds-status-number {
+  min-width: 8px;
+  color: var(--primary-main);
+  text-align: center;
+}
+
+.fa-icon-chip-status {
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  background: transparent;
+  color: var(--primary-main);
+  flex-shrink: 0;
+}
+
+.fa-icon-chip-status i {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.chip-ds-status-button .fa-icon-chip-status,
+.chip-ds-status-button .chip-ds-status-number {
+  color: var(--primary-main);
+}
+
+.chip-ds-status-expired .fa-icon-chip-status {
+  color: var(--warning-main);
+}
+
+.chip-ds-status-sended .fa-icon-chip-status {
+  color: var(--success-main);
+}
+
+.chip-ds-status-error .fa-icon-chip-status {
+  color: var(--error-main);
+}
+
+.chip-ds-status-proccessing .fa-icon-chip-status {
+  color: var(--info-main);
 }
 
 .radio-group {

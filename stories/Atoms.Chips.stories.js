@@ -20,6 +20,7 @@ export const Playground = {
     variant: "Chips/Cart",
     count: 1,
     tagText: "Nuevo",
+    status: "button",
   },
   argTypes: {
     variant: {
@@ -27,6 +28,7 @@ export const Playground = {
       options: [
         "Chips/New item",
         "Chips/Cart",
+        "Chips/Status",
         "Chips/Quantity Input / Add0 / Vales",
         "Chips/Quantity Input / Quantity/Gifcards/Giftcards",
         "Chips/Quantity Input / Add1 / Vales",
@@ -35,11 +37,17 @@ export const Playground = {
     },
     count: { control: { type: "number", min: 0, max: 99, step: 1 } },
     tagText: { control: "text" },
+    status: {
+      control: "select",
+      options: ["button", "error", "proccessing", "expired", "sended"],
+      if: { arg: "variant", eq: "Chips/Status" },
+    },
   },
-  render: ({ variant, count, tagText }) => {
+  render: ({ variant, count, tagText, status }) => {
     const recommendationByVariant = {
       "Chips/New item": 'Recomendado: máximo 5 caracteres en tag (base: "Nuevo").',
       "Chips/Cart": "Recomendado: contador de 1-2 caracteres (0-99).",
+      "Chips/Status": "Recomendado: contador de 1-2 caracteres y usar solo los status del sistema.",
       "Chips/Quantity Input / Add0 / Vales": "Recomendado: sin texto libre (solo ícono).",
       "Chips/Quantity Input / Quantity/Gifcards/Giftcards": "Recomendado: cantidad de 1-2 caracteres (1-99).",
       "Chips/Quantity Input / Add1 / Vales": "Recomendado: cantidad de 1-2 caracteres (1-99).",
@@ -67,6 +75,31 @@ export const Playground = {
           <span class="chip-ds chip-ds-cart">
             <span>${count}</span>
             <i class="fa-regular fa-cart-shopping"></i>
+          </span>
+        </div>
+      `;
+    }
+
+    if (variant === "Chips/Status") {
+      const statusConfig = {
+        button: { id: "7360:96627", icon: "qrcode", colorClass: "chip-ds-status-button" },
+        expired: { id: "7360:96631", icon: "clock", colorClass: "chip-ds-status-expired" },
+        sended: { id: "7360:96632", icon: "circle-check", colorClass: "chip-ds-status-sended" },
+        error: { id: "7360:96629", icon: "circle-xmark", colorClass: "chip-ds-status-error" },
+        proccessing: { id: "7360:96630", icon: "hourglass-half", colorClass: "chip-ds-status-proccessing" },
+      };
+      const safeStatus = statusConfig[status] ? status : "button";
+      const current = statusConfig[safeStatus];
+
+      return `
+        <div class="mars-story">
+          <div class="mars-label">Variant: ${variant} · Status: ${safeStatus} · Ref Figma: ${current.id}</div>
+          <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">${recommendation}</div>
+          <span class="chip-ds chip-ds-status ${current.colorClass}">
+            <span class="chip-ds-status-number token-button-sm">${count}</span>
+            <span class="fa-icon fa-icon-chip-status" aria-hidden="true">
+              <i class="fa-solid fa-${current.icon}"></i>
+            </span>
           </span>
         </div>
       `;
@@ -144,6 +177,41 @@ export const Variants = {
         <div class="story-card">
           <div class="mars-label">Cart · 9fXxZ</div>
           <span class="chip-ds chip-ds-cart"><span>1</span><i class="fa-regular fa-cart-shopping"></i></span>
+        </div>
+        <div class="story-card">
+          <div class="mars-label">Status / button · 7360:96627</div>
+          <span class="chip-ds chip-ds-status chip-ds-status-button">
+            <span class="chip-ds-status-number token-button-sm">1</span>
+            <span class="fa-icon fa-icon-chip-status"><i class="fa-solid fa-qrcode"></i></span>
+          </span>
+        </div>
+        <div class="story-card">
+          <div class="mars-label">Status / expired · 7360:96631</div>
+          <span class="chip-ds chip-ds-status chip-ds-status-expired">
+            <span class="chip-ds-status-number token-button-sm">1</span>
+            <span class="fa-icon fa-icon-chip-status"><i class="fa-solid fa-clock"></i></span>
+          </span>
+        </div>
+        <div class="story-card">
+          <div class="mars-label">Status / sended · 7360:96632</div>
+          <span class="chip-ds chip-ds-status chip-ds-status-sended">
+            <span class="chip-ds-status-number token-button-sm">1</span>
+            <span class="fa-icon fa-icon-chip-status"><i class="fa-solid fa-circle-check"></i></span>
+          </span>
+        </div>
+        <div class="story-card">
+          <div class="mars-label">Status / error · 7360:96629</div>
+          <span class="chip-ds chip-ds-status chip-ds-status-error">
+            <span class="chip-ds-status-number token-button-sm">1</span>
+            <span class="fa-icon fa-icon-chip-status"><i class="fa-solid fa-circle-xmark"></i></span>
+          </span>
+        </div>
+        <div class="story-card">
+          <div class="mars-label">Status / proccessing · 7360:96630</div>
+          <span class="chip-ds chip-ds-status chip-ds-status-proccessing">
+            <span class="chip-ds-status-number token-button-sm">1</span>
+            <span class="fa-icon fa-icon-chip-status"><i class="fa-solid fa-hourglass-half"></i></span>
+          </span>
         </div>
         <div class="story-card">
           <div class="mars-label">Add0 · DsDmy</div>

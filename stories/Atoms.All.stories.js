@@ -129,7 +129,7 @@ export const RadioAndChips = {
   render: () => `
     <div class="mars-story">
       <h3 style="margin:0 0 10px;color:var(--primary-main)">Radio + Chips</h3>
-      <div class="mars-subtitle">Chips IDs: 1913:1659, 9fXxZ, DsDmy, QtFxr, BEpku, AotiP</div>
+      <div class="mars-subtitle">Chips IDs: 1913:1659, 9fXxZ, 7360:96627-32, DsDmy, QtFxr, BEpku, AotiP</div>
       <div class="mars-grid">
         <div class="story-card">
           <div class="mars-label">Chip new item (1913:1659)</div>
@@ -151,6 +151,31 @@ export const RadioAndChips = {
           <span class="chip-ds chip-ds-add0"><i class="fa-regular fa-plus"></i></span>
         </div>
         <div class="story-card">
+          <div class="mars-label">Chip status set (7360:96627+)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="chip-ds chip-ds-status chip-ds-status-button">
+              <span class="chip-ds-status-number token-button-sm">1</span>
+              <span class="fa-icon fa-icon-chip-status"><i class="fa-solid fa-qrcode"></i></span>
+            </span>
+            <span class="chip-ds chip-ds-status chip-ds-status-expired">
+              <span class="chip-ds-status-number token-button-sm">1</span>
+              <span class="fa-icon fa-icon-chip-status"><i class="fa-solid fa-clock"></i></span>
+            </span>
+            <span class="chip-ds chip-ds-status chip-ds-status-sended">
+              <span class="chip-ds-status-number token-button-sm">1</span>
+              <span class="fa-icon fa-icon-chip-status"><i class="fa-solid fa-circle-check"></i></span>
+            </span>
+            <span class="chip-ds chip-ds-status chip-ds-status-error">
+              <span class="chip-ds-status-number token-button-sm">1</span>
+              <span class="fa-icon fa-icon-chip-status"><i class="fa-solid fa-circle-xmark"></i></span>
+            </span>
+            <span class="chip-ds chip-ds-status chip-ds-status-proccessing">
+              <span class="chip-ds-status-number token-button-sm">1</span>
+              <span class="fa-icon fa-icon-chip-status"><i class="fa-solid fa-hourglass-half"></i></span>
+            </span>
+          </div>
+        </div>
+        <div class="story-card">
           <div class="mars-label">Chip qty (QtFxr)</div>
           <span class="chip-ds chip-ds-pill chip-ds-qty"><i class="fa-regular fa-trash"></i><span>1</span></span>
         </div>
@@ -160,6 +185,66 @@ export const RadioAndChips = {
             <span class="chip-ds chip-ds-pill chip-ds-add"><i class="fa-regular fa-trash"></i><span>1</span><i class="fa-regular fa-plus"></i></span>
             <span class="chip-ds chip-ds-pill chip-ds-add"><i class="fa-regular fa-minus"></i><span>2</span><i class="fa-regular fa-plus"></i></span>
           </div>
+        </div>
+      </div>
+    </div>
+  `,
+};
+
+export const ToastBanners = {
+  render: () => `
+    <div class="mars-story">
+      <h3 style="margin:0 0 10px;color:var(--primary-main)">Toast Banners</h3>
+      <div class="mars-subtitle">Atoms refs: 1807:17380, 1807:18261, 2189:10119, 2189:10151</div>
+      <div style="display:flex;flex-direction:column;gap:16px;max-width:328px">
+        <article class="toast-banner toast-banner-success">
+          <span class="fa-icon toast-banner-icon toast-banner-icon-success"><i class="fa-light fa-circle-check"></i></span>
+          <p class="token-body1 toast-banner-message">José Ramos te envió un OKY Vale 😀</p>
+        </article>
+        <article class="toast-banner toast-banner-warning">
+          <span class="fa-icon toast-banner-icon toast-banner-icon-warning"><i class="fa-light fa-gift"></i></span>
+          <p class="token-body1 toast-banner-message">José Ramos te envió una tarjeta 🥳</p>
+        </article>
+        <article class="toast-banner toast-banner-warning">
+          <span class="fa-icon toast-banner-icon toast-banner-icon-warning"><i class="fa-light fa-clock"></i></span>
+          <p class="token-body1 toast-banner-message">El vale no se muestra en tiempo real</p>
+        </article>
+        <article class="toast-banner toast-banner-error">
+          <span class="fa-icon toast-banner-icon toast-banner-icon-error"><i class="fa-light fa-circle-exclamation"></i></span>
+          <p class="token-body1 toast-banner-message">Esto es un error</p>
+        </article>
+      </div>
+    </div>
+  `,
+};
+
+export const Slider = {
+  render: () => `
+    <div class="mars-story">
+      <h3 style="margin:0 0 10px;color:var(--primary-main)">Slider</h3>
+      <div class="mars-subtitle">Atom visual reference for money ranges in Q and $.</div>
+      <div style="display:flex;flex-direction:column;gap:28px;max-width:328px">
+        <div class="slider-atom">
+          <div class="slider-track-shell" aria-hidden="true">
+            <div class="slider-track"></div>
+            <div class="slider-ticks">
+              ${Array.from({ length: 11 }, (_, index) => `<span class="slider-tick" style="left:${index * 10}%"></span>`).join("")}
+            </div>
+          </div>
+          <input class="slider-range" type="range" min="25" max="200" step="25" value="85" aria-label="Slider Quetzales" />
+          <div class="slider-values token-h5"><span>Q 25</span><span>Q 200</span></div>
+          <div class="slider-labels token-body1"><span>Mínimo</span><span>Máximo</span></div>
+        </div>
+        <div class="slider-atom">
+          <div class="slider-track-shell" aria-hidden="true">
+            <div class="slider-track"></div>
+            <div class="slider-ticks">
+              ${Array.from({ length: 11 }, (_, index) => `<span class="slider-tick" style="left:${index * 10}%"></span>`).join("")}
+            </div>
+          </div>
+          <input class="slider-range" type="range" min="5" max="100" step="5" value="35" aria-label="Slider Dollars" />
+          <div class="slider-values token-h5"><span>$ 5</span><span>$ 100</span></div>
+          <div class="slider-labels token-body1"><span>Minimum</span><span>Maximum</span></div>
         </div>
       </div>
     </div>
