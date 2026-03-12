@@ -3789,7 +3789,7 @@ body {
   width: 100%;
   display: flex;
   align-items: flex-end;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 4px;
   padding: 8px 20px;
   color: #552588;
@@ -3813,21 +3813,25 @@ body {
 }
 
 .middle-card-footer-start {
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .middle-card-footer-end {
-  flex: 0 1 auto;
+  flex: 1 1 0;
   text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .middle-card-molecule.is-product .middle-card-footer-start {
-  flex: 0 0 auto;
+  flex: 1 1 0;
 }
 
 .middle-card-link-icon {
+  flex: 0 0 auto;
   color: var(--primary-main);
 }
 
