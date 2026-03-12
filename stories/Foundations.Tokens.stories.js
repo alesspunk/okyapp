@@ -11,6 +11,25 @@ const coreSwatches = [
   { name: "Text Secondary",  value: "rgba(0,0,0,0.54)" },
 ];
 
+const surfaceTokens = [
+  {
+    name: "Card Middle",
+    css: "--card-middle",
+    type: "gradient",
+    value: "radial-gradient(50% 50% at 50% 50%, #FFF 0%, #F1F2F5 100%)",
+    preview: "radial-gradient(50% 50% at 50% 50%, #FFF 0%, #F1F2F5 100%)",
+    note: "Surface token usado por Middle Card.",
+  },
+  {
+    name: "Card Shadow",
+    css: "--card-shadow",
+    type: "effect",
+    value: "drop-shadow(0px 0px 12px rgba(0, 0, 0, 0.1))",
+    preview: "#ffffff",
+    note: "Shadow base usado en Middle Card para contexto PDP. En Checkout se overridea a una sombra más compacta.",
+  },
+];
+
 const semanticGroups = [
   {
     label: "Success",
@@ -117,7 +136,8 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Core design tokens: color palette, semantic palettes and full typography scale (30 tokens).",
+        component:
+          "Core design tokens: color palette, semantic palettes, surface/effect tokens and full typography scale (30 tokens).",
       },
     },
   },
@@ -171,6 +191,44 @@ export const SemanticPalettes = {
               </div>`
               )
               .join("")}
+          </div>`
+          )
+          .join("")}
+      </div>
+    </div>
+  `,
+};
+
+export const SurfaceTokens = {
+  name: "Surface Tokens",
+  render: () => `
+    <div class="mars-story">
+      <h3 style="margin:0 0 4px;color:var(--primary-main)">Surface / Effect Tokens</h3>
+      <p class="mars-subtitle">Tokens declarados para superficies especiales como <code>Middle Card</code>.</p>
+      <div class="semantic-palette">
+        ${surfaceTokens
+          .map(
+            (token) => `
+          <div class="semantic-group">
+            <div class="semantic-group-label">${token.name}</div>
+            <div class="semantic-swatch" style="align-items:flex-start">
+              <div
+                class="semantic-swatch-color"
+                style="
+                  width:72px;
+                  height:72px;
+                  border-radius:16px;
+                  background:${token.preview};
+                  ${token.type === "effect" ? `filter:${token.value}; border:1px solid rgba(0,0,0,0.08);` : ""}
+                "
+              ></div>
+              <div>
+                <div style="font-weight:700;color:var(--text-primary)">${token.name}</div>
+                <div style="color:var(--text-secondary);font-size:11px;margin:4px 0"><code>${token.css}</code></div>
+                <div style="color:var(--text-secondary);font-size:11px;line-height:1.5">${token.value}</div>
+                <div style="color:var(--text-secondary);font-size:11px;line-height:1.5;margin-top:6px">${token.note}</div>
+              </div>
+            </div>
           </div>`
           )
           .join("")}
