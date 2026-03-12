@@ -34,7 +34,7 @@ const surfaceTokens = [
     type: "effect",
     value: "drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.14)) drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.12))",
     preview: "#ffffff",
-    note: "Shell token aplicado al Middle Card. Border radius asociado: 24px.",
+    note: "Shell token aplicado al Middle Card. Border radius asociado: 16px.",
   },
   {
     name: "Border Main (Middle Card)",
