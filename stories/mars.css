@@ -2862,6 +2862,10 @@ body {
   gap: 6px;
 }
 
+.folder-control.is-collapsed.is-left .folder-option.is-active {
+  gap: 8px;
+}
+
 .folder-option.is-active .folder-code {
   font-weight: 700;
 }
@@ -2928,6 +2932,11 @@ body {
 .folder-control.is-collapsed .folder-chevron-stack img {
   width: 10px;
   height: 10px;
+}
+
+.folder-control.is-collapsed.is-left .folder-chevron-stack,
+.folder-control.is-collapsed.is-left .folder-chevron-stack img {
+  width: 12px;
 }
 
 .folder-chevron-stack {
