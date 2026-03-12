@@ -102,7 +102,9 @@ function renderFooter(card) {
     <div class="middle-card-footer">
       <span class="middle-card-footer-start">${card.leftLabel}</span>
       <span class="middle-card-footer-end">${card.rightLabel}</span>
-      <i class="fa-light fa-arrow-up-right-from-square middle-card-link-icon" aria-hidden="true"></i>
+      <span class="fa-icon fa-icon-card-use middle-card-link-icon" aria-hidden="true">
+        <i class="fa-thin fa-arrow-up-right-from-square"></i>
+      </span>
     </div>
   `;
 }
@@ -166,9 +168,10 @@ export default {
           "**Middle Card** es la molécula de canje intermedio para vouchers y gift cards. " +
           "Incluye tres variantes iniciales: **Vale de Monto**, **Vale de Producto** y **eGift Card**. " +
           "Mantiene el mismo footer de acciones, usa tipografía del sistema basada en `Nunito Sans`, shadow suave, radial surface y CTA secundario con `arrow-up-right-from-square`. " +
-          "Incluye además un switch de contexto para **PDP** y **Checkout**, cambiando tamaño y shadow sin alterar la anatomía. " +
+          "Incluye además un switch de contexto para **PDP** y **Checkout**, cambiando tamaño sin alterar la anatomía. " +
           "La variante de producto usa `mix-blend-mode: darken` sobre la imagen para respetar el tratamiento visual de Figma. " +
-          "Tipografía asignada: **Title → productText**, **Currency prefix → subtitle2**, **Amount → H2**, **Footer labels → CARDLABEL**.",
+          "Tipografía asignada: **Title → productText**, **Currency prefix → subtitle2**, **Amount → H2**, **Footer labels → CARDLABEL**. " +
+          "El shell usa el token de efecto **PDP Card** y la superficie **Card Middle**.",
       },
     },
   },
@@ -269,7 +272,7 @@ export const PageContexts = {
   parameters: {
     docs: {
       description: {
-        story: "Comparación de tamaño y shadow del mismo componente cuando se usa en PDP vs Checkout.",
+        story: "Comparación de tamaño del mismo componente cuando se usa en PDP vs Checkout.",
       },
     },
   },

@@ -18,6 +18,8 @@
   --disable-main: #e0e0e0;
   --card-middle: radial-gradient(50% 50% at 50% 50%, #fff 0%, #f1f2f5 100%);
   --card-shadow: drop-shadow(0px 0px 12px rgba(0, 0, 0, 0.1));
+  --pdp-card-shadow: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.14))
+    drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.12));
 
   /* Semantic — Success */
   --success-bg: #edf7ed;
@@ -1431,11 +1433,42 @@ body {
   font-size: 14px;
 }
 
+.fa-icon-card-use {
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  color: #552588;
+  background: transparent;
+  flex: none;
+  order: 2;
+  flex-grow: 0;
+  text-align: center;
+}
+
+.fa-icon-card-use i {
+  font-family: "Font Awesome 6 Pro";
+  font-style: normal;
+  font-weight: 100;
+  font-size: 14px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+
 .fa-icon-active {
   color: var(--primary-main);
 }
 
 /* ── Font Awesome compatibility (kit custom + local FA6 pro) ── */
+@font-face {
+  font-family: "Font Awesome 6 Pro";
+  font-style: normal;
+  font-weight: 100;
+  font-display: block;
+  src: url("/public/fontawesome-pro/webfonts/fa-pro-light-300.otf") format("opentype");
+}
+
 @font-face {
   font-family: "Font Awesome 6 Pro";
   font-style: normal;
@@ -1464,7 +1497,8 @@ body {
 .far,
 .fa-solid,
 .fas,
-.fa-light {
+.fa-light,
+.fa-thin {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   display: var(--fa-display, inline-block);
@@ -1489,11 +1523,16 @@ body {
   font-weight: 300;
 }
 
+.fa-thin {
+  font-weight: 100;
+}
+
 .fa-regular::before,
 .far::before,
 .fa-solid::before,
 .fas::before,
-.fa-light::before {
+.fa-light::before,
+.fa-thin::before {
   content: var(--fa);
 }
 
@@ -3117,17 +3156,19 @@ body {
 
 /* ── Middle Card (Molecule) ─────────────────────────── */
 .middle-card-shell {
+  --border-main: #e0e0e0;
   width: min(342px, 100%);
   border-radius: 24px;
   background: var(--white);
-  filter: var(--card-shadow);
+  filter: var(--pdp-card-shadow);
   overflow: hidden;
 }
 
 .middle-card-molecule {
   min-height: 194px;
-  border-left: 1px solid #e0e0e0;
-  border-right: 1px solid #e0e0e0;
+  border-width: 0 1px;
+  border-style: solid;
+  border-color: var(--border-main);
   border-radius: 16px;
   background: var(--card-middle);
   padding-top: 8px;
@@ -3135,8 +3176,6 @@ body {
 
 .middle-card-shell.is-checkout {
   width: min(300px, 100%);
-  --card-shadow: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.14))
-    drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.12));
 }
 
 .middle-card-shell.is-checkout .middle-card-molecule {
@@ -3294,9 +3333,7 @@ body {
 }
 
 .middle-card-link-icon {
-  color: rgba(85, 37, 136, 0.4);
-  font-size: 14px;
-  line-height: 24px;
+  color: var(--primary-main);
 }
 
 .middle-card-grid {

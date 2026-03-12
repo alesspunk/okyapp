@@ -5,8 +5,8 @@ export default {
     docs: {
       description: {
         component:
-          "FA Icon component — 3 sizes (Large 40px, Medium 32px, Small 24px) × 2 states (Default, Active). " +
-          "Active state uses Primary Main background with white icon.",
+          "FA Icon component — 3 sizes estándar (Large 40px, Medium 32px, Small 24px) × 2 states (Default, Active), " +
+          "más la variante **Card Use** para íconos secundarios dentro de cards, como `arrow-up-right-from-square`.",
       },
     },
   },
@@ -14,22 +14,44 @@ export default {
 
 export const Playground = {
   args: {
+    usage: "Standard",
     size: "Large",
     state: "Default",
     icon: "house",
   },
   argTypes: {
+    usage: {
+      control: "inline-radio",
+      options: ["Standard", "Card Use"],
+      description: "Variante del átomo: estándar o uso dentro de cards.",
+    },
     size: {
       control: "inline-radio",
       options: ["Large", "Medium", "Small"],
+      if: { arg: "usage", eq: "Standard" },
     },
     state: {
       control: "inline-radio",
       options: ["Default", "Active"],
+      if: { arg: "usage", eq: "Standard" },
     },
     icon: { control: "text" },
   },
-  render: ({ size, state, icon }) => {
+  render: ({ usage, size, state, icon }) => {
+    if (usage === "Card Use") {
+      return `
+        <div class="mars-story">
+          <div class="mars-label">Icon/FA/Card Use · Ref node: 7069:86385</div>
+          <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+            Recomendado: usar <code>arrow-up-right-from-square</code> en cards. Tamaño fijo 16px wrapper / 14px glyph.
+          </div>
+          <span class="fa-icon fa-icon-card-use">
+            <i class="fa-thin fa-${icon}"></i>
+          </span>
+        </div>
+      `;
+    }
+
     const sizeClass = { Large: "fa-icon-lg", Medium: "fa-icon-md", Small: "fa-icon-sm" }[size];
     const activeClass = state === "Active" ? " fa-icon-active" : "";
     const penIds = {
@@ -50,6 +72,24 @@ export const Playground = {
       </div>
     `;
   },
+};
+
+export const CardUse = {
+  name: "Card Use",
+  args: {
+    icon: "arrow-up-right-from-square",
+  },
+  render: ({ icon }) => `
+    <div class="mars-story">
+      <div class="mars-label">Icon/FA/Card Use · Ref node: 7069:86385</div>
+      <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+        Icon token para cards: 16x16 wrapper · glyph 14px · <code>Primary Main</code>.
+      </div>
+      <span class="fa-icon fa-icon-card-use">
+        <i class="fa-thin fa-${icon}"></i>
+      </span>
+    </div>
+  `,
 };
 
 export const AllSizes = {
@@ -92,7 +132,7 @@ export const AllSizes = {
     return `
       <div class="mars-story">
         <h3 style="margin:0 0 4px;color:var(--primary-main)">FA Icon — Sizes & States</h3>
-        <p class="mars-subtitle">Reusable components: Icon/FA/[Large|Medium|Small]/[Default|Active]</p>
+        <p class="mars-subtitle">Reusable components: Icon/FA/[Large|Medium|Small]/[Default|Active] + Icon/FA/Card Use.</p>
         <table style="border-collapse:collapse;margin-bottom:24px">
           <thead>
             <tr>
@@ -103,6 +143,11 @@ export const AllSizes = {
           </thead>
           <tbody>${rows}</tbody>
         </table>
+        <div class="mars-label" style="margin-bottom:8px">Card Use</div>
+        <div style="display:flex;gap:16px;align-items:center;margin-bottom:20px">
+          <span class="fa-icon fa-icon-card-use"><i class="fa-thin fa-arrow-up-right-from-square"></i></span>
+          <span style="font-size:11px;color:var(--text-secondary)">arrow-up-right-from-square · card icon token</span>
+        </div>
         <div class="mars-label" style="margin-bottom:8px">Sample icons (Default / Large)</div>
         <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">${iconGrid}</div>
       </div>

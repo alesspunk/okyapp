@@ -26,7 +26,23 @@ const surfaceTokens = [
     type: "effect",
     value: "drop-shadow(0px 0px 12px rgba(0, 0, 0, 0.1))",
     preview: "#ffffff",
-    note: "Shadow base usado en Middle Card para contexto PDP. En Checkout se overridea a una sombra más compacta.",
+    note: "Token reservado para uso futuro. Se mantiene declarado en Foundations.",
+  },
+  {
+    name: "PDP Card",
+    css: "--pdp-card-shadow",
+    type: "effect",
+    value: "drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.14)) drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.12))",
+    preview: "#ffffff",
+    note: "Shell token aplicado al Middle Card. Border radius asociado: 24px.",
+  },
+  {
+    name: "Border Main (Middle Card)",
+    css: "--border-main",
+    type: "color",
+    value: "#E0E0E0",
+    preview: "#E0E0E0",
+    note: "Override scopeado dentro de Middle Card para respetar el stroke lateral del componente sin afectar el token global existente.",
   },
 ];
 
