@@ -12,11 +12,13 @@ const COUNTRY_BASE = {
   left: {
     code: "GUA",
     flag: "guatemala-flag.png",
+    collapsedFlag: "flag-guate.png",
     alt: "Guatemala flag",
   },
   right: {
     code: "USA",
     flag: "usa-flag.png",
+    collapsedFlag: "flag-usa.png",
     alt: "USA flag",
   },
 };
@@ -154,7 +156,7 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
   };
 
   if (isCollapsed) {
-    const leftX = 55;
+    const leftX = isCollapsedLeft ? 47 : 55;
     const rightX = 245;
     const lineX = isCollapsedLeft ? 55 : 245;
     const lineWidth = 66;
@@ -176,9 +178,9 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
             side: "left",
             selectedSide: effectiveSide,
             code: countries.left.code,
-            flag: countries.left.flag,
+            flag: countries.left.collapsedFlag,
             alt: countries.left.alt,
-            showChevrons: false,
+            showChevrons: isCollapsedLeft,
             withFlag: true,
             flagVariant: "rect",
           })}
@@ -187,7 +189,7 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
             side: "right",
             selectedSide: effectiveSide,
             code: countries.right.code,
-            flag: countries.right.flag,
+            flag: countries.right.collapsedFlag,
             alt: countries.right.alt,
             showChevrons: false,
             withFlag: true,

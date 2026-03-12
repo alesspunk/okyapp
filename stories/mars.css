@@ -2918,6 +2918,17 @@ body {
   line-height: 1;
 }
 
+.folder-control.is-collapsed .folder-chevron-stack {
+  width: 10px;
+  height: 10px;
+  transform: translateY(-1px);
+}
+
+.folder-control.is-collapsed .folder-chevron-stack img {
+  width: 10px;
+  height: 10px;
+}
+
 .folder-chevron-stack {
   display: inline-flex;
   align-items: center;
