@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MARS Atomic Design Library (Storybook Synced)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <title>MARS React Code Library</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
       --primary-main: #410088;
       --primary-dark: #230741;
       --primary-light: #bc9edc;
       --secondary-main: #18afa5;
-      --secondary-dark: #057a73;
-      --secondary-light: #8adad7;
       --accent-color: #ffb400;
+      --surface: #ffffff;
       --bg: #f5f6fa;
-      --surface: #fff;
+      --divider: rgba(0, 0, 0, 0.12);
       --text: rgba(0, 0, 0, 0.87);
       --muted: rgba(0, 0, 0, 0.6);
-      --divider: rgba(0, 0, 0, 0.12);
+      --code-bg: #13161d;
+      --code-fg: #e5e7eb;
     }
 
     * { box-sizing: border-box; }
@@ -28,39 +28,46 @@
       background: var(--bg);
       color: var(--text);
       font-family: "Nunito Sans", sans-serif;
-      line-height: 1.45;
+      line-height: 1.5;
     }
 
     .shell {
-      max-width: 1080px;
+      max-width: 1120px;
       margin: 0 auto;
       padding: 24px;
     }
 
-    header {
+    header.hero {
       background: linear-gradient(135deg, var(--primary-main), var(--primary-dark));
       color: #fff;
-      border-radius: 14px;
-      padding: 24px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
     }
 
-    header h1 {
-      margin: 0 0 6px;
-      font-size: 30px;
-      line-height: 1.15;
+    header.hero h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.1;
     }
 
-    header p {
+    header.hero p {
       margin: 0;
       opacity: 0.95;
+      max-width: 760px;
+    }
+
+    .meta {
+      margin-top: 12px;
+      font-size: 14px;
+      opacity: 0.92;
     }
 
     nav {
       margin-top: 16px;
       background: var(--surface);
       border: 1px solid var(--divider);
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 12px 16px;
       position: sticky;
       top: 12px;
@@ -78,7 +85,7 @@
 
     nav a {
       display: inline-block;
-      padding: 7px 10px;
+      padding: 8px 10px;
       border-radius: 8px;
       text-decoration: none;
       color: var(--primary-main);
@@ -87,19 +94,19 @@
     }
 
     nav a:hover {
-      background: #ede6f5;
+      background: #efe8f6;
     }
 
     section {
       margin-top: 18px;
       background: var(--surface);
       border: 1px solid var(--divider);
-      border-radius: 12px;
-      padding: 20px;
+      border-radius: 14px;
+      padding: 22px;
     }
 
     h2 {
-      margin: 0 0 10px;
+      margin: 0 0 12px;
       color: var(--primary-main);
       font-size: 24px;
       border-bottom: 2px solid var(--accent-color);
@@ -107,36 +114,30 @@
     }
 
     h3 {
-      margin: 18px 0 8px;
+      margin: 20px 0 8px;
       color: var(--primary-dark);
       font-size: 19px;
     }
 
+    p { margin: 8px 0; }
+
     ul {
-      margin: 6px 0 10px 18px;
+      margin: 8px 0 12px 18px;
       padding: 0;
     }
 
     li { margin: 4px 0; }
 
-    p { margin: 8px 0; }
-
-    .meta {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
     .component {
       border: 1px solid var(--divider);
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 14px;
-      margin-top: 12px;
+      margin-top: 14px;
       background: #fcfcff;
     }
 
     .component h4 {
-      margin: 0 0 6px;
+      margin: 0 0 8px;
       color: var(--primary-main);
       font-size: 17px;
     }
@@ -153,10 +154,21 @@
       margin-bottom: 6px;
     }
 
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
     details {
       margin-top: 10px;
       border: 1px solid var(--divider);
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
       background: #fff;
     }
@@ -177,8 +189,8 @@
       margin: 0;
       padding: 12px;
       overflow-x: auto;
-      background: #13161d;
-      color: #e5e7eb;
+      background: var(--code-bg);
+      color: var(--code-fg);
       font-size: 12px;
       line-height: 1.45;
     }
@@ -187,14 +199,9 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
-    .small {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
     @media (max-width: 720px) {
       .shell { padding: 14px; }
-      header h1 { font-size: 24px; }
+      header.hero h1 { font-size: 26px; }
       h2 { font-size: 20px; }
       section { padding: 14px; }
     }
@@ -202,62 +209,159 @@
 </head>
 <body>
   <div class="shell">
-    <header>
-      <h1>MARS Atomic Design Library</h1>
-      <p>Storybook-synced documentation for latest tokens and components.</p>
-      <p class="meta">Updated: 2026-03-09</p>
+    <header class="hero">
+      <h1>MARS React Code Library</h1>
+      <p>Reference snippets synced to the current Storybook APIs. This page is the source of truth for the <strong>React code</strong> section in Storybook and focuses on component composition, tokens, and operational props.</p>
+      <p class="meta">Updated: 2026-03-12</p>
     </header>
 
     <nav>
       <ul>
-        <li><a href="#foundation">Foundation</a></li>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#tokens">Tokens</a></li>
+        <li><a href="#icons">Icons</a></li>
         <li><a href="#atoms">Atoms</a></li>
         <li><a href="#molecules">Molecules</a></li>
         <li><a href="#organisms">Organisms</a></li>
-        <li><a href="#charlimits">Character Limits</a></li>
-        <li><a href="#showhide">Show/Hide Code</a></li>
+        <li><a href="#pages">Pages</a></li>
+        <li><a href="#reference">Reference</a></li>
       </ul>
     </nav>
 
-    <section id="foundation">
-      <h2>Foundation Tokens</h2>
+    <section id="overview">
+      <h2>Overview</h2>
+      <p>This library mirrors the component system currently documented in Storybook under <code>Foundations</code>, <code>Atoms</code>, <code>Molecules</code>, <code>Organisms</code>, and <code>Pages</code>. The snippets here are intentionally concise and operational: they show the current props, default variants, and composition rules we are actually using.</p>
+      <div class="grid">
+        <div class="component">
+          <h4>How to use this page</h4>
+          <ul>
+            <li>Open a section from the menu.</li>
+            <li>Expand <code>Show React snippet</code> to inspect the current API.</li>
+            <li>Use Storybook Playgrounds to test variants visually.</li>
+          </ul>
+        </div>
+        <div class="component">
+          <h4>What is included</h4>
+          <ul>
+            <li>Foundation tokens currently used by recent work.</li>
+            <li>Updated code references for Atoms, Molecules, Organisms, and Pages.</li>
+            <li>Character recommendations and show/hide code pattern.</li>
+          </ul>
+        </div>
+        <div class="component">
+          <h4>Recent additions reflected here</h4>
+          <ul>
+            <li><code>Brand Item</code>, <code>Slider</code>, <code>Toast Banners</code>, <code>Status Chips</code></li>
+            <li><code>Middle Card</code>, <code>PDP Header</code></li>
+            <li><code>PDP Pages</code> and updated <code>Homepages</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="tokens">
+      <h2>Tokens</h2>
       <div class="component">
         <h4>Color and semantic tokens</h4>
-        <p>Core values synced from <code>stories/mars.css</code>.</p>
         <ul>
           <li><code>--primary-main #410088</code>, <code>--primary-light #bc9edc</code>, <code>--primary-dark #230741</code></li>
           <li><code>--secondary-main #18afa5</code>, <code>--secondary-light #8adad7</code>, <code>--secondary-dark #057a73</code></li>
-          <li><code>--accent-color #ffb400</code></li>
-          <li>Semantic families: <code>--success-*</code>, <code>--warning-*</code>, <code>--error-*</code>, <code>--info-*</code></li>
+          <li>Semantic sets: <code>--success-*</code>, <code>--warning-*</code>, <code>--error-*</code>, <code>--info-*</code></li>
         </ul>
       </div>
-
       <div class="component">
-        <h4>Typography updates</h4>
+        <h4>Recent surface and effect tokens</h4>
         <ul>
-          <li>Full scale: 30 tokens (Story: <code>Foundations/Tokens</code>).</li>
-          <li>Important new micro-label token: <code>TAG</code> = 7px, 700, uppercase, 1px tracking, Lato.</li>
-          <li>Used by latest chip/tag patterns like <code>Chips/New item</code>.</li>
-        </ul>
-      </div>
-
-      <div class="component">
-        <h4>Icon system</h4>
-        <ul>
-          <li>Local CSS includes: <code>/public/fontawesome-free/css/all.min.css</code> + <code>/public/fontawesome-kit/css/custom-icons.min.css</code>.</li>
-          <li>Header wallet icon class: <code>fak fa-kit fa-wallet icon-medium</code>.</li>
-          <li>General rule in latest stories: <code>fa-light</code> by default, specific active icons in <code>fa-solid</code>.</li>
+          <li><code>--card-middle</code>: radial background used by <code>Middle Card</code></li>
+          <li><code>--card-shadow</code>: reusable card shadow token</li>
+          <li><code>--pdp-card-shadow</code>: PDP shell effect token</li>
+          <li><code>--border-main</code>: neutral border used by card-like shells</li>
         </ul>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>{/* app/layout.tsx */}
-export function FontAwesomeAssets() {
+          <pre><code>export const marsTokens = {
+  color: {
+    primaryMain: '#410088',
+    secondaryMain: '#18afa5',
+    successMain: '#4caf50',
+    warningMain: '#ff9800',
+    errorMain: '#f44336',
+    infoMain: '#2196f3',
+  },
+  surface: {
+    cardMiddle: 'radial-gradient(50% 50% at 50% 50%, #FFF 0%, #F1F2F5 100%)',
+    borderMain: '#E0E0E0',
+  },
+  effect: {
+    cardShadow: 'drop-shadow(0px 0px 12px rgba(0, 0, 0, 0.1))',
+    pdpCardShadow: 'drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.14)) drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.12))',
+  },
+};</code></pre>
+        </details>
+      </div>
+      <div class="component">
+        <h4>Typography mapping</h4>
+        <ul>
+          <li><code>productText</code> for product / title-like labels</li>
+          <li><code>subtitle2</code> for currency prefix</li>
+          <li><code>H2</code> for large numeric values</li>
+          <li><code>CARDLABEL</code> for card footer labels</li>
+          <li><code>body1</code> for slider amounts</li>
+          <li><code>caption</code> for slider min/max labels</li>
+          <li><code>TAG</code> for micro chips like <code>New item</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="icons">
+      <h2>Icons</h2>
+      <div class="component">
+        <h4>Font Awesome setup</h4>
+        <ul>
+          <li>Local CSS: <code>/public/fontawesome-free/css/all.min.css</code></li>
+          <li>Custom kit CSS: <code>/public/fontawesome-kit/css/custom-icons.min.css</code></li>
+          <li>Default system rule: <code>fa-light</code> for neutral, <code>fa-solid</code> for active or semantic emphasis</li>
+        </ul>
+        <details>
+          <summary>Show React snippet</summary>
+          <pre><code>export function FontAwesomeAssets() {
   return (
-    &lt;&gt;
+    <>
       &lt;link rel="stylesheet" href="/public/fontawesome-free/css/all.min.css" /&gt;
       &lt;link rel="stylesheet" href="/public/fontawesome-kit/css/custom-icons.min.css" /&gt;
-    &lt;/&gt;
+    </>
   );
+}</code></pre>
+        </details>
+      </div>
+      <div class="component">
+        <h4>Icon variants</h4>
+        <ul>
+          <li><code>Large</code>, <code>Medium</code>, <code>Small</code>, <code>Default</code>, <code>Active</code>, <code>Card Use</code></li>
+          <li><code>Card Use</code> is used inside <code>Middle Card</code> footer with <code>fa-arrow-up-right-from-square</code></li>
+          <li>Header wallet icon uses custom class <code>fak fa-kit fa-wallet</code></li>
+        </ul>
+        <details>
+          <summary>Show React snippet</summary>
+          <pre><code>export function MarsIcon({
+  icon = 'fa-arrow-up-right-from-square',
+  weight = 'fa-light',
+  variant = 'Medium',
+}: {
+  icon?: string;
+  weight?: 'fa-thin' | 'fa-light' | 'fa-regular' | 'fa-solid';
+  variant?: 'Large' | 'Medium' | 'Small' | 'Default' | 'Active' | 'Card Use';
+}) {
+  const variantClass = {
+    Large: 'fa-icon-large',
+    Medium: 'fa-icon-medium',
+    Small: 'fa-icon-small',
+    Default: 'fa-icon-default',
+    Active: 'fa-icon-active',
+    'Card Use': 'fa-icon-card-use',
+  }[variant];
+
+  return <span className={`fa-icon ${variantClass}`}><i className={`${weight} ${icon}`} /></span>;
 }</code></pre>
         </details>
       </div>
@@ -269,21 +373,37 @@ export function FontAwesomeAssets() {
       <div class="component">
         <h4>Chips</h4>
         <p>
-          <span class="pill">Chips/New item</span>
-          <span class="pill">Chips/Cart</span>
-          <span class="pill">Add0</span>
-          <span class="pill">Quantity</span>
-          <span class="pill">Add1</span>
-          <span class="pill">Add2</span>
+          <span class="pill">New item</span>
+          <span class="pill">Cart</span>
+          <span class="pill">Status</span>
         </p>
         <ul>
-          <li><code>New item</code> Figma ID: <code>1913:1659</code>.</li>
-          <li>Style: 45x15, background <code>--secondary-main</code>, 7px uppercase text, shadow enabled.</li>
+          <li><code>New item</code> uses TAG treatment and secondary background.</li>
+          <li><code>Status</code> supports semantic icon + label states.</li>
         </ul>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>export function ChipNewItem({ text = 'Nuevo' }: { text?: string }) {
-  return &lt;span className="chip-ds chip-ds-new-item"&gt;{text}&lt;/span&gt;;
+          <pre><code>export function StatusChip({
+  status = 'processing',
+  label = 'Procesando',
+}: {
+  status?: 'button' | 'error' | 'processing' | 'expired' | 'sended';
+  label?: string;
+}) {
+  const iconMap = {
+    button: 'fa-qrcode',
+    error: 'fa-circle-xmark',
+    processing: 'fa-hourglass-half',
+    expired: 'fa-clock',
+    sended: 'fa-circle-check',
+  };
+
+  return (
+    <span className={`chip-status chip-status-${status}`}>
+      <span className="fa-icon fa-icon-small"><i className={`fa-solid ${iconMap[status]}`} /></span>
+      <span className="token-button-sm">{label}</span>
+    </span>
+  );
 }</code></pre>
         </details>
       </div>
@@ -291,60 +411,179 @@ export function FontAwesomeAssets() {
       <div class="component">
         <h4>Discount Ribbon</h4>
         <p>
-          <span class="pill">Tipo: List / Wrap</span>
-          <span class="pill">Type: Normal</span>
+          <span class="pill">List</span>
+          <span class="pill">Wrap</span>
+          <span class="pill">Normal</span>
           <span class="pill">Por tiempo</span>
           <span class="pill">Finito</span>
           <span class="pill">Por temporada</span>
           <span class="pill">OKY</span>
         </p>
-        <ul>
-          <li>Wrap sizes: 75px (default), 50px (small).</li>
-          <li>List variant is static inline badge.</li>
-          <li>Wrap variant includes notch + elevation overlay behavior.</li>
-        </ul>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>export function DiscountRibbon({ tipo = 'List', type = 'Normal', small = false, label = '25% OFF' }) {
-  const typeClass = `discount-ribbon-type-${type.toLowerCase().replace(/\s+/g, '-')}`;
+          <pre><code>export function DiscountRibbon({
+  tipo = 'Wrap',
+  type = 'Normal',
+  size = 'Default',
+  label = '25% OFF',
+}: {
+  tipo?: 'List' | 'Wrap';
+  type?: 'Normal' | 'Por tiempo' | 'Finito' | 'Por temporada' | 'OKY';
+  size?: 'Default' | 'Small';
+  label?: string;
+}) {
+  const typeClass = `discount-ribbon-type-${type.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')}`;
+  const sizeClass = size === 'Small' ? 'discount-ribbon-wrap-small' : '';
+
   if (tipo === 'Wrap') {
     return (
-      &lt;div className={`discount-ribbon discount-ribbon-wrap ${small ? 'discount-ribbon-wrap-small' : ''} ${typeClass}`}&gt;
-        &lt;span className="discount-ribbon-text token-price-percent"&gt;{label}&lt;/span&gt;
-      &lt;/div&gt;
+      <div className={`discount-ribbon discount-ribbon-wrap ${sizeClass} ${typeClass}`}>
+        <span className="discount-ribbon-text token-price-percent">{label}</span>
+      </div>
     );
   }
+
   return (
-    &lt;div className={`discount-ribbon discount-ribbon-list ${typeClass}`}&gt;
-      &lt;span className="discount-ribbon-text token-price-percent"&gt;{label}&lt;/span&gt;
-    &lt;/div&gt;
+    <div className={`discount-ribbon discount-ribbon-list ${typeClass}`}>
+      <span className="discount-ribbon-text token-price-percent">{label}</span>
+    </div>
   );
 }</code></pre>
         </details>
       </div>
 
       <div class="component">
-        <h4>Super Ribbon</h4>
+        <h4>Brand Item</h4>
         <p>
-          <span class="pill">Por tiempo</span>
-          <span class="pill">Finito</span>
-          <span class="pill">Normal</span>
-          <span class="pill">Por temporada</span>
-          <span class="pill">OKY</span>
+          <span class="pill">With label</span>
+          <span class="pill">No label</span>
+          <span class="pill">Big</span>
         </p>
         <ul>
-          <li>Fixed height 32px.</li>
-          <li>Icon and text can be overridden in Docs Playground.</li>
+          <li>Default background is <code>transparent</code>.</li>
+          <li><code>Big</code> uses <code>343x215</code>, radius <code>16px</code>, border <code>border-main</code> and <code>card-shadow</code>.</li>
+          <li>Labels stay on one line and remain centered.</li>
         </ul>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>const defaults = {
-  'Por tiempo': { icon: 'fa-clock', text: 'Termina en 20:43:32', className: 'super-ribbon-type-por-tiempo' },
-  'Finito': { icon: 'fa-fire-flame-simple', text: 'Últimas 20 unidades', className: 'super-ribbon-type-finito' },
-  'Normal': { icon: 'fa-tags', text: 'Descuentos de temporada', className: 'super-ribbon-type-normal' },
-  'Por temporada': { icon: 'fa-sun', text: 'Ofertas del mes de Abril', className: 'super-ribbon-type-por-temporada' },
-  'OKY': { icon: 'fa-heart', text: 'Para la persona que quieres', className: 'super-ribbon-type-oky' },
-};</code></pre>
+          <pre><code>export function BrandItem({
+  image = 'mcdonalds.webp',
+  label = 'McDonald\'s',
+  variant = 'With label',
+  background = 'transparent',
+}: {
+  image?: string;
+  label?: string;
+  variant?: 'With label' | 'No label' | 'Big';
+  background?: string;
+}) {
+  const isBig = variant === 'Big';
+  const showLabel = variant === 'With label';
+
+  return (
+    <div className={`brand-item-atom ${isBig ? 'is-big' : showLabel ? 'is-with-label' : 'is-no-label'}`} style={{ backgroundColor: background }}>
+      {showLabel ? <p className="brand-item-label token-product-text">{label}</p> : null}
+      <div className="brand-item-frame">
+        <div className="brand-item-base">
+          <img src={`/images/${image}`} alt={label} />
+        </div>
+      </div>
+    </div>
+  );
+}</code></pre>
+        </details>
+      </div>
+
+      <div class="component">
+        <h4>Inputs</h4>
+        <p><span class="pill">Search</span><span class="pill">Dinamic</span></p>
+        <ul>
+          <li><code>Input / Dinamic</code> is used for money amounts with prefix <code>Q</code> or <code>$</code>.</li>
+          <li>States: placeholder / has value.</li>
+        </ul>
+        <details>
+          <summary>Show React snippet</summary>
+          <pre><code>export function DynamicAmountInput({
+  currencySymbol = 'Q',
+  label = 'Desde 50 hasta 2000',
+  value = '250',
+}: {
+  currencySymbol?: 'Q' | '$';
+  label?: string;
+  value?: string;
+}) {
+  return (
+    <div className="input-wrapper">
+      <label className="input-label input-label-dinamic">{label}</label>
+      <span className="input-dinamic-prefix">{currencySymbol}</span>
+      <input className="input-field input-dinamic input-dinamic-hasvalue" value={value} readOnly />
+    </div>
+  );
+}</code></pre>
+        </details>
+      </div>
+
+      <div class="component">
+        <h4>Slider</h4>
+        <ul>
+          <li>Max width <code>328px</code></li>
+          <li>Track height <code>20px</code>, thumb <code>36px</code>, thumb shadow uses <code>card-shadow</code></li>
+          <li>Amounts use <code>body1</code>; min/max labels use <code>caption</code></li>
+        </ul>
+        <details>
+          <summary>Show React snippet</summary>
+          <pre><code>export function MoneySlider({
+  currency = 'Q',
+  min = 25,
+  max = 200,
+  step = 25,
+  value = 85,
+}: {
+  currency?: 'Q' | '$';
+  min?: number;
+  max?: number;
+  step?: number;
+  value?: number;
+}) {
+  const progress = `${((value - min) / (max - min)) * 100}%`;
+
+  return (
+    <div className="slider-atom" style={{ ['--slider-progress' as string]: progress }}>
+      <input className="slider-range" type="range" min={min} max={max} step={step} defaultValue={value} />
+      <div className="slider-values token-body1"><span>{currency} {min}</span><span>{currency} {max}</span></div>
+      <div className="slider-labels token-caption"><span>Mínimo</span><span>Máximo</span></div>
+    </div>
+  );
+}</code></pre>
+        </details>
+      </div>
+
+      <div class="component">
+        <h4>Toast Banners</h4>
+        <p><span class="pill">Success</span><span class="pill">Warning</span><span class="pill">Error</span></p>
+        <ul>
+          <li>Width <code>328px</code></li>
+          <li>Single-line copy with ellipsis</li>
+          <li>Uses <code>fa-solid</code> icons and semantic <code>*-main</code> colors</li>
+        </ul>
+        <details>
+          <summary>Show React snippet</summary>
+          <pre><code>export function ToastBanner({
+  variant = 'success',
+  message = 'Vale enviado correctamente',
+  icon = 'fa-circle-check',
+}: {
+  variant?: 'success' | 'warning' | 'error';
+  message?: string;
+  icon?: string;
+}) {
+  return (
+    <div className={`toast-banner toast-banner-${variant}`}>
+      <span className="fa-icon fa-icon-small"><i className={`fa-solid ${icon}`} /></span>
+      <span className="toast-banner-copy">{message}</span>
+    </div>
+  );
+}</code></pre>
         </details>
       </div>
     </section>
@@ -355,24 +594,32 @@ export function FontAwesomeAssets() {
       <div class="component">
         <h4>Folder</h4>
         <p>
-          <span class="pill">Left · 7296:48469</span>
-          <span class="pill">Right · 7296:48471</span>
-          <span class="pill">Collapsed Left · 7296:48472</span>
-          <span class="pill">Collapsed Right · 7296:48473</span>
+          <span class="pill">Left</span>
+          <span class="pill">Right</span>
+          <span class="pill">Collapsed Left</span>
+          <span class="pill">Collapsed Right</span>
         </p>
         <ul>
-          <li><code>showNewItemChip</code> applies only to Expanded Left.</li>
-          <li>Active line only under active side.</li>
+          <li>Expanded variants use round flags.</li>
+          <li>Collapsed variants use rectangular flags, with chevron only in <code>Collapsed Left</code>.</li>
+          <li><code>showNewItemChip</code> affects expanded left.</li>
         </ul>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>export function Folder({ property1 = 'Left', showNewItemChip = true }) {
+          <pre><code>export function Folder({
+  property1 = 'Left',
+  showNewItemChip = true,
+}: {
+  property1?: 'Left' | 'Right' | 'Collapsed Left' | 'Collapsed Right';
+  showNewItemChip?: boolean;
+}) {
   const isLeftExpanded = property1 === 'Left';
   return (
-    &lt;div className={`folder-control ${property1.includes('Right') ? 'is-right' : 'is-left'}`}&gt;
+    <div className={`folder-control ${property1.includes('Right') ? 'is-right' : 'is-left'}`}>
       {/* top and bottom svg layers */}
-      {isLeftExpanded && showNewItemChip ? &lt;span className="chip-ds chip-ds-new-item"&gt;Nuevo&lt;/span&gt; : null}
-    &lt;/div&gt;
+      {isLeftExpanded && showNewItemChip ? <span className="chip-ds chip-ds-new-item">Nuevo</span> : null}
+      {/* flags, labels, chevron, active line */}
+    </div>
   );
 }</code></pre>
         </details>
@@ -381,24 +628,25 @@ export function FontAwesomeAssets() {
       <div class="component">
         <h4>Plateu</h4>
         <ul>
-          <li>10 Property 1 variants synced, including <code>State=Home, Telco=No, Scrolling=Yes · 7331:50399</code>.</li>
-          <li>Latest spacing updates and reduced active/inactive label scale are reflected.</li>
+          <li>Supports product, vouchers, offers, telco, and home states.</li>
+          <li>Current home variant keeps <code>8px</code> spacing between items.</li>
+          <li>Docs and organisms share the same <code>plateu</code> data helper.</li>
         </ul>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>export function Plateu({ property1 }) {
-  const variant = plateuVariants[property1];
+          <pre><code>export function Plateu({ property1 }: { property1: string }) {
+  const variant = plateuVariants[property1] ?? plateuVariants['State=Productos, Telco=No, Scrolling=No'];
   return (
-    &lt;section className={`plateu-molecule ${variant.scrolling ? 'is-scrolling' : 'is-static'}`}&gt;
-      &lt;div className={`plateu-track ${variant.scrolling ? 'is-scrolling' : 'is-static'}`}&gt;
-        {variant.items.map((item) =&gt; (
-          &lt;div key={item.key} className="plateu-item"&gt;
-            &lt;img className="plateu-icon" src={`/images/${item.image}`} alt={item.label} /&gt;
-            {item.active ? &lt;span className="plateu-chip"&gt;{item.label}&lt;/span&gt; : &lt;span className="plateu-label"&gt;{item.label}&lt;/span&gt;}
-          &lt;/div&gt;
+    <section className={`plateu-molecule ${variant.scrolling ? 'is-scrolling' : 'is-static'}`}>
+      <div className={`plateu-track ${variant.scrolling ? 'is-scrolling' : 'is-static'}`}>
+        {variant.items.map((item) => (
+          <div key={item.key} className="plateu-item">
+            <img className="plateu-icon" src={`/images/${item.image}`} alt={item.label} />
+            {item.active ? <span className="plateu-chip">{item.label}</span> : <span className="plateu-label">{item.label}</span>}
+          </div>
         ))}
-      &lt;/div&gt;
-    &lt;/section&gt;
+      </div>
+    </section>
   );
 }</code></pre>
         </details>
@@ -406,17 +654,60 @@ export function FontAwesomeAssets() {
 
       <div class="component">
         <h4>Promo Code</h4>
-        <p><span class="pill">empty</span><span class="pill">entered</span><span class="pill">6437:28971</span></p>
+        <p><span class="pill">empty</span><span class="pill">entered</span></p>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>export function PromoCode({ state = 'empty', promoCode = 'verano26', placeholder = 'Ingresa el código promocional' }) {
+          <pre><code>export function PromoCode({
+  state = 'empty',
+  promoCode = 'verano26',
+  placeholder = 'Ingresa el código promocional',
+}: {
+  state?: 'empty' | 'entered';
+  promoCode?: string;
+  placeholder?: string;
+}) {
   return (
-    &lt;div className="promo-code-molecule" data-state={state}&gt;
-      &lt;p className="promo-code-copy"&gt;{state === 'entered' ? `Código Promo: ${promoCode}` : placeholder}&lt;/p&gt;
-      &lt;button className="promo-code-action promo-clear" /&gt;
-      &lt;button className="promo-code-action promo-open" /&gt;
-    &lt;/div&gt;
+    <div className="promo-code-molecule" data-state={state}>
+      <p className="promo-code-copy">{state === 'entered' ? `Código Promo: ${promoCode}` : placeholder}</p>
+      <button className="promo-code-action promo-clear" />
+      <button className="promo-code-action promo-open" />
+    </div>
   );
+}</code></pre>
+        </details>
+      </div>
+
+      <div class="component">
+        <h4>Middle Card</h4>
+        <p>
+          <span class="pill">Vale de Monto</span>
+          <span class="pill">Vale de Producto</span>
+          <span class="pill">eGift Card</span>
+          <span class="pill">PDP</span>
+          <span class="pill">Checkout</span>
+        </p>
+        <ul>
+          <li>Title stays pinned at the top, center area is flexible, footer labels stay anchored below.</li>
+          <li>Optional <code>Discount Ribbon / Wrap</code> sits top-right and defaults to <code>Normal</code>.</li>
+          <li>Footer labels stay on one line and align left/right.</li>
+        </ul>
+        <details>
+          <summary>Show React snippet</summary>
+          <pre><code>export function MiddleCard({
+  variantPath = 'Molecule/Middle Card/Vale de Monto',
+  pageContext = 'PDP',
+  showDiscountRibbon = true,
+  discountRibbonType = 'Normal',
+  discountRibbonLabel = '25% OFF',
+}: {
+  variantPath?: string;
+  pageContext?: 'PDP' | 'Checkout';
+  showDiscountRibbon?: boolean;
+  discountRibbonType?: 'Normal' | 'Por tiempo' | 'Finito' | 'Por temporada' | 'OKY';
+  discountRibbonLabel?: string;
+}) {
+  const card = resolveMiddleCard({ variantPath, pageContext, showDiscountRibbon, discountRibbonType, discountRibbonLabel });
+  return <div dangerouslySetInnerHTML={{ __html: renderMiddleCard(card) }} />;
 }</code></pre>
         </details>
       </div>
@@ -424,17 +715,17 @@ export function FontAwesomeAssets() {
       <div class="component">
         <h4>Tiles</h4>
         <ul>
-          <li>Full: Food (<code>g0RAt</code>), Money (<code>X1bOv</code>), Mobile Topup (<code>1Zzry</code>), Bill Payment (<code>GY8MG</code>).</li>
-          <li>Half: Seasonal (<code>AqHu9</code>), Topup (<code>pEubm</code>), Multi-Brand (<code>fHlYu</code>).</li>
+          <li>Full tiles and half tiles are still rendered from the same base anatomy.</li>
+          <li>Half multi-brand can reuse the new <code>Chips/New item</code> variant.</li>
         </ul>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>export function ServiceTile({ label, image, half = false }) {
+          <pre><code>export function ServiceTile({ label, image, half = false }: { label: string; image: string; half?: boolean }) {
   return (
-    &lt;div className={half ? 'service-tile service-tile-half' : 'service-tile'}&gt;
-      &lt;img src={`/images/${image}`} alt={label} /&gt;
-      &lt;div className="tile-label"&gt;{label}&lt;/div&gt;
-    &lt;/div&gt;
+    <div className={half ? 'service-tile service-tile-half' : 'service-tile'}>
+      <img src={`/images/${image}`} alt={label} />
+      <div className="tile-label">{label}</div>
+    </div>
   );
 }</code></pre>
         </details>
@@ -443,22 +734,24 @@ export function FontAwesomeAssets() {
       <div class="component">
         <h4>Headers</h4>
         <ul>
-          <li>App: logged-empty (<code>WO8oM</code>), logged-cart (<code>ArMsV</code>), not-logged (<code>ZPc9u</code>).</li>
-          <li>Page: screens (<code>6IKuE</code>), modal (<code>5mGYt</code>).</li>
-          <li>Left side control: single or double buttons.</li>
-          <li>Wallet icon class: <code>fak fa-kit fa-wallet icon-medium</code>.</li>
+          <li>App Header supports wallet custom icon and optional double-left buttons.</li>
+          <li>Page Header now includes a <code>No title</code> variant.</li>
         </ul>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>export function AppHeader({ variant = 'logged-empty', leftButtons = 'single', cartCount = 2 }) {
+          <pre><code>export function PageHeader({
+  variant = 'No title',
+  rightAction = 'cart',
+}: {
+  variant?: 'Screens' | 'Modal' | 'No title';
+  rightAction?: 'cart' | 'close';
+}) {
   return (
-    &lt;div className={`app-header ${variant === 'logged-cart' ? 'is-logged-cart' : ''}`}&gt;
-      &lt;div className={`header-left-group ${leftButtons === 'double' ? 'header-side-cluster' : ''}`}&gt;
-        &lt;i className="fak fa-kit fa-wallet icon-medium" /&gt;
-        {leftButtons === 'double' ? &lt;i className="fa-light fa-magnifying-glass icon-medium" /&gt; : null}
-      &lt;/div&gt;
-      {/* logo + right side */}
-    &lt;/div&gt;
+    <div className="page-header-screen">
+      <div className="header-icon header-icon-light"><i className="fa-light fa-arrow-left icon-medium" /></div>
+      {variant === 'No title' ? <div className="page-header-title page-header-title-empty" aria-hidden="true" /> : <div className="page-header-title">Título</div>}
+      <div className="header-icon header-icon-light"><i className={`fa-light fa-${rightAction === 'cart' ? 'cart-shopping' : 'xmark'} icon-medium`} /></div>
+    </div>
   );
 }</code></pre>
         </details>
@@ -466,20 +759,15 @@ export function FontAwesomeAssets() {
 
       <div class="component">
         <h4>Navigation</h4>
-        <p><span class="pill">Con label</span><span class="pill">Sin label (56px)</span></p>
-        <ul>
-          <li>Items: Inicio, Canje, Ofertas, Ayuda, Menú.</li>
-          <li>Base icon weight: <code>fa-light</code>.</li>
-          <li>Active offers icon: <code>fa-solid fa-fire</code>.</li>
-        </ul>
+        <p><span class="pill">Con label</span><span class="pill">Sin label</span></p>
         <details>
           <summary>Show React snippet</summary>
           <pre><code>export function BottomNavigation({ variant = 'Sin label', activeTab = 'ofertas' }) {
   const noLabel = variant === 'Sin label';
   return (
-    &lt;nav className={`bottom-nav ${noLabel ? 'is-no-label' : ''}`}&gt;
-      {/* nav items with fa-light / active fa-solid */}
-    &lt;/nav&gt;
+    <nav className={`bottom-nav ${noLabel ? 'is-no-label' : ''}`}>
+      {/* Inicio, Canje, Ofertas, Ayuda, Menú */}
+    </nav>
   );
 }</code></pre>
         </details>
@@ -491,14 +779,13 @@ export function FontAwesomeAssets() {
 
       <div class="component">
         <h4>Carrusel</h4>
-        <p><span class="pill">6449:41089</span><span class="pill">activeDot control</span></p>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>export function Carrusel({ activeDot = 1 }) {
+          <pre><code>export function Carrusel({ activeDot = 1 }: { activeDot?: number }) {
   return (
-    &lt;section className="carrusel-organism" data-pen-id="6449:41089"&gt;
-      {/* banners + dots */}
-    &lt;/section&gt;
+    <section className="carrusel-organism" data-pen-id="6449:41089">
+      {/* banner track + dots */}
+    </section>
   );
 }</code></pre>
         </details>
@@ -507,23 +794,25 @@ export function FontAwesomeAssets() {
       <div class="component">
         <h4>Discovery Header</h4>
         <ul>
-          <li>Left states: <code>7333:70238</code>, <code>7333:70233</code>, <code>7333:70234</code>.</li>
-          <li>Right states: <code>7333:70235</code>, <code>7333:70236</code>, <code>7333:70237</code>.</li>
-          <li>Composes existing pieces: StatusBar + Header + Folder + Search + Plateu (state 3).</li>
-          <li><code>showNewItemChip</code> toggle supported in docs playground.</li>
+          <li>Composes <code>Status Bar</code>, <code>Header</code>, <code>Folder</code>, <code>Search</code>, and <code>Plateu</code>.</li>
+          <li>Supports left/right and state 1/2/3.</li>
+          <li>Can toggle the <code>New item</code> chip.</li>
         </ul>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>export function DiscoveryHeader({ side = 'Left', state = 'State 1', showNewItemChip = true }) {
-  const cfg = discoveryConfig[side][state];
+          <pre><code>export function DiscoveryHeader({
+  side = 'Left',
+  state = 'State 1',
+  showNewItemChip = true,
+}: {
+  side?: 'Left' | 'Right';
+  state?: 'State 1' | 'State 2' | 'State 3';
+  showNewItemChip?: boolean;
+}) {
   return (
-    &lt;section className="discovery-header-organism"&gt;
-      &lt;StatusBar /&gt;
-      {cfg.header !== 'none' ? &lt;AppHeader variant={cfg.header} /&gt; : null}
-      &lt;Folder property1={cfg.folder} showNewItemChip={showNewItemChip} /&gt;
-      &lt;SearchInput state="empty" compact={cfg.searchCompact} /&gt;
-      {cfg.plateu ? &lt;Plateu property1="State=Home, Telco=No, Scrolling=Yes" /&gt; : null}
-    &lt;/section&gt;
+    <section className="discovery-header-organism">
+      {/* status bar + app header + folder + search + optional plateu */}
+    </section>
   );
 }</code></pre>
         </details>
@@ -531,15 +820,21 @@ export function FontAwesomeAssets() {
 
       <div class="component">
         <h4>HomeCard</h4>
-        <p><span class="pill">Default</span><span class="pill">With Photo</span><span class="pill">IqRGM</span></p>
+        <p><span class="pill">Default</span><span class="pill">With Photo</span></p>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>export function HomeCard({ variant = 'Default', title = 'Solo por hoy' }) {
+          <pre><code>export function HomeCard({
+  variant = 'Default',
+  title = 'Comida Rápida',
+}: {
+  variant?: 'Default' | 'With Photo';
+  title?: string;
+}) {
   return (
-    &lt;section className={`homecard-organism ${variant === 'With Photo' ? 'homecard-organism-photo' : ''}`}&gt;
-      &lt;h3 className="homecard-title"&gt;{title}&lt;/h3&gt;
-      {/* default grid or photo track */}
-    &lt;/section&gt;
+    <section className={`homecard-organism ${variant === 'With Photo' ? 'is-photo' : 'is-default'}`}>
+      <h3>{title}</h3>
+      {/* rows / cards */}
+    </section>
   );
 }</code></pre>
         </details>
@@ -547,123 +842,140 @@ export function FontAwesomeAssets() {
 
       <div class="component">
         <h4>Promo Strip</h4>
-        <p><span class="pill">Single · 72353:23990</span><span class="pill">Double · 72353:23953</span></p>
-        <ul>
-          <li>Each card uses nested Discount Ribbon Wrap Small.</li>
-          <li>Playground supports heading and discount text overrides.</li>
-        </ul>
+        <p><span class="pill">Single</span><span class="pill">Double</span></p>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>export function PromoStrip({ variant = 'Single', discount = '25%' }) {
-  return (
-    &lt;div className="promo-strip-stack"&gt;
-      &lt;PromoStripBlock cards={cardsA(discount)} /&gt;
-      {variant === 'Double' ? &lt;PromoStripBlock cards={cardsB(discount)} compact /&gt; : null}
-    &lt;/div&gt;
-  );
+          <pre><code>export function PromoStrip({ variant = 'Double' }: { variant?: 'Single' | 'Double' }) {
+  return <section className={`promo-strip-organism ${variant === 'Single' ? 'is-single' : 'is-double'}`}>{/* cards */}</section>;
 }</code></pre>
         </details>
       </div>
 
       <div class="component">
         <h4>Summary Box</h4>
-        <p><span class="pill">6959:56843</span><span class="pill">flows × steps</span><span class="pill">saving/normal</span></p>
         <ul>
-          <li>Flows: <code>products</code>, <code>giftCards</code>, <code>billPayments</code>.</li>
-          <li>Steps: <code>pdp</code>, <code>plp</code>, <code>cart</code>, <code>checkout</code>.</li>
-          <li>Supports voucherify row and dynamic CTA patterns.</li>
-          <li><code>PAGAS</code> switches to <code>TOTAL</code> in checkout/billPayments contexts.</li>
+          <li>Supports products, giftCards, and billPayments flows.</li>
+          <li>Can render with or without exchange overlay.</li>
+          <li>Used bottom-fixed in PDP pages.</li>
         </ul>
         <details>
           <summary>Show React snippet</summary>
-          <pre><code>type SummaryFlow = 'products' | 'giftCards' | 'billPayments';
-type SummaryStep = 'pdp' | 'plp' | 'cart' | 'checkout';
-
-export function SummaryBox(props: {
-  flow?: SummaryFlow;
-  step?: SummaryStep;
-  pricing?: 'saving' | 'normal';
-  withVoucherify?: boolean;
+          <pre><code>export function SummaryBox({
+  flow = 'products',
+  step = 'pdp',
+  pricing = 'saving',
+  exchangeRate,
+  productLabel = 'Producto',
+}: {
+  flow?: 'products' | 'giftCards' | 'billPayments';
+  step?: 'pdp' | 'plp' | 'cart' | 'checkout';
+  pricing?: 'normal' | 'saving';
+  exchangeRate?: string;
+  productLabel?: string;
 }) {
-  const { flow = 'giftCards', step = 'cart', pricing = 'saving', withVoucherify = false } = props;
+  return <div dangerouslySetInnerHTML={{ __html: buildSummaryBox({ flow, step, pricing, exchangeRate, productLabel }) }} />;
+}</code></pre>
+        </details>
+      </div>
+
+      <div class="component">
+        <h4>PDP Header</h4>
+        <ul>
+          <li>Stacks <code>Page Header</code>, <code>Brand Item</code>, optional <code>Plateu</code>, <code>Middle Card</code>, and <code>Input / Dinamic</code>.</li>
+          <li>Brand overlaps the header by <code>55px</code>.</li>
+          <li>Middle Card can mount an optional discount ribbon.</li>
+        </ul>
+        <details>
+          <summary>Show React snippet</summary>
+          <pre><code>export function PDPHeader({
+  showPlateu = false,
+  plateuVariant = 'State=Productos, Telco=No, Scrolling=No',
+  showDiscountRibbon = true,
+}: {
+  showPlateu?: boolean;
+  plateuVariant?: string;
+  showDiscountRibbon?: boolean;
+}) {
   return (
-    &lt;section className="summary-box with-overlap" data-flow={flow} data-step={step}&gt;
-      &lt;div className="summary-type-overlay"&gt;TIPO DE CAMBIO: Q 7.55&lt;/div&gt;
-      &lt;div className="summary-card"&gt;{/* rows + ctas */}&lt;/div&gt;
-    &lt;/section&gt;
+    <section className="pdp-header-stack">
+      <PageHeader variant="No title" />
+      <BrandItem variant="With label" />
+      {showPlateu ? <Plateu property1={plateuVariant} /> : null}
+      <MiddleCard showDiscountRibbon={showDiscountRibbon} />
+      <DynamicAmountInput />
+    </section>
   );
 }</code></pre>
         </details>
       </div>
     </section>
 
-    <section id="charlimits">
-      <h2>Character Recommendations</h2>
-
+    <section id="pages">
+      <h2>Pages</h2>
       <div class="component">
-        <h4>Atoms</h4>
+        <h4>Homepages</h4>
         <ul>
-          <li><code>Buttons</code>: label max 9 chars (<code>Continuar</code>).</li>
-          <li><code>Inputs/Search</code>: placeholder/value max 13 chars (<code>Buscas marcas</code>).</li>
-          <li><code>Inputs/Phone</code>: area max 4 (<code>+502</code>), phone max 9 (<code>6696-3223</code>).</li>
-          <li><code>Dropdown/Country-Province</code>: placeholder max 16, value max 14 (<code>Estados Unidos</code>).</li>
-          <li><code>Radio</code>: label max 9 (<code>Guatemala</code>).</li>
-          <li><code>Chips/New item</code>: tag max 5 (<code>Nuevo</code>); counters 1-2 chars.</li>
-          <li><code>Discount Ribbon</code>: label max 7 (<code>25% OFF</code>).</li>
-          <li><code>Super Ribbon</code>: text max 24 (<code>Ofertas del mes de Abril</code>).</li>
-          <li><code>Icons</code>: icon name control max 20 chars.</li>
+          <li><code>Homepage 1</code> to <code>Homepage 5</code> live under <code>Pages / Homepages</code> in Storybook.</li>
+          <li>They reuse only documented Storybook pieces: <code>Discovery Header</code>, <code>Carrusel</code>, <code>Plateu</code>, <code>Promo Strip</code>, <code>HomeCard</code>, <code>Navigation</code>, etc.</li>
         </ul>
       </div>
-
       <div class="component">
-        <h4>Molecules</h4>
+        <h4>PDP Pages</h4>
         <ul>
-          <li><code>Folder</code>: country code max 3 (<code>GUA</code> / <code>USA</code>).</li>
-          <li><code>Plateu</code>: category label max 13 (<code>COMIDA RÁPIDA</code>).</li>
-          <li><code>Promo Code</code>: placeholder max 29, code max 8 (<code>verano26</code>).</li>
-          <li><code>Quantity Input</code>: quantity 1-2 chars (<code>1-99</code>).</li>
-          <li><code>Tiles</code>: label max 16 (<code>Comparar Remesas</code>).</li>
-          <li><code>Headers</code>: cart count 1-2 chars; page title max 11 (<code>Modal Title</code>).</li>
-          <li><code>Navigation</code>: tab label max 7 (<code>Ofertas</code>).</li>
+          <li><code>PDP Page 1</code> to <code>PDP Page 4</code> live under <code>Pages / PDP Pages</code>.</li>
+          <li>They combine <code>Page Header</code>, <code>Brand Item</code>, <code>Middle Card</code>, <code>Slider</code>, <code>Input / Dinamic</code>, <code>Summary Box</code>, and <code>Navigation</code>.</li>
+          <li>Only existing system components are used; no page-specific atoms were invented.</li>
         </ul>
-      </div>
-
-      <div class="component">
-        <h4>Organisms with title controls</h4>
-        <ul>
-          <li><code>HomeCard</code>: title max 11 (<code>Solo por hoy</code>).</li>
-          <li><code>Promo Strip</code>: single heading max 17, double heading max 20, discount max 7.</li>
-          <li><code>Tactic Strips</code>: title max 14, super ribbon text max 24, discount max 7, brand max 11.</li>
-        </ul>
-        <p class="small">Excluded (no title control in Playground): Carrusel, Discovery Header, Lists, Summary Box.</p>
+        <details>
+          <summary>Show React snippet</summary>
+          <pre><code>export function PDPPageExample() {
+  return (
+    <main className="pdp-page-shell has-no-plateu">
+      <PageHeader variant="No title" />
+      <BrandItem variant="With label" label="Apple" image="apple.webp" />
+      <MiddleCard variantPath="Molecule/Middle Card/eGift Card" pageContext="PDP" showDiscountRibbon />
+      <DynamicAmountInput currencySymbol="$" value="25" />
+      <SummaryBox flow="giftCards" step="pdp" pricing="saving" productLabel="Producto" />
+      <BottomNavigation variant="Sin label" activeTab="ofertas" />
+    </main>
+  );
+}</code></pre>
+        </details>
       </div>
     </section>
 
-    <section id="showhide">
-      <h2>Show/Hide Code Best Practice</h2>
-      <ul>
-        <li>Keep snippets collapsed by default to prioritize visual inspection.</li>
-        <li>Expose one focused snippet per component API (avoid full-file dumps).</li>
-        <li>Use semantic disclosure with <code>&lt;details&gt;</code> and <code>&lt;summary&gt;</code>.</li>
-        <li>Include typed props + defaults + key class/tokens in each example.</li>
-      </ul>
-      <details>
-        <summary>Show reusable React wrapper</summary>
-        <pre><code>type CodeExampleProps = {
+    <section id="reference">
+      <h2>Reference</h2>
+      <div class="component">
+        <h4>Character recommendations</h4>
+        <ul>
+          <li><strong>Middle Card / Vale de Monto</strong>: title max 14 chars, amount max 5 digits + separators</li>
+          <li><strong>Middle Card / eGift Card</strong>: title max 21 chars</li>
+          <li><strong>Toast Banners</strong>: max 30 chars recommended</li>
+          <li><strong>Brand Item label</strong>: one line only, auto-centered</li>
+          <li><strong>Folder</strong>: use country abbreviations already defined by the component</li>
+        </ul>
+      </div>
+      <div class="component">
+        <h4>Show/Hide code best practice</h4>
+        <p>Use semantic disclosure with <code>&lt;details&gt;</code> so long snippets do not overwhelm the docs view.</p>
+        <details open>
+          <summary>Show React snippet</summary>
+          <pre><code>type CodeExampleProps = {
   title?: string;
   children: React.ReactNode;
 };
 
 export function CodeExample({ title = 'Show React snippet', children }: CodeExampleProps) {
   return (
-    &lt;details&gt;
-      &lt;summary&gt;&lt;strong&gt;{title}&lt;/strong&gt;&lt;/summary&gt;
-      &lt;pre&gt;&lt;code&gt;{children}&lt;/code&gt;&lt;/pre&gt;
-    &lt;/details&gt;
+    <details>
+      <summary>{title}</summary>
+      <pre><code>{children}</code></pre>
+    </details>
   );
 }</code></pre>
-      </details>
-      <p class="small">This pattern is now reflected across all updated sections in this document.</p>
+        </details>
+      </div>
     </section>
   </div>
 </body>

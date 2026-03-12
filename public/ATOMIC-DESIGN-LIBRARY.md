@@ -1,84 +1,133 @@
-# MARS Design System - Atomic Design Library (Synced with Storybook)
+# MARS React Code Library
 
-Last update: 2026-03-09  
-Scope: updated components/variants requested and aligned to current stories.
+Last update: 2026-03-12  
+Scope: React reference snippets aligned to the current Storybook APIs and menu structure.
 
 ## Table of Contents
-1. [Foundation Tokens](#foundation-tokens)
-2. [Atoms](#atoms)
-3. [Molecules](#molecules)
-4. [Organisms](#organisms)
-5. [Character Recommendations](#character-recommendations)
-6. [Show/Hide Code Best Practice](#showhide-code-best-practice)
+1. [Overview](#overview)
+2. [Tokens](#tokens)
+3. [Icons](#icons)
+4. [Atoms](#atoms)
+5. [Molecules](#molecules)
+6. [Organisms](#organisms)
+7. [Pages](#pages)
+8. [Reference](#reference)
 
 ---
 
-## Foundation Tokens
+## Overview
 
-### Color & semantic tokens (from `stories/mars.css`)
+This document is the content source for the Storybook **React code** section. It focuses on operational snippets and current props, not pixel-perfect implementation details.
+
+Included here:
+- Foundation tokens currently used by recent work
+- Updated React references for Atoms, Molecules, Organisms, and Pages
+- Character recommendations and show/hide code guidance
+
+Recent additions reflected here:
+- `Brand Item`, `Slider`, `Toast Banners`, `Status Chips`
+- `Middle Card`, `PDP Header`
+- `Homepages` and `PDP Pages`
+
+---
+
+## Tokens
+
+### Color and semantic tokens
 - `--primary-main: #410088`
 - `--primary-light: #bc9edc`
 - `--primary-dark: #230741`
 - `--secondary-main: #18afa5`
 - `--secondary-light: #8adad7`
 - `--secondary-dark: #057a73`
-- `--accent-color: #ffb400`
 - Semantic sets:
-  - Success: `--success-*`
-  - Warning: `--warning-*`
-  - Error: `--error-*`
-  - Info: `--info-*`
+  - `--success-*`
+  - `--warning-*`
+  - `--error-*`
+  - `--info-*`
 
-### Typography scale updates (from `Foundations/Tokens`)
-- Full scale: 30 tokens.
-- New/important tag token:
-  - `TAG`: `7px`, `700`, uppercase, `letter-spacing: 1px`, family `Lato`.
-- Related small-label tokens used in latest components:
-  - `PLATEU`, `CARDLABEL`, `EXCHANGE`.
+### Recent surface and effect tokens
+- `--card-middle`
+- `--card-shadow`
+- `--pdp-card-shadow`
+- `--border-main`
 
-### Icon system (current implementation)
-- Local assets (no runtime dependency on remote kit script):
-  - `/public/fontawesome-free/css/all.min.css`
-  - `/public/fontawesome-kit/css/custom-icons.min.css`
-- Header wallet custom icon:
-  - class: `fak fa-kit fa-wallet icon-medium`
-- Navigation and general icon rule in current stories:
-  - `fa-light` by default.
-  - active state uses `fa-solid` only where specified (e.g. `fa-fire`).
+### Typography mapping used by recent components
+- `productText`
+- `subtitle2`
+- `H2`
+- `CARDLABEL`
+- `body1`
+- `caption`
+- `TAG`
 
 <details>
-<summary><strong>Show React snippet (theme + icon setup)</strong></summary>
+<summary><strong>Show React snippet</strong></summary>
 
 ```tsx
-// app/theme/tokens.ts
 export const marsTokens = {
   color: {
     primaryMain: '#410088',
     secondaryMain: '#18afa5',
-    secondaryDark: '#057a73',
-    secondaryLight: '#8adad7',
-    accent: '#ffb400',
+    successMain: '#4caf50',
+    warningMain: '#ff9800',
+    errorMain: '#f44336',
+    infoMain: '#2196f3',
   },
-  typography: {
-    TAG: {
-      fontFamily: 'Lato, sans-serif',
-      fontSize: 7,
-      fontWeight: 700,
-      letterSpacing: '1px',
-      textTransform: 'uppercase' as const,
-      lineHeight: 1.57,
-    },
+  surface: {
+    cardMiddle: 'radial-gradient(50% 50% at 50% 50%, #FFF 0%, #F1F2F5 100%)',
+    borderMain: '#E0E0E0',
+  },
+  effect: {
+    cardShadow: 'drop-shadow(0px 0px 12px rgba(0, 0, 0, 0.1))',
+    pdpCardShadow: 'drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.14)) drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.12))',
   },
 };
+```
+</details>
 
-// app/layout.tsx
-export function FontAwesomeAssets() {
-  return (
-    <>
-      <link rel="stylesheet" href="/public/fontawesome-free/css/all.min.css" />
-      <link rel="stylesheet" href="/public/fontawesome-kit/css/custom-icons.min.css" />
-    </>
-  );
+---
+
+## Icons
+
+### Setup
+- `/public/fontawesome-free/css/all.min.css`
+- `/public/fontawesome-kit/css/custom-icons.min.css`
+- Default system rule:
+  - `fa-light` for neutral
+  - `fa-solid` for active or semantic emphasis
+
+### Variants
+- `Large`
+- `Medium`
+- `Small`
+- `Default`
+- `Active`
+- `Card Use`
+
+<details>
+<summary><strong>Show React snippet</strong></summary>
+
+```tsx
+export function MarsIcon({
+  icon = 'fa-arrow-up-right-from-square',
+  weight = 'fa-light',
+  variant = 'Medium',
+}: {
+  icon?: string;
+  weight?: 'fa-thin' | 'fa-light' | 'fa-regular' | 'fa-solid';
+  variant?: 'Large' | 'Medium' | 'Small' | 'Default' | 'Active' | 'Card Use';
+}) {
+  const variantClass = {
+    Large: 'fa-icon-large',
+    Medium: 'fa-icon-medium',
+    Small: 'fa-icon-small',
+    Default: 'fa-icon-default',
+    Active: 'fa-icon-active',
+    'Card Use': 'fa-icon-card-use',
+  }[variant];
+
+  return <span className={`fa-icon ${variantClass}`}><i className={`${weight} ${icon}`} /></span>;
 }
 ```
 </details>
@@ -87,83 +136,72 @@ export function FontAwesomeAssets() {
 
 ## Atoms
 
-### Chips (`Atoms/Chips`)
-Variants in Playground:
-- `Chips/New item` (Figma: `1913:1659`)
-- `Chips/Cart` (`9fXxZ`)
-- `Chips/Quantity Input / Add0 / Vales` (`DsDmy`)
-- `Chips/Quantity Input / Quantity/Gifcards/Giftcards` (`QtFxr`)
-- `Chips/Quantity Input / Add1 / Vales` (`BEpku`)
-- `Chips/Quantity Input / Add2 / Vales` (`AotiP`)
-
-New item chip spec:
-- class: `chip-ds chip-ds-new-item`
-- size: `45x15`
-- text style mapped to TAG-like treatment (`7px`, uppercase, 1px tracking)
-- color: background `--secondary-main`, text white
+### Chips
+- `New item`
+- `Cart`
+- `Status`
 
 <details>
-<summary><strong>Show React snippet (Chips/New item)</strong></summary>
+<summary><strong>Show React snippet</strong></summary>
 
 ```tsx
-type ChipsVariant =
-  | 'Chips/New item'
-  | 'Chips/Cart'
-  | 'Chips/Quantity Input / Add0 / Vales'
-  | 'Chips/Quantity Input / Quantity/Gifcards/Giftcards'
-  | 'Chips/Quantity Input / Add1 / Vales'
-  | 'Chips/Quantity Input / Add2 / Vales';
+export function StatusChip({
+  status = 'processing',
+  label = 'Procesando',
+}: {
+  status?: 'button' | 'error' | 'processing' | 'expired' | 'sended';
+  label?: string;
+}) {
+  const iconMap = {
+    button: 'fa-qrcode',
+    error: 'fa-circle-xmark',
+    processing: 'fa-hourglass-half',
+    expired: 'fa-clock',
+    sended: 'fa-circle-check',
+  };
 
-export function ChipNewItem({ text = 'Nuevo' }: { text?: string }) {
-  return <span className="chip-ds chip-ds-new-item">{text}</span>;
+  return (
+    <span className={`chip-status chip-status-${status}`}>
+      <span className="fa-icon fa-icon-small"><i className={`fa-solid ${iconMap[status]}`} /></span>
+      <span className="token-button-sm">{label}</span>
+    </span>
+  );
 }
 ```
 </details>
 
-### Discount Ribbon (`Atoms/Discount Ribbon`)
-Dimensions:
-- Tipo: `List` | `Wrap`
-- Type: `Normal`, `Por tiempo`, `Finito`, `Por temporada`, `OKY`
-- Wrap size: `Default (75px)` | `Small (50px)`
-
-Design behavior:
-- `Wrap` uses notch + elevated overlay.
-- `List` uses inline rectangular badge.
-- Text style uses `token-price-percent`.
+### Discount Ribbon
+- `List`
+- `Wrap`
+- `Normal`
+- `Por tiempo`
+- `Finito`
+- `Por temporada`
+- `OKY`
 
 <details>
-<summary><strong>Show React snippet (Discount Ribbon)</strong></summary>
+<summary><strong>Show React snippet</strong></summary>
 
 ```tsx
-type DiscountTipo = 'List' | 'Wrap';
-type DiscountType = 'Normal' | 'Por tiempo' | 'Finito' | 'Por temporada' | 'OKY';
-
 export function DiscountRibbon({
-  tipo = 'List',
+  tipo = 'Wrap',
   type = 'Normal',
-  small = false,
+  size = 'Default',
   label = '25% OFF',
 }: {
-  tipo?: DiscountTipo;
-  type?: DiscountType;
-  small?: boolean;
+  tipo?: 'List' | 'Wrap';
+  type?: 'Normal' | 'Por tiempo' | 'Finito' | 'Por temporada' | 'OKY';
+  size?: 'Default' | 'Small';
   label?: string;
 }) {
-  const typeClass = `discount-ribbon-type-${type
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, '-')}`;
+  const typeClass = `discount-ribbon-type-${type.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')}`;
+  const sizeClass = size === 'Small' ? 'discount-ribbon-wrap-small' : '';
 
-  if (tipo === 'Wrap') {
-    return (
-      <div className={`discount-ribbon discount-ribbon-wrap ${small ? 'discount-ribbon-wrap-small' : ''} ${typeClass}`}>
-        <span className="discount-ribbon-text token-price-percent">{label}</span>
-      </div>
-    );
-  }
-
-  return (
+  return tipo === 'Wrap' ? (
+    <div className={`discount-ribbon discount-ribbon-wrap ${sizeClass} ${typeClass}`}>
+      <span className="discount-ribbon-text token-price-percent">{label}</span>
+    </div>
+  ) : (
     <div className={`discount-ribbon discount-ribbon-list ${typeClass}`}>
       <span className="discount-ribbon-text token-price-percent">{label}</span>
     </div>
@@ -172,39 +210,117 @@ export function DiscountRibbon({
 ```
 </details>
 
-### Super Ribbon (`Atoms/Super Ribbon`)
-`Property 1` variants:
-- `Por tiempo`
-- `Finito`
-- `Normal`
-- `Por temporada`
-- `OKY`
-
-Rules:
-- Fixed height `32px`.
-- Changes by variant: background, text color, icon, copy.
-- Supports text/icon override in Playground.
+### Brand Item
+- `With label`
+- `No label`
+- `Big`
 
 <details>
-<summary><strong>Show React snippet (Super Ribbon)</strong></summary>
+<summary><strong>Show React snippet</strong></summary>
 
 ```tsx
-type SuperRibbonType = 'Por tiempo' | 'Finito' | 'Normal' | 'Por temporada' | 'OKY';
+export function BrandItem({
+  image = 'mcdonalds.webp',
+  label = "McDonald's",
+  variant = 'With label',
+  background = 'transparent',
+}: {
+  image?: string;
+  label?: string;
+  variant?: 'With label' | 'No label' | 'Big';
+  background?: string;
+}) {
+  const isBig = variant === 'Big';
+  const showLabel = variant === 'With label';
 
-const defaults: Record<SuperRibbonType, { icon: string; text: string; className: string }> = {
-  'Por tiempo': { icon: 'fa-clock', text: 'Termina en 20:43:32', className: 'super-ribbon-type-por-tiempo' },
-  Finito: { icon: 'fa-fire-flame-simple', text: 'Últimas 20 unidades', className: 'super-ribbon-type-finito' },
-  Normal: { icon: 'fa-tags', text: 'Descuentos de temporada', className: 'super-ribbon-type-normal' },
-  'Por temporada': { icon: 'fa-sun', text: 'Ofertas del mes de Abril', className: 'super-ribbon-type-por-temporada' },
-  OKY: { icon: 'fa-heart', text: 'Para la persona que quieres', className: 'super-ribbon-type-oky' },
-};
-
-export function SuperRibbon({ type = 'Por tiempo', text, icon }: { type?: SuperRibbonType; text?: string; icon?: string }) {
-  const meta = defaults[type];
   return (
-    <div className={`super-ribbon ${meta.className}`}>
-      <span className="super-ribbon-icon"><i className={`fa-solid ${icon || meta.icon}`} /></span>
-      <span className="super-ribbon-text">{text || meta.text}</span>
+    <div className={`brand-item-atom ${isBig ? 'is-big' : showLabel ? 'is-with-label' : 'is-no-label'}`} style={{ backgroundColor: background }}>
+      {showLabel ? <p className="brand-item-label token-product-text">{label}</p> : null}
+      <div className="brand-item-frame">
+        <div className="brand-item-base">
+          <img src={`/images/${image}`} alt={label} />
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+</details>
+
+### Inputs / Dinamic
+<details>
+<summary><strong>Show React snippet</strong></summary>
+
+```tsx
+export function DynamicAmountInput({
+  currencySymbol = 'Q',
+  label = 'Desde 50 hasta 2000',
+  value = '250',
+}: {
+  currencySymbol?: 'Q' | '$';
+  label?: string;
+  value?: string;
+}) {
+  return (
+    <div className="input-wrapper">
+      <label className="input-label input-label-dinamic">{label}</label>
+      <span className="input-dinamic-prefix">{currencySymbol}</span>
+      <input className="input-field input-dinamic input-dinamic-hasvalue" value={value} readOnly />
+    </div>
+  );
+}
+```
+</details>
+
+### Slider
+<details>
+<summary><strong>Show React snippet</strong></summary>
+
+```tsx
+export function MoneySlider({
+  currency = 'Q',
+  min = 25,
+  max = 200,
+  step = 25,
+  value = 85,
+}: {
+  currency?: 'Q' | '$';
+  min?: number;
+  max?: number;
+  step?: number;
+  value?: number;
+}) {
+  const progress = `${((value - min) / (max - min)) * 100}%`;
+
+  return (
+    <div className="slider-atom" style={{ ['--slider-progress' as string]: progress }}>
+      <input className="slider-range" type="range" min={min} max={max} step={step} defaultValue={value} />
+      <div className="slider-values token-body1"><span>{currency} {min}</span><span>{currency} {max}</span></div>
+      <div className="slider-labels token-caption"><span>Mínimo</span><span>Máximo</span></div>
+    </div>
+  );
+}
+```
+</details>
+
+### Toast Banners
+<details>
+<summary><strong>Show React snippet</strong></summary>
+
+```tsx
+export function ToastBanner({
+  variant = 'success',
+  message = 'Vale enviado correctamente',
+  icon = 'fa-circle-check',
+}: {
+  variant?: 'success' | 'warning' | 'error';
+  message?: string;
+  icon?: string;
+}) {
+  return (
+    <div className={`toast-banner toast-banner-${variant}`}>
+      <span className="fa-icon fa-icon-small"><i className={`fa-solid ${icon}`} /></span>
+      <span className="toast-banner-copy">{message}</span>
     </div>
   );
 }
@@ -215,72 +331,36 @@ export function SuperRibbon({ type = 'Por tiempo', text, icon }: { type?: SuperR
 
 ## Molecules
 
-### Folder (`Molecules/Folder`)
-Variants:
-- Expanded: `Left (7296:48469)`, `Right (7296:48471)`
-- Collapsed: `Collapsed Left (7296:48472)`, `Collapsed Right (7296:48473)`
-
-Key behavior:
-- `showNewItemChip` affects expanded `Left` only.
-- Left active tab can show chevrons (`GUA` case).
-- Active line only under active side.
-
+### Folder
 <details>
-<summary><strong>Show React snippet (Folder + toggle chip)</strong></summary>
+<summary><strong>Show React snippet</strong></summary>
 
 ```tsx
-type FolderVariant = 'Left' | 'Right' | 'Collapsed Left' | 'Collapsed Right';
-
 export function Folder({
   property1 = 'Left',
-  leftCode = 'GUA',
-  rightCode = 'USA',
-  showChevrons = true,
   showNewItemChip = true,
 }: {
-  property1?: FolderVariant;
-  leftCode?: string;
-  rightCode?: string;
-  showChevrons?: boolean;
+  property1?: 'Left' | 'Right' | 'Collapsed Left' | 'Collapsed Right';
   showNewItemChip?: boolean;
 }) {
-  const isLeftExpanded = property1 === 'Left';
   return (
     <div className={`folder-control ${property1.includes('Right') ? 'is-right' : 'is-left'}`}>
-      {/* top + bottom svg layers */}
-      {isLeftExpanded && showNewItemChip ? <span className="chip-ds chip-ds-new-item">Nuevo</span> : null}
-      {/* flags/text/active-line */}
+      {property1 === 'Left' && showNewItemChip ? <span className="chip-ds chip-ds-new-item">Nuevo</span> : null}
     </div>
   );
 }
 ```
 </details>
 
-### Plateu (`Molecules/Plateu`)
-Property 1 options:
-- `State=Productos, Telco=No, Scrolling=No` (`6944:57168`)
-- `State=Vales, Telco=No, Scrolling=No` (`6944:57208`)
-- `State=Ofertas, Telco=No, Scrolling=No` (`6944:57307`)
-- `State=Paquetes, Telco=Yes, Scrolling=No` (`6985:152026`)
-- `State=Internet, Telco=Yes, Scrolling=No` (`6985:152223`)
-- `State=Recargas, Telco=Yes, Scrolling=No` (`6989:110025`)
-- `State=Paquetes, Telco=Yes, Scrolling=Yes` (`6985:152321`)
-- `State=Pasteleria, Telco=Yes, Scrolling=Yes` (`6996:111868`)
-- `State=Restaurantes, Telco=Yes, Scrolling=Yes` (`7016:135942`)
-- `State=Home, Telco=No, Scrolling=Yes` (`7331:50399`)
-
-Latest behavior:
-- Home scrolling variant keeps visual spacing (`8px`) between items.
-- Active chip and inactive labels share reduced scale updated in latest round.
-
+### Plateu
 <details>
-<summary><strong>Show React snippet (Plateu by property1)</strong></summary>
+<summary><strong>Show React snippet</strong></summary>
 
 ```tsx
 export function Plateu({ property1 }: { property1: string }) {
   const variant = plateuVariants[property1] ?? plateuVariants['State=Productos, Telco=No, Scrolling=No'];
   return (
-    <section className={`plateu-molecule ${variant.scrolling ? 'is-scrolling' : 'is-static'} ${variant.home ? 'is-home' : ''}`}>
+    <section className={`plateu-molecule ${variant.scrolling ? 'is-scrolling' : 'is-static'}`}>
       <div className={`plateu-track ${variant.scrolling ? 'is-scrolling' : 'is-static'}`}>
         {variant.items.map((item) => (
           <div key={item.key} className="plateu-item">
@@ -295,379 +375,145 @@ export function Plateu({ property1 }: { property1: string }) {
 ```
 </details>
 
-### Promo Code (`Molecules/Promo Code`)
-States:
-- `empty`
-- `entered`
-
-Pen: `6437:28971`
-
-Behavior:
-- `empty`: shows placeholder + chevron.
-- `entered`: shows applied code + clear action.
-
+### Promo Code
 <details>
-<summary><strong>Show React snippet (Promo Code states)</strong></summary>
+<summary><strong>Show React snippet</strong></summary>
 
 ```tsx
-type PromoState = 'empty' | 'entered';
-
 export function PromoCode({
   state = 'empty',
   promoCode = 'verano26',
   placeholder = 'Ingresa el código promocional',
 }: {
-  state?: PromoState;
+  state?: 'empty' | 'entered';
   promoCode?: string;
   placeholder?: string;
 }) {
   return (
     <div className="promo-code-molecule" data-state={state}>
-      <span className="promo-code-leading"><img src="PROMOS@2x.webp" alt="" /></span>
-      <p className="promo-code-copy">
-        {state === 'entered' ? <><span className="promo-code-prefix">Código Promo:</span> {promoCode}</> : placeholder}
-      </p>
-      <button className="promo-code-action promo-clear" aria-label="Quitar código"><i className="fa-solid fa-circle-xmark icon-medium" /></button>
-      <button className="promo-code-action promo-open" aria-label="Ingresar código"><i className="fa-solid fa-chevron-right icon-medium" /></button>
+      <p className="promo-code-copy">{state === 'entered' ? `Código Promo: ${promoCode}` : placeholder}</p>
+      <button className="promo-code-action promo-clear" />
+      <button className="promo-code-action promo-open" />
     </div>
   );
 }
 ```
 </details>
 
-### Tiles (`Molecules/Tiles`)
-Full variants:
-- `Macro/Tile/Food` (`g0RAt`)
-- `Macro/Tile/Money` (`X1bOv`)
-- `Macro/Tile/Mobile Topup` (`1Zzry`)
-- `Macro/Tile/Bill Payment` (`GY8MG`)
-
-Half variants:
-- `Macro/HalfTile/Seasonal` (`AqHu9`)
-- `Macro/HalfTile/Topup` (`pEubm`)
-- `Macro/HalfTile/Multi-Brand` (`fHlYu`)
-
+### Middle Card
 <details>
-<summary><strong>Show React snippet (Tile renderer)</strong></summary>
+<summary><strong>Show React snippet</strong></summary>
 
 ```tsx
-export function ServiceTile({
-  label,
-  image,
-  half = false,
+export function MiddleCard({
+  variantPath = 'Molecule/Middle Card/Vale de Monto',
+  pageContext = 'PDP',
+  showDiscountRibbon = true,
+  discountRibbonType = 'Normal',
+  discountRibbonLabel = '25% OFF',
 }: {
-  label: string;
-  image: string;
-  half?: boolean;
+  variantPath?: string;
+  pageContext?: 'PDP' | 'Checkout';
+  showDiscountRibbon?: boolean;
+  discountRibbonType?: 'Normal' | 'Por tiempo' | 'Finito' | 'Por temporada' | 'OKY';
+  discountRibbonLabel?: string;
 }) {
-  return (
-    <div className={half ? 'service-tile service-tile-half' : 'service-tile'}>
-      <div className={half ? 'tile-icon tile-icon-half' : 'tile-icon'}>
-        <img src={`/images/${image}`} alt={label} />
-      </div>
-      <div className="tile-label">{label}</div>
-    </div>
-  );
+  const card = resolveMiddleCard({ variantPath, pageContext, showDiscountRibbon, discountRibbonType, discountRibbonLabel });
+  return <div dangerouslySetInnerHTML={{ __html: renderMiddleCard(card) }} />;
 }
 ```
 </details>
 
-### Headers (`Molecules/Headers`)
-App Header variants:
-- `logged-empty` (`WO8oM`)
-- `logged-cart` (`ArMsV`)
-- `not-logged` (`ZPc9u`)
-- extra toggle: `leftButtons = single | double`
-
-Page Header variants:
-- `screens` (`6IKuE`)
-- `modal` (`5mGYt`)
-
-Rules:
-- custom wallet icon: `fak fa-kit fa-wallet`
-- non-wallet icons in header: `fa-light`
-- `fa-circle-user` is solid in `not-logged`
-
-<details>
-<summary><strong>Show React snippet (App Header)</strong></summary>
-
-```tsx
-type AppHeaderVariant = 'logged-empty' | 'logged-cart' | 'not-logged';
-
-export function AppHeader({
-  variant = 'logged-empty',
-  leftButtons = 'single',
-  cartCount = 2,
-}: {
-  variant?: AppHeaderVariant;
-  leftButtons?: 'single' | 'double';
-  cartCount?: number;
-}) {
-  return (
-    <div className={`app-header ${variant === 'logged-cart' ? 'is-logged-cart' : ''}`}>
-      <div className={`header-left-group ${leftButtons === 'double' ? 'header-side-cluster' : ''}`}>
-        <div className="header-icon"><i className="fak fa-kit fa-wallet icon-medium" /></div>
-        {leftButtons === 'double' ? <div className="header-icon"><i className="fa-light fa-magnifying-glass icon-medium" /></div> : null}
-      </div>
-      <img className="header-logo" src="logo-oky.svg" alt="OKY" />
-      {variant === 'logged-cart' ? (
-        <div className="header-cart-chip header-cart-full"><span className="header-cart-count">{cartCount}</span><i className="fa-light fa-cart-shopping" /></div>
-      ) : variant === 'not-logged' ? (
-        <div className="header-icon"><i className="fa-solid fa-circle-user icon-medium-solid" /></div>
-      ) : (
-        <div className="header-icon"><i className="fa-light fa-cart-shopping icon-medium" /></div>
-      )}
-    </div>
-  );
-}
-```
-</details>
-
-### Navigation (`Molecules/Navigation`)
-Variants:
-- `Con label`
-- `Sin label` (icon-only, height `56px`)
-
-Items:
-- Inicio (`fa-home`)
-- Canje (`fa-map`)
-- Ofertas (`fa-fire`, active solid)
-- Ayuda (`fa-messages`)
-- Menú (`fa-bars`)
-
-Shell style:
-- border radius: `0 0 24px 24px`
-- top border and shadow enabled
-- fixed-bottom behavior used in mockups
-
-<details>
-<summary><strong>Show React snippet (Bottom Nav)</strong></summary>
-
-```tsx
-const navItems = [
-  { key: 'inicio', label: 'Inicio', icon: 'home' },
-  { key: 'canje', label: 'Canje', icon: 'map' },
-  { key: 'ofertas', label: 'Ofertas', icon: 'fire' },
-  { key: 'ayuda', label: 'Ayuda', icon: 'messages' },
-  { key: 'menu', label: 'Menú', icon: 'bars' },
-];
-
-export function BottomNavigation({ variant = 'Sin label', activeTab = 'ofertas' }) {
-  const noLabel = variant === 'Sin label';
-  return (
-    <nav className={`bottom-nav ${noLabel ? 'is-no-label' : ''}`}>
-      {navItems.map((item) => {
-        const active = item.key === activeTab;
-        const iconWeight = item.key === 'ofertas' && active ? 'fa-solid' : 'fa-light';
-        return (
-          <div key={item.key} className={`nav-item ${active ? 'active' : ''}`}>
-            <i className={`${iconWeight} fa-${item.icon} icon-medium`} />
-            {!noLabel ? <span className="nav-label">{item.label}</span> : null}
-          </div>
-        );
-      })}
-    </nav>
-  );
-}
-```
-</details>
+### Headers / Navigation / Tiles
+- `Headers` includes app and page headers, including `No title`
+- `Navigation` includes `Con label` and `Sin label`
+- `Tiles` still render from the same full/half tile anatomy
 
 ---
 
 ## Organisms
 
-### Carrusel (`Organisms/Carrusel`)
-- Pen: `6449:41089`
-- Mobile viewport 360px
-- 2 banners visible (second partial)
-- 5 dots pagination, controllable by `activeDot`
+### Carrusel
+### Discovery Header
+### HomeCard
+### Promo Strip
+### Summary Box
+### PDP Header
 
 <details>
-<summary><strong>Show React snippet (Carrusel)</strong></summary>
+<summary><strong>Show React snippet (PDP Header)</strong></summary>
 
 ```tsx
-export function Carrusel({ activeDot = 1 }: { activeDot?: number }) {
+export function PDPHeader({
+  showPlateu = false,
+  plateuVariant = 'State=Productos, Telco=No, Scrolling=No',
+  showDiscountRibbon = true,
+}: {
+  showPlateu?: boolean;
+  plateuVariant?: string;
+  showDiscountRibbon?: boolean;
+}) {
   return (
-    <section className="carrusel-organism" data-pen-id="6449:41089">
-      {/* banner track */}
-      <div className="carrusel-dots">
-        {[1, 2, 3, 4, 5].map((dot) => (
-          <span key={dot} className={dot === activeDot ? 'is-active' : ''} />
-        ))}
-      </div>
+    <section className="pdp-header-stack">
+      <PageHeader variant="No title" />
+      <BrandItem variant="With label" />
+      {showPlateu ? <Plateu property1={plateuVariant} /> : null}
+      <MiddleCard showDiscountRibbon={showDiscountRibbon} />
+      <DynamicAmountInput />
     </section>
   );
 }
 ```
 </details>
 
-### Discovery Header (`Organisms/Discovery Header`)
-Structure (composed only from existing molecules):
-- Status Bar
-- Header
-- Folder (expanded/collapsed)
-- Input/Search (Empty)
-- Plateu Home (state 3)
-
-Sides/states:
-- Left:
-  - State 1 (`7333:70238`)
-  - State 2 (`7333:70233`)
-  - State 3 (`7333:70234`)
-- Right:
-  - State 1 (`7333:70235`)
-  - State 2 (`7333:70236`)
-  - State 3 (`7333:70237`)
-
-Playground controls:
-- `side`
-- `state`
-- `showNewItemChip` (affects `Left + State 1`)
-
 <details>
-<summary><strong>Show React snippet (Discovery Header composition)</strong></summary>
+<summary><strong>Show React snippet (Summary Box)</strong></summary>
 
 ```tsx
-export function DiscoveryHeader({
-  side = 'Left',
-  state = 'State 1',
-  showNewItemChip = true,
+export function SummaryBox({
+  flow = 'products',
+  step = 'pdp',
+  pricing = 'saving',
+  exchangeRate,
+  productLabel = 'Producto',
 }: {
-  side?: 'Left' | 'Right';
-  state?: 'State 1' | 'State 2' | 'State 3';
-  showNewItemChip?: boolean;
-}) {
-  const cfg = discoveryConfig[side][state];
-  return (
-    <section className="discovery-header-organism" data-side={side} data-state={state}>
-      <StatusBar />
-      {cfg.header !== 'none' ? <AppHeader variant={cfg.header} /> : null}
-      <Folder property1={cfg.folder} showNewItemChip={showNewItemChip} />
-      <SearchInput state="empty" compact={cfg.searchCompact} />
-      {cfg.plateu ? <Plateu property1="State=Home, Telco=No, Scrolling=Yes" /> : null}
-    </section>
-  );
-}
-```
-</details>
-
-### HomeCard (`Organisms/HomeCard`)
-Variants:
-- `Default`
-- `With Photo`
-
-Base container: `IqRGM`
-
-<details>
-<summary><strong>Show React snippet (HomeCard)</strong></summary>
-
-```tsx
-export function HomeCard({
-  variant = 'Default',
-  title = 'Solo por hoy',
-}: {
-  variant?: 'Default' | 'With Photo';
-  title?: string;
-}) {
-  return (
-    <section className={`homecard-organism ${variant === 'With Photo' ? 'homecard-organism-photo' : ''}`}>
-      <header className="homecard-header"><h3 className="token-h6 homecard-title">{title}</h3></header>
-      <div className={`homecard-content ${variant === 'With Photo' ? 'homecard-content-photo' : 'homecard-content-default'}`}>
-        {/* grid or photo track */}
-      </div>
-      <footer className="homecard-footer"><button className="btn btn-primary btn-small">Ver más</button></footer>
-    </section>
-  );
-}
-```
-</details>
-
-### Promo Strip (`Organisms/Promo Strip`)
-Variants:
-- `Single` (`72353:23990`)
-- `Double` (`72353:23953`)
-
-Rules:
-- Uses nested `Discount Ribbon (Wrap Small)` on each card.
-- `Playground` controls heading and discount label.
-
-<details>
-<summary><strong>Show React snippet (Promo Strip)</strong></summary>
-
-```tsx
-export function PromoStrip({
-  variant = 'Single',
-  singleHeading = 'Tus compras online',
-  doubleHeading = 'Todas estas 25% menos',
-  discount = '25%',
-}: {
-  variant?: 'Single' | 'Double';
-  singleHeading?: string;
-  doubleHeading?: string;
-  discount?: string;
-}) {
-  const cardsA = baseCards.map((c) => ({ ...c, ribbon: discount }));
-  const cardsB = secondCards.map((c) => ({ ...c, ribbon: discount }));
-
-  return (
-    <div className="promo-strip-stack">
-      <PromoStripBlock heading={variant === 'Double' ? doubleHeading : singleHeading} cards={cardsA} />
-      {variant === 'Double' ? <PromoStripBlock cards={cardsB} compact /> : null}
-    </div>
-  );
-}
-```
-</details>
-
-### Summary Box (`Organisms/Summary Box`)
-Pen: `6959:56843`
-
-Dimensions in stories:
-- `flow`: `products | giftCards | billPayments`
-- `step`: `pdp | plp | cart | checkout`
-- `pricing`: `saving | normal`
-- toggles: `showAddButton`, `withVoucherify`
-- dynamic fields: `exchangeRate`, `productLabel`, `productCount`
-
-Special handling:
-- in `checkout` and `billPayments` total label changes to `TOTAL`
-- includes exchange strip + white card + CTA area
-
-<details>
-<summary><strong>Show React snippet (Summary Box API)</strong></summary>
-
-```tsx
-type SummaryFlow = 'products' | 'giftCards' | 'billPayments';
-type SummaryStep = 'pdp' | 'plp' | 'cart' | 'checkout';
-
-type SummaryBoxProps = {
-  flow?: SummaryFlow;
-  step?: SummaryStep;
-  pricing?: 'saving' | 'normal';
-  showAddButton?: boolean;
-  withVoucherify?: boolean;
+  flow?: 'products' | 'giftCards' | 'billPayments';
+  step?: 'pdp' | 'plp' | 'cart' | 'checkout';
+  pricing?: 'normal' | 'saving';
   exchangeRate?: string;
   productLabel?: string;
-  productCount?: number;
-};
+}) {
+  return <div dangerouslySetInnerHTML={{ __html: buildSummaryBox({ flow, step, pricing, exchangeRate, productLabel }) }} />;
+}
+```
+</details>
 
-export function SummaryBox(props: SummaryBoxProps) {
-  const {
-    flow = 'giftCards',
-    step = 'cart',
-    pricing = 'saving',
-    showAddButton = true,
-    withVoucherify = false,
-    exchangeRate = 'Q 7.55',
-    productLabel = 'Producto, Gift Card',
-    productCount = 3,
-  } = props;
+---
 
+## Pages
+
+### Homepages
+- `Homepage 1` to `Homepage 5`
+- Rendered in Storybook under `Pages / Homepages`
+
+### PDP Pages
+- `PDP Page 1` to `PDP Page 4`
+- Rendered in Storybook under `Pages / PDP Pages`
+
+<details>
+<summary><strong>Show React snippet</strong></summary>
+
+```tsx
+export function PDPPageExample() {
   return (
-    <section className="summary-box with-overlap" data-flow={flow} data-step={step}>
-      <div className="summary-type-overlay">TIPO DE CAMBIO: {exchangeRate}</div>
-      <div className="summary-card">{/* body rows + ctas based on flow/step/pricing */}</div>
-    </section>
+    <main className="pdp-page-shell has-no-plateu">
+      <PageHeader variant="No title" />
+      <BrandItem variant="With label" label="Apple" image="apple.webp" />
+      <MiddleCard variantPath="Molecule/Middle Card/eGift Card" pageContext="PDP" showDiscountRibbon />
+      <DynamicAmountInput currencySymbol="$" value="25" />
+      <SummaryBox flow="giftCards" step="pdp" pricing="saving" productLabel="Producto" />
+      <BottomNavigation variant="Sin label" activeTab="ofertas" />
+    </main>
   );
 }
 ```
@@ -675,48 +521,19 @@ export function SummaryBox(props: SummaryBoxProps) {
 
 ---
 
-## Character Recommendations
+## Reference
 
-Current Storybook guidance lines added in Playground/Docs Playground:
+### Character recommendations
+- `Middle Card / Vale de Monto`: title max 14 chars, amount max 5 digits + separators
+- `Middle Card / eGift Card`: title max 21 chars
+- `Toast Banners`: max 30 chars
+- `Brand Item label`: one line only, centered
 
-### Atoms
-- `Buttons`: label max `9` chars (`Continuar`).
-- `Inputs/Search`: placeholder/value max `13` chars (`Buscas marcas`).
-- `Inputs/Phone`: area code max `4` chars (`+502`), phone max `9` chars (`6696-3223`).
-- `Dropdown/Country-Province`: placeholder max `16` chars (`Seleccionar país`), value max `14` chars (`Estados Unidos`).
-- `Radio`: label max `9` chars (`Guatemala`).
-- `Chips/New item`: tag max `5` chars (`Nuevo`); counters `1-2` chars (`0-99` / `1-99`).
-- `Discount Ribbon`: label max `7` chars (`25% OFF`).
-- `Super Ribbon`: text max `24` chars (`Ofertas del mes de Abril`).
-- `Icons`: icon name control max `20` chars.
+### Show/Hide code best practice
+Use semantic disclosure with `<details>` so long snippets stay readable.
 
-### Molecules
-- `Folder`: country codes max `3` chars (`GUA` / `USA`).
-- `Plateu`: category labels max `13` chars (`COMIDA RÁPIDA`).
-- `Promo Code`: placeholder max `29` chars (`Ingresa el código promocional`), promo code max `8` chars (`verano26`).
-- `Quantity Input`: quantity max `2` chars (`1-99`).
-- `Tiles`: label max `16` chars (`Comparar Remesas`).
-- `Headers`: cart count max `2` chars (`0-99`), page title max `11` chars (`Modal Title`).
-- `Navigation`: tab label max `7` chars (`Ofertas`).
-
-### Organisms (only with title/text controls)
-- `HomeCard`: title max `11` chars (`Solo por hoy`).
-- `Promo Strip`: single heading max `17` (`Tus compras online`), double heading max `20` (`Todas estas 25% menos`), discount max `7` (`25% OFF`).
-- `Tactic Strips`: title max `14` (`Ofertas del día`), Super Ribbon text max `24`, Discount text max `7`, brand max `11` (`Ultra Beauty`).
-
-Excluded in this pass (no title control in Playground): `Carrusel`, `Discovery Header`, `Lists`, `Summary Box`.
-
----
-
-## Show/Hide Code Best Practice
-
-Recommended pattern for Docs/Playground pages:
-- Keep code hidden by default to prioritize visual review.
-- Use one snippet per variant API (not one massive file dump).
-- Use semantic disclosure with `<details><summary>Show React snippet</summary>...</details>`.
-- Keep snippet minimal but production-oriented (typed props + defaults + tokens/classes).
-
-Reusable snippet wrapper:
+<details>
+<summary><strong>Show React snippet</strong></summary>
 
 ```tsx
 type CodeExampleProps = {
@@ -727,9 +544,10 @@ type CodeExampleProps = {
 export function CodeExample({ title = 'Show React snippet', children }: CodeExampleProps) {
   return (
     <details>
-      <summary><strong>{title}</strong></summary>
+      <summary>{title}</summary>
       <pre><code>{children}</code></pre>
     </details>
   );
 }
 ```
+</details>

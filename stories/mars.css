@@ -506,21 +506,26 @@ body {
 .toast-banner-icon i {
   font-size: 20px;
   line-height: 1;
+  color: inherit;
 }
 
-.icon-main-success {
+.toast-banner-icon.icon-main-success,
+.toast-banner-icon.icon-main-success i {
   color: var(--success-main);
 }
 
-.icon-main-warning {
+.toast-banner-icon.icon-main-warning,
+.toast-banner-icon.icon-main-warning i {
   color: var(--warning-main);
 }
 
-.icon-main-error {
+.toast-banner-icon.icon-main-error,
+.toast-banner-icon.icon-main-error i {
   color: var(--error-main);
 }
 
-.icon-main-info {
+.toast-banner-icon.icon-main-info,
+.toast-banner-icon.icon-main-info i {
   color: var(--info-main);
 }
 

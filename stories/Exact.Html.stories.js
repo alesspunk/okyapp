@@ -23,7 +23,7 @@ function withSectionTarget(html, sectionId) {
 }
 
 function renderExact(sectionId) {
-  const iframeId = "mars-exact-html-iframe";
+  const iframeId = "mars-react-code-iframe";
   let srcdoc = withBaseHref(dsHtml);
   if (sectionId) {
     srcdoc = withSectionTarget(srcdoc, sectionId);
@@ -31,8 +31,8 @@ function renderExact(sectionId) {
 
   return `
     <div class="mars-story" style="max-width:1400px">
-      <div class="mars-label">Source: ATOMIC-DESIGN-LIBRARY.html (exact code)</div>
-      <iframe id="${iframeId}" title="MARS Exact HTML" style="${iframeStyle}"></iframe>
+      <div class="mars-label">Source: ATOMIC-DESIGN-LIBRARY.html (React code reference)</div>
+      <iframe id="${iframeId}" title="MARS React Code" style="${iframeStyle}"></iframe>
     </div>
     <script>
       (function () {
@@ -52,17 +52,18 @@ export default {
     docs: {
       description: {
         component:
-          "Estas stories usan el HTML exacto del archivo `ATOMIC-DESIGN-LIBRARY.html` via `?raw`, para asegurar consistencia 1:1 entre tu libreria y Storybook.",
+          "These stories render `ATOMIC-DESIGN-LIBRARY.html` as the source of truth for React code examples. Sections below are aligned to real section ids in the HTML document so navigation does not land on empty states.",
       },
     },
   },
 };
 
-export const FullLibrary = { render: () => renderExact() };
-export const OverviewSection = { render: () => renderExact("overview") };
-export const TokensSection = { render: () => renderExact("tokens") };
-export const IconsSection = { render: () => renderExact("icons") };
-export const AtomsSection = { render: () => renderExact("atoms") };
-export const MoleculesSection = { render: () => renderExact("molecules") };
-export const OrganismsSection = { render: () => renderExact("organisms") };
-export const ReferenceSection = { render: () => renderExact("reference") };
+export const FullLibrary = { name: "Full Library", render: () => renderExact() };
+export const OverviewSection = { name: "Overview", render: () => renderExact("overview") };
+export const TokensSection = { name: "Tokens", render: () => renderExact("tokens") };
+export const IconsSection = { name: "Icons", render: () => renderExact("icons") };
+export const AtomsSection = { name: "Atoms", render: () => renderExact("atoms") };
+export const MoleculesSection = { name: "Molecules", render: () => renderExact("molecules") };
+export const OrganismsSection = { name: "Organisms", render: () => renderExact("organisms") };
+export const PagesSection = { name: "Pages", render: () => renderExact("pages") };
+export const ReferenceSection = { name: "Reference", render: () => renderExact("reference") };
