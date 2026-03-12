@@ -43,11 +43,12 @@ const typographyMapping = [
 ];
 
 function renderReferenceItem(card) {
+  const resolvedCard = { ...card, pageContext: card.pageContext || "PDP" };
   return `
     <div class="middle-card-reference">
-      <div class="mars-label">${card.path}</div>
-      ${renderMiddleCard(card)}
-      <div class="mars-label" style="margin-top:10px">ID .pen: ${card.id}</div>
+      <div class="mars-label">${resolvedCard.path}</div>
+      ${renderMiddleCard(resolvedCard)}
+      <div class="mars-label" style="margin-top:10px">ID .pen: ${resolvedCard.id}</div>
     </div>
   `;
 }
@@ -264,10 +265,10 @@ export const ValeDeMonto = {
     <div class="mars-story">
       <div class="mars-label">Molecule/Middle Card/Vale de Monto</div>
       <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-        ${middleCardVariants[0].recommendation}
+        ${MIDDLE_CARD_VARIANTS[0].recommendation}
       </div>
-      <div class="mars-label">ID .pen: ${middleCardVariants[0].id}</div>
-      ${renderMiddleCard({ ...middleCardVariants[0], pageContext: "PDP" })}
+      <div class="mars-label">ID .pen: ${MIDDLE_CARD_VARIANTS[0].id}</div>
+      ${renderMiddleCard({ ...MIDDLE_CARD_VARIANTS[0], pageContext: "PDP" })}
     </div>
   `,
 };
@@ -278,10 +279,10 @@ export const ValeDeProducto = {
     <div class="mars-story">
       <div class="mars-label">Molecule/Middle Card/Vale de Producto</div>
       <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-        ${middleCardVariants[1].recommendation}
+        ${MIDDLE_CARD_VARIANTS[1].recommendation}
       </div>
-      <div class="mars-label">ID .pen: ${middleCardVariants[1].id}</div>
-      ${renderMiddleCard({ ...middleCardVariants[1], pageContext: "PDP" })}
+      <div class="mars-label">ID .pen: ${MIDDLE_CARD_VARIANTS[1].id}</div>
+      ${renderMiddleCard({ ...MIDDLE_CARD_VARIANTS[1], pageContext: "PDP" })}
     </div>
   `,
 };
@@ -292,10 +293,10 @@ export const EGiftCard = {
     <div class="mars-story">
       <div class="mars-label">Molecule/Middle Card/eGift Card</div>
       <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-        ${middleCardVariants[2].recommendation}
+        ${MIDDLE_CARD_VARIANTS[2].recommendation}
       </div>
-      <div class="mars-label">ID .pen: ${middleCardVariants[2].id}</div>
-      ${renderMiddleCard({ ...middleCardVariants[2], pageContext: "PDP" })}
+      <div class="mars-label">ID .pen: ${MIDDLE_CARD_VARIANTS[2].id}</div>
+      ${renderMiddleCard({ ...MIDDLE_CARD_VARIANTS[2], pageContext: "PDP" })}
     </div>
   `,
 };
