@@ -156,8 +156,8 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
   };
 
   if (isCollapsed) {
-    const leftX = isCollapsedLeft ? 47 : 55;
-    const rightX = 245;
+    const leftX = isCollapsedLeft ? 51 : 57;
+    const rightX = 248;
     const lineX = isCollapsedLeft ? 55 : 245;
     const lineWidth = 66;
     const lineTop = 30;

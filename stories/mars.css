@@ -2891,11 +2891,12 @@ body {
 }
 
 .folder-control.is-collapsed .folder-flag {
-  width: 28px;
+  width: 24px;
   height: 18px;
-  border-radius: 3px;
-  border: 0.5px solid rgba(85, 37, 136, 0.18);
+  border-radius: 2px;
+  border: 0;
   box-shadow: none;
+  background: transparent;
 }
 
 .folder-control.is-collapsed .folder-flag.is-rect img {
