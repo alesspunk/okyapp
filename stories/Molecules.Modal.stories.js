@@ -103,7 +103,9 @@ function resolveModalArgs(args = {}) {
 function renderCloseButton(inverted = false) {
   return `
     <button class="header-icon modal-sheet-close ${inverted ? "is-inverted" : ""}" type="button" aria-label="Cerrar">
-      <i class="fa-light fa-xmark icon-medium" aria-hidden="true"></i>
+      <span class="fa-icon fa-icon-lg" aria-hidden="true">
+        <i class="fa-light fa-times"></i>
+      </span>
     </button>
   `;
 }

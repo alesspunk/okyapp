@@ -4700,11 +4700,17 @@ body {
 
 .modal-sheet-close {
   flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
   color: var(--primary-main);
 }
 
 .modal-sheet-close.is-inverted {
   color: var(--white);
+}
+
+.modal-sheet-close .fa-icon {
+  color: inherit;
 }
 
 .modal-sheet-title {
