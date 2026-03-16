@@ -5,7 +5,7 @@ function renderPaymentMethod({ paymentLabel = "Método de pago", paymentTitle = 
     <div class="payment-method-input" data-pen-id="${PAYMENT_METHOD_PEN_ID}">
       <span class="payment-method-label">${paymentLabel}</span>
       <div class="payment-method-control">
-        <span class="payment-method-icon" aria-hidden="true">
+        <span class="fa-icon fa-icon-md payment-method-icon" aria-hidden="true">
           <i class="fak fa-kit fa-okysaldo payment-method-icon-glyph"></i>
         </span>
         <span class="payment-method-copy">${paymentTitle}</span>

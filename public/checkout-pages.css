@@ -73,12 +73,14 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 24px 16px 32px;
+  gap: 5px;
+  padding: 5px 16px 32px;
 }
 
 .checkout-brand-carrousel-shell {
-  width: 100%;
+  width: calc(100% + 32px);
+  margin-left: -16px;
+  margin-right: -16px;
   overflow: visible;
 }
 
@@ -86,8 +88,8 @@ body {
   position: relative;
   width: 100%;
   min-width: 0;
-  padding: 0 0 12px;
-  overflow: hidden;
+  padding: 0;
+  overflow: visible;
 }
 
 .checkout-brand-carrousel .brand-carrousel-track {
@@ -106,11 +108,11 @@ body {
 }
 
 .checkout-brand-carrousel .brand-carrousel-side-left {
-  left: -213px;
+  left: -197px;
 }
 
 .checkout-brand-carrousel .brand-carrousel-side-right {
-  right: -213px;
+  right: -197px;
 }
 
 .checkout-brand-carrousel .brand-carrousel-center {
@@ -166,7 +168,7 @@ body {
   width: 100%;
   display: flex;
   justify-content: center;
-  padding-top: 6px;
+  padding-top: 0;
 }
 
 .checkout-summary-wrap .summary-box {
@@ -182,8 +184,8 @@ body {
 }
 
 .checkout-page-shell.is-mockup .checkout-page-main {
-  gap: 12px;
-  padding-top: 20px;
+  gap: 5px;
+  padding-top: 5px;
 }
 
 .checkout-page-shell.is-mockup .checkout-brand-carrousel {
@@ -191,11 +193,11 @@ body {
 }
 
 .checkout-page-shell.is-mockup .checkout-brand-carrousel .brand-carrousel-side-left {
-  left: -213px;
+  left: -197px;
 }
 
 .checkout-page-shell.is-mockup .checkout-brand-carrousel .brand-carrousel-side-right {
-  right: -213px;
+  right: -197px;
 }
 
 .checkout-page-shell.is-mockup .checkout-summary-wrap {

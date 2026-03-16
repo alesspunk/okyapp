@@ -323,18 +323,14 @@ body {
 }
 
 .payment-method-icon {
-  width: 40px;
-  min-width: 40px;
-  height: 56px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  min-width: 32px;
+  flex-shrink: 0;
   color: #552588;
 }
 
 .payment-method-icon-glyph {
-  font-size: 36px;
-  line-height: 1;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .payment-method-copy {
