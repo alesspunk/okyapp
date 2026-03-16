@@ -115,7 +115,7 @@ export default {
     docs: {
       description: {
         component:
-          "Sección Pages para visualizar el nuevo **Checkout Page** y **Checkout Mockup**, usando `Page Header`, `Brand Carrousel`, `Dual Input`, `Promo Code` y `Summary Box`, con layout guiado por Figma y consistencia de markup con el resto de mockups HTML.",
+          "Sección Pages para visualizar el nuevo **Checkout Page** y **Checkout Mockup**, usando `Organisms/Page Header` en variante checkout overlap, `Brand Carrousel`, `Dual`, `Input/Payment method`, `Promo Code` y `Summary Box`, con layout guiado por Figma y consistencia de markup con el resto de mockups HTML.",
       },
     },
   },

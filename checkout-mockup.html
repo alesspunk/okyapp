@@ -27,19 +27,27 @@
             </div>
           </div>
 
-          <div class="checkout-page-header-wrap">
+          <div class="checkout-page-header-wrap page-header-organism is-checkout-overlap">
             <div class="page-header-screen checkout-page-header">
               <div class="header-icon header-icon-light"><i class="fa-light fa-arrow-left icon-medium" aria-hidden="true"></i></div>
               <div class="page-header-title page-header-title-empty" aria-hidden="true"></div>
-              <button class="checkout-country-switch" type="button" aria-label="País actual GT">
-                <span>GT</span>
-                <i class="fa-light fa-chevron-right" aria-hidden="true"></i>
-              </button>
+              <div class="header-icon header-icon-placeholder" aria-hidden="true"></div>
             </div>
 
             <div class="header-cart-chip header-cart-full checkout-page-cart-chip" aria-label="Carrito con 3 productos">
               <span class="header-cart-count">3</span>
               <i class="fa-light fa-cart-shopping" aria-hidden="true"></i>
+            </div>
+
+            <div class="checkout-page-brand-overlap page-header-organism-brand-overlap">
+              <div class="brand-item-atom is-with-label">
+                <p class="brand-item-label token-product-text">Target</p>
+                <div class="brand-item-frame">
+                  <div class="brand-item-base">
+                    <img src="./images/target.webp" alt="Target" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </header>
@@ -47,17 +55,6 @@
         <section class="checkout-page-main">
           <div class="checkout-brand-carrousel-shell">
             <section class="brand-carrousel-organism checkout-brand-carrousel" aria-label="Brand Carrousel">
-              <div class="checkout-brand-slot">
-                <div class="brand-item-atom is-with-label">
-                  <p class="brand-item-label token-product-text">Target</p>
-                  <div class="brand-item-frame">
-                    <div class="brand-item-base">
-                      <img src="./images/target.webp" alt="Target" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <div class="brand-carrousel-track">
                 <div class="brand-carrousel-side brand-carrousel-side-left">
                   <div class="brand-item-atom is-medium">
@@ -110,47 +107,37 @@
             </section>
           </div>
 
-          <section class="checkout-field-block" aria-labelledby="checkout-mockup-recipient-title">
-            <p id="checkout-mockup-recipient-title" class="checkout-field-label">¿Para quién es?</p>
-            <div class="checkout-dual-input-row">
-              <div class="input-wrapper">
-                <input
-                  id="checkout-mockup-recipient-name"
-                  class="input-field"
-                  type="text"
-                  name="recipient-name"
-                  value="Aracely"
-                  aria-labelledby="checkout-mockup-recipient-name-label"
-                />
-                <label id="checkout-mockup-recipient-name-label" class="input-label" for="checkout-mockup-recipient-name">Nombre</label>
+          <section class="checkout-recipient-wrap" aria-label="¿Para quién es?">
+            <article class="dual-molecule is-default" data-pen-id="7370:49614">
+              <span class="dual-floating-label">¿Para quién es?</span>
+              <div class="dual-card">
+                <span class="dual-avatar" aria-hidden="true">
+                  <i class="fa-solid fa-user"></i>
+                </span>
+                <div class="dual-copy">
+                  <p class="dual-title">Aracely</p>
+                  <p class="dual-subtitle">+502 6814-9122</p>
+                </div>
+                <span class="dual-action" aria-hidden="true">
+                  <img src="./images/whatsapp.png" alt="" />
+                </span>
               </div>
-
-              <div class="input-wrapper">
-                <input
-                  id="checkout-mockup-recipient-phone"
-                  class="input-field"
-                  type="tel"
-                  inputmode="tel"
-                  name="recipient-phone"
-                  value="+502 6814-9122"
-                  aria-labelledby="checkout-mockup-recipient-phone-label"
-                />
-                <label id="checkout-mockup-recipient-phone-label" class="input-label" for="checkout-mockup-recipient-phone">Teléfono</label>
-              </div>
-            </div>
+            </article>
           </section>
 
-          <section class="checkout-field-block" aria-labelledby="checkout-mockup-payment-title">
-            <p id="checkout-mockup-payment-title" class="checkout-field-label">Método de pago</p>
-            <div class="checkout-payment-card">
-              <span class="checkout-payment-media" aria-hidden="true">
-                <img src="./images/Saldo%20Card.png" alt="" />
-              </span>
-              <span class="checkout-payment-copy">Saldo OKY</span>
-              <span class="chip-ds checkout-payment-chip">$50.50</span>
-              <button class="checkout-payment-action" type="button" aria-label="Más opciones de pago">
-                <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
-              </button>
+          <section class="checkout-payment-wrap" aria-label="Método de pago">
+            <div class="payment-method-input" data-pen-id="7006:109054">
+              <span class="payment-method-label">Método de pago</span>
+              <div class="payment-method-control">
+                <span class="payment-method-icon" aria-hidden="true">
+                  <i class="fak fa-kit fa-okysaldo payment-method-icon-glyph"></i>
+                </span>
+                <span class="payment-method-copy">Saldo OKY</span>
+                <span class="payment-method-chip">$68.48</span>
+                <button class="payment-method-action" type="button" aria-label="Más opciones de pago">
+                  <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+                </button>
+              </div>
             </div>
           </section>
 

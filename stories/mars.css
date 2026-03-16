@@ -283,6 +283,111 @@ body {
   pointer-events: none;
 }
 
+.payment-method-input {
+  width: 328px;
+  max-width: 100%;
+  position: relative;
+  padding-top: 6px;
+}
+
+.payment-method-label {
+  position: absolute;
+  top: 6px;
+  left: 5px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 4px;
+  background: #fff;
+  border-radius: 4px;
+  color: #552588;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.15px;
+  z-index: 1;
+}
+
+.payment-method-control {
+  min-height: 64px;
+  border-radius: 8px;
+  border: 1px solid #c4c4c4;
+  background: #fff;
+  box-shadow: 0 4px 21px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 4px 16px;
+}
+
+.payment-method-icon {
+  width: 40px;
+  min-width: 40px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #552588;
+}
+
+.payment-method-icon-glyph {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.payment-method-copy {
+  flex: 1;
+  min-width: 0;
+  color: #552588;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.75;
+  letter-spacing: 0.15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.payment-method-chip {
+  min-width: 79px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 16px;
+  background: var(--primary-light);
+  color: #fff;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.15px;
+  white-space: nowrap;
+}
+
+.payment-method-action {
+  width: 40px;
+  min-width: 40px;
+  height: 56px;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 99px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.payment-method-action i {
+  font-size: 20px;
+}
+
 .search-input {
   --search-input-height: 40px;
   height: 40px;
@@ -1731,6 +1836,48 @@ body {
   cursor: pointer;
 }
 
+.page-header-organism {
+  width: 100%;
+  background: var(--white);
+  position: relative;
+}
+
+.page-header-organism.is-checkout-overlap {
+  padding-bottom: 57px;
+}
+
+.page-header-organism-cart {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  z-index: 4;
+}
+
+.page-header-organism-brand-overlap {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.page-header-organism-brand-overlap .brand-item-label {
+  color: #421771;
+}
+
+.page-header-organism-brand-overlap .brand-item-frame {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.page-header-organism-brand-overlap .brand-item-base {
+  border: 0;
+}
+
+.page-header-organism-brand-overlap .brand-item-base::after {
+  display: none;
+}
+
 /* ── FA Icon component ────────────────────────────────── */
 .fa-icon {
   display: inline-flex;
@@ -1931,7 +2078,7 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: 24px;
+  gap: 10px;
 }
 
 .brand-carrousel-side,
@@ -1944,6 +2091,18 @@ body {
 
 .brand-carrousel-side {
   width: 217px;
+}
+
+.brand-carrousel-side .brand-item-atom.is-medium {
+  --brand-item-card-image-padding: 0;
+}
+
+.brand-carrousel-side .brand-item-frame {
+  overflow: hidden;
+}
+
+.brand-carrousel-side .brand-item-base::after {
+  display: none;
 }
 
 .brand-carrousel-center {
@@ -2093,6 +2252,19 @@ body {
 
 .fak.fa-wallet::before,
 .fa-kit.fa-wallet::before {
+  content: var(--fa);
+}
+
+.fak.fa-okysaldo,
+.fa-kit.fa-okysaldo {
+  --fa: "\e000";
+  --fa--fa: "\e000\e000";
+  font-family: "Font Awesome Kit";
+  font-weight: 400;
+}
+
+.fak.fa-okysaldo::before,
+.fa-kit.fa-okysaldo::before {
   content: var(--fa);
 }
 
@@ -2699,6 +2871,119 @@ body {
 
 .promo-code-molecule[data-state="empty"] .promo-clear {
   display: none;
+}
+
+/* ── Dual (Molecule) ─────────────────────────────────── */
+.dual-molecule {
+  width: 328px;
+  max-width: 100%;
+  position: relative;
+  padding-top: 6px;
+}
+
+.dual-card {
+  min-height: 64px;
+  border-radius: 8px;
+  border: 1px solid #c4c4c4;
+  background: #fff;
+  box-shadow: 0 4px 21px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 16px;
+}
+
+.dual-floating-label {
+  position: absolute;
+  top: 6px;
+  left: 7px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 4px;
+  background: #fff;
+  border-radius: 4px;
+  color: #552588;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.15px;
+  z-index: 1;
+}
+
+.dual-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(188, 158, 220, 0.54);
+  color: #fff;
+  font-size: 24px;
+}
+
+.dual-molecule.is-para-mi .dual-avatar {
+  background: #6a0bd0;
+}
+
+.dual-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.dual-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: "Lato", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dual-subtitle {
+  margin: -2px 0 0;
+  color: var(--disable-text);
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: 0.15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dual-action {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dual-action img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  display: block;
+}
+
+.dual-story-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 /* ── Token helpers ────────────────────────────────────── */

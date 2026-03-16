@@ -107,7 +107,8 @@ export default {
         component:
           "Organismo **Brand Carrousel** compuesto por dos `Brand Item / Medium` laterales y un `Middle Card` al centro. " +
           "La composicion esta centrada verticalmente para que la tarjeta activa del medio se perciba mas grande sin perder simetria visual, " +
-          "y agrega un boton `Primary / Small` centrado debajo del card.",
+          "y agrega un boton `Primary / Small` centrado debajo del card. " +
+          "La separacion visual entre items se mantiene en `10px`, y en contexto de carrusel los laterales usan una presentacion mas limpia para evitar aire interno excesivo.",
       },
     },
   },
@@ -216,7 +217,7 @@ export const DocsPlayground = {
       <div class="mars-story">
         <div class="mars-label">Brand Carrousel</div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-          Dos Brand Item / Medium laterales + Middle Card PDP al centro, alineados verticalmente al medio para mantener simetria, con CTA centrado debajo del card.
+          Dos Brand Item / Medium laterales + Middle Card PDP al centro, alineados verticalmente al medio para mantener simetria, con CTA centrado debajo del card y gap visual de 10px entre piezas.
         </div>
         ${
           args.showMeta

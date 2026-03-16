@@ -1,3 +1,23 @@
+const PAYMENT_METHOD_PEN_ID = "7006:109054";
+
+function renderPaymentMethod({ paymentLabel = "Método de pago", paymentTitle = "Saldo OKY", paymentAmount = "$68.48" }) {
+  return `
+    <div class="payment-method-input" data-pen-id="${PAYMENT_METHOD_PEN_ID}">
+      <span class="payment-method-label">${paymentLabel}</span>
+      <div class="payment-method-control">
+        <span class="payment-method-icon" aria-hidden="true">
+          <i class="fak fa-kit fa-okysaldo payment-method-icon-glyph"></i>
+        </span>
+        <span class="payment-method-copy">${paymentTitle}</span>
+        <span class="payment-method-chip">${paymentAmount}</span>
+        <button class="payment-method-action" type="button" aria-label="Más opciones de pago">
+          <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
 export default {
   title: "Atoms/Inputs",
   tags: ["autodocs"],
@@ -5,7 +25,7 @@ export default {
     docs: {
       description: {
         component:
-          "Playground por componente, usando convención de nombres de variantes del sistema. Incluye `Input/Search`, `Input/Phone` y la nueva variante `Input/Dinamic` para montos en dinero.",
+          "Playground por componente, usando convención de nombres de variantes del sistema. Incluye `Input/Search`, `Input/Phone`, `Input/Dinamic` para montos en dinero y la nueva variante `Input/Payment method` para selección de saldo o método de pago.",
       },
     },
   },
@@ -21,11 +41,14 @@ export const InputPlayground = {
     phone: "6696-3223",
     currencySymbol: "$",
     helperText: "Desde 10 hasta 1000",
+    paymentLabel: "Método de pago",
+    paymentTitle: "Saldo OKY",
+    paymentAmount: "$68.48",
   },
   argTypes: {
     variant: {
       control: "select",
-      options: ["Input/Search", "Input/Phone", "Input/Dinamic"],
+      options: ["Input/Search", "Input/Phone", "Input/Dinamic", "Input/Payment method"],
     },
     state: {
       control: "inline-radio",
@@ -40,9 +63,37 @@ export const InputPlayground = {
       options: ["Q", "$"],
     },
     helperText: { control: "text" },
+    paymentLabel: { control: "text" },
+    paymentTitle: { control: "text" },
+    paymentAmount: { control: "text" },
   },
-  render: ({ variant, state, placeholder, value, areaCode, phone, currencySymbol, helperText }) => {
+  render: ({
+    variant,
+    state,
+    placeholder,
+    value,
+    areaCode,
+    phone,
+    currencySymbol,
+    helperText,
+    paymentLabel,
+    paymentTitle,
+    paymentAmount,
+  }) => {
     const safeState = state.toLowerCase();
+
+    if (variant === "Input/Payment method") {
+      return `
+        <div class="mars-story">
+          <div class="mars-label">Variant: ${variant} · State: Filled</div>
+          <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+            Variante fixed-value con label flotante, ícono custom okysaldo, copy principal y chip de monto.
+          </div>
+          <div class="mars-label">ID .pen: ${PAYMENT_METHOD_PEN_ID}</div>
+          ${renderPaymentMethod({ paymentLabel, paymentTitle, paymentAmount })}
+        </div>
+      `;
+    }
 
     if (variant === "Input/Dinamic") {
       const isHasValue = state === "Hasvalue";
@@ -219,6 +270,26 @@ export const DynamicInputReference = {
             />
           </div>
         </div>
+      </div>
+    </div>
+  `,
+};
+
+export const PaymentMethodReference = {
+  name: "Payment Method — Reference",
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story: "Referencia rápida de `Input/Payment method`, usando el custom icon `fak fa-kit fa-okysaldo` y el monto visible en un chip lila.",
+      },
+    },
+  },
+  render: () => `
+    <div class="mars-story">
+      <div class="story-card">
+        <div class="mars-label">Input/Payment method · ${PAYMENT_METHOD_PEN_ID}</div>
+        ${renderPaymentMethod({ paymentLabel: "Método de pago", paymentTitle: "Saldo OKY", paymentAmount: "$68.48" })}
       </div>
     </div>
   `,

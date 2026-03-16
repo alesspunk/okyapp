@@ -45,6 +45,7 @@ body {
 
 .checkout-page-header-wrap {
   position: relative;
+  padding-bottom: 57px;
 }
 
 .checkout-page-header {
@@ -53,32 +54,19 @@ body {
   padding-right: 68px;
 }
 
-.checkout-country-switch {
-  min-width: 48px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 0;
-  background: transparent;
-  color: rgba(0, 0, 0, 0.54);
-  font-family: "Lato", sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.6;
-  letter-spacing: 0.15px;
-  padding: 0;
-  cursor: pointer;
-}
-
-.checkout-country-switch i {
-  font-size: 12px;
-}
-
 .checkout-page-cart-chip {
   position: absolute;
   top: 8px;
   right: 16px;
   z-index: 3;
+}
+
+.checkout-page-brand-overlap {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  z-index: 2;
 }
 
 .checkout-page-main {
@@ -91,35 +79,23 @@ body {
 
 .checkout-brand-carrousel-shell {
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .checkout-brand-carrousel {
   position: relative;
   width: 100%;
   min-width: 0;
-  padding: 48px 0 12px;
+  padding: 0 0 12px;
   overflow: hidden;
 }
 
 .checkout-brand-carrousel .brand-carrousel-track {
   width: 100%;
   min-width: 0;
-  gap: 0;
+  gap: 10px;
   position: relative;
   align-items: flex-start;
-}
-
-.checkout-brand-slot {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 5;
-}
-
-.checkout-brand-slot .brand-item-label {
-  color: var(--primary-text-dark);
 }
 
 .checkout-brand-carrousel .brand-carrousel-side {
@@ -130,11 +106,11 @@ body {
 }
 
 .checkout-brand-carrousel .brand-carrousel-side-left {
-  left: -156px;
+  left: -213px;
 }
 
 .checkout-brand-carrousel .brand-carrousel-side-right {
-  right: -156px;
+  right: -213px;
 }
 
 .checkout-brand-carrousel .brand-carrousel-center {
@@ -166,112 +142,20 @@ body {
   margin-top: 8px;
 }
 
-.checkout-field-block {
+.checkout-payment-wrap {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
 }
 
-.checkout-field-label {
-  align-self: flex-start;
-  margin: 0 0 -8px 8px;
-  padding: 0 4px;
-  background: #fff;
-  color: var(--primary-main);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: 0.15px;
-  position: relative;
-  z-index: 2;
-}
-
-.checkout-dual-input-row {
+.checkout-recipient-wrap {
   width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: 8px;
 }
 
-.checkout-dual-input-row .input-wrapper {
-  min-width: 0;
-}
-
-.checkout-dual-input-row .input-field {
-  padding-right: 12px;
-}
-
-.checkout-payment-card {
+.checkout-recipient-wrap .dual-molecule {
   width: 100%;
-  min-height: 56px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px 8px 16px;
-  box-sizing: border-box;
-  border: 1px solid #c4c4c4;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 4px 21px rgba(0, 0, 0, 0.04);
 }
 
-.checkout-payment-media {
-  width: 40px;
-  height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.checkout-payment-media img {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  display: block;
-}
-
-.checkout-payment-copy {
-  flex: 1;
-  min-width: 0;
-  color: var(--primary-main);
-  font-family: "Lato", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.75;
-  letter-spacing: 0.15px;
-}
-
-.checkout-payment-chip {
-  min-width: 79px;
-  height: 32px;
-  border: 0;
-  background: var(--primary-light);
-  color: #fff;
-  border-radius: 16px;
-  padding: 4px 12px;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.checkout-payment-action {
-  width: 24px;
-  height: 24px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  background: transparent;
-  color: rgba(0, 0, 0, 0.54);
-  border-radius: 99px;
-  padding: 0;
-  cursor: pointer;
-}
-
-.checkout-payment-action i {
-  font-size: 20px;
+.checkout-payment-wrap .payment-method-input {
+  width: 100%;
 }
 
 .checkout-promo-wrap {
@@ -303,15 +187,15 @@ body {
 }
 
 .checkout-page-shell.is-mockup .checkout-brand-carrousel {
-  padding-top: 46px;
+  padding-top: 0;
 }
 
 .checkout-page-shell.is-mockup .checkout-brand-carrousel .brand-carrousel-side-left {
-  left: -148px;
+  left: -213px;
 }
 
 .checkout-page-shell.is-mockup .checkout-brand-carrousel .brand-carrousel-side-right {
-  right: -148px;
+  right: -213px;
 }
 
 .checkout-page-shell.is-mockup .checkout-summary-wrap {
