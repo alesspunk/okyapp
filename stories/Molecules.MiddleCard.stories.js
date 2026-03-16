@@ -61,11 +61,11 @@ export default {
       description: {
         component:
           "**Middle Card** es la molécula de canje intermedio para vouchers y gift cards. " +
-          "Incluye tres variantes iniciales: **Vale de Monto**, **Vale de Producto** y **eGift Card**. " +
+          "Incluye cuatro variantes iniciales: **Vale de Monto**, **Con Logo**, **Vale de Producto** y **eGift Card**. " +
           "Mantiene el mismo footer de acciones, usa tipografía del sistema basada en `Nunito Sans`, shadow suave, radial surface y CTA secundario con `arrow-up-right-from-square`. " +
           "Incluye además un switch de contexto para **PDP** y **Checkout**, cambiando tamaño sin alterar la anatomía. " +
           "También permite montar opcionalmente un **Discount Ribbon / Wrap** en la esquina superior derecha, reutilizando el átomo existente sin romper su set de variantes. " +
-          "La variante de producto usa `mix-blend-mode: darken` sobre la imagen para respetar el tratamiento visual de Figma. " +
+          "La variante de producto usa `mix-blend-mode: darken` sobre la imagen para respetar el tratamiento visual de Figma, y la variante **Con Logo** reemplaza el título superior por una imagen horizontal de marca. " +
           "Tipografía asignada: **Title → productText**, **Currency prefix → subtitle2**, **Amount → H2**, **Footer labels → CARDLABEL**. " +
           "El shell usa el token de efecto **PDP Card** y la superficie **Card Middle**.",
       },
@@ -85,6 +85,14 @@ export default {
     title: {
       control: "text",
       description: "Título principal del card.",
+    },
+    titleImage: {
+      control: "text",
+      description: "Imagen opcional para reemplazar el título superior.",
+    },
+    titleImageAlt: {
+      control: "text",
+      description: "Alt de la imagen superior cuando se usa el slot de logo.",
     },
     currency: {
       control: "text",
@@ -157,7 +165,7 @@ export const DocsPlayground = {
           ${findMiddleCard(card.path).recommendation}
         </div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-          Typography: Title → productText · Currency → subtitle2 · Amount → H2 · Footer labels → CARDLABEL. Discount Ribbon / Wrap opcional desde el switch.
+          Typography: Title → productText o logo image slot · Currency → subtitle2 · Amount → H2 · Footer labels → CARDLABEL. Discount Ribbon / Wrap opcional desde el switch.
         </div>
         ${args.showMeta ? `<div class="mars-label">ID .pen: ${card.id}</div>` : ""}
         ${renderMiddleCard(card)}
@@ -171,7 +179,7 @@ export const AllVariants = {
   parameters: {
     docs: {
       description: {
-        story: "Referencia side-by-side de las tres variantes iniciales del componente.",
+        story: "Referencia side-by-side de las cuatro variantes base del componente.",
       },
     },
   },

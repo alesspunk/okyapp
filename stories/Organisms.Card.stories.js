@@ -95,7 +95,7 @@ export default {
         component:
           "Organismo **Card** compuesto por `Top Card`, `Separator`, `Middle Card`, `Separator` y `Bottom Card`. " +
           "La intención es poder jugar con combinaciones completas de credencial o gift card sin duplicar la anatomía interna de cada molécula. " +
-          "El stack mantiene ancho PDP, centra el separator de `390px` con color `border main` y hereda los surfaces y shadows ya declarados en el sistema.",
+          "El stack mantiene ancho PDP, centra el separator en `fill container - 30px` con color `border main` y hereda los surfaces y shadows ya declarados en el sistema.",
       },
     },
   },
@@ -186,7 +186,7 @@ export const DocsPlayground = {
     middleTitle: "Target eGift Card",
     middleCurrency: "$",
     middleAmount: "40",
-    middleLeftLabel: "Brand Disclaimer",
+    middleLeftLabel: "Online, In Store",
     middleRightLabel: "Redemption Instructions",
     middleShowDiscountRibbon: false,
     middleDiscountRibbonType: "Normal",
@@ -233,7 +233,7 @@ export const GiftCardFlow = {
           middleTitle: "Target eGift Card",
           middleCurrency: "$",
           middleAmount: "40",
-          middleLeftLabel: "Brand Disclaimer",
+          middleLeftLabel: "Online, In Store",
           middleRightLabel: "Redemption Instructions",
           bottomVariantPath: "Molecule/Bottom Card/Gift Card",
           bottomShowButtonLabel: true,
@@ -286,7 +286,7 @@ export const MixedFlow = {
           middleTitle: "Amazon eGift Card",
           middleCurrency: "$",
           middleAmount: "25",
-          middleLeftLabel: "In Store, Online",
+          middleLeftLabel: "Online, In Store",
           middleRightLabel: "Redemption Instructions",
           bottomVariantPath: "Molecule/Bottom Card/Default",
           bottomShowButtonLabel: true,

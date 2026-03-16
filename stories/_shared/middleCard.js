@@ -13,6 +13,22 @@ export const MIDDLE_CARD_VARIANTS = [
     recommendation: 'Recomendado: título máx. 14 caracteres ("Vale de Monto") · monto máx. 5 dígitos + separadores.',
   },
   {
+    path: "Molecule/Middle Card/Con Logo",
+    key: "with-logo",
+    id: "local:middle-card-with-logo",
+    kind: "egift",
+    title: "Brand Name eGift Card",
+    titleImage: "logo-middle-card.png",
+    titleImageAlt: "Brand logo",
+    currency: "$",
+    amount: "10",
+    leftLabel: "In Store, Online",
+    rightLabel: "Redemption Instructions",
+    image: "",
+    recommendation:
+      "Recomendado: usar logo horizontal en el header superior cuando la marca necesite mayor presencia visual que un título de texto.",
+  },
+  {
     path: "Molecule/Middle Card/Vale de Producto",
     key: "vale-de-producto",
     id: "6991:146181",
@@ -76,12 +92,24 @@ function renderFooter(card) {
   `;
 }
 
+function renderTitleSlot(card) {
+  if (card.titleImage) {
+    return `
+      <div class="middle-card-title middle-card-title-media" aria-label="${card.titleImageAlt || card.title}">
+        <img src="${card.titleImage}" alt="${card.titleImageAlt || card.title}" />
+      </div>
+    `;
+  }
+
+  return `<p class="middle-card-title">${card.title}</p>`;
+}
+
 function renderBody(card) {
   if (card.kind === "product") {
     return `
       <div class="middle-card-content">
         <div class="middle-card-main">
-          <p class="middle-card-title">${card.title}</p>
+          ${renderTitleSlot(card)}
           <div class="middle-card-center">
             <figure class="middle-card-product-figure">
               <img src="${card.image}" alt="${card.title}" />
@@ -96,7 +124,7 @@ function renderBody(card) {
   return `
     <div class="middle-card-content">
       <div class="middle-card-main">
-        <p class="middle-card-title">${card.title}</p>
+        ${renderTitleSlot(card)}
         <div class="middle-card-center">
           <div class="middle-card-value">
             <span class="middle-card-currency">${card.currency}</span>
@@ -119,6 +147,8 @@ export function resolveMiddleCard(args = {}) {
     ...base,
     pageContext: args.pageContext || "PDP",
     title: args.title?.trim() || base.title,
+    titleImage: args.titleImage?.trim() || base.titleImage || "",
+    titleImageAlt: args.titleImageAlt?.trim() || base.titleImageAlt || base.title,
     currency: args.currency?.trim() || base.currency,
     amount: args.amount?.trim() || base.amount,
     leftLabel: args.leftLabel?.trim() || base.leftLabel,

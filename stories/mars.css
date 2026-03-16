@@ -4119,7 +4119,22 @@ body {
   letter-spacing: 0.15px;
 }
 
+.middle-card-title-media {
+  width: min(284px, calc(100% - 32px));
+}
+
+.middle-card-title-media img {
+  width: 96px;
+  height: 24px;
+  display: block;
+  object-fit: contain;
+}
+
 .middle-card-shell.is-checkout .middle-card-title {
+  width: min(248px, calc(100% - 32px));
+}
+
+.middle-card-shell.is-checkout .middle-card-title-media {
   width: min(248px, calc(100% - 32px));
 }
 
@@ -4597,8 +4612,8 @@ body {
 }
 
 .card-organism .separator-atom {
-  width: 390px;
-  max-width: none;
+  width: calc(100% - 30px);
+  max-width: calc(100% - 30px);
   border-top-color: var(--border-main);
 }
 
