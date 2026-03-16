@@ -196,7 +196,7 @@ export const DocsPlayground = {
     leftBrandKey: "target",
     leftBrandLabel: "",
     leftBrandImage: "",
-    rightBrandKey: "apple",
+    rightBrandKey: "starbucks",
     rightBrandLabel: "",
     rightBrandImage: "",
     middleCardPath: "Molecule/Middle Card/eGift Card",
@@ -242,7 +242,7 @@ export const Default = {
       <div class="brand-carrousel-story-shell">
         ${renderBrandCarrousel({
           leftBrandKey: "target",
-          rightBrandKey: "apple",
+          rightBrandKey: "starbucks",
           middleCardPath: "Molecule/Middle Card/eGift Card",
           cardTitle: "Amazon eGift Card",
           currency: "$",
