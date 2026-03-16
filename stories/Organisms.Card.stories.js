@@ -95,7 +95,7 @@ export default {
         component:
           "Organismo **Card** compuesto por `Top Card`, `Separator`, `Middle Card`, `Separator` y `Bottom Card`. " +
           "La intención es poder jugar con combinaciones completas de credencial o gift card sin duplicar la anatomía interna de cada molécula. " +
-          "El stack mantiene ancho PDP, centra el separator de `272px` y hereda los surfaces y shadows ya declarados en el sistema.",
+          "El stack mantiene ancho PDP, centra el separator de `390px` con color `border main` y hereda los surfaces y shadows ya declarados en el sistema.",
       },
     },
   },
