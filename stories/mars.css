@@ -4703,6 +4703,10 @@ body {
   width: 40px;
   height: 40px;
   color: var(--primary-main);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
 }
 
 .modal-sheet-close.is-inverted {
@@ -4711,6 +4715,8 @@ body {
 
 .modal-sheet-close .fa-icon {
   color: inherit;
+  background: transparent;
+  border-radius: 0;
 }
 
 .modal-sheet-title {
