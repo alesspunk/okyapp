@@ -104,17 +104,6 @@ body {
   margin-bottom: 0;
 }
 
-.category-homecard-header-with-icon {
-  gap: 8px;
-}
-
-.category-homecard-header-icon {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
 .category-page-pastry-card .homecard-grid {
   row-gap: 16px;
 }
