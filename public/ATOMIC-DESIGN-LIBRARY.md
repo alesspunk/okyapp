@@ -26,7 +26,7 @@ Included here:
 
 Recent additions reflected here:
 - `Brand Item`, `Slider`, `Toast Banners`, `Status Chips`
-- `Middle Card`, `PDP Header`
+- `Middle Card`, `Producto Header`
 - `Homepages` and `PDP Pages`
 
 ---
@@ -47,7 +47,11 @@ Recent additions reflected here:
   - `--info-*`
 
 ### Recent surface and effect tokens
+- `--back-drop`
+- `--card-top`
 - `--card-middle`
+- `--card-bottom`
+- `--separator-border`
 - `--card-shadow`
 - `--pdp-card-shadow`
 - `--border-main`
@@ -75,8 +79,14 @@ export const marsTokens = {
     infoMain: '#2196f3',
   },
   surface: {
+    backDrop: 'rgba(0, 0, 0, 0.4)',
+    cardTop: 'linear-gradient(149.41deg, #FCFCFC 18.83%, #F1F2F5 41%)',
     cardMiddle: 'radial-gradient(50% 50% at 50% 50%, #FFF 0%, #F1F2F5 100%)',
+    cardBottom: 'linear-gradient(180deg, #F1F2F5 0%, #ECEFF8 88.01%)',
     borderMain: '#E0E0E0',
+  },
+  border: {
+    separator: '1px dashed rgba(0, 0, 0, 0.231373)',
   },
   effect: {
     cardShadow: 'drop-shadow(0px 0px 12px rgba(0, 0, 0, 0.1))',
@@ -242,6 +252,34 @@ export function BrandItem({
         </div>
       </div>
     </div>
+  );
+}
+```
+</details>
+
+### Separator
+- Base spec: `272px`
+- Border token: `--separator-border`
+- Optional stretch behavior for full-width containers
+
+<details>
+<summary><strong>Show React snippet</strong></summary>
+
+```tsx
+export function Separator({
+  width = 272,
+  stretch = false,
+}: {
+  width?: number;
+  stretch?: boolean;
+}) {
+  return (
+    <div
+      className={`separator-atom${stretch ? ' is-stretch' : ''}`}
+      style={stretch ? undefined : { width }}
+      role="separator"
+      aria-orientation="horizontal"
+    />
   );
 }
 ```
@@ -438,13 +476,13 @@ export function MiddleCard({
 ### HomeCard
 ### Promo Strip
 ### Summary Box
-### PDP Header
+### Producto Header
 
 <details>
-<summary><strong>Show React snippet (PDP Header)</strong></summary>
+<summary><strong>Show React snippet (Producto Header)</strong></summary>
 
 ```tsx
-export function PDPHeader({
+export function ProductoHeader({
   showPlateu = false,
   plateuVariant = 'State=Productos, Telco=No, Scrolling=No',
   showDiscountRibbon = true,

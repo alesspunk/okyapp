@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Success Page - OKY</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,700&family=Nunito+Sans:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/public/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" href="./stories/mars.css" />
+    <link rel="stylesheet" href="/public/success-page.css" />
+  </head>
+  <body>
+    <main class="success-page-shell" aria-labelledby="success-page-title">
+      <h1 id="success-page-title" class="sr-only">Success Page</h1>
+
+      <div class="success-page-stage">
+        <div class="success-page-underlay" aria-hidden="true">
+          <div class="status-bar">
+            <div>9:41</div>
+            <div class="success-page-status-icons">
+              <i class="fa-regular fa-signal" aria-hidden="true"></i>
+              <i class="fa-regular fa-wifi" aria-hidden="true"></i>
+              <i class="fa-regular fa-battery-full" aria-hidden="true"></i>
+            </div>
+          </div>
+
+          <div class="success-page-underlay-body">
+            <div class="success-page-underlay-header">
+              <button class="header-icon header-icon-light" type="button" aria-label="Regresar">
+                <i class="fa-light fa-arrow-left" aria-hidden="true"></i>
+              </button>
+
+              <div class="header-cart-chip header-cart-full" aria-label="Carrito con 3 productos">
+                <span class="header-cart-count">3</span>
+                <i class="fa-light fa-cart-shopping" aria-hidden="true"></i>
+              </div>
+            </div>
+
+            <div class="success-page-underlay-brand">
+              <div class="brand-item-atom is-medium">
+                <p class="brand-item-label token-product-text">Target</p>
+                <div class="brand-item-frame">
+                  <div class="brand-item-base">
+                    <img src="./images/target.webp" alt="Target" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="success-page-underlay-card">
+              <section class="middle-card-shell is-checkout" aria-label="Detalle principal del producto">
+                <article class="middle-card-molecule is-egift">
+                  <div class="middle-card-content">
+                    <div class="middle-card-main">
+                      <p class="middle-card-title">Target eGift Card</p>
+                      <div class="middle-card-center">
+                        <div class="middle-card-value">
+                          <span class="middle-card-currency">$</span>
+                          <p class="middle-card-amount">40</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="middle-card-footer">
+                      <span class="middle-card-footer-start">Brand Disclaimer</span>
+                      <span class="middle-card-footer-end" aria-hidden="true"></span>
+                      <span class="fa-icon fa-icon-card-use middle-card-link-icon" aria-hidden="true">
+                        <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              </section>
+            </div>
+
+            <button class="btn btn-primary btn-small success-page-underlay-cta" type="button">Ver detalle</button>
+          </div>
+        </div>
+
+        <div class="success-page-scrim" aria-hidden="true"></div>
+
+        <section
+          class="success-page-sheet"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="success-dialog-title"
+        >
+          <div class="success-page-sheet-body">
+            <div class="success-page-sheet-top">
+              <div class="success-page-toast-wrap">
+                <h2 id="success-dialog-title" class="sr-only">Compra exitosa</h2>
+                <article class="toast-banner toast-banner-success success-page-toast">
+                  <span class="fa-icon toast-banner-icon icon-main-success" aria-hidden="true">
+                    <i class="fa-solid fa-circle-check"></i>
+                  </span>
+                  <p class="token-body1 toast-banner-message">Compra exitosa</p>
+                </article>
+              </div>
+
+              <button class="header-icon header-icon-light success-page-close" type="button" aria-label="Cerrar">
+                <i class="fa-light fa-xmark" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <section class="success-page-carousel" aria-label="Carrusel de tarjetas">
+              <div class="success-page-card success-page-card-left" aria-hidden="true">
+                <section class="card-organism" aria-label="Card organism">
+                  <div class="card-organism-stack">
+                    <div class="card-organism-part card-organism-part-top">
+                      <div class="prime-card-shell card-top-shell" data-pen-id="7390:140799">
+                        <article class="prime-card-molecule card-top-molecule is-oky-vales">
+                          <div class="prime-card-top-header">
+                            <img class="prime-card-top-logo" src="./images/logo-card-top.svg" alt="OKY" />
+                            <div class="prime-card-top-header-main">
+                              <span class="prime-card-top-brand token-product-text">Amazon</span>
+                            </div>
+                            <span class="dropdown-flag-sm prime-card-top-flag" aria-hidden="true">
+                              <img src="./images/usa-flag.png" alt="USA flag" />
+                            </span>
+                          </div>
+
+                          <div class="prime-card-top-body">
+                            <div class="prime-card-top-hero is-oky-vales">
+                              <img src="./images/amazon.png" alt="Amazon gift card" />
+                            </div>
+                          </div>
+
+                          <div class="prime-card-top-footer is-single">
+                            <span class="prime-card-top-footer-link is-single">
+                              <span class="prime-card-top-footer-text">Brand Disclaimer</span>
+                              <span class="fa-icon fa-icon-card-use" aria-hidden="true">
+                                <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                              </span>
+                            </span>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-middle">
+                      <div class="middle-card-shell is-pdp" data-pen-id="6991:146335">
+                        <article class="middle-card-molecule is-egift">
+                          <div class="middle-card-content">
+                            <div class="middle-card-main">
+                              <p class="middle-card-title">Amazon eGift Card</p>
+                              <div class="middle-card-center">
+                                <div class="middle-card-value">
+                                  <span class="middle-card-currency">$</span>
+                                  <p class="middle-card-amount">50</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="middle-card-footer">
+                              <span class="middle-card-footer-start">In Store, Online</span>
+                              <span class="middle-card-footer-end">Redemption Instructions</span>
+                              <span class="fa-icon fa-icon-card-use middle-card-link-icon" aria-hidden="true">
+                                <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                              </span>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-bottom">
+                      <div class="prime-card-shell card-bottom-shell" data-pen-id="7390:140803">
+                        <article class="prime-card-molecule card-bottom-molecule is-oky-vales">
+                          <div class="prime-card-bottom-content">
+                            <div class="prime-card-bottom-main">
+                              <div class="prime-card-bottom-line">
+                                <div class="prime-card-bottom-line-header">
+                                  <span class="prime-card-bottom-line-label">Redemption Code</span>
+                                  <span class="fa-icon fa-icon-card-use prime-card-copy-icon" aria-hidden="true">
+                                    <i class="fa-thin fa-copy"></i>
+                                  </span>
+                                </div>
+                                <p class="prime-card-bottom-line-value">9905839250955511</p>
+                              </div>
+                            </div>
+
+                            <div class="prime-card-bottom-side">
+                              <div class="prime-card-bottom-expiry">&nbsp;</div>
+                              <div class="prime-card-bottom-button-slot">
+                                <button class="btn btn-primary prime-card-bottom-help-btn has-label" type="button">
+                                  <span class="prime-card-bottom-help-icon" aria-hidden="true">
+                                    <img src="./images/whatsapp-icon-card-bottom.png" alt="" />
+                                  </span>
+                                  <span class="prime-card-bottom-help-label">Help</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <div class="success-page-card success-page-card-center">
+                <section class="card-organism" aria-label="Card organism">
+                  <div class="card-organism-stack">
+                    <div class="card-organism-part card-organism-part-top">
+                      <div class="prime-card-shell card-top-shell" data-pen-id="7390:140799">
+                        <article class="prime-card-molecule card-top-molecule is-oky-vales">
+                          <div class="prime-card-top-header">
+                            <img class="prime-card-top-logo" src="./images/logo-card-top.svg" alt="OKY" />
+                            <div class="prime-card-top-header-main">
+                              <span class="prime-card-top-brand token-product-text">Apple</span>
+                            </div>
+                            <span class="dropdown-flag-sm prime-card-top-flag" aria-hidden="true">
+                              <img src="./images/usa-flag.png" alt="USA flag" />
+                            </span>
+                          </div>
+
+                          <div class="prime-card-top-body">
+                            <div class="prime-card-top-hero is-oky-vales">
+                              <img src="./images/apple.webp" alt="Apple gift card" />
+                            </div>
+                          </div>
+
+                          <div class="prime-card-top-footer is-single">
+                            <span class="prime-card-top-footer-link is-single">
+                              <span class="prime-card-top-footer-text">Brand Disclaimer</span>
+                              <span class="fa-icon fa-icon-card-use" aria-hidden="true">
+                                <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                              </span>
+                            </span>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-middle">
+                      <div class="middle-card-shell is-pdp" data-pen-id="6991:146335">
+                        <article class="middle-card-molecule is-egift">
+                          <div class="middle-card-content">
+                            <div class="middle-card-main">
+                              <p class="middle-card-title">Target eGift Card</p>
+                              <div class="middle-card-center">
+                                <div class="middle-card-value">
+                                  <span class="middle-card-currency">$</span>
+                                  <p class="middle-card-amount">50</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="middle-card-footer">
+                              <span class="middle-card-footer-start">In Store, Online</span>
+                              <span class="middle-card-footer-end">Redemption Instructions</span>
+                              <span class="fa-icon fa-icon-card-use middle-card-link-icon" aria-hidden="true">
+                                <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                              </span>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-bottom">
+                      <div class="prime-card-shell card-bottom-shell" data-pen-id="7390:140803">
+                        <article class="prime-card-molecule card-bottom-molecule is-oky-vales">
+                          <div class="prime-card-bottom-content">
+                            <div class="prime-card-bottom-main">
+                              <div class="prime-card-bottom-line">
+                                <div class="prime-card-bottom-line-header">
+                                  <span class="prime-card-bottom-line-label">Redemption Code</span>
+                                  <span class="fa-icon fa-icon-card-use prime-card-copy-icon" aria-hidden="true">
+                                    <i class="fa-thin fa-copy"></i>
+                                  </span>
+                                </div>
+                                <p class="prime-card-bottom-line-value">9905839250955525</p>
+                              </div>
+                            </div>
+
+                            <div class="prime-card-bottom-side">
+                              <div class="prime-card-bottom-expiry">&nbsp;</div>
+                              <div class="prime-card-bottom-button-slot">
+                                <button class="btn btn-primary prime-card-bottom-help-btn has-label" type="button">
+                                  <span class="prime-card-bottom-help-icon" aria-hidden="true">
+                                    <img src="./images/whatsapp-icon-card-bottom.png" alt="" />
+                                  </span>
+                                  <span class="prime-card-bottom-help-label">Help</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <div class="success-page-card success-page-card-right" aria-hidden="true">
+                <section class="card-organism" aria-label="Card organism">
+                  <div class="card-organism-stack">
+                    <div class="card-organism-part card-organism-part-top">
+                      <div class="prime-card-shell card-top-shell" data-pen-id="7390:140799">
+                        <article class="prime-card-molecule card-top-molecule is-oky-vales">
+                          <div class="prime-card-top-header">
+                            <img class="prime-card-top-logo" src="./images/logo-card-top.svg" alt="OKY" />
+                            <div class="prime-card-top-header-main">
+                              <span class="prime-card-top-brand token-product-text">Starbucks</span>
+                            </div>
+                            <span class="dropdown-flag-sm prime-card-top-flag" aria-hidden="true">
+                              <img src="./images/usa-flag.png" alt="USA flag" />
+                            </span>
+                          </div>
+
+                          <div class="prime-card-top-body">
+                            <div class="prime-card-top-hero is-oky-vales">
+                              <img src="./images/starbucks.webp" alt="Starbucks gift card" />
+                            </div>
+                          </div>
+
+                          <div class="prime-card-top-footer is-single">
+                            <span class="prime-card-top-footer-link is-single">
+                              <span class="prime-card-top-footer-text">Brand Disclaimer</span>
+                              <span class="fa-icon fa-icon-card-use" aria-hidden="true">
+                                <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                              </span>
+                            </span>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-middle">
+                      <div class="middle-card-shell is-pdp" data-pen-id="6991:146335">
+                        <article class="middle-card-molecule is-egift">
+                          <div class="middle-card-content">
+                            <div class="middle-card-main">
+                              <p class="middle-card-title">Starbucks eGift Card</p>
+                              <div class="middle-card-center">
+                                <div class="middle-card-value">
+                                  <span class="middle-card-currency">$</span>
+                                  <p class="middle-card-amount">25</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="middle-card-footer">
+                              <span class="middle-card-footer-start">In Store, Online</span>
+                              <span class="middle-card-footer-end">Redemption Instructions</span>
+                              <span class="fa-icon fa-icon-card-use middle-card-link-icon" aria-hidden="true">
+                                <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                              </span>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-bottom">
+                      <div class="prime-card-shell card-bottom-shell" data-pen-id="7390:140803">
+                        <article class="prime-card-molecule card-bottom-molecule is-oky-vales">
+                          <div class="prime-card-bottom-content">
+                            <div class="prime-card-bottom-main">
+                              <div class="prime-card-bottom-line">
+                                <div class="prime-card-bottom-line-header">
+                                  <span class="prime-card-bottom-line-label">Redemption Code</span>
+                                  <span class="fa-icon fa-icon-card-use prime-card-copy-icon" aria-hidden="true">
+                                    <i class="fa-thin fa-copy"></i>
+                                  </span>
+                                </div>
+                                <p class="prime-card-bottom-line-value">9905839250955539</p>
+                              </div>
+                            </div>
+
+                            <div class="prime-card-bottom-side">
+                              <div class="prime-card-bottom-expiry">&nbsp;</div>
+                              <div class="prime-card-bottom-button-slot">
+                                <button class="btn btn-primary prime-card-bottom-help-btn has-label" type="button">
+                                  <span class="prime-card-bottom-help-icon" aria-hidden="true">
+                                    <img src="./images/whatsapp-icon-card-bottom.png" alt="" />
+                                  </span>
+                                  <span class="prime-card-bottom-help-label">Help</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </section>
+
+            <div class="carrusel-dots-wrap success-page-dots" aria-hidden="true">
+              <div class="carrusel-dots">
+                <span class="carrusel-dot is-active"></span>
+                <span class="carrusel-dot"></span>
+              </div>
+            </div>
+          </div>
+
+          <footer class="success-page-footer">
+            <button class="btn btn-outlined btn-large success-page-share-btn" type="button">
+              <span class="fa-icon success-page-share-icon" aria-hidden="true">
+                <i class="fa-brands fa-whatsapp"></i>
+              </span>
+              <span class="success-page-share-label">Avísale a tu familiar</span>
+            </button>
+          </footer>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

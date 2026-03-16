@@ -15,6 +15,7 @@
       --surface: #ffffff;
       --bg: #f5f6fa;
       --divider: rgba(0, 0, 0, 0.12);
+      --separator-border: rgba(0, 0, 0, 0.231373);
       --text: rgba(0, 0, 0, 0.87);
       --muted: rgba(0, 0, 0, 0.6);
       --code-bg: #13161d;
@@ -252,7 +253,7 @@
           <h4>Recent additions reflected here</h4>
           <ul>
             <li><code>Brand Item</code>, <code>Slider</code>, <code>Toast Banners</code>, <code>Status Chips</code></li>
-            <li><code>Middle Card</code>, <code>PDP Header</code></li>
+            <li><code>Middle Card</code>, <code>Producto Header</code></li>
             <li><code>PDP Pages</code> and updated <code>Homepages</code></li>
           </ul>
         </div>
@@ -272,7 +273,11 @@
       <div class="component">
         <h4>Recent surface and effect tokens</h4>
         <ul>
+          <li><code>--back-drop</code>: scrim / modal backdrop surface</li>
+          <li><code>--card-top</code>: top gradient surface with 24px radius and top-side border treatment</li>
           <li><code>--card-middle</code>: radial background used by <code>Middle Card</code></li>
+          <li><code>--card-bottom</code>: bottom gradient surface with 16px radius and bottom-side border treatment</li>
+          <li><code>--separator-border</code>: dashed border token for separators and guide wrappers</li>
           <li><code>--card-shadow</code>: reusable card shadow token</li>
           <li><code>--pdp-card-shadow</code>: PDP shell effect token</li>
           <li><code>--border-main</code>: neutral border used by card-like shells</li>
@@ -289,8 +294,14 @@
     infoMain: '#2196f3',
   },
   surface: {
+    backDrop: 'rgba(0, 0, 0, 0.4)',
+    cardTop: 'linear-gradient(149.41deg, #FCFCFC 18.83%, #F1F2F5 41%)',
     cardMiddle: 'radial-gradient(50% 50% at 50% 50%, #FFF 0%, #F1F2F5 100%)',
+    cardBottom: 'linear-gradient(180deg, #F1F2F5 0%, #ECEFF8 88.01%)',
     borderMain: '#E0E0E0',
+  },
+  border: {
+    separator: '1px dashed rgba(0, 0, 0, 0.231373)',
   },
   effect: {
     cardShadow: 'drop-shadow(0px 0px 12px rgba(0, 0, 0, 0.1))',
@@ -489,6 +500,34 @@
         </div>
       </div>
     </div>
+  );
+}</code></pre>
+        </details>
+      </div>
+
+      <div class="component">
+        <h4>Separator</h4>
+        <ul>
+          <li>Base spec uses <code>272px</code> width and <code>1px dashed</code> stroke.</li>
+          <li>Border color is tokenized as <code>--separator-border</code>.</li>
+          <li>Can stretch to container width when used inside fluid layouts.</li>
+        </ul>
+        <details>
+          <summary>Show React snippet</summary>
+          <pre><code>export function Separator({
+  width = 272,
+  stretch = false,
+}: {
+  width?: number;
+  stretch?: boolean;
+}) {
+  return (
+    <div
+      className={`separator-atom${stretch ? ' is-stretch' : ''}`}
+      style={stretch ? undefined : { width }}
+      role="separator"
+      aria-orientation="horizontal"
+    />
   );
 }</code></pre>
         </details>
@@ -879,15 +918,15 @@
       </div>
 
       <div class="component">
-        <h4>PDP Header</h4>
+        <h4>Producto Header</h4>
         <ul>
           <li>Stacks <code>Page Header</code>, <code>Brand Item</code>, optional <code>Plateu</code>, <code>Middle Card</code>, and <code>Input / Dinamic</code>.</li>
           <li>Brand overlaps the header by <code>55px</code>.</li>
           <li>Middle Card can mount an optional discount ribbon.</li>
         </ul>
         <details>
-          <summary>Show React snippet</summary>
-          <pre><code>export function PDPHeader({
+          <summary>Show React snippet (Producto Header)</summary>
+          <pre><code>export function ProductoHeader({
   showPlateu = false,
   plateuVariant = 'State=Productos, Telco=No, Scrolling=No',
   showDiscountRibbon = true,

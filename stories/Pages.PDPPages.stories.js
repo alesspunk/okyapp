@@ -119,7 +119,7 @@ export default {
     docs: {
       description: {
         component:
-          "Sección Pages para navegar entre 4 páginas PDP HTML. Cada composición usa únicamente componentes, variantes y tokens ya existentes del sistema: `PDP Header`, `Page Header`, `Brand Item`, `Middle Card`, `Input / Dinamic`, `Slider`, `Summary Box`, `Navigation` y `Plateu`.",
+          "Sección Pages para navegar entre 4 páginas PDP HTML. Cada composición usa únicamente componentes, variantes y tokens ya existentes del sistema: `Producto Header`, `Page Header`, `Brand Item`, `Middle Card`, `Input / Dinamic`, `Slider`, `Summary Box`, `Navigation` y `Plateu`.",
       },
     },
   },

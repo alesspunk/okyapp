@@ -13,12 +13,44 @@ const coreSwatches = [
 
 const surfaceTokens = [
   {
+    name: "Card Top",
+    css: "--card-top",
+    type: "gradient",
+    value: "linear-gradient(149.41deg, #FCFCFC 18.83%, #F1F2F5 41%)",
+    preview: "linear-gradient(149.41deg, #FCFCFC 18.83%, #F1F2F5 41%)",
+    note: "Surface superior de card. Border 1px 1px 0 1px, color #E0E0E0 y radius 24px.",
+  },
+  {
     name: "Card Middle",
     css: "--card-middle",
     type: "gradient",
     value: "radial-gradient(50% 50% at 50% 50%, #FFF 0%, #F1F2F5 100%)",
     preview: "radial-gradient(50% 50% at 50% 50%, #FFF 0%, #F1F2F5 100%)",
     note: "Surface token usado por Middle Card.",
+  },
+  {
+    name: "Card Bottom",
+    css: "--card-bottom",
+    type: "gradient",
+    value: "linear-gradient(180deg, #F1F2F5 0%, #ECEFF8 88.01%)",
+    preview: "linear-gradient(180deg, #F1F2F5 0%, #ECEFF8 88.01%)",
+    note: "Surface inferior de card. Border 0 1px 1px 1px, color #E0E0E0 y radius 16px.",
+  },
+  {
+    name: "Back Drop",
+    css: "--back-drop",
+    type: "color",
+    value: "rgba(0, 0, 0, 0.4)",
+    preview: "rgba(0, 0, 0, 0.4)",
+    note: "Surface token para scrims, overlays y fondos de modal.",
+  },
+  {
+    name: "Separator Border",
+    css: "--separator-border",
+    type: "border",
+    value: "1px dashed rgba(0, 0, 0, 0.231373)",
+    preview: "#ffffff",
+    note: "Token de borde para separators dashed y contenedores guía.",
   },
   {
     name: "Card Shadow",
@@ -153,7 +185,7 @@ export default {
     docs: {
       description: {
         component:
-          "Core design tokens: color palette, semantic palettes, surface/effect tokens and full typography scale (30 tokens).",
+          "Core design tokens: color palette, semantic palettes, surface/effect tokens and full typography scale (30 tokens). Incluye la familia `Card Top`, `Card Middle`, `Card Bottom`, `Back Drop` y `Separator Border`.",
       },
     },
   },
@@ -235,7 +267,13 @@ export const SurfaceTokens = {
                   height:72px;
                   border-radius:16px;
                   background:${token.preview};
-                  ${token.type === "effect" ? `filter:${token.value}; border:1px solid rgba(0,0,0,0.08);` : ""}
+                  ${
+                    token.type === "effect"
+                      ? `filter:${token.value}; border:1px solid rgba(0,0,0,0.08);`
+                      : token.type === "border"
+                        ? `border:${token.value};`
+                        : ""
+                  }
                 "
               ></div>
               <div>

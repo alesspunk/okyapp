@@ -178,7 +178,7 @@ export const PageHeaderPlayground = {
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
           ${
             variant === "no-title"
-              ? "Esta variante oculta el título central para usos como PDP Header."
+              ? "Esta variante oculta el título central para usos como Producto Header."
               : 'Recomendado: máximo 11 caracteres en título (base: "Modal Title").'
           }
         </div>
