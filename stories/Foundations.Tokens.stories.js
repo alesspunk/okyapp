@@ -18,7 +18,7 @@ const surfaceTokens = [
     type: "gradient",
     value: "linear-gradient(149.41deg, #FCFCFC 18.83%, #F1F2F5 41%)",
     preview: "linear-gradient(149.41deg, #FCFCFC 18.83%, #F1F2F5 41%)",
-    note: "Surface superior de card. Border 1px 1px 0 1px, color #E0E0E0 y radius 24px.",
+    note: "Surface superior de card. Border 1px 1px 0 1px, color #E0E0E0 y radius 16px.",
   },
   {
     name: "Card Middle",

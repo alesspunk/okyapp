@@ -161,7 +161,8 @@ body {
   letter-spacing: 0.4px;
 }
 
-.token-code {
+.token-code,
+.prime-card-bottom-line-value {
   font-family: "Inter", sans-serif;
   font-style: italic;
   font-size: 20px;
@@ -170,8 +171,10 @@ body {
   letter-spacing: 2px;
   text-transform: uppercase;
   font-feature-settings: "zero" on;
-  font-variant-numeric: slashed-zero;
+  font-variant-numeric: lining-nums slashed-zero;
   font-variation-settings: "slnt" -10;
+  font-synthesis: none;
+  white-space: nowrap;
 }
 
 .btn {
@@ -4274,7 +4277,7 @@ body {
   border-style: solid;
   border-color: var(--prime-card-border);
   border-width: 1px 1px 0;
-  border-radius: 24px;
+  border-radius: 16px;
   background: var(--card-top);
 }
 
@@ -4413,6 +4416,7 @@ body {
 .card-bottom-molecule {
   min-height: 185px;
   display: flex;
+  position: relative;
   border-style: solid;
   border-color: var(--prime-card-border);
   border-width: 0 1px 1px;
@@ -4423,13 +4427,13 @@ body {
 .prime-card-bottom-content {
   width: 100%;
   min-height: 184px;
-  display: flex;
-  align-items: stretch;
-  padding: 8px 10px 16px 20px;
+  display: block;
+  position: relative;
+  padding: 8px 20px 16px;
 }
 
 .prime-card-bottom-main {
-  flex: 1 1 auto;
+  width: 100%;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -4438,13 +4442,15 @@ body {
 }
 
 .prime-card-bottom-side {
-  width: 120px;
-  flex: 0 0 120px;
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  bottom: 16px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: space-between;
-  padding-top: 1px;
+  padding-top: 0;
 }
 
 .prime-card-bottom-expiry {
@@ -4461,7 +4467,7 @@ body {
 }
 
 .prime-card-bottom-button-slot {
-  width: 100%;
+  width: auto;
   display: flex;
   justify-content: flex-end;
 }
@@ -4497,11 +4503,15 @@ body {
 
 .prime-card-bottom-line-value {
   margin: 0;
+  width: 243px;
+  max-width: 100%;
   color: #552588;
   min-height: 24px;
   display: flex;
   align-items: flex-end;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .prime-card-bottom-help-btn {
