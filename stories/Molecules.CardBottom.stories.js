@@ -27,7 +27,7 @@ export default {
           "Usa el surface token **Card Bottom**, conserva el mismo shadow **PDP Card**, mantiene ancho PDP (`342px`) y reutiliza `fa-icon-card-use` para acciones tipo copy. " +
           "Incluye las cinco variantes vistas en Figma: **Default**, **OKY Vales**, **Oh Gif Card**, **Gift Card** y **Telco**. " +
           "El botón lateral usa el asset local `whatsapp-icon-card-bottom.png` y permite switch para mostrar label o dejarlo solo con icono. " +
-          "No existe aún un token tipográfico explícito para `Card Code` (Inter 20 / 784 / tracking 2), así que se implementa localmente para respetar Figma sin introducir tokens nuevos.",
+          "Los valores de credenciales usan el token tipográfico **CODE** con `Inter` desde Google Fonts, tracking `2px` y `slashed zero` activo.",
       },
     },
   },

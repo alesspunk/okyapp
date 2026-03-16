@@ -163,7 +163,7 @@ function renderBottomLine(line) {
         <span class="prime-card-bottom-line-label">${line.label}</span>
         ${line.copyable ? renderCopyIcon() : ""}
       </div>
-      <p class="prime-card-bottom-line-value">${line.value}</p>
+      <p class="prime-card-bottom-line-value token-code">${line.value}</p>
     </div>
   `;
 }

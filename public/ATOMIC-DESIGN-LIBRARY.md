@@ -60,6 +60,7 @@ Recent additions reflected here:
 - `productText`
 - `subtitle2`
 - `H2`
+- `CODE`
 - `CARDLABEL`
 - `body1`
 - `caption`

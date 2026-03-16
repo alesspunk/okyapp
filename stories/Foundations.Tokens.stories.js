@@ -131,7 +131,7 @@ const typographyTokens = [
   { token: "H5",          size: "24px", weight: "700", style: "",       cas: "",          ls: "0px",    lh: "1.334" },
   { token: "H6",          size: "20px", weight: "700", style: "",       cas: "",          ls: "0.15px", lh: "1.6"   },
   // ── 20px ────────────────────────────────────────────────────
-  { token: "CODE",        size: "20px", weight: "800", style: "",       cas: "UPPERCASE", ls: "2px",    lh: "1.5"   },
+  { token: "CODE",        size: "20px", weight: "784", style: "italic", cas: "UPPERCASE", ls: "2px",    lh: "24px", family: "Inter", featureSettings: "\"zero\" on", numericVariant: "slashed-zero", variationSettings: "\"slnt\" -10", sample: "9905830250955525" },
   { token: "buttonLg",   size: "20px", weight: "700", style: "",       cas: "",          ls: "0.4px",  lh: "1.75"  },
   // ── 16px ────────────────────────────────────────────────────
   { token: "price",       size: "16px", weight: "900", style: "",       cas: "",          ls: "0.5px",  lh: "1.5"   },
@@ -166,7 +166,12 @@ const typographyTokens = [
 function previewStyle(t) {
   const size = Math.min(parseInt(t.size), 28);
   const textTransform = t.cas === "UPPERCASE" ? "uppercase" : "none";
-  const family = t.family === "Lato" ? '"Lato",sans-serif' : '"Nunito Sans",sans-serif';
+  const family =
+    t.family === "Lato"
+      ? '"Lato",sans-serif'
+      : t.family === "Inter"
+        ? '"Inter",sans-serif'
+        : '"Nunito Sans",sans-serif';
   return [
     `font-size:${size}px`,
     `font-weight:${t.weight}`,
@@ -175,6 +180,9 @@ function previewStyle(t) {
     `line-height:${t.lh}`,
     `text-transform:${textTransform}`,
     `font-family:${family}`,
+    t.featureSettings ? `font-feature-settings:${t.featureSettings}` : "",
+    t.numericVariant ? `font-variant-numeric:${t.numericVariant}` : "",
+    t.variationSettings ? `font-variation-settings:${t.variationSettings}` : "",
   ].join(";");
 }
 
@@ -296,7 +304,7 @@ export const TypographyScale = {
   render: () => `
     <div class="mars-story">
       <h3 style="margin:0 0 4px;color:var(--primary-main)">Typography Tokens</h3>
-      <p class="mars-subtitle">Nunito Sans + Lato (text) · Material Icons Outlined (icons) — 30 tokens.</p>
+      <p class="mars-subtitle">Nunito Sans + Lato + Inter (text) · Material Icons Outlined (icons) — 30 tokens.</p>
       <table class="type-table">
         <thead>
           <tr>
@@ -320,7 +328,7 @@ export const TypographyScale = {
                 ${
                   t.isIcon
                     ? `<span class="material-icons-outlined" style="font-size:${t.size};color:var(--text-primary)">home</span>`
-                    : `<span class="type-preview" style="${previewStyle(t)}">${t.family || "Nunito Sans"}</span>`
+                    : `<span class="type-preview" style="${previewStyle(t)}">${t.sample || t.family || "Nunito Sans"}</span>`
                 }
               </td>
               <td>${t.size}</td>

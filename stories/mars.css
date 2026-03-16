@@ -161,6 +161,19 @@ body {
   letter-spacing: 0.4px;
 }
 
+.token-code {
+  font-family: "Inter", sans-serif;
+  font-style: italic;
+  font-size: 20px;
+  font-weight: 784;
+  line-height: 24px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-feature-settings: "zero" on;
+  font-variant-numeric: slashed-zero;
+  font-variation-settings: "slnt" -10;
+}
+
 .btn {
   font-family: "Nunito Sans", sans-serif;
   border: none;
@@ -4485,13 +4498,9 @@ body {
 .prime-card-bottom-line-value {
   margin: 0;
   color: #552588;
-  font-family: "Inter", sans-serif;
-  font-size: 20px;
-  font-weight: 784;
-  line-height: 1;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  font-feature-settings: "zero" 1;
+  min-height: 24px;
+  display: flex;
+  align-items: flex-end;
   overflow-wrap: anywhere;
 }
 
@@ -4561,10 +4570,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.card-organism.is-spaced .card-organism-stack {
-  gap: 8px;
+  gap: 0;
 }
 
 .card-organism-part {
@@ -4577,10 +4583,6 @@ body {
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 8px 0;
-}
-
-.card-organism.is-spaced .card-organism-separator-slot {
   padding: 0;
 }
 
