@@ -2376,7 +2376,7 @@ body {
   width: 100px;
   height: 100px;
   border-radius: 16px;
-  border: 1px solid var(--border-main);
+  border: 0;
   overflow: hidden;
   background: var(--white);
   flex-shrink: 0;

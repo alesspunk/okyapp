@@ -156,6 +156,8 @@ body {
 
 .plp-page-list .list-plp-image {
   border-radius: 16px;
+  border: 0;
+  box-shadow: none;
 }
 
 .plp-page-list .list-plp-divider {

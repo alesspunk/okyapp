@@ -175,7 +175,7 @@ body {
   display: flex;
   justify-content: center;
   margin-top: auto;
-  padding-top: 0;
+  padding-top: 20px;
 }
 
 .checkout-summary-wrap .summary-box {
@@ -208,5 +208,5 @@ body {
 }
 
 .checkout-page-shell.is-mockup .checkout-summary-wrap {
-  padding-top: 2px;
+  padding-top: 20px;
 }
