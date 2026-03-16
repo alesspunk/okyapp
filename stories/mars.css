@@ -1800,8 +1800,24 @@ body {
 }
 
 .brand-item-atom.is-big {
-  width: 343px;
-  height: 215px;
+  --brand-item-card-width: 343px;
+  --brand-item-card-height: 215px;
+  --brand-item-card-radius: 16px;
+  --brand-item-card-image-padding: 28px 40px;
+  --brand-item-card-inner-radius: 15px;
+  width: var(--brand-item-card-width);
+  height: var(--brand-item-card-height);
+  gap: 0;
+}
+
+.brand-item-atom.is-medium {
+  --brand-item-card-width: 217px;
+  --brand-item-card-height: 136px;
+  --brand-item-card-radius: 12px;
+  --brand-item-card-image-padding: 18px 26px;
+  --brand-item-card-inner-radius: 11px;
+  width: var(--brand-item-card-width);
+  height: var(--brand-item-card-height);
   gap: 0;
 }
 
@@ -1826,10 +1842,11 @@ body {
   border-radius: 6px;
 }
 
-.brand-item-atom.is-big .brand-item-frame {
-  width: 343px;
-  height: 215px;
-  border-radius: 16px;
+.brand-item-atom.is-big .brand-item-frame,
+.brand-item-atom.is-medium .brand-item-frame {
+  width: var(--brand-item-card-width);
+  height: var(--brand-item-card-height);
+  border-radius: var(--brand-item-card-radius);
   overflow: visible;
   filter: var(--card-shadow);
 }
@@ -1846,11 +1863,12 @@ body {
   overflow: hidden;
 }
 
-.brand-item-atom.is-big .brand-item-base {
-  width: 343px;
-  height: 215px;
+.brand-item-atom.is-big .brand-item-base,
+.brand-item-atom.is-medium .brand-item-base {
+  width: var(--brand-item-card-width);
+  height: var(--brand-item-card-height);
   border: 1px solid var(--border-main);
-  border-radius: 16px;
+  border-radius: var(--brand-item-card-radius);
   box-sizing: border-box;
   position: relative;
 }
@@ -1861,18 +1879,20 @@ body {
   object-fit: contain;
 }
 
-.brand-item-atom.is-big .brand-item-base img {
+.brand-item-atom.is-big .brand-item-base img,
+.brand-item-atom.is-medium .brand-item-base img {
   object-fit: contain;
-  padding: 28px 40px;
+  padding: var(--brand-item-card-image-padding);
   box-sizing: border-box;
 }
 
-.brand-item-atom.is-big .brand-item-base::after {
+.brand-item-atom.is-big .brand-item-base::after,
+.brand-item-atom.is-medium .brand-item-base::after {
   content: "";
   position: absolute;
   inset: 1px;
   border: 2px solid #ffffff;
-  border-radius: 15px;
+  border-radius: var(--brand-item-card-inner-radius);
   pointer-events: none;
 }
 
@@ -1885,6 +1905,70 @@ body {
 
 .brand-item-grid-big {
   grid-template-columns: repeat(auto-fit, minmax(343px, 1fr));
+}
+
+.brand-item-grid-medium {
+  grid-template-columns: repeat(auto-fit, minmax(217px, 1fr));
+}
+
+/* -- Brand Carrousel (Organism) ----------------------- */
+.brand-carrousel-story-shell {
+  width: 100%;
+  overflow-x: auto;
+  padding: 10px 0 4px;
+}
+
+.brand-carrousel-organism {
+  width: max-content;
+  min-width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 4px 20px 12px;
+  box-sizing: border-box;
+}
+
+.brand-carrousel-track {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 24px;
+}
+
+.brand-carrousel-side,
+.brand-carrousel-center-card {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-carrousel-side {
+  width: 217px;
+}
+
+.brand-carrousel-center {
+  width: 342px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.brand-carrousel-side,
+.brand-carrousel-center-card {
+  min-height: 194px;
+}
+
+.brand-carrousel-center-card {
+  width: 100%;
+}
+
+.brand-carrousel-center .middle-card-shell {
+  width: 342px;
+  max-width: none;
+}
+
+.brand-carrousel-cta {
+  margin-top: 10px;
 }
 
 /* ── Font Awesome compatibility (kit custom + local FA6 pro) ── */

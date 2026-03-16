@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout Mockup - OKY</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,700&family=Nunito+Sans:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/public/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" href="/public/fontawesome-kit/css/custom-icons.min.css" />
+    <link rel="stylesheet" href="./stories/mars.css" />
+    <link rel="stylesheet" href="/public/checkout-pages.css" />
+  </head>
+  <body>
+    <main class="checkout-page-shell is-mockup" aria-labelledby="checkout-mockup-title">
+      <div class="checkout-page-scroll">
+        <header class="checkout-page-top" aria-label="Encabezado de checkout">
+          <h1 id="checkout-mockup-title" class="sr-only">Checkout mockup de gift card</h1>
+          <div class="status-bar">
+            <div>9:41</div>
+            <div class="checkout-page-status-icons">
+              <i class="fa-regular fa-signal" aria-hidden="true"></i>
+              <i class="fa-regular fa-wifi" aria-hidden="true"></i>
+              <i class="fa-regular fa-battery-full" aria-hidden="true"></i>
+            </div>
+          </div>
+
+          <div class="checkout-page-header-wrap">
+            <div class="page-header-screen checkout-page-header">
+              <div class="header-icon header-icon-light"><i class="fa-light fa-arrow-left icon-medium" aria-hidden="true"></i></div>
+              <div class="page-header-title page-header-title-empty" aria-hidden="true"></div>
+              <button class="checkout-country-switch" type="button" aria-label="País actual GT">
+                <span>GT</span>
+                <i class="fa-light fa-chevron-right" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="header-cart-chip header-cart-full checkout-page-cart-chip" aria-label="Carrito con 3 productos">
+              <span class="header-cart-count">3</span>
+              <i class="fa-light fa-cart-shopping" aria-hidden="true"></i>
+            </div>
+          </div>
+        </header>
+
+        <section class="checkout-page-main">
+          <div class="checkout-brand-carrousel-shell">
+            <section class="brand-carrousel-organism checkout-brand-carrousel" aria-label="Brand Carrousel">
+              <div class="checkout-brand-slot">
+                <div class="brand-item-atom is-with-label">
+                  <p class="brand-item-label token-product-text">Target</p>
+                  <div class="brand-item-frame">
+                    <div class="brand-item-base">
+                      <img src="./images/target.webp" alt="Target" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="brand-carrousel-track">
+                <div class="brand-carrousel-side brand-carrousel-side-left">
+                  <div class="brand-item-atom is-medium">
+                    <div class="brand-item-frame">
+                      <div class="brand-item-base">
+                        <img src="./images/amazon.png" alt="Amazon" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="brand-carrousel-center">
+                  <div class="brand-carrousel-center-card">
+                    <section class="middle-card-shell is-checkout" aria-label="Detalle principal del producto" data-pen-id="6991:146335">
+                      <article class="middle-card-molecule is-egift">
+                        <div class="middle-card-content">
+                          <div class="middle-card-main">
+                            <p class="middle-card-title">Target E-Gift Card</p>
+                            <div class="middle-card-center">
+                              <div class="middle-card-value">
+                                <span class="middle-card-currency">$</span>
+                                <p class="middle-card-amount">40</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="middle-card-footer">
+                            <span class="middle-card-footer-start">Brand Disclaimer</span>
+                            <span class="middle-card-footer-end" aria-hidden="true"></span>
+                            <span class="fa-icon fa-icon-card-use middle-card-link-icon" aria-hidden="true">
+                              <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                            </span>
+                          </div>
+                        </div>
+                      </article>
+                    </section>
+                  </div>
+                  <button class="btn btn-primary btn-small brand-carrousel-cta" type="button">Ver detalle</button>
+                </div>
+
+                <div class="brand-carrousel-side brand-carrousel-side-right">
+                  <div class="brand-item-atom is-medium">
+                    <div class="brand-item-frame">
+                      <div class="brand-item-base">
+                        <img src="./images/apple.webp" alt="Apple" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <section class="checkout-field-block" aria-labelledby="checkout-mockup-recipient-title">
+            <p id="checkout-mockup-recipient-title" class="checkout-field-label">¿Para quién es?</p>
+            <div class="checkout-dual-input-row">
+              <div class="input-wrapper">
+                <input
+                  id="checkout-mockup-recipient-name"
+                  class="input-field"
+                  type="text"
+                  name="recipient-name"
+                  value="Aracely"
+                  aria-labelledby="checkout-mockup-recipient-name-label"
+                />
+                <label id="checkout-mockup-recipient-name-label" class="input-label" for="checkout-mockup-recipient-name">Nombre</label>
+              </div>
+
+              <div class="input-wrapper">
+                <input
+                  id="checkout-mockup-recipient-phone"
+                  class="input-field"
+                  type="tel"
+                  inputmode="tel"
+                  name="recipient-phone"
+                  value="+502 6814-9122"
+                  aria-labelledby="checkout-mockup-recipient-phone-label"
+                />
+                <label id="checkout-mockup-recipient-phone-label" class="input-label" for="checkout-mockup-recipient-phone">Teléfono</label>
+              </div>
+            </div>
+          </section>
+
+          <section class="checkout-field-block" aria-labelledby="checkout-mockup-payment-title">
+            <p id="checkout-mockup-payment-title" class="checkout-field-label">Método de pago</p>
+            <div class="checkout-payment-card">
+              <span class="checkout-payment-media" aria-hidden="true">
+                <img src="./images/Saldo%20Card.png" alt="" />
+              </span>
+              <span class="checkout-payment-copy">Saldo OKY</span>
+              <span class="chip-ds checkout-payment-chip">$50.50</span>
+              <button class="checkout-payment-action" type="button" aria-label="Más opciones de pago">
+                <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+              </button>
+            </div>
+          </section>
+
+          <section class="checkout-promo-wrap" aria-label="Código promocional">
+            <div class="promo-code-molecule" data-state="entered">
+              <span class="promo-code-leading" aria-hidden="true">
+                <img src="./images/PROMOS@2x.webp" alt="" />
+              </span>
+              <p class="promo-code-copy"><span class="promo-code-prefix">Código Promo:</span> verano10</p>
+              <button class="promo-code-action promo-clear" type="button" aria-label="Quitar código">
+                <i class="fa-solid fa-circle-xmark icon-medium" aria-hidden="true"></i>
+              </button>
+              <button class="promo-code-action promo-open" type="button" aria-label="Ingresar código">
+                <i class="fa-solid fa-chevron-right icon-medium" aria-hidden="true"></i>
+              </button>
+            </div>
+          </section>
+
+          <section class="checkout-summary-wrap" aria-label="Resumen de compra">
+            <div class="summary-box summary-box-compact summary-box-saving" data-flow="products" data-step="checkout">
+              <div class="summary-card">
+                <div class="summary-card-body">
+                  <div class="summary-row">
+                    <span class="summary-label-strong">3 Productos</span>
+                    <span><span class="summary-value-old">$70.00</span> <span class="summary-value-new">$55.50</span></span>
+                  </div>
+                  <div class="summary-row">
+                    <span class="summary-value-success">Código promo</span>
+                    <span class="summary-value-success">-$5.00</span>
+                  </div>
+                  <div class="summary-row summary-row-total checkout-summary-total">
+                    <span class="summary-label-strong">TOTAL</span>
+                    <span class="summary-label-strong">$50.50</span>
+                  </div>
+                </div>
+                <div class="summary-savings-row">
+                  <i class="fa-solid fa-tags" aria-hidden="true"></i>
+                  <span>¡Ahorro total $19.50!</span>
+                </div>
+                <div class="summary-cta-row">
+                  <button class="btn btn-primary summary-btn" type="button">Comprar</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

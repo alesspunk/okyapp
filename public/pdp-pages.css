@@ -36,6 +36,16 @@ body {
   background: #fff;
 }
 
+.pdp-page-top {
+  width: 100%;
+  background: #fff;
+}
+
+.pdp-page-status-icons {
+  display: flex;
+  gap: 8px;
+}
+
 .pdp-page-header {
   width: 358px;
   padding: 0 8px;
@@ -77,12 +87,21 @@ body {
   margin-top: -40px;
 }
 
+.pdp-page-plateu {
+  width: 340px;
+  height: 125px;
+}
+
 .pdp-page-shell .middle-card-shell {
   max-width: 100%;
 }
 
 .pdp-page-slider-slot {
   padding-top: 4px;
+}
+
+.pdp-page-summary-total {
+  padding-bottom: 8px;
 }
 
 .pdp-page-content-gap {
