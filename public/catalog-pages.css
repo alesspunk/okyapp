@@ -84,7 +84,7 @@ body {
 .category-page-plateu-wrap {
   display: flex;
   justify-content: center;
-  padding: 0 10px 12px;
+  padding: 7px 10px 12px;
 }
 
 .category-page-plateu {
@@ -113,6 +113,44 @@ body {
   height: 32px;
   object-fit: contain;
   flex-shrink: 0;
+}
+
+.category-page-pastry-card .homecard-grid {
+  row-gap: 16px;
+}
+
+.category-page-brand-card {
+  padding: 0;
+}
+
+.category-page-brand-card.is-anfora {
+  background: #f38200;
+}
+
+.category-page-brand-card.is-san-martin {
+  background: #0f347a;
+}
+
+.category-page-brand-card.is-white-card {
+  background: #ffffff;
+}
+
+.category-page-brand-card.is-full-bleed {
+  background: #ffffff;
+}
+
+.category-page-brand-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.category-page-brand-logo.is-contain {
+  object-fit: contain;
+}
+
+.category-page-brand-logo.is-cover {
+  object-fit: cover;
 }
 
 .plp-page-top {
