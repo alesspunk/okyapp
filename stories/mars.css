@@ -4563,6 +4563,10 @@ body {
   align-items: center;
 }
 
+.card-organism.is-spaced .card-organism-stack {
+  gap: 8px;
+}
+
 .card-organism-part {
   width: 100%;
   display: flex;
@@ -4574,6 +4578,10 @@ body {
   display: flex;
   justify-content: center;
   padding: 8px 0;
+}
+
+.card-organism.is-spaced .card-organism-separator-slot {
+  padding: 0;
 }
 
 .card-organism-story-shell {

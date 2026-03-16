@@ -64,7 +64,7 @@ function renderCardOrganism(args = {}) {
   const resolved = resolveArgs(args);
 
   return `
-    <section class="card-organism" aria-label="Card organism">
+    <section class="card-organism is-spaced" aria-label="Card organism">
       <div class="card-organism-stack">
         <div class="card-organism-part card-organism-part-top">
           ${renderCardTop(resolved.top)}
