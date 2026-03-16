@@ -322,7 +322,7 @@ body {
   padding: 4px 8px 4px 16px;
 }
 
-.payment-method-icon {
+.payment-method-icon.fa-icon {
   min-width: 32px;
   flex-shrink: 0;
   color: #552588;
