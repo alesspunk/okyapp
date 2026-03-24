@@ -25,6 +25,14 @@ const PAGE_HEADER_VARIANTS = ["screens", "modal", "no-title"];
 const PRODUCTO_HEADER_LAYOUTS = ["Default", "With Plateu"];
 const DYNAMIC_INPUT_STATES = ["Empty", "Hasvalue"];
 
+function renderCartBitmap() {
+  return `
+    <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+      <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="images/Cart-3d-icon.png" alt="">
+    </div>
+  `;
+}
+
 function findBrand(key) {
   return BRAND_PRESETS.find((brand) => brand.key === key) ?? BRAND_PRESETS[0];
 }
@@ -41,7 +49,7 @@ function renderPageHeader({ variant, title, showAction }) {
   } else {
     left = `<div class="header-icon header-icon-light"><i class="fa-light fa-arrow-left icon-medium"></i></div>`;
     right = showAction
-      ? `<div class="header-icon header-icon-light"><i class="fa-light fa-cart-shopping icon-medium"></i></div>`
+      ? renderCartBitmap()
       : `<div class="header-icon header-icon-placeholder"></div>`;
   }
 
