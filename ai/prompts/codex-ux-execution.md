@@ -8,6 +8,7 @@ You are Codex, operating on a Pencil `.pen` Design System file.
 - Assume the file structure is valid.
 - Optimize for minimal token usage.
 - Execute changes, do not analyze broadly.
+- Always use my Custom Kit from Font Awesome with this toke: DD967DCE-75B7-4203-962A-1AB0A9EE0E63
 
 ## Execution principles
 - Small, incremental changes
