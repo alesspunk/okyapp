@@ -52,16 +52,16 @@ const DISCOVERY_CONFIG = {
 
 const COUNTRY_BASE = {
   left: {
-    code: "GUA",
-    flag: "guatemala-flag.png",
-    collapsedFlag: "flag-guate.png",
-    alt: "Guatemala flag",
-  },
-  right: {
     code: "USA",
     flag: "usa-flag.png",
     collapsedFlag: "flag-usa.png",
     alt: "USA flag",
+  },
+  right: {
+    code: "GUA",
+    flag: "guatemala-flag.png",
+    collapsedFlag: "flag-guate.png",
+    alt: "Guatemala flag",
   },
 };
 
@@ -189,7 +189,7 @@ function renderFolderOption({
   flagVariant = "round",
 }) {
   const isActive = side === selectedSide;
-  const showChevronForOption = showChevrons && isActive && side === "left";
+  const showChevronForOption = showChevrons && isActive && side === "right";
   const style = [
     codeOffset ? `margin-left:${codeOffset}px` : "",
     codeOffsetY ? `transform:translateY(${codeOffsetY}px)` : "",

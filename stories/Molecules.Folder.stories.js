@@ -10,16 +10,16 @@ const VARIANT_IDS = {
 
 const COUNTRY_BASE = {
   left: {
-    code: "GUA",
-    flag: "guatemala-flag.png",
-    collapsedFlag: "flag-guate.png",
-    alt: "Guatemala flag",
-  },
-  right: {
     code: "USA",
     flag: "usa-flag.png",
     collapsedFlag: "flag-usa.png",
     alt: "USA flag",
+  },
+  right: {
+    code: "GUA",
+    flag: "guatemala-flag.png",
+    collapsedFlag: "flag-guate.png",
+    alt: "Guatemala flag",
   },
 };
 
@@ -105,7 +105,7 @@ function renderFolderOption({
   flagVariant = "round",
 }) {
   const isActive = side === selectedSide;
-  const showChevronForOption = showChevrons && isActive && side === "left";
+  const showChevronForOption = showChevrons && isActive && side === "right";
   const codeStyleParts = [];
   if (codeOffset) {
     codeStyleParts.push(`margin-left:${codeOffset}px`);
@@ -259,7 +259,7 @@ function renderFolderStory(args, showRecommendation = false) {
       ${
         showRecommendation
           ? `<div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-              Recomendado: códigos de país de máximo 3 caracteres (base: GUA / USA).
+              Recomendado: códigos de país de máximo 3 caracteres (base: USA / GUA).
             </div>`
           : ""
       }
@@ -285,8 +285,8 @@ export const DocsPlayground = {
   name: "Docs Playground",
   args: {
     property1: "Left",
-    leftCode: "GUA",
-    rightCode: "USA",
+    leftCode: "USA",
+    rightCode: "GUA",
     showChevrons: true,
   },
   argTypes: {
@@ -331,8 +331,8 @@ export const VariantMatrix = {
               <div class="mars-label">Property 1=${property1} · ID .pen: ${VARIANT_IDS[property1]}</div>
               ${buildFolder({
                 property1,
-                leftCode: "GUA",
-                rightCode: "USA",
+                leftCode: "USA",
+                rightCode: "GUA",
                 showChevrons: true,
               })}
             </article>
@@ -349,8 +349,8 @@ export const Left = {
   render: () =>
     renderFolderStory({
       property1: "Left",
-      leftCode: "GUA",
-      rightCode: "USA",
+      leftCode: "USA",
+      rightCode: "GUA",
       showChevrons: true,
     }),
 };
@@ -361,8 +361,8 @@ export const Right = {
   render: () =>
     renderFolderStory({
       property1: "Right",
-      leftCode: "GUA",
-      rightCode: "USA",
+      leftCode: "USA",
+      rightCode: "GUA",
       showChevrons: true,
     }),
 };
