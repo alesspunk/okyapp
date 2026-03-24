@@ -21,18 +21,6 @@ function renderCartBitmap({ indicated = false } = {}) {
   `;
 }
 
-function renderCartChipBitmap(cartCount) {
-  return `
-    <div class="header-cart-chip header-cart-full page-header-organism-cart" aria-label="Carrito con ${cartCount} productos">
-      <span class="header-cart-count">${cartCount}</span>
-      <span class="header-cart-chip-bitmap-wrap" aria-hidden="true">
-        <img class="header-cart-chip-bitmap" src="images/Cart-3d-icon.png" alt="" />
-        <span class="header-cart-chip-dot"></span>
-      </span>
-    </div>
-  `;
-}
-
 function findBrand(key) {
   return BRAND_PRESETS.find((brand) => brand.key === key) ?? BRAND_PRESETS[0];
 }
@@ -65,11 +53,10 @@ function renderPageHeaderOrganism(args = {}) {
   const showAction = args.showAction === true;
   const cartCount = Number.isFinite(args.cartCount) ? Math.max(0, Math.min(99, args.cartCount)) : 3;
 
-  const rightSlot = showCartChip
-    ? `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`
-    : showAction
-      ? renderCartBitmap({ indicated: true })
-      : `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`;
+  const useCheckoutTopRightAction = layoutVariant === "Checkout Overlap" || showAction;
+  const rightSlot = useCheckoutTopRightAction
+    ? renderCartBitmap({ indicated: true })
+    : `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`;
 
   return `
     <section class="page-header-organism ${layoutVariant === "Checkout Overlap" ? "is-checkout-overlap" : "is-default"}">
@@ -82,11 +69,6 @@ function renderPageHeaderOrganism(args = {}) {
         }
         ${rightSlot}
       </div>
-      ${
-        showCartChip
-          ? renderCartChipBitmap(cartCount)
-          : ""
-      }
       ${
         layoutVariant === "Checkout Overlap"
           ? `<div class="page-header-organism-brand-overlap">
@@ -175,7 +157,7 @@ export const DocsPlayground = {
     layoutVariant: "Checkout Overlap",
     pageHeaderVariant: "no-title",
     pageTitle: "Target",
-    showCartChip: true,
+    showCartChip: false,
     showAction: false,
     cartCount: 3,
     brandVariant: "With label",
@@ -225,7 +207,7 @@ export const Reference = {
             ${renderPageHeaderOrganism({
               layoutVariant: "Checkout Overlap",
               pageHeaderVariant: "no-title",
-              showCartChip: true,
+              showCartChip: false,
               cartCount: 3,
               showAction: false,
               brandVariant: "With label",
