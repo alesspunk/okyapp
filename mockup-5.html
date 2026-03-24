@@ -1099,6 +1099,7 @@
           },
         };
 
+        const initialContentSide = discoveryHeader.dataset.side === "Left" ? "left" : "right";
         let currentSide = "left";
         let hasDismissedNewItemChip = false;
         let currentState = 0;
@@ -1123,7 +1124,6 @@
 
           const meta = stateMeta[currentSide][state];
           currentState = state;
-          setContentBySide(currentSide);
         setPlateuBySide(currentSide);
           discoveryHeader.dataset.side = currentSide === "left" ? "Left" : "Right";
           discoveryHeader.dataset.state = meta.label;
@@ -1212,6 +1212,7 @@
           return nextState;
         };
 
+        setContentBySide(initialContentSide);
         setPlateuBySide(currentSide);
         applyState(stateFromInitialScroll(shell.scrollTop));
         shell.addEventListener(
