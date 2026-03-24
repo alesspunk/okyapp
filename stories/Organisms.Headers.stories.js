@@ -118,7 +118,7 @@ export const AppHeaderPlayground = {
       <div class="mars-story">
         <div class="mars-label">App Header / ${variant} / ${leftButtons}-left · ID .pen: ${penIds[variant]}</div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-          Estas variantes usan bitmaps iguales a Figma. El control `cartCount` ya no altera los estados con indicador porque ahora usan dot rojo sobre el ícono.
+          Estas variantes usan bitmaps iguales a Figma. El control cartCount ya no altera los estados con indicador porque ahora usan dot rojo sobre el ícono.
         </div>
         <div class="mars-mobile">
           <div class="app-header">
