@@ -1080,6 +1080,26 @@ body {
   flex-shrink: 0;
 }
 
+.header-cart-chip-bitmap-wrap {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.header-cart-chip-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff2b18;
+}
+
 .header-cart-empty {
   border: 1px solid var(--divider);
   color: var(--text-secondary);

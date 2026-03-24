@@ -21,6 +21,18 @@ function renderCartBitmap({ indicated = false } = {}) {
   `;
 }
 
+function renderCartChipBitmap(cartCount) {
+  return `
+    <div class="header-cart-chip header-cart-full page-header-organism-cart" aria-label="Carrito con ${cartCount} productos">
+      <span class="header-cart-count">${cartCount}</span>
+      <span class="header-cart-chip-bitmap-wrap" aria-hidden="true">
+        <img class="header-cart-chip-bitmap" src="images/Cart-3d-icon.png" alt="" />
+        <span class="header-cart-chip-dot"></span>
+      </span>
+    </div>
+  `;
+}
+
 function findBrand(key) {
   return BRAND_PRESETS.find((brand) => brand.key === key) ?? BRAND_PRESETS[0];
 }
@@ -72,10 +84,7 @@ function renderPageHeaderOrganism(args = {}) {
       </div>
       ${
         showCartChip
-          ? `<div class="header-cart-chip header-cart-full page-header-organism-cart" aria-label="Carrito con ${cartCount} productos">
-              <span class="header-cart-count">${cartCount}</span>
-              <img class="header-cart-chip-bitmap" src="images/Cart-3d-icon.png" alt="" aria-hidden="true" />
-            </div>`
+          ? renderCartChipBitmap(cartCount)
           : ""
       }
       ${
