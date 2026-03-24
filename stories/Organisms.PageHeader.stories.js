@@ -57,6 +57,7 @@ function renderPageHeaderOrganism(args = {}) {
   const rightSlot = useCheckoutTopRightAction
     ? renderCartBitmap({ indicated: true })
     : `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`;
+  const checkoutRightSlot = `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`;
 
   return `
     <section class="page-header-organism ${layoutVariant === "Checkout Overlap" ? "is-checkout-overlap" : "is-default"}">
@@ -67,8 +68,15 @@ function renderPageHeaderOrganism(args = {}) {
             ? `<div class="page-header-title page-header-title-empty" aria-hidden="true"></div>`
             : `<div class="page-header-title">${args.pageTitle?.trim() || brand.label}</div>`
         }
-        ${rightSlot}
+        ${layoutVariant === "Checkout Overlap" ? checkoutRightSlot : rightSlot}
       </div>
+      ${
+        layoutVariant === "Checkout Overlap"
+          ? `<div class="page-header-organism-action">
+              ${renderCartBitmap({ indicated: true })}
+            </div>`
+          : ""
+      }
       ${
         layoutVariant === "Checkout Overlap"
           ? `<div class="page-header-organism-brand-overlap">

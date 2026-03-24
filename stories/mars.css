@@ -1964,6 +1964,13 @@ body {
   padding-bottom: 57px;
 }
 
+.page-header-organism-action {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  z-index: 4;
+}
+
 .page-header-organism-cart {
   position: absolute;
   top: 8px;

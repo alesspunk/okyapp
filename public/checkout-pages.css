@@ -54,12 +54,12 @@ body {
 .checkout-page-header {
   position: relative;
   z-index: 2;
-  padding-right: 68px;
+  padding-right: 16px;
 }
 
-.checkout-page-cart-chip {
+.checkout-page-header-action {
   position: absolute;
-  top: 8px;
+  top: 12px;
   right: 16px;
   z-index: 3;
 }
