@@ -266,12 +266,13 @@
 
                 <div class="folder-options">
                   <span class="folder-option is-active" style="left:55px">
-                    <span class="folder-flag" aria-hidden="true"><img src="./images/guatemala-flag.png" alt="Guatemala flag" /></span>
-                    <span class="folder-code">GUA</span>
-                  </span>
-                  <span class="folder-option is-inactive" style="left:245px">
                     <span class="folder-flag" aria-hidden="true"><img src="./images/usa-flag.png" alt="USA flag" /></span>
                     <span class="folder-code">USA</span>
+                  </span>
+                  <span class="folder-option is-inactive" style="left:245px;width:92px;justify-content:center">
+                    <span class="folder-flag" aria-hidden="true"><img src="./images/guatemala-flag.png" alt="Guatemala flag" /></span>
+                    <span class="folder-code">GUA</span>
+                    <span class="folder-chevron-stack" aria-hidden="true"><img src="./images/chevron.svg" alt=""></span>
                   </span>
                 </div>
                 <span class="folder-new-item-chip chip-ds chip-ds-new-item" aria-label="New item">Nuevo</span>
@@ -768,18 +769,20 @@
         };
 
         const toggleLeftChevron = (show) => {
-          if (!leftOption) return;
-          const existing = leftOption.querySelector(".folder-chevron-stack");
+          const existingLeft = leftOption?.querySelector(".folder-chevron-stack");
+          if (existingLeft) existingLeft.remove();
+          if (!rightOption) return;
+          const existingRight = rightOption.querySelector(".folder-chevron-stack");
           if (show) {
-            if (!existing) {
-              leftOption.insertAdjacentHTML(
+            if (!existingRight) {
+              rightOption.insertAdjacentHTML(
                 "beforeend",
                 '<span class="folder-chevron-stack" aria-hidden="true"><img src="./images/chevron.svg" alt=""></span>'
               );
             }
             return;
           }
-          if (existing) existing.remove();
+          if (existingRight) existingRight.remove();
         };
 
         const plateuSection = document.createElement("section");
@@ -843,7 +846,7 @@
           folderControl.classList.add(side === "left" ? "is-left" : "is-right");
           setLayerShapes(side);
           setOptionActiveSide(side);
-          toggleLeftChevron(side === "left");
+          toggleLeftChevron(true);
 
           const leftFlagImg = leftFlag?.querySelector("img");
           const rightFlagImg = rightFlag?.querySelector("img");
@@ -855,10 +858,18 @@
             rightFlag.style.display = "inline-flex";
             rightFlag.classList.remove("is-rect");
           }
-          if (leftFlagImg) leftFlagImg.src = "./images/guatemala-flag.png";
-          if (rightFlagImg) rightFlagImg.src = "./images/usa-flag.png";
+          if (leftFlagImg) leftFlagImg.src = "./images/usa-flag.png";
+          if (rightFlagImg) rightFlagImg.src = "./images/guatemala-flag.png";
           if (leftOption) leftOption.style.left = side === "left" ? "55px" : "54px";
           if (rightOption) rightOption.style.left = side === "left" ? "245px" : "235px";
+          if (leftOption) {
+            leftOption.style.removeProperty("width");
+            leftOption.style.removeProperty("justify-content");
+          }
+          if (rightOption) {
+            rightOption.style.removeProperty("width");
+            rightOption.style.removeProperty("justify-content");
+          }
           if (leftCode) {
             leftCode.style.removeProperty("margin-left");
             leftCode.style.removeProperty("transform");
@@ -883,7 +894,7 @@
           folderControl.classList.add("is-collapsed", side === "left" ? "is-left" : "is-right");
           setLayerShapes(side);
           setOptionActiveSide(side);
-          toggleLeftChevron(side === "left");
+          toggleLeftChevron(true);
 
           const leftFlagImg = leftFlag?.querySelector("img");
           const rightFlagImg = rightFlag?.querySelector("img");
@@ -895,10 +906,18 @@
             rightFlag.style.display = "inline-flex";
             rightFlag.classList.add("is-rect");
           }
-          if (leftFlagImg) leftFlagImg.src = "./images/flag-guate.png";
-          if (rightFlagImg) rightFlagImg.src = "./images/flag-usa.png";
+          if (leftFlagImg) leftFlagImg.src = "./images/flag-usa.png";
+          if (rightFlagImg) rightFlagImg.src = "./images/flag-guate.png";
           if (leftOption) leftOption.style.left = "57px";
-          if (rightOption) rightOption.style.left = "248px";
+          if (rightOption) {
+            rightOption.style.left = "232px";
+            rightOption.style.width = "92px";
+            rightOption.style.justifyContent = "center";
+          }
+          if (leftOption) {
+            leftOption.style.removeProperty("width");
+            leftOption.style.removeProperty("justify-content");
+          }
           if (leftCode) {
             leftCode.style.removeProperty("margin-left");
             leftCode.style.removeProperty("transform");
@@ -908,8 +927,8 @@
             rightCode.style.removeProperty("transform");
           }
           if (selectionLine) {
-            selectionLine.style.left = side === "left" ? "52px" : "245px";
-            selectionLine.style.width = side === "left" ? "90px" : "66px";
+            selectionLine.style.left = side === "left" ? "52px" : "232px";
+            selectionLine.style.width = side === "left" ? "90px" : "92px";
             selectionLine.style.top = "30px";
             setNewItemChipVisible(false);
           }
