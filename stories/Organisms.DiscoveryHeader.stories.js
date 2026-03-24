@@ -335,20 +335,20 @@ function renderPlateuHome() {
       >
         <div class="plateu-track is-scrolling">
           <div class="plateu-item plateu-item-fixed">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu4.webp" alt="MODA" /></div>
-            <span class="plateu-chip">MODA</span>
+            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu4.webp" alt="Moda" /></div>
+            <span class="plateu-chip">Moda</span>
           </div>
           <div class="plateu-item plateu-item-fixed">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu1.webp" alt="TECNOLOGÍA" /></div>
-            <span class="plateu-label">TECNOLOGÍA</span>
+            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu1.webp" alt="Tecnología" /></div>
+            <span class="plateu-label">Tecnología</span>
           </div>
           <div class="plateu-item plateu-item-fixed">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu3.webp" alt="LENTES" /></div>
-            <span class="plateu-label">LENTES</span>
+            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu3.webp" alt="Lentes" /></div>
+            <span class="plateu-label">Lentes</span>
           </div>
           <div class="plateu-item plateu-item-fixed">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu2.webp" alt="ONLINE" /></div>
-            <span class="plateu-label">ONLINE</span>
+            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu2.webp" alt="Online" /></div>
+            <span class="plateu-label">Online</span>
           </div>
         </div>
       </section>

@@ -153,7 +153,7 @@ const typographyTokens = [
   { token: "OVERLINE",    size: "12px", weight: "400", style: "",       cas: "UPPERCASE", ls: "1px",    lh: "2.66"  },
   { token: "Brand",       size: "12px", weight: "400", style: "",       cas: "Sentence",  ls: "0.15px", lh: "1.5"   },
   // ── 10px ────────────────────────────────────────────────────
-  { token: "PLATEU",      size: "10px", weight: "700", style: "",       cas: "UPPERCASE", ls: "1px",    lh: "1.6"   },
+  { token: "PLATEU",      size: "10px", weight: "700", style: "",       cas: "Sentence",  ls: "0.5px",  lh: "1.6"   },
   { token: "CARDLABEL",   size: "10px", weight: "500", style: "",       cas: "UPPERCASE", ls: "0px",    lh: "1.6"   },
   { token: "EXCHANGE",    size: "10px", weight: "400", style: "",       cas: "UPPERCASE", ls: "1px",    lh: "1.6"   },
   { token: "TAG",         size: "7px",  weight: "700", style: "",       cas: "UPPERCASE", ls: "1px",    lh: "1.57", family: "Lato" },

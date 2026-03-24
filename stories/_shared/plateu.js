@@ -19,9 +19,9 @@ export const PLATEU_VARIANTS = {
     scrolling: false,
     home: false,
     items: [
-      { key: "productos", label: "PRODUCTOS", image: "plateu5.png", active: true },
-      { key: "vales", label: "VALES", image: "plateu6.png", active: false },
-      { key: "ofertas", label: "OFERTAS", image: "plateu7.png", active: false },
+      { key: "productos", label: "Productos", image: "plateu5.png", active: true },
+      { key: "vales", label: "Vales", image: "plateu6.png", active: false },
+      { key: "ofertas", label: "Ofertas", image: "plateu7.png", active: false },
     ],
   },
   "State=Vales, Telco=No, Scrolling=No": {
@@ -31,9 +31,9 @@ export const PLATEU_VARIANTS = {
     scrolling: false,
     home: false,
     items: [
-      { key: "productos", label: "PRODUCTOS", image: "plateu5.png", active: false },
-      { key: "vales", label: "VALES", image: "plateu6.png", active: true },
-      { key: "ofertas", label: "OFERTAS", image: "plateu7.png", active: false },
+      { key: "productos", label: "Productos", image: "plateu5.png", active: false },
+      { key: "vales", label: "Vales", image: "plateu6.png", active: true },
+      { key: "ofertas", label: "Ofertas", image: "plateu7.png", active: false },
     ],
   },
   "State=Ofertas, Telco=No, Scrolling=No": {
@@ -43,10 +43,10 @@ export const PLATEU_VARIANTS = {
     scrolling: false,
     home: false,
     items: [
-      { key: "productos", label: "PRODUCTOS", image: "plateu5.png", active: false },
-      { key: "vales-1", label: "VALES", image: "plateu6.png", active: false },
-      { key: "vales-2", label: "VALES", image: "plateu6.png", active: false },
-      { key: "ofertas", label: "OFERTAS", image: "plateu7.png", active: true },
+      { key: "productos", label: "Productos", image: "plateu5.png", active: false },
+      { key: "vales-1", label: "Vales", image: "plateu6.png", active: false },
+      { key: "vales-2", label: "Vales", image: "plateu6.png", active: false },
+      { key: "ofertas", label: "Ofertas", image: "plateu7.png", active: true },
     ],
   },
   "State=Paquetes, Telco=Yes, Scrolling=No": {
@@ -56,10 +56,10 @@ export const PLATEU_VARIANTS = {
     scrolling: false,
     home: false,
     items: [
-      { key: "paquetes", label: "PAQUETES", image: "plateu8.png", active: true },
-      { key: "internet", label: "INTERNET", image: "plateu9.png", active: false },
-      { key: "recargas", label: "RECARGAS", image: "plateu10.png", active: false },
-      { key: "antenita", label: "ANTENITA", image: "plateu11.png", active: false },
+      { key: "paquetes", label: "Paquetes", image: "plateu8.png", active: true },
+      { key: "internet", label: "Internet", image: "plateu9.png", active: false },
+      { key: "recargas", label: "Recargas", image: "plateu10.png", active: false },
+      { key: "antenita", label: "Antenita", image: "plateu11.png", active: false },
     ],
   },
   "State=Internet, Telco=Yes, Scrolling=No": {
@@ -69,10 +69,10 @@ export const PLATEU_VARIANTS = {
     scrolling: false,
     home: false,
     items: [
-      { key: "paquetes", label: "PAQUETES", image: "plateu8.png", active: false },
-      { key: "internet", label: "INTERNET", image: "plateu9.png", active: true },
-      { key: "recargas", label: "RECARGAS", image: "plateu10.png", active: false },
-      { key: "antenita", label: "ANTENITA", image: "plateu11.png", active: false },
+      { key: "paquetes", label: "Paquetes", image: "plateu8.png", active: false },
+      { key: "internet", label: "Internet", image: "plateu9.png", active: true },
+      { key: "recargas", label: "Recargas", image: "plateu10.png", active: false },
+      { key: "antenita", label: "Antenita", image: "plateu11.png", active: false },
     ],
   },
   "State=Recargas, Telco=Yes, Scrolling=No": {
@@ -82,10 +82,10 @@ export const PLATEU_VARIANTS = {
     scrolling: false,
     home: false,
     items: [
-      { key: "paquetes", label: "PAQUETES", image: "plateu8.png", active: false },
-      { key: "internet", label: "INTERNET", image: "plateu9.png", active: false },
-      { key: "recargas", label: "RECARGAS", image: "plateu10.png", active: true },
-      { key: "antenita", label: "ANTENITA", image: "plateu11.png", active: false },
+      { key: "paquetes", label: "Paquetes", image: "plateu8.png", active: false },
+      { key: "internet", label: "Internet", image: "plateu9.png", active: false },
+      { key: "recargas", label: "Recargas", image: "plateu10.png", active: true },
+      { key: "antenita", label: "Antenita", image: "plateu11.png", active: false },
     ],
   },
   "State=Paquetes, Telco=Yes, Scrolling=Yes": {
@@ -95,10 +95,10 @@ export const PLATEU_VARIANTS = {
     scrolling: true,
     home: false,
     items: [
-      { key: "comida-rapida", label: "COMIDA RÁPIDA", image: "plateu5.png", active: true },
-      { key: "pasteleria", label: "PASTELERIA", image: "plateu12.png", active: false },
-      { key: "restaurantes", label: "RESTAURANTES", image: "plateu13.png", active: false },
-      { key: "cafeterias", label: "CAFETERIAS", image: "plateu14.png", active: false },
+      { key: "comida-rapida", label: "Comida rápida", image: "plateu5.png", active: true },
+      { key: "pasteleria", label: "Pastelería", image: "plateu12.png", active: false },
+      { key: "restaurantes", label: "Restaurantes", image: "plateu13.png", active: false },
+      { key: "cafeterias", label: "Cafeterías", image: "plateu14.png", active: false },
     ],
   },
   "State=Pasteleria, Telco=Yes, Scrolling=Yes": {
@@ -108,10 +108,10 @@ export const PLATEU_VARIANTS = {
     scrolling: true,
     home: false,
     items: [
-      { key: "comida-rapida", label: "COMIDA RÁPIDA", image: "plateu12.png", active: false },
-      { key: "pasteleria", label: "PASTELERIA", image: "plateu5.png", active: true },
-      { key: "restaurantes", label: "RESTAURANTES", image: "plateu13.png", active: false },
-      { key: "cafeterias", label: "CAFETERIAS", image: "plateu14.png", active: false },
+      { key: "comida-rapida", label: "Comida rápida", image: "plateu12.png", active: false },
+      { key: "pasteleria", label: "Pastelería", image: "plateu5.png", active: true },
+      { key: "restaurantes", label: "Restaurantes", image: "plateu13.png", active: false },
+      { key: "cafeterias", label: "Cafeterías", image: "plateu14.png", active: false },
     ],
   },
   "State=Restaurantes, Telco=Yes, Scrolling=Yes": {
@@ -121,10 +121,10 @@ export const PLATEU_VARIANTS = {
     scrolling: true,
     home: false,
     items: [
-      { key: "comida-rapida", label: "COMIDA RÁPIDA", image: "plateu5.png", active: false },
-      { key: "pasteleria", label: "PASTELERIA", image: "plateu12.png", active: false },
-      { key: "restaurantes", label: "RESTAURANTES", image: "plateu13.png", active: true },
-      { key: "cafeterias", label: "CAFETERIAS", image: "plateu14.png", active: false },
+      { key: "comida-rapida", label: "Comida rápida", image: "plateu5.png", active: false },
+      { key: "pasteleria", label: "Pastelería", image: "plateu12.png", active: false },
+      { key: "restaurantes", label: "Restaurantes", image: "plateu13.png", active: true },
+      { key: "cafeterias", label: "Cafeterías", image: "plateu14.png", active: false },
     ],
   },
   "State=Home, Telco=No, Scrolling=Yes": {
@@ -134,10 +134,10 @@ export const PLATEU_VARIANTS = {
     scrolling: true,
     home: true,
     items: [
-      { key: "moda", label: "MODA", image: "plateu4.webp", active: true },
-      { key: "tecnologia", label: "TECNOLOGÍA", image: "plateu1.webp", active: false },
-      { key: "lentes", label: "LENTES", image: "plateu3.webp", active: false },
-      { key: "online", label: "ONLINE", image: "plateu2.webp", active: false },
+      { key: "moda", label: "Moda", image: "plateu4.webp", active: true },
+      { key: "tecnologia", label: "Tecnología", image: "plateu1.webp", active: false },
+      { key: "lentes", label: "Lentes", image: "plateu3.webp", active: false },
+      { key: "online", label: "Online", image: "plateu2.webp", active: false },
     ],
   },
 };
