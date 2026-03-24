@@ -142,31 +142,37 @@ function renderStatusBar() {
   `;
 }
 
+function renderWalletBitmap({ indicated = false, shiftLeft = false } = {}) {
+  return `
+    <div class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap${indicated ? " header-icon-bitmap-wallet-indicated" : ""}${shiftLeft ? " header-icon-bitmap-wallet-indicated-left" : ""}" aria-hidden="true">
+      <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="images/Wallet-icon.png" alt="">
+      ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
+    </div>
+  `;
+}
+
+function renderCartBitmap({ indicated = false } = {}) {
+  return `
+    <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+      <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="images/Cart-3d-icon.png" alt="">
+      ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
+    </div>
+  `;
+}
+
 function renderAppHeader(kind) {
   if (kind === "none") return "";
-  const headerClass = kind === "logged-cart" ? "app-header is-logged-cart" : "app-header";
 
   const right =
     kind === "logged-cart"
-      ? `
-        <div class="header-cart-chip header-cart-full">
-          <span class="header-cart-count">2</span>
-          <i class="fa-light fa-cart-shopping" aria-hidden="true"></i>
-        </div>
-      `
-      : `
-        <div class="header-icon">
-          <i class="fa-light fa-cart-shopping icon-medium" aria-hidden="true"></i>
-        </div>
-      `;
+      ? renderCartBitmap({ indicated: true })
+      : renderCartBitmap();
 
   return `
     <section data-pen-id="${kind === "logged-cart" ? "ArMsV" : "WO8oM"}">
-      <div class="${headerClass}">
+      <div class="app-header">
         <div class="header-left-group">
-          <div class="header-icon">
-            <i class="fak fa-kit fa-wallet icon-medium" aria-hidden="true"></i>
-          </div>
+          ${renderWalletBitmap()}
         </div>
         <img class="header-logo" src="logo-oky.svg" alt="OKY" />
         ${right}

@@ -5,8 +5,8 @@
  * Page Header: 6IKuE · 5mGYt
  */
 
-const walletBitmap = ({ indicated = false } = {}) => `
-  <div class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap${indicated ? " header-icon-bitmap-wallet-indicated" : ""}" aria-hidden="true">
+const walletBitmap = ({ indicated = false, shiftLeft = false } = {}) => `
+  <div class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap${indicated ? " header-icon-bitmap-wallet-indicated" : ""}${shiftLeft ? " header-icon-bitmap-wallet-indicated-left" : ""}" aria-hidden="true">
     <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="images/Wallet-icon.png" alt="">
     ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
   </div>`;
@@ -95,7 +95,7 @@ export const AppHeaderPlayground = {
       </div>`
       : `
       <div class="header-left-group">
-        ${walletBitmap({ indicated: variant === "logged-cart-both-ind" })}
+        ${walletBitmap({ indicated: variant === "logged-cart-both-ind", shiftLeft: variant === "logged-cart-both-ind" })}
       </div>`;
 
     const logo = `<img class="header-logo" src="logo-oky.svg" alt="OKY">`;
@@ -275,7 +275,7 @@ export const AllHeaders = {
           <div class="mars-mobile">
             <div class="app-header">
               <div class="header-left-group">
-                ${walletBitmap({ indicated: true })}
+                ${walletBitmap({ indicated: true, shiftLeft: true })}
               </div>
               <img class="header-logo" src="logo-oky.svg" alt="OKY">
               ${cartBitmap({ indicated: true })}

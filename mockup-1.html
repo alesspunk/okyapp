@@ -218,14 +218,16 @@
           </section>
 
           <section class="dh-app" data-pen-id="ArMsV">
-            <div class="app-header is-logged-cart">
+            <div class="app-header">
               <div class="header-left-group">
-                <div class="header-icon"><i class="fak fa-kit fa-wallet icon-medium" aria-hidden="true"></i></div>
+                <div class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap" aria-hidden="true">
+                  <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="./images/Wallet-icon.png" alt="" />
+                </div>
               </div>
               <img class="header-logo" src="./images/logo-oky.svg" alt="OKY" />
-              <div class="header-cart-chip header-cart-full">
-                <span class="header-cart-count">2</span>
-                <i class="fa-light fa-cart-shopping" aria-hidden="true"></i>
+              <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+                <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="./images/Cart-3d-icon.png" alt="" />
+                <span class="header-icon-indicator-dot"></span>
               </div>
             </div>
           </section>
@@ -731,10 +733,14 @@
             appHeaderSection.innerHTML = `
               <div class="app-header">
                 <div class="header-left-group">
-                  <div class="header-icon"><i class="fak fa-kit fa-wallet icon-medium" aria-hidden="true"></i></div>
+                  <div class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap" aria-hidden="true">
+                    <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="./images/Wallet-icon.png" alt="" />
+                  </div>
                 </div>
                 <img class="header-logo" src="./images/logo-oky.svg" alt="OKY" />
-                <div class="header-icon"><i class="fa-light fa-cart-shopping icon-medium" aria-hidden="true"></i></div>
+                <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+                  <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="./images/Cart-3d-icon.png" alt="" />
+                </div>
               </div>
             `;
             return;
@@ -742,14 +748,16 @@
 
           appHeaderSection.dataset.penId = "ArMsV";
           appHeaderSection.innerHTML = `
-            <div class="app-header is-logged-cart">
+            <div class="app-header">
               <div class="header-left-group">
-                <div class="header-icon"><i class="fak fa-kit fa-wallet icon-medium" aria-hidden="true"></i></div>
+                <div class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap" aria-hidden="true">
+                  <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="./images/Wallet-icon.png" alt="" />
+                </div>
               </div>
               <img class="header-logo" src="./images/logo-oky.svg" alt="OKY" />
-              <div class="header-cart-chip header-cart-full">
-                <span class="header-cart-count">2</span>
-                <i class="fa-light fa-cart-shopping" aria-hidden="true"></i>
+              <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+                <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="./images/Cart-3d-icon.png" alt="" />
+                <span class="header-icon-indicator-dot"></span>
               </div>
             </div>
           `;

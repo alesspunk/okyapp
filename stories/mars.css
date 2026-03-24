@@ -1022,6 +1022,10 @@ body {
   right: -7px;
 }
 
+.header-icon-bitmap-wallet-indicated-left .header-icon-indicator-dot {
+  right: -5px;
+}
+
 .header-icon-placeholder {
   visibility: hidden;
   pointer-events: none;

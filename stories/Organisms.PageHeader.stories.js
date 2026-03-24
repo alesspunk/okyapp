@@ -12,6 +12,14 @@ const BRAND_VARIANTS = ["With label", "No label"];
 const PAGE_HEADER_VARIANTS = ["screens", "no-title"];
 const LAYOUT_VARIANTS = ["Default", "Checkout Overlap"];
 
+function renderCartBitmap() {
+  return `
+    <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+      <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="images/Cart-3d-icon.png" alt="">
+    </div>
+  `;
+}
+
 function findBrand(key) {
   return BRAND_PRESETS.find((brand) => brand.key === key) ?? BRAND_PRESETS[0];
 }
@@ -47,7 +55,7 @@ function renderPageHeaderOrganism(args = {}) {
   const rightSlot = showCartChip
     ? `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`
     : showAction
-      ? `<div class="header-icon header-icon-light"><i class="fa-light fa-cart-shopping icon-medium" aria-hidden="true"></i></div>`
+      ? renderCartBitmap()
       : `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`;
 
   return `
