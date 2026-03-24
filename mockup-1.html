@@ -277,8 +277,6 @@
                     <span class="folder-chevron-stack" aria-hidden="true"><img src="./images/chevron.svg" alt=""></span>
                   </span>
                 </div>
-                <span class="folder-new-item-chip chip-ds chip-ds-new-item" aria-label="New item">Nuevo</span>
-
                 <span class="folder-selection-line" style="left:51px;width:86px" aria-hidden="true"></span>
               </div>
             </div>
@@ -890,7 +888,7 @@
             selectionLine.style.left = side === "left" ? "51px" : "235px";
             selectionLine.style.width = side === "left" ? "86px" : "66px";
             selectionLine.style.removeProperty("top");
-            setNewItemChipVisible(true);
+            setNewItemChipVisible(side === "right");
           }
         };
 

@@ -214,7 +214,7 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
   const rightX = isLeft ? 245 : 235;
   const lineX = isLeft ? 51 : 235;
   const lineWidth = isLeft ? 86 : 66;
-  const showChipOnLeftExpanded = !isCollapsed && showNewItemChip;
+  const showChipOnLeftExpanded = !isCollapsed && !isLeft && showNewItemChip;
 
   return `
     <div class="folder-responsive-host is-expanded">

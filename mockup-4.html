@@ -1012,7 +1012,7 @@
             selectionLine.style.left = side === "left" ? "51px" : "235px";
             selectionLine.style.width = side === "left" ? "86px" : "66px";
             selectionLine.style.removeProperty("top");
-            setNewItemChipVisible(side === "left");
+            setNewItemChipVisible(side === "right");
           }
         };
 
@@ -1124,10 +1124,6 @@
 
         const setSide = (nextSide) => {
           const safeSide = nextSide === "left" ? "left" : "right";
-          if (safeSide === "right") {
-            hasDismissedNewItemChip = true;
-            setNewItemChipVisible(false);
-          }
           if (safeSide === currentSide) {
             setContentBySide(currentSide);
             return;
