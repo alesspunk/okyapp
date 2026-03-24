@@ -1072,6 +1072,14 @@ body {
   flex-shrink: 0;
 }
 
+.header-cart-chip-bitmap {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .header-cart-empty {
   border: 1px solid var(--divider);
   color: var(--text-secondary);

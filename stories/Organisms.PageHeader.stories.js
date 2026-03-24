@@ -73,7 +73,7 @@ function renderPageHeaderOrganism(args = {}) {
         showCartChip
           ? `<div class="header-cart-chip header-cart-full page-header-organism-cart" aria-label="Carrito con ${cartCount} productos">
               <span class="header-cart-count">${cartCount}</span>
-              <i class="fa-light fa-cart-shopping" aria-hidden="true"></i>
+              <img class="header-cart-chip-bitmap" src="images/Cart-3d-icon.png" alt="" aria-hidden="true" />
             </div>`
           : ""
       }
