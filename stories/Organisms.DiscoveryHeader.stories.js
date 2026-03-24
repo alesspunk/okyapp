@@ -279,7 +279,7 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true }
   }
 
   const selectedSide = isLeft ? "left" : "right";
-  const showChipOnLeftExpanded = property1 === "Left" && showNewItemChip;
+  const showChipOnLeftExpanded = !isCollapsed && showNewItemChip;
   return `
     <section data-pen-id="${isLeft ? "7296:48469" : "7296:48471"}">
       <div class="folder-responsive-host is-expanded">
