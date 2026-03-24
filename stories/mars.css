@@ -1009,7 +1009,7 @@ body {
 .header-icon-indicator-dot {
   position: absolute;
   top: 2px;
-  right: -1px;
+  right: -6px;
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -1019,7 +1019,7 @@ body {
 
 .header-icon-bitmap-wallet-indicated .header-icon-indicator-dot {
   top: -1px;
-  right: -2px;
+  right: -7px;
 }
 
 .header-icon-placeholder {
