@@ -969,6 +969,59 @@ body {
   color: var(--primary-main);
 }
 
+.header-icon-bitmap {
+  position: relative;
+  overflow: visible;
+}
+
+.header-icon-bitmap-wallet-wrap {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.header-icon-bitmap-image {
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.header-icon-bitmap-wallet {
+  width: 34px;
+  height: 32px;
+}
+
+.header-icon-bitmap-login {
+  width: 32px;
+  height: 32px;
+}
+
+.header-icon-bitmap-cart-image {
+  width: 33px;
+  height: 33px;
+}
+
+.header-icon-bitmap-cart {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.header-icon-indicator-dot {
+  position: absolute;
+  top: 2px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff2b18;
+  z-index: 2;
+}
+
+.header-icon-bitmap-wallet-indicated .header-icon-indicator-dot {
+  top: -1px;
+  right: -2px;
+}
+
 .header-icon-placeholder {
   visibility: hidden;
   pointer-events: none;

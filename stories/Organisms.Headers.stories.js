@@ -1,9 +1,26 @@
 /**
  * Headers — DS-MARS v2
- * Icon rule: fak fa-kit fa-wallet for wallet icon · fa-light for remaining header icons · fa-solid only for fa-circle-user (not-logged)
- * Icon token: icon-medium (24px) inside .header-icon wrapper
- * App Header: WO8oM · ZPc9u · ArMsV  |  Page Header: 6IKuE · 5mGYt
+ * App Header variants WO8oM, ZPc9u, ArMsV and Both Ind now use bitmap icons from /images to match Figma.
+ * Remaining header variants keep the existing Font Awesome rules and icon tokens.
+ * Page Header: 6IKuE · 5mGYt
  */
+
+const walletBitmap = ({ indicated = false } = {}) => `
+  <div class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap${indicated ? " header-icon-bitmap-wallet-indicated" : ""}" aria-hidden="true">
+    <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="images/Wallet-icon.png" alt="">
+    ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
+  </div>`;
+
+const loginBitmap = () => `
+  <div class="header-icon header-icon-bitmap" aria-hidden="true">
+    <img class="header-icon-bitmap-image header-icon-bitmap-login" src="images/Log-In-Icon.png" alt="">
+  </div>`;
+
+const cartBitmap = ({ indicated = false } = {}) => `
+  <div class="header-icon header-icon-bitmap header-icon-bitmap-cart${indicated ? " header-icon-bitmap-indicated" : ""}" aria-hidden="true">
+    <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="images/Cart-3d-icon.png" alt="">
+    ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
+  </div>`;
 
 export default {
   title: "Molecules/Headers",
@@ -13,9 +30,9 @@ export default {
       description: {
         component:
           "Headers del app OKY. " +
-          "**Regla de íconos:** `fak fa-kit fa-wallet` para wallet · `fa-light` para el resto de íconos de header · " +
-          "`fa-solid` solo para `fa-circle-user` (estado Not Logged). " +
-          "Token de tamaño: `icon-medium` (24px) dentro de wrapper `.header-icon`.",
+          "**WO8oM, ZPc9u, ArMsV y la nueva variante Both Ind** usan bitmaps desde `/images` para coincidir con Figma. " +
+          "El punto rojo del estado con indicador se construye con HTML/CSS sobre el bitmap. " +
+          "El resto de variantes mantiene la regla previa: `fak fa-kit fa-wallet` para wallet, `fa-light` para los demás íconos y `fa-solid` para `fa-circle-user`.",
       },
     },
   },
@@ -32,10 +49,11 @@ export const AppHeaderPlayground = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["logged-empty", "logged-cart", "not-logged"],
+      options: ["logged-empty", "logged-cart", "logged-cart-both-ind", "not-logged"],
       labels: {
         "logged-empty": "Logged / Empty Cart (WO8oM)",
         "logged-cart":  "Logged / Cart Full (ArMsV)",
+        "logged-cart-both-ind": "Logged / Both Indicators (Figma 7406:50941)",
         "not-logged":   "Not Logged (ZPc9u)",
       },
       description: "Variante del App Header principal.",
@@ -59,6 +77,7 @@ export const AppHeaderPlayground = {
     const penIds = {
       "logged-empty": "WO8oM",
       "logged-cart":  "ArMsV",
+      "logged-cart-both-ind": "7406:50941",
       "not-logged":   "ZPc9u",
     };
 
@@ -76,9 +95,7 @@ export const AppHeaderPlayground = {
       </div>`
       : `
       <div class="header-left-group">
-        <div class="header-icon">
-          <i class="fak fa-kit fa-wallet icon-medium"></i>
-        </div>
+        ${walletBitmap({ indicated: variant === "logged-cart-both-ind" })}
       </div>`;
 
     const logo = `<img class="header-logo" src="logo-oky.svg" alt="OKY">`;
@@ -90,31 +107,21 @@ export const AppHeaderPlayground = {
 
     let right;
     if (variant === "logged-empty") {
-      right = wrapRight(`
-        <div class="header-icon">
-          <i class="fa-light fa-cart-shopping icon-medium"></i>
-        </div>`);
-    } else if (variant === "logged-cart") {
-      right = wrapRight(`
-        <div class="header-cart-chip header-cart-full">
-          <span class="header-cart-count">${cartCount}</span>
-          <i class="fa-light fa-cart-shopping"></i>
-        </div>`);
+      right = wrapRight(cartBitmap());
+    } else if (variant === "logged-cart" || variant === "logged-cart-both-ind") {
+      right = wrapRight(cartBitmap({ indicated: true }));
     } else {
-      right = wrapRight(`
-        <div class="header-icon">
-          <i class="fa-solid fa-circle-user icon-medium-solid"></i>
-        </div>`);
+      right = wrapRight(loginBitmap());
     }
 
     return `
       <div class="mars-story">
         <div class="mars-label">App Header / ${variant} / ${leftButtons}-left · ID .pen: ${penIds[variant]}</div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-          Recomendado: contador de carrito de 1-2 caracteres (0-99). Este playground no usa texto libre largo.
+          Estas variantes usan bitmaps iguales a Figma. El control `cartCount` ya no altera los estados con indicador porque ahora usan dot rojo sobre el ícono.
         </div>
         <div class="mars-mobile">
-          <div class="app-header ${variant === "logged-cart" ? "is-logged-cart" : ""}">
+          <div class="app-header">
             ${leftGroup}
             ${logo}
             ${right}
@@ -163,7 +170,7 @@ export const PageHeaderPlayground = {
     } else {
       left = `<div class="header-icon header-icon-light"><i class="fa-light fa-arrow-left icon-medium"></i></div>`;
       right = showAction
-        ? `<div class="header-icon header-icon-light"><i class="fa-light fa-cart-shopping icon-medium"></i></div>`
+        ? cartBitmap()
         : `<div class="header-icon header-icon-placeholder"></div>`;
     }
 
@@ -200,7 +207,7 @@ export const AllHeaders = {
     controls: { disable: true },
     docs: {
       description: {
-        story: "Referencia visual de las variantes de header. Wallet usa `fak fa-kit fa-wallet` + `icon-medium`; el resto usa `fa-light` + `icon-medium`, excepto `fa-circle-user` que usa `fa-solid` + `icon-medium-solid`.",
+        story: "WO8oM, ZPc9u, ArMsV y la nueva variante Both Ind usan bitmaps del folder `images`. Los dots rojos se construyen con HTML/CSS sobre los bitmaps. Las demás variantes conservan el sistema anterior de Font Awesome.",
       },
     },
   },
@@ -213,10 +220,10 @@ export const AllHeaders = {
           <div class="mars-mobile">
             <div class="app-header">
               <div class="header-left-group">
-                <div class="header-icon"><i class="fak fa-kit fa-wallet icon-medium"></i></div>
+                ${walletBitmap()}
               </div>
               <img class="header-logo" src="logo-oky.svg" alt="OKY">
-              <div class="header-icon"><i class="fa-light fa-cart-shopping icon-medium"></i></div>
+              ${cartBitmap()}
             </div>
           </div>
         </div>
@@ -242,10 +249,10 @@ export const AllHeaders = {
           <div class="mars-mobile">
             <div class="app-header">
               <div class="header-left-group">
-                <div class="header-icon"><i class="fak fa-kit fa-wallet icon-medium"></i></div>
+                ${walletBitmap()}
               </div>
               <img class="header-logo" src="logo-oky.svg" alt="OKY">
-              <div class="header-icon"><i class="fa-solid fa-circle-user icon-medium-solid"></i></div>
+              ${loginBitmap()}
             </div>
           </div>
         </div>
@@ -253,15 +260,25 @@ export const AllHeaders = {
         <div>
           <div class="mars-label" style="margin-bottom:8px">Header / Logged / Cart Full · ArMsV</div>
           <div class="mars-mobile">
-            <div class="app-header is-logged-cart">
+            <div class="app-header">
               <div class="header-left-group">
-                <div class="header-icon"><i class="fak fa-kit fa-wallet icon-medium"></i></div>
+                ${walletBitmap()}
               </div>
               <img class="header-logo" src="logo-oky.svg" alt="OKY">
-              <div class="header-cart-chip header-cart-full">
-                <span class="header-cart-count">1</span>
-                <i class="fa-light fa-cart-shopping"></i>
+              ${cartBitmap({ indicated: true })}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="mars-label" style="margin-bottom:8px">Header / Logged / Both Indicators · Figma 7406:50941</div>
+          <div class="mars-mobile">
+            <div class="app-header">
+              <div class="header-left-group">
+                ${walletBitmap({ indicated: true })}
               </div>
+              <img class="header-logo" src="logo-oky.svg" alt="OKY">
+              ${cartBitmap({ indicated: true })}
             </div>
           </div>
         </div>
@@ -272,7 +289,7 @@ export const AllHeaders = {
             <div class="page-header-screen">
               <div class="header-icon header-icon-light"><i class="fa-light fa-arrow-left icon-medium"></i></div>
               <div class="page-header-title">Page Title</div>
-              <div class="header-icon header-icon-light"><i class="fa-light fa-cart-shopping icon-medium"></i></div>
+              ${cartBitmap()}
             </div>
           </div>
         </div>
@@ -294,7 +311,7 @@ export const AllHeaders = {
             <div class="page-header-screen">
               <div class="header-icon header-icon-light"><i class="fa-light fa-arrow-left icon-medium"></i></div>
               <div class="page-header-title page-header-title-empty" aria-hidden="true"></div>
-              <div class="header-icon header-icon-light"><i class="fa-light fa-cart-shopping icon-medium"></i></div>
+              ${cartBitmap()}
             </div>
           </div>
         </div>
