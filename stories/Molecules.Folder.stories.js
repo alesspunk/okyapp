@@ -103,9 +103,10 @@ function renderFolderOption({
   codeOffsetY = 0,
   withFlag = true,
   flagVariant = "round",
+  width,
 }) {
   const isActive = side === selectedSide;
-  const showChevronForOption = showChevrons && isActive && side === "right";
+  const showChevronForOption = showChevrons && side === "right";
   const codeStyleParts = [];
   if (codeOffset) {
     codeStyleParts.push(`margin-left:${codeOffset}px`);
@@ -114,8 +115,13 @@ function renderFolderOption({
     codeStyleParts.push(`transform:translateY(${codeOffsetY}px)`);
   }
   const codeStyle = codeStyleParts.length ? ` style="${codeStyleParts.join(";")}"` : "";
+  const optionStyleParts = [`left:${x}px`];
+  if (width) {
+    optionStyleParts.push(`width:${width}px`);
+    optionStyleParts.push("justify-content:center");
+  }
   return `
-    <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="left:${x}px">
+    <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="${optionStyleParts.join(";")}">
       ${
         withFlag
           ? `<span class="folder-flag ${flagVariant === "rect" ? "is-rect" : ""}" aria-hidden="true">
@@ -157,9 +163,9 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
 
   if (isCollapsed) {
     const leftX = 57;
-    const rightX = 248;
-    const lineX = isCollapsedLeft ? 52 : 245;
-    const lineWidth = isCollapsedLeft ? 90 : 66;
+    const rightX = 232;
+    const lineX = isCollapsedLeft ? 52 : 232;
+    const lineWidth = isCollapsedLeft ? 90 : 92;
     const lineTop = 30;
 
     return `
@@ -180,7 +186,7 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
             code: countries.left.code,
             flag: countries.left.collapsedFlag,
             alt: countries.left.alt,
-            showChevrons: isCollapsedLeft,
+            showChevrons: false,
             withFlag: true,
             flagVariant: "rect",
           })}
@@ -191,9 +197,10 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
             code: countries.right.code,
             flag: countries.right.collapsedFlag,
             alt: countries.right.alt,
-            showChevrons: false,
+            showChevrons,
             withFlag: true,
             flagVariant: "rect",
+            width: 92,
           })}
         </div>
 
@@ -227,7 +234,7 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
           code: countries.left.code,
           flag: countries.left.flag,
           alt: countries.left.alt,
-          showChevrons,
+          showChevrons: false,
         })}
         ${renderFolderOption({
           x: rightX,

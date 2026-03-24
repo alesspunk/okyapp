@@ -187,9 +187,10 @@ function renderFolderOption({
   codeOffsetY = 0,
   withFlag = true,
   flagVariant = "round",
+  width,
 }) {
   const isActive = side === selectedSide;
-  const showChevronForOption = showChevrons && isActive && side === "right";
+  const showChevronForOption = showChevrons && side === "right";
   const style = [
     codeOffset ? `margin-left:${codeOffset}px` : "",
     codeOffsetY ? `transform:translateY(${codeOffsetY}px)` : "",
@@ -197,8 +198,14 @@ function renderFolderOption({
     .filter(Boolean)
     .join(";");
 
+  const optionStyle = [`left:${x}px`];
+  if (width) {
+    optionStyle.push(`width:${width}px`);
+    optionStyle.push("justify-content:center");
+  }
+
   return `
-    <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="left:${x}px">
+    <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="${optionStyle.join(";")}">
       ${
         withFlag
           ? `<span class="folder-flag ${flagVariant === "rect" ? "is-rect" : ""}" aria-hidden="true"><img src="${flag}" alt="${alt}"></span>`
@@ -214,13 +221,13 @@ function renderFolderOption({
   `;
 }
 
-function renderFolder(property1, { showNewItemChip = true } = {}) {
+function renderFolder(property1, { showNewItemChip = true, showChevrons = true } = {}) {
   const isCollapsed = property1.startsWith("Collapsed");
   const isLeft = property1 === "Left" || property1 === "Collapsed Left";
 
   if (isCollapsed) {
     const selectedSide = isLeft ? "left" : "right";
-    const lineX = isLeft ? 52 : 245;
+    const lineX = isLeft ? 52 : 232;
     const lineTop = 30;
 
     return `
@@ -241,23 +248,24 @@ function renderFolder(property1, { showNewItemChip = true } = {}) {
                 code: COUNTRY_BASE.left.code,
                 flag: COUNTRY_BASE.left.collapsedFlag,
                 alt: COUNTRY_BASE.left.alt,
-                showChevrons: isLeft,
+                showChevrons: false,
                 withFlag: true,
                 flagVariant: "rect",
               })}
               ${renderFolderOption({
-                x: 248,
+                x: 232,
                 side: "right",
                 selectedSide,
                 code: COUNTRY_BASE.right.code,
                 flag: COUNTRY_BASE.right.collapsedFlag,
                 alt: COUNTRY_BASE.right.alt,
-                showChevrons: false,
+                showChevrons,
                 withFlag: true,
                 flagVariant: "rect",
+                width: 92,
               })}
             </div>
-            <span class="folder-selection-line" style="left:${lineX}px;width:${isLeft ? 90 : 66}px;top:${lineTop}px" aria-hidden="true"></span>
+            <span class="folder-selection-line" style="left:${lineX}px;width:${isLeft ? 90 : 92}px;top:${lineTop}px" aria-hidden="true"></span>
           </div>
         </div>
       </section>
@@ -284,7 +292,7 @@ function renderFolder(property1, { showNewItemChip = true } = {}) {
               code: COUNTRY_BASE.left.code,
               flag: COUNTRY_BASE.left.flag,
               alt: COUNTRY_BASE.left.alt,
-              showChevrons: true,
+              showChevrons: false,
             })}
             ${renderFolderOption({
               x: isLeft ? 245 : 235,
@@ -293,7 +301,7 @@ function renderFolder(property1, { showNewItemChip = true } = {}) {
               code: COUNTRY_BASE.right.code,
               flag: COUNTRY_BASE.right.flag,
               alt: COUNTRY_BASE.right.alt,
-              showChevrons: true,
+              showChevrons,
             })}
           </div>
           ${

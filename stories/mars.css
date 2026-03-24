@@ -3720,7 +3720,7 @@ body {
 
 .folder-new-item-chip {
   position: absolute;
-  left: 252px;
+  left: 68px;
   top: 9px;
   z-index: 6;
   pointer-events: none;
