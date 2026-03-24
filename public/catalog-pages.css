@@ -102,6 +102,11 @@ body {
 
 .category-page-content .homecard-organism {
   margin-bottom: 0;
+  height: auto;
+}
+
+.category-page-content .homecard-content {
+  padding-bottom: 20px;
 }
 
 .category-page-pastry-card .homecard-grid {

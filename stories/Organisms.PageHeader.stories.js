@@ -12,10 +12,11 @@ const BRAND_VARIANTS = ["With label", "No label"];
 const PAGE_HEADER_VARIANTS = ["screens", "no-title"];
 const LAYOUT_VARIANTS = ["Default", "Checkout Overlap"];
 
-function renderCartBitmap() {
+function renderCartBitmap({ indicated = false } = {}) {
   return `
     <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
       <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="images/Cart-3d-icon.png" alt="">
+      ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
     </div>
   `;
 }
@@ -55,7 +56,7 @@ function renderPageHeaderOrganism(args = {}) {
   const rightSlot = showCartChip
     ? `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`
     : showAction
-      ? renderCartBitmap()
+      ? renderCartBitmap({ indicated: true })
       : `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`;
 
   return `
