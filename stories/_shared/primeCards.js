@@ -15,6 +15,24 @@ export const CARD_TOP_VARIANTS = [
     recommendation: 'Recomendado: arte principal centrado tipo card y un solo CTA inferior (base: "Qué incluye").',
   },
   {
+    path: "Molecule/Top Card/Disable",
+    key: "disable",
+    id: "7488:50067",
+    kind: "gift-card",
+    isDisabled: true,
+    hideFooter: true,
+    brandLabel: "Cemaco",
+    showBrandLabel: true,
+    heroImage: "target.webp",
+    heroAlt: "Disabled gift card",
+    flagImage: "guatemala-flag.png",
+    flagAlt: "Guatemala flag",
+    footerLeftLabel: "",
+    footerRightLabel: "",
+    recommendation:
+      "Recomendado: desaturar solo el arte principal y usar `text disable` en el label, sin apagar logo OKY ni bandera.",
+  },
+  {
     path: "Molecule/Top Card/Gift Card",
     key: "gift-card",
     id: "7390:140798",
@@ -151,6 +169,10 @@ function renderCopyIcon() {
 }
 
 function renderTopFooter(card) {
+  if (card.hideFooter) {
+    return "";
+  }
+
   if (card.footerRightLabel) {
     return `
       <div class="prime-card-top-footer is-split">
@@ -271,6 +293,8 @@ export function resolveCardTop(args = {}) {
 
   return {
     ...base,
+    isDisabled: args.isDisabled === true || base.isDisabled === true,
+    hideFooter: args.hideFooter === true || base.hideFooter === true,
     brandLabel: args.brandLabel?.trim() || base.brandLabel,
     showBrandLabel: typeof args.showBrandLabel === "boolean" ? args.showBrandLabel : base.showBrandLabel,
     heroImage: args.heroImage?.trim() || base.heroImage,
@@ -302,7 +326,7 @@ export function resolveCardBottom(args = {}) {
 export function renderCardTop(card) {
   return `
     <div class="prime-card-shell card-top-shell" data-pen-id="${card.id}">
-      <article class="prime-card-molecule card-top-molecule is-${card.kind}">
+      <article class="prime-card-molecule card-top-molecule is-${card.kind} ${card.isDisabled ? "is-disabled" : ""} ${card.hideFooter ? "is-footer-hidden" : ""}">
         ${renderTopHeader(card)}
         ${renderTopBody(card)}
         ${renderTopFooter(card)}

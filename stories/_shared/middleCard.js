@@ -13,6 +13,21 @@ export const MIDDLE_CARD_VARIANTS = [
     recommendation: 'Recomendado: título máx. 14 caracteres ("Vale de Monto") · monto máx. 5 dígitos + separadores.',
   },
   {
+    path: "Molecule/Middle Card/Disable Monto",
+    key: "disable-monto",
+    id: "7488:50068",
+    kind: "amount",
+    isDisabled: true,
+    hideFooter: true,
+    title: "Recarga Tiempo Aire",
+    currency: "$",
+    amount: "10",
+    leftLabel: "",
+    rightLabel: "",
+    image: "",
+    recommendation: "Recomendado: estado disabled para cards de monto, sin labels ni links inferiores.",
+  },
+  {
     path: "Molecule/Middle Card/Con Logo",
     key: "with-logo",
     id: "local:middle-card-with-logo",
@@ -41,6 +56,21 @@ export const MIDDLE_CARD_VARIANTS = [
     image: "middle-card-vale-de-producto.png",
     recommendation:
       'Recomendado: título máx. 60 caracteres (base Figma: "Cajita Feliz de McNuggets + Cono Vainilla y Juguete incluido").',
+  },
+  {
+    path: "Molecule/Middle Card/Disable Foto",
+    key: "disable-foto",
+    id: "7488:49456",
+    kind: "product",
+    isDisabled: true,
+    hideFooter: true,
+    title: "Cajita Feliz de McNuggets + Cono Vainilla y Juguete Incluido",
+    currency: "",
+    amount: "",
+    leftLabel: "",
+    rightLabel: "",
+    image: "OKY_APP_UI_Categorias_V4_TELCO.webp",
+    recommendation: "Recomendado: estado disabled para cards con foto, sin labels ni links inferiores.",
   },
   {
     path: "Molecule/Middle Card/eGift Card",
@@ -81,6 +111,10 @@ function renderDiscountRibbonWrap(card) {
 }
 
 function renderFooter(card) {
+  if (card.hideFooter) {
+    return "";
+  }
+
   return `
     <div class="middle-card-footer">
       <span class="middle-card-footer-start">${card.leftLabel}</span>
@@ -146,6 +180,8 @@ export function resolveMiddleCard(args = {}) {
   return {
     ...base,
     pageContext: args.pageContext || "PDP",
+    isDisabled: args.isDisabled === true || base.isDisabled === true,
+    hideFooter: args.hideFooter === true || base.hideFooter === true,
     title: args.title?.trim() || base.title,
     titleImage: args.titleImage?.trim() || base.titleImage || "",
     titleImageAlt: args.titleImageAlt?.trim() || base.titleImageAlt || base.title,
@@ -169,7 +205,7 @@ export function renderMiddleCard(card) {
       data-pen-id="${card.id}"
     >
       ${card.showDiscountRibbon ? renderDiscountRibbonWrap(card) : ""}
-      <article class="middle-card-molecule is-${card.kind}">
+      <article class="middle-card-molecule is-${card.kind} ${card.isDisabled ? "is-disabled" : ""} ${card.hideFooter ? "is-footer-hidden" : ""}">
         ${renderBody(card)}
       </article>
     </div>

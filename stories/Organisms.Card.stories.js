@@ -96,7 +96,8 @@ export default {
         component:
           "Organismo **Card** compuesto por `Top Card`, `Separator`, `Middle Card`, `Separator` y `Bottom Card`. " +
           "La intención es poder jugar con combinaciones completas de credencial o gift card sin duplicar la anatomía interna de cada molécula. " +
-          "El stack mantiene ancho PDP, centra el separator en `fill container - 30px` con color `border main` y hereda los surfaces y shadows ya declarados en el sistema.",
+          "El stack mantiene ancho PDP, centra el separator en `fill container - 30px` con color `border main` y hereda los surfaces y shadows ya declarados en el sistema. " +
+          "También soporta estados especiales usando las nuevas variantes `Disable` de `Top Card` y `Middle Card`.",
       },
     },
   },
@@ -324,6 +325,38 @@ export const TelcoSupportFlow = {
           bottomShowButtonLabel: false,
           bottomButtonLabel: "Ayuda",
           bottomExpiry: "",
+        })}
+      </div>
+    </div>
+  `,
+};
+
+export const DisabledFlow = {
+  name: "Disabled Flow",
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story: "Composición de referencia para jugar con las nuevas variantes disable de `Top Card` y `Middle Card` dentro del organismo.",
+      },
+    },
+  },
+  render: () => `
+    <div class="mars-story">
+      <div class="mars-label">Disabled Flow</div>
+      <div class="card-organism-story-shell">
+        ${renderCardOrganism({
+          topVariantPath: "Molecule/Top Card/Disable",
+          topShowBrandLabel: true,
+          topBrandLabel: "Cemaco",
+          middleCardPath: "Molecule/Middle Card/Disable Foto",
+          middleTitle: "Cajita Feliz de McNuggets + Cono Vainilla y Juguete Incluido",
+          middleLeftLabel: "",
+          middleRightLabel: "",
+          middleShowDiscountRibbon: false,
+          bottomVariantPath: "Molecule/Bottom Card/Canjeado",
+          bottomShowButtonLabel: false,
+          bottomExpiry: "10 / Sep / 2025",
         })}
       </div>
     </div>

@@ -61,7 +61,7 @@ export default {
       description: {
         component:
           "**Middle Card** es la molécula de canje intermedio para vouchers y gift cards. " +
-          "Incluye cuatro variantes iniciales: **Vale de Monto**, **Con Logo**, **Vale de Producto** y **eGift Card**. " +
+          "Incluye seis variantes: **Vale de Monto**, **Con Logo**, **Vale de Producto**, **eGift Card**, **Disable Monto** y **Disable Foto**. " +
           "Mantiene el mismo footer de acciones, usa tipografía del sistema basada en `Nunito Sans`, shadow suave, radial surface y CTA secundario con `arrow-up-right-from-square`. " +
           "Incluye además un switch de contexto para **PDP** y **Checkout**, cambiando tamaño sin alterar la anatomía. " +
           "También permite montar opcionalmente un **Discount Ribbon / Wrap** en la esquina superior derecha, reutilizando el átomo existente sin romper su set de variantes. " +
@@ -179,13 +179,13 @@ export const AllVariants = {
   parameters: {
     docs: {
       description: {
-        story: "Referencia side-by-side de las cuatro variantes base del componente.",
+        story: "Referencia side-by-side de todas las variantes del componente, incluidas las dos nuevas variantes disable.",
       },
     },
   },
   render: () => `
       <div class="mars-story">
-        <div class="mars-label">Middle Card · Three Variants</div>
+        <div class="mars-label">Middle Card · All Variants</div>
         <div class="middle-card-grid">
         ${MIDDLE_CARD_VARIANTS.map((card) => renderReferenceItem(card)).join("")}
         </div>

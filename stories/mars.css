@@ -4142,6 +4142,10 @@ body {
   overflow: hidden;
 }
 
+.middle-card-molecule.is-disabled {
+  border-color: var(--disable-main);
+}
+
 .middle-card-shell.is-checkout {
   width: min(300px, 100%);
 }
@@ -4168,6 +4172,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.middle-card-molecule.is-footer-hidden .middle-card-content {
+  min-height: 186px;
 }
 
 .middle-card-shell.is-checkout .middle-card-content {
@@ -4210,6 +4218,12 @@ body {
   font-weight: 600;
   line-height: 1.5;
   letter-spacing: 0.15px;
+}
+
+.middle-card-molecule.is-disabled .middle-card-title,
+.middle-card-molecule.is-disabled .middle-card-currency,
+.middle-card-molecule.is-disabled .middle-card-amount {
+  color: var(--disable-text);
 }
 
 .middle-card-title-media {
@@ -4286,6 +4300,14 @@ body {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+}
+
+.middle-card-molecule.is-disabled .middle-card-product-figure {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.middle-card-molecule.is-disabled .middle-card-product-figure img {
+  opacity: 0.5;
 }
 
 .middle-card-shell.is-checkout .middle-card-product-figure {
@@ -4389,6 +4411,14 @@ body {
   background: var(--card-top);
 }
 
+.card-top-molecule.is-disabled {
+  border-color: var(--disable-main);
+}
+
+.card-top-molecule.is-footer-hidden {
+  min-height: 191px;
+}
+
 .card-top-molecule.is-gift-card {
   min-height: 195px;
 }
@@ -4421,6 +4451,10 @@ body {
 .prime-card-top-brand {
   color: #552588;
   text-align: center;
+}
+
+.card-top-molecule.is-disabled .prime-card-top-brand {
+  color: var(--disable-text);
 }
 
 .prime-card-top-flag {
@@ -4457,6 +4491,11 @@ body {
   background: transparent;
 }
 
+.card-top-molecule.is-disabled .prime-card-top-hero img {
+  filter: grayscale(1) saturate(0);
+  opacity: 0.72;
+}
+
 .prime-card-top-hero img {
   width: 100%;
   height: 100%;
@@ -4479,6 +4518,10 @@ body {
   align-items: center;
   color: #552588;
   padding: 8px 16px 10px;
+}
+
+.card-top-molecule.is-footer-hidden .prime-card-top-body {
+  padding-bottom: 18px;
 }
 
 .prime-card-top-footer.is-single {
