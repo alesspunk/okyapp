@@ -4042,8 +4042,9 @@ body {
   min-height: 19px;
   padding: 3px 6px;
   border-radius: 13px;
-  background: #ffb400;
-  color: #663d00;
+  border: 1px solid var(--accent-color);
+  background: var(--white);
+  color: #552588;
   font-family: "Nunito Sans", sans-serif;
   font-size: 10px;
   font-weight: 700;

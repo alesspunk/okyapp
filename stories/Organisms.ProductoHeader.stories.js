@@ -216,7 +216,8 @@ export default {
           "Organismo **Producto Header** compuesto únicamente con componentes ya existentes del sistema: " +
           "`Page Header`, `Brand Item`, `Plateu`, `Middle Card` e `Input/Dinamic`. " +
           "Se presenta como stack vertical para encabezados de PDP y usa por defecto la variante `Page Header / No title`. " +
-          "Puede mostrarse con o sin `Plateu`, y también prender/apagar el `Discount Ribbon / Wrap` del `Middle Card`, reutilizando en ambos casos las variantes ya documentadas de los componentes existentes.",
+          "Puede mostrarse con o sin `Plateu`, y también prender/apagar el `Discount Ribbon / Wrap` del `Middle Card`, reutilizando en ambos casos las variantes ya documentadas de los componentes existentes. " +
+          "Cuando `Plateu` está presente, hereda el chip activo con fill blanco, border accent de `1px` y texto `Primary Main`.",
       },
     },
   },

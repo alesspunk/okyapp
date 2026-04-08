@@ -1,3 +1,5 @@
+import { buildPlateu } from "./_shared/plateu";
+
 const SIDE_OPTIONS = ["Left", "Right"];
 const STATE_OPTIONS = ["State 1", "State 2", "State 3"];
 
@@ -342,30 +344,7 @@ function renderSearchInput({ compact }) {
 function renderPlateuHome() {
   return `
     <section class="discovery-header-plateu" data-pen-id="7331:50399">
-      <section
-        class="plateu-molecule is-scrolling is-home"
-        style="width:360px;height:80px"
-        aria-label="Plateu State=Home, Telco=No, Scrolling=Yes"
-      >
-        <div class="plateu-track is-scrolling">
-          <div class="plateu-item plateu-item-fixed">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu4.webp" alt="Moda" /></div>
-            <span class="plateu-chip">Moda</span>
-          </div>
-          <div class="plateu-item plateu-item-fixed">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu1.webp" alt="Tecnología" /></div>
-            <span class="plateu-label">Tecnología</span>
-          </div>
-          <div class="plateu-item plateu-item-fixed">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu3.webp" alt="Lentes" /></div>
-            <span class="plateu-label">Lentes</span>
-          </div>
-          <div class="plateu-item plateu-item-fixed">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu2.webp" alt="Online" /></div>
-            <span class="plateu-label">Online</span>
-          </div>
-        </div>
-      </section>
+      ${buildPlateu({ property1: "State=Home, Telco=No, Scrolling=Yes" })}
     </section>
   `;
 }
@@ -409,7 +388,7 @@ export default {
           "`Status Bar`, `Header`, `Folder` (expanded/collapsed), `Input/Search (Empty)` y " +
           "`Plateu · State=Home, Telco=No, Scrolling=Yes (7331:50399)`. " +
           "Incluye 3 states por lado (`Left` y `Right`) segun el orden del frame de Figma `7333:70239`. " +
-          "El Plateu Home usa separacion horizontal de `8px` entre items. " +
+          "El Plateu Home usa separacion horizontal de `8px` entre items y chip activo con fill blanco, border accent de `1px` y texto `Primary Main`. " +
           "En Docs Playground puedes alternar `Show New Item Chip` para la vista `Left · State 1`.",
       },
     },

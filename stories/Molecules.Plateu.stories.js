@@ -29,7 +29,8 @@ export default {
         component:
           "Molecula **Plateu** con variantes basadas en Figma (`6944:57179`). " +
           "Incluye estados Telco/No Telco con y sin scrolling, respetando tamaños (340x125, 340x100 y 360x80), " +
-          "sombras y estilos del chip activo. En la variante `State=Home, Telco=No, Scrolling=Yes` la separacion horizontal entre items es de `8px`.",
+          "sombras y estilos del chip activo. El chip seleccionado usa fill blanco, border accent de `1px` y texto `Primary Main`. " +
+          "En la variante `State=Home, Telco=No, Scrolling=Yes` la separacion horizontal entre items es de `8px`.",
       },
     },
   },
