@@ -66,7 +66,7 @@ export const CARD_BOTTOM_VARIANTS = [
     transactionId: "ID transacción #09091090192",
     expiry: "",
     buttonLabel: "",
-    recommendation: "Recomendado: stamp centrado y línea inferior con ID transacción y acción de copy.",
+    recommendation: "Recomendado: stamp centrado y línea inferior con solo ID transacción centrado.",
   },
   {
     path: "Molecule/Bottom Card/En Proceso",
@@ -77,7 +77,7 @@ export const CARD_BOTTOM_VARIANTS = [
     transactionId: "ID transacción #09091090192",
     expiry: "",
     buttonLabel: "",
-    recommendation: "Recomendado: stamp centrado y línea inferior con ID transacción y acción de copy.",
+    recommendation: "Recomendado: stamp centrado y línea inferior con solo ID transacción centrado.",
   },
   {
     path: "Molecule/Bottom Card/Expirado",
@@ -85,10 +85,10 @@ export const CARD_BOTTOM_VARIANTS = [
     id: "7479:68599",
     stampImage: "Stamp_Expirado@3x.webp",
     stampAlt: "Stamp Expirado",
-    transactionId: "ID transacción #09091090192",
+    transactionId: "",
     expiry: "10 / Sep / 2025",
     buttonLabel: "",
-    recommendation: "Recomendado: stamp centrado y línea inferior con ID transacción, copy y fecha.",
+    recommendation: "Recomendado: stamp centrado y línea inferior con solo fecha centrada.",
   },
   {
     path: "Molecule/Bottom Card/OKY Vales",
@@ -243,7 +243,6 @@ function renderBottomStampCard(card) {
             ? `
               <div class="prime-card-bottom-status-transaction">
                 <span class="prime-card-bottom-status-text">${card.transactionId}</span>
-                ${renderCopyIcon()}
               </div>
             `
             : ""
