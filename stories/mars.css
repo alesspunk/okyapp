@@ -4522,7 +4522,7 @@ body {
 }
 
 .card-bottom-molecule {
-  min-height: 185px;
+  min-height: 191px;
   display: flex;
   position: relative;
   border-style: solid;
@@ -4533,13 +4533,12 @@ body {
 }
 
 .card-bottom-molecule.is-status-card {
-  min-height: 191px;
   flex-direction: column;
 }
 
 .prime-card-bottom-content {
   width: 100%;
-  min-height: 184px;
+  min-height: 190px;
   display: block;
   position: relative;
   padding: 8px 20px 16px;

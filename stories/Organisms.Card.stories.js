@@ -269,7 +269,7 @@ export const OkyValesFlow = {
           bottomVariantPath: "Molecule/Bottom Card/OKY Vales",
           bottomShowButtonLabel: true,
           bottomButtonLabel: "Ayuda",
-          bottomExpiry: "Vence 10 / Sep / 2025",
+          bottomExpiry: "10 / Sep / 2025",
         })}
       </div>
     </div>
@@ -296,7 +296,7 @@ export const MixedFlow = {
           bottomVariantPath: "Molecule/Bottom Card/Default",
           bottomShowButtonLabel: true,
           bottomButtonLabel: "Ayuda",
-          bottomExpiry: "Vence 10 / Sep / 2025",
+          bottomExpiry: "10 / Sep / 2025",
         })}
       </div>
     </div>

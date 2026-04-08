@@ -72,7 +72,7 @@ export const DocsPlayground = {
     showButtonLabel: true,
     buttonLabel: "Ayuda",
     transactionId: "",
-    expiry: "Vence 10 / Sep / 2025",
+    expiry: "10 / Sep / 2025",
     whatsappImage: "whatsapp-icon-card-bottom.png",
     showMeta: true,
   },
