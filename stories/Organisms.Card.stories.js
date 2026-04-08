@@ -51,6 +51,7 @@ function resolveArgs(args = {}) {
     }),
     bottom: resolveCardBottom({
       variantPath: CARD_BOTTOM_PATHS.includes(args.bottomVariantPath) ? args.bottomVariantPath : bottomBase.path,
+      transactionId: typeof args.bottomTransactionId === "string" ? args.bottomTransactionId : bottomBase.transactionId,
       expiry: typeof args.bottomExpiry === "string" ? args.bottomExpiry : bottomBase.expiry,
       buttonLabel: args.bottomButtonLabel?.trim() || bottomBase.buttonLabel,
       showButtonLabel:
@@ -167,6 +168,10 @@ export default {
     bottomExpiry: {
       control: "text",
       description: "Fecha de expiración visible en Bottom Card.",
+    },
+    bottomTransactionId: {
+      control: "text",
+      description: "ID de transacción visible en las variantes nuevas de Bottom Card con stamp.",
     },
     showMeta: {
       control: "boolean",

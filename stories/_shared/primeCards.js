@@ -47,6 +47,50 @@ export const CARD_BOTTOM_VARIANTS = [
     recommendation: 'Recomendado: 3 líneas máximo y CTA con label corto (base: "Ayuda").',
   },
   {
+    path: "Molecule/Bottom Card/Canjeado",
+    key: "canjeado",
+    id: "7479:68596",
+    stampImage: "Stamp_canjeado@3x.webp",
+    stampAlt: "Stamp Canjeado",
+    transactionId: "",
+    expiry: "10 / Sep / 2025",
+    buttonLabel: "",
+    recommendation: "Recomendado: stamp centrado, sin CTA lateral y una sola línea de fecha.",
+  },
+  {
+    path: "Molecule/Bottom Card/Fallido",
+    key: "fallido",
+    id: "7479:68598",
+    stampImage: "Stamp_Comprafallida@3x.webp",
+    stampAlt: "Stamp Compra Fallida",
+    transactionId: "ID transacción #09091090192",
+    expiry: "",
+    buttonLabel: "",
+    recommendation: "Recomendado: stamp centrado y línea inferior con ID transacción y acción de copy.",
+  },
+  {
+    path: "Molecule/Bottom Card/En Proceso",
+    key: "en-proceso",
+    id: "7479:68597",
+    stampImage: "Stamp_Enproceso@3x.webp",
+    stampAlt: "Stamp En Proceso",
+    transactionId: "ID transacción #09091090192",
+    expiry: "",
+    buttonLabel: "",
+    recommendation: "Recomendado: stamp centrado y línea inferior con ID transacción y acción de copy.",
+  },
+  {
+    path: "Molecule/Bottom Card/Expirado",
+    key: "expirado",
+    id: "7479:68599",
+    stampImage: "Stamp_Expirado@3x.webp",
+    stampAlt: "Stamp Expirado",
+    transactionId: "ID transacción #09091090192",
+    expiry: "10 / Sep / 2025",
+    buttonLabel: "",
+    recommendation: "Recomendado: stamp centrado y línea inferior con ID transacción, copy y fecha.",
+  },
+  {
     path: "Molecule/Bottom Card/OKY Vales",
     key: "oky-vales",
     id: "7390:140803",
@@ -182,6 +226,38 @@ function renderBottomButton(card) {
   `;
 }
 
+function renderBottomStampCard(card) {
+  const showTransaction = Boolean(card.transactionId);
+  const showExpiry = Boolean(card.expiry);
+
+  return `
+    <div class="prime-card-bottom-status-body">
+      <div class="prime-card-bottom-stamp-wrap">
+        <img class="prime-card-bottom-stamp" src="${card.stampImage}" alt="${card.stampAlt || ""}" />
+      </div>
+    </div>
+    <div class="prime-card-bottom-status-meta">
+      <div class="prime-card-bottom-status-meta-main ${showExpiry && showTransaction ? "has-split" : ""}">
+        ${
+          showTransaction
+            ? `
+              <div class="prime-card-bottom-status-transaction">
+                <span class="prime-card-bottom-status-text">${card.transactionId}</span>
+                ${renderCopyIcon()}
+              </div>
+            `
+            : ""
+        }
+        ${
+          showExpiry
+            ? `<div class="prime-card-bottom-status-expiry ${showTransaction ? "is-right" : "is-centered"}">${card.expiry}</div>`
+            : ""
+        }
+      </div>
+    </div>
+  `;
+}
+
 export function findCardTop(path) {
   return CARD_TOP_VARIANTS.find((variant) => variant.path === path) ?? CARD_TOP_VARIANTS[0];
 }
@@ -213,6 +289,9 @@ export function resolveCardBottom(args = {}) {
   return {
     ...base,
     lines: overrideLines ?? base.lines,
+    stampImage: args.stampImage?.trim() || base.stampImage || "",
+    stampAlt: args.stampAlt?.trim() || base.stampAlt || "",
+    transactionId: typeof args.transactionId === "string" ? args.transactionId.trim() : base.transactionId || "",
     expiry: typeof args.expiry === "string" ? args.expiry.trim() : base.expiry,
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,
     showButtonLabel: typeof args.showButtonLabel === "boolean" ? args.showButtonLabel : true,
@@ -233,6 +312,16 @@ export function renderCardTop(card) {
 }
 
 export function renderCardBottom(card) {
+  if (card.stampImage) {
+    return `
+      <div class="prime-card-shell card-bottom-shell" data-pen-id="${card.id}">
+        <article class="prime-card-molecule card-bottom-molecule is-${card.key} is-status-card">
+          ${renderBottomStampCard(card)}
+        </article>
+      </div>
+    `;
+  }
+
   return `
     <div class="prime-card-shell card-bottom-shell" data-pen-id="${card.id}">
       <article class="prime-card-molecule card-bottom-molecule is-${card.key}">
