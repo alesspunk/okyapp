@@ -243,6 +243,7 @@ function renderBottomStampCard(card) {
             ? `
               <div class="prime-card-bottom-status-transaction">
                 <span class="prime-card-bottom-status-text">${card.transactionId}</span>
+                ${renderCopyIcon()}
               </div>
             `
             : ""
