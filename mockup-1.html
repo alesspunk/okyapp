@@ -56,7 +56,16 @@
         position: sticky;
         top: 0;
         z-index: 30;
+        height: var(--discovery-sticky-height, auto);
+        background: transparent;
+        overflow: visible;
+        overflow-anchor: none;
+        pointer-events: none;
+      }
+
+      .mockup-discovery-sticky > .discovery-header-organism {
         background: #fff;
+        pointer-events: auto;
       }
 
       #mockup1-discovery-header .dh-app,
@@ -225,7 +234,7 @@
                 </div>
               </div>
               <img class="header-logo" src="./images/logo-oky.svg" alt="OKY" />
-              <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+              <div class="header-icon header-icon-bitmap header-icon-bitmap-cart header-icon-bitmap-indicated" aria-hidden="true">
                 <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="./images/Cart-3d-icon.png" alt="" />
                 <span class="header-icon-indicator-dot"></span>
               </div>
@@ -268,15 +277,16 @@
 
                 <div class="folder-options">
                   <span class="folder-option is-active" style="left:55px">
+                    <span class="folder-flag" aria-hidden="true"><img src="./images/guatemala-flag.png" alt="Guatemala flag" /></span>
+                    <span class="folder-code">GUA</span>
+                  </span>
+                  <span class="folder-option is-inactive" style="left:245px">
                     <span class="folder-flag" aria-hidden="true"><img src="./images/usa-flag.png" alt="USA flag" /></span>
                     <span class="folder-code">USA</span>
                   </span>
-                  <span class="folder-option is-inactive" style="left:245px;width:92px;justify-content:center">
-                    <span class="folder-flag" aria-hidden="true"><img src="./images/guatemala-flag.png" alt="Guatemala flag" /></span>
-                    <span class="folder-code">GUA</span>
-                    <span class="folder-chevron-stack" aria-hidden="true"><img src="./images/chevron.svg" alt=""></span>
-                  </span>
                 </div>
+                <span class="folder-new-item-chip chip-ds chip-ds-new-item" aria-label="New item">Nuevo</span>
+
                 <span class="folder-selection-line" style="left:51px;width:86px" aria-hidden="true"></span>
               </div>
             </div>
@@ -753,7 +763,7 @@
                 </div>
               </div>
               <img class="header-logo" src="./images/logo-oky.svg" alt="OKY" />
-              <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+              <div class="header-icon header-icon-bitmap header-icon-bitmap-cart header-icon-bitmap-indicated" aria-hidden="true">
                 <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="./images/Cart-3d-icon.png" alt="" />
                 <span class="header-icon-indicator-dot"></span>
               </div>
@@ -775,20 +785,18 @@
         };
 
         const toggleLeftChevron = (show) => {
-          const existingLeft = leftOption?.querySelector(".folder-chevron-stack");
-          if (existingLeft) existingLeft.remove();
-          if (!rightOption) return;
-          const existingRight = rightOption.querySelector(".folder-chevron-stack");
+          if (!leftOption) return;
+          const existing = leftOption.querySelector(".folder-chevron-stack");
           if (show) {
-            if (!existingRight) {
-              rightOption.insertAdjacentHTML(
+            if (!existing) {
+              leftOption.insertAdjacentHTML(
                 "beforeend",
                 '<span class="folder-chevron-stack" aria-hidden="true"><img src="./images/chevron.svg" alt=""></span>'
               );
             }
             return;
           }
-          if (existingRight) existingRight.remove();
+          if (existing) existing.remove();
         };
 
         const plateuSection = document.createElement("section");
@@ -799,19 +807,19 @@
             <div class="plateu-track is-scrolling">
               <div class="plateu-item plateu-item-fixed">
                 <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu4.webp" alt="MODA" /></div>
-                <span class="plateu-chip">Moda</span>
+                <span class="plateu-chip">MODA</span>
               </div>
               <div class="plateu-item plateu-item-fixed">
                 <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu1.webp" alt="TECNOLOGÍA" /></div>
-                <span class="plateu-label">Tecnología</span>
+                <span class="plateu-label">TECNOLOGÍA</span>
               </div>
               <div class="plateu-item plateu-item-fixed">
                 <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu3.webp" alt="LENTES" /></div>
-                <span class="plateu-label">Lentes</span>
+                <span class="plateu-label">LENTES</span>
               </div>
               <div class="plateu-item plateu-item-fixed">
                 <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu2.webp" alt="ONLINE" /></div>
-                <span class="plateu-label">Online</span>
+                <span class="plateu-label">ONLINE</span>
               </div>
             </div>
           </section>
@@ -821,19 +829,19 @@
             <div class="plateu-track is-scrolling">
               <div class="plateu-item plateu-item-fixed">
                 <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/invitar.webp" alt="Comida rapida" /></div>
-                <span class="plateu-chip">Comida rápida</span>
+                <span class="plateu-chip">COMIDA RAPIDA</span>
               </div>
               <div class="plateu-item plateu-item-fixed">
                 <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu12.png" alt="Pasteleria" /></div>
-                <span class="plateu-label">Pastelería</span>
+                <span class="plateu-label">PASTELERIA</span>
               </div>
               <div class="plateu-item plateu-item-fixed">
                 <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu13.png" alt="Restaurantes" /></div>
-                <span class="plateu-label">Restaurantes</span>
+                <span class="plateu-label">RESTAURANTES</span>
               </div>
               <div class="plateu-item plateu-item-fixed">
                 <div class="plateu-icon-wrap"><img class="plateu-icon" src="./images/plateu14.png" alt="Cafeterias" /></div>
-                <span class="plateu-label">Cafeterías</span>
+                <span class="plateu-label">CAFETERIAS</span>
               </div>
             </div>
           </section>
@@ -852,7 +860,7 @@
           folderControl.classList.add(side === "left" ? "is-left" : "is-right");
           setLayerShapes(side);
           setOptionActiveSide(side);
-          toggleLeftChevron(true);
+          toggleLeftChevron(side === "left");
 
           const leftFlagImg = leftFlag?.querySelector("img");
           const rightFlagImg = rightFlag?.querySelector("img");
@@ -864,18 +872,10 @@
             rightFlag.style.display = "inline-flex";
             rightFlag.classList.remove("is-rect");
           }
-          if (leftFlagImg) leftFlagImg.src = "./images/usa-flag.png";
-          if (rightFlagImg) rightFlagImg.src = "./images/guatemala-flag.png";
+          if (leftFlagImg) leftFlagImg.src = "./images/guatemala-flag.png";
+          if (rightFlagImg) rightFlagImg.src = "./images/usa-flag.png";
           if (leftOption) leftOption.style.left = side === "left" ? "55px" : "54px";
           if (rightOption) rightOption.style.left = side === "left" ? "245px" : "235px";
-          if (leftOption) {
-            leftOption.style.removeProperty("width");
-            leftOption.style.removeProperty("justify-content");
-          }
-          if (rightOption) {
-            rightOption.style.removeProperty("width");
-            rightOption.style.removeProperty("justify-content");
-          }
           if (leftCode) {
             leftCode.style.removeProperty("margin-left");
             leftCode.style.removeProperty("transform");
@@ -888,7 +888,7 @@
             selectionLine.style.left = side === "left" ? "51px" : "235px";
             selectionLine.style.width = side === "left" ? "86px" : "66px";
             selectionLine.style.removeProperty("top");
-            setNewItemChipVisible(side === "right");
+            setNewItemChipVisible(side === "left");
           }
         };
 
@@ -900,7 +900,7 @@
           folderControl.classList.add("is-collapsed", side === "left" ? "is-left" : "is-right");
           setLayerShapes(side);
           setOptionActiveSide(side);
-          toggleLeftChevron(true);
+          toggleLeftChevron(side === "left");
 
           const leftFlagImg = leftFlag?.querySelector("img");
           const rightFlagImg = rightFlag?.querySelector("img");
@@ -912,18 +912,10 @@
             rightFlag.style.display = "inline-flex";
             rightFlag.classList.add("is-rect");
           }
-          if (leftFlagImg) leftFlagImg.src = "./images/flag-usa.png";
-          if (rightFlagImg) rightFlagImg.src = "./images/flag-guate.png";
+          if (leftFlagImg) leftFlagImg.src = "./images/flag-guate.png";
+          if (rightFlagImg) rightFlagImg.src = "./images/flag-usa.png";
           if (leftOption) leftOption.style.left = "57px";
-          if (rightOption) {
-            rightOption.style.left = "232px";
-            rightOption.style.width = "92px";
-            rightOption.style.justifyContent = "center";
-          }
-          if (leftOption) {
-            leftOption.style.removeProperty("width");
-            leftOption.style.removeProperty("justify-content");
-          }
+          if (rightOption) rightOption.style.left = "248px";
           if (leftCode) {
             leftCode.style.removeProperty("margin-left");
             leftCode.style.removeProperty("transform");
@@ -933,8 +925,8 @@
             rightCode.style.removeProperty("transform");
           }
           if (selectionLine) {
-            selectionLine.style.left = side === "left" ? "52px" : "232px";
-            selectionLine.style.width = side === "left" ? "90px" : "92px";
+            selectionLine.style.left = side === "left" ? "52px" : "245px";
+            selectionLine.style.width = side === "left" ? "90px" : "66px";
             selectionLine.style.top = "30px";
             setNewItemChipVisible(false);
           }
@@ -953,15 +945,14 @@
           },
         };
 
-        const initialContentSide = discoveryHeader.dataset.side === "Left" ? "left" : "right";
-        let currentSide = "right";
+        let currentSide = discoveryHeader.dataset.side === "Left" ? "left" : "right";
         let hasDismissedNewItemChip = false;
         let currentState = 0;
         let lastScrollTop = shell.scrollTop;
 
         const setContentBySide = (side) => {
           if (!leftContent || !rightContent) return;
-          const showLeft = side === "right";
+          const showLeft = side === "left";
           leftContent.hidden = !showLeft;
           rightContent.hidden = showLeft;
         };
@@ -969,6 +960,14 @@
         const refreshFontAwesome = (node = discoveryHeader) => {
           if (window.FontAwesome?.dom?.i2svg) {
             window.FontAwesome.dom.i2svg({ node });
+          }
+        };
+
+        const lockStickyBlockHeight = () => {
+          if (!stickyBlock) return;
+          const expandedHeight = Math.ceil(discoveryHeader.getBoundingClientRect().height);
+          if (expandedHeight > 0) {
+            stickyBlock.style.setProperty("--discovery-sticky-height", `${expandedHeight}px`);
           }
         };
 
@@ -1003,6 +1002,10 @@
 
         const setSide = (nextSide) => {
           const safeSide = nextSide === "left" ? "left" : "right";
+          if (safeSide === "right") {
+            hasDismissedNewItemChip = true;
+            setNewItemChipVisible(false);
+          }
           if (safeSide === currentSide) {
             setContentBySide(currentSide);
             return;
@@ -1045,19 +1048,19 @@
         const resolveNextState = (scrollTop) => {
           const isScrollingDown = scrollTop > lastScrollTop;
           const isScrollingUp = scrollTop < lastScrollTop;
-          let nextState = currentState;
+          let nextState = currentState || stateFromInitialScroll(scrollTop);
 
           if (isScrollingDown) {
-            if (currentState === 1 && scrollTop >= DOWN_TO_STATE_2) {
-              nextState = 2;
-            } else if (currentState === 2 && scrollTop >= DOWN_TO_STATE_3) {
+            if (scrollTop >= DOWN_TO_STATE_3) {
               nextState = 3;
+            } else if (scrollTop >= DOWN_TO_STATE_2) {
+              nextState = Math.max(nextState, 2);
             }
           } else if (isScrollingUp) {
-            if (currentState === 3 && scrollTop <= UP_TO_STATE_2) {
-              nextState = 2;
-            } else if (currentState === 2 && scrollTop <= UP_TO_STATE_1) {
+            if (scrollTop <= UP_TO_STATE_1) {
               nextState = 1;
+            } else if (scrollTop <= UP_TO_STATE_2) {
+              nextState = Math.min(nextState, 2);
             }
           }
 
@@ -1065,8 +1068,11 @@
           return nextState;
         };
 
+        const initialState = stateFromInitialScroll(shell.scrollTop);
         setContentBySide(currentSide);
-        applyState(stateFromInitialScroll(shell.scrollTop));
+        applyState(1, true);
+        lockStickyBlockHeight();
+        applyState(initialState, true);
         shell.addEventListener(
           "scroll",
           () => {
