@@ -56,7 +56,16 @@
         position: sticky;
         top: 0;
         z-index: 30;
+        height: var(--discovery-sticky-height, auto);
+        background: transparent;
+        overflow: visible;
+        overflow-anchor: none;
+        pointer-events: none;
+      }
+
+      .mockup-discovery-sticky > .discovery-header-organism {
         background: #fff;
+        pointer-events: auto;
       }
 
       #mockup1-discovery-header .dh-app,
@@ -218,14 +227,16 @@
           </section>
 
           <section class="dh-app" data-pen-id="ArMsV">
-            <div class="app-header is-logged-cart">
+            <div class="app-header">
               <div class="header-left-group">
-                <div class="header-icon"><i class="fak fa-kit fa-wallet icon-medium" aria-hidden="true"></i></div>
+                <div class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap" aria-hidden="true">
+                  <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="./images/Wallet-icon.png" alt="" />
+                </div>
               </div>
               <img class="header-logo" src="./images/logo-oky.svg" alt="OKY" />
-              <div class="header-cart-chip header-cart-full">
-                <span class="header-cart-count">2</span>
-                <i class="fa-light fa-cart-shopping" aria-hidden="true"></i>
+              <div class="header-icon header-icon-bitmap header-icon-bitmap-cart header-icon-bitmap-indicated" aria-hidden="true">
+                <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="./images/Cart-3d-icon.png" alt="" />
+                <span class="header-icon-indicator-dot"></span>
               </div>
             </div>
           </section>
@@ -266,11 +277,11 @@
 
                 <div class="folder-options">
                   <span class="folder-option is-active" style="left:55px">
-                    <span class="folder-flag" aria-hidden="true"><img src="./images/guatemala-flag.png" alt="Guatemala flag" /></span>
+                    <span class="folder-flag is-rect" aria-hidden="true"><span class="flag-atom flag-atom-large is-borderless" role="img" aria-label="Guatemala · GTM" title="Guatemala · GTM" data-alpha-2="GT" data-alpha-3="GTM" data-input-code="GUA"><img src="/flagpack/4x3/gt.svg" alt="" loading="lazy" /></span></span>
                     <span class="folder-code">GUA</span>
                   </span>
                   <span class="folder-option is-inactive" style="left:245px">
-                    <span class="folder-flag" aria-hidden="true"><img src="./images/usa-flag.png" alt="USA flag" /></span>
+                    <span class="folder-flag is-rect" aria-hidden="true"><span class="flag-atom flag-atom-large is-borderless" role="img" aria-label="Estados Unidos · USA" title="Estados Unidos · USA" data-alpha-2="US" data-alpha-3="USA" data-input-code="USA"><img src="/flagpack/4x3/us.svg" alt="" loading="lazy" /></span></span>
                     <span class="folder-code">USA</span>
                   </span>
                 </div>
@@ -730,10 +741,14 @@
             appHeaderSection.innerHTML = `
               <div class="app-header">
                 <div class="header-left-group">
-                  <div class="header-icon"><i class="fak fa-kit fa-wallet icon-medium" aria-hidden="true"></i></div>
+                  <div class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap" aria-hidden="true">
+                    <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="./images/Wallet-icon.png" alt="" />
+                  </div>
                 </div>
                 <img class="header-logo" src="./images/logo-oky.svg" alt="OKY" />
-                <div class="header-icon"><i class="fa-light fa-cart-shopping icon-medium" aria-hidden="true"></i></div>
+                <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+                  <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="./images/Cart-3d-icon.png" alt="" />
+                </div>
               </div>
             `;
             return;
@@ -741,14 +756,16 @@
 
           appHeaderSection.dataset.penId = "ArMsV";
           appHeaderSection.innerHTML = `
-            <div class="app-header is-logged-cart">
+            <div class="app-header">
               <div class="header-left-group">
-                <div class="header-icon"><i class="fak fa-kit fa-wallet icon-medium" aria-hidden="true"></i></div>
+                <div class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap" aria-hidden="true">
+                  <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="./images/Wallet-icon.png" alt="" />
+                </div>
               </div>
               <img class="header-logo" src="./images/logo-oky.svg" alt="OKY" />
-              <div class="header-cart-chip header-cart-full">
-                <span class="header-cart-count">2</span>
-                <i class="fa-light fa-cart-shopping" aria-hidden="true"></i>
+              <div class="header-icon header-icon-bitmap header-icon-bitmap-cart header-icon-bitmap-indicated" aria-hidden="true">
+                <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="./images/Cart-3d-icon.png" alt="" />
+                <span class="header-icon-indicator-dot"></span>
               </div>
             </div>
           `;
@@ -855,8 +872,8 @@
             rightFlag.style.display = "inline-flex";
             rightFlag.classList.remove("is-rect");
           }
-          if (leftFlagImg) leftFlagImg.src = "./images/guatemala-flag.png";
-          if (rightFlagImg) rightFlagImg.src = "./images/usa-flag.png";
+          if (leftFlagImg) leftFlagImg.src = "/flagpack/4x3/gt.svg";
+          if (rightFlagImg) rightFlagImg.src = "/flagpack/4x3/us.svg";
           if (leftOption) leftOption.style.left = side === "left" ? "55px" : "54px";
           if (rightOption) rightOption.style.left = side === "left" ? "245px" : "235px";
           if (leftCode) {
@@ -895,8 +912,8 @@
             rightFlag.style.display = "inline-flex";
             rightFlag.classList.add("is-rect");
           }
-          if (leftFlagImg) leftFlagImg.src = "./images/flag-guate.png";
-          if (rightFlagImg) rightFlagImg.src = "./images/flag-usa.png";
+          if (leftFlagImg) leftFlagImg.src = "/flagpack/4x3/gt.svg";
+          if (rightFlagImg) rightFlagImg.src = "/flagpack/4x3/us.svg";
           if (leftOption) leftOption.style.left = "57px";
           if (rightOption) rightOption.style.left = "248px";
           if (leftCode) {
@@ -943,6 +960,14 @@
         const refreshFontAwesome = (node = discoveryHeader) => {
           if (window.FontAwesome?.dom?.i2svg) {
             window.FontAwesome.dom.i2svg({ node });
+          }
+        };
+
+        const lockStickyBlockHeight = () => {
+          if (!stickyBlock) return;
+          const expandedHeight = Math.ceil(discoveryHeader.getBoundingClientRect().height);
+          if (expandedHeight > 0) {
+            stickyBlock.style.setProperty("--discovery-sticky-height", `${expandedHeight}px`);
           }
         };
 
@@ -1023,19 +1048,19 @@
         const resolveNextState = (scrollTop) => {
           const isScrollingDown = scrollTop > lastScrollTop;
           const isScrollingUp = scrollTop < lastScrollTop;
-          let nextState = currentState;
+          let nextState = currentState || stateFromInitialScroll(scrollTop);
 
           if (isScrollingDown) {
-            if (currentState === 1 && scrollTop >= DOWN_TO_STATE_2) {
-              nextState = 2;
-            } else if (currentState === 2 && scrollTop >= DOWN_TO_STATE_3) {
+            if (scrollTop >= DOWN_TO_STATE_3) {
               nextState = 3;
+            } else if (scrollTop >= DOWN_TO_STATE_2) {
+              nextState = Math.max(nextState, 2);
             }
           } else if (isScrollingUp) {
-            if (currentState === 3 && scrollTop <= UP_TO_STATE_2) {
-              nextState = 2;
-            } else if (currentState === 2 && scrollTop <= UP_TO_STATE_1) {
+            if (scrollTop <= UP_TO_STATE_1) {
               nextState = 1;
+            } else if (scrollTop <= UP_TO_STATE_2) {
+              nextState = Math.min(nextState, 2);
             }
           }
 
@@ -1043,8 +1068,11 @@
           return nextState;
         };
 
+        const initialState = stateFromInitialScroll(shell.scrollTop);
         setContentBySide(currentSide);
-        applyState(stateFromInitialScroll(shell.scrollTop));
+        applyState(1, true);
+        lockStickyBlockHeight();
+        applyState(initialState, true);
         shell.addEventListener(
           "scroll",
           () => {

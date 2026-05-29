@@ -1,3 +1,6 @@
+import { buildPlateu } from "./_shared/plateu.js";
+import { renderFlag } from "./_shared/flag.js";
+
 const SIDE_OPTIONS = ["Left", "Right"];
 const STATE_OPTIONS = ["State 1", "State 2", "State 3"];
 
@@ -52,16 +55,10 @@ const DISCOVERY_CONFIG = {
 
 const COUNTRY_BASE = {
   left: {
-    code: "GUA",
-    flag: "guatemala-flag.png",
-    collapsedFlag: "flag-guate.png",
-    alt: "Guatemala flag",
+    code: "USA",
   },
   right: {
-    code: "USA",
-    flag: "usa-flag.png",
-    collapsedFlag: "flag-usa.png",
-    alt: "USA flag",
+    code: "GUA",
   },
 };
 
@@ -144,29 +141,17 @@ function renderStatusBar() {
 
 function renderAppHeader(kind) {
   if (kind === "none") return "";
-  const headerClass = kind === "logged-cart" ? "app-header is-logged-cart" : "app-header";
 
   const right =
     kind === "logged-cart"
-      ? `
-        <div class="header-cart-chip header-cart-full">
-          <span class="header-cart-count">2</span>
-          <i class="fa-light fa-cart-shopping" aria-hidden="true"></i>
-        </div>
-      `
-      : `
-        <div class="header-icon">
-          <i class="fa-light fa-cart-shopping icon-medium" aria-hidden="true"></i>
-        </div>
-      `;
+      ? renderCartBitmap({ indicated: true })
+      : renderCartBitmap();
 
   return `
     <section data-pen-id="${kind === "logged-cart" ? "ArMsV" : "WO8oM"}">
-      <div class="${headerClass}">
+      <div class="app-header">
         <div class="header-left-group">
-          <div class="header-icon">
-            <i class="fak fa-kit fa-wallet icon-medium" aria-hidden="true"></i>
-          </div>
+          ${renderWalletBitmap()}
         </div>
         <img class="header-logo" src="logo-oky.svg" alt="OKY" />
         ${right}
@@ -175,21 +160,38 @@ function renderAppHeader(kind) {
   `;
 }
 
+function renderWalletBitmap({ indicated = false, shiftLeft = false } = {}) {
+  return `
+    <div class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap${indicated ? " header-icon-bitmap-wallet-indicated" : ""}${shiftLeft ? " header-icon-bitmap-wallet-indicated-left" : ""}" aria-hidden="true">
+      <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="images/Wallet-icon.png" alt="">
+      ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
+    </div>
+  `;
+}
+
+function renderCartBitmap({ indicated = false } = {}) {
+  return `
+    <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+      <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="images/Cart-3d-icon.png" alt="">
+      ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
+    </div>
+  `;
+}
+
 function renderFolderOption({
   x,
   side,
   selectedSide,
   code,
-  flag,
-  alt,
   showChevrons,
   codeOffset = 0,
   codeOffsetY = 0,
   withFlag = true,
-  flagVariant = "round",
+  flagVariant = "rect",
+  width,
 }) {
   const isActive = side === selectedSide;
-  const showChevronForOption = showChevrons && isActive && side === "left";
+  const showChevronForOption = showChevrons && side === "right";
   const style = [
     codeOffset ? `margin-left:${codeOffset}px` : "",
     codeOffsetY ? `transform:translateY(${codeOffsetY}px)` : "",
@@ -197,11 +199,21 @@ function renderFolderOption({
     .filter(Boolean)
     .join(";");
 
+  const optionStyle = [`left:${x}px`];
+  if (width) {
+    optionStyle.push(`width:${width}px`);
+    optionStyle.push("justify-content:center");
+  }
+
   return `
-    <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="left:${x}px">
+    <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="${optionStyle.join(";")}">
       ${
         withFlag
-          ? `<span class="folder-flag ${flagVariant === "rect" ? "is-rect" : ""}" aria-hidden="true"><img src="${flag}" alt="${alt}"></span>`
+          ? `<span class="folder-flag ${flagVariant === "rect" ? "is-rect" : ""}" aria-hidden="true">${renderFlag({
+              code,
+              size: "Large",
+              hasBorder: false,
+            })}</span>`
           : ""
       }
       <span class="folder-code"${style ? ` style="${style}"` : ""}>${code}</span>
@@ -214,13 +226,13 @@ function renderFolderOption({
   `;
 }
 
-function renderFolder(property1, { showNewItemChip = true } = {}) {
+function renderFolder(property1, { showNewItemChip = true, showChevrons = true } = {}) {
   const isCollapsed = property1.startsWith("Collapsed");
   const isLeft = property1 === "Left" || property1 === "Collapsed Left";
 
   if (isCollapsed) {
     const selectedSide = isLeft ? "left" : "right";
-    const lineX = isLeft ? 52 : 245;
+    const lineX = isLeft ? 52 : 232;
     const lineTop = 30;
 
     return `
@@ -239,25 +251,22 @@ function renderFolder(property1, { showNewItemChip = true } = {}) {
                 side: "left",
                 selectedSide,
                 code: COUNTRY_BASE.left.code,
-                flag: COUNTRY_BASE.left.collapsedFlag,
-                alt: COUNTRY_BASE.left.alt,
-                showChevrons: isLeft,
-                withFlag: true,
-                flagVariant: "rect",
-              })}
-              ${renderFolderOption({
-                x: 248,
-                side: "right",
-                selectedSide,
-                code: COUNTRY_BASE.right.code,
-                flag: COUNTRY_BASE.right.collapsedFlag,
-                alt: COUNTRY_BASE.right.alt,
                 showChevrons: false,
                 withFlag: true,
                 flagVariant: "rect",
               })}
+              ${renderFolderOption({
+                x: 232,
+                side: "right",
+                selectedSide,
+                code: COUNTRY_BASE.right.code,
+                showChevrons,
+                withFlag: true,
+                flagVariant: "rect",
+                width: 92,
+              })}
             </div>
-            <span class="folder-selection-line" style="left:${lineX}px;width:${isLeft ? 90 : 66}px;top:${lineTop}px" aria-hidden="true"></span>
+            <span class="folder-selection-line" style="left:${lineX}px;width:${isLeft ? 90 : 92}px;top:${lineTop}px" aria-hidden="true"></span>
           </div>
         </div>
       </section>
@@ -265,7 +274,7 @@ function renderFolder(property1, { showNewItemChip = true } = {}) {
   }
 
   const selectedSide = isLeft ? "left" : "right";
-  const showChipOnLeftExpanded = property1 === "Left" && showNewItemChip;
+  const showChipOnLeftExpanded = !isCollapsed && !isLeft && showNewItemChip;
   return `
     <section data-pen-id="${isLeft ? "7296:48469" : "7296:48471"}">
       <div class="folder-responsive-host is-expanded">
@@ -282,18 +291,14 @@ function renderFolder(property1, { showNewItemChip = true } = {}) {
               side: "left",
               selectedSide,
               code: COUNTRY_BASE.left.code,
-              flag: COUNTRY_BASE.left.flag,
-              alt: COUNTRY_BASE.left.alt,
-              showChevrons: true,
+              showChevrons: false,
             })}
             ${renderFolderOption({
               x: isLeft ? 245 : 235,
               side: "right",
               selectedSide,
               code: COUNTRY_BASE.right.code,
-              flag: COUNTRY_BASE.right.flag,
-              alt: COUNTRY_BASE.right.alt,
-              showChevrons: true,
+              showChevrons,
             })}
           </div>
           ${
@@ -328,30 +333,7 @@ function renderSearchInput({ compact }) {
 function renderPlateuHome() {
   return `
     <section class="discovery-header-plateu" data-pen-id="7331:50399">
-      <section
-        class="plateu-molecule is-scrolling is-home"
-        style="width:360px;height:80px"
-        aria-label="Plateu State=Home, Telco=No, Scrolling=Yes"
-      >
-        <div class="plateu-track is-scrolling">
-          <div class="plateu-item plateu-item-fixed">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu4.webp" alt="MODA" /></div>
-            <span class="plateu-chip">MODA</span>
-          </div>
-          <div class="plateu-item plateu-item-fixed">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu1.webp" alt="TECNOLOGÍA" /></div>
-            <span class="plateu-label">TECNOLOGÍA</span>
-          </div>
-          <div class="plateu-item plateu-item-fixed">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu3.webp" alt="LENTES" /></div>
-            <span class="plateu-label">LENTES</span>
-          </div>
-          <div class="plateu-item plateu-item-fixed">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu2.webp" alt="ONLINE" /></div>
-            <span class="plateu-label">ONLINE</span>
-          </div>
-        </div>
-      </section>
+      ${buildPlateu({ property1: "State=Home, Telco=No, Scrolling=Yes" })}
     </section>
   `;
 }
@@ -395,7 +377,8 @@ export default {
           "`Status Bar`, `Header`, `Folder` (expanded/collapsed), `Input/Search (Empty)` y " +
           "`Plateu · State=Home, Telco=No, Scrolling=Yes (7331:50399)`. " +
           "Incluye 3 states por lado (`Left` y `Right`) segun el orden del frame de Figma `7333:70239`. " +
-          "El Plateu Home usa separacion horizontal de `8px` entre items. " +
+          "Las banderas del Folder interno usan el atomo **Flag** con assets Flagpack 4:3. " +
+          "El Plateu Home usa separacion horizontal de `8px` entre items y chip activo con fill blanco, border accent de `1px` y texto `Primary Main`. " +
           "En Docs Playground puedes alternar `Show New Item Chip` para la vista `Left · State 1`.",
       },
     },

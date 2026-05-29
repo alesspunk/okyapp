@@ -1,3 +1,5 @@
+import { renderFlag } from "./_shared/flag.js";
+
 const BASE_VARIANT_OPTIONS = ["Left", "Right"];
 const DOCS_VARIANT_OPTIONS = ["Left", "Right", "Collapsed Left", "Collapsed Right"];
 
@@ -11,15 +13,9 @@ const VARIANT_IDS = {
 const COUNTRY_BASE = {
   left: {
     code: "GUA",
-    flag: "guatemala-flag.png",
-    collapsedFlag: "flag-guate.png",
-    alt: "Guatemala flag",
   },
   right: {
     code: "USA",
-    flag: "usa-flag.png",
-    collapsedFlag: "flag-usa.png",
-    alt: "USA flag",
   },
 };
 
@@ -91,18 +87,33 @@ function normalizeCode(value, fallback) {
   return trimmed || fallback;
 }
 
+function normalizeResponsiveWidth(value) {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return null;
+  }
+  return Math.min(430, Math.max(320, numericValue));
+}
+
+function getResponsiveHostStyle(responsiveWidth) {
+  const normalizedWidth = normalizeResponsiveWidth(responsiveWidth);
+  if (!normalizedWidth) {
+    return "";
+  }
+  const scale = normalizedWidth / 360;
+  return ` style="width:${normalizedWidth}px;--folder-scale:${scale}"`;
+}
+
 function renderFolderOption({
   x,
   side,
   selectedSide,
   code,
-  flag,
-  alt,
   showChevrons,
   codeOffset = 0,
   codeOffsetY = 0,
   withFlag = true,
-  flagVariant = "round",
+  flagVariant = "rect",
 }) {
   const isActive = side === selectedSide;
   const showChevronForOption = showChevrons && isActive && side === "left";
@@ -119,7 +130,7 @@ function renderFolderOption({
       ${
         withFlag
           ? `<span class="folder-flag ${flagVariant === "rect" ? "is-rect" : ""}" aria-hidden="true">
-               <img src="${flag}" alt="${alt}">
+               ${renderFlag({ code, size: "Large", hasBorder: false })}
              </span>`
           : ""
       }
@@ -135,7 +146,14 @@ function renderFolderOption({
   `;
 }
 
-function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItemChip = true }) {
+function buildFolder({
+  property1,
+  leftCode,
+  rightCode,
+  showChevrons,
+  showNewItemChip = true,
+  responsiveWidth,
+}) {
   const variant = DOCS_VARIANT_OPTIONS.includes(property1) ? property1 : "Left";
   const isCollapsed = variant.startsWith("Collapsed");
   const side = variant === "Right" ? "right" : "left";
@@ -143,6 +161,7 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
   const effectiveSide = isCollapsed ? collapsedSide : side;
   const isLeft = side === "left";
   const isCollapsedLeft = collapsedSide === "left";
+  const responsiveHostStyle = getResponsiveHostStyle(responsiveWidth);
 
   const countries = {
     left: {
@@ -163,7 +182,7 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
     const lineTop = 30;
 
     return `
-      <div class="folder-responsive-host is-collapsed">
+      <div class="folder-responsive-host is-collapsed"${responsiveHostStyle}>
         <div class="folder-control is-collapsed ${isCollapsedLeft ? "is-left" : "is-right"}">
         <span class="folder-layer folder-layer-bottom">
           ${isCollapsedLeft ? LEFT_BOTTOM_SHAPE : RIGHT_BOTTOM_SHAPE}
@@ -178,8 +197,6 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
             side: "left",
             selectedSide: effectiveSide,
             code: countries.left.code,
-            flag: countries.left.collapsedFlag,
-            alt: countries.left.alt,
             showChevrons: isCollapsedLeft,
             withFlag: true,
             flagVariant: "rect",
@@ -189,8 +206,6 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
             side: "right",
             selectedSide: effectiveSide,
             code: countries.right.code,
-            flag: countries.right.collapsedFlag,
-            alt: countries.right.alt,
             showChevrons: false,
             withFlag: true,
             flagVariant: "rect",
@@ -210,7 +225,7 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
   const showChipOnLeftExpanded = variant === "Left" && showNewItemChip;
 
   return `
-    <div class="folder-responsive-host is-expanded">
+    <div class="folder-responsive-host is-expanded"${responsiveHostStyle}>
       <div class="folder-control ${isLeft ? "is-left" : "is-right"}">
       <span class="folder-layer folder-layer-bottom">
         ${isLeft ? LEFT_BOTTOM_SHAPE : RIGHT_BOTTOM_SHAPE}
@@ -225,8 +240,6 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
           side: "left",
           selectedSide: effectiveSide,
           code: countries.left.code,
-          flag: countries.left.flag,
-          alt: countries.left.alt,
           showChevrons,
         })}
         ${renderFolderOption({
@@ -234,8 +247,6 @@ function buildFolder({ property1, leftCode, rightCode, showChevrons, showNewItem
           side: "right",
           selectedSide: effectiveSide,
           code: countries.right.code,
-          flag: countries.right.flag,
-          alt: countries.right.alt,
           showChevrons,
         })}
       </div>
@@ -259,7 +270,7 @@ function renderFolderStory(args, showRecommendation = false) {
       ${
         showRecommendation
           ? `<div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-              Recomendado: códigos de país de máximo 3 caracteres (base: GUA / USA).
+              Recomendado: usar Alpha-3 para producto (GTM / USA). Legacy OKY acepta GUA.
             </div>`
           : ""
       }
@@ -275,7 +286,8 @@ export default {
     docs: {
       description: {
         component:
-          "Molecula **Folder** en variantes `Left` y `Right` (expandidas), con soporte de `Collapsed Left/Right` en Docs Playground para validacion visual contra Figma.",
+          "Molecula **Folder** en variantes `Left` y `Right` (expandidas), con soporte de `Collapsed Left/Right` en Docs Playground para validacion visual contra Figma. " +
+          "Las banderas ahora usan el atomo **Flag** anidado, con soporte para Alpha-3 (`GTM`, `USA`), Alpha-2 (`GT`, `US`) y alias legacy `GUA`.",
       },
     },
   },
@@ -288,6 +300,7 @@ export const DocsPlayground = {
     leftCode: "GUA",
     rightCode: "USA",
     showChevrons: true,
+    responsiveWidth: 430,
   },
   argTypes: {
     property1: {
@@ -298,15 +311,24 @@ export const DocsPlayground = {
     },
     leftCode: {
       control: "text",
-      description: "Codigo del pais izquierdo.",
+      description: "Codigo del pais izquierdo. Acepta Alpha-3, Alpha-2 o alias legacy GUA.",
     },
     rightCode: {
       control: "text",
-      description: "Codigo del pais derecho.",
+      description: "Codigo del pais derecho. Acepta Alpha-3 o Alpha-2.",
     },
     showChevrons: {
       control: "boolean",
       description: "Muestra chevrons en el pais seleccionado.",
+    },
+    responsiveWidth: {
+      name: "responsiveWidth",
+      control: { type: "range", min: 320, max: 430, step: 1 },
+      description: "Ancho del host responsive para probar el escalado mobile del Folder.",
+      table: {
+        type: { summary: "number" },
+        defaultValue: { summary: 430 },
+      },
     },
   },
   render: (args) => renderFolderStory(args, true),

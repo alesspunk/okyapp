@@ -12,6 +12,15 @@ const BRAND_VARIANTS = ["With label", "No label"];
 const PAGE_HEADER_VARIANTS = ["screens", "no-title"];
 const LAYOUT_VARIANTS = ["Default", "Checkout Overlap"];
 
+function renderCartBitmap({ indicated = false } = {}) {
+  return `
+    <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+      <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="images/Cart-3d-icon.png" alt="">
+      ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
+    </div>
+  `;
+}
+
 function findBrand(key) {
   return BRAND_PRESETS.find((brand) => brand.key === key) ?? BRAND_PRESETS[0];
 }
@@ -44,11 +53,11 @@ function renderPageHeaderOrganism(args = {}) {
   const showAction = args.showAction === true;
   const cartCount = Number.isFinite(args.cartCount) ? Math.max(0, Math.min(99, args.cartCount)) : 3;
 
-  const rightSlot = showCartChip
-    ? `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`
-    : showAction
-      ? `<div class="header-icon header-icon-light"><i class="fa-light fa-cart-shopping icon-medium" aria-hidden="true"></i></div>`
-      : `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`;
+  const useCheckoutTopRightAction = layoutVariant === "Checkout Overlap" || showAction;
+  const rightSlot = useCheckoutTopRightAction
+    ? renderCartBitmap({ indicated: true })
+    : `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`;
+  const checkoutRightSlot = `<div class="header-icon header-icon-placeholder" aria-hidden="true"></div>`;
 
   return `
     <section class="page-header-organism ${layoutVariant === "Checkout Overlap" ? "is-checkout-overlap" : "is-default"}">
@@ -59,13 +68,12 @@ function renderPageHeaderOrganism(args = {}) {
             ? `<div class="page-header-title page-header-title-empty" aria-hidden="true"></div>`
             : `<div class="page-header-title">${args.pageTitle?.trim() || brand.label}</div>`
         }
-        ${rightSlot}
+        ${layoutVariant === "Checkout Overlap" ? checkoutRightSlot : rightSlot}
       </div>
       ${
-        showCartChip
-          ? `<div class="header-cart-chip header-cart-full page-header-organism-cart" aria-label="Carrito con ${cartCount} productos">
-              <span class="header-cart-count">${cartCount}</span>
-              <i class="fa-light fa-cart-shopping" aria-hidden="true"></i>
+        layoutVariant === "Checkout Overlap"
+          ? `<div class="page-header-organism-action">
+              ${renderCartBitmap({ indicated: true })}
             </div>`
           : ""
       }
@@ -157,7 +165,7 @@ export const DocsPlayground = {
     layoutVariant: "Checkout Overlap",
     pageHeaderVariant: "no-title",
     pageTitle: "Target",
-    showCartChip: true,
+    showCartChip: false,
     showAction: false,
     cartCount: 3,
     brandVariant: "With label",
@@ -207,7 +215,7 @@ export const Reference = {
             ${renderPageHeaderOrganism({
               layoutVariant: "Checkout Overlap",
               pageHeaderVariant: "no-title",
-              showCartChip: true,
+              showCartChip: false,
               cartCount: 3,
               showAction: false,
               brandVariant: "With label",

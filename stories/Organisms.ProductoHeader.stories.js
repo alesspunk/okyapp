@@ -25,6 +25,14 @@ const PAGE_HEADER_VARIANTS = ["screens", "modal", "no-title"];
 const PRODUCTO_HEADER_LAYOUTS = ["Default", "With Plateu"];
 const DYNAMIC_INPUT_STATES = ["Empty", "Hasvalue"];
 
+function renderCartBitmap() {
+  return `
+    <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+      <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="images/Cart-3d-icon.png" alt="">
+    </div>
+  `;
+}
+
 function findBrand(key) {
   return BRAND_PRESETS.find((brand) => brand.key === key) ?? BRAND_PRESETS[0];
 }
@@ -41,7 +49,7 @@ function renderPageHeader({ variant, title, showAction }) {
   } else {
     left = `<div class="header-icon header-icon-light"><i class="fa-light fa-arrow-left icon-medium"></i></div>`;
     right = showAction
-      ? `<div class="header-icon header-icon-light"><i class="fa-light fa-cart-shopping icon-medium"></i></div>`
+      ? renderCartBitmap()
       : `<div class="header-icon header-icon-placeholder"></div>`;
   }
 
@@ -208,7 +216,8 @@ export default {
           "Organismo **Producto Header** compuesto únicamente con componentes ya existentes del sistema: " +
           "`Page Header`, `Brand Item`, `Plateu`, `Middle Card` e `Input/Dinamic`. " +
           "Se presenta como stack vertical para encabezados de PDP y usa por defecto la variante `Page Header / No title`. " +
-          "Puede mostrarse con o sin `Plateu`, y también prender/apagar el `Discount Ribbon / Wrap` del `Middle Card`, reutilizando en ambos casos las variantes ya documentadas de los componentes existentes.",
+          "Puede mostrarse con o sin `Plateu`, y también prender/apagar el `Discount Ribbon / Wrap` del `Middle Card`, reutilizando en ambos casos las variantes ya documentadas de los componentes existentes. " +
+          "Cuando `Plateu` está presente, hereda el chip activo con fill blanco, border accent de `1px` y texto `Primary Main`.",
       },
     },
   },
