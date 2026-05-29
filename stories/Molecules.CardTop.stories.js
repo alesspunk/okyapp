@@ -5,6 +5,7 @@ import {
   renderCardTop,
   resolveCardTop,
 } from "./_shared/primeCards";
+import { COUNTRY_PRESETS } from "./_shared/flag.js";
 
 function renderReferenceItem(card) {
   return `
@@ -26,7 +27,7 @@ export default {
           "**Top Card** es una molécula hermana de `Middle Card`, pensada para la parte superior de credenciales y gift cards. " +
           "Usa el surface token **Card Top**, conserva el shadow **PDP Card**, mantiene ancho PDP (`342px`) y reutiliza el wrapper de iconos `fa-icon-card-use` para los links inferiores. " +
           "La anatomía se resuelve en dos variantes base de Figma: **OKY Vales** y **Gift Card**. " +
-          "Flags, assets y tratamientos de borde se montan sobre recursos ya existentes del sistema. " +
+          "La bandera reutiliza el átomo `Flag` en tamaño **Medium** con borde, aceptando códigos Alpha-3 como `GTM` y `USA`. " +
           "No existe todavía un token tipográfico específico para el brand chip de Figma, así que se mapea al tratamiento más cercano del sistema (`productText`).",
       },
     },
@@ -54,14 +55,10 @@ export default {
       control: "text",
       description: "Alt del arte principal.",
     },
-    flagImage: {
+    flagCode: {
       control: "select",
-      options: ["guatemala-flag.png", "usa-flag.png"],
-      description: "Flag circular del lado derecho.",
-    },
-    flagAlt: {
-      control: "text",
-      description: "Alt de la bandera.",
+      options: COUNTRY_PRESETS.map((country) => country.alpha3),
+      description: "Código de país del átomo Flag. Recomendado: Alpha-3 (`GTM`, `USA`).",
     },
     footerLeftLabel: {
       control: "text",
@@ -86,8 +83,7 @@ export const DocsPlayground = {
     brandLabel: "Target",
     heroImage: "target.webp",
     heroAlt: "Target gift card",
-    flagImage: "usa-flag.png",
-    flagAlt: "USA flag",
+    flagCode: "USA",
     footerLeftLabel: "Terms & Conditions",
     footerRightLabel: "Brand Disclaimer",
     showMeta: true,

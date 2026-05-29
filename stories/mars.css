@@ -4599,9 +4599,17 @@ body {
 }
 
 .prime-card-top-flag {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.prime-card-top-flag .flag-atom {
   flex: 0 0 auto;
-  border: 1px solid var(--white);
-  background: var(--white);
 }
 
 .prime-card-top-body {

@@ -15,6 +15,7 @@ import {
   resolveCardBottom,
   resolveCardTop,
 } from "./_shared/primeCards";
+import { COUNTRY_PRESETS } from "./_shared/flag.js";
 
 function resolveArgs(args = {}) {
   const topBase = findCardTop(args.topVariantPath);
@@ -28,8 +29,7 @@ function resolveArgs(args = {}) {
       brandLabel: args.topBrandLabel?.trim() || topBase.brandLabel,
       heroImage: args.topHeroImage?.trim() || topBase.heroImage,
       heroAlt: args.topHeroAlt?.trim() || topBase.heroAlt,
-      flagImage: args.topFlagImage?.trim() || topBase.flagImage,
-      flagAlt: args.topFlagAlt?.trim() || topBase.flagAlt,
+      flagCode: args.topFlagCode?.trim() || topBase.flagCode,
       footerLeftLabel: args.topFooterLeftLabel?.trim() || topBase.footerLeftLabel,
       footerRightLabel: args.topFooterRightLabel?.trim() || topBase.footerRightLabel,
     }),
@@ -95,7 +95,7 @@ export default {
         component:
           "Organismo **Card** compuesto por `Top Card`, `Separator`, `Middle Card`, `Separator` y `Bottom Card`. " +
           "La intención es poder jugar con combinaciones completas de credencial o gift card sin duplicar la anatomía interna de cada molécula. " +
-          "El stack mantiene ancho PDP, centra el separator en `fill container - 30px` con color `border main` y hereda los surfaces y shadows ya declarados en el sistema.",
+          "El stack mantiene ancho PDP, centra el separator en `fill container - 30px` con color `border main` y hereda los surfaces, shadows y el átomo `Flag` ya declarados en el sistema.",
       },
     },
   },
@@ -122,6 +122,11 @@ export default {
     topBrandLabel: {
       control: "text",
       description: "Override del brand label de Top Card.",
+    },
+    topFlagCode: {
+      control: "select",
+      options: COUNTRY_PRESETS.map((country) => country.alpha3),
+      description: "Código de país para la bandera del Top Card. Recomendado: Alpha-3 (`GTM`, `USA`).",
     },
     middleTitle: {
       control: "text",
@@ -183,6 +188,7 @@ export const DocsPlayground = {
     bottomVariantPath: "Molecule/Bottom Card/Gift Card",
     topShowBrandLabel: true,
     topBrandLabel: "Target",
+    topFlagCode: "USA",
     middleTitle: "Target eGift Card",
     middleCurrency: "$",
     middleAmount: "40",

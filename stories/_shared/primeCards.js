@@ -1,3 +1,5 @@
+import { renderFlag } from "./flag.js";
+
 export const CARD_TOP_VARIANTS = [
   {
     path: "Molecule/Top Card/OKY Vales",
@@ -8,8 +10,7 @@ export const CARD_TOP_VARIANTS = [
     showBrandLabel: false,
     heroImage: "pollo-campero.webp",
     heroAlt: "Pollo Campero gift card",
-    flagImage: "guatemala-flag.png",
-    flagAlt: "Guatemala flag",
+    flagCode: "GTM",
     footerLeftLabel: "Qué incluye",
     footerRightLabel: "",
     recommendation: 'Recomendado: arte principal centrado tipo card y un solo CTA inferior (base: "Qué incluye").',
@@ -23,8 +24,7 @@ export const CARD_TOP_VARIANTS = [
     showBrandLabel: true,
     heroImage: "target.webp",
     heroAlt: "Target gift card",
-    flagImage: "usa-flag.png",
-    flagAlt: "USA flag",
+    flagCode: "USA",
     footerLeftLabel: "Terms & Conditions",
     footerRightLabel: "Brand Disclaimer",
     recommendation:
@@ -149,8 +149,8 @@ function renderTopHeader(card) {
       <div class="prime-card-top-header-main">
         ${card.showBrandLabel ? `<span class="prime-card-top-brand token-product-text">${card.brandLabel}</span>` : ""}
       </div>
-      <span class="dropdown-flag-sm prime-card-top-flag" aria-hidden="true">
-        <img src="${card.flagImage}" alt="${card.flagAlt}" />
+      <span class="prime-card-top-flag">
+        ${renderFlag({ code: card.flagCode, size: "Medium", hasBorder: true })}
       </span>
     </div>
   `;
@@ -199,8 +199,7 @@ export function resolveCardTop(args = {}) {
     showBrandLabel: typeof args.showBrandLabel === "boolean" ? args.showBrandLabel : base.showBrandLabel,
     heroImage: args.heroImage?.trim() || base.heroImage,
     heroAlt: args.heroAlt?.trim() || base.heroAlt,
-    flagImage: args.flagImage?.trim() || base.flagImage,
-    flagAlt: args.flagAlt?.trim() || base.flagAlt,
+    flagCode: args.flagCode?.trim() || base.flagCode,
     footerLeftLabel: args.footerLeftLabel?.trim() || base.footerLeftLabel,
     footerRightLabel: args.footerRightLabel?.trim() || base.footerRightLabel,
   };
