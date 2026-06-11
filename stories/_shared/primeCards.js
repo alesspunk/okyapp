@@ -56,16 +56,16 @@ export const CARD_BOTTOM_VARIANTS = [
     recommendation: "Recomendado: 1 sola línea de código y fecha de expiración visible.",
   },
   {
-    path: "Molecule/Bottom Card/Code + PIN",
-    key: "code-pin",
-    id: "bottom-card-code-pin",
+    path: "Molecule/Bottom Card/Code + Firma",
+    key: "code-firma",
+    id: "bottom-card-code-firma",
     lines: [
       { label: "Código", value: "X00OOMMDFRA", copyable: true },
-      { label: "PIN", value: "7025", copyable: true },
+      { label: "Firma", value: "7025", copyable: true },
     ],
     expiry: "Vence 10 / Sep / 2025",
     buttonLabel: "Ayuda",
-    recommendation: "Recomendado: código y PIN visibles, sin Aux code.",
+    recommendation: "Recomendado: código y firma visibles, sin Aux code.",
   },
   {
     path: "Molecule/Bottom Card/With Bar Code",
@@ -94,6 +94,30 @@ export const CARD_BOTTOM_VARIANTS = [
     expiry: "Vence 10 / Sep / 2025",
     buttonLabel: "Ayuda",
     recommendation: "Recomendado: código principal y QR 100x100 alineado al área de redención.",
+  },
+  {
+    path: "Molecule/Bottom Card/Code + BAR CODE + PIN",
+    key: "code-bar-code-pin",
+    id: "bottom-card-code-bar-code-pin",
+    lines: [
+      { label: "Código", value: "X00OOMMDFRA", copyable: true },
+      { label: "PIN", value: "7025", copyable: true },
+    ],
+    content: [
+      { type: "line", line: { label: "Código", value: "X00OOMMDFRA", copyable: true } },
+      {
+        type: "media",
+        media: {
+          type: "bar-code",
+          src: "bottom-card-barcode-purple.png",
+          alt: "Barcode credential",
+        },
+      },
+      { type: "line", line: { label: "PIN", value: "7025", copyable: true } },
+    ],
+    expiry: "Vence 10 / Sep / 2025",
+    buttonLabel: "Ayuda",
+    recommendation: "Recomendado: código, barcode y PIN en orden; barcode al centro para evitar choque con el CTA.",
   },
   {
     path: "Molecule/Bottom Card/Oh Gif Card",
@@ -220,6 +244,25 @@ function renderBottomMedia(media) {
   `;
 }
 
+function renderBottomItem(item) {
+  if (item?.type === "media") {
+    return renderBottomMedia(item.media);
+  }
+
+  return renderBottomLine(item?.line ?? item);
+}
+
+function renderBottomMain(card) {
+  if (Array.isArray(card.content) && card.content.length) {
+    return card.content.map((item) => renderBottomItem(item)).join("");
+  }
+
+  return `
+    ${card.lines.map((line) => renderBottomLine(line)).join("")}
+    ${renderBottomMedia(card.media)}
+  `;
+}
+
 function renderBottomButton(card) {
   return `
     <button
@@ -264,6 +307,7 @@ export function resolveCardBottom(args = {}) {
   return {
     ...base,
     lines: overrideLines ?? base.lines,
+    content: overrideLines ? null : base.content,
     media: base.media,
     expiry: typeof args.expiry === "string" ? args.expiry.trim() : base.expiry,
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,
@@ -290,8 +334,7 @@ export function renderCardBottom(card) {
       <article class="prime-card-molecule card-bottom-molecule is-${card.key}">
         <div class="prime-card-bottom-content">
           <div class="prime-card-bottom-main">
-            ${card.lines.map((line) => renderBottomLine(line)).join("")}
-            ${renderBottomMedia(card.media)}
+            ${renderBottomMain(card)}
           </div>
           <div class="prime-card-bottom-side">
             <div class="prime-card-bottom-expiry">${card.expiry || "&nbsp;"}</div>

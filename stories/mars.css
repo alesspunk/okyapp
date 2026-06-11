@@ -4820,16 +4820,23 @@ body {
 }
 
 .card-bottom-molecule.is-with-bar-code .prime-card-bottom-line-value,
-.card-bottom-molecule.is-with-qr-code .prime-card-bottom-line-value {
+.card-bottom-molecule.is-with-qr-code .prime-card-bottom-line-value,
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line-value {
   width: 187px;
 }
 
-.card-bottom-molecule.is-with-bar-code .prime-card-bottom-media {
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line {
+  width: 187px;
+}
+
+.card-bottom-molecule.is-with-bar-code .prime-card-bottom-media,
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-media {
   width: 224px;
   height: 40px;
 }
 
-.card-bottom-molecule.is-with-bar-code .prime-card-bottom-media img {
+.card-bottom-molecule.is-with-bar-code .prime-card-bottom-media img,
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-media img {
   object-fit: fill;
 }
 
@@ -4847,7 +4854,8 @@ body {
 }
 
 .card-bottom-molecule.is-with-bar-code .prime-card-bottom-help-btn.has-label,
-.card-bottom-molecule.is-with-qr-code .prime-card-bottom-help-btn.has-label {
+.card-bottom-molecule.is-with-qr-code .prime-card-bottom-help-btn.has-label,
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-help-btn.has-label {
   min-width: 102px;
   justify-content: center;
 }
