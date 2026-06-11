@@ -25,7 +25,7 @@ export default {
         component:
           "**Bottom Card** es la molécula hermana de `Middle Card` para credenciales, códigos y soporte. " +
           "Usa el surface token **Card Bottom**, conserva el mismo shadow **PDP Card**, mantiene ancho PDP (`342px`) y reutiliza `fa-icon-card-use` para acciones tipo copy. " +
-          "Incluye las variantes base de credenciales y cuatro variantes nuevas de estado con stamp: **Canjeado**, **Fallido**, **En Proceso** y **Expirado**. " +
+          "Incluye las variantes vistas en Figma: **Default**, **OKY Vales**, **Code + Firma**, **With Bar Code**, **With QR Code**, **Code + BAR CODE + PIN**, **Oh Gif Card**, **Gift Card** y **Telco**. " +
           "El botón lateral usa el asset local `whatsapp-icon-card-bottom.png` y permite switch para mostrar label o dejarlo solo con icono. " +
           "Los valores de credenciales usan el token tipográfico **CODE** con `Inter` desde Google Fonts, tracking `2px` y `slashed zero` activo.",
       },
@@ -49,10 +49,6 @@ export default {
       control: "text",
       description: "Fecha de expiración. Si queda vacío, no se muestra texto.",
     },
-    transactionId: {
-      control: "text",
-      description: "ID de transacción para las variantes nuevas con stamp.",
-    },
     whatsappImage: {
       control: "select",
       options: ["whatsapp-icon-card-bottom.png"],
@@ -71,8 +67,7 @@ export const DocsPlayground = {
     variantPath: "Molecule/Bottom Card/Default",
     showButtonLabel: true,
     buttonLabel: "Ayuda",
-    transactionId: "",
-    expiry: "10 / Sep / 2025",
+    expiry: "Vence 10 / Sep / 2025",
     whatsappImage: "whatsapp-icon-card-bottom.png",
     showMeta: true,
   },
@@ -102,7 +97,7 @@ export const Variants = {
     controls: { disable: true },
     docs: {
       description: {
-        story: "Referencia visual de todas las variantes de `Bottom Card`, incluidas las cuatro nuevas variantes con stamp.",
+        story: "Referencia visual de las variantes base de `Bottom Card`.",
       },
     },
   },
