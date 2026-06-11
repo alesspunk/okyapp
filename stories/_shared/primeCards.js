@@ -1,3 +1,5 @@
+import { renderFlag } from "./flag.js";
+
 export const CARD_TOP_VARIANTS = [
   {
     path: "Molecule/Top Card/OKY Vales",
@@ -8,29 +10,10 @@ export const CARD_TOP_VARIANTS = [
     showBrandLabel: false,
     heroImage: "pollo-campero.webp",
     heroAlt: "Pollo Campero gift card",
-    flagImage: "guatemala-flag.png",
-    flagAlt: "Guatemala flag",
+    flagCode: "GTM",
     footerLeftLabel: "Qué incluye",
     footerRightLabel: "",
     recommendation: 'Recomendado: arte principal centrado tipo card y un solo CTA inferior (base: "Qué incluye").',
-  },
-  {
-    path: "Molecule/Top Card/Disable",
-    key: "disable",
-    id: "7488:50067",
-    kind: "gift-card",
-    isDisabled: true,
-    hideFooter: true,
-    brandLabel: "Cemaco",
-    showBrandLabel: true,
-    heroImage: "target.webp",
-    heroAlt: "Disabled gift card",
-    flagImage: "guatemala-flag.png",
-    flagAlt: "Guatemala flag",
-    footerLeftLabel: "",
-    footerRightLabel: "",
-    recommendation:
-      "Recomendado: desaturar solo el arte principal y usar `text disable` en el label, sin apagar logo OKY ni bandera.",
   },
   {
     path: "Molecule/Top Card/Gift Card",
@@ -41,8 +24,7 @@ export const CARD_TOP_VARIANTS = [
     showBrandLabel: true,
     heroImage: "target.webp",
     heroAlt: "Target gift card",
-    flagImage: "usa-flag.png",
-    flagAlt: "USA flag",
+    flagCode: "USA",
     footerLeftLabel: "Terms & Conditions",
     footerRightLabel: "Brand Disclaimer",
     recommendation:
@@ -60,62 +42,82 @@ export const CARD_BOTTOM_VARIANTS = [
       { label: "PIN", value: "7025", copyable: true },
       { label: "Aux code", value: "09109201", copyable: true },
     ],
-    expiry: "10 / Sep / 2025",
+    expiry: "Vence 10 / Sep / 2025",
     buttonLabel: "Ayuda",
     recommendation: 'Recomendado: 3 líneas máximo y CTA con label corto (base: "Ayuda").',
-  },
-  {
-    path: "Molecule/Bottom Card/Canjeado",
-    key: "canjeado",
-    id: "7479:68596",
-    stampImage: "Stamp_canjeado@3x.webp",
-    stampAlt: "Stamp Canjeado",
-    transactionId: "",
-    expiry: "10 / Sep / 2025",
-    buttonLabel: "",
-    recommendation: "Recomendado: stamp centrado, sin CTA lateral y una sola línea de fecha.",
-  },
-  {
-    path: "Molecule/Bottom Card/Fallido",
-    key: "fallido",
-    id: "7479:68598",
-    stampImage: "Stamp_Comprafallida@3x.webp",
-    stampAlt: "Stamp Compra Fallida",
-    transactionId: "ID transacción #09091090192",
-    expiry: "",
-    buttonLabel: "",
-    recommendation: "Recomendado: stamp centrado y línea inferior con solo ID transacción centrado.",
-  },
-  {
-    path: "Molecule/Bottom Card/En Proceso",
-    key: "en-proceso",
-    id: "7479:68597",
-    stampImage: "Stamp_Enproceso@3x.webp",
-    stampAlt: "Stamp En Proceso",
-    transactionId: "ID transacción #09091090192",
-    expiry: "",
-    buttonLabel: "",
-    recommendation: "Recomendado: stamp centrado y línea inferior con solo ID transacción centrado.",
-  },
-  {
-    path: "Molecule/Bottom Card/Expirado",
-    key: "expirado",
-    id: "7479:68599",
-    stampImage: "Stamp_Expirado@3x.webp",
-    stampAlt: "Stamp Expirado",
-    transactionId: "",
-    expiry: "10 / Sep / 2025",
-    buttonLabel: "",
-    recommendation: "Recomendado: stamp centrado y línea inferior con solo fecha centrada.",
   },
   {
     path: "Molecule/Bottom Card/OKY Vales",
     key: "oky-vales",
     id: "7390:140803",
     lines: [{ label: "Código", value: "X00OOMMDFRA", copyable: true }],
-    expiry: "10 / Sep / 2025",
+    expiry: "Vence 10 / Sep / 2025",
     buttonLabel: "Ayuda",
     recommendation: "Recomendado: 1 sola línea de código y fecha de expiración visible.",
+  },
+  {
+    path: "Molecule/Bottom Card/Code + Firma",
+    key: "code-firma",
+    id: "bottom-card-code-firma",
+    lines: [
+      { label: "Código", value: "X00OOMMDFRA", copyable: true },
+      { label: "Firma", value: "7025", copyable: true },
+    ],
+    expiry: "Vence 10 / Sep / 2025",
+    buttonLabel: "Ayuda",
+    recommendation: "Recomendado: código y firma visibles, sin Aux code.",
+  },
+  {
+    path: "Molecule/Bottom Card/With Bar Code",
+    key: "with-bar-code",
+    id: "88160:46958",
+    lines: [{ label: "OKY Vale", value: "X00OOMMDFRA", copyable: true }],
+    media: {
+      type: "bar-code",
+      src: "bottom-card-barcode-purple.png",
+      alt: "Barcode credential",
+    },
+    expiry: "Vence 10 / Sep / 2025",
+    buttonLabel: "Ayuda",
+    recommendation: "Recomendado: código principal y barcode 224x40 alineado al área de redención.",
+  },
+  {
+    path: "Molecule/Bottom Card/With QR Code",
+    key: "with-qr-code",
+    id: "88160:47242",
+    lines: [{ label: "OKY Vale", value: "X00OOMMDFRA", copyable: true }],
+    media: {
+      type: "qr-code",
+      src: "bottom-card-qr-purple.png",
+      alt: "QR credential",
+    },
+    expiry: "Vence 10 / Sep / 2025",
+    buttonLabel: "Ayuda",
+    recommendation: "Recomendado: código principal y QR 100x100 alineado al área de redención.",
+  },
+  {
+    path: "Molecule/Bottom Card/Code + BAR CODE + PIN",
+    key: "code-bar-code-pin",
+    id: "bottom-card-code-bar-code-pin",
+    lines: [
+      { label: "Código", value: "X00OOMMDFRA", copyable: true },
+      { label: "PIN", value: "7025", copyable: true },
+    ],
+    content: [
+      { type: "line", line: { label: "Código", value: "X00OOMMDFRA", copyable: true } },
+      {
+        type: "media",
+        media: {
+          type: "bar-code",
+          src: "bottom-card-barcode-purple.png",
+          alt: "Barcode credential",
+        },
+      },
+      { type: "line", line: { label: "PIN", value: "7025", copyable: true } },
+    ],
+    expiry: "Vence 10 / Sep / 2025",
+    buttonLabel: "Ayuda",
+    recommendation: "Recomendado: código, barcode y PIN en orden; barcode al centro para evitar choque con el CTA.",
   },
   {
     path: "Molecule/Bottom Card/Oh Gif Card",
@@ -125,7 +127,7 @@ export const CARD_BOTTOM_VARIANTS = [
       { label: "Código", value: "X00OOMMDFRA", copyable: true },
       { label: "PIN", value: "7025", copyable: true },
     ],
-    expiry: "10 / Sep / 2025",
+    expiry: "Vence 10 / Sep / 2025",
     buttonLabel: "Ayuda",
     recommendation: "Recomendado: 2 líneas visibles y CTA de soporte a la derecha.",
   },
@@ -169,10 +171,6 @@ function renderCopyIcon() {
 }
 
 function renderTopFooter(card) {
-  if (card.hideFooter) {
-    return "";
-  }
-
   if (card.footerRightLabel) {
     return `
       <div class="prime-card-top-footer is-split">
@@ -215,8 +213,8 @@ function renderTopHeader(card) {
       <div class="prime-card-top-header-main">
         ${card.showBrandLabel ? `<span class="prime-card-top-brand token-product-text">${card.brandLabel}</span>` : ""}
       </div>
-      <span class="dropdown-flag-sm prime-card-top-flag" aria-hidden="true">
-        <img src="${card.flagImage}" alt="${card.flagAlt}" />
+      <span class="prime-card-top-flag">
+        ${renderFlag({ code: card.flagCode, size: "Medium", hasBorder: true })}
       </span>
     </div>
   `;
@@ -234,6 +232,37 @@ function renderBottomLine(line) {
   `;
 }
 
+function renderBottomMedia(media) {
+  if (!media?.src) {
+    return "";
+  }
+
+  return `
+    <div class="prime-card-bottom-media is-${media.type}">
+      <img src="${media.src}" alt="${media.alt || ""}" />
+    </div>
+  `;
+}
+
+function renderBottomItem(item) {
+  if (item?.type === "media") {
+    return renderBottomMedia(item.media);
+  }
+
+  return renderBottomLine(item?.line ?? item);
+}
+
+function renderBottomMain(card) {
+  if (Array.isArray(card.content) && card.content.length) {
+    return card.content.map((item) => renderBottomItem(item)).join("");
+  }
+
+  return `
+    ${card.lines.map((line) => renderBottomLine(line)).join("")}
+    ${renderBottomMedia(card.media)}
+  `;
+}
+
 function renderBottomButton(card) {
   return `
     <button
@@ -245,38 +274,6 @@ function renderBottomButton(card) {
       </span>
       ${card.showButtonLabel ? `<span class="prime-card-bottom-help-label">${card.buttonLabel}</span>` : ""}
     </button>
-  `;
-}
-
-function renderBottomStampCard(card) {
-  const showTransaction = Boolean(card.transactionId);
-  const showExpiry = Boolean(card.expiry);
-
-  return `
-    <div class="prime-card-bottom-status-body">
-      <div class="prime-card-bottom-stamp-wrap">
-        <img class="prime-card-bottom-stamp" src="${card.stampImage}" alt="${card.stampAlt || ""}" />
-      </div>
-    </div>
-    <div class="prime-card-bottom-status-meta">
-      <div class="prime-card-bottom-status-meta-main ${showExpiry && showTransaction ? "has-split" : ""}">
-        ${
-          showTransaction
-            ? `
-              <div class="prime-card-bottom-status-transaction">
-                <span class="prime-card-bottom-status-text">${card.transactionId}</span>
-                ${renderCopyIcon()}
-              </div>
-            `
-            : ""
-        }
-        ${
-          showExpiry
-            ? `<div class="prime-card-bottom-status-expiry ${showTransaction ? "is-right" : "is-centered"}">${card.expiry}</div>`
-            : ""
-        }
-      </div>
-    </div>
   `;
 }
 
@@ -293,14 +290,11 @@ export function resolveCardTop(args = {}) {
 
   return {
     ...base,
-    isDisabled: args.isDisabled === true || base.isDisabled === true,
-    hideFooter: args.hideFooter === true || base.hideFooter === true,
     brandLabel: args.brandLabel?.trim() || base.brandLabel,
     showBrandLabel: typeof args.showBrandLabel === "boolean" ? args.showBrandLabel : base.showBrandLabel,
     heroImage: args.heroImage?.trim() || base.heroImage,
     heroAlt: args.heroAlt?.trim() || base.heroAlt,
-    flagImage: args.flagImage?.trim() || base.flagImage,
-    flagAlt: args.flagAlt?.trim() || base.flagAlt,
+    flagCode: args.flagCode?.trim() || base.flagCode,
     footerLeftLabel: args.footerLeftLabel?.trim() || base.footerLeftLabel,
     footerRightLabel: args.footerRightLabel?.trim() || base.footerRightLabel,
   };
@@ -313,9 +307,8 @@ export function resolveCardBottom(args = {}) {
   return {
     ...base,
     lines: overrideLines ?? base.lines,
-    stampImage: args.stampImage?.trim() || base.stampImage || "",
-    stampAlt: args.stampAlt?.trim() || base.stampAlt || "",
-    transactionId: typeof args.transactionId === "string" ? args.transactionId.trim() : base.transactionId || "",
+    content: overrideLines ? null : base.content,
+    media: base.media,
     expiry: typeof args.expiry === "string" ? args.expiry.trim() : base.expiry,
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,
     showButtonLabel: typeof args.showButtonLabel === "boolean" ? args.showButtonLabel : true,
@@ -326,7 +319,7 @@ export function resolveCardBottom(args = {}) {
 export function renderCardTop(card) {
   return `
     <div class="prime-card-shell card-top-shell" data-pen-id="${card.id}">
-      <article class="prime-card-molecule card-top-molecule is-${card.kind} ${card.isDisabled ? "is-disabled" : ""} ${card.hideFooter ? "is-footer-hidden" : ""}">
+      <article class="prime-card-molecule card-top-molecule is-${card.kind}">
         ${renderTopHeader(card)}
         ${renderTopBody(card)}
         ${renderTopFooter(card)}
@@ -336,22 +329,12 @@ export function renderCardTop(card) {
 }
 
 export function renderCardBottom(card) {
-  if (card.stampImage) {
-    return `
-      <div class="prime-card-shell card-bottom-shell" data-pen-id="${card.id}">
-        <article class="prime-card-molecule card-bottom-molecule is-${card.key} is-status-card">
-          ${renderBottomStampCard(card)}
-        </article>
-      </div>
-    `;
-  }
-
   return `
     <div class="prime-card-shell card-bottom-shell" data-pen-id="${card.id}">
       <article class="prime-card-molecule card-bottom-molecule is-${card.key}">
         <div class="prime-card-bottom-content">
           <div class="prime-card-bottom-main">
-            ${card.lines.map((line) => renderBottomLine(line)).join("")}
+            ${renderBottomMain(card)}
           </div>
           <div class="prime-card-bottom-side">
             <div class="prime-card-bottom-expiry">${card.expiry || "&nbsp;"}</div>
