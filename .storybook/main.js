@@ -15,6 +15,7 @@ export default {
   },
   staticDirs: [
     "../images",
+    { from: "../node_modules/flagpack/flags", to: "/flagpack" },
     { from: "../public", to: "/public" },
   ],
 };
