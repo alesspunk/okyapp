@@ -25,7 +25,7 @@ export default {
         component:
           "**Bottom Card** es la molécula hermana de `Middle Card` para credenciales, códigos y soporte. " +
           "Usa el surface token **Card Bottom**, conserva el mismo shadow **PDP Card**, mantiene ancho PDP (`342px`) y reutiliza `fa-icon-card-use` para acciones tipo copy. " +
-          "Incluye las variantes vistas en Figma: **Default**, **OKY Vales**, **With Bar Code**, **With QR Code**, **Oh Gif Card**, **Gift Card** y **Telco**. " +
+          "Incluye las variantes vistas en Figma: **Default**, **OKY Vales**, **Code + PIN**, **With Bar Code**, **With QR Code**, **Oh Gif Card**, **Gift Card** y **Telco**. " +
           "El botón lateral usa el asset local `whatsapp-icon-card-bottom.png` y permite switch para mostrar label o dejarlo solo con icono. " +
           "Los valores de credenciales usan el token tipográfico **CODE** con `Inter` desde Google Fonts, tracking `2px` y `slashed zero` activo.",
       },

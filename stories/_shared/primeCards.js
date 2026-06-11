@@ -56,6 +56,18 @@ export const CARD_BOTTOM_VARIANTS = [
     recommendation: "Recomendado: 1 sola línea de código y fecha de expiración visible.",
   },
   {
+    path: "Molecule/Bottom Card/Code + PIN",
+    key: "code-pin",
+    id: "bottom-card-code-pin",
+    lines: [
+      { label: "Código", value: "X00OOMMDFRA", copyable: true },
+      { label: "PIN", value: "7025", copyable: true },
+    ],
+    expiry: "Vence 10 / Sep / 2025",
+    buttonLabel: "Ayuda",
+    recommendation: "Recomendado: código y PIN visibles, sin Aux code.",
+  },
+  {
     path: "Molecule/Bottom Card/With Bar Code",
     key: "with-bar-code",
     id: "88160:46958",
