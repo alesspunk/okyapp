@@ -56,6 +56,34 @@ export const CARD_BOTTOM_VARIANTS = [
     recommendation: "Recomendado: 1 sola línea de código y fecha de expiración visible.",
   },
   {
+    path: "Molecule/Bottom Card/With Bar Code",
+    key: "with-bar-code",
+    id: "88160:46958",
+    lines: [{ label: "OKY Vale", value: "X00OOMMDFRA", copyable: true }],
+    media: {
+      type: "bar-code",
+      src: "bottom-card-barcode-purple.png",
+      alt: "Barcode credential",
+    },
+    expiry: "Vence 10 / Sep / 2025",
+    buttonLabel: "Ayuda",
+    recommendation: "Recomendado: código principal y barcode 224x40 alineado al área de redención.",
+  },
+  {
+    path: "Molecule/Bottom Card/With QR Code",
+    key: "with-qr-code",
+    id: "88160:47242",
+    lines: [{ label: "OKY Vale", value: "X00OOMMDFRA", copyable: true }],
+    media: {
+      type: "qr-code",
+      src: "bottom-card-qr-purple.png",
+      alt: "QR credential",
+    },
+    expiry: "Vence 10 / Sep / 2025",
+    buttonLabel: "Ayuda",
+    recommendation: "Recomendado: código principal y QR 100x100 alineado al área de redención.",
+  },
+  {
     path: "Molecule/Bottom Card/Oh Gif Card",
     key: "oh-gif-card",
     id: "7390:140804",
@@ -168,6 +196,18 @@ function renderBottomLine(line) {
   `;
 }
 
+function renderBottomMedia(media) {
+  if (!media?.src) {
+    return "";
+  }
+
+  return `
+    <div class="prime-card-bottom-media is-${media.type}">
+      <img src="${media.src}" alt="${media.alt || ""}" />
+    </div>
+  `;
+}
+
 function renderBottomButton(card) {
   return `
     <button
@@ -212,6 +252,7 @@ export function resolveCardBottom(args = {}) {
   return {
     ...base,
     lines: overrideLines ?? base.lines,
+    media: base.media,
     expiry: typeof args.expiry === "string" ? args.expiry.trim() : base.expiry,
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,
     showButtonLabel: typeof args.showButtonLabel === "boolean" ? args.showButtonLabel : true,
@@ -238,6 +279,7 @@ export function renderCardBottom(card) {
         <div class="prime-card-bottom-content">
           <div class="prime-card-bottom-main">
             ${card.lines.map((line) => renderBottomLine(line)).join("")}
+            ${renderBottomMedia(card.media)}
           </div>
           <div class="prime-card-bottom-side">
             <div class="prime-card-bottom-expiry">${card.expiry || "&nbsp;"}</div>

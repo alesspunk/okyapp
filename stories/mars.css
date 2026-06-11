@@ -4805,6 +4805,53 @@ body {
   word-break: normal;
 }
 
+.prime-card-bottom-media {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.prime-card-bottom-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.card-bottom-molecule.is-with-bar-code .prime-card-bottom-line-value,
+.card-bottom-molecule.is-with-qr-code .prime-card-bottom-line-value {
+  width: 187px;
+}
+
+.card-bottom-molecule.is-with-bar-code .prime-card-bottom-media {
+  width: 224px;
+  height: 40px;
+}
+
+.card-bottom-molecule.is-with-bar-code .prime-card-bottom-media img {
+  object-fit: fill;
+}
+
+.card-bottom-molecule.is-with-qr-code .prime-card-bottom-media {
+  width: 100px;
+  min-width: 100px;
+  height: 100px;
+  min-height: 100px;
+  aspect-ratio: 1 / 1;
+}
+
+.card-bottom-molecule.is-with-qr-code .prime-card-bottom-media img {
+  object-fit: contain;
+  aspect-ratio: 1 / 1;
+}
+
+.card-bottom-molecule.is-with-bar-code .prime-card-bottom-help-btn.has-label,
+.card-bottom-molecule.is-with-qr-code .prime-card-bottom-help-btn.has-label {
+  min-width: 102px;
+  justify-content: center;
+}
+
 .prime-card-bottom-help-btn {
   min-width: 0;
   min-height: 41px;
