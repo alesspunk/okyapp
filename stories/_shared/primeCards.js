@@ -159,7 +159,6 @@ export const CARD_BOTTOM_VARIANTS = [
     id: "90147:43127",
     lines: [],
     content: [
-      { type: "section-title", label: "Cómo funciona" },
       {
         type: "line",
         line: {
@@ -182,7 +181,6 @@ export const CARD_BOTTOM_VARIANTS = [
     id: "90111:22528",
     lines: [],
     content: [
-      { type: "section-title", label: "Cómo funciona" },
       { type: "status", value: "app acreditada" },
       {
         type: "line",
