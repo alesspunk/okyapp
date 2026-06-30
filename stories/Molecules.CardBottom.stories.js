@@ -26,6 +26,7 @@ export default {
           "**Bottom Card** es la molécula hermana de `Middle Card` para credenciales, códigos y soporte. " +
           "Usa el surface token **Card Bottom**, conserva el mismo shadow **PDP Card**, mantiene ancho PDP (`342px`) y reutiliza `fa-icon-card-use` para acciones tipo copy. " +
           "Incluye las variantes vistas en Figma: **Default**, **OKY Vales**, **Code + Firma**, **With Bar Code**, **With QR Code**, **Code + BAR CODE + PIN**, **Oh Gif Card**, **Gift Card** y **Telco**. " +
+          "También documenta los nuevos casos operativos: **eCard Selectos · Primer envío**, **eCard Selectos · Segundo envío** y **Pago de servicio con link** para flujos donde el recibo abre WebView o modal informativo. " +
           "El botón lateral usa el asset local `whatsapp-icon-card-bottom.png` y permite switch para mostrar label o dejarlo solo con icono. " +
           "Los valores de credenciales usan el token tipográfico **CODE** con `Inter` desde Google Fonts, tracking `2px` y `slashed zero` activo.",
       },
@@ -134,6 +135,48 @@ export const ButtonLabelSwitch = {
             <div class="mars-label">Icon only</div>
             ${renderCardBottom({ ...sample, showButtonLabel: false, whatsappImage: "whatsapp-icon-card-bottom.png" })}
           </div>
+        </div>
+      </div>
+    `;
+  },
+};
+
+export const ECardAndLinkVariants = {
+  name: "eCard Selection + Link",
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          "Nuevas variantes para eCard Selectos y pagos de servicio. El primer envío muestra activación por teléfono; el segundo envío muestra la app acreditada, e-card y número de orden; el caso de pago de servicio incluye un link de recibo que abre WebView/modal.",
+      },
+    },
+  },
+  render: () => {
+    const paths = [
+      "Molecule/Bottom Card/eCard Selectos · Primer envío",
+      "Molecule/Bottom Card/eCard Selectos · Segundo envío",
+      "Molecule/Bottom Card/Pago de servicio con link",
+    ];
+
+    return `
+      <div class="mars-story">
+        <div class="mars-label">Nuevas variantes operativas</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Referencias Figma: 90147:43127 · 90111:22528 · 90114:37688
+        </div>
+        <div class="prime-card-grid">
+          ${paths
+            .map((path) => {
+              const card = findCardBottom(path);
+
+              return renderReferenceItem({
+                ...card,
+                showButtonLabel: true,
+                whatsappImage: "whatsapp-icon-card-bottom.png",
+              });
+            })
+            .join("")}
         </div>
       </div>
     `;

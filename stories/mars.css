@@ -4770,6 +4770,28 @@ body {
   gap: 8px;
 }
 
+.prime-card-bottom-section-title {
+  margin: 0;
+  width: 100%;
+  color: #552588;
+  font-family: "Lato", sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 0;
+}
+
+.prime-card-bottom-status {
+  margin: 0;
+  width: 204px;
+  max-width: 100%;
+  min-height: 24px;
+  display: flex;
+  align-items: flex-end;
+  color: #552588;
+  white-space: nowrap;
+}
+
 .prime-card-bottom-line-header {
   min-height: 16px;
   display: inline-flex;
@@ -4792,6 +4814,15 @@ body {
   color: #552588;
 }
 
+.prime-card-bottom-inline-icon {
+  color: #552588;
+}
+
+.prime-card-bottom-inline-icon i {
+  font-size: 14px;
+  line-height: 16px;
+}
+
 .prime-card-bottom-line-value {
   margin: 0;
   width: 243px;
@@ -4803,6 +4834,25 @@ body {
   white-space: nowrap;
   overflow-wrap: normal;
   word-break: normal;
+}
+
+.prime-card-bottom-link-value {
+  margin: 0;
+  width: 175px;
+  max-width: 100%;
+  min-height: 24px;
+  display: flex;
+  align-items: flex-end;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #552588;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
 .prime-card-bottom-media {
@@ -4821,12 +4871,35 @@ body {
 
 .card-bottom-molecule.is-with-bar-code .prime-card-bottom-line-value,
 .card-bottom-molecule.is-with-qr-code .prime-card-bottom-line-value,
-.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line-value {
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line-value,
+.card-bottom-molecule.is-ecard-selectos-first-send .prime-card-bottom-line-value,
+.card-bottom-molecule.is-ecard-selectos-second-send .prime-card-bottom-line-value,
+.card-bottom-molecule.is-service-payment-link .prime-card-bottom-line-value {
   width: 187px;
 }
 
 .card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line {
   width: 187px;
+}
+
+.card-bottom-molecule.is-ecard-selectos-first-send .prime-card-bottom-main,
+.card-bottom-molecule.is-ecard-selectos-second-send .prime-card-bottom-main,
+.card-bottom-molecule.is-service-payment-link .prime-card-bottom-main {
+  width: 214px;
+  gap: 8px;
+}
+
+.card-bottom-molecule.is-ecard-selectos-second-send .prime-card-bottom-main {
+  gap: 6px;
+}
+
+.card-bottom-molecule.is-ecard-selectos-second-send .prime-card-bottom-line {
+  gap: 4px;
+}
+
+.card-bottom-molecule.is-ecard-selectos-second-send .prime-card-bottom-line-header,
+.card-bottom-molecule.is-service-payment-link .prime-card-bottom-line-header {
+  min-height: 16px;
 }
 
 .card-bottom-molecule.is-with-bar-code .prime-card-bottom-media,
@@ -4899,6 +4972,79 @@ body {
   letter-spacing: 0.25px;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.prime-card-bottom-modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border-radius: 16px;
+  background: rgba(38, 16, 64, 0.28);
+}
+
+.card-bottom-shell.is-modal-open .prime-card-bottom-modal-overlay {
+  display: flex;
+}
+
+.prime-card-bottom-modal {
+  position: relative;
+  width: 100%;
+  max-width: 286px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--white);
+  box-shadow: 0 16px 34px rgba(30, 14, 52, 0.22);
+}
+
+.prime-card-bottom-modal-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #552588;
+  font-family: "Lato", sans-serif;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.prime-card-bottom-modal-title {
+  margin: 0;
+  padding-right: 24px;
+  color: #552588;
+  font-family: "Lato", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.prime-card-bottom-modal-description {
+  margin: 0;
+  color: rgba(85, 37, 136, 0.84);
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.prime-card-bottom-modal-cta {
+  width: 100%;
+  min-height: 40px;
+  justify-content: center;
 }
 
 .prime-card-grid {

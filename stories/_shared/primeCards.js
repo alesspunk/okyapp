@@ -153,6 +153,76 @@ export const CARD_BOTTOM_VARIANTS = [
     buttonLabel: "Ayuda",
     recommendation: "Recomendado: remitente visible y CTA de ayuda sin bloques extra de código.",
   },
+  {
+    path: "Molecule/Bottom Card/eCard Selectos · Primer envío",
+    key: "ecard-selectos-first-send",
+    id: "90147:43127",
+    lines: [],
+    content: [
+      { type: "section-title", label: "Cómo funciona" },
+      {
+        type: "line",
+        line: {
+          label: "activación",
+          value: "llama: +503 2113 0203",
+          icon: "fa-phone",
+          copyable: false,
+        },
+      },
+      { type: "line", line: { label: "oky VALE", value: "016519601", copyable: true } },
+    ],
+    expiry: "Vence 10 / Sep / 2025",
+    buttonLabel: "Ayuda",
+    recommendation:
+      "Recomendado: usar esta variante para el primer envío de eCard Selectos; muestra instrucción de activación por teléfono y el OKY Vale copiable.",
+  },
+  {
+    path: "Molecule/Bottom Card/eCard Selectos · Segundo envío",
+    key: "ecard-selectos-second-send",
+    id: "90111:22528",
+    lines: [],
+    content: [
+      { type: "section-title", label: "Cómo funciona" },
+      { type: "status", value: "app acreditada" },
+      {
+        type: "line",
+        line: { label: "e-card selectos acreditado", value: "016519601", copyable: true },
+      },
+      { type: "line", line: { label: "número de orden", value: "57710", copyable: true } },
+    ],
+    expiry: "Vence 10 / Sep / 2025",
+    buttonLabel: "Ayuda",
+    recommendation:
+      "Recomendado: usar esta variante cuando la app ya fue acreditada; conserva el e-card acreditado y el número de orden como valores copiables.",
+  },
+  {
+    path: "Molecule/Bottom Card/Pago de servicio con link",
+    key: "service-payment-link",
+    id: "90114:37688",
+    lines: [],
+    content: [
+      { type: "line", line: { label: "identificador del pago", value: "00119000222", copyable: true } },
+      {
+        type: "link",
+        label: "recibo",
+        value: "http://skyl...",
+        icon: "fa-receipt",
+        modalTitle: "Recibo de pago",
+        modalDescription:
+          "Este link abre un WebView o modal con más información del recibo del proveedor.",
+        modalCta: "Abrir recibo",
+      },
+    ],
+    expiry: "Pago 10 / Sep / 2025",
+    buttonLabel: "Ayuda",
+    recommendation:
+      "Recomendado: usar esta variante para servicios tipo Sky/pagos de servicios; el valor de recibo se comporta como link y abre WebView o modal informativo.",
+    modal: {
+      title: "Recibo de pago",
+      description: "El link del recibo debe abrir un WebView o modal con la información entregada por el proveedor.",
+      cta: "Abrir recibo",
+    },
+  },
 ];
 
 export const CARD_TOP_PATHS = CARD_TOP_VARIANTS.map((variant) => variant.path);
@@ -168,6 +238,14 @@ function renderLinkIcon(icon = "fa-arrow-up-right-from-square", className = "") 
 
 function renderCopyIcon() {
   return renderLinkIcon("fa-copy", "prime-card-copy-icon");
+}
+
+function renderBottomInlineIcon(icon) {
+  if (!icon) {
+    return "";
+  }
+
+  return renderLinkIcon(icon, "prime-card-bottom-inline-icon");
 }
 
 function renderTopFooter(card) {
@@ -225,9 +303,36 @@ function renderBottomLine(line) {
     <div class="prime-card-bottom-line">
       <div class="prime-card-bottom-line-header">
         <span class="prime-card-bottom-line-label">${line.label}</span>
-        ${line.copyable ? renderCopyIcon() : ""}
+        ${line.copyable ? renderCopyIcon() : renderBottomInlineIcon(line.icon)}
       </div>
       <p class="prime-card-bottom-line-value token-code">${line.value}</p>
+    </div>
+  `;
+}
+
+function renderBottomSectionTitle(label) {
+  return `<p class="prime-card-bottom-section-title">${label}</p>`;
+}
+
+function renderBottomStatus(value) {
+  return `<p class="prime-card-bottom-status token-code">${value}</p>`;
+}
+
+function renderBottomLink(item) {
+  return `
+    <div class="prime-card-bottom-line is-link">
+      <div class="prime-card-bottom-line-header">
+        <span class="prime-card-bottom-line-label">${item.label}</span>
+        ${renderBottomInlineIcon(item.icon || "fa-arrow-up-right-from-square")}
+      </div>
+      <button
+        class="prime-card-bottom-link-value token-code"
+        type="button"
+        aria-haspopup="dialog"
+        onclick="this.closest('.card-bottom-shell').classList.add('is-modal-open')"
+      >
+        ${item.value}
+      </button>
     </div>
   `;
 }
@@ -247,6 +352,18 @@ function renderBottomMedia(media) {
 function renderBottomItem(item) {
   if (item?.type === "media") {
     return renderBottomMedia(item.media);
+  }
+
+  if (item?.type === "section-title") {
+    return renderBottomSectionTitle(item.label);
+  }
+
+  if (item?.type === "status") {
+    return renderBottomStatus(item.value);
+  }
+
+  if (item?.type === "link") {
+    return renderBottomLink(item);
   }
 
   return renderBottomLine(item?.line ?? item);
@@ -274,6 +391,32 @@ function renderBottomButton(card) {
       </span>
       ${card.showButtonLabel ? `<span class="prime-card-bottom-help-label">${card.buttonLabel}</span>` : ""}
     </button>
+  `;
+}
+
+function renderBottomModal(card) {
+  if (!card.modal) {
+    return "";
+  }
+
+  return `
+    <div class="prime-card-bottom-modal-overlay" role="dialog" aria-modal="true" aria-label="${card.modal.title}">
+      <div class="prime-card-bottom-modal">
+        <button
+          class="prime-card-bottom-modal-close"
+          type="button"
+          aria-label="Cerrar"
+          onclick="this.closest('.card-bottom-shell').classList.remove('is-modal-open')"
+        >
+          ×
+        </button>
+        <p class="prime-card-bottom-modal-title">${card.modal.title}</p>
+        <p class="prime-card-bottom-modal-description">${card.modal.description}</p>
+        <button class="btn btn-primary prime-card-bottom-modal-cta" type="button">
+          ${card.modal.cta}
+        </button>
+      </div>
+    </div>
   `;
 }
 
@@ -344,6 +487,7 @@ export function renderCardBottom(card) {
           </div>
         </div>
       </article>
+      ${renderBottomModal(card)}
     </div>
   `;
 }
