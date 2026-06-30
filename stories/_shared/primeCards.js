@@ -159,6 +159,7 @@ export const CARD_BOTTOM_VARIANTS = [
     id: "90147:43127",
     lines: [],
     content: [
+      { type: "section-spacer" },
       {
         type: "line",
         line: {
@@ -181,6 +182,7 @@ export const CARD_BOTTOM_VARIANTS = [
     id: "90111:22528",
     lines: [],
     content: [
+      { type: "section-spacer" },
       { type: "status", value: "app acreditada" },
       {
         type: "line",
@@ -312,6 +314,10 @@ function renderBottomSectionTitle(label) {
   return `<p class="prime-card-bottom-section-title">${label}</p>`;
 }
 
+function renderBottomSectionSpacer() {
+  return `<div class="prime-card-bottom-section-spacer" aria-hidden="true"></div>`;
+}
+
 function renderBottomStatus(value) {
   return `<p class="prime-card-bottom-status token-code">${value}</p>`;
 }
@@ -354,6 +360,10 @@ function renderBottomItem(item) {
 
   if (item?.type === "section-title") {
     return renderBottomSectionTitle(item.label);
+  }
+
+  if (item?.type === "section-spacer") {
+    return renderBottomSectionSpacer();
   }
 
   if (item?.type === "status") {
