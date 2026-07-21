@@ -187,24 +187,15 @@ function buildSummaryBox({ flow, step, pricing, showAddButton, withVoucherify, e
         <span class="summary-label-strong">${plpTotal}</span>
       </div>`;
 
-    if (withVoucherify) {
-      footerHtml = `
-      <div class="summary-savings-row">
-        <i class="fa-solid fa-tags"></i>
-        <span>¡Ahorro total ${isSaving ? "$12.50" : "$5.00"}!</span>
-      </div>
-      <div class="summary-cta-row double">
-        <button class="btn btn-outlined btn-medium" style="width:100%">Seguir comprando</button>
-        <button class="btn btn-primary btn-medium" style="width:100%">Ir a caja</button>
-      </div>`;
-    } else {
-      footerHtml = `
+    // Nota: la fila "¡Ahorro total!" se removió del footer (PLP) porque el
+    // ahorro ahora se muestra fuera del componente con el molecule Saving Bar.
+    // Aplica igual para flow giftCards y no-giftCards.
+    footerHtml = `
       <div class="summary-divider"></div>
       <div class="summary-cta-row double">
         <button class="btn btn-outlined btn-medium" style="width:100%">Seguir comprando</button>
         <button class="btn btn-primary btn-medium" style="width:100%">Ir a caja</button>
       </div>`;
-    }
 
   /* ── Cart ─────────────────────────────────────────── */
   } else if (step === "cart") {
