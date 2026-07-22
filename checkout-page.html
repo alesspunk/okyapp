@@ -44,7 +44,7 @@
             </div>
 
             <div class="checkout-page-brand-overlap page-header-organism-brand-overlap">
-              <div class="brand-item-atom is-with-label">
+              <div class="brand-item-atom is-with-label" data-brand-key="target">
                 <p class="brand-item-label token-product-text">Target</p>
                 <div class="brand-item-frame">
                   <div class="brand-item-base">
@@ -61,7 +61,7 @@
             <section class="checkout-pdp-carousel" aria-label="Carrusel de productos">
               <div class="pdp-header-carousel-viewport">
                 <div class="pdp-header-carousel-track">
-                  <div class="pdp-header-carousel-card is-hint">
+                  <div class="pdp-header-carousel-card is-hint" data-brand-key="amazon">
                     <div class="middle-card-shell is-checkout">
                       <article class="middle-card-molecule is-egift">
                         <div class="middle-card-content">
@@ -82,7 +82,7 @@
                     </div>
                   </div>
 
-                  <div class="pdp-header-carousel-card is-active" data-pen-id="6991:146335">
+                  <div class="pdp-header-carousel-card is-active" data-pen-id="6991:146335" data-brand-key="target">
                     <div class="middle-card-shell is-checkout">
                       <article class="middle-card-molecule is-egift">
                         <div class="middle-card-content">
@@ -103,7 +103,7 @@
                     </div>
                   </div>
 
-                  <div class="pdp-header-carousel-card is-hint">
+                  <div class="pdp-header-carousel-card is-hint" data-brand-key="starbucks">
                     <div class="middle-card-shell is-checkout">
                       <article class="middle-card-molecule is-egift">
                         <div class="middle-card-content">
@@ -267,10 +267,19 @@
             });
         }
 
-        // Carrusel funcional: centra la card activa al montar y mueve el
-        // scroll una card a la vez con los botones prev/next (misma
-        // lógica que initProductoHeaderCarousels, sin el brand-sync que
-        // no aplica en este checkout).
+        // Brand presets para el brand-item que sigue a la card activa del
+        // carrusel (mismo copy/imagen ya usados en la página).
+        var BRANDS = {
+          amazon: { label: "Amazon", image: "./images/amazon.png" },
+          target: { label: "Target", image: "./images/target.webp" },
+          starbucks: { label: "Starbucks", image: "./images/starbucks.webp" },
+        };
+
+        // Carrusel funcional: centra la card activa al montar, mueve el
+        // scroll una card a la vez con los botones prev/next, y sincroniza
+        // el Brand Item de arriba con la marca de la card activa (misma
+        // lógica que initProductoHeaderCarousels en
+        // Organisms.ProductoHeader.stories.js).
         function initCarousel() {
           var viewport = document.querySelector(".pdp-header-carousel-viewport");
           if (!viewport) return;
@@ -281,6 +290,22 @@
           var wrap = viewport.closest(".checkout-pdp-carousel");
           var prevBtn = wrap && wrap.querySelector(".pdp-header-carousel-nav-prev");
           var nextBtn = wrap && wrap.querySelector(".pdp-header-carousel-nav-next");
+          var brandSlot = document.querySelector(".checkout-page-brand-overlap .brand-item-atom");
+
+          function syncBrand(active, force) {
+            var brandKey = active.dataset.brandKey;
+            var brand = BRANDS[brandKey];
+            if (!brandSlot || !brand) return;
+            if (!force && brandSlot.dataset.brandKey === brandKey) return;
+            brandSlot.dataset.brandKey = brandKey;
+            var label = brandSlot.querySelector(".brand-item-label");
+            var img = brandSlot.querySelector(".brand-item-base img");
+            if (label) label.textContent = brand.label;
+            if (img) {
+              img.src = brand.image;
+              img.alt = brand.label;
+            }
+          }
 
           function closestCard() {
             var center = viewport.scrollLeft + viewport.clientWidth / 2;
@@ -339,6 +364,7 @@
             return card.classList.contains("is-active");
           })[0] || cards[0];
           centerCard(initialActive, false);
+          syncBrand(initialActive, true);
           updateNavVisibility();
 
           var ticking = false;
@@ -348,6 +374,7 @@
             requestAnimationFrame(function () {
               var active = closestCard();
               syncActiveCard(active);
+              syncBrand(active, false);
               updateNavVisibility();
               ticking = false;
             });
