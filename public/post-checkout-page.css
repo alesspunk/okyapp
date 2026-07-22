@@ -1,0 +1,190 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  background: #f5f5f5;
+  font-family: "Nunito Sans", sans-serif;
+}
+
+.post-checkout-page-shell {
+  width: 360px;
+  height: 800px;
+  margin: 0;
+  background: #fff;
+  border: 1px solid #cfd4dc;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.post-checkout-page-scroll {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.post-checkout-page-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.post-checkout-page-status-icons {
+  display: flex;
+  gap: 8px;
+}
+
+/* Page Header reusado tal cual (.page-header-screen / .header-icon):
+   solo flecha de regreso a la izquierda, título vacío y un placeholder
+   a la derecha para mantener el back arrow centrado verticalmente. */
+.post-checkout-page-header {
+  flex: 0 0 auto;
+}
+
+/* Toast Banner "sobrepuesto": mismo patrón fila que success-page (toast +
+   botón cerrar), pero con margin-top negativo para que visualmente
+   quede montado sobre el borde inferior del Page Header, tal como en la
+   referencia de Figma. */
+.post-checkout-toast-row {
+  width: 338px;
+  margin: -20px auto 0;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.post-checkout-toast-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.post-checkout-toast {
+  min-height: 46px;
+  width: 100%;
+}
+
+.post-checkout-toast .toast-banner-message {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.post-checkout-close {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.post-checkout-close i {
+  font-size: 28px;
+}
+
+/* Carrusel funcional de 3 Cards (Organismo Card): mismo enfoque de
+   scroll-snap + buffer de padding-inline ya usado en Producto Header y
+   Checkout Page, recalculado para el ancho de 342px de .card-organism
+   (calc(50% - 171px), donde 171 = 342 / 2). Los botones de navegación
+   reusan .pdp-header-carousel-nav / -prev / -next de mars.css tal cual. */
+.post-checkout-carousel {
+  position: relative;
+  width: 100%;
+  padding: 24px 0 8px;
+}
+
+.post-checkout-carousel-viewport {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: calc(50% - 171px);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.post-checkout-carousel-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.post-checkout-carousel-track {
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  padding-inline: calc(50% - 171px);
+}
+
+.post-checkout-carousel-card {
+  flex: 0 0 342px;
+  width: 342px;
+  scroll-snap-align: center;
+  opacity: 0.55;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.post-checkout-carousel-card.is-active {
+  opacity: 1;
+}
+
+.post-checkout-carousel-card .card-organism {
+  transform: scale(0.96);
+  transform-origin: top center;
+}
+
+.post-checkout-carousel-card .card-organism-separator-slot {
+  padding: 0;
+}
+
+.post-checkout-carousel-card .separator-atom {
+  width: 280px;
+}
+
+.post-checkout-dots {
+  width: 100%;
+  margin: 4px 0 8px;
+}
+
+.post-checkout-footer {
+  flex: 0 0 auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid rgba(0, 0, 0, 0.23);
+  padding: 14px 16px 12px;
+  background: #fff;
+}
+
+.post-checkout-share-btn {
+  width: 100%;
+  max-width: 328px;
+  min-height: 46px;
+  border-radius: 36px;
+  gap: 10px;
+}
+
+.post-checkout-share-icon,
+.post-checkout-share-icon i {
+  color: var(--primary-main);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.post-checkout-share-label {
+  color: var(--primary-main);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.15px;
+}
