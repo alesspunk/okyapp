@@ -62,24 +62,29 @@ body {
   flex: 0 0 auto;
 }
 
+/* La flecha de regreso queda debajo, absolute + inset:0 dentro de
+   .post-checkout-header-wrap (z-index:1) — no aporta alto al flujo, así
+   que el alto real de la sección lo define el toast (z-index:2, en flujo
+   normal), que la cubre por completo tal como en la referencia de
+   Figma. */
 .post-checkout-page-header {
-  flex: 0 0 auto;
-}
-
-/* Toast Banner "sobrepuesto": se posiciona absolute cubriendo exactamente
-   el mismo espacio que el Page Header (inset:0 dentro de
-   .post-checkout-header-wrap), tapando la flecha de regreso por completo
-   tal como en la referencia de Figma, en vez de apilarse debajo con un
-   simple margin negativo (insuficiente para cubrirla). */
-.post-checkout-toast-row {
   position: absolute;
   inset: 0;
+  z-index: 1;
+}
+
+/* Toast Banner "sobrepuesto": padding 8px arriba/abajo · 16px
+   izquierda/derecha (spec de Figma), en flujo normal por encima de la
+   flecha (position:relative + z-index:2 gana el stacking sobre el
+   header absolute). */
+.post-checkout-toast-row {
+  position: relative;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 0 16px;
+  padding: 8px 16px;
   box-sizing: border-box;
 }
 
@@ -119,7 +124,7 @@ body {
 .post-checkout-carousel {
   position: relative;
   width: 100%;
-  padding: 24px 0 8px;
+  padding: 16px 0 8px;
 }
 
 .post-checkout-carousel-viewport {
