@@ -184,6 +184,7 @@ function resolveArgs(args = {}) {
     amount: args.amount?.trim() || middle.amount,
     leftLabel: args.leftLabel?.trim() || middle.leftLabel,
     rightLabel: args.rightLabel?.trim() || middle.rightLabel,
+    centerLabel: typeof args.centerLabel === "string" ? args.centerLabel : middle.centerLabel,
     image: args.cardImage?.trim() || middle.image,
     showDiscountRibbon: args.showDiscountRibbon,
     discountRibbonType: args.discountRibbonType,
@@ -385,6 +386,12 @@ export default {
       control: "text",
       description: "Label inferior derecho del Middle Card.",
     },
+    centerLabel: {
+      control: "text",
+      description:
+        "Footer alterno de un solo label centrado del Middle Card, en Sentence case y sin icono (ej. \"Que necesitas saber\"). " +
+        "Si tiene valor, reemplaza leftLabel/rightLabel + icono.",
+    },
     cardImage: {
       control: "text",
       description: "Imagen del Middle Card de producto.",
@@ -459,6 +466,7 @@ export const DocsPlayground = {
     amount: "1,000",
     leftLabel: "Mostrar al cajero",
     rightLabel: "Como canjear",
+    centerLabel: "",
     cardImage: "middle-card-vale-de-producto.png",
     showDiscountRibbon: true,
     discountRibbonType: "Por tiempo",

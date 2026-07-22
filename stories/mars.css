@@ -4562,6 +4562,26 @@ body {
   color: var(--primary-main);
 }
 
+/* Footer alterno de un solo label centrado, sin icono, en Sentence case
+   (vs. el footer default de leftLabel/rightLabel + icono en uppercase). */
+.middle-card-footer.is-center-label {
+  justify-content: center;
+}
+
+.middle-card-footer-center {
+  min-width: 0;
+  color: #552588;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.6;
+  text-transform: none;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .middle-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(342px, 1fr));

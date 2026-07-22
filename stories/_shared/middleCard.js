@@ -115,6 +115,14 @@ function renderFooter(card) {
     return "";
   }
 
+  if (card.centerLabel) {
+    return `
+      <div class="middle-card-footer is-center-label">
+        <span class="middle-card-footer-center">${card.centerLabel}</span>
+      </div>
+    `;
+  }
+
   return `
     <div class="middle-card-footer">
       <span class="middle-card-footer-start">${card.leftLabel}</span>
@@ -189,6 +197,7 @@ export function resolveMiddleCard(args = {}) {
     amount: args.amount?.trim() || base.amount,
     leftLabel: args.leftLabel?.trim() || base.leftLabel,
     rightLabel: args.rightLabel?.trim() || base.rightLabel,
+    centerLabel: typeof args.centerLabel === "string" ? args.centerLabel.trim() : base.centerLabel || "",
     image: args.image?.trim() || base.image,
     showDiscountRibbon: args.showDiscountRibbon === true,
     discountRibbonType: DISCOUNT_RIBBON_TYPES.includes(args.discountRibbonType) ? args.discountRibbonType : "Normal",

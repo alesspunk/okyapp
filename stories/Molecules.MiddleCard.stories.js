@@ -63,6 +63,7 @@ export default {
           "**Middle Card** es la molécula de canje intermedio para vouchers y gift cards. " +
           "Incluye seis variantes: **Vale de Monto**, **Con Logo**, **Vale de Producto**, **eGift Card**, **Disable Monto** y **Disable Foto**. " +
           "Mantiene el mismo footer de acciones, usa tipografía del sistema basada en `Nunito Sans`, shadow suave, radial surface y CTA secundario con `arrow-up-right-from-square`. " +
+          "El footer admite un modo alterno vía `centerLabel`: un solo mensaje centrado en Sentence case y sin icono, en vez de `leftLabel` + `rightLabel` + icono en uppercase. " +
           "Incluye además un switch de contexto para **PDP** y **Checkout**, cambiando tamaño sin alterar la anatomía. " +
           "También permite montar opcionalmente un **Discount Ribbon / Wrap** en la esquina superior derecha, reutilizando el átomo existente sin romper su set de variantes. " +
           "La variante de producto usa `mix-blend-mode: darken` sobre la imagen para respetar el tratamiento visual de Figma, y la variante **Con Logo** reemplaza el título superior por una imagen horizontal de marca. " +
@@ -110,6 +111,12 @@ export default {
       control: "text",
       description: "Etiqueta inferior derecha.",
     },
+    centerLabel: {
+      control: "text",
+      description:
+        "Footer alterno de un solo label centrado, en Sentence case y sin icono (ej. \"Que necesitas saber\"). " +
+        "Si tiene valor, reemplaza al footer default de leftLabel/rightLabel + icono.",
+    },
     image: {
       control: "text",
       description: "Imagen para la variante Vale de Producto.",
@@ -149,6 +156,7 @@ export const DocsPlayground = {
     amount: "1,000",
     leftLabel: "Mostrar al cajero",
     rightLabel: "Como canjear",
+    centerLabel: "",
     image: "middle-card-vale-de-producto.png",
     showDiscountRibbon: true,
     discountRibbonType: "Normal",
@@ -305,6 +313,33 @@ export const EGiftCard = {
       </div>
       <div class="mars-label">ID .pen: ${MIDDLE_CARD_VARIANTS[2].id}</div>
       ${renderMiddleCard({ ...MIDDLE_CARD_VARIANTS[2], pageContext: "PDP" })}
+    </div>
+  `,
+};
+
+export const CenterLabel = {
+  name: "Center Label",
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          "Footer alterno de un solo label centrado (`centerLabel`), en Sentence case y sin icono — a diferencia " +
+          "del footer default que usa leftLabel + rightLabel + icono en uppercase.",
+      },
+    },
+  },
+  render: () => `
+    <div class="mars-story">
+      <div class="mars-label">Molecule/Middle Card · Footer con centerLabel</div>
+      <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+        Recomendado: usar un solo mensaje corto (ej. "Que necesitas saber"), en Sentence case, sin icono de link.
+      </div>
+      ${renderMiddleCard({
+        ...MIDDLE_CARD_VARIANTS[0],
+        pageContext: "PDP",
+        centerLabel: "Que necesitas saber",
+      })}
     </div>
   `,
 };
