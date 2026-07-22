@@ -28,7 +28,7 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   box-sizing: border-box;
-  padding-bottom: 96px;
+  padding-bottom: 84px;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -38,13 +38,13 @@ body {
 }
 
 /* Saving Bar + Navigation fijos al fondo de la pantalla (mismo patrón
-   que .catalog-page-nav en catalog-pages.css): el Saving Bar (mint,
-   $secondary-light bg / $secondary-dark texto, mismo copy "¡Ahorro
-   total!" que summary-savings-row pero fuera de la card) queda apilado
-   justo encima del bottom-nav is-no-label, ambos position:absolute
-   sobre el scroll. .checkout-page-scroll reserva 96px de padding-bottom
-   (36px barra + 56px nav + margen) para que el CTA del Summary Box no
-   quede tapado. */
+   que .catalog-page-nav en catalog-pages.css): el Saving Bar (bg
+   #A8FAF5 / texto e íconos #00524D, mismo copy "¡Ahorro total!" que
+   summary-savings-row pero fuera de la card) queda apilado justo
+   encima del bottom-nav is-no-label, ambos position:absolute sobre el
+   scroll. .checkout-page-scroll reserva 84px de padding-bottom (24px
+   barra + 56px nav + margen) para que el CTA del Summary Box no quede
+   tapado. */
 .checkout-page-nav {
   position: absolute;
   left: 0;
@@ -63,13 +63,13 @@ body {
 
 .checkout-saving-bar {
   width: 100%;
-  height: 36px;
-  background: var(--secondary-light);
+  height: 24px;
+  background: #a8faf5;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  color: var(--secondary-dark);
+  color: #00524d;
   font-family: "Lato", sans-serif;
   font-size: 16px;
   font-weight: 700;
@@ -80,7 +80,7 @@ body {
 
 .checkout-saving-bar .fa-solid {
   font-size: 16px;
-  color: var(--secondary-dark);
+  color: #00524d;
 }
 
 .checkout-page-top {
