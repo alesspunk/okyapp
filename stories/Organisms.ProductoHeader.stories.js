@@ -178,6 +178,12 @@ function renderProductoHeaderCarousel(cards) {
           .join("")}
       </div>
     </div>
+    <button type="button" class="pdp-header-carousel-nav pdp-header-carousel-nav-prev" aria-label="Ver card anterior">
+      <i class="fa-solid fa-circle-chevron-left" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="pdp-header-carousel-nav pdp-header-carousel-nav-next" aria-label="Ver siguiente card">
+      <i class="fa-solid fa-circle-chevron-right" aria-hidden="true"></i>
+    </button>
   `;
 }
 
@@ -228,10 +234,50 @@ function initProductoHeaderCarousels(root) {
         brandSlot.innerHTML = renderBrandItem({ variant: brandVariant, brandKey, label: "", image: "", background: "" });
       }
 
+      // Botones circle-chevron-left/right: mueve el scroll una card a la
+      // vez (centrada, igual que la regla de posicionamiento inicial) y
+      // solo se muestran cuando hay una card real hacia ese lado — si el
+      // usuario ya está en el extremo izquierdo/derecho, ese botón se
+      // oculta en vez de quedar deshabilitado.
+      const cardSlot = viewport.parentElement;
+      const prevBtn = cardSlot?.querySelector(".pdp-header-carousel-nav-prev");
+      const nextBtn = cardSlot?.querySelector(".pdp-header-carousel-nav-next");
+
+      function scrollToCard(target) {
+        const targetOffset = target.offsetLeft - (viewport.clientWidth - target.clientWidth) / 2;
+        viewport.scrollTo({ left: Math.max(0, targetOffset), behavior: "smooth" });
+      }
+
+      function updateNavVisibility() {
+        if (!prevBtn || !nextBtn) {
+          return;
+        }
+        const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
+        prevBtn.style.display = viewport.scrollLeft <= 1 ? "none" : "";
+        nextBtn.style.display = viewport.scrollLeft >= maxScrollLeft - 1 ? "none" : "";
+      }
+
+      prevBtn?.addEventListener("click", () => {
+        const index = cards.indexOf(closestCard());
+        const target = cards[index - 1];
+        if (target) {
+          scrollToCard(target);
+        }
+      });
+
+      nextBtn?.addEventListener("click", () => {
+        const index = cards.indexOf(closestCard());
+        const target = cards[index + 1];
+        if (target) {
+          scrollToCard(target);
+        }
+      });
+
       const initialActive = cards.find((card) => card.classList.contains("is-active")) || cards[0];
       const offset = initialActive.offsetLeft - (viewport.clientWidth - initialActive.clientWidth) / 2;
       viewport.scrollLeft = Math.max(0, offset);
       syncBrand(initialActive, true);
+      updateNavVisibility();
 
       let ticking = false;
       viewport.addEventListener("scroll", () => {
@@ -243,6 +289,7 @@ function initProductoHeaderCarousels(root) {
           const active = closestCard();
           syncActiveCard(active);
           syncBrand(active, false);
+          updateNavVisibility();
           ticking = false;
         });
       });

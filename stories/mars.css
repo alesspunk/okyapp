@@ -4296,11 +4296,44 @@ body {
 }
 
 /* El carrusel rompe el padding horizontal del stack (9px) para ir a
-   full width y mostrar mas hint de las cards laterales. */
+   full width y mostrar mas hint de las cards laterales. position:relative
+   ancla los botones circle-chevron-left/right (ver mas abajo). */
 .pdp-header-card-slot.is-carousel {
+  position: relative;
   width: calc(100% + 18px);
   margin-left: -9px;
   margin-right: -9px;
+}
+
+/* Botones de navegación del carrusel (Figma 94185:15426): reusan el
+   glyph fa-circle-chevron-left/right de Font Awesome 6 Pro Solid, que ya
+   trae el círculo dibujado — sin fondo/borde extra. Refuerzan la
+   usabilidad en desktop, donde el mouse no permite deslizar el scroll
+   nativo. JS (initProductoHeaderCarousels) controla su visibilidad según
+   si hay cards a ese lado.*/
+.pdp-header-carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  line-height: 1;
+  color: #552588;
+  cursor: pointer;
+}
+
+.pdp-header-carousel-nav-prev {
+  left: 6px;
+}
+
+.pdp-header-carousel-nav-next {
+  right: 6px;
 }
 
 /* ── Producto Header · Carousel (2–3 Middle Cards) ──── */
