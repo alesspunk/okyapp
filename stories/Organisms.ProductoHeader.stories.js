@@ -195,105 +195,127 @@ function renderProductoHeaderCarousel(cards) {
 // usuario desliza, detecta qué card queda centrada y actualiza el Brand
 // Item de arriba para que siga a la marca de esa card.
 function initProductoHeaderCarousels(root) {
-  requestAnimationFrame(() => {
-    root.querySelectorAll(".pdp-header-carousel-viewport").forEach((viewport) => {
-      const cards = Array.from(viewport.querySelectorAll(".pdp-header-carousel-card"));
-      if (!cards.length) {
+  function setupCarousel(viewport, attempt = 0) {
+    // El track tiene padding-inline = calc(50% - 125px) (mars.css), así
+    // que hay espacio físico de scroll de sobra para centrar CUALQUIER
+    // card, incluidas la primera y la última — sin ese buffer, el
+    // navegador clampea scrollLeft y esas cards quedan pegadas al borde
+    // en vez de centradas. Si el nodo todavía no tiene layout real
+    // (clientWidth 0, p. ej. si aún no se adjuntó al documento), se
+    // reintenta unos frames en vez de centrar mal; si nunca se adjunta,
+    // se desiste después de un rato en lugar de reintentar para siempre.
+    if (viewport.clientWidth === 0) {
+      if (attempt < 20) {
+        requestAnimationFrame(() => setupCarousel(viewport, attempt + 1));
+      }
+      return;
+    }
+
+    const cards = Array.from(viewport.querySelectorAll(".pdp-header-carousel-card"));
+    if (!cards.length) {
+      return;
+    }
+
+    const organism = viewport.closest(".pdp-header-organism");
+    const brandSlot = organism?.querySelector(".pdp-header-brand-slot");
+    const brandVariant = organism?.dataset.brandVariant === "No label" ? "No label" : "With label";
+
+    function closestCard() {
+      const center = viewport.scrollLeft + viewport.clientWidth / 2;
+      return cards.reduce((closest, card) => {
+        const cardCenter = card.offsetLeft + card.clientWidth / 2;
+        const distance = Math.abs(cardCenter - center);
+        return distance < closest.distance ? { card, distance } : closest;
+      }, { card: cards[0], distance: Infinity }).card;
+    }
+
+    function syncActiveCard(active) {
+      cards.forEach((card) => {
+        card.classList.toggle("is-active", card === active);
+        card.classList.toggle("is-hint", card !== active);
+      });
+    }
+
+    function syncBrand(active, force) {
+      const brandKey = active.dataset.brandKey;
+      if (!brandSlot || !brandKey) {
         return;
       }
-
-      const organism = viewport.closest(".pdp-header-organism");
-      const brandSlot = organism?.querySelector(".pdp-header-brand-slot");
-      const brandVariant = organism?.dataset.brandVariant === "No label" ? "No label" : "With label";
-
-      function closestCard() {
-        const center = viewport.scrollLeft + viewport.clientWidth / 2;
-        return cards.reduce((closest, card) => {
-          const cardCenter = card.offsetLeft + card.clientWidth / 2;
-          const distance = Math.abs(cardCenter - center);
-          return distance < closest.distance ? { card, distance } : closest;
-        }, { card: cards[0], distance: Infinity }).card;
+      if (!force && brandSlot.dataset.brandKey === brandKey) {
+        return;
       }
+      brandSlot.dataset.brandKey = brandKey;
+      brandSlot.innerHTML = renderBrandItem({ variant: brandVariant, brandKey, label: "", image: "", background: "" });
+    }
 
-      function syncActiveCard(active) {
-        cards.forEach((card) => {
-          card.classList.toggle("is-active", card === active);
-          card.classList.toggle("is-hint", card !== active);
-        });
-      }
-
-      function syncBrand(active, force) {
-        const brandKey = active.dataset.brandKey;
-        if (!brandSlot || !brandKey) {
-          return;
-        }
-        if (!force && brandSlot.dataset.brandKey === brandKey) {
-          return;
-        }
-        brandSlot.dataset.brandKey = brandKey;
-        brandSlot.innerHTML = renderBrandItem({ variant: brandVariant, brandKey, label: "", image: "", background: "" });
-      }
-
-      // Botones circle-chevron-left/right: mueve el scroll una card a la
-      // vez (centrada, igual que la regla de posicionamiento inicial) y
-      // solo se muestran cuando hay una card real hacia ese lado — si el
-      // usuario ya está en el extremo izquierdo/derecho, ese botón se
-      // oculta en vez de quedar deshabilitado.
-      const cardSlot = viewport.parentElement;
-      const prevBtn = cardSlot?.querySelector(".pdp-header-carousel-nav-prev");
-      const nextBtn = cardSlot?.querySelector(".pdp-header-carousel-nav-next");
-
-      function scrollToCard(target) {
-        const targetOffset = target.offsetLeft - (viewport.clientWidth - target.clientWidth) / 2;
-        viewport.scrollTo({ left: Math.max(0, targetOffset), behavior: "smooth" });
-      }
-
-      function updateNavVisibility() {
-        if (!prevBtn || !nextBtn) {
-          return;
-        }
-        const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
-        prevBtn.style.display = viewport.scrollLeft <= 1 ? "none" : "";
-        nextBtn.style.display = viewport.scrollLeft >= maxScrollLeft - 1 ? "none" : "";
-      }
-
-      prevBtn?.addEventListener("click", () => {
-        const index = cards.indexOf(closestCard());
-        const target = cards[index - 1];
-        if (target) {
-          scrollToCard(target);
-        }
+    // scrollIntoView({ inline: "center" }) delega el cálculo de centrado
+    // al navegador (más robusto que restar manualmente offsetLeft/
+    // clientWidth) y, combinado con el buffer del track, funciona igual
+    // de bien para la card del medio que para la primera o la última.
+    function centerCard(target, smooth) {
+      target.scrollIntoView({
+        behavior: smooth ? "smooth" : "auto",
+        block: "nearest",
+        inline: "center",
       });
+    }
 
-      nextBtn?.addEventListener("click", () => {
-        const index = cards.indexOf(closestCard());
-        const target = cards[index + 1];
-        if (target) {
-          scrollToCard(target);
-        }
-      });
+    // Botones circle-chevron-left/right: mueven el scroll una card a la
+    // vez (centrada) y solo se muestran cuando hay una card real hacia
+    // ese lado — si el usuario ya está en el extremo izquierdo/derecho,
+    // ese botón se oculta en vez de quedar deshabilitado.
+    const cardSlot = viewport.parentElement;
+    const prevBtn = cardSlot?.querySelector(".pdp-header-carousel-nav-prev");
+    const nextBtn = cardSlot?.querySelector(".pdp-header-carousel-nav-next");
 
-      const initialActive = cards.find((card) => card.classList.contains("is-active")) || cards[0];
-      const offset = initialActive.offsetLeft - (viewport.clientWidth - initialActive.clientWidth) / 2;
-      viewport.scrollLeft = Math.max(0, offset);
-      syncBrand(initialActive, true);
-      updateNavVisibility();
+    function updateNavVisibility() {
+      if (!prevBtn || !nextBtn) {
+        return;
+      }
+      const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
+      prevBtn.style.display = viewport.scrollLeft <= 1 ? "none" : "";
+      nextBtn.style.display = viewport.scrollLeft >= maxScrollLeft - 1 ? "none" : "";
+    }
 
-      let ticking = false;
-      viewport.addEventListener("scroll", () => {
-        if (ticking) {
-          return;
-        }
-        ticking = true;
-        requestAnimationFrame(() => {
-          const active = closestCard();
-          syncActiveCard(active);
-          syncBrand(active, false);
-          updateNavVisibility();
-          ticking = false;
-        });
+    prevBtn?.addEventListener("click", () => {
+      const index = cards.indexOf(closestCard());
+      const target = cards[index - 1];
+      if (target) {
+        centerCard(target, true);
+      }
+    });
+
+    nextBtn?.addEventListener("click", () => {
+      const index = cards.indexOf(closestCard());
+      const target = cards[index + 1];
+      if (target) {
+        centerCard(target, true);
+      }
+    });
+
+    const initialActive = cards.find((card) => card.classList.contains("is-active")) || cards[0];
+    centerCard(initialActive, false);
+    syncBrand(initialActive, true);
+    updateNavVisibility();
+
+    let ticking = false;
+    viewport.addEventListener("scroll", () => {
+      if (ticking) {
+        return;
+      }
+      ticking = true;
+      requestAnimationFrame(() => {
+        const active = closestCard();
+        syncActiveCard(active);
+        syncBrand(active, false);
+        updateNavVisibility();
+        ticking = false;
       });
     });
+  }
+
+  requestAnimationFrame(() => {
+    root.querySelectorAll(".pdp-header-carousel-viewport").forEach(setupCarousel);
   });
 }
 
