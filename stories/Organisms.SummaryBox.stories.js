@@ -187,24 +187,15 @@ function buildSummaryBox({ flow, step, pricing, showAddButton, withVoucherify, e
         <span class="summary-label-strong">${plpTotal}</span>
       </div>`;
 
-    if (withVoucherify) {
-      footerHtml = `
-      <div class="summary-savings-row">
-        <i class="fa-solid fa-tags"></i>
-        <span>¡Ahorro total ${isSaving ? "$12.50" : "$5.00"}!</span>
-      </div>
-      <div class="summary-cta-row double">
-        <button class="btn btn-outlined btn-medium" style="width:100%">Seguir comprando</button>
-        <button class="btn btn-primary btn-medium" style="width:100%">Ir a caja</button>
-      </div>`;
-    } else {
-      footerHtml = `
+    // Nota: la fila "¡Ahorro total!" se removió del footer (PLP) porque el
+    // ahorro ahora se muestra fuera del componente con el molecule Saving Bar.
+    // Aplica igual para flow giftCards y no-giftCards.
+    footerHtml = `
       <div class="summary-divider"></div>
       <div class="summary-cta-row double">
         <button class="btn btn-outlined btn-medium" style="width:100%">Seguir comprando</button>
         <button class="btn btn-primary btn-medium" style="width:100%">Ir a caja</button>
       </div>`;
-    }
 
   /* ── Cart ─────────────────────────────────────────── */
   } else if (step === "cart") {
@@ -247,28 +238,15 @@ function buildSummaryBox({ flow, step, pricing, showAddButton, withVoucherify, e
       </div>`;
     }
 
-    const savingsAmt = isSaving
-      ? (flow === "giftCards" ? "$35.00" : "$31.00")
-      : "$5.00";
-
-    if (withVoucherify) {
-      footerHtml = `
-      <div class="summary-savings-row">
-        <i class="fa-solid fa-tags"></i>
-        <span>¡Ahorro total ${savingsAmt}!</span>
-      </div>
-      <div class="summary-cta-row double">
-        <button class="btn btn-outlined btn-medium" style="width:100%">Seguir comprando</button>
-        <button class="btn btn-primary btn-medium" style="width:100%">Ir a caja</button>
-      </div>`;
-    } else {
-      footerHtml = `
+    // Nota: la fila "¡Ahorro total!" se removió del footer (Cart) porque el
+    // ahorro ahora se muestra fuera del componente con el molecule Saving Bar.
+    // Aplica igual para flow giftCards y no-giftCards.
+    footerHtml = `
       <div class="summary-divider"></div>
       <div class="summary-cta-row double">
         <button class="btn btn-outlined btn-medium" style="width:100%">Seguir comprando</button>
         <button class="btn btn-primary btn-medium" style="width:100%">Ir a caja</button>
       </div>`;
-    }
 
   /* ── Checkout ─────────────────────────────────────── */
   } else {
@@ -276,8 +254,6 @@ function buildSummaryBox({ flow, step, pricing, showAddButton, withVoucherify, e
     const coTotal = isSaving
       ? withVoucherify ? "$72.50" : "$77.50"
       : withVoucherify ? "$98.50" : "$103.50";
-    const savingsAmt = isSaving ? "$31.00" : "$5.00";
-
     bodyHtml = `
       <div class="summary-row">
         <span class="summary-label-strong">${coLabel}</span>
@@ -293,22 +269,13 @@ function buildSummaryBox({ flow, step, pricing, showAddButton, withVoucherify, e
         <span class="summary-label-strong">${coTotal}</span>
       </div>`;
 
-    if (withVoucherify) {
-      footerHtml = `
-      <div class="summary-savings-row">
-        <i class="fa-solid fa-tags"></i>
-        <span>¡Ahorro total ${savingsAmt}!</span>
-      </div>
-      <div class="summary-cta-row">
-        <button class="btn btn-primary summary-btn">Proceder al pago</button>
-      </div>`;
-    } else {
-      footerHtml = `
+    // Nota: la fila "¡Ahorro total!" se removió del footer (Checkout) porque
+    // el ahorro ahora se muestra fuera del componente con el molecule Saving Bar.
+    footerHtml = `
       <div class="summary-divider"></div>
       <div class="summary-cta-row">
         <button class="btn btn-primary summary-btn">Proceder al pago</button>
       </div>`;
-    }
   }
 
   const boxClasses = [
