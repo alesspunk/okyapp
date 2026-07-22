@@ -139,6 +139,11 @@ function buildCarouselCards(primaryCard, cardCount, pageContext) {
       resolveMiddleCard({
         variantPath: MIDDLE_CARD_VARIANTS[nextIndex].path,
         pageContext,
+        // El footer centerLabel es una decisión del carrusel completo, no
+        // solo de la card activa: si la card configurada por los args trae
+        // centerLabel, todas las cards del carrusel lo heredan (y por lo
+        // tanto también pierden leftLabel/rightLabel + icono, igual que ella).
+        centerLabel: primaryCard.centerLabel || "",
       })
     );
   }
