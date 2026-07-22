@@ -244,6 +244,14 @@ body {
   padding-bottom: 16px;
 }
 
+/* .summary-cta-row trae 8px arriba / 16px abajo por defecto (mars.css);
+   en este checkout se recortan 4px de cada lado (4px / 12px) para ganar
+   espacio vertical, ya que el divider de arriba ya se quitó. */
+.checkout-summary-wrap .summary-cta-row {
+  padding-top: 4px;
+  padding-bottom: 12px;
+}
+
 .checkout-page-shell.is-mockup .checkout-page-main {
   gap: 5px;
   padding-top: 5px;
