@@ -255,7 +255,7 @@ function renderProductoHeader(args = {}) {
               </div>`
             : ""
         }
-        <div class="pdp-header-card-slot">
+        <div class="pdp-header-card-slot ${resolved.carouselCards.length > 1 ? "is-carousel" : ""}">
           ${
             resolved.carouselCards.length > 1
               ? renderProductoHeaderCarousel(resolved.carouselCards)

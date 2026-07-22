@@ -4295,6 +4295,14 @@ body {
   max-width: 100%;
 }
 
+/* El carrusel rompe el padding horizontal del stack (9px) para ir a
+   full width y mostrar mas hint de las cards laterales. */
+.pdp-header-card-slot.is-carousel {
+  width: calc(100% + 18px);
+  margin-left: -9px;
+  margin-right: -9px;
+}
+
 /* ── Producto Header · Carousel (2–3 Middle Cards) ──── */
 /* Regla de centrado: la card "activa" (--carousel-active-index) siempre
    queda centrada en el viewport. Con 3 cards la activa es la del medio
