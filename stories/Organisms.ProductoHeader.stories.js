@@ -205,6 +205,7 @@ function resolveArgs(args = {}) {
     brandLabel: args.brandLabel?.trim() || brand.label,
     brandImage: args.brandImage?.trim() || brand.image,
     brandBackground: args.brandBackground?.trim() || "transparent",
+    showDynamicInput: args.showDynamicInput !== false,
     dynamicInput: {
       state: DYNAMIC_INPUT_STATES.includes(args.dynamicInputState) ? args.dynamicInputState : "Empty",
       placeholder: args.dynamicPlaceholder?.trim() || "Ingresa el monto",
@@ -225,7 +226,7 @@ function renderProductoHeader(args = {}) {
 
   return `
     <section
-      class="pdp-header-organism ${hasPlateu ? "has-plateu" : "has-no-plateu"} ${resolved.cardCount > 1 ? "has-carousel" : "has-single-card"}"
+      class="pdp-header-organism ${hasPlateu ? "has-plateu" : "has-no-plateu"} ${resolved.cardCount > 1 ? "has-carousel" : "has-single-card"} ${resolved.showDynamicInput ? "has-dynamic-input" : "has-no-dynamic-input"}"
       data-header-variant="${resolved.pageHeaderVariant}"
       data-card-context="${resolved.middleCard.pageContext}"
       data-plateu-variant="${resolved.plateuVariant}"
@@ -260,9 +261,13 @@ function renderProductoHeader(args = {}) {
               : renderMiddleCard(resolved.middleCard)
           }
         </div>
-        <div class="pdp-header-input-slot">
-          ${renderDynamicInput(resolved.dynamicInput)}
-        </div>
+        ${
+          resolved.showDynamicInput
+            ? `<div class="pdp-header-input-slot">
+                ${renderDynamicInput(resolved.dynamicInput)}
+              </div>`
+            : ""
+        }
       </div>
     </section>
   `;
@@ -281,7 +286,8 @@ export default {
           "Puede mostrarse con o sin `Plateu`, y también prender/apagar el `Discount Ribbon / Wrap` del `Middle Card`, reutilizando en ambos casos las variantes ya documentadas de los componentes existentes. " +
           "Cuando `Plateu` está presente, hereda el chip activo con fill blanco, border accent de `1px` y texto `Primary Main`. " +
           "El slot de `Middle Card` admite además una variante de **carrusel horizontal** con 1, 2 o 3 cards (`cardCount`), cada una de 250×160px: " +
-          "con 3 cards la card activa queda centrada mostrando hint izquierdo y derecho; con 2 cards la activa queda centrada con hint solo a la derecha; con 1 card se comporta como el slot simple original, sin hint.",
+          "con 3 cards la card activa queda centrada mostrando hint izquierdo y derecho; con 2 cards la activa queda centrada con hint solo a la derecha; con 1 card se comporta como el slot simple original, sin hint. " +
+          "El `Input/Dinamic` final es opcional: `showDynamicInput` lo muestra u oculta por completo del stack.",
       },
     },
   },
@@ -401,10 +407,15 @@ export default {
       options: ["Default", "Small"],
       description: "Size del Wrap para Producto Header.",
     },
+    showDynamicInput: {
+      name: "Show Dynamic Value",
+      control: "boolean",
+      description: "Muestra u oculta por completo el Input/Dinamic al final del stack.",
+    },
     dynamicInputState: {
       control: "inline-radio",
       options: DYNAMIC_INPUT_STATES,
-      description: "Estado del Input/Dinamic al final del stack.",
+      description: "Estado del Input/Dinamic al final del stack. Solo aplica si Show Dynamic Value está activo.",
     },
     dynamicPlaceholder: {
       control: "text",
@@ -453,6 +464,7 @@ export const DocsPlayground = {
     discountRibbonType: "Por tiempo",
     discountRibbonLabel: "25% OFF",
     discountRibbonSize: "Default",
+    showDynamicInput: true,
     dynamicInputState: "Empty",
     dynamicPlaceholder: "Ingresa el monto",
     dynamicValue: "40.00",
