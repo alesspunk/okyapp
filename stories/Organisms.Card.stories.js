@@ -350,7 +350,7 @@ export const DisabledFlow = {
           topShowBrandLabel: true,
           topBrandLabel: "Cemaco",
           middleCardPath: "Molecule/Middle Card/Disable Foto",
-          middleTitle: "Cajita Feliz de McNuggets + Cono Vainilla y Juguete Incluido",
+          middleTitle: "Cajita Feliz de McNuggets...",
           middleLeftLabel: "",
           middleRightLabel: "",
           middleShowDiscountRibbon: false,
