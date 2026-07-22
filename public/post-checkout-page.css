@@ -18,11 +18,21 @@ body {
   border-radius: 24px;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
+/* El shell ahora es flex-column: el scroll ocupa el espacio restante
+   (flex:1 + min-height:0, para poder scrollear internamente si el
+   carrusel es más alto que el espacio disponible) y el footer con el
+   botón Compartir queda SIEMPRE anclado abajo, sin quedar recortado
+   por el overflow:hidden del shell (bug anterior: con height:100% en
+   .post-checkout-page-scroll, el footer quedaba empujado fuera de los
+   800px del frame). */
 .post-checkout-page-scroll {
   width: 100%;
-  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
@@ -43,25 +53,34 @@ body {
 }
 
 /* Page Header reusado tal cual (.page-header-screen / .header-icon):
-   solo flecha de regreso a la izquierda, título vacío y un placeholder
-   a la derecha para mantener el back arrow centrado verticalmente. */
+   flecha de regreso a la izquierda, título vacío y un placeholder a la
+   derecha para mantener el back arrow centrado verticalmente. Se envuelve
+   junto al Toast Banner en .post-checkout-header-wrap (position:relative)
+   para poder superponer el toast exactamente encima. */
+.post-checkout-header-wrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+
 .post-checkout-page-header {
   flex: 0 0 auto;
 }
 
-/* Toast Banner "sobrepuesto": mismo patrón fila que success-page (toast +
-   botón cerrar), pero con margin-top negativo para que visualmente
-   quede montado sobre el borde inferior del Page Header, tal como en la
-   referencia de Figma. */
+/* Toast Banner "sobrepuesto": se posiciona absolute cubriendo exactamente
+   el mismo espacio que el Page Header (inset:0 dentro de
+   .post-checkout-header-wrap), tapando la flecha de regreso por completo
+   tal como en la referencia de Figma, en vez de apilarse debajo con un
+   simple margin negativo (insuficiente para cubrirla). */
 .post-checkout-toast-row {
-  width: 338px;
-  margin: -20px auto 0;
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  padding: 0 16px;
+  box-sizing: border-box;
 }
 
 .post-checkout-toast-wrap {
@@ -163,6 +182,9 @@ body {
   border-top: 1px solid rgba(0, 0, 0, 0.23);
   padding: 14px 16px 12px;
   background: #fff;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 3;
 }
 
 .post-checkout-share-btn {
