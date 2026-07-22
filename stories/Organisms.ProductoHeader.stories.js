@@ -140,10 +140,22 @@ function buildCarouselCards(primaryCard, cardCount, pageContext, primaryBrandKey
 
   for (let step = 1; extras.length < extrasNeeded && step < MIDDLE_CARD_VARIANTS.length; step += 1) {
     const nextIndex = (primaryIndex + step) % MIDDLE_CARD_VARIANTS.length;
-    const nextBrandIndex = (primaryBrandIndex + step) % BRAND_PRESETS.length;
+    const candidate = MIDDLE_CARD_VARIANTS[nextIndex];
+
+    // Los estados "Disable Monto"/"Disable Foto" (isDisabled + hideFooter)
+    // representan una card puntual sin footer/CTA — no tienen sentido como
+    // vecina "genérica" de un carrusel rotativo de marcas, y forzarían un
+    // footer vacío incluso con centerLabel configurado. Se saltan al
+    // armar el set automático (si el usuario las elige como card activa
+    // explícitamente, eso no cambia: solo afecta el auto-ciclado).
+    if (candidate.isDisabled || candidate.hideFooter) {
+      continue;
+    }
+
+    const nextBrandIndex = (primaryBrandIndex + extras.length + 1) % BRAND_PRESETS.length;
     extras.push({
       ...resolveMiddleCard({
-        variantPath: MIDDLE_CARD_VARIANTS[nextIndex].path,
+        variantPath: candidate.path,
         pageContext,
         // El footer centerLabel es una decisión del carrusel completo, no
         // solo de la card activa: si la card configurada por los args trae
