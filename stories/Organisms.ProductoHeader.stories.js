@@ -27,10 +27,11 @@ const PRODUCTO_HEADER_LAYOUTS = ["Default", "With Plateu"];
 const DYNAMIC_INPUT_STATES = ["Empty", "Hasvalue"];
 const CARD_COUNT_OPTIONS = [1, 2, 3];
 
-function renderCartBitmap() {
+function renderCartBitmap({ indicated = true } = {}) {
   return `
-    <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+    <div class="header-icon header-icon-bitmap header-icon-bitmap-cart${indicated ? " header-icon-bitmap-indicated" : ""}" aria-hidden="true">
       <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="images/Cart-3d-icon.png" alt="">
+      ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
     </div>
   `;
 }
@@ -39,7 +40,7 @@ function findBrand(key) {
   return BRAND_PRESETS.find((brand) => brand.key === key) ?? BRAND_PRESETS[0];
 }
 
-function renderPageHeader({ variant, title, showAction }) {
+function renderPageHeader({ variant, title, showAction, showCartIndicator = true }) {
   let left;
   let right;
 
@@ -51,7 +52,7 @@ function renderPageHeader({ variant, title, showAction }) {
   } else {
     left = `<div class="header-icon header-icon-light"><i class="fa-light fa-arrow-left icon-medium"></i></div>`;
     right = showAction
-      ? renderCartBitmap()
+      ? renderCartBitmap({ indicated: showCartIndicator })
       : `<div class="header-icon header-icon-placeholder"></div>`;
   }
 
@@ -281,6 +282,7 @@ function resolveArgs(args = {}) {
     pageHeaderVariant: PAGE_HEADER_VARIANTS.includes(args.pageHeaderVariant) ? args.pageHeaderVariant : "no-title",
     pageTitle: args.pageTitle?.trim() || brand.label,
     showAction: args.showAction !== false,
+    showCartIndicator: args.showCartIndicator !== false,
     brandVariant: BRAND_VARIANTS.includes(args.brandVariant) ? args.brandVariant : "With label",
     brandKey: brand.key,
     brandLabel: args.brandLabel?.trim() || brand.label,
@@ -313,11 +315,13 @@ function renderProductoHeader(args = {}) {
       data-plateu-variant="${resolved.plateuVariant}"
       data-card-count="${resolved.cardCount}"
       data-brand-variant="${resolved.brandVariant}"
+      data-cart-indicator="${resolved.showCartIndicator}"
     >
       ${renderPageHeader({
         variant: resolved.pageHeaderVariant,
         title: resolved.pageTitle,
         showAction: resolved.showAction,
+        showCartIndicator: resolved.showCartIndicator,
       })}
       <div class="pdp-header-stack">
         <div class="pdp-header-brand-slot">
@@ -369,7 +373,9 @@ export default {
           "Cuando `Plateu` está presente, hereda el chip activo con fill blanco, border accent de `1px` y texto `Primary Main`. " +
           "El slot de `Middle Card` admite además una variante de **carrusel horizontal** con 1, 2 o 3 cards (`cardCount`), cada una de 250×160px: " +
           "con 3 cards la card activa queda centrada mostrando hint izquierdo y derecho; con 2 cards la activa queda centrada con hint solo a la derecha; con 1 card se comporta como el slot simple original, sin hint. " +
-          "El `Input/Dinamic` final es opcional: `showDynamicInput` lo muestra u oculta por completo del stack.",
+          "El `Input/Dinamic` final es opcional: `showDynamicInput` lo muestra u oculta por completo del stack. " +
+          "El Cart 3D Icon del `Page Header` (screens/no-title) usa por defecto el estado con indicador (dot rojo), " +
+          "reutilizando el mismo bitmap + indicator del organismo `Page Header`; `showCartIndicator` permite apagarlo.",
       },
     },
   },
@@ -404,7 +410,14 @@ export default {
     },
     showAction: {
       control: "boolean",
-      description: "Muestra u oculta la acción derecha del Page Header.",
+      description: "Muestra u oculta la acción derecha del Page Header (cart en screens/no-title, xmark en modal).",
+    },
+    showCartIndicator: {
+      name: "Show Cart Indicator",
+      control: "boolean",
+      description:
+        "Prende el dot rojo del Cart 3D Icon en el Page Header (variantes screens/no-title). Reutiliza el mismo " +
+        "bitmap + indicator ya usado en el organismo Page Header. No aplica en modal (usa xmark, sin cart).",
     },
     brandVariant: {
       control: "inline-radio",
@@ -534,6 +547,7 @@ export const DocsPlayground = {
     pageHeaderVariant: "no-title",
     pageTitle: "McDonald's",
     showAction: true,
+    showCartIndicator: true,
     brandVariant: "With label",
     brandKey: "mcdonalds",
     brandLabel: "",
