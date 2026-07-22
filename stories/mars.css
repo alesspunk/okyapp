@@ -4295,6 +4295,41 @@ body {
   max-width: 100%;
 }
 
+/* ── Producto Header · Carousel (2–3 Middle Cards) ──── */
+/* Regla de centrado: la card "activa" (--carousel-active-index) siempre
+   queda centrada en el viewport. Con 3 cards la activa es la del medio
+   (hint izq. + der.); con 2 cards la activa es la primera (hint solo a
+   la derecha); con 1 card no hay carrusel ni hint. */
+.pdp-header-carousel-viewport {
+  width: 100%;
+  overflow: hidden;
+}
+
+.pdp-header-carousel-track {
+  display: flex;
+  gap: 10px;
+  width: max-content;
+  margin-left: calc(50% - 125px - (var(--carousel-active-index, 0) * 260px));
+}
+
+.pdp-header-carousel-card {
+  flex: 0 0 250px;
+  width: 250px;
+}
+
+.pdp-header-carousel-card .middle-card-shell {
+  width: 250px;
+}
+
+.pdp-header-carousel-card .middle-card-molecule {
+  min-height: 160px;
+  padding-top: 6px;
+}
+
+.pdp-header-carousel-card .middle-card-content {
+  min-height: 152px;
+}
+
 /* ── Middle Card (Molecule) ─────────────────────────── */
 .middle-card-shell {
   --border-main: #e0e0e0;

@@ -2,6 +2,7 @@ import {
   DISCOUNT_RIBBON_TYPES,
   findMiddleCard,
   MIDDLE_CARD_PATHS,
+  MIDDLE_CARD_VARIANTS,
   renderMiddleCard,
   resolveMiddleCard,
 } from "./_shared/middleCard";
@@ -24,6 +25,7 @@ const BRAND_VARIANTS = ["With label", "No label"];
 const PAGE_HEADER_VARIANTS = ["screens", "modal", "no-title"];
 const PRODUCTO_HEADER_LAYOUTS = ["Default", "With Plateu"];
 const DYNAMIC_INPUT_STATES = ["Empty", "Hasvalue"];
+const CARD_COUNT_OPTIONS = [1, 2, 3];
 
 function renderCartBitmap() {
   return `
@@ -117,11 +119,77 @@ function renderDynamicInput({ state, placeholder, value, currencySymbol, helperT
   `;
 }
 
+// Arma el set de Middle Cards del carrusel dejando siempre la card
+// configurada por los args (`primaryCard`) en la posición "activa": al
+// medio cuando hay 3 cards, primera cuando hay 2, única cuando hay 1.
+function buildCarouselCards(primaryCard, cardCount, pageContext) {
+  const clampedCount = CARD_COUNT_OPTIONS.includes(cardCount) ? cardCount : 1;
+
+  if (clampedCount === 1) {
+    return [primaryCard];
+  }
+
+  const primaryIndex = MIDDLE_CARD_VARIANTS.findIndex((variant) => variant.path === primaryCard.path);
+  const extrasNeeded = clampedCount - 1;
+  const extras = [];
+
+  for (let step = 1; extras.length < extrasNeeded && step < MIDDLE_CARD_VARIANTS.length; step += 1) {
+    const nextIndex = (primaryIndex + step) % MIDDLE_CARD_VARIANTS.length;
+    extras.push(
+      resolveMiddleCard({
+        variantPath: MIDDLE_CARD_VARIANTS[nextIndex].path,
+        pageContext,
+      })
+    );
+  }
+
+  const activeSlot = Math.floor((clampedCount - 1) / 2);
+  const cards = [...extras];
+  cards.splice(activeSlot, 0, primaryCard);
+  return cards;
+}
+
+function renderProductoHeaderCarousel(cards) {
+  const activeIndex = Math.floor((cards.length - 1) / 2);
+
+  return `
+    <div class="pdp-header-carousel-viewport">
+      <div class="pdp-header-carousel-track" style="--carousel-active-index: ${activeIndex}">
+        ${cards
+          .map(
+            (card, index) => `
+              <div class="pdp-header-carousel-card ${index === activeIndex ? "is-active" : "is-hint"}">
+                ${renderMiddleCard(card)}
+              </div>
+            `
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
 function resolveArgs(args = {}) {
   const brand = findBrand(args.brandKey);
   const middle = findMiddleCard(args.middleCardPath);
   const layoutVariant = PRODUCTO_HEADER_LAYOUTS.includes(args.layoutVariant) ? args.layoutVariant : "Default";
   const showPlateu = typeof args.showPlateu === "boolean" ? args.showPlateu : layoutVariant === "With Plateu";
+  const cardCount = CARD_COUNT_OPTIONS.includes(args.cardCount) ? args.cardCount : 1;
+  const cardContext = args.cardContext || "PDP";
+  const middleCard = resolveMiddleCard({
+    variantPath: middle.path,
+    pageContext: cardContext,
+    title: args.cardTitle?.trim() || middle.title,
+    currency: args.currency?.trim() || middle.currency,
+    amount: args.amount?.trim() || middle.amount,
+    leftLabel: args.leftLabel?.trim() || middle.leftLabel,
+    rightLabel: args.rightLabel?.trim() || middle.rightLabel,
+    image: args.cardImage?.trim() || middle.image,
+    showDiscountRibbon: args.showDiscountRibbon,
+    discountRibbonType: args.discountRibbonType,
+    discountRibbonLabel: args.discountRibbonLabel,
+    discountRibbonSize: args.discountRibbonSize,
+  });
 
   return {
     layoutVariant,
@@ -144,20 +212,9 @@ function resolveArgs(args = {}) {
       currencySymbol: args.dynamicCurrencySymbol || "$",
       helperText: args.dynamicHelperText?.trim() || "Desde 10 hasta 1000",
     },
-    middleCard: resolveMiddleCard({
-      variantPath: middle.path,
-      pageContext: args.cardContext || "PDP",
-      title: args.cardTitle?.trim() || middle.title,
-      currency: args.currency?.trim() || middle.currency,
-      amount: args.amount?.trim() || middle.amount,
-      leftLabel: args.leftLabel?.trim() || middle.leftLabel,
-      rightLabel: args.rightLabel?.trim() || middle.rightLabel,
-      image: args.cardImage?.trim() || middle.image,
-      showDiscountRibbon: args.showDiscountRibbon,
-      discountRibbonType: args.discountRibbonType,
-      discountRibbonLabel: args.discountRibbonLabel,
-      discountRibbonSize: args.discountRibbonSize,
-    }),
+    middleCard,
+    cardCount,
+    carouselCards: buildCarouselCards(middleCard, cardCount, cardContext),
   };
 }
 
@@ -168,10 +225,11 @@ function renderProductoHeader(args = {}) {
 
   return `
     <section
-      class="pdp-header-organism ${hasPlateu ? "has-plateu" : "has-no-plateu"}"
+      class="pdp-header-organism ${hasPlateu ? "has-plateu" : "has-no-plateu"} ${resolved.cardCount > 1 ? "has-carousel" : "has-single-card"}"
       data-header-variant="${resolved.pageHeaderVariant}"
       data-card-context="${resolved.middleCard.pageContext}"
       data-plateu-variant="${resolved.plateuVariant}"
+      data-card-count="${resolved.cardCount}"
     >
       ${renderPageHeader({
         variant: resolved.pageHeaderVariant,
@@ -196,7 +254,11 @@ function renderProductoHeader(args = {}) {
             : ""
         }
         <div class="pdp-header-card-slot">
-          ${renderMiddleCard(resolved.middleCard)}
+          ${
+            resolved.carouselCards.length > 1
+              ? renderProductoHeaderCarousel(resolved.carouselCards)
+              : renderMiddleCard(resolved.middleCard)
+          }
         </div>
         <div class="pdp-header-input-slot">
           ${renderDynamicInput(resolved.dynamicInput)}
@@ -217,7 +279,9 @@ export default {
           "`Page Header`, `Brand Item`, `Plateu`, `Middle Card` e `Input/Dinamic`. " +
           "Se presenta como stack vertical para encabezados de PDP y usa por defecto la variante `Page Header / No title`. " +
           "Puede mostrarse con o sin `Plateu`, y también prender/apagar el `Discount Ribbon / Wrap` del `Middle Card`, reutilizando en ambos casos las variantes ya documentadas de los componentes existentes. " +
-          "Cuando `Plateu` está presente, hereda el chip activo con fill blanco, border accent de `1px` y texto `Primary Main`.",
+          "Cuando `Plateu` está presente, hereda el chip activo con fill blanco, border accent de `1px` y texto `Primary Main`. " +
+          "El slot de `Middle Card` admite además una variante de **carrusel horizontal** con 1, 2 o 3 cards (`cardCount`), cada una de 250×160px: " +
+          "con 3 cards la card activa queda centrada mostrando hint izquierdo y derecho; con 2 cards la activa queda centrada con hint solo a la derecha; con 1 card se comporta como el slot simple original, sin hint.",
       },
     },
   },
@@ -280,7 +344,15 @@ export default {
     middleCardPath: {
       control: "select",
       options: MIDDLE_CARD_PATHS,
-      description: "Variante base del Middle Card anidado.",
+      description: "Variante base del Middle Card anidado. Es la card que queda activa/centrada en el carrusel.",
+    },
+    cardCount: {
+      name: "Card Count (Carousel)",
+      control: "inline-radio",
+      options: CARD_COUNT_OPTIONS,
+      description:
+        "Cards visibles en el carrusel horizontal (250×160px c/u). 3 → activa centrada + hint izq. y der.; " +
+        "2 → activa centrada + hint solo a la der.; 1 → sin carrusel, sin hint.",
     },
     cardContext: {
       control: "inline-radio",
@@ -369,6 +441,7 @@ export const DocsPlayground = {
     brandImage: "",
     brandBackground: "",
     middleCardPath: "Molecule/Middle Card/Vale de Monto",
+    cardCount: 1,
     cardContext: "PDP",
     cardTitle: "Vale de Monto",
     currency: "Q",
@@ -393,9 +466,10 @@ export const DocsPlayground = {
 
     return `
       <div class="mars-story">
-        <div class="mars-label">Producto Header · ${resolved.layoutVariant} · Page Header ${resolved.pageHeaderVariant} · Brand ${resolved.brandKey} · Card ${cardMeta.path}</div>
+        <div class="mars-label">Producto Header · ${resolved.layoutVariant} · Page Header ${resolved.pageHeaderVariant} · Brand ${resolved.brandKey} · Card ${cardMeta.path} · Cards ${resolved.cardCount}</div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
           Recomendado: Brand label máx. 12 caracteres · Plateu activo: ${resolved.showPlateu ? plateuMeta.penId : "off"} · ${cardMeta.recommendation} · Input placeholder máx. 16 caracteres.
+          ${resolved.cardCount > 1 ? ` · Carrusel: card activa "${resolved.middleCard.path}" centrada (250×160), ${resolved.cardCount === 3 ? "hint a ambos lados" : "hint solo a la derecha"}.` : ""}
         </div>
         <div class="mars-mobile">
           ${renderProductoHeader(args)}
@@ -478,6 +552,76 @@ export const ReferenceStacks = {
               discountRibbonSize: "Small",
               dynamicInputState: "Hasvalue",
               dynamicCurrencySymbol: "$",
+            })}
+          </div>
+        </article>
+      </div>
+    </div>
+  `,
+};
+
+export const CarouselVariants = {
+  name: "Carousel Variants",
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          "Variante de carrusel horizontal del slot de `Middle Card` (250×160px por card), con la regla de centrado: " +
+          "con **3 cards** la card activa queda al centro con hint a la izquierda y a la derecha; " +
+          "con **2 cards** la activa queda al centro con hint solo a la derecha; " +
+          "con **1 card** no hay carrusel ni hint, igual que el slot simple original.",
+      },
+    },
+  },
+  render: () => `
+    <div class="mars-story">
+      <div class="mars-grid">
+        <article class="story-card">
+          <div class="mars-label">Producto Header · Carrusel · 1 card (sin hint)</div>
+          <div class="mars-mobile">
+            ${renderProductoHeader({
+              showPlateu: false,
+              pageHeaderVariant: "no-title",
+              pageTitle: "McDonald's",
+              brandVariant: "With label",
+              brandKey: "mcdonalds",
+              middleCardPath: "Molecule/Middle Card/Vale de Monto",
+              cardContext: "PDP",
+              cardCount: 1,
+              dynamicInputState: "Empty",
+            })}
+          </div>
+        </article>
+        <article class="story-card">
+          <div class="mars-label">Producto Header · Carrusel · 2 cards (hint a la derecha)</div>
+          <div class="mars-mobile">
+            ${renderProductoHeader({
+              showPlateu: false,
+              pageHeaderVariant: "no-title",
+              pageTitle: "McDonald's",
+              brandVariant: "With label",
+              brandKey: "mcdonalds",
+              middleCardPath: "Molecule/Middle Card/Vale de Monto",
+              cardContext: "PDP",
+              cardCount: 2,
+              dynamicInputState: "Empty",
+            })}
+          </div>
+        </article>
+        <article class="story-card">
+          <div class="mars-label">Producto Header · Carrusel · 3 cards (hint izq. y der.)</div>
+          <div class="mars-mobile">
+            ${renderProductoHeader({
+              showPlateu: false,
+              pageHeaderVariant: "no-title",
+              pageTitle: "McDonald's",
+              brandVariant: "With label",
+              brandKey: "mcdonalds",
+              middleCardPath: "Molecule/Middle Card/Vale de Monto",
+              cardContext: "PDP",
+              cardCount: 3,
+              dynamicInputState: "Empty",
             })}
           </div>
         </article>
