@@ -233,7 +233,7 @@ body {
   display: flex;
   justify-content: center;
   margin-top: auto;
-  padding-top: 8px;
+  padding-top: 4px;
 }
 
 .checkout-summary-wrap .summary-box {
@@ -266,5 +266,5 @@ body {
 }
 
 .checkout-page-shell.is-mockup .checkout-summary-wrap {
-  padding-top: 8px;
+  padding-top: 4px;
 }
