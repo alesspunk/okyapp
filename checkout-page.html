@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="/public/fontawesome-kit/css/custom-icons.min.css" />
     <link rel="stylesheet" href="./stories/mars.css" />
     <link rel="stylesheet" href="/public/checkout-pages.css" />
+    <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
   </head>
   <body>
     <main class="checkout-page-shell" aria-labelledby="checkout-page-title">
@@ -35,9 +36,10 @@
             </div>
 
             <div class="checkout-page-header-action">
-              <div class="header-icon header-icon-bitmap header-icon-bitmap-cart" aria-hidden="true">
+              <div class="header-icon header-icon-bitmap header-icon-bitmap-cart header-icon-bitmap-indicated" aria-hidden="true">
                 <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="./images/Cart-3d-icon.png" alt="" />
                 <span class="header-icon-indicator-dot"></span>
+                <span class="header-icon-indicator-lottie"></span>
               </div>
             </div>
 
@@ -130,7 +132,6 @@
                 <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
               </button>
             </section>
-            <button class="btn btn-primary btn-small brand-carrousel-cta" type="button">Ver detalle</button>
           </div>
 
           <section class="checkout-recipient-wrap" aria-label="¿Para quién es?">
@@ -226,5 +227,138 @@
         </div>
       </nav>
     </main>
+
+    <script>
+      (function () {
+        function ready(fn) {
+          if (document.readyState !== "loading") fn();
+          else document.addEventListener("DOMContentLoaded", fn);
+        }
+
+        // Cart 3D Icon: reemplaza el dot rojo estático por el Lottie
+        // "breathing dot" (mismo patrón que initCartIndicators en
+        // Organisms.ProductoHeader.stories.js). Si lottie-web o el fetch
+        // del JSON fallan, el dot estático (ya en el DOM) se queda como
+        // fallback — nunca se pierde el indicador.
+        function initCartIndicator() {
+          if (!window.lottie) return;
+          var container = document.querySelector(".header-icon-indicator-lottie");
+          if (!container) return;
+
+          fetch("./images/lottie/cart-indicator.json")
+            .then(function (res) {
+              return res.json();
+            })
+            .then(function (animationData) {
+              window.lottie.loadAnimation({
+                container: container,
+                renderer: "svg",
+                loop: true,
+                autoplay: true,
+                animationData: animationData,
+              });
+              var fallbackDot = container.previousElementSibling;
+              if (fallbackDot && fallbackDot.classList.contains("header-icon-indicator-dot")) {
+                fallbackDot.style.display = "none";
+              }
+            })
+            .catch(function () {
+              /* el dot estático se queda como está */
+            });
+        }
+
+        // Carrusel funcional: centra la card activa al montar y mueve el
+        // scroll una card a la vez con los botones prev/next (misma
+        // lógica que initProductoHeaderCarousels, sin el brand-sync que
+        // no aplica en este checkout).
+        function initCarousel() {
+          var viewport = document.querySelector(".pdp-header-carousel-viewport");
+          if (!viewport) return;
+
+          var cards = Array.prototype.slice.call(viewport.querySelectorAll(".pdp-header-carousel-card"));
+          if (!cards.length) return;
+
+          var wrap = viewport.closest(".checkout-pdp-carousel");
+          var prevBtn = wrap && wrap.querySelector(".pdp-header-carousel-nav-prev");
+          var nextBtn = wrap && wrap.querySelector(".pdp-header-carousel-nav-next");
+
+          function closestCard() {
+            var center = viewport.scrollLeft + viewport.clientWidth / 2;
+            var best = cards[0];
+            var bestDistance = Infinity;
+            cards.forEach(function (card) {
+              var cardCenter = card.offsetLeft + card.clientWidth / 2;
+              var distance = Math.abs(cardCenter - center);
+              if (distance < bestDistance) {
+                bestDistance = distance;
+                best = card;
+              }
+            });
+            return best;
+          }
+
+          function syncActiveCard(active) {
+            cards.forEach(function (card) {
+              card.classList.toggle("is-active", card === active);
+              card.classList.toggle("is-hint", card !== active);
+            });
+          }
+
+          function centerCard(target, smooth) {
+            target.scrollIntoView({
+              behavior: smooth ? "smooth" : "auto",
+              block: "nearest",
+              inline: "center",
+            });
+          }
+
+          function updateNavVisibility() {
+            if (!prevBtn || !nextBtn) return;
+            var maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
+            prevBtn.style.display = viewport.scrollLeft <= 1 ? "none" : "";
+            nextBtn.style.display = viewport.scrollLeft >= maxScrollLeft - 1 ? "none" : "";
+          }
+
+          if (prevBtn) {
+            prevBtn.addEventListener("click", function () {
+              var index = cards.indexOf(closestCard());
+              var target = cards[index - 1];
+              if (target) centerCard(target, true);
+            });
+          }
+
+          if (nextBtn) {
+            nextBtn.addEventListener("click", function () {
+              var index = cards.indexOf(closestCard());
+              var target = cards[index + 1];
+              if (target) centerCard(target, true);
+            });
+          }
+
+          var initialActive = cards.filter(function (card) {
+            return card.classList.contains("is-active");
+          })[0] || cards[0];
+          centerCard(initialActive, false);
+          updateNavVisibility();
+
+          var ticking = false;
+          viewport.addEventListener("scroll", function () {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function () {
+              var active = closestCard();
+              syncActiveCard(active);
+              updateNavVisibility();
+              ticking = false;
+            });
+          });
+        }
+
+        ready(function () {
+          initCartIndicator();
+          initCarousel();
+        });
+      })();
+    </script>
   </body>
 </html>
