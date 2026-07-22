@@ -90,6 +90,21 @@ body {
   overflow: visible;
 }
 
+/* Producto Header · Carrusel (3 cards) dentro del checkout: el shell de
+   arriba ya hace el full-bleed necesario (32px, igual al padding de
+   .checkout-page-main), así que acá solo se necesita un ancestro
+   position:relative para anclar los botones de navegación — se reusan
+   tal cual las clases .pdp-header-carousel-* del organismo Producto
+   Header (mars.css), sin duplicar su propio cálculo de bleed. */
+.checkout-pdp-carousel {
+  position: relative;
+  width: 100%;
+}
+
+.checkout-brand-carrousel-shell .brand-carrousel-cta {
+  margin-top: 8px;
+}
+
 .checkout-brand-carrousel {
   position: relative;
   width: 100%;
