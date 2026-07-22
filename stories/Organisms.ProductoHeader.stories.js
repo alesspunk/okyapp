@@ -7,6 +7,7 @@ import {
   resolveMiddleCard,
 } from "./_shared/middleCard";
 import { buildPlateu, PLATEU_VARIANT_OPTIONS, PLATEU_VARIANTS } from "./_shared/plateu";
+import cartIndicatorAnimation from "../images/lottie/cart-indicator.json";
 
 const BRAND_PRESETS = [
   { key: "mcdonalds", label: "McDonald's", image: "mcdonalds.webp" },
@@ -28,10 +29,18 @@ const DYNAMIC_INPUT_STATES = ["Empty", "Hasvalue"];
 const CARD_COUNT_OPTIONS = [1, 2, 3];
 
 function renderCartBitmap({ indicated = true } = {}) {
+  // El dot estático es el fallback: se ve de inmediato (sin esperar JS) y
+  // queda como respaldo si initCartIndicators no llega a correr. Si el
+  // Lottie carga bien, initCartIndicators lo oculta y lo reemplaza por la
+  // animación "breathing dot" (mismo tamaño/posición visual).
   return `
     <div class="header-icon header-icon-bitmap header-icon-bitmap-cart${indicated ? " header-icon-bitmap-indicated" : ""}" aria-hidden="true">
       <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="images/Cart-3d-icon.png" alt="">
-      ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
+      ${
+        indicated
+          ? '<span class="header-icon-indicator-dot"></span><span class="header-icon-indicator-lottie"></span>'
+          : ""
+      }
     </div>
   `;
 }
@@ -328,6 +337,38 @@ function initProductoHeaderCarousels(root) {
 
   requestAnimationFrame(() => {
     root.querySelectorAll(".pdp-header-carousel-viewport").forEach(setupCarousel);
+  });
+}
+
+// Reemplaza el dot rojo estático del Cart 3D Icon por el Lottie
+// "breathing dot" subido por diseño (loop de ~4s), manteniendo el mismo
+// tamaño/posición visual. lottie-web se carga por CDN (ver
+// .storybook/preview-head.html) como progressive enhancement: si por lo
+// que sea no está disponible, el dot estático (ya en el DOM) se queda
+// como está — nunca se pierde el indicador.
+function initCartIndicators(root) {
+  if (typeof window === "undefined" || !window.lottie) {
+    return;
+  }
+
+  root.querySelectorAll(".header-icon-indicator-lottie").forEach((container) => {
+    if (container.dataset.lottieLoaded === "true") {
+      return;
+    }
+    container.dataset.lottieLoaded = "true";
+
+    window.lottie.loadAnimation({
+      container,
+      renderer: "svg",
+      loop: true,
+      autoplay: true,
+      animationData: cartIndicatorAnimation,
+    });
+
+    const fallbackDot = container.previousElementSibling;
+    if (fallbackDot?.classList.contains("header-icon-indicator-dot")) {
+      fallbackDot.style.display = "none";
+    }
   });
 }
 
@@ -674,6 +715,7 @@ export const DocsPlayground = {
       </div>
     `;
     initProductoHeaderCarousels(root);
+    initCartIndicators(root);
     return root;
   },
 };
@@ -688,7 +730,9 @@ export const ReferenceStacks = {
       },
     },
   },
-  render: () => `
+  render: () => {
+    const root = document.createElement("div");
+    root.innerHTML = `
     <div class="mars-story">
       <div class="mars-grid">
         <article class="story-card">
@@ -756,7 +800,10 @@ export const ReferenceStacks = {
         </article>
       </div>
     </div>
-  `,
+  `;
+    initCartIndicators(root);
+    return root;
+  },
 };
 
 export const CarouselVariants = {
@@ -831,6 +878,7 @@ export const CarouselVariants = {
     </div>
   `;
     initProductoHeaderCarousels(root);
+    initCartIndicators(root);
     return root;
   },
 };
@@ -906,6 +954,7 @@ export const CarouselRealExample = {
       </div>
     `;
     initProductoHeaderCarousels(root);
+    initCartIndicators(root);
     return root;
   },
 };
