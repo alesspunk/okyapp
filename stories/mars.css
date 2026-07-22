@@ -4302,6 +4302,8 @@ body {
    la derecha); con 1 card no hay carrusel ni hint. */
 .pdp-header-carousel-viewport {
   width: 100%;
+  padding: 6px 0;
+  margin: -6px 0;
   overflow: hidden;
 }
 
