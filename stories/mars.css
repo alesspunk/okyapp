@@ -4325,29 +4325,30 @@ body {
   margin-right: -9px;
 }
 
-/* Botones de navegación del carrusel (Figma 94185:15426): reusan el
-   glyph fa-circle-chevron-left/right de Font Awesome 6 Pro Solid, que ya
-   trae el círculo dibujado — sin fondo/borde extra. Refuerzan la
-   usabilidad en desktop, donde el mouse no permite deslizar el scroll
-   nativo. JS (initProductoHeaderCarousels) controla su visibilidad según
-   si hay cards a ese lado.*/
+/* Botones de navegación del carrusel (Figma 94186:22634): rectángulo
+   "chips" (blanco, borde 1px rgba(0,0,0,.23), radius 8px, sombra
+   elevation/8) conteniendo un ícono fa-chevron-left/right de Font
+   Awesome Solid 16px color #552588 — reemplaza el círculo translúcido
+   anterior. Refuerzan la usabilidad en desktop, donde el mouse no
+   permite deslizar el scroll nativo. JS (initProductoHeaderCarousels)
+   controla su visibilidad según si hay cards a ese lado.*/
 .pdp-header-carousel-nav {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 4;
-  border: none;
+  border: 1px solid rgba(0, 0, 0, 0.23);
   padding: 0;
   margin: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 28px;
+  height: 64px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
-  font-size: 22px;
+  background: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  font-size: 16px;
   line-height: 1;
   color: #552588;
   cursor: pointer;

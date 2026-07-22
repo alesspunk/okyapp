@@ -200,10 +200,10 @@ function renderProductoHeaderCarousel(cards) {
       </div>
     </div>
     <button type="button" class="pdp-header-carousel-nav pdp-header-carousel-nav-prev" aria-label="Ver card anterior">
-      <i class="fa-solid fa-circle-chevron-left" aria-hidden="true"></i>
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
     </button>
     <button type="button" class="pdp-header-carousel-nav pdp-header-carousel-nav-next" aria-label="Ver siguiente card">
-      <i class="fa-solid fa-circle-chevron-right" aria-hidden="true"></i>
+      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
     </button>
   `;
 }
