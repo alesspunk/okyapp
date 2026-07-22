@@ -244,10 +244,6 @@ body {
   padding-bottom: 16px;
 }
 
-.checkout-summary-wrap .summary-cta-row {
-  padding-top: 12px;
-}
-
 .checkout-page-shell.is-mockup .checkout-page-main {
   gap: 5px;
   padding-top: 5px;
