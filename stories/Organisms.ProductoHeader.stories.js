@@ -122,21 +122,26 @@ function renderDynamicInput({ state, placeholder, value, currencySymbol, helperT
 // Arma el set de Middle Cards del carrusel dejando siempre la card
 // configurada por los args (`primaryCard`) en la posición "activa": al
 // medio cuando hay 3 cards, primera cuando hay 2, única cuando hay 1.
-function buildCarouselCards(primaryCard, cardCount, pageContext) {
+// Cada card lleva además su propio brandKey (la marca "dueña" de esa
+// card), para que el Brand Item de arriba pueda seguir a la card activa
+// mientras el usuario desliza el carrusel.
+function buildCarouselCards(primaryCard, cardCount, pageContext, primaryBrandKey) {
   const clampedCount = CARD_COUNT_OPTIONS.includes(cardCount) ? cardCount : 1;
 
   if (clampedCount === 1) {
-    return [primaryCard];
+    return [{ ...primaryCard, brandKey: primaryBrandKey }];
   }
 
   const primaryIndex = MIDDLE_CARD_VARIANTS.findIndex((variant) => variant.path === primaryCard.path);
+  const primaryBrandIndex = BRAND_PRESETS.findIndex((brand) => brand.key === primaryBrandKey);
   const extrasNeeded = clampedCount - 1;
   const extras = [];
 
   for (let step = 1; extras.length < extrasNeeded && step < MIDDLE_CARD_VARIANTS.length; step += 1) {
     const nextIndex = (primaryIndex + step) % MIDDLE_CARD_VARIANTS.length;
-    extras.push(
-      resolveMiddleCard({
+    const nextBrandIndex = (primaryBrandIndex + step) % BRAND_PRESETS.length;
+    extras.push({
+      ...resolveMiddleCard({
         variantPath: MIDDLE_CARD_VARIANTS[nextIndex].path,
         pageContext,
         // El footer centerLabel es una decisión del carrusel completo, no
@@ -144,13 +149,14 @@ function buildCarouselCards(primaryCard, cardCount, pageContext) {
         // centerLabel, todas las cards del carrusel lo heredan (y por lo
         // tanto también pierden leftLabel/rightLabel + icono, igual que ella).
         centerLabel: primaryCard.centerLabel || "",
-      })
-    );
+      }),
+      brandKey: BRAND_PRESETS[nextBrandIndex].key,
+    });
   }
 
   const activeSlot = Math.floor((clampedCount - 1) / 2);
   const cards = [...extras];
-  cards.splice(activeSlot, 0, primaryCard);
+  cards.splice(activeSlot, 0, { ...primaryCard, brandKey: primaryBrandKey });
   return cards;
 }
 
@@ -159,11 +165,11 @@ function renderProductoHeaderCarousel(cards) {
 
   return `
     <div class="pdp-header-carousel-viewport">
-      <div class="pdp-header-carousel-track" style="--carousel-active-index: ${activeIndex}">
+      <div class="pdp-header-carousel-track">
         ${cards
           .map(
             (card, index) => `
-              <div class="pdp-header-carousel-card ${index === activeIndex ? "is-active" : "is-hint"}">
+              <div class="pdp-header-carousel-card ${index === activeIndex ? "is-active" : "is-hint"}" data-brand-key="${card.brandKey || ""}">
                 ${renderMiddleCard(card)}
               </div>
             `
@@ -172,6 +178,75 @@ function renderProductoHeaderCarousel(cards) {
       </div>
     </div>
   `;
+}
+
+// Carrusel funcional: el markup arriba solo posiciona las cards en fila;
+// el scroll real (touch/trackpad/wheel) lo maneja el navegador via
+// overflow-x + scroll-snap (mars.css). En JS: 1) fija el scroll inicial
+// sobre la card "activa" al montar (misma regla de centrado: 3 cards →
+// media; 2 cards → primera; 1 card → sin carrusel) y 2) mientras el
+// usuario desliza, detecta qué card queda centrada y actualiza el Brand
+// Item de arriba para que siga a la marca de esa card.
+function initProductoHeaderCarousels(root) {
+  requestAnimationFrame(() => {
+    root.querySelectorAll(".pdp-header-carousel-viewport").forEach((viewport) => {
+      const cards = Array.from(viewport.querySelectorAll(".pdp-header-carousel-card"));
+      if (!cards.length) {
+        return;
+      }
+
+      const organism = viewport.closest(".pdp-header-organism");
+      const brandSlot = organism?.querySelector(".pdp-header-brand-slot");
+      const brandVariant = organism?.dataset.brandVariant === "No label" ? "No label" : "With label";
+
+      function closestCard() {
+        const center = viewport.scrollLeft + viewport.clientWidth / 2;
+        return cards.reduce((closest, card) => {
+          const cardCenter = card.offsetLeft + card.clientWidth / 2;
+          const distance = Math.abs(cardCenter - center);
+          return distance < closest.distance ? { card, distance } : closest;
+        }, { card: cards[0], distance: Infinity }).card;
+      }
+
+      function syncActiveCard(active) {
+        cards.forEach((card) => {
+          card.classList.toggle("is-active", card === active);
+          card.classList.toggle("is-hint", card !== active);
+        });
+      }
+
+      function syncBrand(active, force) {
+        const brandKey = active.dataset.brandKey;
+        if (!brandSlot || !brandKey) {
+          return;
+        }
+        if (!force && brandSlot.dataset.brandKey === brandKey) {
+          return;
+        }
+        brandSlot.dataset.brandKey = brandKey;
+        brandSlot.innerHTML = renderBrandItem({ variant: brandVariant, brandKey, label: "", image: "", background: "" });
+      }
+
+      const initialActive = cards.find((card) => card.classList.contains("is-active")) || cards[0];
+      const offset = initialActive.offsetLeft - (viewport.clientWidth - initialActive.clientWidth) / 2;
+      viewport.scrollLeft = Math.max(0, offset);
+      syncBrand(initialActive, true);
+
+      let ticking = false;
+      viewport.addEventListener("scroll", () => {
+        if (ticking) {
+          return;
+        }
+        ticking = true;
+        requestAnimationFrame(() => {
+          const active = closestCard();
+          syncActiveCard(active);
+          syncBrand(active, false);
+          ticking = false;
+        });
+      });
+    });
+  });
 }
 
 function resolveArgs(args = {}) {
@@ -221,7 +296,7 @@ function resolveArgs(args = {}) {
     },
     middleCard,
     cardCount,
-    carouselCards: buildCarouselCards(middleCard, cardCount, cardContext),
+    carouselCards: buildCarouselCards(middleCard, cardCount, cardContext, brand.key),
   };
 }
 
@@ -237,6 +312,7 @@ function renderProductoHeader(args = {}) {
       data-card-context="${resolved.middleCard.pageContext}"
       data-plateu-variant="${resolved.plateuVariant}"
       data-card-count="${resolved.cardCount}"
+      data-brand-variant="${resolved.brandVariant}"
     >
       ${renderPageHeader({
         variant: resolved.pageHeaderVariant,
@@ -489,18 +565,21 @@ export const DocsPlayground = {
     const cardMeta = findMiddleCard(args.middleCardPath);
     const plateuMeta = PLATEU_VARIANTS[resolved.plateuVariant];
 
-    return `
+    const root = document.createElement("div");
+    root.innerHTML = `
       <div class="mars-story">
         <div class="mars-label">Producto Header · ${resolved.layoutVariant} · Page Header ${resolved.pageHeaderVariant} · Brand ${resolved.brandKey} · Card ${cardMeta.path} · Cards ${resolved.cardCount}</div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
           Recomendado: Brand label máx. 12 caracteres · Plateu activo: ${resolved.showPlateu ? plateuMeta.penId : "off"} · ${cardMeta.recommendation} · Input placeholder máx. 16 caracteres.
-          ${resolved.cardCount > 1 ? ` · Carrusel: card activa "${resolved.middleCard.path}" centrada (250×160), ${resolved.cardCount === 3 ? "hint a ambos lados" : "hint solo a la derecha"}.` : ""}
+          ${resolved.cardCount > 1 ? ` · Carrusel funcional (desliza con touch/trackpad): card activa "${resolved.middleCard.path}" centrada (250×160), ${resolved.cardCount === 3 ? "hint a ambos lados" : "hint solo a la derecha"}.` : ""}
         </div>
         <div class="mars-mobile">
           ${renderProductoHeader(args)}
         </div>
       </div>
     `;
+    initProductoHeaderCarousels(root);
+    return root;
   },
 };
 
@@ -595,11 +674,14 @@ export const CarouselVariants = {
           "Variante de carrusel horizontal del slot de `Middle Card` (250×160px por card), con la regla de centrado: " +
           "con **3 cards** la card activa queda al centro con hint a la izquierda y a la derecha; " +
           "con **2 cards** la activa queda al centro con hint solo a la derecha; " +
-          "con **1 card** no hay carrusel ni hint, igual que el slot simple original.",
+          "con **1 card** no hay carrusel ni hint, igual que el slot simple original. " +
+          "El carrusel es funcional: se puede deslizar con touch/trackpad/wheel entre todas las cards, con scroll-snap.",
       },
     },
   },
-  render: () => `
+  render: () => {
+    const root = document.createElement("div");
+    root.innerHTML = `
     <div class="mars-story">
       <div class="mars-grid">
         <article class="story-card">
@@ -652,5 +734,83 @@ export const CarouselVariants = {
         </article>
       </div>
     </div>
-  `,
+  `;
+    initProductoHeaderCarousels(root);
+    return root;
+  },
+};
+
+export const CarouselRealExample = {
+  name: "Carousel · Monto + Producto",
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          "Ejemplo con contenido real de carrusel (2 cards): **Vale de Monto** activa y centrada, **Vale de Producto** " +
+          "como hint a la derecha, ambas con el footer `centerLabel` (\"Que necesitas saber\"). " +
+          "Ref. Figma: node `94184:15159`. Usa el asset ya existente en el repo `middle-card-vale-de-producto.png` como imagen placeholder. " +
+          "El carrusel es funcional (desliza con touch/trackpad/wheel) y el Brand Item de arriba sigue a la marca de la card activa.",
+      },
+    },
+  },
+  render: () => {
+    const montoCard = {
+      ...resolveMiddleCard({
+        variantPath: "Molecule/Middle Card/Vale de Monto",
+        pageContext: "PDP",
+        centerLabel: "Que necesitas saber",
+      }),
+      brandKey: "mcdonalds",
+    };
+    const productoCard = {
+      ...resolveMiddleCard({
+        variantPath: "Molecule/Middle Card/Vale de Producto",
+        pageContext: "PDP",
+        centerLabel: "Que necesitas saber",
+        image: "middle-card-vale-de-producto.png",
+      }),
+      brandKey: "mcdonalds",
+    };
+
+    const root = document.createElement("div");
+    root.innerHTML = `
+      <div class="mars-story">
+        <div class="mars-label">Producto Header · Carrusel · Vale de Monto + Vale de Producto</div>
+        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+          Ref. Figma node 94184:15159 · footer centerLabel compartido · imagen placeholder existente del repo.
+        </div>
+        <div class="mars-mobile">
+          <section
+            class="pdp-header-organism has-no-plateu has-carousel has-dynamic-input"
+            data-header-variant="no-title"
+            data-card-context="PDP"
+            data-card-count="2"
+            data-brand-variant="With label"
+          >
+            ${renderPageHeader({ variant: "no-title", title: "McDonald's", showAction: true })}
+            <div class="pdp-header-stack">
+              <div class="pdp-header-brand-slot">
+                ${renderBrandItem({ variant: "With label", brandKey: "mcdonalds", label: "", image: "", background: "" })}
+              </div>
+              <div class="pdp-header-card-slot is-carousel">
+                ${renderProductoHeaderCarousel([montoCard, productoCard])}
+              </div>
+              <div class="pdp-header-input-slot">
+                ${renderDynamicInput({
+                  state: "Empty",
+                  placeholder: "Ingresa el monto",
+                  value: "40.00",
+                  currencySymbol: "$",
+                  helperText: "Desde 10 hasta 1000",
+                })}
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    `;
+    initProductoHeaderCarousels(root);
+    return root;
+  },
 };

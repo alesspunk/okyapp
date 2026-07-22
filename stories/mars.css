@@ -4304,27 +4304,38 @@ body {
 }
 
 /* ── Producto Header · Carousel (2–3 Middle Cards) ──── */
-/* Regla de centrado: la card "activa" (--carousel-active-index) siempre
-   queda centrada en el viewport. Con 3 cards la activa es la del medio
-   (hint izq. + der.); con 2 cards la activa es la primera (hint solo a
-   la derecha); con 1 card no hay carrusel ni hint. */
+/* Carrusel funcional: scroll nativo (touch/trackpad/wheel) con
+   scroll-snap. La posición inicial (card "activa" centrada — al medio
+   con 3 cards, primera con 2, única con 1) se fija por JS una sola vez
+   al montar (ver initProductoHeaderCarousels), respetando la misma
+   regla de centrado que antes; a partir de ahí el usuario puede
+   deslizar libremente entre todas las cards. */
 .pdp-header-carousel-viewport {
   width: 100%;
   padding: 6px 0;
   margin: -6px 0;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: calc(50% - 125px);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.pdp-header-carousel-viewport::-webkit-scrollbar {
+  display: none;
 }
 
 .pdp-header-carousel-track {
   display: flex;
   gap: 10px;
   width: max-content;
-  margin-left: calc(50% - 125px - (var(--carousel-active-index, 0) * 260px));
 }
 
 .pdp-header-carousel-card {
   flex: 0 0 250px;
   width: 250px;
+  scroll-snap-align: center;
 }
 
 .pdp-header-carousel-card .middle-card-shell {
