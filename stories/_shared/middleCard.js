@@ -48,7 +48,7 @@ export const MIDDLE_CARD_VARIANTS = [
     key: "vale-de-producto",
     id: "6991:146181",
     kind: "product",
-    title: "Cajita Feliz de McNuggets...",
+    title: "Cajita Feliz de McNuggets + Cono Vainilla y Juguete incluido",
     currency: "",
     amount: "",
     leftLabel: "Mostrar al cajero",
