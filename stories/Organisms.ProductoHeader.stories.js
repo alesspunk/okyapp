@@ -420,8 +420,14 @@ function resolveArgs(args = {}) {
   const middle = findMiddleCard(args.middleCardPath);
   const layoutVariant = PRODUCTO_HEADER_LAYOUTS.includes(args.layoutVariant) ? args.layoutVariant : "Default";
   const showPlateu = typeof args.showPlateu === "boolean" ? args.showPlateu : layoutVariant === "With Plateu";
-  const cardCount = CARD_COUNT_OPTIONS.includes(args.cardCount) ? args.cardCount : 1;
   const cardContext = args.cardContext || "PDP";
+  // No existe una variante de carrusel para PDP con 2 o más cards — en ese
+  // contexto siempre se fuerza a 1 (sin carrusel ni flechas),
+  // independientemente del valor guardado en el control (que además queda
+  // oculto/deshabilitado en Docs mientras cardContext no sea "Checkout",
+  // ver argTypes.cardCount.if más abajo).
+  const requestedCardCount = CARD_COUNT_OPTIONS.includes(args.cardCount) ? args.cardCount : 1;
+  const cardCount = cardContext === "Checkout" ? requestedCardCount : 1;
   const middleCard = resolveMiddleCard({
     variantPath: middle.path,
     pageContext: cardContext,
@@ -539,6 +545,7 @@ export default {
           "El slot de `Middle Card` admite además una variante de **carrusel horizontal** con 1, 2 o 3 cards (`cardCount`), cada una de 250×160px: " +
           "con 3 cards la card activa queda centrada mostrando hint izquierdo y derecho; con 2 cards la activa queda centrada con hint solo a la derecha; con 1 card se comporta como el slot simple original, sin hint ni flechas. " +
           "Con 2 o 3 cards el carrusel es además **loop infinito**: la secuencia única se triplica en el track (copias extremas decorativas/`aria-hidden` como buffer + copia del medio con la card real activa), así siempre hay una card real a ambos lados y las flechas nunca se ocultan; al asentar el scroll-snap, si la card activa quedó en una copia extrema, se recicla sin animación a la copia del medio. " +
+          "**No existe una variante de carrusel para `Card Context` = PDP con 2 o más cards**: el control `Card Count (Carousel)` se oculta y el organismo fuerza 1 card automáticamente mientras `cardContext` sea PDP, reactivándose al volver a Checkout. " +
           "El `Input/Dinamic` final es opcional: `showDynamicInput` lo muestra u oculta por completo del stack. " +
           "El Cart 3D Icon del `Page Header` (screens/no-title) usa por defecto el estado con indicador (dot rojo), " +
           "reutilizando el mismo bitmap + indicator del organismo `Page Header`; `showCartIndicator` permite apagarlo.",
@@ -619,7 +626,10 @@ export default {
       options: CARD_COUNT_OPTIONS,
       description:
         "Cards visibles en el carrusel horizontal (250×160px c/u). 3 → activa centrada + hint izq. y der. (loop infinito); " +
-        "2 → activa centrada + hint solo a la der. (loop infinito); 1 → sin carrusel, sin hint ni flechas.",
+        "2 → activa centrada + hint solo a la der. (loop infinito); 1 → sin carrusel, sin hint ni flechas. " +
+        "Solo aplica con Card Context = Checkout: no existe una variante de carrusel para PDP con 2 o más cards, " +
+        "así que este control se oculta y el organismo fuerza 1 card mientras Card Context sea PDP.",
+      if: { arg: "cardContext", eq: "Checkout" },
     },
     cardContext: {
       control: "inline-radio",
@@ -861,7 +871,9 @@ export const CarouselVariants = {
           "con **3 cards** la card activa queda al centro con hint a la izquierda y a la derecha; " +
           "con **2 cards** la activa queda al centro con hint solo a la derecha; " +
           "con **1 card** no hay carrusel ni hint, igual que el slot simple original. " +
-          "El carrusel es funcional: se puede deslizar con touch/trackpad/wheel entre todas las cards, con scroll-snap.",
+          "El carrusel es funcional: se puede deslizar con touch/trackpad/wheel entre todas las cards, con scroll-snap. " +
+          "2 y 3 cards solo existen en `Card Context` = Checkout (con loop infinito); en PDP el organismo siempre " +
+          "fuerza 1 card, por eso los ejemplos de abajo usan Checkout para las variantes de 2 y 3.",
       },
     },
   },
@@ -896,7 +908,7 @@ export const CarouselVariants = {
               brandVariant: "With label",
               brandKey: "mcdonalds",
               middleCardPath: "Molecule/Middle Card/Vale de Monto",
-              cardContext: "PDP",
+              cardContext: "Checkout",
               cardCount: 2,
               dynamicInputState: "Empty",
             })}
@@ -912,7 +924,7 @@ export const CarouselVariants = {
               brandVariant: "With label",
               brandKey: "mcdonalds",
               middleCardPath: "Molecule/Middle Card/Vale de Monto",
-              cardContext: "PDP",
+              cardContext: "Checkout",
               cardCount: 3,
               dynamicInputState: "Empty",
             })}
@@ -937,7 +949,8 @@ export const CarouselRealExample = {
           "Ejemplo con contenido real de carrusel (2 cards): **Vale de Monto** activa y centrada, **Vale de Producto** " +
           "como hint a la derecha, ambas con el footer `centerLabel` (\"Que necesitas saber\"). " +
           "Ref. Figma: node `94184:15159`. Usa el asset ya existente en el repo `middle-card-vale-de-producto.png` como imagen placeholder. " +
-          "El carrusel es funcional (desliza con touch/trackpad/wheel) y el Brand Item de arriba sigue a la marca de la card activa.",
+          "El carrusel es funcional (desliza con touch/trackpad/wheel), loop infinito, y el Brand Item de arriba sigue a la marca de la card activa. " +
+          "Card Context: Checkout (2+ cards no existen en PDP).",
       },
     },
   },
@@ -945,7 +958,7 @@ export const CarouselRealExample = {
     const montoCard = {
       ...resolveMiddleCard({
         variantPath: "Molecule/Middle Card/Vale de Monto",
-        pageContext: "PDP",
+        pageContext: "Checkout",
         centerLabel: "Que necesitas saber",
       }),
       brandKey: "mcdonalds",
@@ -953,7 +966,7 @@ export const CarouselRealExample = {
     const productoCard = {
       ...resolveMiddleCard({
         variantPath: "Molecule/Middle Card/Vale de Producto",
-        pageContext: "PDP",
+        pageContext: "Checkout",
         centerLabel: "Que necesitas saber",
         image: "middle-card-vale-de-producto.png",
       }),
@@ -971,7 +984,7 @@ export const CarouselRealExample = {
           <section
             class="pdp-header-organism has-no-plateu has-carousel has-dynamic-input"
             data-header-variant="no-title"
-            data-card-context="PDP"
+            data-card-context="Checkout"
             data-card-count="2"
             data-brand-variant="With label"
           >
