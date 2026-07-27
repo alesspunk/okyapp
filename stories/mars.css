@@ -4442,16 +4442,32 @@ body {
   min-height: 0;
 }
 
-/* Kind "product" (card con foto, ej. "Cajita Feliz de McNuggets..."):
-   dentro de los 155px fijos de arriba, la foto de 88x88 (tamaño is-checkout
-   normal, pensado para una card sin altura fija) más el título y el footer
-   centerLabel no entran — el footer terminaba clippeado por el
-   overflow:hidden del molecule. Cuenta: 8 (padding-top molecule) + 40
-   (título) + 8 (padding-top center) + foto + 32 (footer, 8+16+8) ≤ 155 →
-   foto máx. ~67px; se deja en 64px (grid de 8px) para que quede con margen. */
+/* Kind "product" (card con foto, ej. "Cajita Feliz de McNuggets + Cono
+   Vainilla y Juguete incluido"): anatomía real medida en Figma (node
+   94184:15159) dentro de la card fija de 250x155px — foto 80x80px, título
+   con espacio para 2 líneas (44px) y footer centerLabel visible abajo, sin
+   recortarse. Se ajustan paddings/gaps para que quepa todo: 4 (padding-top
+   molecule) + 44 (título, 2 líneas) + 0 (gap título→foto) + 80 (foto) + 24
+   (footer con padding vertical reducido a 4px) = 152 de 155px disponibles. */
+.pdp-header-carousel-card .middle-card-shell.is-checkout .middle-card-molecule.is-product {
+  padding-top: 4px;
+}
+
+.pdp-header-carousel-card .middle-card-shell.is-checkout .middle-card-molecule.is-product .middle-card-title {
+  min-height: 44px;
+}
+
+.pdp-header-carousel-card .middle-card-shell.is-checkout .middle-card-molecule.is-product .middle-card-center {
+  padding-top: 0;
+}
+
 .pdp-header-carousel-card .middle-card-shell.is-checkout .middle-card-product-figure {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
+}
+
+.pdp-header-carousel-card .middle-card-shell.is-checkout .middle-card-molecule.is-product .middle-card-footer {
+  padding: 4px 16px;
 }
 
 /* ── Middle Card (Molecule) ─────────────────────────── */
