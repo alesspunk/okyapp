@@ -182,20 +182,34 @@ function buildCarouselCards(primaryCard, cardCount, pageContext, primaryBrandKey
   return cards;
 }
 
+// Loop infinito: la secuencia de N cards únicas (2 o 3) se triplica en
+// el track (3N nodos). Las copias izquierda y derecha son puramente
+// decorativas (aria-hidden, buffer visual); la copia del medio trae la
+// card real activa — así SIEMPRE hay una card real a ambos lados, sin
+// importar cuál esté activa (ver initProductoHeaderCarousels más abajo
+// para el reciclaje en JS). Con 1 card este helper ni se llama —
+// renderProductoHeader usa renderMiddleCard directo, sin carrusel ni
+// flechas.
 function renderProductoHeaderCarousel(cards) {
-  const activeIndex = Math.floor((cards.length - 1) / 2);
+  const setSize = cards.length;
+  const activeSlot = Math.floor((setSize - 1) / 2);
+  const tiled = [...cards, ...cards, ...cards];
+  const activeFlatIndex = setSize + activeSlot;
 
   return `
     <div class="pdp-header-carousel-viewport">
       <div class="pdp-header-carousel-track">
-        ${cards
-          .map(
-            (card, index) => `
-              <div class="pdp-header-carousel-card ${index === activeIndex ? "is-active" : "is-hint"}" data-brand-key="${card.brandKey || ""}">
+        ${tiled
+          .map((card, flatIndex) => {
+            const copy = Math.floor(flatIndex / setSize);
+            const isActive = flatIndex === activeFlatIndex;
+            const ariaHidden = copy !== 1 ? ' aria-hidden="true"' : "";
+            return `
+              <div class="pdp-header-carousel-card ${isActive ? "is-active" : "is-hint"}" data-brand-key="${card.brandKey || ""}"${ariaHidden}>
                 ${renderMiddleCard(card)}
               </div>
-            `
-          )
+            `;
+          })
           .join("")}
       </div>
     </div>
@@ -289,49 +303,78 @@ function initProductoHeaderCarousels(root) {
     const prevBtn = cardSlot?.querySelector(".pdp-header-carousel-nav-prev");
     const nextBtn = cardSlot?.querySelector(".pdp-header-carousel-nav-next");
 
+    // Loop infinito (solo aplica con 2 o 3 cards, cuando el track viene
+    // triplicado por renderProductoHeaderCarousel; con 1 card no existe
+    // este viewport y este código nunca corre). Si la card activa quedó
+    // en la copia izquierda o derecha, salta sin animación a la misma
+    // posición dentro de la copia del medio — mismo contenido,
+    // visualmente idéntico, pero deja margen de sobra para seguir
+    // navegando en cualquier dirección de forma indefinida.
+    const setSize = cards.length / 3;
+
+    function recycleToMiddleCopy(active) {
+      const index = cards.indexOf(active);
+      const copy = Math.floor(index / setSize);
+      if (copy === 1) {
+        return active;
+      }
+      const middleCard = cards[setSize + (index % setSize)];
+      centerCard(middleCard, false);
+      syncActiveCard(middleCard);
+      return middleCard;
+    }
+
+    // Infinito: las flechas quedan siempre visibles/activas en ambos
+    // extremos, nunca se ocultan.
     function updateNavVisibility() {
       if (!prevBtn || !nextBtn) {
         return;
       }
-      const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
-      prevBtn.style.display = viewport.scrollLeft <= 1 ? "none" : "";
-      nextBtn.style.display = viewport.scrollLeft >= maxScrollLeft - 1 ? "none" : "";
+      prevBtn.style.display = "";
+      nextBtn.style.display = "";
     }
 
     prevBtn?.addEventListener("click", () => {
       const index = cards.indexOf(closestCard());
-      const target = cards[index - 1];
-      if (target) {
-        centerCard(target, true);
-      }
+      const target = cards[index - 1] || cards[cards.length - 1];
+      centerCard(target, true);
     });
 
     nextBtn?.addEventListener("click", () => {
       const index = cards.indexOf(closestCard());
-      const target = cards[index + 1];
-      if (target) {
-        centerCard(target, true);
-      }
+      const target = cards[index + 1] || cards[0];
+      centerCard(target, true);
     });
 
-    const initialActive = cards.find((card) => card.classList.contains("is-active")) || cards[0];
+    const initialActive = cards.find((card) => card.classList.contains("is-active")) || cards[Math.floor(cards.length / 2)];
     centerCard(initialActive, false);
+    syncActiveCard(initialActive);
     syncBrand(initialActive, true);
     updateNavVisibility();
 
     let ticking = false;
+    let settleTimer = null;
     viewport.addEventListener("scroll", () => {
-      if (ticking) {
-        return;
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          const active = closestCard();
+          syncActiveCard(active);
+          syncBrand(active, false);
+          updateNavVisibility();
+          ticking = false;
+        });
       }
-      ticking = true;
-      requestAnimationFrame(() => {
-        const active = closestCard();
-        syncActiveCard(active);
-        syncBrand(active, false);
-        updateNavVisibility();
-        ticking = false;
-      });
+
+      // Espera a que el scroll-snap termine de asentar (debounce 120ms
+      // tras el último evento de scroll) antes de evaluar si toca
+      // reciclar hacia la copia del medio — evita cortar la animación
+      // de scroll a mitad de camino.
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(() => {
+        const settled = recycleToMiddleCopy(closestCard());
+        syncBrand(settled, false);
+      }, 120);
     });
   }
 
@@ -494,7 +537,8 @@ export default {
           "Puede mostrarse con o sin `Plateu`, y también prender/apagar el `Discount Ribbon / Wrap` del `Middle Card`, reutilizando en ambos casos las variantes ya documentadas de los componentes existentes. " +
           "Cuando `Plateu` está presente, hereda el chip activo con fill blanco, border accent de `1px` y texto `Primary Main`. " +
           "El slot de `Middle Card` admite además una variante de **carrusel horizontal** con 1, 2 o 3 cards (`cardCount`), cada una de 250×160px: " +
-          "con 3 cards la card activa queda centrada mostrando hint izquierdo y derecho; con 2 cards la activa queda centrada con hint solo a la derecha; con 1 card se comporta como el slot simple original, sin hint. " +
+          "con 3 cards la card activa queda centrada mostrando hint izquierdo y derecho; con 2 cards la activa queda centrada con hint solo a la derecha; con 1 card se comporta como el slot simple original, sin hint ni flechas. " +
+          "Con 2 o 3 cards el carrusel es además **loop infinito**: la secuencia única se triplica en el track (copias extremas decorativas/`aria-hidden` como buffer + copia del medio con la card real activa), así siempre hay una card real a ambos lados y las flechas nunca se ocultan; al asentar el scroll-snap, si la card activa quedó en una copia extrema, se recicla sin animación a la copia del medio. " +
           "El `Input/Dinamic` final es opcional: `showDynamicInput` lo muestra u oculta por completo del stack. " +
           "El Cart 3D Icon del `Page Header` (screens/no-title) usa por defecto el estado con indicador (dot rojo), " +
           "reutilizando el mismo bitmap + indicator del organismo `Page Header`; `showCartIndicator` permite apagarlo.",
@@ -574,8 +618,8 @@ export default {
       control: "inline-radio",
       options: CARD_COUNT_OPTIONS,
       description:
-        "Cards visibles en el carrusel horizontal (250×160px c/u). 3 → activa centrada + hint izq. y der.; " +
-        "2 → activa centrada + hint solo a la der.; 1 → sin carrusel, sin hint.",
+        "Cards visibles en el carrusel horizontal (250×160px c/u). 3 → activa centrada + hint izq. y der. (loop infinito); " +
+        "2 → activa centrada + hint solo a la der. (loop infinito); 1 → sin carrusel, sin hint ni flechas.",
     },
     cardContext: {
       control: "inline-radio",
@@ -676,7 +720,7 @@ export const DocsPlayground = {
     brandImage: "",
     brandBackground: "",
     middleCardPath: "Molecule/Middle Card/Vale de Monto",
-    cardCount: 1,
+    cardCount: 3,
     cardContext: "PDP",
     cardTitle: "Vale de Monto",
     currency: "Q",
@@ -707,7 +751,7 @@ export const DocsPlayground = {
         <div class="mars-label">Producto Header · ${resolved.layoutVariant} · Page Header ${resolved.pageHeaderVariant} · Brand ${resolved.brandKey} · Card ${cardMeta.path} · Cards ${resolved.cardCount}</div>
         <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
           Recomendado: Brand label máx. 12 caracteres · Plateu activo: ${resolved.showPlateu ? plateuMeta.penId : "off"} · ${cardMeta.recommendation} · Input placeholder máx. 16 caracteres.
-          ${resolved.cardCount > 1 ? ` · Carrusel funcional (desliza con touch/trackpad): card activa "${resolved.middleCard.path}" centrada (250×160), ${resolved.cardCount === 3 ? "hint a ambos lados" : "hint solo a la derecha"}.` : ""}
+          ${resolved.cardCount > 1 ? ` · Carrusel funcional en loop infinito (desliza con touch/trackpad): card activa "${resolved.middleCard.path}" centrada (250×160), ${resolved.cardCount === 3 ? "hint a ambos lados" : "hint solo a la derecha"}.` : ""}
         </div>
         <div class="mars-mobile">
           ${renderProductoHeader(args)}
