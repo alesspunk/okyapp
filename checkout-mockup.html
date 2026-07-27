@@ -60,7 +60,80 @@
           <div class="checkout-brand-carrousel-shell">
             <section class="checkout-pdp-carousel" aria-label="Carrusel de productos">
               <div class="pdp-header-carousel-viewport">
+                <!-- Carrusel infinito: se repite la secuencia de 3 cards
+                     (Amazon · Target · Starbucks) 3 veces seguidas, para
+                     que SIEMPRE haya un hint real a ambos lados sin
+                     importar cuál esté activa. Solo la instancia de la
+                     copia del medio queda marcada is-active al montar;
+                     el JS recicla silenciosamente hacia esa copia cada
+                     vez que el usuario llega a una de las copias de los
+                     extremos, dando la ilusión de loop infinito. Las
+                     copias de los extremos son puramente decorativas
+                     (aria-hidden). -->
                 <div class="pdp-header-carousel-track">
+                  <div class="pdp-header-carousel-card is-hint" data-brand-key="amazon" aria-hidden="true">
+                    <div class="middle-card-shell is-checkout">
+                      <article class="middle-card-molecule is-egift">
+                        <div class="middle-card-content">
+                          <div class="middle-card-main">
+                            <p class="middle-card-title">Amazon E-Gift Card</p>
+                            <div class="middle-card-center">
+                              <div class="middle-card-value">
+                                <span class="middle-card-currency">$</span>
+                                <p class="middle-card-amount">25</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="middle-card-footer is-center-label">
+                            <span class="middle-card-footer-center">Que necesito saber</span>
+                          </div>
+                        </div>
+                      </article>
+                    </div>
+                  </div>
+
+                  <div class="pdp-header-carousel-card is-hint" data-brand-key="target" aria-hidden="true">
+                    <div class="middle-card-shell is-checkout">
+                      <article class="middle-card-molecule is-egift">
+                        <div class="middle-card-content">
+                          <div class="middle-card-main">
+                            <p class="middle-card-title">Target E-Gift Card</p>
+                            <div class="middle-card-center">
+                              <div class="middle-card-value">
+                                <span class="middle-card-currency">$</span>
+                                <p class="middle-card-amount">40</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="middle-card-footer is-center-label">
+                            <span class="middle-card-footer-center">Que necesito saber</span>
+                          </div>
+                        </div>
+                      </article>
+                    </div>
+                  </div>
+
+                  <div class="pdp-header-carousel-card is-hint" data-brand-key="starbucks" aria-hidden="true">
+                    <div class="middle-card-shell is-checkout">
+                      <article class="middle-card-molecule is-egift">
+                        <div class="middle-card-content">
+                          <div class="middle-card-main">
+                            <p class="middle-card-title">Starbucks E-Gift Card</p>
+                            <div class="middle-card-center">
+                              <div class="middle-card-value">
+                                <span class="middle-card-currency">$</span>
+                                <p class="middle-card-amount">15</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="middle-card-footer is-center-label">
+                            <span class="middle-card-footer-center">Que necesito saber</span>
+                          </div>
+                        </div>
+                      </article>
+                    </div>
+                  </div>
+
                   <div class="pdp-header-carousel-card is-hint" data-brand-key="amazon">
                     <div class="middle-card-shell is-checkout">
                       <article class="middle-card-molecule is-egift">
@@ -104,6 +177,69 @@
                   </div>
 
                   <div class="pdp-header-carousel-card is-hint" data-brand-key="starbucks">
+                    <div class="middle-card-shell is-checkout">
+                      <article class="middle-card-molecule is-egift">
+                        <div class="middle-card-content">
+                          <div class="middle-card-main">
+                            <p class="middle-card-title">Starbucks E-Gift Card</p>
+                            <div class="middle-card-center">
+                              <div class="middle-card-value">
+                                <span class="middle-card-currency">$</span>
+                                <p class="middle-card-amount">15</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="middle-card-footer is-center-label">
+                            <span class="middle-card-footer-center">Que necesito saber</span>
+                          </div>
+                        </div>
+                      </article>
+                    </div>
+                  </div>
+
+                  <div class="pdp-header-carousel-card is-hint" data-brand-key="amazon" aria-hidden="true">
+                    <div class="middle-card-shell is-checkout">
+                      <article class="middle-card-molecule is-egift">
+                        <div class="middle-card-content">
+                          <div class="middle-card-main">
+                            <p class="middle-card-title">Amazon E-Gift Card</p>
+                            <div class="middle-card-center">
+                              <div class="middle-card-value">
+                                <span class="middle-card-currency">$</span>
+                                <p class="middle-card-amount">25</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="middle-card-footer is-center-label">
+                            <span class="middle-card-footer-center">Que necesito saber</span>
+                          </div>
+                        </div>
+                      </article>
+                    </div>
+                  </div>
+
+                  <div class="pdp-header-carousel-card is-hint" data-brand-key="target" aria-hidden="true">
+                    <div class="middle-card-shell is-checkout">
+                      <article class="middle-card-molecule is-egift">
+                        <div class="middle-card-content">
+                          <div class="middle-card-main">
+                            <p class="middle-card-title">Target E-Gift Card</p>
+                            <div class="middle-card-center">
+                              <div class="middle-card-value">
+                                <span class="middle-card-currency">$</span>
+                                <p class="middle-card-amount">40</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="middle-card-footer is-center-label">
+                            <span class="middle-card-footer-center">Que necesito saber</span>
+                          </div>
+                        </div>
+                      </article>
+                    </div>
+                  </div>
+
+                  <div class="pdp-header-carousel-card is-hint" data-brand-key="starbucks" aria-hidden="true">
                     <div class="middle-card-shell is-checkout">
                       <article class="middle-card-molecule is-egift">
                         <div class="middle-card-content">
@@ -274,11 +410,17 @@
           starbucks: { label: "Starbucks", image: "./images/starbucks.webp" },
         };
 
-        // Carrusel funcional: centra la card activa al montar, mueve el
-        // scroll una card a la vez con los botones prev/next, y sincroniza
-        // el Brand Item de arriba con la marca de la card activa (misma
-        // lógica que initProductoHeaderCarousels en
-        // Organisms.ProductoHeader.stories.js).
+        // Carrusel INFINITO: el HTML repite la secuencia de 3 cards
+        // (Amazon · Target · Starbucks) 3 veces seguidas (9 nodos en
+        // total), así que siempre hay una card real a cada lado —
+        // nunca hace falta ocultar las flechas ni quedarse sin hint.
+        // Centra la card activa (copia del medio) al montar, mueve el
+        // scroll una card a la vez con los botones prev/next, sincroniza
+        // el Brand Item de arriba con la marca activa, y — apenas el
+        // scroll "asienta" — si el usuario terminó en una de las copias
+        // de los extremos, se teletransporta sin animación a la card
+        // equivalente de la copia del medio, dando la ilusión de loop
+        // infinito en cualquier dirección.
         function initCarousel() {
           var viewport = document.querySelector(".pdp-header-carousel-viewport");
           if (!viewport) return;
@@ -290,6 +432,7 @@
           var prevBtn = wrap && wrap.querySelector(".pdp-header-carousel-nav-prev");
           var nextBtn = wrap && wrap.querySelector(".pdp-header-carousel-nav-next");
           var brandSlot = document.querySelector(".checkout-page-brand-overlap .brand-item-atom");
+          var setSize = cards.length / 3;
 
           function syncBrand(active, force) {
             var brandKey = active.dataset.brandKey;
@@ -336,37 +479,54 @@
             });
           }
 
+          // Si la card activa quedó en la copia izquierda o derecha,
+          // salta sin animación a la misma posición dentro de la copia
+          // del medio (mismo contenido, visualmente idéntico) para que
+          // siempre quede margen de sobra para seguir navegando.
+          function recycleToMiddleCopy(active) {
+            var index = cards.indexOf(active);
+            var copy = Math.floor(index / setSize);
+            if (copy === 1) return active;
+            var middleCard = cards[setSize + (index % setSize)];
+            centerCard(middleCard, false);
+            syncActiveCard(middleCard);
+            return middleCard;
+          }
+
+          // Infinito: las flechas quedan siempre visibles y activas en
+          // ambos extremos, nunca se ocultan.
           function updateNavVisibility() {
             if (!prevBtn || !nextBtn) return;
-            var maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
-            prevBtn.style.display = viewport.scrollLeft <= 1 ? "none" : "";
-            nextBtn.style.display = viewport.scrollLeft >= maxScrollLeft - 1 ? "none" : "";
+            prevBtn.style.display = "";
+            nextBtn.style.display = "";
           }
 
           if (prevBtn) {
             prevBtn.addEventListener("click", function () {
               var index = cards.indexOf(closestCard());
-              var target = cards[index - 1];
-              if (target) centerCard(target, true);
+              var target = cards[index - 1] || cards[cards.length - 1];
+              centerCard(target, true);
             });
           }
 
           if (nextBtn) {
             nextBtn.addEventListener("click", function () {
               var index = cards.indexOf(closestCard());
-              var target = cards[index + 1];
-              if (target) centerCard(target, true);
+              var target = cards[index + 1] || cards[0];
+              centerCard(target, true);
             });
           }
 
           var initialActive = cards.filter(function (card) {
             return card.classList.contains("is-active");
-          })[0] || cards[0];
+          })[0] || cards[Math.floor(cards.length / 2)];
           centerCard(initialActive, false);
+          syncActiveCard(initialActive);
           syncBrand(initialActive, true);
           updateNavVisibility();
 
           var ticking = false;
+          var settleTimer = null;
           viewport.addEventListener("scroll", function () {
             if (ticking) return;
             ticking = true;
@@ -377,6 +537,15 @@
               updateNavVisibility();
               ticking = false;
             });
+
+            // Espera a que el scroll-snap termine de asentar antes de
+            // evaluar si toca reciclar hacia la copia del medio (evita
+            // cortar la animación de scroll a mitad de camino).
+            clearTimeout(settleTimer);
+            settleTimer = setTimeout(function () {
+              var settled = recycleToMiddleCopy(closestCard());
+              syncBrand(settled, false);
+            }, 120);
           });
         }
 
