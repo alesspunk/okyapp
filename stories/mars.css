@@ -4407,6 +4407,9 @@ body {
   width: 250px;
 }
 
+/* Contexto PDP (default): se mantiene el ancho actual de 250px, "ligeramente
+   más grande" que el tamaño consolidado de Checkout de acá abajo — sin
+   aspect-ratio forzado, con la altura orgánica de siempre (min-height). */
 .pdp-header-carousel-card .middle-card-molecule {
   min-height: 160px;
   padding-top: 6px;
@@ -4414,6 +4417,29 @@ body {
 
 .pdp-header-carousel-card .middle-card-content {
   min-height: 152px;
+}
+
+/* Contexto Checkout (reusado tanto acá como en el carrusel real de
+   Pages/Checkout, que comparte estas mismas clases): tamaño consolidado y
+   fijo de 250x155px con aspect-ratio 50/31 siempre. Antes esto quedaba
+   ambiguo porque .middle-card-shell.is-checkout (min-height 177/169px)
+   tenía la misma especificidad que las reglas de arriba y podía ganar por
+   orden de declaración — acá se sube la especificidad (3 clases) para que
+   SIEMPRE gane, y se resetean esos min-height heredados a 0 para que el
+   aspect-ratio nunca quede sobreescrito. */
+.pdp-header-carousel-card .middle-card-shell.is-checkout {
+  width: 250px;
+  aspect-ratio: 50 / 31;
+}
+
+.pdp-header-carousel-card .middle-card-shell.is-checkout .middle-card-molecule {
+  height: 100%;
+  min-height: 0;
+}
+
+.pdp-header-carousel-card .middle-card-shell.is-checkout .middle-card-content {
+  height: 100%;
+  min-height: 0;
 }
 
 /* ── Middle Card (Molecule) ─────────────────────────── */
