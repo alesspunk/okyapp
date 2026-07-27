@@ -4442,6 +4442,18 @@ body {
   min-height: 0;
 }
 
+/* Kind "product" (card con foto, ej. "Cajita Feliz de McNuggets..."):
+   dentro de los 155px fijos de arriba, la foto de 88x88 (tamaño is-checkout
+   normal, pensado para una card sin altura fija) más el título y el footer
+   centerLabel no entran — el footer terminaba clippeado por el
+   overflow:hidden del molecule. Cuenta: 8 (padding-top molecule) + 40
+   (título) + 8 (padding-top center) + foto + 32 (footer, 8+16+8) ≤ 155 →
+   foto máx. ~67px; se deja en 64px (grid de 8px) para que quede con margen. */
+.pdp-header-carousel-card .middle-card-shell.is-checkout .middle-card-product-figure {
+  width: 64px;
+  height: 64px;
+}
+
 /* ── Middle Card (Molecule) ─────────────────────────── */
 .middle-card-shell {
   --border-main: #e0e0e0;
