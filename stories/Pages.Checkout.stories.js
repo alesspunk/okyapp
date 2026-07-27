@@ -49,6 +49,21 @@ function renderViewer() {
       <div data-role="buttons" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px"></div>
       <iframe title="Checkout Viewer" style="${iframeStyle}"></iframe>
     </div>
+    <div style="margin-top:20px;background:#f7f5fb;border:1px solid rgba(85,37,136,0.18);border-radius:12px;padding:18px 22px;max-width:820px">
+      <div class="mars-label" style="color:var(--primary-main);margin-bottom:8px">Justificación técnica · Carrusel full-bleed</div>
+      <p style="margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--text-secondary)">
+        El carrusel no está configurado únicamente como un elemento de 12 columnas, sino como una región local full-bleed. Un elemento de 12 columnas ocupa el 100% del área interna del grid, pero continúa respetando los márgenes horizontales del contenedor.
+      </p>
+      <p style="margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--text-secondary)">
+        En el Checkout, el contenido general mantiene un padding horizontal de 16 px. Para que únicamente el carrusel llegue a los bordes de la pantalla, su wrapper compensa ese padding mediante un ancho de <code>calc(100% + 32px)</code> y márgenes horizontales de <code>-16px</code>.
+      </p>
+      <p style="margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--text-secondary)">
+        De esta manera, el grid y sus márgenes se conservan para formularios, textos y acciones, mientras que el viewport del carrusel utiliza una excepción controlada edge-to-edge. Esto también permite mostrar parcialmente las tarjetas adyacentes y reforzar visualmente que el contenido es desplazable horizontalmente.
+      </p>
+      <p style="margin:0;font-size:13px;line-height:1.6;color:var(--text-secondary)">
+        La excepción debe estar vinculada al mismo token de spacing que define el padding del contenedor, para que ambos valores permanezcan sincronizados en cada breakpoint.
+      </p>
+    </div>
   `;
 
   const iframe = root.querySelector("iframe");
@@ -115,7 +130,12 @@ export default {
     docs: {
       description: {
         component:
-          "Sección Pages para visualizar el nuevo **Checkout Page** y **Checkout Mockup**, usando `Organisms/Page Header` en variante checkout overlap, `Brand Carrousel`, `Dual`, `Input/Payment method`, `Promo Code` y `Summary Box`, con layout guiado por Figma y consistencia de markup con el resto de mockups HTML.",
+          "Sección Pages para visualizar el nuevo **Checkout Page** y **Checkout Mockup**, usando `Organisms/Page Header` en variante checkout overlap, `Brand Carrousel`, `Dual`, `Input/Payment method`, `Promo Code` y `Summary Box`, con layout guiado por Figma y consistencia de markup con el resto de mockups HTML.\n\n" +
+          "### Justificación técnica · Carrusel full-bleed\n\n" +
+          "El carrusel no está configurado únicamente como un elemento de 12 columnas, sino como una región local full-bleed. Un elemento de 12 columnas ocupa el 100% del área interna del grid, pero continúa respetando los márgenes horizontales del contenedor.\n\n" +
+          "En el Checkout, el contenido general mantiene un padding horizontal de 16 px. Para que únicamente el carrusel llegue a los bordes de la pantalla, su wrapper compensa ese padding mediante un ancho de `calc(100% + 32px)` y márgenes horizontales de `-16px`.\n\n" +
+          "De esta manera, el grid y sus márgenes se conservan para formularios, textos y acciones, mientras que el viewport del carrusel utiliza una excepción controlada edge-to-edge. Esto también permite mostrar parcialmente las tarjetas adyacentes y reforzar visualmente que el contenido es desplazable horizontalmente.\n\n" +
+          "La excepción debe estar vinculada al mismo token de spacing que define el padding del contenedor, para que ambos valores permanezcan sincronizados en cada breakpoint.",
       },
     },
   },
