@@ -53,7 +53,292 @@
         <section class="post-checkout-carousel" aria-label="Carrusel de tarjetas">
           <div class="post-checkout-carousel-viewport">
             <div class="post-checkout-carousel-track">
-              <!-- Card 1 · Nike Gift Card (activa / centrada) -->
+<!-- Carrusel infinito: se repite la secuencia de 3 cards (Nike $50 · $25 · $100) 3 veces
+                   seguidas, para que SIEMPRE haya una card real a ambos lados sin importar cuál esté
+                   activa. Solo la instancia de la copia del medio queda is-active al montar; el JS
+                   recicla silenciosamente hacia esa copia cada vez que el usuario llega a una de las
+                   copias de los extremos. Las copias de los extremos son puramente decorativas
+                   (aria-hidden). -->
+              <div class="post-checkout-carousel-card is-hint" aria-hidden="true">
+                <section class="card-organism" aria-label="Card organism">
+                  <div class="card-organism-stack">
+                    <div class="card-organism-part card-organism-part-top">
+                      <div class="prime-card-shell card-top-shell" data-pen-id="7390:140798">
+                        <article class="prime-card-molecule card-top-molecule is-gift-card">
+                          <div class="prime-card-top-header">
+                            <img class="prime-card-top-logo" src="./images/logo-card-top.svg" alt="OKY" />
+                            <div class="prime-card-top-header-main"></div>
+                            <span class="dropdown-flag-sm prime-card-top-flag" aria-hidden="true">
+                              <img src="./images/usa-flag.png" alt="USA flag" />
+                            </span>
+                          </div>
+                          <div class="prime-card-top-body">
+                            <div class="prime-card-top-hero is-gift-card">
+                              <img src="./images/nike.png" alt="Nike gift card" />
+                            </div>
+                          </div>
+                          <div class="prime-card-top-footer is-single">
+                            <span class="prime-card-top-footer-link is-single">
+                              <span class="prime-card-top-footer-text">In Store, Online</span>
+                              <span class="fa-icon fa-icon-card-use" aria-hidden="true">
+                                <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                              </span>
+                            </span>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-middle">
+                      <div class="middle-card-shell is-pdp" data-pen-id="6991:146335">
+                        <article class="middle-card-molecule is-egift">
+                          <div class="middle-card-content">
+                            <div class="middle-card-main">
+                              <p class="middle-card-title">Gift Card</p>
+                              <div class="middle-card-center">
+                                <div class="middle-card-value">
+                                  <span class="middle-card-currency">$</span>
+                                  <p class="middle-card-amount">50</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="middle-card-footer is-center-label">
+                              <span class="middle-card-footer-center">Redemption Instructions</span>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-bottom">
+                      <div class="prime-card-shell card-bottom-shell" data-pen-id="7390:140805">
+                        <article class="prime-card-molecule card-bottom-molecule is-gift-card">
+                          <div class="prime-card-bottom-content">
+                            <div class="prime-card-bottom-main">
+                              <div class="prime-card-bottom-line">
+                                <div class="prime-card-bottom-line-header">
+                                  <span class="prime-card-bottom-line-label">Reward Credential</span>
+                                  <span class="fa-icon fa-icon-card-use prime-card-copy-icon" aria-hidden="true">
+                                    <i class="fa-thin fa-copy"></i>
+                                  </span>
+                                </div>
+                                <p class="prime-card-bottom-line-value token-code">X0OI233DFRA</p>
+                              </div>
+                            </div>
+                            <div class="prime-card-bottom-side">
+                              <div class="prime-card-bottom-expiry">&nbsp;</div>
+                              <div class="prime-card-bottom-button-slot">
+                                <button class="btn btn-primary prime-card-bottom-help-btn has-label" type="button">
+                                  <span class="prime-card-bottom-help-icon" aria-hidden="true">
+                                    <img src="./images/whatsapp-icon-card-bottom.png" alt="" />
+                                  </span>
+                                  <span class="prime-card-bottom-help-label">Help</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              
+              <div class="post-checkout-carousel-card is-hint" aria-hidden="true">
+                <section class="card-organism" aria-label="Card organism">
+                  <div class="card-organism-stack">
+                    <div class="card-organism-part card-organism-part-top">
+                      <div class="prime-card-shell card-top-shell" data-pen-id="7390:140799">
+                        <article class="prime-card-molecule card-top-molecule is-gift-card">
+                          <div class="prime-card-top-header">
+                            <img class="prime-card-top-logo" src="./images/logo-card-top.svg" alt="OKY" />
+                            <div class="prime-card-top-header-main"></div>
+                            <span class="dropdown-flag-sm prime-card-top-flag" aria-hidden="true">
+                              <img src="./images/usa-flag.png" alt="USA flag" />
+                            </span>
+                          </div>
+                          <div class="prime-card-top-body">
+                            <div class="prime-card-top-hero is-gift-card">
+                              <img src="./images/nike.png" alt="Nike gift card" />
+                            </div>
+                          </div>
+                          <div class="prime-card-top-footer is-single">
+                            <span class="prime-card-top-footer-link is-single">
+                              <span class="prime-card-top-footer-text">In Store, Online</span>
+                              <span class="fa-icon fa-icon-card-use" aria-hidden="true">
+                                <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                              </span>
+                            </span>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-middle">
+                      <div class="middle-card-shell is-pdp" data-pen-id="6991:146181">
+                        <article class="middle-card-molecule is-egift">
+                          <div class="middle-card-content">
+                            <div class="middle-card-main">
+                              <p class="middle-card-title">Gift Card</p>
+                              <div class="middle-card-center">
+                                <div class="middle-card-value">
+                                  <span class="middle-card-currency">$</span>
+                                  <p class="middle-card-amount">25</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="middle-card-footer is-center-label">
+                              <span class="middle-card-footer-center">Redemption Instructions</span>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-bottom">
+                      <div class="prime-card-shell card-bottom-shell" data-pen-id="7390:140803">
+                        <article class="prime-card-molecule card-bottom-molecule is-gift-card">
+                          <div class="prime-card-bottom-content">
+                            <div class="prime-card-bottom-main">
+                              <div class="prime-card-bottom-line">
+                                <div class="prime-card-bottom-line-header">
+                                  <span class="prime-card-bottom-line-label">Reward Credential</span>
+                                  <span class="fa-icon fa-icon-card-use prime-card-copy-icon" aria-hidden="true">
+                                    <i class="fa-thin fa-copy"></i>
+                                  </span>
+                                </div>
+                                <p class="prime-card-bottom-line-value token-code">X00OOMMDFRA</p>
+                              </div>
+                            </div>
+                            <div class="prime-card-bottom-side">
+                              <div class="prime-card-bottom-expiry">&nbsp;</div>
+                              <div class="prime-card-bottom-button-slot">
+                                <button class="btn btn-primary prime-card-bottom-help-btn has-label" type="button">
+                                  <span class="prime-card-bottom-help-icon" aria-hidden="true">
+                                    <img src="./images/whatsapp-icon-card-bottom.png" alt="" />
+                                  </span>
+                                  <span class="prime-card-bottom-help-label">Help</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              
+              <div class="post-checkout-carousel-card is-hint" aria-hidden="true">
+                <section class="card-organism" aria-label="Card organism">
+                  <div class="card-organism-stack">
+                    <div class="card-organism-part card-organism-part-top">
+                      <div class="prime-card-shell card-top-shell" data-pen-id="7390:140799">
+                        <article class="prime-card-molecule card-top-molecule is-gift-card">
+                          <div class="prime-card-top-header">
+                            <img class="prime-card-top-logo" src="./images/logo-card-top.svg" alt="OKY" />
+                            <div class="prime-card-top-header-main"></div>
+                            <span class="dropdown-flag-sm prime-card-top-flag" aria-hidden="true">
+                              <img src="./images/usa-flag.png" alt="USA flag" />
+                            </span>
+                          </div>
+                          <div class="prime-card-top-body">
+                            <div class="prime-card-top-hero is-gift-card">
+                              <img src="./images/nike.png" alt="Nike gift card" />
+                            </div>
+                          </div>
+                          <div class="prime-card-top-footer is-single">
+                            <span class="prime-card-top-footer-link is-single">
+                              <span class="prime-card-top-footer-text">In Store, Online</span>
+                              <span class="fa-icon fa-icon-card-use" aria-hidden="true">
+                                <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                              </span>
+                            </span>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-middle">
+                      <div class="middle-card-shell is-pdp" data-pen-id="6991:146235">
+                        <article class="middle-card-molecule is-egift">
+                          <div class="middle-card-content">
+                            <div class="middle-card-main">
+                              <p class="middle-card-title">Gift Card</p>
+                              <div class="middle-card-center">
+                                <div class="middle-card-value">
+                                  <span class="middle-card-currency">$</span>
+                                  <p class="middle-card-amount">100</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="middle-card-footer is-center-label">
+                              <span class="middle-card-footer-center">Redemption Instructions</span>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-bottom">
+                      <div class="prime-card-shell card-bottom-shell" data-pen-id="7390:140803">
+                        <article class="prime-card-molecule card-bottom-molecule is-gift-card">
+                          <div class="prime-card-bottom-content">
+                            <div class="prime-card-bottom-main">
+                              <div class="prime-card-bottom-line">
+                                <div class="prime-card-bottom-line-header">
+                                  <span class="prime-card-bottom-line-label">Reward Credential</span>
+                                  <span class="fa-icon fa-icon-card-use prime-card-copy-icon" aria-hidden="true">
+                                    <i class="fa-thin fa-copy"></i>
+                                  </span>
+                                </div>
+                                <p class="prime-card-bottom-line-value token-code">X00OOMMDFRA</p>
+                              </div>
+                            </div>
+                            <div class="prime-card-bottom-side">
+                              <div class="prime-card-bottom-expiry">&nbsp;</div>
+                              <div class="prime-card-bottom-button-slot">
+                                <button class="btn btn-primary prime-card-bottom-help-btn has-label" type="button">
+                                  <span class="prime-card-bottom-help-icon" aria-hidden="true">
+                                    <img src="./images/whatsapp-icon-card-bottom.png" alt="" />
+                                  </span>
+                                  <span class="prime-card-bottom-help-label">Help</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
               <div class="post-checkout-carousel-card is-active">
                 <section class="card-organism" aria-label="Card organism">
                   <div class="card-organism-stack">
@@ -147,7 +432,7 @@
                 </section>
               </div>
 
-              <!-- Card 2 · Nike Gift Card $25 (hint) -->
+              
               <div class="post-checkout-carousel-card is-hint">
                 <section class="card-organism" aria-label="Card organism">
                   <div class="card-organism-stack">
@@ -241,7 +526,7 @@
                 </section>
               </div>
 
-              <!-- Card 3 · Nike Gift Card $100 (hint) -->
+              
               <div class="post-checkout-carousel-card is-hint">
                 <section class="card-organism" aria-label="Card organism">
                   <div class="card-organism-stack">
@@ -334,6 +619,287 @@
                   </div>
                 </section>
               </div>
+              <div class="post-checkout-carousel-card is-hint" aria-hidden="true">
+                <section class="card-organism" aria-label="Card organism">
+                  <div class="card-organism-stack">
+                    <div class="card-organism-part card-organism-part-top">
+                      <div class="prime-card-shell card-top-shell" data-pen-id="7390:140798">
+                        <article class="prime-card-molecule card-top-molecule is-gift-card">
+                          <div class="prime-card-top-header">
+                            <img class="prime-card-top-logo" src="./images/logo-card-top.svg" alt="OKY" />
+                            <div class="prime-card-top-header-main"></div>
+                            <span class="dropdown-flag-sm prime-card-top-flag" aria-hidden="true">
+                              <img src="./images/usa-flag.png" alt="USA flag" />
+                            </span>
+                          </div>
+                          <div class="prime-card-top-body">
+                            <div class="prime-card-top-hero is-gift-card">
+                              <img src="./images/nike.png" alt="Nike gift card" />
+                            </div>
+                          </div>
+                          <div class="prime-card-top-footer is-single">
+                            <span class="prime-card-top-footer-link is-single">
+                              <span class="prime-card-top-footer-text">In Store, Online</span>
+                              <span class="fa-icon fa-icon-card-use" aria-hidden="true">
+                                <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                              </span>
+                            </span>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-middle">
+                      <div class="middle-card-shell is-pdp" data-pen-id="6991:146335">
+                        <article class="middle-card-molecule is-egift">
+                          <div class="middle-card-content">
+                            <div class="middle-card-main">
+                              <p class="middle-card-title">Gift Card</p>
+                              <div class="middle-card-center">
+                                <div class="middle-card-value">
+                                  <span class="middle-card-currency">$</span>
+                                  <p class="middle-card-amount">50</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="middle-card-footer is-center-label">
+                              <span class="middle-card-footer-center">Redemption Instructions</span>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-bottom">
+                      <div class="prime-card-shell card-bottom-shell" data-pen-id="7390:140805">
+                        <article class="prime-card-molecule card-bottom-molecule is-gift-card">
+                          <div class="prime-card-bottom-content">
+                            <div class="prime-card-bottom-main">
+                              <div class="prime-card-bottom-line">
+                                <div class="prime-card-bottom-line-header">
+                                  <span class="prime-card-bottom-line-label">Reward Credential</span>
+                                  <span class="fa-icon fa-icon-card-use prime-card-copy-icon" aria-hidden="true">
+                                    <i class="fa-thin fa-copy"></i>
+                                  </span>
+                                </div>
+                                <p class="prime-card-bottom-line-value token-code">X0OI233DFRA</p>
+                              </div>
+                            </div>
+                            <div class="prime-card-bottom-side">
+                              <div class="prime-card-bottom-expiry">&nbsp;</div>
+                              <div class="prime-card-bottom-button-slot">
+                                <button class="btn btn-primary prime-card-bottom-help-btn has-label" type="button">
+                                  <span class="prime-card-bottom-help-icon" aria-hidden="true">
+                                    <img src="./images/whatsapp-icon-card-bottom.png" alt="" />
+                                  </span>
+                                  <span class="prime-card-bottom-help-label">Help</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              
+              <div class="post-checkout-carousel-card is-hint" aria-hidden="true">
+                <section class="card-organism" aria-label="Card organism">
+                  <div class="card-organism-stack">
+                    <div class="card-organism-part card-organism-part-top">
+                      <div class="prime-card-shell card-top-shell" data-pen-id="7390:140799">
+                        <article class="prime-card-molecule card-top-molecule is-gift-card">
+                          <div class="prime-card-top-header">
+                            <img class="prime-card-top-logo" src="./images/logo-card-top.svg" alt="OKY" />
+                            <div class="prime-card-top-header-main"></div>
+                            <span class="dropdown-flag-sm prime-card-top-flag" aria-hidden="true">
+                              <img src="./images/usa-flag.png" alt="USA flag" />
+                            </span>
+                          </div>
+                          <div class="prime-card-top-body">
+                            <div class="prime-card-top-hero is-gift-card">
+                              <img src="./images/nike.png" alt="Nike gift card" />
+                            </div>
+                          </div>
+                          <div class="prime-card-top-footer is-single">
+                            <span class="prime-card-top-footer-link is-single">
+                              <span class="prime-card-top-footer-text">In Store, Online</span>
+                              <span class="fa-icon fa-icon-card-use" aria-hidden="true">
+                                <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                              </span>
+                            </span>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-middle">
+                      <div class="middle-card-shell is-pdp" data-pen-id="6991:146181">
+                        <article class="middle-card-molecule is-egift">
+                          <div class="middle-card-content">
+                            <div class="middle-card-main">
+                              <p class="middle-card-title">Gift Card</p>
+                              <div class="middle-card-center">
+                                <div class="middle-card-value">
+                                  <span class="middle-card-currency">$</span>
+                                  <p class="middle-card-amount">25</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="middle-card-footer is-center-label">
+                              <span class="middle-card-footer-center">Redemption Instructions</span>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-bottom">
+                      <div class="prime-card-shell card-bottom-shell" data-pen-id="7390:140803">
+                        <article class="prime-card-molecule card-bottom-molecule is-gift-card">
+                          <div class="prime-card-bottom-content">
+                            <div class="prime-card-bottom-main">
+                              <div class="prime-card-bottom-line">
+                                <div class="prime-card-bottom-line-header">
+                                  <span class="prime-card-bottom-line-label">Reward Credential</span>
+                                  <span class="fa-icon fa-icon-card-use prime-card-copy-icon" aria-hidden="true">
+                                    <i class="fa-thin fa-copy"></i>
+                                  </span>
+                                </div>
+                                <p class="prime-card-bottom-line-value token-code">X00OOMMDFRA</p>
+                              </div>
+                            </div>
+                            <div class="prime-card-bottom-side">
+                              <div class="prime-card-bottom-expiry">&nbsp;</div>
+                              <div class="prime-card-bottom-button-slot">
+                                <button class="btn btn-primary prime-card-bottom-help-btn has-label" type="button">
+                                  <span class="prime-card-bottom-help-icon" aria-hidden="true">
+                                    <img src="./images/whatsapp-icon-card-bottom.png" alt="" />
+                                  </span>
+                                  <span class="prime-card-bottom-help-label">Help</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              
+              <div class="post-checkout-carousel-card is-hint" aria-hidden="true">
+                <section class="card-organism" aria-label="Card organism">
+                  <div class="card-organism-stack">
+                    <div class="card-organism-part card-organism-part-top">
+                      <div class="prime-card-shell card-top-shell" data-pen-id="7390:140799">
+                        <article class="prime-card-molecule card-top-molecule is-gift-card">
+                          <div class="prime-card-top-header">
+                            <img class="prime-card-top-logo" src="./images/logo-card-top.svg" alt="OKY" />
+                            <div class="prime-card-top-header-main"></div>
+                            <span class="dropdown-flag-sm prime-card-top-flag" aria-hidden="true">
+                              <img src="./images/usa-flag.png" alt="USA flag" />
+                            </span>
+                          </div>
+                          <div class="prime-card-top-body">
+                            <div class="prime-card-top-hero is-gift-card">
+                              <img src="./images/nike.png" alt="Nike gift card" />
+                            </div>
+                          </div>
+                          <div class="prime-card-top-footer is-single">
+                            <span class="prime-card-top-footer-link is-single">
+                              <span class="prime-card-top-footer-text">In Store, Online</span>
+                              <span class="fa-icon fa-icon-card-use" aria-hidden="true">
+                                <i class="fa-thin fa-arrow-up-right-from-square"></i>
+                              </span>
+                            </span>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-middle">
+                      <div class="middle-card-shell is-pdp" data-pen-id="6991:146235">
+                        <article class="middle-card-molecule is-egift">
+                          <div class="middle-card-content">
+                            <div class="middle-card-main">
+                              <p class="middle-card-title">Gift Card</p>
+                              <div class="middle-card-center">
+                                <div class="middle-card-value">
+                                  <span class="middle-card-currency">$</span>
+                                  <p class="middle-card-amount">100</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="middle-card-footer is-center-label">
+                              <span class="middle-card-footer-center">Redemption Instructions</span>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+
+                    <div class="card-organism-separator-slot">
+                      <div class="separator-atom" role="separator" aria-orientation="horizontal"></div>
+                    </div>
+
+                    <div class="card-organism-part card-organism-part-bottom">
+                      <div class="prime-card-shell card-bottom-shell" data-pen-id="7390:140803">
+                        <article class="prime-card-molecule card-bottom-molecule is-gift-card">
+                          <div class="prime-card-bottom-content">
+                            <div class="prime-card-bottom-main">
+                              <div class="prime-card-bottom-line">
+                                <div class="prime-card-bottom-line-header">
+                                  <span class="prime-card-bottom-line-label">Reward Credential</span>
+                                  <span class="fa-icon fa-icon-card-use prime-card-copy-icon" aria-hidden="true">
+                                    <i class="fa-thin fa-copy"></i>
+                                  </span>
+                                </div>
+                                <p class="prime-card-bottom-line-value token-code">X00OOMMDFRA</p>
+                              </div>
+                            </div>
+                            <div class="prime-card-bottom-side">
+                              <div class="prime-card-bottom-expiry">&nbsp;</div>
+                              <div class="prime-card-bottom-button-slot">
+                                <button class="btn btn-primary prime-card-bottom-help-btn has-label" type="button">
+                                  <span class="prime-card-bottom-help-icon" aria-hidden="true">
+                                    <img src="./images/whatsapp-icon-card-bottom.png" alt="" />
+                                  </span>
+                                  <span class="prime-card-bottom-help-label">Help</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            
             </div>
           </div>
 
@@ -371,11 +937,16 @@
           else document.addEventListener("DOMContentLoaded", fn);
         }
 
-        // Carrusel funcional (mismo patrón que Organisms/Producto Header y
-        // Pages/Checkout): centra la card activa al montar, mueve el scroll
-        // una card a la vez con los botones prev/next (chips rectangulares
-        // reutilizados de .pdp-header-carousel-nav), y sincroniza los
-        // indicadores (.carrusel-dot) con la card centrada.
+        // Carrusel INFINITO (mismo patrón que Organisms/Producto Header y
+        // Pages/Checkout): el HTML repite la secuencia de 3 cards 3 veces
+        // seguidas (9 nodos en total), así que siempre hay una card real a
+        // cada lado — nunca hace falta ocultar las flechas ni quedarse sin
+        // hint. Centra la card activa (copia del medio) al montar, mueve el
+        // scroll una card a la vez con los botones prev/next, sincroniza los
+        // indicadores (.carrusel-dot, mapeados por índice dentro del set de
+        // 3 únicas), y — apenas el scroll "asienta" — si el usuario terminó
+        // en una de las copias de los extremos, se teletransporta sin
+        // animación a la card equivalente de la copia del medio.
         function initCarousel() {
           var viewport = document.querySelector(".post-checkout-carousel-viewport");
           if (!viewport) return;
@@ -387,6 +958,7 @@
           var prevBtn = wrap && wrap.querySelector(".pdp-header-carousel-nav-prev");
           var nextBtn = wrap && wrap.querySelector(".pdp-header-carousel-nav-next");
           var dots = Array.prototype.slice.call(document.querySelectorAll(".post-checkout-dots .carrusel-dot"));
+          var setSize = cards.length / 3;
 
           function closestCard() {
             var center = viewport.scrollLeft + viewport.clientWidth / 2;
@@ -411,7 +983,7 @@
           }
 
           function syncDots(active) {
-            var index = cards.indexOf(active);
+            var index = cards.indexOf(active) % setSize;
             dots.forEach(function (dot, i) {
               dot.classList.toggle("is-active", i === index);
             });
@@ -425,37 +997,54 @@
             });
           }
 
+          // Si la card activa quedó en la copia izquierda o derecha, salta
+          // sin animación a la misma posición dentro de la copia del medio
+          // (mismo contenido, visualmente idéntico) para que siempre quede
+          // margen de sobra para seguir navegando.
+          function recycleToMiddleCopy(active) {
+            var index = cards.indexOf(active);
+            var copy = Math.floor(index / setSize);
+            if (copy === 1) return active;
+            var middleCard = cards[setSize + (index % setSize)];
+            centerCard(middleCard, false);
+            syncActiveCard(middleCard);
+            return middleCard;
+          }
+
+          // Infinito: las flechas quedan siempre visibles/activas en ambos
+          // extremos, nunca se ocultan.
           function updateNavVisibility() {
             if (!prevBtn || !nextBtn) return;
-            var maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
-            prevBtn.style.display = viewport.scrollLeft <= 1 ? "none" : "";
-            nextBtn.style.display = viewport.scrollLeft >= maxScrollLeft - 1 ? "none" : "";
+            prevBtn.style.display = "";
+            nextBtn.style.display = "";
           }
 
           if (prevBtn) {
             prevBtn.addEventListener("click", function () {
               var index = cards.indexOf(closestCard());
-              var target = cards[index - 1];
-              if (target) centerCard(target, true);
+              var target = cards[index - 1] || cards[cards.length - 1];
+              centerCard(target, true);
             });
           }
 
           if (nextBtn) {
             nextBtn.addEventListener("click", function () {
               var index = cards.indexOf(closestCard());
-              var target = cards[index + 1];
-              if (target) centerCard(target, true);
+              var target = cards[index + 1] || cards[0];
+              centerCard(target, true);
             });
           }
 
           var initialActive = cards.filter(function (card) {
             return card.classList.contains("is-active");
-          })[0] || cards[0];
+          })[0] || cards[Math.floor(cards.length / 2)];
           centerCard(initialActive, false);
+          syncActiveCard(initialActive);
           syncDots(initialActive);
           updateNavVisibility();
 
           var ticking = false;
+          var settleTimer = null;
           viewport.addEventListener("scroll", function () {
             if (ticking) return;
             ticking = true;
@@ -466,6 +1055,16 @@
               updateNavVisibility();
               ticking = false;
             });
+
+            // Espera a que el scroll-snap termine de asentar (debounce
+            // 120ms tras el último evento de scroll) antes de evaluar si
+            // toca reciclar hacia la copia del medio — evita cortar la
+            // animación de scroll a mitad de camino.
+            clearTimeout(settleTimer);
+            settleTimer = setTimeout(function () {
+              var settled = recycleToMiddleCopy(closestCard());
+              syncDots(settled);
+            }, 120);
           });
         }
 
