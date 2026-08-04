@@ -30,8 +30,7 @@ function resolveArgs(args = {}) {
       heroAlt: args.topHeroAlt?.trim() || topBase.heroAlt,
       flagImage: args.topFlagImage?.trim() || topBase.flagImage,
       flagAlt: args.topFlagAlt?.trim() || topBase.flagAlt,
-      footerLeftLabel: args.topFooterLeftLabel?.trim() || topBase.footerLeftLabel,
-      footerRightLabel: args.topFooterRightLabel?.trim() || topBase.footerRightLabel,
+      footerLabel: args.topFooterLabel?.trim() || topBase.footerLabel,
     }),
     middle: resolveMiddleCard({
       variantPath: MIDDLE_CARD_PATHS.includes(args.middleCardPath) ? args.middleCardPath : middleBase.path,

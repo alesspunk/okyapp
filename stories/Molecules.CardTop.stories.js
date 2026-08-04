@@ -24,7 +24,7 @@ export default {
       description: {
         component:
           "**Top Card** es una molécula hermana de `Middle Card`, pensada para la parte superior de credenciales y gift cards. " +
-          "Usa el surface token **Card Top**, conserva el shadow **PDP Card**, mantiene ancho PDP (`342px`) y reutiliza el wrapper de iconos `fa-icon-card-use` para los links inferiores. " +
+          "Usa el surface token **Card Top**, conserva el shadow **PDP Card**, mantiene ancho PDP (`342px`) y su footer inferior es un solo label centrado, sin icono, en sentence case. " +
           "La anatomía se resuelve en tres variantes: **OKY Vales**, **Gift Card** y **Disable**. " +
           "Flags, assets y tratamientos de borde se montan sobre recursos ya existentes del sistema. " +
           "No existe todavía un token tipográfico específico para el brand chip de Figma, así que se mapea al tratamiento más cercano del sistema (`productText`).",
@@ -63,13 +63,9 @@ export default {
       control: "text",
       description: "Alt de la bandera.",
     },
-    footerLeftLabel: {
+    footerLabel: {
       control: "text",
-      description: "Label inferior izquierdo o label único centrado.",
-    },
-    footerRightLabel: {
-      control: "text",
-      description: "Label inferior derecho. Si está vacío, se usa footer simple.",
+      description: "Label inferior único, centrado, sin icono y en sentence case.",
     },
     showMeta: {
       control: "boolean",
@@ -88,8 +84,7 @@ export const DocsPlayground = {
     heroAlt: "Target gift card",
     flagImage: "usa-flag.png",
     flagAlt: "USA flag",
-    footerLeftLabel: "Terms & Conditions",
-    footerRightLabel: "Brand Disclaimer",
+    footerLabel: "Online, Retiro en tienda, Para llevar",
     showMeta: true,
   },
   render: (args) => {

@@ -11,9 +11,9 @@ export const CARD_TOP_VARIANTS = [
     heroImage: "pollo-campero.webp",
     heroAlt: "Pollo Campero gift card",
     flagCode: "GTM",
-    footerLeftLabel: "Qué incluye",
-    footerRightLabel: "",
-    recommendation: 'Recomendado: arte principal centrado tipo card y un solo CTA inferior (base: "Qué incluye").',
+    footerLabel: "Online, Retiro en tienda, Para llevar",
+    recommendation:
+      'Recomendado: label inferior centrado, sin icono, en sentence case (base: "Online, Retiro en tienda, Para llevar").',
   },
   {
     path: "Molecule/Top Card/Gift Card",
@@ -25,10 +25,9 @@ export const CARD_TOP_VARIANTS = [
     heroImage: "target.webp",
     heroAlt: "Target gift card",
     flagCode: "USA",
-    footerLeftLabel: "Terms & Conditions",
-    footerRightLabel: "Brand Disclaimer",
+    footerLabel: "Online, Retiro en tienda, Para llevar",
     recommendation:
-      'Recomendado: brand label corto centrado (base: "Target") y dos CTAs inferiores en una sola línea.',
+      'Recomendado: brand label corto centrado (base: "Target") y un solo label inferior centrado, sin icono.',
   },
 ];
 
@@ -171,27 +170,11 @@ function renderCopyIcon() {
 }
 
 function renderTopFooter(card) {
-  if (card.footerRightLabel) {
-    return `
-      <div class="prime-card-top-footer is-split">
-        <span class="prime-card-top-footer-link is-left">
-          <span class="prime-card-top-footer-text">${card.footerLeftLabel}</span>
-          ${renderLinkIcon()}
-        </span>
-        <span class="prime-card-top-footer-link is-right">
-          <span class="prime-card-top-footer-text">${card.footerRightLabel}</span>
-          ${renderLinkIcon()}
-        </span>
-      </div>
-    `;
-  }
-
+  // Top Card sólo soporta un label centrado, sin icono, en sentence case
+  // (se eliminó la variante de dos labels + icono).
   return `
     <div class="prime-card-top-footer is-single">
-      <span class="prime-card-top-footer-link is-single">
-        <span class="prime-card-top-footer-text">${card.footerLeftLabel}</span>
-        ${renderLinkIcon()}
-      </span>
+      <span class="prime-card-top-footer-text">${card.footerLabel}</span>
     </div>
   `;
 }
@@ -295,8 +278,7 @@ export function resolveCardTop(args = {}) {
     heroImage: args.heroImage?.trim() || base.heroImage,
     heroAlt: args.heroAlt?.trim() || base.heroAlt,
     flagCode: args.flagCode?.trim() || base.flagCode,
-    footerLeftLabel: args.footerLeftLabel?.trim() || base.footerLeftLabel,
-    footerRightLabel: args.footerRightLabel?.trim() || base.footerRightLabel,
+    footerLabel: args.footerLabel?.trim() || base.footerLabel,
   };
 }
 
