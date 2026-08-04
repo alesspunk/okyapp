@@ -434,9 +434,12 @@ function resolveArgs(args = {}) {
     title: args.cardTitle?.trim() || middle.title,
     currency: args.currency?.trim() || middle.currency,
     amount: args.amount?.trim() || middle.amount,
-    leftLabel: args.leftLabel?.trim() || middle.leftLabel,
-    rightLabel: args.rightLabel?.trim() || middle.rightLabel,
-    centerLabel: typeof args.centerLabel === "string" ? args.centerLabel : middle.centerLabel,
+    // Producto Header sólo soporta la variante de footer "Center Label":
+    // se elimina la variante de dos columnas (leftLabel/rightLabel + icono)
+    // dentro de este organismo, forzando siempre un centerLabel no vacío
+    // (nunca se envían leftLabel/rightLabel, así que renderFooter jamás
+    // puede caer en el branch de dos columnas para este organismo).
+    centerLabel: args.centerLabel?.trim() || middle.centerLabel || "Que necesito saber",
     image: args.cardImage?.trim() || middle.image,
     showDiscountRibbon: args.showDiscountRibbon,
     discountRibbonType: args.discountRibbonType,
@@ -648,19 +651,12 @@ export default {
       control: "text",
       description: "Monto del Middle Card numérico.",
     },
-    leftLabel: {
-      control: "text",
-      description: "Label inferior izquierdo del Middle Card.",
-    },
-    rightLabel: {
-      control: "text",
-      description: "Label inferior derecho del Middle Card.",
-    },
     centerLabel: {
       control: "text",
       description:
-        "Footer alterno de un solo label centrado del Middle Card, en Sentence case y sin icono (ej. \"Que necesitas saber\"). " +
-        "Si tiene valor, reemplaza leftLabel/rightLabel + icono.",
+        "Footer del Middle Card: un solo label centrado, en Sentence case y sin icono (ej. \"Que necesito saber\"). " +
+        "Producto Header sólo soporta esta variante de footer — la variante de dos columnas " +
+        "(leftLabel/rightLabel + icono) no está disponible en este organismo.",
     },
     cardImage: {
       control: "text",
@@ -735,8 +731,6 @@ export const DocsPlayground = {
     cardTitle: "Vale de Monto",
     currency: "Q",
     amount: "1,000",
-    leftLabel: "Mostrar al cajero",
-    rightLabel: "Como canjear",
     centerLabel: "Que necesito saber",
     cardImage: "middle-card-vale-de-producto.png",
     showDiscountRibbon: false,
@@ -803,6 +797,7 @@ export const ReferenceStacks = {
               brandKey: "mcdonalds",
               middleCardPath: "Molecule/Middle Card/Vale de Monto",
               cardContext: "PDP",
+              centerLabel: "Que necesito saber",
               showDiscountRibbon: true,
               discountRibbonType: "Por tiempo",
               discountRibbonLabel: "25% OFF",
@@ -824,6 +819,7 @@ export const ReferenceStacks = {
               brandKey: "mcdonalds",
               middleCardPath: "Molecule/Middle Card/Vale de Producto",
               cardContext: "PDP",
+              centerLabel: "Que necesito saber",
               showDiscountRibbon: false,
               dynamicInputState: "Hasvalue",
             })}
@@ -843,6 +839,7 @@ export const ReferenceStacks = {
               brandKey: "apple",
               middleCardPath: "Molecule/Middle Card/eGift Card",
               cardContext: "Checkout",
+              centerLabel: "Que necesito saber",
               showDiscountRibbon: true,
               discountRibbonType: "Por tiempo",
               discountRibbonLabel: "18% OFF",
@@ -894,6 +891,7 @@ export const CarouselVariants = {
               middleCardPath: "Molecule/Middle Card/Vale de Monto",
               cardContext: "PDP",
               cardCount: 1,
+              centerLabel: "Que necesito saber",
               dynamicInputState: "Empty",
             })}
           </div>
@@ -910,6 +908,7 @@ export const CarouselVariants = {
               middleCardPath: "Molecule/Middle Card/Vale de Monto",
               cardContext: "Checkout",
               cardCount: 2,
+              centerLabel: "Que necesito saber",
               dynamicInputState: "Empty",
             })}
           </div>
@@ -926,6 +925,7 @@ export const CarouselVariants = {
               middleCardPath: "Molecule/Middle Card/Vale de Monto",
               cardContext: "Checkout",
               cardCount: 3,
+              centerLabel: "Que necesito saber",
               dynamicInputState: "Empty",
             })}
           </div>
