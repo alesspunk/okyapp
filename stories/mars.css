@@ -4665,15 +4665,25 @@ body {
   padding: 8px 16px;
 }
 
+/* Token tipográfico "Card Label" (Foundations/Tokens · CARDLABEL): Nunito
+   Sans 10/500, line-height 1.6, sin letter-spacing, sentence case (ya no
+   uppercase). Compartido por los labels inferiores de Middle Card y Top
+   Card — ver también .prime-card-top-footer-text. */
+.middle-card-footer-start,
+.middle-card-footer-end,
+.middle-card-footer-center {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 .middle-card-footer-start,
 .middle-card-footer-end {
   min-width: 0;
   color: #552588;
-  font-family: "Lato", sans-serif;
-  font-size: 10px;
-  font-weight: 400;
-  line-height: 1.57;
-  text-transform: none;
   white-space: nowrap;
 }
 
@@ -4697,7 +4707,7 @@ body {
 
 /* Footer alterno de un solo label centrado (vs. el footer default de
    leftLabel/rightLabel) — ambas variantes comparten el mismo token
-   tipográfico sin icono y en sentence case que Top Card. */
+   Card Label, sin icono. */
 .middle-card-footer.is-center-label {
   justify-content: center;
 }
@@ -4705,11 +4715,6 @@ body {
 .middle-card-footer-center {
   min-width: 0;
   color: #552588;
-  font-family: "Lato", sans-serif;
-  font-size: 10px;
-  font-weight: 400;
-  line-height: 1.57;
-  text-transform: none;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -4745,7 +4750,7 @@ body {
 }
 
 .card-top-molecule {
-  min-height: 158px;
+  min-height: 194px;
   display: flex;
   flex-direction: column;
   border-style: solid;
@@ -4756,7 +4761,7 @@ body {
 }
 
 .card-top-molecule.is-gift-card {
-  min-height: 159px;
+  min-height: 195px;
 }
 
 .prime-card-top-header {
@@ -4856,14 +4861,15 @@ body {
   padding: 8px 16px 10px;
 }
 
+/* Mismo token Card Label que Middle Card (ver .middle-card-footer-start). */
 .prime-card-top-footer-text {
   min-width: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 10px;
-  font-weight: 400;
-  line-height: 1.57;
-  text-transform: none;
+  font-weight: 500;
+  line-height: 1.6;
   letter-spacing: 0;
+  text-transform: none;
   text-align: center;
   white-space: nowrap;
 }
