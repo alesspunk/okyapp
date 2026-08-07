@@ -1486,6 +1486,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   color: #552588;
   font-size: 16px;
   line-height: 1;
@@ -1506,6 +1507,10 @@ body {
   color: #552588;
   line-height: 1;
   letter-spacing: 0.15px;
+  /* Los dígitos de Lato quedan ~4px por debajo del centro óptico de los
+     icon-box de 24px (verificado contra captura real) — se corrige con
+     un nudge vertical en vez de depender solo de align-items:center. */
+  transform: translateY(-4px);
 }
 
 .chip-ds-status {
