@@ -246,9 +246,9 @@
               <div class="folder-control is-left">
                 <span class="folder-layer folder-layer-bottom">
                   <svg width="360" height="60" viewBox="0 0 360 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M0 20.8834V55.3381V59.5878H360V55.3381H201.263C180.084 55.3381 178.285 42.3198 178.183 40.7798C177.839 35.5878 177.839 30.5878 177.839 17.1072C177.839 -1.19395 157.392 0.016522 147.84 0.0165218L26.31 0.0165217C4.44822 0.0165205 0 14.2513 0 20.8834Z" fill="url(#paint0_linear_7295_52287_story)"/>
+                    <path d="M360 21.0188V55.6968V60H0V55.6968H159.294C180.415 55.6968 182.209 42.5942 182.311 41.0441C182.654 35.8185 182.654 30.7861 182.654 17.2181C182.654 -1.20169 203.044 0.0166291 212.569 0.0166289H333.763C355.564 0.0166276 360 14.3437 360 21.0188Z" fill="url(#paint0_linear_7295_52258_story)"/>
                     <defs>
-                      <linearGradient id="paint0_linear_7295_52287_story" x1="180" y1="0" x2="180" y2="59.5878" gradientUnits="userSpaceOnUse">
+                      <linearGradient id="paint0_linear_7295_52258_story" x1="180" y1="0" x2="180" y2="60" gradientUnits="userSpaceOnUse">
                         <stop stop-color="#F1F2F5"/>
                         <stop offset="0.880066" stop-color="#ECEFF8"/>
                       </linearGradient>
@@ -258,18 +258,18 @@
 
                 <span class="folder-layer folder-layer-top">
                   <svg width="360" height="77" viewBox="0 0 360 77" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <g filter="url(#filter0_d_7295_52299_story)">
-                      <path d="M360 36.9611V72.4925V77H0V72.4925H149.33C170.453 72.4925 174.009 59.0328 174.344 57.4792C175.782 50.801 176.011 48.5296 176.567 33.0669C177.242 14.28 202.06 15.3481 211.586 15.4421C242.899 15.1085 310.973 14.6414 332.763 15.4421C354.553 16.2428 360 30.1217 360 36.9611Z" fill="white"/>
+                    <g filter="url(#filter0_d_7295_52268_story)">
+                      <path d="M0 36.9611V72.4925V77H360V72.4925H210.086C189.022 72.4925 185.476 59.0328 185.142 57.4792C183.708 50.801 183.479 48.5296 182.925 33.0669C182.251 14.28 157.502 15.3481 148.003 15.4421C116.776 15.1085 48.8908 14.6414 27.1616 15.4421C5.43231 16.2428 0 30.1217 0 36.9611Z" fill="white"/>
                     </g>
                     <defs>
-                      <filter id="filter0_d_7295_52299_story" x="-24" y="-5" width="408" height="110" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                      <filter id="filter0_d_7295_52268_story" x="-24" y="-5" width="408" height="110" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
                         <feFlood flood-opacity="0" result="BackgroundImageFix"/>
                         <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
                         <feOffset dy="4"/>
                         <feGaussianBlur stdDeviation="12"/>
                         <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.17 0"/>
-                        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_7295_52299"/>
-                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_7295_52299" result="shape"/>
+                        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_7295_52268"/>
+                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_7295_52268" result="shape"/>
                       </filter>
                     </defs>
                   </svg>
@@ -692,8 +692,39 @@
           if (!chip) return;
           chip.style.display = show && !hasDismissedNewItemChip ? "inline-flex" : "none";
         };
-        const RIGHT_BOTTOM_SVG = layerBottom?.innerHTML || "";
-        const RIGHT_TOP_SVG = layerTop?.innerHTML || "";
+        // Hardcoded en vez de capturar layerBottom/layerTop.innerHTML al cargar:
+        // el markup estático ahora arranca siempre con el shape "left" correcto
+        // (GUA activo por defecto), así que ya no podemos asumir que el DOM
+        // inicial contiene el shape "right".
+        const RIGHT_BOTTOM_SVG = `
+          <svg width="360" height="60" viewBox="0 0 360 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M0 20.8834V55.3381V59.5878H360V55.3381H201.263C180.084 55.3381 178.285 42.3198 178.183 40.7798C177.839 35.5878 177.839 30.5878 177.839 17.1072C177.839 -1.19395 157.392 0.016522 147.84 0.0165218L26.31 0.0165217C4.44822 0.0165205 0 14.2513 0 20.8834Z" fill="url(#paint0_linear_7295_52287_story_m1)"/>
+            <defs>
+              <linearGradient id="paint0_linear_7295_52287_story_m1" x1="180" y1="0" x2="180" y2="59.5878" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#F1F2F5"/>
+                <stop offset="0.880066" stop-color="#ECEFF8"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        `;
+        const RIGHT_TOP_SVG = `
+          <svg width="360" height="77" viewBox="0 0 360 77" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g filter="url(#filter0_d_7295_52299_story_m1)">
+              <path d="M360 36.9611V72.4925V77H0V72.4925H149.33C170.453 72.4925 174.009 59.0328 174.344 57.4792C175.782 50.801 176.011 48.5296 176.567 33.0669C177.242 14.28 202.06 15.3481 211.586 15.4421C242.899 15.1085 310.973 14.6414 332.763 15.4421C354.553 16.2428 360 30.1217 360 36.9611Z" fill="white"/>
+            </g>
+            <defs>
+              <filter id="filter0_d_7295_52299_story_m1" x="-24" y="-5" width="408" height="110" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dy="4"/>
+                <feGaussianBlur stdDeviation="12"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.17 0"/>
+                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_7295_52299"/>
+                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_7295_52299" result="shape"/>
+              </filter>
+            </defs>
+          </svg>
+        `;
         const LEFT_BOTTOM_SVG = `
           <svg width="360" height="60" viewBox="0 0 360 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="M360 21.0188V55.6968V60H0V55.6968H159.294C180.415 55.6968 182.209 42.5942 182.311 41.0441C182.654 35.8185 182.654 30.7861 182.654 17.2181C182.654 -1.20169 203.044 0.0166291 212.569 0.0166289H333.763C355.564 0.0166276 360 14.3437 360 21.0188Z" fill="url(#paint0_linear_7295_52258_story_m1)"/>
