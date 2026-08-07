@@ -1414,7 +1414,7 @@ body {
 }
 
 .chip-ds i {
-  font-size: 12px;
+  font-size: 16px;
   line-height: 1;
 }
 
@@ -1460,43 +1460,37 @@ body {
 .chip-ds-add0 {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
-  padding: 8px;
+  padding: 4px;
+  /* border-radius: 16px viene heredado de .chip-ds — Figma 360:10042 usa el mismo radio en las 4 variantes. */
 }
 
 .chip-ds-shadow {
-  box-shadow: 0 4px 14px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px 4px rgba(0, 0, 0, 0.08);
 }
 
 .chip-ds-qty {
-  width: 65px;
-  max-width: 65px;
-  height: 32px;
-  padding: 8px 16px;
-  gap: 8px;
+  padding: 8px;
+  gap: 16px;
 }
 
 .chip-ds-add1,
 .chip-ds-add2 {
-  width: 90px;
-  max-width: 90px;
-  height: 32px;
   padding: 8px;
   gap: 16px;
 }
 
 .chip-ds-pill-icon {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #552588;
-  font-size: 12px;
+  font-size: 16px;
 }
 
 .chip-ds-trash {
-  color: #e31b0c;
+  color: #f44336;
 }
 
 .chip-ds-number {

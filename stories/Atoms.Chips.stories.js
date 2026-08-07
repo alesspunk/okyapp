@@ -49,7 +49,7 @@ export const Playground = {
       "Chips/Cart": "Recomendado: contador de 1-2 caracteres (0-99).",
       "Chips/Status": "Recomendado: contador de 1-2 caracteres y usar solo los status del sistema.",
       "Chips/Quantity Input / Add0 / Vales": "Recomendado: sin texto libre (solo ícono).",
-      "Chips/Quantity Input / Quantity/Gifcards/Giftcards": "Recomendado: cantidad de 1-2 caracteres (1-99).",
+      "Chips/Quantity Input / Quantity/Gifcards/Giftcards": "Recomendado: sin texto libre (solo ícono, igual a Add0).",
       "Chips/Quantity Input / Add1 / Vales": "Recomendado: cantidad de 1-2 caracteres (1-99).",
       "Chips/Quantity Input / Add2 / Vales": "Recomendado: cantidad de 1-2 caracteres (1-99).",
     };
@@ -124,7 +124,6 @@ export const Playground = {
           <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">${recommendation}</div>
           <span class="chip-ds chip-ds-qty chip-ds-shadow">
             <i class="fa-regular fa-trash chip-ds-pill-icon chip-ds-trash"></i>
-            <span class="chip-ds-number">${count}</span>
           </span>
         </div>
       `;
@@ -221,7 +220,6 @@ export const Variants = {
           <div class="mars-label">Quantity · QtFxr</div>
           <span class="chip-ds chip-ds-qty chip-ds-shadow">
             <i class="fa-regular fa-trash chip-ds-pill-icon chip-ds-trash"></i>
-            <span class="chip-ds-number">1</span>
           </span>
         </div>
         <div class="story-card">
