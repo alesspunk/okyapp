@@ -24,7 +24,7 @@ import { renderMiddleCard } from "./_shared/middleCard.js";
    posición equivalente en la copia del medio.
 ───────────────────────────────────────────────────────── */
 
-export const CARRUSEL_CARDS_ITEMS = [
+const CARRUSEL_CARDS_ITEMS = [
   { brandKey: "amazon", id: "local:carrusel-cards-amazon", title: "Amazon E-Gift Card", currency: "$", amount: "25" },
   { brandKey: "target", id: "6991:146335", title: "Target E-Gift Card", currency: "$", amount: "40" },
   { brandKey: "starbucks", id: "local:carrusel-cards-starbucks", title: "Starbucks E-Gift Card", currency: "$", amount: "15" },
