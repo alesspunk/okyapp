@@ -173,10 +173,119 @@
       </div>
     </nav>
 
-    <script type="module">
-      import { initSliderAtom } from "./stories/_shared/slider.js";
+    <script>
+      (function () {
+        var THUMB_RADIUS = 14.5;
+        var EDGE_INSET_EXTRA = 6;
 
-      document.querySelectorAll(".slider-atom").forEach((sliderRoot) => initSliderAtom(sliderRoot));
+        // Sincroniza fill/thumb/halo/burbuja con el input nativo, y además
+        // refleja el valor actual en el monto de la Middle Card de arriba.
+        function positionSlider(root) {
+          var input = root.querySelector(".slider-range");
+          var fill = root.querySelector(".slider-fill");
+          var halo = root.querySelector(".slider-thumb-halo");
+          var thumb = root.querySelector(".slider-thumb");
+          var bubble = root.querySelector(".slider-thumb-bubble");
+          var trackShell = root.querySelector(".slider-track-shell");
+          if (!input || !fill || !halo || !thumb || !trackShell) {
+            return;
+          }
+
+          var min = Number(input.min);
+          var max = Number(input.max);
+          var value = Number(input.value);
+          var percent = max === min ? 0 : (value - min) / (max - min);
+
+          var trackWidth = trackShell.clientWidth;
+          if (trackWidth === 0) {
+            return;
+          }
+
+          var inset = THUMB_RADIUS + EDGE_INSET_EXTRA;
+          var usableWidth = Math.max(trackWidth - inset * 2, 0);
+          var centerPx = inset + usableWidth * percent;
+          var centerPercent = (centerPx / trackWidth) * 100;
+
+          fill.style.width = centerPx + "px";
+          thumb.style.left = centerPercent + "%";
+          halo.style.left = centerPercent + "%";
+
+          var currencySymbol = input.dataset.currencySymbol || "";
+          if (bubble) {
+            bubble.textContent = currencySymbol + value;
+          }
+
+          var amountEl = document.querySelector(".middle-card-amount");
+          if (amountEl) {
+            amountEl.textContent = value;
+          }
+        }
+
+        function initSliderAtom(root, attempt) {
+          attempt = attempt || 0;
+          var trackShell = root.querySelector(".slider-track-shell");
+          var input = root.querySelector(".slider-range");
+          if (!trackShell || !input) {
+            return;
+          }
+
+          if (trackShell.clientWidth === 0) {
+            if (attempt < 20) {
+              requestAnimationFrame(function () {
+                initSliderAtom(root, attempt + 1);
+              });
+            }
+            return;
+          }
+
+          function setActive(active) {
+            root.classList.toggle("is-active", active);
+          }
+
+          input.addEventListener("pointerdown", function () {
+            setActive(true);
+          });
+          input.addEventListener(
+            "touchstart",
+            function () {
+              setActive(true);
+            },
+            { passive: true }
+          );
+          input.addEventListener("focus", function () {
+            setActive(true);
+          });
+          input.addEventListener("pointerup", function () {
+            setActive(false);
+          });
+          input.addEventListener("pointercancel", function () {
+            setActive(false);
+          });
+          input.addEventListener("touchend", function () {
+            setActive(false);
+          });
+          input.addEventListener("touchcancel", function () {
+            setActive(false);
+          });
+          input.addEventListener("blur", function () {
+            setActive(false);
+          });
+          input.addEventListener("input", function () {
+            positionSlider(root);
+          });
+
+          window.addEventListener("resize", function () {
+            positionSlider(root);
+          });
+
+          positionSlider(root);
+        }
+
+        var sliders = document.querySelectorAll(".slider-atom");
+        for (var i = 0; i < sliders.length; i++) {
+          initSliderAtom(sliders[i]);
+        }
+      })();
     </script>
   </body>
 </html>
