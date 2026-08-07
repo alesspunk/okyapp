@@ -1,3 +1,5 @@
+import { renderSliderTicks, initSliderAtom } from "./_shared/slider.js";
+
 const SLIDER_VARIANTS = {
   Quetzales: {
     id: "image-ref-quetzales",
@@ -47,28 +49,30 @@ function resolveSlider(args = {}) {
 
 function renderSlider(args = {}) {
   const slider = resolveSlider(args);
-  const percent = slider.max === slider.min ? 0 : ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
   const sliderId = `slider-atom-${slider.currencySymbol === '$' ? 'usd' : 'gtq'}-${slider.min}-${slider.max}-${slider.value}`.replace(/[^a-z0-9-]/gi, '');
 
   return `
-    <div class="slider-atom" style="--slider-progress:${percent}%;">
-      <div class="slider-track-shell" aria-hidden="true">
+    <div class="slider-atom">
+      <div class="slider-track-shell">
         <div class="slider-track"></div>
-        <div class="slider-ticks">
-          ${Array.from({ length: 11 }, (_, index) => `<span class="slider-tick" style="left:${index * 10}%"></span>`).join("")}
+        <div class="slider-ticks" aria-hidden="true">${renderSliderTicks()}</div>
+        <div class="slider-fill" aria-hidden="true"></div>
+        <div class="slider-thumb-halo" aria-hidden="true"></div>
+        <div class="slider-thumb" aria-hidden="true">
+          <span class="slider-thumb-bubble"></span>
         </div>
+        <input
+          id="${sliderId}"
+          class="slider-range"
+          type="range"
+          min="${slider.min}"
+          max="${slider.max}"
+          step="${slider.step}"
+          value="${slider.value}"
+          data-currency-symbol="${slider.currencySymbol}"
+          aria-label="${slider.currencySymbol} slider desde ${slider.min} hasta ${slider.max}"
+        />
       </div>
-      <input
-        id="${sliderId}"
-        class="slider-range"
-        type="range"
-        min="${slider.min}"
-        max="${slider.max}"
-        step="${slider.step}"
-        value="${slider.value}"
-        oninput="this.parentElement.style.setProperty('--slider-progress', (((this.value - this.min) / (this.max - this.min)) * 100) + '%')"
-        aria-label="${slider.currencySymbol} slider desde ${slider.min} hasta ${slider.max}"
-      />
       <div class="slider-values token-body1">
         <span>${slider.currencySymbol} ${slider.min}</span>
         <span>${slider.currencySymbol} ${slider.max}</span>
@@ -147,15 +151,20 @@ export const DocsPlayground = {
   render: (args) => {
     const slider = resolveSlider(args);
 
-    return `
-      <div class="mars-story">
-        <div class="mars-label">Slider · ${slider.currencySymbol} · Drag enabled</div>
-        <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
-          Recomendado: labels máx. 8 caracteres por lado (base: "Mínimo" / "Máximo"). Arrastra el thumb dentro del visor o usa el control de value.
-        </div>
-        ${renderSlider(args)}
+    const root = document.createElement("div");
+    root.className = "mars-story";
+    root.innerHTML = `
+      <div class="mars-label">Slider · ${slider.currencySymbol} · Drag enabled</div>
+      <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+        Recomendado: labels máx. 8 caracteres por lado (base: "Mínimo" / "Máximo"). Presiona y arrastra el thumb: aparece una aureola y una burbuja con el valor actual; al soltar, desaparecen.
       </div>
+      ${renderSlider(args)}
     `;
+    const sliderRoot = root.querySelector(".slider-atom");
+    if (sliderRoot) {
+      initSliderAtom(sliderRoot);
+    }
+    return root;
   },
 };
 
@@ -169,12 +178,16 @@ export const VariantMatrix = {
       },
     },
   },
-  render: () => `
-    <div class="mars-story">
+  render: () => {
+    const root = document.createElement("div");
+    root.className = "mars-story";
+    root.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:28px;max-width:328px">
         ${renderSlider({ variant: "Quetzales" })}
         ${renderSlider({ variant: "Dollars" })}
       </div>
-    </div>
-  `,
+    `;
+    root.querySelectorAll(".slider-atom").forEach((sliderRoot) => initSliderAtom(sliderRoot));
+    return root;
+  },
 };

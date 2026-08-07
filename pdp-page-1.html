@@ -94,33 +94,32 @@
           </div>
 
           <div class="pdp-page-slider-slot">
-            <section class="slider-atom" style="--slider-progress:47.3684%;" aria-label="Selector de monto">
-              <div class="slider-track-shell" aria-hidden="true">
+            <section class="slider-atom" aria-label="Selector de monto">
+              <div class="slider-track-shell">
                 <div class="slider-track"></div>
-                <div class="slider-ticks">
-                  <span class="slider-tick" style="left:0%"></span>
-                  <span class="slider-tick" style="left:10%"></span>
-                  <span class="slider-tick" style="left:20%"></span>
-                  <span class="slider-tick" style="left:30%"></span>
-                  <span class="slider-tick" style="left:40%"></span>
+                <div class="slider-ticks" aria-hidden="true">
+                  <span class="slider-tick" style="left:16.67%"></span>
+                  <span class="slider-tick" style="left:33.33%"></span>
                   <span class="slider-tick" style="left:50%"></span>
-                  <span class="slider-tick" style="left:60%"></span>
-                  <span class="slider-tick" style="left:70%"></span>
-                  <span class="slider-tick" style="left:80%"></span>
-                  <span class="slider-tick" style="left:90%"></span>
-                  <span class="slider-tick" style="left:100%"></span>
+                  <span class="slider-tick" style="left:66.67%"></span>
+                  <span class="slider-tick" style="left:83.33%"></span>
                 </div>
+                <div class="slider-fill" aria-hidden="true"></div>
+                <div class="slider-thumb-halo" aria-hidden="true"></div>
+                <div class="slider-thumb" aria-hidden="true">
+                  <span class="slider-thumb-bubble"></span>
+                </div>
+                <input
+                  class="slider-range"
+                  type="range"
+                  min="5"
+                  max="100"
+                  step="5"
+                  value="50"
+                  data-currency-symbol="$"
+                  aria-label="Slider en dólares"
+                />
               </div>
-              <input
-                class="slider-range"
-                type="range"
-                min="5"
-                max="100"
-                step="5"
-                value="50"
-                oninput="this.parentElement.style.setProperty('--slider-progress', (((this.value - this.min) / (this.max - this.min)) * 100) + '%')"
-                aria-label="Slider en dólares"
-              />
               <div class="slider-values token-body1">
                 <span>$ 5</span>
                 <span>$ 100</span>
@@ -173,5 +172,11 @@
         <div class="nav-item"><i class="fa-light fa-bars icon-medium" aria-hidden="true"></i></div>
       </div>
     </nav>
+
+    <script type="module">
+      import { initSliderAtom } from "./stories/_shared/slider.js";
+
+      document.querySelectorAll(".slider-atom").forEach((sliderRoot) => initSliderAtom(sliderRoot));
+    </script>
   </body>
 </html>

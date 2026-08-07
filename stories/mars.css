@@ -893,6 +893,16 @@ body {
   letter-spacing: 0;
 }
 
+/* ─────────────────────────────────────────────────────────
+   Slider (Atom) — rediseño Figma 95076:64473, mecánica MUI.
+   Anatomía: track (pill claro) → ticks (líneas grises fijas) →
+   fill (pill morado #552588) → halo (aureola, solo en drag) →
+   thumb (círculo primary/light, shadow MUI elevation-2) →
+   burbuja de valor (encima del thumb, solo en drag). El
+   `input[type=range]` nativo queda invisible pero es el elemento
+   real de drag/teclado; ver stories/_shared/slider.js.
+───────────────────────────────────────────────────────── */
+
 .slider-atom {
   width: 100%;
   max-width: 328px;
@@ -912,25 +922,117 @@ body {
 
 .slider-track {
   width: 100%;
-  height: 20px;
+  height: 15px;
   border-radius: 999px;
-  background: var(--primary-light);
+  background: #efebf6;
+  overflow: hidden;
 }
 
 .slider-ticks {
   position: absolute;
   inset: 0 14px;
   pointer-events: none;
+  z-index: 1;
 }
 
 .slider-tick {
   position: absolute;
   top: 50%;
-  width: 4px;
-  height: 14px;
+  width: 2px;
+  height: 8px;
   border-radius: 999px;
-  background: rgba(85, 37, 136, 0.12);
+  background: rgba(0, 0, 0, 0.12);
   transform: translate(-50%, -50%);
+}
+
+.slider-fill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 13px;
+  border-radius: 999px;
+  background: #552588;
+  transform: translateY(-50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.slider-thumb-halo {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(85, 37, 136, 0.12);
+  transform: translate(-50%, -50%) scale(0.55);
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.slider-atom.is-active .slider-thumb-halo {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.slider-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  box-shadow:
+    0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px rgba(0, 0, 0, 0.14),
+    0px 1px 3px rgba(0, 0, 0, 0.12);
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.slider-thumb-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%) translateY(4px) scale(0.6);
+  min-width: 26px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 8px 8px 8px 2px;
+  background: var(--primary-light);
+  color: #552588;
+  font-family: "Lato", sans-serif;
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.slider-thumb-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+  border-top-color: var(--primary-light);
+  transform: translateX(-50%);
+}
+
+.slider-atom.is-active .slider-thumb-bubble {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
 }
 
 .slider-range {
@@ -943,20 +1045,17 @@ body {
   -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
+  z-index: 5;
+  opacity: 0;
 }
 
 .slider-range:focus-visible {
   outline: none;
 }
 
-.slider-range::-webkit-slider-runnable-track {
-  height: 20px;
-  background: transparent;
-  border: none;
-}
-
+.slider-range::-webkit-slider-runnable-track,
 .slider-range::-moz-range-track {
-  height: 20px;
+  height: 15px;
   background: transparent;
   border: none;
 }
@@ -964,22 +1063,19 @@ body {
 .slider-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 36px;
-  height: 36px;
+  width: 29px;
+  height: 29px;
   border-radius: 50%;
   border: 0;
-  background: var(--primary-main);
-  margin-top: -8px;
-  filter: var(--card-shadow);
+  background: transparent;
 }
 
 .slider-range::-moz-range-thumb {
-  width: 36px;
-  height: 36px;
+  width: 29px;
+  height: 29px;
   border-radius: 50%;
   border: 0;
-  background: var(--primary-main);
-  filter: var(--card-shadow);
+  background: transparent;
 }
 
 .slider-values,
@@ -991,7 +1087,7 @@ body {
 }
 
 .slider-values {
-  color: var(--primary-main);
+  color: #552588;
 }
 
 .slider-labels {

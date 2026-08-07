@@ -1,3 +1,5 @@
+import { renderSliderTicks, initSliderAtom } from "./_shared/slider.js";
+
 const buttonTypes = [
   { key: "primary", label: "Primary", ids: ["C6tBo", "AQ2sd", "Pc8pk"] },
   { key: "secondary", label: "Secondary", ids: ["eTIc3", "Aimqt", "bESQi"] },
@@ -218,35 +220,47 @@ export const ToastBanners = {
   `,
 };
 
+function legacySliderAtom({ min, max, step, value, currencySymbol, minLabel, maxLabel }) {
+  return `
+    <div class="slider-atom">
+      <div class="slider-track-shell">
+        <div class="slider-track"></div>
+        <div class="slider-ticks" aria-hidden="true">${renderSliderTicks()}</div>
+        <div class="slider-fill" aria-hidden="true"></div>
+        <div class="slider-thumb-halo" aria-hidden="true"></div>
+        <div class="slider-thumb" aria-hidden="true">
+          <span class="slider-thumb-bubble"></span>
+        </div>
+        <input
+          class="slider-range"
+          type="range"
+          min="${min}"
+          max="${max}"
+          step="${step}"
+          value="${value}"
+          data-currency-symbol="${currencySymbol}"
+          aria-label="Slider ${currencySymbol}"
+        />
+      </div>
+      <div class="slider-values token-h5"><span>${currencySymbol} ${min}</span><span>${currencySymbol} ${max}</span></div>
+      <div class="slider-labels token-body1"><span>${minLabel}</span><span>${maxLabel}</span></div>
+    </div>
+  `;
+}
+
 export const Slider = {
-  render: () => `
-    <div class="mars-story">
+  render: () => {
+    const root = document.createElement("div");
+    root.className = "mars-story";
+    root.innerHTML = `
       <h3 style="margin:0 0 10px;color:var(--primary-main)">Slider</h3>
       <div class="mars-subtitle">Atom visual reference for money ranges in Q and $.</div>
       <div style="display:flex;flex-direction:column;gap:28px;max-width:328px">
-        <div class="slider-atom">
-          <div class="slider-track-shell" aria-hidden="true">
-            <div class="slider-track"></div>
-            <div class="slider-ticks">
-              ${Array.from({ length: 11 }, (_, index) => `<span class="slider-tick" style="left:${index * 10}%"></span>`).join("")}
-            </div>
-          </div>
-          <input class="slider-range" type="range" min="25" max="200" step="25" value="85" aria-label="Slider Quetzales" />
-          <div class="slider-values token-h5"><span>Q 25</span><span>Q 200</span></div>
-          <div class="slider-labels token-body1"><span>Mínimo</span><span>Máximo</span></div>
-        </div>
-        <div class="slider-atom">
-          <div class="slider-track-shell" aria-hidden="true">
-            <div class="slider-track"></div>
-            <div class="slider-ticks">
-              ${Array.from({ length: 11 }, (_, index) => `<span class="slider-tick" style="left:${index * 10}%"></span>`).join("")}
-            </div>
-          </div>
-          <input class="slider-range" type="range" min="5" max="100" step="5" value="35" aria-label="Slider Dollars" />
-          <div class="slider-values token-h5"><span>$ 5</span><span>$ 100</span></div>
-          <div class="slider-labels token-body1"><span>Minimum</span><span>Maximum</span></div>
-        </div>
+        ${legacySliderAtom({ min: 25, max: 200, step: 25, value: 85, currencySymbol: "Q", minLabel: "Mínimo", maxLabel: "Máximo" })}
+        ${legacySliderAtom({ min: 5, max: 100, step: 5, value: 35, currencySymbol: "$", minLabel: "Minimum", maxLabel: "Maximum" })}
       </div>
-    </div>
-  `,
+    `;
+    root.querySelectorAll(".slider-atom").forEach((sliderRoot) => initSliderAtom(sliderRoot));
+    return root;
+  },
 };
