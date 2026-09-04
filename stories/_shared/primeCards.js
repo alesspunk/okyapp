@@ -120,6 +120,31 @@ export const CARD_BOTTOM_VARIANTS = [
     recommendation: "Recomendado: código, barcode y PIN en orden; barcode al centro para evitar choque con el CTA.",
   },
   {
+    path: "Molecule/Bottom Card/BAR CODE + Code + PIN",
+    key: "bar-code-code-pin",
+    id: "bottom-card-bar-code-code-pin",
+    lines: [
+      { label: "Código", value: "X00OO MMDFR AX00O OMMDF RAX", copyable: true },
+      { label: "PIN", value: "7025", copyable: true },
+    ],
+    content: [
+      {
+        type: "media",
+        media: {
+          type: "bar-code",
+          src: "bottom-card-barcode-purple.png",
+          alt: "Barcode credential",
+        },
+      },
+      { type: "line", line: { label: "Código", value: "X00OO MMDFR AX00O OMMDF RAX", copyable: true } },
+      { type: "line", line: { label: "PIN", value: "7025", copyable: true } },
+    ],
+    expiry: "",
+    buttonLabel: "Ayuda",
+    recommendation:
+      "Recomendado: barcode, código y PIN en orden; código soporta 23 caracteres agrupados cada 5 con espacio; sin fecha de vencimiento.",
+  },
+  {
     path: "Molecule/Bottom Card/Oh Gif Card",
     key: "oh-gif-card",
     id: "7390:140804",
