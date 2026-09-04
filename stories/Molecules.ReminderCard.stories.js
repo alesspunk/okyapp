@@ -1,16 +1,17 @@
 /* ─────────────────────────────────────────────────────────
    Molecules / Reminder Card
    Figma: 99105:14325 (card) · 99105:14130 (pantalla con carrusel)
-   Variantes: Default · With Brand · With Channels
+   Variantes: Default · With Brand · Yayo Approval
+   (With Channels existe pero está oculta)
 ───────────────────────────────────────────────────────── */
 
 import {
   findReminderCard,
   REMINDER_CARD_PATHS,
-  REMINDER_CARD_VARIANTS,
   renderReminderCard,
   renderReminderCarousel,
   resolveReminderCard,
+  VISIBLE_REMINDER_CARD_VARIANTS,
 } from "./_shared/reminderCards";
 
 export default {
@@ -23,9 +24,11 @@ export default {
           "**Reminder Card** es la molécula de recordatorio de pago recurrente (agua, luz, telco). " +
           "Usa el surface token **$Info BG** (`--info-bg`), borde `--border-main`, radio `16px` y ancho `328px`. " +
           "Incluye las variantes de Figma: **Default** (título + contexto + CTA), " +
-          "**With Brand** (logo del proveedor 71x45), **With Channels** (pills de canal y proveedor) y " +
+          "**With Brand** (logo del proveedor a 71x45, a sangre) y " +
           "**Yayo Approval** (variante prima del flujo Yayo: monto + comercio, chip de countdown y doble acción " +
           "rechazar/aprobar; radio `20px` y shadow *Plateu*). " +
+          "La variante **With Channels** (pills de canal y proveedor) está implementada pero **oculta** " +
+          "(`hidden: true` en `reminderCards.js`): el producto no la necesita por ahora. " +
           "El CTA reutiliza el átomo `btn btn-primary btn-medium` a ancho completo y el menú lateral usa " +
           "`fa-light fa-ellipsis-vertical`. " +
           "No vive solo en la pantalla de recordatorios: cuando hay varias marcas se listan en el " +
@@ -114,7 +117,7 @@ export const Variants = {
   render: () => `
     <div class="mars-story">
       <div style="display:flex;flex-wrap:wrap;gap:20px">
-        ${REMINDER_CARD_VARIANTS.map(
+        ${VISIBLE_REMINDER_CARD_VARIANTS.map(
           (card) => `
           <div class="story-card">
             <div class="mars-label">${card.path}</div>
@@ -145,7 +148,7 @@ export const Carousel = {
     <div class="mars-story">
       <div class="mars-mobile">
         ${renderReminderCarousel(
-          REMINDER_CARD_VARIANTS.filter((card) => card.kind !== "approval").map((card) => ({
+          VISIBLE_REMINDER_CARD_VARIANTS.filter((card) => card.kind !== "approval").map((card) => ({
             ...card,
             showMenu: true,
             showCta: true,

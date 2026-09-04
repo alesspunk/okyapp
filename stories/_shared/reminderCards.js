@@ -36,6 +36,9 @@ export const REMINDER_CARD_VARIANTS = [
     path: "Molecule/Reminder Card/With Channels",
     key: "with-channels",
     id: "99105:14156",
+    /* Oculta: el producto no la necesita por ahora. Se mantiene la
+       definición (y su CSS de pills) para poder retomarla. */
+    hidden: true,
     title: "Agua de mi mamá",
     body: "Aviso automático antes del 2 de Julio.",
     ctaLabel: "Pagar ahora",
@@ -64,7 +67,11 @@ export const REMINDER_CARD_VARIANTS = [
   },
 ];
 
-export const REMINDER_CARD_PATHS = REMINDER_CARD_VARIANTS.map((variant) => variant.path);
+/* Variantes que se listan en Storybook. `findReminderCard` sigue
+   resolviendo las ocultas si alguien pasa su path a mano. */
+export const VISIBLE_REMINDER_CARD_VARIANTS = REMINDER_CARD_VARIANTS.filter((variant) => !variant.hidden);
+
+export const REMINDER_CARD_PATHS = VISIBLE_REMINDER_CARD_VARIANTS.map((variant) => variant.path);
 
 export function findReminderCard(path) {
   return REMINDER_CARD_VARIANTS.find((variant) => variant.path === path) ?? REMINDER_CARD_VARIANTS[0];

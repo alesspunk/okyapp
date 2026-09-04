@@ -5776,23 +5776,22 @@ body {
   gap: 8px;
 }
 
+/* El logo llena la caja completa: sin borde ni fondo propio.
+   La caja (71x45) y el asset comparten casi el mismo aspecto, así que
+   `cover` lo llena sin recortar nada apreciable. */
 .reminder-card-brand {
   flex: 0 0 71px;
   width: 71px;
   height: 45px;
   display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
   border-radius: 8px;
-  border: 1px solid var(--border-main);
-  background: var(--white);
 }
 
 .reminder-card-brand img {
-  width: 74%;
-  height: 64%;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .reminder-card-pills {
