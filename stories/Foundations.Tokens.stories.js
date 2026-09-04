@@ -92,11 +92,11 @@ const semanticGroups = [
   {
     label: "Warning",
     shades: [
-      { name: "Background",  value: "#fff5e0", css: "--warning-bg" },
+      { name: "Background",  value: "#fff5e5", css: "--warning-bg" },
       { name: "Light",       value: "#faab5c", css: "--warning-light" },
       { name: "Icon / Main", value: "#ff9800", css: "--warning-main" },
       { name: "Dark",        value: "#f57c00", css: "--warning-dark" },
-      { name: "Text",        value: "#734500", css: "--warning-text" },
+      { name: "Text",        value: "#663d00", css: "--warning-text" },
     ],
   },
   {

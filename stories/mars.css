@@ -1,5 +1,6 @@
 :root {
   --primary-main: #410088;
+  --primary-base: #552588; /* Figma token `primary/base` — morado de cards/CTAs en UX Handoff */
   --primary-light: #bc9edc;
   --primary-dark: #230741;
   --secondary-main: #18afa5;
@@ -25,6 +26,13 @@
   --pdp-card-shadow: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.14))
     drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.12));
 
+  /* ── Colores de soporte ───────────────────────────────
+     Fuente de verdad: tokens del archivo Figma "7500 - UX Handoff".
+     Mapeo Figma → CSS: `{semantic}/light-bg` → --{semantic}-bg ·
+     `{semantic}/main` → --{semantic}-main · `{semantic}/text-dark` → --{semantic}-text.
+     Todo valor de soporte se consume por token, nunca hardcodeado.
+  ─────────────────────────────────────────────────────── */
+
   /* Semantic — Success */
   --success-bg: #edf7ed;
   --success-light: #7bc67e;
@@ -33,11 +41,11 @@
   --success-text: #1e4620;
 
   /* Semantic — Warning */
-  --warning-bg: #fff5e0;
+  --warning-bg: #fff5e5;
   --warning-light: #faab5c;
   --warning-main: #ff9800;
   --warning-dark: #f57c00;
-  --warning-text: #734500;
+  --warning-text: #663d00;
 
   /* Semantic — Error */
   --error-bg: #feeceb;
@@ -3473,6 +3481,12 @@ body {
   --super-ribbon-text: var(--primary-main);
 }
 
+/* Countdown de vencimiento (Yayo Flow) — tokens de soporte warning */
+.super-ribbon-type-vence {
+  --super-ribbon-bg: var(--warning-bg);
+  --super-ribbon-text: var(--warning-text);
+}
+
 /* ── Tactic Strips (Organism) ────────────────────────── */
 .tactic-strip-mobile-shell {
   width: 358px;
@@ -4218,8 +4232,8 @@ body {
   min-height: 19px;
   padding: 3px 6px;
   border-radius: 13px;
-  background: #ffb400;
-  color: #663d00;
+  background: var(--accent-color);
+  color: var(--warning-text);
   font-family: "Lato", sans-serif;
   font-size: 8px;
   font-weight: 700;
@@ -5684,4 +5698,1373 @@ body {
 
 .saving-bar-card-actions .btn-primary {
   background: #552588;
+}
+
+/* ── Reminder Card (Molecule) ───────────────────────────── */
+/* Figma: 99105:14325 (card) · 99105:14130 (carousel) */
+.reminder-card-molecule {
+  width: min(328px, 100%);
+  min-height: 172px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border-main);
+  background: var(--info-bg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.17);
+  font-family: "Lato", sans-serif;
+  color: var(--primary-base);
+}
+
+.reminder-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.reminder-card-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 8px;
+}
+
+.reminder-card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  letter-spacing: 0;
+  color: var(--primary-base);
+}
+
+.reminder-card-body {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: 0.15px;
+  color: var(--primary-base);
+}
+
+.reminder-card-menu {
+  flex: 0 0 24px;
+  width: 24px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--primary-base);
+}
+
+.reminder-card-menu i {
+  font-size: 24px;
+  line-height: 24px;
+}
+
+.reminder-card-brand-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.reminder-card-brand {
+  flex: 0 0 71px;
+  width: 71px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid var(--border-main);
+  background: var(--white);
+}
+
+.reminder-card-brand img {
+  width: 74%;
+  height: 64%;
+  object-fit: contain;
+}
+
+.reminder-card-pills {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 11px;
+}
+
+.reminder-card-pill {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 14px;
+  letter-spacing: 0;
+}
+
+.reminder-card-pill.is-channel {
+  background: var(--success-bg);
+  border: 1px solid var(--primary-base);
+  color: var(--success-text);
+  font-weight: 700;
+}
+
+.reminder-card-pill.is-provider {
+  background: var(--white);
+  border: 1px solid var(--border-main);
+  color: var(--primary-base);
+  font-weight: 400;
+}
+
+.reminder-card-actions {
+  display: flex;
+}
+
+.reminder-card-cta {
+  width: 100%;
+  height: 40px;
+  background: var(--primary-base);
+}
+
+/* ── Reminder Carousel (varios recordatorios) ───────────── */
+.reminder-carousel {
+  width: min(360px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.reminder-carousel-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 0 24px;
+}
+
+.reminder-carousel-label {
+  color: var(--disable-text);
+}
+
+.reminder-carousel-viewport {
+  overflow-x: auto;
+  padding: 0 16px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.reminder-carousel-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.reminder-carousel-track {
+  display: flex;
+  gap: 8px;
+  width: max-content;
+}
+
+.reminder-carousel-track .reminder-card-molecule {
+  flex: 0 0 328px;
+  scroll-snap-align: start;
+}
+
+/* ── Reminder Card · variante Yayo Approval ─────────────── */
+/* Figma: 99101:21022 — radio 20px y shadow Plateu (0 4px 24px) */
+.reminder-card-molecule.is-yayo-approval {
+  min-height: auto;
+  align-self: flex-start;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.17);
+  color: var(--info-text);
+}
+
+.reminder-card-approval-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reminder-card-approval-amount {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+
+
+
+.reminder-card-merchant {
+  margin: 0;
+  color: var(--info-text);
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.4px;
+}
+
+
+
+
+.reminder-card-approval-actions {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+
+
+
+
+
+
+
+/* ── Yayo Header (Molecule) ─────────────────────────────── */
+/* Figma: 99101:21449 — 360x56, tab-items 40x40 a 12px de cada borde */
+.yayo-header {
+  padding: 0 12px;
+  justify-content: space-between;
+}
+
+.yayo-header-tab {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--primary-base);
+}
+
+.yayo-header-tab i {
+  font-size: 24px;
+  line-height: 24px;
+}
+
+.yayo-header-brand {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── History Card (Molecule) ────────────────────────────── */
+/* Figma: 99105:47460 · 99135:104411 · 99105:45204 · 99105:47763
+          99105:41197 · 99105:7037 · 99105:6997                  */
+.history-card-molecule {
+  /* "Iniciales de tienda" de Figma: no existe token ni en el DS ni en Figma */
+  --history-card-avatar-bg: #e9d4ff;
+  width: min(328px, 100%);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border-main);
+  background: var(--white);
+  box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
+  font-family: "Lato", sans-serif;
+  overflow: hidden;
+}
+
+/* avatar izquierdo (icono Font Awesome o iniciales) */
+
+
+
+
+
+/* cuerpo */
+.history-card-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+}
+
+.history-card-headline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+}
+
+.history-card-date {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.43;
+  letter-spacing: 0.15px;
+  color: var(--primary-base);
+  white-space: nowrap;
+}
+
+.history-card-date.is-muted {
+  color: var(--text-secondary);
+}
+
+.history-card-amount {
+  margin: 0 0 0 auto;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.43;
+  letter-spacing: 0.15px;
+  color: var(--primary-base);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.history-card-amount.is-neutral {
+  color: var(--text-primary);
+}
+
+.history-card-amount.is-muted {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+}
+
+.history-card-amount.is-compact {
+  font-size: 12px;
+  line-height: 22px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+/* fila secundaria */
+.history-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 1px;
+}
+
+.history-card-meta-stack {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.history-card-logo {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 2px;
+  border: 1px solid var(--border-main);
+  background: var(--white);
+}
+
+.history-card-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.history-card-brand {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.4px;
+  color: var(--text-secondary);
+}
+
+.history-card-brand.is-success {
+  color: var(--success-text);
+}
+
+.history-card-brand.is-nowrap {
+  white-space: nowrap;
+}
+
+.history-card-note {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.4px;
+  color: var(--text-secondary);
+}
+
+.history-card-secondary-amount {
+  margin: 0 0 0 auto;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.75;
+  letter-spacing: 0.15px;
+  color: var(--text-secondary);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* chip de estado — tonos desde los tokens de soporte */
+.history-card-chip {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.history-card-chip-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.history-card-chip-icon i {
+  font-size: 16px;
+  line-height: 16px;
+}
+
+.history-card-chip.is-success {
+  background: var(--success-bg);
+  border-color: var(--success-bg);
+  color: var(--success-text);
+}
+
+.history-card-chip.is-success .history-card-chip-icon {
+  color: var(--success-main);
+}
+
+.history-card-chip.is-error {
+  background: var(--error-bg);
+  border-color: var(--error-bg);
+  color: var(--error-text);
+}
+
+.history-card-chip.is-error .history-card-chip-icon {
+  color: var(--error-main);
+}
+
+/* ── layout "order": header + divider + lista de ítems ──── */
+.history-card-molecule.is-order {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 0 0 8px;
+}
+
+.history-card-molecule.is-order.is-flat {
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.history-card-order-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+}
+
+.history-card-order-titles {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.history-card-order-action {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--primary-base);
+}
+
+.history-card-order-action i {
+  font-size: 16px;
+  line-height: 16px;
+}
+
+.history-card-order-action.is-menu {
+  color: var(--text-secondary);
+}
+
+.history-card-order-action.is-menu i {
+  font-size: 24px;
+  line-height: 24px;
+}
+
+.history-card-divider {
+  height: 0;
+  margin: 0 16px 8px;
+  border: 0;
+  border-top: 1px dashed var(--divider);
+}
+
+.history-card-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.history-card-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+}
+
+.history-card-item-logo {
+  flex: 0 0 63px;
+  width: 63px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 4px;
+  border: 1px solid var(--border-main);
+  background: var(--white);
+}
+
+.history-card-item-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.history-card-item-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.history-card-item-brand {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.4px;
+  color: var(--text-secondary);
+}
+
+.history-card-item-product {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.4px;
+  color: var(--primary-base);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Átomos compartidos extraídos de History Card / Reminder Card
+   / Modal Payment Request. Antes estaban duplicados en cada
+   molécula; ahora viven una sola vez y se consumen por clase.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Icon Avatar (Atom) ─────────────────────────────────── */
+/* Figma "Iniciales de tienda". History Card 41px · Modal 32px. */
+.icon-avatar {
+  /* sin token ni en el DS ni en Figma */
+  --icon-avatar-bg: #e9d4ff;
+  --icon-avatar-size: 41px;
+  --icon-avatar-glyph: 16px;
+  flex: 0 0 var(--icon-avatar-size);
+  width: var(--icon-avatar-size);
+  height: var(--icon-avatar-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 32px;
+  background: var(--icon-avatar-bg);
+  color: var(--primary-base);
+  font-family: "Lato", sans-serif;
+}
+
+.icon-avatar i {
+  font-size: var(--icon-avatar-glyph);
+  line-height: 24px;
+}
+
+.icon-avatar.is-small {
+  --icon-avatar-size: 32px;
+  --icon-avatar-glyph: 12px;
+}
+
+.icon-avatar.is-muted {
+  background: var(--disable-main);
+  color: var(--text-secondary);
+}
+
+.icon-avatar.is-faded {
+  opacity: 0.2;
+}
+
+.icon-avatar-initials {
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.167;
+  color: var(--primary-base);
+}
+
+/* ── Amount Display (Atom) ──────────────────────────────── */
+/* Monto grande con moneda en superíndice, Lato Black sobre --info-text. */
+.amount-display {
+  margin: 0;
+  display: inline-flex;
+  align-items: flex-start;
+  color: var(--info-text);
+  font-family: "Lato", sans-serif;
+  font-weight: 900;
+  line-height: 1.43;
+  letter-spacing: 0.35px;
+}
+
+.amount-display-currency {
+  font-size: 13px;
+  padding-top: 4px;
+}
+
+.amount-display-value {
+  font-size: 30px;
+}
+
+/* Figma exporta line-height 44px pero el nodo mide 36px de alto: manda el frame. */
+.amount-display.is-hero {
+  line-height: 36px;
+}
+
+.amount-display.is-hero .amount-display-currency {
+  padding-top: 0;
+  font-size: 12.9px;
+}
+
+/* ── Amount Summary (Atom) ──────────────────────────────── */
+/* Figma 99140:45088 "Resumen del pago": caja de monto, no un toast. */
+.amount-summary {
+  /* sin token */
+  --amount-summary-border: #d0def3;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 16px;
+  border: 1px solid var(--amount-summary-border);
+  border-radius: 16px;
+  background: var(--info-bg);
+  box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* ── Action Circle (Atom) ───────────────────────────────── */
+/* Botón circular + label, tonos por tokens de soporte.
+   Reminder Card 36px inline · Modal 69px apilado.             */
+.action-circle {
+  --action-circle-size: 36px;
+  --action-circle-glyph: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.action-circle-icon {
+  flex: 0 0 var(--action-circle-size);
+  width: var(--action-circle-size);
+  height: var(--action-circle-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--white);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.16);
+}
+
+.action-circle-icon i {
+  font-size: var(--action-circle-glyph);
+  line-height: 1;
+}
+
+.action-circle.is-stacked {
+  flex-direction: column;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.action-circle.is-large {
+  --action-circle-size: 69px;
+  --action-circle-glyph: 32px;
+}
+
+.action-circle.is-reject {
+  color: var(--text-secondary);
+}
+
+.action-circle.is-reject .action-circle-icon {
+  background: var(--error-main);
+}
+
+.action-circle.is-approve {
+  color: var(--success-text);
+}
+
+.action-circle.is-approve .action-circle-icon {
+  background: var(--success-main);
+}
+
+/* ── Super Ribbon · countdown y forma adosada ───────────── */
+.super-ribbon-countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.super-ribbon-countdown-label {
+  color: var(--error-text);
+}
+
+.super-ribbon-countdown-value {
+  color: var(--warning-main);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Adosado al borde inferior de un contenedor (Modal 99140:45120) */
+.super-ribbon.is-attached {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 16px;
+  border: 1px solid var(--disable-main);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  box-shadow: none;
+}
+
+.super-ribbon.is-attached .super-ribbon-countdown {
+  flex: 1 1 auto;
+  justify-content: space-between;
+}
+
+/* ── Modal · variante Centered (Payment Request) ────────── */
+/* Figma 99140:45084 — 335x485, centrada vertical y horizontalmente */
+.modal-molecule-stage.is-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-sheet.is-centered {
+  position: relative;
+  left: auto;
+  bottom: auto;
+  width: 335px;
+  max-width: calc(100% - 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0;
+  border: 2px solid var(--primary-base);
+  border-radius: 24px;
+  animation: modal-sheet-zoom 220ms ease-out both;
+}
+
+@keyframes modal-sheet-zoom {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-centered-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+  padding: 0 16px;
+}
+
+.modal-centered-body .modal-sheet-header {
+  padding: 16px 12px 16px 24px;
+}
+
+/* lista de detalle: filas con borde y ribbon adosado abajo */
+.modal-detail-list {
+  width: 100%;
+}
+
+.modal-detail-rows {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px 16px 0 0;
+  background: var(--white);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.08);
+}
+
+.modal-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.modal-detail-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.modal-detail-title {
+  margin: 0;
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.43;
+  letter-spacing: 0.15px;
+  color: var(--primary-base);
+}
+
+.modal-detail-note {
+  margin: 0;
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.4px;
+  color: var(--text-secondary);
+}
+
+.modal-detail-divider {
+  height: 0;
+  margin: 0 17px;
+  border: 0;
+  border-top: 1px solid var(--divider);
+}
+
+.modal-detail-logo {
+  flex: 0 0 50px;
+  width: 50px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid var(--white);
+  border-radius: 4px;
+}
+
+.modal-detail-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* footer de acciones partido en dos */
+.modal-centered-actions {
+  display: flex;
+  align-items: stretch;
+  border-top: 1px solid var(--disable-main);
+}
+
+.modal-centered-action {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 127px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-centered-action + .modal-centered-action {
+  border-left: 1px solid var(--disable-main);
+}
+
+/* ── Toast Banner · variante Info (solicitud de pago) ───── */
+/* Figma 99140:54682 — dos líneas + acción de cierre */
+.toast-banner-info {
+  width: 100%;
+  align-items: flex-start;
+  background: var(--info-bg);
+}
+
+.toast-banner-stack {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toast-banner-info .toast-banner-message {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: 0.15px;
+  color: var(--info-text);
+}
+
+.toast-banner-amount {
+  margin: 0;
+  font-family: "Lato", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.43;
+  letter-spacing: 0.15px;
+  color: var(--info-text);
+}
+
+.toast-banner-close {
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 48px;
+  background: none;
+  cursor: pointer;
+  color: var(--info-text);
+}
+
+.toast-banner-close i {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* ── Payment Card (Molecule) ────────────────────────────── */
+/* Figma: 99105:7819 (Yayo) · 99131:101552 (Saldo OKY) ·
+          99133:102680 (Visa) · 99133:102616 (Mastercard) ·
+          99140:14006 / 99140:13835 (OKY Cash) ·
+          99131:101546 (stack de referencia)
+   Toda la piel se maneja por custom properties para que la
+   story pueda customizar fondo, patrón y borde sin CSS nuevo. */
+.payment-card-molecule {
+  --payment-card-w: 328px;
+  --payment-card-h: 214px;
+  --payment-card-radius: 24px;
+  --payment-card-bg: #d5d7da;
+  --payment-card-ink: var(--white);
+  --payment-card-border: transparent;
+  --payment-card-border-width: 1px;
+  --payment-card-pattern-opacity: 0.12;
+  --payment-card-pattern-blend: color-burn;
+
+  position: relative;
+  flex: 0 0 auto;
+  /* width + max-width en vez de min(): con min() el 100% depende de un
+     contenedor auto-sized y el ancho intrínseco se vuelve circular. */
+  width: var(--payment-card-w);
+  max-width: 100%;
+  height: var(--payment-card-h);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: var(--payment-card-border-width) solid var(--payment-card-border);
+  border-radius: var(--payment-card-radius);
+  background: var(--payment-card-bg);
+  box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
+  color: var(--payment-card-ink);
+  font-family: "Lato", sans-serif;
+}
+
+/* capa de patrón (por encima del contenido, como en Figma) */
+.payment-card-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: var(--payment-card-pattern-opacity);
+  mix-blend-mode: var(--payment-card-pattern-blend);
+}
+
+.payment-card-pattern img {
+  position: absolute;
+  display: block;
+  max-width: none;
+}
+
+/* modo tiles: los dos arcos de 313px que sangran fuera de la card */
+.payment-card-pattern.is-tiles .payment-card-pattern-a {
+  width: 313px;
+  height: 313px;
+  left: 210px;
+  top: -181px;
+}
+
+.payment-card-pattern.is-tiles .payment-card-pattern-b {
+  width: 313px;
+  height: 313px;
+  left: -123px;
+  top: 70px;
+}
+
+/* modo full-bleed: una sola textura que cubre la card */
+.payment-card-pattern.is-full img {
+  left: 2px;
+  top: 0;
+  width: 322px;
+  height: 215px;
+  object-fit: cover;
+}
+
+/* ilustración protagonista (OKY Cash) */
+.payment-card-art {
+  position: absolute;
+  left: 20px;
+  top: 22px;
+  /* Figma la pone encima del texto, pero ahí tapa el saldo:
+     la dejamos sobre el fondo y debajo del contenido. */
+  z-index: 0;
+  width: 254px;
+  height: 169px;
+  pointer-events: none;
+}
+
+.payment-card-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* header: logo · spacer · saldo / dígitos */
+.payment-card-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  height: 65px;
+  padding: 0 16px;
+}
+
+.payment-card-brand {
+  flex: 0 0 85px;
+  width: 85px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.payment-card-brand-logo {
+  width: 65px;
+  height: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 59px;
+}
+
+.payment-card-brand-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* wordmark (OKY): caja chica y sin recorte circular */
+.payment-card-brand-logo.is-wordmark {
+  width: 51px;
+  height: 19px;
+  border-radius: 0;
+  margin-top: 16px;
+}
+
+.payment-card-brand-logo.is-wordmark img {
+  object-fit: contain;
+}
+
+/* logo ancho (Yayo): la caja circular recortaría el wordmark */
+.payment-card-brand-logo.is-wide {
+  width: 65px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+.payment-card-brand-logo.is-wide img {
+  object-fit: contain;
+}
+
+/* Mastercard va en luminosity sobre el naranja, como en Figma */
+.payment-card-brand-logo.is-luminosity {
+  mix-blend-mode: luminosity;
+}
+
+.payment-card-brand-text {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: 0.15px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.payment-card-motivo {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.payment-card-balance {
+  flex: 0 0 auto;
+  height: 65px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  text-align: right;
+}
+
+/* relieve del saldo (stack de 4 sombras del Figma) */
+.payment-card-balance.is-embossed {
+  filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.25)) drop-shadow(0 2px 0.5px rgba(0, 0, 0, 0.16))
+    drop-shadow(0 1px 0.5px rgba(0, 0, 0, 0.14)) drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.12));
+}
+
+.payment-card-amount {
+  margin: 0;
+  font-weight: 900;
+  line-height: normal;
+  letter-spacing: 0.3462px;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+.payment-card-amount-currency {
+  font-size: 12.9px;
+}
+
+.payment-card-amount-value {
+  font-size: 30px;
+}
+
+.payment-card-balance-label {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.57;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* región central (slot reservado, vacío en todas las variantes) */
+.payment-card-middle {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+/* footer: vencimiento · área de acción */
+.payment-card-footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  height: 65px;
+  padding: 0 0 8px 16px;
+}
+
+.payment-card-footer.has-divider {
+  border-top: 1px solid var(--border-main);
+}
+
+.payment-card-expiry {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  white-space: nowrap;
+  filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.25)) drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.12));
+}
+
+.payment-card-expiry-label {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.57;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.payment-card-expiry-value {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: normal;
+  letter-spacing: 0.2692px;
+}
+
+.payment-card-action-area {
+  flex: 0 0 166px;
+  width: 166px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+
+.payment-card-action-icon {
+  width: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  line-height: 24px;
+}
+
+.payment-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.15px;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.17);
+}
+
+.payment-card-cta i {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+.payment-card-edit {
+  position: absolute;
+  left: 15px;
+  bottom: 18px;
+  z-index: 4;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.payment-card-edit img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Variantes ──────────────────────────────────────────── */
+/* Los colores de marca (Visa navy, Mastercard naranja, etc.) son
+   activos de marca, no tokens del DS: viven en la variante. Los
+   tokens del sistema (--border-main, --white) sí se usan. */
+.payment-card-molecule.is-default {
+  --payment-card-bg: #d5d7da;
+  --payment-card-ink: #10325c;
+  --payment-card-border: var(--border-main);
+}
+
+.payment-card-molecule.is-yayo {
+  --payment-card-bg: #d5d7da;
+  --payment-card-ink: #10325c;
+  --payment-card-pattern-opacity: 0.38;
+}
+
+.payment-card-molecule.is-saldo-oky {
+  --payment-card-bg: linear-gradient(244.68deg, #ac6fee 21.04%, #552588 83.55%);
+  --payment-card-border: var(--white);
+}
+
+.payment-card-molecule.is-visa {
+  --payment-card-bg: #1a1f71;
+  --payment-card-border: var(--white);
+}
+
+.payment-card-molecule.is-mastercard {
+  --payment-card-bg: #f79e1b;
+  --payment-card-border: var(--white);
+}
+
+.payment-card-molecule.is-oky-cash-black {
+  --payment-card-bg: #000000;
+  --payment-card-border: #000000;
+}
+
+.payment-card-molecule.is-oky-cash-teal {
+  --payment-card-bg: linear-gradient(91.71deg, #0ab5b1 38.84%, #109794 104.52%);
+  --payment-card-border: var(--border-main);
+  --payment-card-pattern-opacity: 0.27;
+  --payment-card-pattern-blend: screen;
+}
+
+/* ── Stack skeuomórfico (99131:101546) ──────────────────── */
+.payment-card-stack {
+  --payment-card-stack-offset: -150px;
+  display: flex;
+  flex-direction: column;
+  width: 328px;
+  max-width: 100%;
+}
+
+.payment-card-stack > .payment-card-molecule + .payment-card-molecule {
+  margin-top: var(--payment-card-stack-offset);
 }

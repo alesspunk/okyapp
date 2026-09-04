@@ -153,3 +153,49 @@ export const VariantMatrix = {
     </div>
   `,
 };
+
+/* ── Payment Request (Info) ──────────────────────────────
+   Figma 99140:54682 — toast especial del flujo Yayo.
+   Rompe tres reglas del toast base a propósito: dos líneas
+   (el base es nowrap + ellipsis con límite de 30 caracteres),
+   ancho fluido (el base fija 328px) y una acción de cierre.
+   Por eso vive como modificador `toast-banner-info` y no
+   como una severidad más de `TOAST_VARIANTS`.              */
+
+export const PaymentRequestInfo = {
+  name: "Payment Request (Info)",
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          "Toast de solicitud de pago. Usa el tono **info** (`--info-bg` de fondo, `--info-text` en el texto y " +
+          "`--info-main` en el ícono, vía la clase `icon-main-info` que ya existía sin uso). " +
+          "A diferencia de los toasts de severidad, este admite **dos líneas** —copy + monto en 24px Bold— " +
+          "y trae un **botón de cierre** a la derecha. Ancho fluido en vez de los 328px fijos del base.",
+      },
+    },
+  },
+  render: () => `
+    <div class="mars-story">
+      <div class="mars-label">Toast Banner · Payment Request · Ref Figma: 99140:54682</div>
+      <div class="mars-label" style="margin-bottom:12px;color:var(--text-secondary)">
+        Modificador <code>toast-banner-info</code> + <code>toast-banner-stack</code> + <code>toast-banner-close</code>.
+      </div>
+      <div style="max-width:328px">
+        <article class="toast-banner toast-banner-info" data-figma-node="99140:54682">
+          <span class="fa-icon toast-banner-icon icon-main-info" aria-hidden="true">
+            <i class="fa-regular fa-circle-info"></i>
+          </span>
+          <div class="toast-banner-stack">
+            <p class="toast-banner-message">Tienes un solicitud de pago por</p>
+            <p class="toast-banner-amount">Q380.00</p>
+          </div>
+          <button class="toast-banner-close" type="button" aria-label="Cerrar">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </article>
+      </div>
+    </div>
+  `,
+};

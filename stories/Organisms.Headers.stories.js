@@ -229,22 +229,6 @@ export const AllHeaders = {
         </div>
 
         <div>
-          <div class="mars-label" style="margin-bottom:8px">Header / Logged / Empty Cart + Search Left · NEW</div>
-          <div class="mars-mobile">
-            <div class="app-header">
-              <div class="header-left-group header-side-cluster">
-                <div class="header-icon"><i class="fak fa-kit fa-wallet icon-medium"></i></div>
-                <div class="header-icon"><i class="fa-light fa-magnifying-glass icon-medium"></i></div>
-              </div>
-              <img class="header-logo" src="logo-oky.svg" alt="OKY">
-              <div class="header-side-cluster header-side-cluster-right">
-                <div class="header-icon"><i class="fa-light fa-cart-shopping icon-medium"></i></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
           <div class="mars-label" style="margin-bottom:8px">Header / Not Logged · ZPc9u</div>
           <div class="mars-mobile">
             <div class="app-header">

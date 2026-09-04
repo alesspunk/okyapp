@@ -1,4 +1,4 @@
-const MODAL_VARIANTS = ["Large", "Medium", "Small", "Important"];
+const MODAL_VARIANTS = ["Large", "Medium", "Small", "Important", "Centered"];
 
 const MODAL_META = {
   Large: {
@@ -32,7 +32,37 @@ const MODAL_META = {
     primaryCta: "Primary CTA",
     secondaryCta: "Secondary CTA",
   },
+  Centered: {
+    nodeId: "99140:45084",
+    title: "Solicitud de pago",
+    subtitle: "",
+    primaryCta: "Aprobar Pago",
+    secondaryCta: "Rechazar",
+    amountCurrency: "Q",
+    amountValue: "380.00",
+  },
 };
+
+/* Filas de detalle de la variante Centered (Yayo Flow).
+   Reutilizan el átomo `icon-avatar` y el logo `logo-yayo.png`. */
+const CENTERED_DETAILS = [
+  {
+    icon: "fa-light fa-store",
+    title: "Tienda Don Juan",
+    note: "ID: TP-4784",
+    logo: "logo-yayo.png",
+    logoAlt: "Yayo",
+  },
+  {
+    icon: "fa-light fa-calendar",
+    title: "24 / AGO / 2026&nbsp; -&nbsp; 13:15 hrs",
+    note: "",
+    logo: "",
+    logoAlt: "",
+  },
+];
+
+const CENTERED_COUNTDOWN = { label: "La solicitud vence en", value: "14:32" };
 
 const LARGE_ITEMS = [
   "4 Papas medianas",
@@ -97,6 +127,14 @@ function resolveModalArgs(args = {}) {
       typeof args.codePlaceholder === "string" && args.codePlaceholder.trim()
         ? args.codePlaceholder.trim()
         : base.codePlaceholder || "",
+    amountCurrency:
+      typeof args.amountCurrency === "string" && args.amountCurrency.trim()
+        ? args.amountCurrency.trim()
+        : base.amountCurrency || "Q",
+    amountValue:
+      typeof args.amountValue === "string" && args.amountValue.trim()
+        ? args.amountValue.trim()
+        : base.amountValue || "",
   };
 }
 
@@ -292,6 +330,89 @@ function renderImportantModal(modal) {
   `;
 }
 
+/* Variante Centered — Figma 99140:45084.
+   Reutiliza: modal-sheet-header / modal-sheet-title / modal-sheet-close,
+   los átomos amount-summary + amount-display + icon-avatar + action-circle,
+   y el Super Ribbon `super-ribbon-type-vence` en su forma adosada. */
+function renderCenteredModal(modal) {
+  return `
+    <section class="modal-sheet is-centered" aria-label="Payment Request Modal" data-figma-node="${modal.nodeId}">
+      <div class="modal-centered-body">
+        <div class="modal-sheet-header">
+          <div class="modal-sheet-header-main">
+            <h3 class="modal-sheet-title is-regular">${escapeHtml(modal.title)}</h3>
+          </div>
+          <button class="header-icon modal-sheet-close" type="button" aria-label="Cerrar">
+            <span class="fa-icon fa-icon-lg" aria-hidden="true">
+              <i class="fa-light fa-chevron-down"></i>
+            </span>
+          </button>
+        </div>
+
+        <div class="amount-summary">
+          <p class="amount-display is-hero">
+            <span class="amount-display-currency">${escapeHtml(modal.amountCurrency)}</span>
+            <span class="amount-display-value">${escapeHtml(modal.amountValue)}</span>
+          </p>
+        </div>
+
+        <div class="modal-detail-list">
+          <div class="modal-detail-rows">
+            ${CENTERED_DETAILS.map(
+              (row, index) => `
+              ${index > 0 ? '<hr class="modal-detail-divider" />' : ""}
+              <div class="modal-detail-row">
+                <span class="icon-avatar is-small" aria-hidden="true">
+                  <i class="${row.icon}"></i>
+                </span>
+                <div class="modal-detail-copy">
+                  <p class="modal-detail-title">${row.title}</p>
+                  ${row.note ? `<p class="modal-detail-note">${escapeHtml(row.note)}</p>` : ""}
+                </div>
+                ${
+                  row.logo
+                    ? `<span class="modal-detail-logo">
+                        <img src="${row.logo}" alt="${escapeHtml(row.logoAlt)}" />
+                      </span>`
+                    : ""
+                }
+              </div>
+            `,
+            ).join("")}
+          </div>
+
+          <div class="super-ribbon super-ribbon-type-vence is-attached">
+            <span class="super-ribbon-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+            <span class="super-ribbon-text super-ribbon-countdown">
+              <span class="super-ribbon-countdown-label">${CENTERED_COUNTDOWN.label}</span>
+              <span class="super-ribbon-countdown-value">${CENTERED_COUNTDOWN.value}</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-centered-actions">
+        <div class="modal-centered-action">
+          <button class="action-circle is-stacked is-large is-reject" type="button">
+            <span class="action-circle-icon">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </span>
+            <span class="action-circle-label">${escapeHtml(modal.secondaryCta)}</span>
+          </button>
+        </div>
+        <div class="modal-centered-action">
+          <button class="action-circle is-stacked is-large is-approve" type="button">
+            <span class="action-circle-icon">
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+            </span>
+            <span class="action-circle-label">${escapeHtml(modal.primaryCta)}</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
 function renderModalDemo(args = {}) {
   const modal = resolveModalArgs(args);
 
@@ -302,10 +423,14 @@ function renderModalDemo(args = {}) {
         ? renderMediumModal(modal)
         : modal.variant === "Small"
           ? renderSmallModal(modal)
-          : renderImportantModal(modal);
+          : modal.variant === "Centered"
+            ? renderCenteredModal(modal)
+            : renderImportantModal(modal);
+
+  const isCentered = modal.variant === "Centered";
 
   return `
-    <div class="modal-molecule-stage">
+    <div class="modal-molecule-stage${isCentered ? " is-centered" : ""}">
       <div class="modal-molecule-backdrop"></div>
       ${inner}
     </div>
@@ -319,8 +444,15 @@ export default {
     docs: {
       description: {
         component:
-          "Molécula **Modal** que emerge desde abajo de la pantalla siguiendo el patrón mobile del sistema. " +
-          "Reutiliza tokens existentes como `--back-drop`, `--primary-main`, `--border-main`, las clases de `Buttons`, `Icons` y `Radio`, y expone 4 variantes guiadas por Figma: **Large**, **Medium**, **Small** e **Important**.",
+          "Molécula **Modal**. Las variantes **Large**, **Medium**, **Small** e **Important** emergen desde abajo " +
+          "siguiendo el patrón mobile del sistema; **Centered** se ancla al centro vertical y horizontal de la pantalla. " +
+          "Reutiliza tokens existentes como `--back-drop`, `--primary-main`, `--border-main`, y las clases de " +
+          "`Buttons`, `Icons` y `Radio`. " +
+          "**Centered** (Figma `99140:45084`, solicitud de pago del flujo Yayo) es la variante más compuesta: " +
+          "reutiliza el header del modal (`modal-sheet-header` / `modal-sheet-title` / `modal-sheet-close`), " +
+          "el átomo **Super Ribbon** en su type `vence` y forma adosada (`is-attached`), y cuatro átomos compartidos " +
+          "con `History Card` y `Reminder Card`: **amount-summary**, **amount-display**, **icon-avatar** y " +
+          "**action-circle**. Borde de `2px` en `--primary-base`, radio `24px`, ancho `335px`.",
       },
     },
   },
@@ -360,7 +492,15 @@ export default {
     },
     secondaryCta: {
       control: "text",
-      description: "CTA secundario de `Small` e `Important`.",
+      description: "CTA secundario de `Small`, `Important` y `Centered` (label de rechazo).",
+    },
+    amountCurrency: {
+      control: "text",
+      description: "Símbolo de moneda del monto en `Centered`.",
+    },
+    amountValue: {
+      control: "text",
+      description: "Monto solicitado en `Centered`.",
     },
   },
 };
@@ -470,6 +610,28 @@ export const Important = {
     <div class="mars-story">
       <div class="mars-label">Important · ${MODAL_META.Important.nodeId}</div>
       ${renderModalDemo({ variant: "Important" })}
+    </div>
+  `,
+};
+
+export const Centered = {
+  name: "Centered",
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          "Solicitud de pago del flujo Yayo, centrada en pantalla. El countdown inferior es el átomo " +
+          "**Super Ribbon** (`super-ribbon-type-vence is-attached`) con los tokens de soporte " +
+          "`--warning-bg` / `--warning-text` / `--warning-main` / `--error-text`; las acciones son el átomo " +
+          "**action-circle** en tamaño `is-large` y orientación `is-stacked`.",
+      },
+    },
+  },
+  render: () => `
+    <div class="mars-story">
+      <div class="mars-label">Centered · ${MODAL_META.Centered.nodeId}</div>
+      ${renderModalDemo({ variant: "Centered" })}
     </div>
   `,
 };
