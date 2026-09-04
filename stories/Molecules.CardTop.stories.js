@@ -25,6 +25,7 @@ export default {
         component:
           "**Top Card** es una molécula hermana de `Middle Card`, pensada para la parte superior de credenciales y gift cards. " +
           "Usa el surface token **Card Top**, conserva el shadow **PDP Card**, mantiene ancho PDP (`342px`) y reutiliza el wrapper de iconos `fa-icon-card-use` para los links inferiores. " +
+          "Los labels del footer usan el token **CARDLABEL** (Nunito Sans 10/500/1.2, Sentence case) — el mismo que `Middle Card`. " +
           "La anatomía se resuelve en tres variantes: **OKY Vales**, **Gift Card** y **Disable**. " +
           "Flags, assets y tratamientos de borde se montan sobre recursos ya existentes del sistema. " +
           "No existe todavía un token tipográfico específico para el brand chip de Figma, así que se mapea al tratamiento más cercano del sistema (`productText`).",

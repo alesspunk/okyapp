@@ -4504,15 +4504,26 @@ body {
   padding: 8px 16px;
 }
 
+/* Token tipográfico "Card Label" (Foundations/Tokens · CARDLABEL):
+   Nunito Sans 10/500, line-height 1.2, sin letter-spacing y en
+   Sentence case — ya no uppercase, y sin icono acompañante.
+   Compartido con el footer de Top Card (.prime-card-top-footer-text).
+   El 1.2 se alinea al otro token de label de 10px (.token-exchange). */
+.middle-card-footer-start,
+.middle-card-footer-end,
+.prime-card-top-footer-text {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 .middle-card-footer-start,
 .middle-card-footer-end {
   min-width: 0;
   color: #552588;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 10px;
-  font-weight: 500;
-  line-height: 1.6;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -4708,13 +4719,10 @@ body {
   justify-content: center;
 }
 
+/* Tipografía desde el token Card Label (ver .middle-card-footer-start). */
 .prime-card-top-footer-text {
-  font-family: "Lato", sans-serif;
-  font-size: 10px;
-  font-weight: 400;
-  line-height: 1.57;
-  text-transform: uppercase;
-  letter-spacing: 0;
+  min-width: 0;
+  text-align: center;
   white-space: nowrap;
 }
 

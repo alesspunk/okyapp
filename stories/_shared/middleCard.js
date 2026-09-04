@@ -119,9 +119,6 @@ function renderFooter(card) {
     <div class="middle-card-footer">
       <span class="middle-card-footer-start">${card.leftLabel}</span>
       <span class="middle-card-footer-end">${card.rightLabel}</span>
-      <span class="fa-icon fa-icon-card-use middle-card-link-icon" aria-hidden="true">
-        <i class="fa-thin fa-arrow-up-right-from-square"></i>
-      </span>
     </div>
   `;
 }

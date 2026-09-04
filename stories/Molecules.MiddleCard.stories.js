@@ -37,7 +37,7 @@ const typographyMapping = [
     appliesTo: "All variants",
     token: "CARDLABEL",
     closest: "CARDLABEL",
-    spec: "Nunito Sans 10 / 500 / 1.6 / 0 uppercase",
+    spec: "Nunito Sans 10 / 500 / 1.2 / 0 sentence case",
     note: "Usa Card Label del sistema.",
   },
 ];
@@ -62,7 +62,8 @@ export default {
         component:
           "**Middle Card** es la molécula de canje intermedio para vouchers y gift cards. " +
           "Incluye seis variantes: **Vale de Monto**, **Con Logo**, **Vale de Producto**, **eGift Card**, **Disable Monto** y **Disable Foto**. " +
-          "Mantiene el mismo footer de acciones, usa tipografía del sistema basada en `Nunito Sans`, shadow suave, radial surface y CTA secundario con `arrow-up-right-from-square`. " +
+          "Mantiene el mismo footer de acciones, usa tipografía del sistema basada en `Nunito Sans`, shadow suave y radial surface. " +
+          "El footer son dos labels (`leftLabel` + `rightLabel`) con el token **CARDLABEL** en Sentence case y **sin icono**. " +
           "Incluye además un switch de contexto para **PDP** y **Checkout**, cambiando tamaño sin alterar la anatomía. " +
           "También permite montar opcionalmente un **Discount Ribbon / Wrap** en la esquina superior derecha, reutilizando el átomo existente sin romper su set de variantes. " +
           "La variante de producto usa `mix-blend-mode: darken` sobre la imagen para respetar el tratamiento visual de Figma, y la variante **Con Logo** reemplaza el título superior por una imagen horizontal de marca. " +
