@@ -43,7 +43,7 @@ export const PAYMENT_CARD_VARIANTS = [
     expiry: { label: "Vencimiento", value: "24 / SEP / 2028" },
     actionIcon: "fa-chevron-right",
     recommendation:
-      "Esqueleto base: header con columna de logo + columna derecha de saldo/dígitos, borde --border-main y el patrón por defecto. Punto de partida para cualquier marca nueva.",
+      "Esqueleto neutro: blanco con el borde gris del sistema, header con columna de logo + columna derecha de saldo/dígitos y el patrón por defecto. Punto de partida para cualquier marca nueva.",
   },
   {
     path: "Molecule/Payment Card/Yayo",
@@ -54,13 +54,14 @@ export const PAYMENT_CARD_VARIANTS = [
     pattern: "arcsLight",
     showFooter: true,
     recommendation:
-      "Card gris neutra con tinta navy. El patrón sube a 38% de opacidad porque sobre gris claro casi no se ve al 12%.",
+      "La card gris del sistema con el wordmark de Yayo y tinta navy. El patrón sube a 38% de opacidad porque sobre gris claro casi no se ve al 12%.",
   },
   {
     path: "Molecule/Payment Card/Saldo OKY",
     key: "saldo-oky",
     id: "99131:101552",
-    brand: { type: "logo", src: "logo-oky.svg", alt: "OKY", shape: "wordmark" },
+    /* wordmark en blanco: el logo-oky.svg morado no contrasta sobre el degradado */
+    brand: { type: "logo", src: "logo-oky-white.svg", alt: "OKY", shape: "wordmark" },
     balance: { currency: "$", value: "0.00", label: "disponible", embossed: true },
     pattern: "arcs",
     showFooter: true,

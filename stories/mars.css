@@ -6799,9 +6799,13 @@ body {
   padding: 0 16px;
 }
 
+/* 85px es el ancho de la columna en Figma, pero el label de texto
+   ("OKY Cash") es más ancho: min-width para que los logos mantengan
+   su caja y el texto pueda crecer y centrarse en la suya. */
 .payment-card-brand {
-  flex: 0 0 85px;
-  width: 85px;
+  flex: 0 0 auto;
+  min-width: 85px;
+  height: 65px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -6831,7 +6835,6 @@ body {
   width: 51px;
   height: 19px;
   border-radius: 0;
-  margin-top: 16px;
 }
 
 .payment-card-brand-logo.is-wordmark img {
@@ -7030,10 +7033,13 @@ body {
 /* Los colores de marca (Visa navy, Mastercard naranja, etc.) son
    activos de marca, no tokens del DS: viven en la variante. Los
    tokens del sistema (--border-main, --white) sí se usan. */
+/* Default es el esqueleto neutro: blanco con el borde gris del sistema.
+   La card gris es Yayo — no hay dos grises. */
 .payment-card-molecule.is-default {
-  --payment-card-bg: #d5d7da;
-  --payment-card-ink: #10325c;
+  --payment-card-bg: var(--white);
+  --payment-card-ink: var(--primary-base);
   --payment-card-border: var(--border-main);
+  --payment-card-pattern-opacity: 0.18;
 }
 
 .payment-card-molecule.is-yayo {
