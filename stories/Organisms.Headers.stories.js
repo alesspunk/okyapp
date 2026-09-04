@@ -7,20 +7,58 @@
 
 const walletBitmap = ({ indicated = false, shiftLeft = false } = {}) => `
   <div class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap${indicated ? " header-icon-bitmap-wallet-indicated" : ""}${shiftLeft ? " header-icon-bitmap-wallet-indicated-left" : ""}" aria-hidden="true">
-    <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="images/Wallet-icon.png" alt="">
+    <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="Wallet-icon.png" alt="">
     ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
   </div>`;
 
 const loginBitmap = () => `
   <div class="header-icon header-icon-bitmap" aria-hidden="true">
-    <img class="header-icon-bitmap-image header-icon-bitmap-login" src="images/Log-In-Icon.png" alt="">
+    <img class="header-icon-bitmap-image header-icon-bitmap-login" src="Log-In-Icon.png" alt="">
   </div>`;
 
 const cartBitmap = ({ indicated = false } = {}) => `
   <div class="header-icon header-icon-bitmap header-icon-bitmap-cart${indicated ? " header-icon-bitmap-indicated" : ""}" aria-hidden="true">
-    <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="images/Cart-3d-icon.png" alt="">
+    <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="Cart-3d-icon.png" alt="">
     ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
   </div>`;
+
+/* Yayo Header — Figma 99101:21449.
+   Anatomía propia: 360x56 con tab-items de 40x40 a 12px de cada borde y
+   el logo OKY centrado. Reutiliza la base `app-header` y `header-logo`. */
+const YAYO_ICON_OPTIONS = [
+  "fa-bars",
+  "fa-qrcode",
+  "fa-magnifying-glass",
+  "fa-arrow-left",
+  "fa-bell",
+  "fa-circle-user",
+];
+
+function buildYayoHeader({ leftIcon, rightIcon, showLeft, showRight } = {}) {
+  const left =
+    showLeft === false
+      ? `<span class="yayo-header-tab" aria-hidden="true"></span>`
+      : `<button class="yayo-header-tab" type="button" aria-label="Menú">
+          <i class="fa-light ${leftIcon || "fa-bars"}" aria-hidden="true"></i>
+        </button>`;
+
+  const right =
+    showRight === false
+      ? `<span class="yayo-header-tab" aria-hidden="true"></span>`
+      : `<button class="yayo-header-tab" type="button" aria-label="Escanear código">
+          <i class="fa-light ${rightIcon || "fa-qrcode"}" aria-hidden="true"></i>
+        </button>`;
+
+  return `
+    <header class="app-header yayo-header" data-figma-node="99101:21449">
+      ${left}
+      <div class="yayo-header-brand">
+        <img class="header-logo" src="logo-oky.svg" alt="OKY" />
+      </div>
+      ${right}
+    </header>
+  `;
+}
 
 export default {
   title: "Molecules/Headers",
@@ -32,7 +70,9 @@ export default {
           "Headers del app OKY. " +
           "**WO8oM, ZPc9u, ArMsV y la nueva variante Both Ind** usan bitmaps desde `/images` para coincidir con Figma. " +
           "El punto rojo del estado con indicador se construye con HTML/CSS sobre el bitmap. " +
-          "El resto de variantes mantiene la regla previa: `fak fa-kit fa-wallet` para wallet, `fa-light` para los demás íconos y `fa-solid` para `fa-circle-user`.",
+          "El resto de variantes mantiene la regla previa: `fak fa-kit fa-wallet` para wallet, `fa-light` para los demás íconos y `fa-solid` para `fa-circle-user`. " +
+          "La variante **Yayo** (Figma `99101:21449`) es del flujo Yayo: mismo shell `app-header` de 360x56 pero con " +
+          "**tab-items de 40x40** a `12px` de cada borde, logo OKY centrado e íconos `fa-light` de 24px en `--primary-base`.",
       },
     },
   },
@@ -45,16 +85,19 @@ export const AppHeaderPlayground = {
     variant: "logged-empty",
     leftButtons: "single",
     cartCount: 2,
+    yayoLeftIcon: "fa-bars",
+    yayoRightIcon: "fa-qrcode",
   },
   argTypes: {
     variant: {
       control: "select",
-      options: ["logged-empty", "logged-cart", "logged-cart-both-ind", "not-logged"],
+      options: ["logged-empty", "logged-cart", "logged-cart-both-ind", "not-logged", "yayo"],
       labels: {
         "logged-empty": "Logged / Empty Cart (WO8oM)",
         "logged-cart":  "Logged / Cart Full (ArMsV)",
         "logged-cart-both-ind": "Logged / Both Indicators (Figma 7406:50941)",
         "not-logged":   "Not Logged (ZPc9u)",
+        yayo:           "Yayo (Figma 99101:21449)",
       },
       description: "Variante del App Header principal.",
     },
@@ -72,8 +115,32 @@ export const AppHeaderPlayground = {
       control: { type: "number", min: 0, max: 99 },
       description: "Cantidad de items en carrito (solo aplica en Cart Full).",
     },
+    yayoLeftIcon: {
+      control: "select",
+      options: YAYO_ICON_OPTIONS,
+      description: "Ícono del tab-item izquierdo. Solo aplica en la variante **Yayo**. Base Figma: `fa-bars`.",
+    },
+    yayoRightIcon: {
+      control: "select",
+      options: YAYO_ICON_OPTIONS,
+      description: "Ícono del tab-item derecho. Solo aplica en la variante **Yayo**. Base Figma: `fa-qrcode`.",
+    },
   },
-  render: ({ variant, leftButtons, cartCount }) => {
+  render: ({ variant, leftButtons, cartCount, yayoLeftIcon, yayoRightIcon }) => {
+    /* Yayo tiene anatomía propia: no usa los bitmaps ni el control leftButtons. */
+    if (variant === "yayo") {
+      return `
+        <div class="mars-story">
+          <div class="mars-label">App Header / yayo · ID Figma: 99101:21449</div>
+          <div class="mars-label" style="margin-bottom:10px;color:var(--text-secondary)">
+            360x56 · tab-items 40x40 a 12px de cada borde · logo OKY centrado · íconos fa-light 24px en --primary-base
+          </div>
+          <div class="mars-mobile">
+            ${buildYayoHeader({ leftIcon: yayoLeftIcon, rightIcon: yayoRightIcon })}
+          </div>
+        </div>`;
+    }
+
     const penIds = {
       "logged-empty": "WO8oM",
       "logged-cart":  "ArMsV",
@@ -225,6 +292,20 @@ export const AllHeaders = {
               <img class="header-logo" src="logo-oky.svg" alt="OKY">
               ${cartBitmap()}
             </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="mars-label" style="margin-bottom:8px">Header / Yayo · Figma 99101:21449</div>
+          <div class="mars-mobile">
+            ${buildYayoHeader({})}
+          </div>
+        </div>
+
+        <div>
+          <div class="mars-label" style="margin-bottom:8px">Header / Yayo / Back + QR · Figma 99101:21449</div>
+          <div class="mars-mobile">
+            ${buildYayoHeader({ leftIcon: "fa-arrow-left" })}
           </div>
         </div>
 
