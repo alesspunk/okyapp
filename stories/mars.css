@@ -6246,10 +6246,13 @@ body {
   padding: 8px 16px;
 }
 
+/* En esta variante la media del ítem es siempre 1:1 */
 .history-card-item-logo {
-  flex: 0 0 63px;
-  width: 63px;
-  height: 40px;
+  --history-card-item-media: 40px;
+  flex: 0 0 var(--history-card-item-media);
+  width: var(--history-card-item-media);
+  height: var(--history-card-item-media);
+  aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6262,7 +6265,9 @@ body {
 .history-card-item-logo img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  /* cover en el tile 1:1: los assets de marca son rectangulares y con
+     `contain` quedaban con bandas blancas a los lados. */
+  object-fit: cover;
 }
 
 .history-card-item-text {
@@ -6330,7 +6335,11 @@ body {
   color: var(--text-secondary);
 }
 
+/* Avatar de contacto (iniciales). Figma lo pinta en #6a0bd0 con las
+   iniciales en blanco y baja TODO el grupo al 20% de opacidad, que es
+   lo que le da el tono lavanda pálido. */
 .icon-avatar.is-faded {
+  --icon-avatar-bg: #6a0bd0;
   opacity: 0.2;
 }
 
@@ -6339,6 +6348,10 @@ body {
   font-weight: 500;
   line-height: 1.167;
   color: var(--primary-base);
+}
+
+.icon-avatar.is-faded .icon-avatar-initials {
+  color: var(--white);
 }
 
 /* ── Amount Display (Atom) ──────────────────────────────── */
