@@ -7432,11 +7432,64 @@ body {
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 0;
-  background: none;
+  border: 1.5px solid #c4c4c4;
+  border-radius: 6px;
+  background: var(--white);
   cursor: pointer;
-  color: var(--primary-base);
-  font-size: 22px;
+  color: transparent;
+  font-size: 14px;
+}
+
+/* Casilla marcada de OKY Cash: cuadro sólido verde-azulado oscuro
+   con el check en blanco — no el fa-square-check morado genérico. */
+.oky-flow-check.is-checked {
+  border-color: #00524d;
+  background: #00524d;
+  color: var(--white);
+}
+
+/* Fila activa: fondo aqua tenue, igual familia que el tier base
+   del ribbon/saving-bar (#A8FAF5) pero muy diluido. */
+.oky-flow-payrow.is-last.is-checked {
+  background: #f3fffe;
+}
+
+/* ── Confeti al activar OKY Cash ──────────────────────────
+   Ráfaga corta de piezas de color que aparecen y se desvanecen
+   sobre la fila; se dispara una vez al pasar de no-marcado a
+   marcado y se limpia sola (ver JS, timeout ~1100ms). */
+.oky-flow-payrow.is-last {
+  position: relative;
+  overflow: hidden;
+}
+
+.oky-flow-confetti-piece {
+  position: absolute;
+  top: 50%;
+  left: var(--piece-x, 50%);
+  width: var(--piece-w, 6px);
+  height: var(--piece-h, 10px);
+  background: var(--piece-color, #09b4b0);
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(var(--piece-rot, 0deg));
+  pointer-events: none;
+  animation: oky-flow-confetti-burst 900ms ease-out both;
+  animation-delay: var(--piece-delay, 0ms);
+}
+
+@keyframes oky-flow-confetti-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--piece-rot, 0deg)) scale(0.6);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--piece-dx, 0px)), calc(-50% + var(--piece-dy, -26px)))
+      rotate(var(--piece-rot-end, 180deg)) scale(1);
+  }
 }
 
 /* ── Fila agrupada de método de pago (Checkout) ─────────── */

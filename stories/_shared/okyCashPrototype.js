@@ -524,9 +524,9 @@ function screenCheckout(state) {
             <span class="oky-flow-chip is-card">${money(toCard)}</span>
             <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true" style="color:var(--primary-base)"></i>
           </div>
-          <div class="oky-flow-payrow is-last" data-action="toggle-okycash" role="button" tabindex="0">
-            <span class="oky-flow-check" aria-hidden="true">
-              <i class="fa-${state.okyCashEnabled ? "solid fa-square-check" : "regular fa-square"}"></i>
+          <div class="oky-flow-payrow is-last ${state.okyCashEnabled ? "is-checked" : ""}" data-action="toggle-okycash" role="button" tabindex="0">
+            <span class="oky-flow-check ${state.okyCashEnabled ? "is-checked" : ""}" aria-hidden="true">
+              <i class="fa-solid fa-check"></i>
             </span>
             <p class="oky-flow-payrow-copy">OKY Cash</p>
             <span class="oky-flow-chip is-cash">${money(state.okyCashEnabled ? applied : state.okyCashBalance)}</span>
@@ -541,9 +541,22 @@ function screenCheckout(state) {
         <div class="summary-box summary-box-compact">
           <div class="summary-card">
             <div class="summary-card-body">
+              <div class="summary-row">
+                <span class="summary-label-strong">Subtotal</span>
+                <span class="summary-label-strong">${money(amount)}</span>
+              </div>
+              ${
+                applied > 0
+                  ? `
+              <div class="summary-row">
+                <span class="summary-value-success">OKY Cash</span>
+                <span class="summary-value-success">-${money(applied)}</span>
+              </div>`
+                  : ""
+              }
               <div class="summary-row summary-row-total">
                 <span class="summary-label-strong">TOTAL</span>
-                <span class="summary-label-strong">${money(amount)}</span>
+                <span class="summary-label-strong">${money(toCard)}</span>
               </div>
             </div>
             <div class="summary-cta-row">
@@ -923,6 +936,36 @@ function renderScreen(state) {
   }
 }
 
+/* Ráfaga de confeti de un solo uso al activar OKY Cash en Checkout
+   (la casilla es opcional; se celebra cada vez que pasa de apagada
+   a encendida, como en el Figma real — no un loop ni un overlay fijo). */
+const CONFETTI_COLORS = ["#09b4b0", "#ffb400", "#552588", "#a8faf5"];
+
+function burstConfetti(container) {
+  if (!container) return;
+  const pieces = [];
+
+  for (let i = 0; i < 10; i += 1) {
+    const piece = document.createElement("span");
+    piece.className = "oky-flow-confetti-piece";
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 22 + Math.random() * 20;
+    piece.style.setProperty("--piece-x", `${20 + Math.random() * 60}%`);
+    piece.style.setProperty("--piece-dx", `${Math.cos(angle) * distance}px`);
+    piece.style.setProperty("--piece-dy", `${Math.sin(angle) * distance - 10}px`);
+    piece.style.setProperty("--piece-rot", `${Math.random() * 90 - 45}deg`);
+    piece.style.setProperty("--piece-rot-end", `${180 + Math.random() * 180}deg`);
+    piece.style.setProperty("--piece-color", CONFETTI_COLORS[i % CONFETTI_COLORS.length]);
+    piece.style.setProperty("--piece-delay", `${Math.random() * 120}ms`);
+    piece.style.setProperty("--piece-w", `${4 + Math.random() * 3}px`);
+    piece.style.setProperty("--piece-h", `${7 + Math.random() * 5}px`);
+    container.appendChild(piece);
+    pieces.push(piece);
+  }
+
+  setTimeout(() => pieces.forEach((p) => p.remove()), 1100);
+}
+
 export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   let state = createInitialState(userType);
 
@@ -1007,11 +1050,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "toggle-okycash") {
-      state.okyCashEnabled = !state.okyCashEnabled;
-      state.okyCashApplied = state.okyCashEnabled
-        ? Math.min(state.okyCashBalance, state.cart.amount)
-        : 0;
-      return render();
+      const turningOn = !state.okyCashEnabled;
+      state.okyCashEnabled = turningOn;
+      state.okyCashApplied = turningOn ? Math.min(state.okyCashBalance, state.cart.amount) : 0;
+      render();
+      if (turningOn) burstConfetti(root.querySelector(".oky-flow-payrow.is-last"));
+      return;
     }
 
     if (action === "confirm-methods") return goBack();
