@@ -7094,3 +7094,508 @@ body {
 .payment-card-stack > .payment-card-molecule + .payment-card-molecule {
   margin-top: var(--payment-card-stack-offset);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   OKY Cash — Prototipo clickable (Pages/OKY Cash/Prototype)
+   Figma de referencia: "7600 - UX Exploration" (MCP de Figma
+   desconectado durante la construcción — ver comentarios en
+   stories/_shared/okyCashPrototype.js para los supuestos).
+   ═══════════════════════════════════════════════════════════ */
+
+/* Saving Bar — tier 2 (morado): mismo átomo, nuevo tono.
+   El tier 1 y 3 usan el aqua default (.saving-bar sin modificador). */
+.saving-bar.is-tier-2 {
+  background: var(--primary-light);
+}
+
+.saving-bar.is-tier-2 .saving-bar-copy {
+  color: var(--primary-dark);
+}
+
+/* ── Shell del teléfono ──────────────────────────────────── */
+.oky-proto-frame {
+  width: 375px;
+  max-width: 100%;
+  height: 812px;
+  max-height: 90vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--divider);
+  border-radius: 32px;
+  overflow: hidden;
+  background: var(--background);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  position: relative;
+}
+
+.oky-proto-screen {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--background);
+}
+
+.oky-proto-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.oky-proto-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.oky-proto-topbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  padding: 0 16px;
+  background: var(--white);
+  border-bottom: 1px solid var(--divider);
+}
+
+.oky-proto-back {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: none;
+  color: var(--primary-main);
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.oky-proto-topbar-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  color: var(--primary-main);
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.oky-proto-section {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.oky-proto-section-label {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+}
+
+/* ── Home: saludo + tiles de producto ───────────────────── */
+.oky-proto-greeting {
+  margin: 0;
+  color: var(--primary-main);
+  font-family: "Lato", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.oky-proto-product-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.oky-proto-product-tile {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-main);
+  border-radius: 16px;
+  background: var(--white);
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.oky-proto-product-media {
+  width: 100%;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.oky-proto-product-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Lyft no tiene asset de logo en el repo ni acceso a Figma para
+   exportarlo: placeholder de marca en texto sobre color sólido,
+   en vez de inventar un isotipo. */
+.oky-proto-product-media.is-lyft-placeholder {
+  background: #ff00bf;
+}
+
+.oky-proto-product-media.is-lyft-placeholder span {
+  color: var(--white);
+  font-family: "Lato", sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.4px;
+}
+
+.oky-proto-product-body {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.oky-proto-product-name {
+  margin: 0;
+  color: var(--primary-main);
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.oky-proto-product-sub {
+  margin: 0;
+  color: var(--secondary-dark);
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ── PDP ─────────────────────────────────────────────────── */
+.oky-proto-pdp-hero {
+  width: 100%;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.oky-proto-pdp-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.oky-proto-pdp-hero.is-lyft-placeholder {
+  background: linear-gradient(135deg, #ff00bf 0%, #93007a 100%);
+}
+
+.oky-proto-pdp-hero.is-lyft-placeholder span {
+  color: var(--white);
+  font-family: "Lato", sans-serif;
+  font-size: 36px;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.oky-proto-pdp-title {
+  margin: 0;
+  color: var(--primary-main);
+  font-family: "Lato", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.oky-proto-pdp-price {
+  margin: 0;
+  color: var(--primary-main);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.oky-proto-amount-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.oky-proto-amount-chip {
+  flex: 0 1 auto;
+  min-width: 64px;
+  height: 40px;
+  border: 1px solid var(--border-main);
+  border-radius: 20px;
+  background: var(--white);
+  color: var(--primary-main);
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.oky-proto-amount-chip.is-active {
+  border-color: var(--primary-main);
+  background: var(--primary-main);
+  color: var(--white);
+}
+
+.oky-proto-cashback-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--secondary-dark);
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.oky-proto-tier-caption {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+}
+
+.oky-proto-pdp-footer {
+  flex: 0 0 auto;
+  padding: 12px 16px;
+  background: var(--white);
+  border-top: 1px solid var(--divider);
+}
+
+/* ── Cart / Checkout / Payment Methods filas de dinero ──── */
+.oky-proto-money-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  color: var(--primary-main);
+}
+
+.oky-proto-money-row.is-muted {
+  color: var(--text-secondary);
+}
+
+.oky-proto-money-row.is-total {
+  font-weight: 700;
+  font-size: 16px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--divider);
+}
+
+.oky-proto-money-row.is-success {
+  color: var(--success-text);
+}
+
+/* fila "Saldo OKY" clickeable dentro de Checkout, basada en
+   .payment-method-input pero envuelta en <button> para navegar */
+.oky-proto-payment-row {
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.oky-proto-amount-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.oky-proto-available-note {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+}
+
+.oky-proto-custom-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border-main);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.oky-proto-custom-input input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-main);
+}
+
+/* ── Success ─────────────────────────────────────────────── */
+.oky-proto-success-icon {
+  width: 72px;
+  height: 72px;
+  margin: 24px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--success-bg);
+  color: var(--success-main);
+  font-size: 36px;
+}
+
+.oky-proto-success-title {
+  margin: 0;
+  text-align: center;
+  color: var(--primary-main);
+  font-family: "Lato", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.oky-proto-success-sub {
+  margin: 0;
+  text-align: center;
+  color: var(--text-secondary);
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+}
+
+.oky-proto-earned-badge {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--secondary-light);
+  color: #00524d;
+  font-family: "Lato", sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+/* ── Wallet ──────────────────────────────────────────────── */
+.oky-proto-wallet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.oky-proto-wallet-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border: 1px solid var(--border-main);
+  border-radius: 14px;
+  background: var(--white);
+  cursor: pointer;
+}
+
+.oky-proto-wallet-tile:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.oky-proto-wallet-tile-media {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--disable-bg);
+}
+
+.oky-proto-wallet-tile-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.oky-proto-wallet-tile-media.is-lyft-placeholder {
+  background: #ff00bf;
+  color: var(--white);
+  font-family: "Lato", sans-serif;
+  font-weight: 900;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.oky-proto-wallet-tile-name {
+  margin: 0;
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary-main);
+}
+
+/* ── Returning-user modal ───────────────────────────────── */
+.oky-proto-returning-modal .modal-sheet.is-centered {
+  width: 300px;
+  gap: 16px;
+  padding: 24px 20px;
+}
+
+.oky-proto-returning-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary-main);
+  font-size: 26px;
+}
+
+.oky-proto-returning-title {
+  margin: 0;
+  text-align: center;
+  color: var(--primary-main);
+  font-family: "Lato", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.oky-proto-returning-body {
+  margin: 0;
+  text-align: center;
+  color: var(--text-secondary);
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+}
+
+.oky-proto-returning-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
