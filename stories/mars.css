@@ -7097,505 +7097,978 @@ body {
 
 /* ═══════════════════════════════════════════════════════════
    OKY Cash — Prototipo clickable (Pages/OKY Cash/Prototype)
-   Figma de referencia: "7600 - UX Exploration" (MCP de Figma
-   desconectado durante la construcción — ver comentarios en
-   stories/_shared/okyCashPrototype.js para los supuestos).
+   Figma: "7600 - UX Exploration", canvas "Cash Back" (99101:20345).
+   Frames: Home 99105:31149 · PDP 99105:32284 (Lyft) /
+   99105:37017 + 99140:13571 (Nike tiers) · Producto Agregado
+   99140:54432 · Carrito 99105:38191 · Checkout 1 99105:31768 ·
+   Métodos de pago 99105:41588 · Progress 99140:56017 ·
+   Success 99140:56018 · Tus compras 99140:56031 ·
+   Mi wallet 99105:43773 · Onboarding Contactos 99140:47037
+
+   Todo lo que ya existía se reutiliza (pdp-page-*.css,
+   checkout-pages.css, success-page.css, .middle-card-*,
+   .brand-item-atom, .summary-box, .payment-card-*, .plateu-*,
+   .discount-ribbon, .saving-bar, .radio-*, .slider-*).
+   Aquí solo vive lo que Figma pide y el sistema no tenía.
    ═══════════════════════════════════════════════════════════ */
 
-/* Saving Bar — tier 2 (morado): mismo átomo, nuevo tono.
-   El tier 1 y 3 usan el aqua default (.saving-bar sin modificador). */
-.saving-bar.is-tier-2 {
-  background: var(--primary-light);
+/* ── Tier de cashback ────────────────────────────────────────
+   Figma: aqua #A8FAF5/#00524D (ya hardcodeado en .saving-bar y
+   .discount-ribbon) ↔ naranja #FF9800/#663D00, que son exacta-
+   mente --warning-main y --warning-text. */
+.saving-bar.is-tier-promo {
+  background: var(--warning-main);
 }
 
-.saving-bar.is-tier-2 .saving-bar-copy {
-  color: var(--primary-dark);
+.saving-bar.is-tier-promo .saving-bar-copy {
+  color: var(--warning-text);
 }
 
-/* ── Shell del teléfono ──────────────────────────────────── */
-.oky-proto-frame {
-  width: 375px;
-  max-width: 100%;
-  height: 812px;
-  max-height: 90vh;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--divider);
-  border-radius: 32px;
-  overflow: hidden;
-  background: var(--background);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+/* Saving Bar del flujo OKY Cash: 40px, sin icono, pesos mixtos
+   ("Ganas $20.00 de OKY Cash") en vez del 900 uniforme del átomo. */
+.saving-bar.is-oky-cash {
+  height: 40px;
+  padding: 8px 10px 11px;
+}
+
+.saving-bar.is-oky-cash .saving-bar-copy {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.43;
+  letter-spacing: 0.15px;
+  white-space: normal;
+  text-align: center;
+}
+
+.saving-bar.is-oky-cash .saving-bar-copy strong {
+  font-weight: 700;
+}
+
+/* Ribbon naranja del tier promocional. --accent-color es #ffb400,
+   Figma pide #ff9800 → se apunta a --warning-main. */
+.discount-ribbon.is-tier-promo {
+  --discount-ribbon-bg: var(--warning-main);
+  --discount-ribbon-text: var(--warning-text);
+  --discount-ribbon-notch: var(--warning-main);
+}
+
+/* ── Shell del prototipo ─────────────────────────────────── */
+/* El viewport del diseño es 360x800 y varias piezas del repo
+   (.status-bar, .page-header-screen) miden 360px fijos, así que el
+   borde va por fuera del content-box: 360 de contenido + 1px de
+   bisel a cada lado. Con border-box quedaba en 358 y desbordaba 2px. */
+.oky-flow-frame {
   position: relative;
+  width: 360px;
+  max-width: 100%;
+  height: 800px;
+  box-sizing: content-box;
+  overflow: hidden;
+  border: 1px solid var(--border-main);
+  border-radius: 24px;
+  background: var(--white);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  font-family: "Nunito Sans", sans-serif;
 }
 
-.oky-proto-screen {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  background: var(--background);
-}
-
-.oky-proto-scroll {
-  flex: 1 1 auto;
-  min-height: 0;
+.oky-flow-scroll {
+  position: absolute;
+  inset: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 
-.oky-proto-scroll::-webkit-scrollbar {
+.oky-flow-scroll::-webkit-scrollbar {
   width: 0;
-  height: 0;
+  display: none;
 }
 
-.oky-proto-topbar {
-  flex: 0 0 auto;
+/* deja hueco para navbar (56) y/o saving bar (40) fijos */
+.oky-flow-scroll.has-nav {
+  padding-bottom: 56px;
+}
+
+.oky-flow-scroll.has-nav-bar {
+  padding-bottom: 96px;
+}
+
+.oky-flow-scroll.has-cta-bar {
+  padding-bottom: 72px;
+}
+
+/* barra fija inferior de un solo CTA (Figma 359x70/72) */
+.oky-flow-cta-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  box-sizing: border-box;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-main);
+  background: var(--white);
+}
+
+.oky-flow-cta-bar .btn {
+  width: 100%;
+}
+
+/* saving bar fija sobre el navbar */
+.oky-flow-savingbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 56px;
+  z-index: 5;
+}
+
+.oky-flow-navbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+}
+
+/* navbar con label: el repo usa .is-no-label en las pages, Figma
+   muestra los 5 labels y el ícono central es un bitmap. */
+.oky-flow-navbar .bottom-nav {
+  width: 100%;
+  border-radius: 0 0 24px 24px;
+}
+
+.oky-flow-navbar .nav-item {
+  color: var(--primary-base);
+  cursor: default;
+}
+
+.oky-flow-navbar .nav-item[data-action] {
+  cursor: pointer;
+}
+
+.oky-flow-navbar .nav-item.is-dim {
+  opacity: 0.55;
+}
+
+.oky-flow-navbar .nav-label {
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  line-height: 1.57;
+}
+
+.oky-flow-coin {
+  width: 30px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/* ── Page header con título (Figma 360x64) ──────────────── */
+.oky-flow-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  height: 56px;
-  padding: 0 16px;
+  gap: 10px;
+  height: 64px;
+  padding: 16px;
   background: var(--white);
-  border-bottom: 1px solid var(--divider);
+  box-sizing: border-box;
 }
 
-.oky-proto-back {
+.oky-flow-header-icon {
   flex: 0 0 32px;
   width: 32px;
   height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
   border: 0;
   background: none;
-  color: var(--primary-main);
   cursor: pointer;
-  font-size: 18px;
+  color: var(--primary-base);
+  font-size: 24px;
 }
 
-.oky-proto-topbar-title {
+.oky-flow-title {
   flex: 1 1 auto;
   min-width: 0;
   margin: 0;
-  color: var(--primary-main);
+  font-family: "Lato", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: -0.5px;
+  color: var(--primary-base);
+}
+
+/* ── "Online" bajo el brand item (PDP) ──────────────────── */
+.oky-flow-brand-online {
+  margin: 0;
+  padding-bottom: 12px;
+  font-family: "Lato", sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.57;
+  text-align: center;
+  color: var(--primary-base);
+}
+
+/* ── Nota legal del PDP Nike ────────────────────────────── */
+.oky-flow-legal {
+  width: 309px;
+  margin: 0 auto;
+  font-family: "Lato", sans-serif;
+  font-size: 10px;
+  line-height: 1.57;
+  color: var(--primary-base);
+}
+
+.oky-flow-legal strong {
+  font-weight: 700;
+}
+
+/* ── Cards de marca apiladas (Wallet / Tus compras) ─────── */
+.oky-flow-stack {
+  width: 343px;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.oky-flow-stack > * + * {
+  margin-top: -90px;
+}
+
+.oky-flow-voucher {
+  position: relative;
+  width: 343px;
+  height: 215px;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid var(--border-main);
+  border-radius: 16px;
+  background: var(--white);
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.1));
+  padding: 0;
+  cursor: pointer;
+  display: block;
+}
+
+.oky-flow-voucher img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 2px solid var(--white);
+  border-radius: 8px;
+  box-sizing: border-box;
+  display: block;
+}
+
+.oky-flow-voucher:disabled {
+  cursor: default;
+}
+
+/* badge de cantidad + QR, absoluto (Figma left 271 / top 13) */
+.oky-flow-voucher-badge {
+  position: absolute;
+  left: 271px;
+  top: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  border: 1px solid var(--primary-base);
+  border-radius: 8px;
+  background: var(--white);
+  font-family: "Lato", sans-serif;
+  font-size: 13px;
+  line-height: 22px;
+  letter-spacing: 0.4px;
+  color: var(--primary-base);
+}
+
+.oky-flow-voucher-badge i {
+  font-size: 12px;
+}
+
+/* ── Header de sección del Wallet ───────────────────────── */
+.oky-flow-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 24px;
+  padding-left: 20px;
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.38);
+}
+
+.oky-flow-section-head i {
+  font-size: 16px;
+  color: #9e9e9e;
+}
+
+/* chip outlined del plateu (Figma: blanco, borde --accent-color) */
+.plateu-chip.is-outlined {
+  background: var(--white);
+  border: 1px solid var(--accent-color);
+  color: var(--primary-base);
+  font-size: 10px;
+  line-height: 1.57;
+  letter-spacing: 0.5px;
+}
+
+/* ── Checkbox (no existía en el sistema) ────────────────── */
+.oky-flow-check {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--primary-base);
+  font-size: 22px;
+}
+
+/* ── Fila agrupada de método de pago (Checkout) ─────────── */
+.oky-flow-paygroup {
+  position: relative;
+  width: 100%;
+}
+
+.oky-flow-paygroup .payment-method-control + .payment-method-control {
+  border-top: 0;
+}
+
+.oky-flow-payrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 60px;
+  padding: 2px 12px 2px 16px;
+  box-sizing: border-box;
+  border: 1px solid #c4c4c4;
+  background: var(--white);
+  box-shadow: 0 4px 10.5px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.oky-flow-payrow.is-first {
+  border-radius: 8px 8px 0 0;
+}
+
+.oky-flow-payrow.is-last {
+  border-radius: 0 0 8px 8px;
+  border-top: 0;
+}
+
+.oky-flow-payrow-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.75;
+  letter-spacing: 0.15px;
+  color: var(--primary-base);
+}
+
+/* chip morado = importe a la tarjeta; chip teal = importe OKY Cash */
+.oky-flow-chip {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border-radius: 16px;
   font-family: "Lato", sans-serif;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.15px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: var(--white);
 }
 
-.oky-proto-section {
+.oky-flow-chip.is-card {
+  background: var(--primary-light);
+}
+
+.oky-flow-chip.is-cash {
+  background: linear-gradient(85.03deg, #09b4b0 14.2%, #109592 92.1%);
+}
+
+/* ── Selector de métodos de pago (pantalla dedicada) ────── */
+.oky-flow-method-group {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.oky-flow-method-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 4px 8px 4px 4px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-main);
+  border-radius: 4px;
+  background: var(--white);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-family: "Lato", sans-serif;
+}
+
+.oky-flow-method-row.is-selected {
+  border: 2px solid var(--primary-base);
+  border-radius: 8px 8px 0 0;
+  border-bottom: 0;
+}
+
+/* fila OKY Cash expandida con el slider (Figma 328x104, #f3fffe) */
+.oky-flow-method-row.is-cash {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  min-height: 104px;
+  padding: 8px 12px;
+  border: 2px solid var(--primary-base);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  background: #f3fffe;
+  cursor: default;
+}
+
+.oky-flow-method-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.oky-flow-method-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.15px;
+  color: #21514d;
+}
+
+.oky-flow-method-row .oky-flow-radio {
+  flex: 0 0 24px;
+  font-size: 22px;
+  color: var(--primary-base);
+}
+
+.oky-flow-method-art {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.oky-flow-method-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.15px;
+  color: var(--primary-base);
+}
+
+.oky-flow-method-name.is-regular {
+  font-weight: 400;
+}
+
+/* slider compacto teal: track 15px, thumb 29px (el .slider-atom
+   del sistema es 20/36 y morado) */
+.oky-flow-cash-slider {
+  width: 100%;
+  padding: 4px 0 0;
+}
+
+.oky-flow-cash-slider input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 15px;
+  margin: 0;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    #09b4b0 0%,
+    #09b4b0 var(--oky-cash-progress, 26%),
+    rgba(9, 180, 176, 0.18) var(--oky-cash-progress, 26%),
+    rgba(9, 180, 176, 0.18) 100%
+  );
+  outline: none;
+}
+
+.oky-flow-cash-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+}
+
+.oky-flow-cash-slider input[type="range"]::-moz-range-thumb {
+  width: 29px;
+  height: 29px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+}
+
+.oky-flow-cash-caption {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 12px;
+  color: #21514d;
+}
+
+.oky-flow-cash-caption strong {
+  font-weight: 700;
+}
+
+/* fila "Agregar tarjeta crédito/débito" */
+.oky-flow-addcard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 56px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.43;
+  letter-spacing: 0.15px;
+  color: var(--secondary-main);
+  text-align: left;
+}
+
+.oky-flow-addcard i {
+  width: 56px;
+  text-align: center;
+  font-size: 24px;
+}
+
+/* ── Processing: sheet con timeline (Figma 99140:56017) ─── */
+.oky-flow-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  height: 535px;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: 24px 24px 0 0;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+}
+
+.oky-flow-sheet-title {
+  margin: 0;
+  padding: 16px 24px;
+  font-family: "Lato", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.75;
+  letter-spacing: 0.15px;
+  color: var(--primary-base);
+}
+
+.oky-flow-timeline {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.oky-flow-timeline-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.oky-flow-timeline-row:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 34px;
+  width: 2px;
+  height: 20px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--success-main) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+.oky-flow-timeline-icon {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.oky-flow-timeline-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.75;
+  letter-spacing: 0.15px;
+  color: var(--text-primary);
+}
+
+.oky-flow-timeline-time {
+  margin: 0;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.15px;
+  color: var(--text-secondary);
+}
+
+.oky-flow-sheet-footer {
+  flex: 0 0 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-top: 1px solid var(--border-main);
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.75;
+  letter-spacing: 0.15px;
+  color: var(--text-secondary);
+}
+
+.oky-flow-spinner {
+  width: 33px;
+  height: 33px;
+  animation: oky-flow-spin 1s linear infinite;
+}
+
+@keyframes oky-flow-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Success: sello + scrim blanco 88% + confetti ───────── */
+.oky-flow-celebration {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  background: rgba(255, 255, 255, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.oky-flow-confetti {
+  position: absolute;
+  width: 488px;
+  height: 529px;
+  mix-blend-mode: darken;
+  pointer-events: none;
+  object-fit: contain;
+}
+
+.oky-flow-confetti.is-top {
+  left: 2px;
+  top: 0;
+}
+
+.oky-flow-confetti.is-bottom {
+  left: 0;
+  top: 271px;
+}
+
+.oky-flow-stamp {
+  position: relative;
+  width: 322px;
+  height: 322px;
+  object-fit: contain;
+}
+
+/* ── Onboarding Contactos: pantalla morada completa ─────── */
+.oky-flow-decision {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #410d86;
+}
+
+.oky-flow-decision-head {
+  height: 56px;
+  flex: 0 0 56px;
+}
+
+.oky-flow-decision-title {
+  width: 274px;
+  margin: 44px auto 0;
+  font-family: "Lato", sans-serif;
+  font-size: 35px;
+  font-weight: 900;
+  line-height: normal;
+  text-align: center;
+  color: var(--white);
+}
+
+.oky-flow-decision-art {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* disco morado detrás de la ilustración (Figma 326x326) */
+.oky-flow-decision-art::before {
+  content: "";
+  position: absolute;
+  width: 326px;
+  height: 326px;
+  border-radius: 50%;
+  background: rgba(24, 4, 56, 0.55);
+}
+
+.oky-flow-decision-art img {
+  position: relative;
+  width: 300px;
+  object-fit: contain;
+}
+
+.oky-flow-decision-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px 16px;
+}
+
+/* botones invertidos sobre morado (no existen en el sistema) */
+.oky-flow-btn-inverted {
+  width: 100%;
+  height: 40px;
+  border: 0;
+  border-radius: 44px;
+  background: var(--white);
+  color: #410d86;
+  font-family: "Lato", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 24px;
+  letter-spacing: 0.25px;
+  cursor: pointer;
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14),
+    0 1px 5px rgba(0, 0, 0, 0.12);
+}
+
+.oky-flow-btn-ghost {
+  width: 100%;
+  height: 36px;
+  border: 1px solid var(--white);
+  border-radius: 32px;
+  background: transparent;
+  color: var(--white);
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 24px;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+}
+
+/* ── Home: tira "primera vez" de OKY Cash ───────────────── */
+.oky-flow-cash-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 329px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 8px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: var(--secondary-light);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.17));
+  cursor: pointer;
+  border: 0;
+  text-align: left;
+}
+
+.oky-flow-cash-strip img {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 53px;
+  object-fit: contain;
+}
+
+.oky-flow-cash-strip-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.oky-flow-cash-strip-amount {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 700;
+  color: var(--primary-main);
+}
+
+.oky-flow-cash-strip-amount span {
+  font-size: 14px;
+}
+
+.oky-flow-cash-strip-amount strong {
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.oky-flow-cash-strip-label {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7a6d8f;
+}
+
+/* ── Cart / genéricos ───────────────────────────────────── */
+.oky-flow-section {
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.oky-proto-section-label {
+.oky-flow-empty {
   margin: 0;
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
   color: var(--text-secondary);
-  font-family: "Lato", sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.9px;
-  text-transform: uppercase;
+  text-align: center;
 }
 
-/* ── Home: saludo + tiles de producto ───────────────────── */
-.oky-proto-greeting {
-  margin: 0;
-  color: var(--primary-main);
-  font-family: "Lato", sans-serif;
-  font-size: 20px;
-  font-weight: 700;
+/* Aqua real de Figma para el ribbon del tier base. --secondary-light /
+   --secondary-dark del sistema son #8adad7 / #057a73, que NO son el
+   #a8faf5 / #00524d del diseño (el mismo par que .saving-bar ya trae
+   hardcodeado). No toco los tokens globales porque los consumen
+   Summary Box, Promo Code y Super Ribbon; se declara aquí. */
+.discount-ribbon.is-tier-base {
+  --discount-ribbon-bg: #a8faf5;
+  --discount-ribbon-text: #00524d;
+  --discount-ribbon-notch: #00524d;
 }
 
-.oky-proto-product-grid {
+.discount-ribbon.is-tier-base .discount-ribbon-text,
+.discount-ribbon.is-tier-promo .discount-ribbon-text {
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.15px;
+  color: var(--discount-ribbon-text);
+}
+
+/* En el PDP el ribbon va abajo-derecha de la middle card, no arriba.
+   bottom queda positivo (dentro de la shell): en negativo se salía
+   de la card y quedaba montado sobre el input de monto de abajo. */
+.discount-ribbon-wrap.is-pdp-bottom {
+  top: auto;
+  right: 12px;
+  bottom: 6px;
+}
+
+/* ── Home: grid de dos marcas por fila ───────────────────────
+   No hay tamaño de brand-item entre is-medium (217px) y el de
+   112px con label: dos is-medium no caben en los 328px útiles.
+   En vez de inventar una variante nueva del átomo, se reajustan
+   sus custom properties manteniendo la proporción 217:136. */
+.oky-flow-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(2, 158px);
+  justify-content: center;
+  gap: 12px 12px;
 }
 
-.oky-proto-product-tile {
+.oky-flow-tile {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-main);
-  border-radius: 16px;
-  background: var(--white);
-  overflow: hidden;
-  cursor: pointer;
-  text-align: left;
+  align-items: center;
+  gap: 10px;
   padding: 0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-}
-
-.oky-proto-product-media {
-  width: 100%;
-  height: 84px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.oky-proto-product-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Lyft no tiene asset de logo en el repo ni acceso a Figma para
-   exportarlo: placeholder de marca en texto sobre color sólido,
-   en vez de inventar un isotipo. */
-.oky-proto-product-media.is-lyft-placeholder {
-  background: #ff00bf;
-}
-
-.oky-proto-product-media.is-lyft-placeholder span {
-  color: var(--white);
-  font-family: "Lato", sans-serif;
-  font-size: 22px;
-  font-weight: 900;
-  font-style: italic;
-  letter-spacing: 0.4px;
-}
-
-.oky-proto-product-body {
-  padding: 10px 12px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.oky-proto-product-name {
-  margin: 0;
-  color: var(--primary-main);
-  font-family: "Lato", sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.oky-proto-product-sub {
-  margin: 0;
-  color: var(--secondary-dark);
-  font-family: "Lato", sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* ── PDP ─────────────────────────────────────────────────── */
-.oky-proto-pdp-hero {
-  width: 100%;
-  height: 160px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.oky-proto-pdp-hero img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.oky-proto-pdp-hero.is-lyft-placeholder {
-  background: linear-gradient(135deg, #ff00bf 0%, #93007a 100%);
-}
-
-.oky-proto-pdp-hero.is-lyft-placeholder span {
-  color: var(--white);
-  font-family: "Lato", sans-serif;
-  font-size: 36px;
-  font-weight: 900;
-  font-style: italic;
-}
-
-.oky-proto-pdp-title {
-  margin: 0;
-  color: var(--primary-main);
-  font-family: "Lato", sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.oky-proto-pdp-price {
-  margin: 0;
-  color: var(--primary-main);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 32px;
-  font-weight: 700;
-}
-
-.oky-proto-amount-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.oky-proto-amount-chip {
-  flex: 0 1 auto;
-  min-width: 64px;
-  height: 40px;
-  border: 1px solid var(--border-main);
-  border-radius: 20px;
-  background: var(--white);
-  color: var(--primary-main);
-  font-family: "Lato", sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.oky-proto-amount-chip.is-active {
-  border-color: var(--primary-main);
-  background: var(--primary-main);
-  color: var(--white);
-}
-
-.oky-proto-cashback-line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--secondary-dark);
-  font-family: "Lato", sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.oky-proto-tier-caption {
-  margin: 0;
-  color: var(--text-secondary);
-  font-family: "Lato", sans-serif;
-  font-size: 12px;
-}
-
-.oky-proto-pdp-footer {
-  flex: 0 0 auto;
-  padding: 12px 16px;
-  background: var(--white);
-  border-top: 1px solid var(--divider);
-}
-
-/* ── Cart / Checkout / Payment Methods filas de dinero ──── */
-.oky-proto-money-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  font-family: "Lato", sans-serif;
-  font-size: 14px;
-  color: var(--primary-main);
-}
-
-.oky-proto-money-row.is-muted {
-  color: var(--text-secondary);
-}
-
-.oky-proto-money-row.is-total {
-  font-weight: 700;
-  font-size: 16px;
-  padding-top: 8px;
-  border-top: 1px dashed var(--divider);
-}
-
-.oky-proto-money-row.is-success {
-  color: var(--success-text);
-}
-
-/* fila "Saldo OKY" clickeable dentro de Checkout, basada en
-   .payment-method-input pero envuelta en <button> para navegar */
-.oky-proto-payment-row {
-  width: 100%;
   border: 0;
-  padding: 0;
   background: none;
   cursor: pointer;
-  text-align: left;
 }
 
-.oky-proto-amount-stepper {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.oky-flow-tile .brand-item-atom.is-medium {
+  --brand-item-card-width: 158px;
+  --brand-item-card-height: 99px;
+  --brand-item-card-radius: 10px;
+  --brand-item-card-image-padding: 13px 19px;
+  --brand-item-card-inner-radius: 9px;
 }
 
-.oky-proto-available-note {
-  margin: 0;
-  color: var(--text-secondary);
-  font-family: "Lato", sans-serif;
-  font-size: 12px;
+/* El ribbon va donde el átomo lo espera: overlay notcheado en la
+   esquina superior derecha del arte, sobre el frame posicionado. */
+.oky-flow-tile .brand-item-atom.is-medium {
+  position: relative;
 }
 
-.oky-proto-custom-input {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 12px;
-  border: 1px solid var(--border-main);
-  border-radius: 12px;
-  background: var(--white);
+.oky-flow-tile .discount-ribbon-wrap {
+  top: 6px;
+  right: 6px;
+  width: 84px;
+  max-width: 84px;
+  height: 30px;
 }
 
-.oky-proto-custom-input input {
-  flex: 1 1 auto;
-  min-width: 0;
-  border: 0;
-  outline: none;
-  font-family: "Lato", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--primary-main);
+.oky-flow-tile .discount-ribbon-wrap .discount-ribbon-text {
+  font-size: 13px;
+  line-height: 1.6;
 }
 
-/* ── Success ─────────────────────────────────────────────── */
-.oky-proto-success-icon {
-  width: 72px;
-  height: 72px;
-  margin: 24px auto 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--success-bg);
-  color: var(--success-main);
-  font-size: 36px;
-}
-
-.oky-proto-success-title {
-  margin: 0;
-  text-align: center;
-  color: var(--primary-main);
-  font-family: "Lato", sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.oky-proto-success-sub {
-  margin: 0;
-  text-align: center;
-  color: var(--text-secondary);
-  font-family: "Lato", sans-serif;
-  font-size: 14px;
-}
-
-.oky-proto-earned-badge {
-  align-self: center;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: var(--secondary-light);
-  color: #00524d;
-  font-family: "Lato", sans-serif;
-  font-weight: 900;
-  font-size: 14px;
-}
-
-/* ── Wallet ──────────────────────────────────────────────── */
-.oky-proto-wallet-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.oky-proto-wallet-tile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 14px 8px;
-  border: 1px solid var(--border-main);
-  border-radius: 14px;
-  background: var(--white);
-  cursor: pointer;
-}
-
-.oky-proto-wallet-tile:disabled {
-  cursor: default;
-  opacity: 0.55;
-}
-
-.oky-proto-wallet-tile-media {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: var(--disable-bg);
-}
-
-.oky-proto-wallet-tile-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.oky-proto-wallet-tile-media.is-lyft-placeholder {
-  background: #ff00bf;
-  color: var(--white);
-  font-family: "Lato", sans-serif;
-  font-weight: 900;
-  font-size: 12px;
-  font-style: italic;
-}
-
-.oky-proto-wallet-tile-name {
-  margin: 0;
-  font-family: "Lato", sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--primary-main);
-}
-
-/* ── Returning-user modal ───────────────────────────────── */
-.oky-proto-returning-modal .modal-sheet.is-centered {
-  width: 300px;
-  gap: 16px;
-  padding: 24px 20px;
-}
-
-.oky-proto-returning-icon {
-  width: 56px;
-  height: 56px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--primary-light);
-  color: var(--primary-main);
-  font-size: 26px;
-}
-
-.oky-proto-returning-title {
-  margin: 0;
-  text-align: center;
-  color: var(--primary-main);
-  font-family: "Lato", sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.oky-proto-returning-body {
-  margin: 0;
-  text-align: center;
-  color: var(--text-secondary);
-  font-family: "Lato", sans-serif;
-  font-size: 14px;
-}
-
-.oky-proto-returning-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.oky-flow-tile-label {
+  color: var(--text-primary);
 }
