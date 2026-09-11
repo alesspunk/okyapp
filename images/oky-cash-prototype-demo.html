@@ -8606,10 +8606,13 @@ body {
    cuenta. Un wrapper posicionado lo coloca y el ribbon se resetea
    a relative/top:0/right:0, que es lo que mantiene el notch
    pegado a su esquina superior derecha. */
+/* El ribbon del PDP se alinea con el título de la card: el título
+   cae en top:8px y mide 40, igual que el ribbon, así que centrarlos
+   deja el ribbon también en top:8px. */
 .oky-flow-ribbon-slot {
   position: absolute;
-  right: 12px;
-  bottom: -14px;
+  top: 8px;
+  right: 2px;
   z-index: 3;
 }
 
@@ -8625,7 +8628,7 @@ body {
 .oky-flow-frame .homecard-photo-ribbon-wrap {
   left: auto;
   top: auto;
-  right: 6px;
+  right: -4px;
   bottom: 8px;
 }
 
