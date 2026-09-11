@@ -12042,51 +12042,6 @@ function screenPurchases(state, { celebrate = false } = {}) {
   `;
 }
 
-/* ── Detalle de compra ──────────────────────────────────── */
-function screenPurchaseDetail(state) {
-  const purchase =
-    state.purchases.find((p) => p.id === state.params.id) || state.purchases[state.purchases.length - 1];
-  const product = PRODUCTS[purchase.productKey];
-
-  const rows = [
-    ["Comercio", product.label],
-    ["Producto", product.cardTitle],
-    ["Valor", money(purchase.amount)],
-    ["Fecha", purchase.date],
-    ["Estado", "Completado"],
-    ["OKY Cash usado", money(purchase.used)],
-    ["OKY Cash ganado", `+ ${money(purchase.cashback)}`],
-  ];
-
-  return `
-    ${statusBar()}
-    ${titledHeader("Detalle de la orden")}
-    <div class="oky-flow-section">
-      <div class="oky-flow-voucher" style="cursor:default">
-        <img src="${product.art}" alt="${product.label}" />
-        <span class="oky-flow-voucher-badge">1<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
-      </div>
-      <div class="summary-box summary-box-compact" style="width:100%">
-        <div class="summary-card">
-          <div class="summary-card-body">
-            ${rows
-              .map(
-                ([k, v]) => `
-              <div class="summary-row">
-                <span class="summary-label">${k}</span>
-                <span class="summary-label-strong">${v}</span>
-              </div>
-            `,
-              )
-              .join("")}
-          </div>
-        </div>
-      </div>
-    </div>
-    ${navbar("")}
-  `;
-}
-
 /* ── Mi wallet (99105:43773) ────────────────────────────── */
 function screenWallet(state) {
   const cash = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
@@ -12217,15 +12172,24 @@ function screenOkyCash(state) {
   `;
 }
 
-/* ── Detalle de vale ────────────────────────────────────── */
+/* ── Detalle de vale ──────────────────────────────────────
+   Misma pantalla desde "Tus compras" (por id de compra) y desde
+   Mi wallet (por marca): en ambos casos el organismo Card. */
 function screenVoucher(state) {
-  const product = PRODUCTS[state.params.key];
-  const purchase = state.purchases.filter((p) => p.productKey === product.key).slice(-1)[0];
+  const purchase = state.params.id
+    ? state.purchases.find((p) => p.id === state.params.id)
+    : state.purchases.filter((p) => p.productKey === state.params.key).slice(-1)[0];
+
+  const product = PRODUCTS[purchase ? purchase.productKey : state.params.key];
   const amount = purchase ? purchase.amount : state.amounts[product.key];
+
+  /* Desde "Tus compras" la pantalla es el detalle de la orden; desde
+     Mi wallet, el vale de la marca. */
+  const title = state.params.id ? "Detalle de la orden" : product.label;
 
   return `
     ${statusBar()}
-    ${titledHeader(product.label)}
+    ${titledHeader(title)}
     <div class="oky-flow-section">
       ${
         purchase
@@ -12296,7 +12260,6 @@ function renderScreen(state) {
     case "processing": return screenProcessing(state);
     case "success": return screenPurchases(state, { celebrate: true });
     case "purchases": return screenPurchases(state);
-    case "purchase-detail": return screenPurchaseDetail(state);
     case "wallet": return screenWallet(state);
     case "okycash": return screenOkyCash(state);
     case "voucher": return screenVoucher(state);
@@ -12526,7 +12489,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       clearTimeout(celebrationTimer);
       return go("purchases", {}, { push: false });
     }
-    if (action === "open-purchase") return go("purchase-detail", { id: el.dataset.id });
+    if (action === "open-purchase") return go("voucher", { id: el.dataset.id });
     if (action === "open-voucher") return go("voucher", { key: el.dataset.key });
 
     if (action === "decision-self") {
