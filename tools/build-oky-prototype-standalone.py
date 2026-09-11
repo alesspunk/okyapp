@@ -198,3 +198,25 @@ __mods["okyCashPrototype"].mountOkyCashPrototype(document.getElementById("oky-ap
 out = os.path.join(IMAGES, "oky-cash-prototype-demo.html")
 open(out, "w", encoding="utf-8").write(html)
 print(f"wrote {out}  ({len(html)/1024/1024:.1f} MB), {len(names)} images, {len(font_refs)} font refs inlined")
+
+# Variante para publicar como Artifact: el host aporta doctype/head/
+# body, así que aquí va solo el contenido.
+artifact = f"""<title>OKY Cash Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,700&family=Inter:wght@100..900&family=Nunito+Sans:wght@300..900&display=swap" rel="stylesheet" />
+<style>
+{chr(10).join(fa_css)}
+</style>
+<style>
+body {{ margin:0; padding:24px; background:#eceef2; display:flex; justify-content:center;
+        font-family:"Nunito Sans",sans-serif; min-height:100vh; box-sizing:border-box; }}
+{css}
+</style>
+<div id="oky-app"></div>
+<script>
+{bundle}
+__mods["okyCashPrototype"].mountOkyCashPrototype(document.getElementById("oky-app"), {{ userType: "first-time" }});
+</script>
+"""
+art_out = os.path.join(ROOT, "tools", "oky-cash-prototype-artifact.html")
+open(art_out, "w", encoding="utf-8").write(artifact)
+print(f"wrote {art_out}  ({len(artifact)/1024/1024:.1f} MB)")
