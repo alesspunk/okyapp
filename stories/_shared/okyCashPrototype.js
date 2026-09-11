@@ -965,16 +965,18 @@ function screenWallet(state) {
         <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
       </div>
       <div class="oky-flow-stack">
-        ${WALLET_VOUCHERS.map(
-          (v) => `
+        ${WALLET_VOUCHERS.map((v) => {
+          /* Los vales comprados llevan su cantidad real; los demás son
+             decorativos y quedan en 1. */
+          const owned = state.purchases.filter((p) => p.productKey === v.key).length;
+          return `
           <button class="oky-flow-voucher" ${v.live ? `data-action="open-voucher" data-key="${v.key}"` : "disabled"} type="button">
             <img src="${v.art}" alt="${v.label}" />
-            <span class="oky-flow-voucher-badge">1<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
+            <span class="oky-flow-voucher-badge">${owned || 1}<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
           </button>
-        `,
-        ).join("")}
+        `;
+        }).join("")}
       </div>
-      <button class="btn btn-primary btn-small" data-action="go:purchases" type="button">Ver más</button>
     </div>
 
     ${navbar("")}

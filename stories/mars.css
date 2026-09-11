@@ -9105,3 +9105,8 @@ button.header-icon {
 .prime-card-top-flag .flag-atom img {
   object-fit: cover;
 }
+
+/* En el prototipo los links del Top Card van sin el icono de enlace. */
+.oky-flow-frame .prime-card-top-footer-link .fa-icon-card-use {
+  display: none;
+}
