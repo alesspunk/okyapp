@@ -8917,8 +8917,12 @@ button.header-icon {
 }
 
 .oky-flow-stamp-label {
-  position: relative;
-  margin: -34px 0 0;
+  position: absolute;
+  /* montada sobre la base del sello, como en el diseño */
+  bottom: 58px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
   padding: 8px 20px;
   border-radius: 8px;
   background: #43a047;
