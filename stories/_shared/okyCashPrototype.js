@@ -150,6 +150,7 @@ function createInitialState(userType) {
     amounts: { nike: 51, lyft: 51 },
     cart: [],
     cartOpen: false,
+    checkoutIndex: 0,
     okyCashEnabled: false,
     okyCashApplied: 0,
     purchases: returning
@@ -580,7 +581,30 @@ function screenCheckout(state) {
   const total = cartTotal(state);
   const cashback = cartCashback(state);
   const tier = getTier(total);
-  const first = PRODUCTS[state.cart[0].productKey];
+  const active = clamp(state.checkoutIndex, 0, Math.max(state.cart.length - 1, 0));
+  const giftCard = (item) => `
+    <section class="middle-card-shell is-checkout">
+      <article class="middle-card-molecule is-egift">
+        <div class="middle-card-content">
+          <div class="middle-card-main">
+            <p class="middle-card-title">Gift Card</p>
+            <div class="middle-card-center">
+              <div class="middle-card-value">
+                <span class="middle-card-currency">$</span>
+                <p class="middle-card-amount">${bigAmount(item.amount)}</p>
+              </div>
+            </div>
+          </div>
+          <div class="middle-card-footer">
+            <span class="middle-card-footer-start">Que necesitas saber</span>
+            <span class="middle-card-footer-end" aria-hidden="true"></span>
+          </div>
+        </div>
+      </article>
+    </section>
+  `;
+
+  const first = PRODUCTS[state.cart[active].productKey];
   const applied = state.okyCashEnabled
     ? Math.min(state.okyCashApplied || state.okyCashBalance, total, state.okyCashBalance)
     : 0;
@@ -599,25 +623,35 @@ function screenCheckout(state) {
         </div>
       </section>
 
-      <section class="middle-card-shell is-checkout" style="width:100%">
-        <article class="middle-card-molecule is-egift">
-          <div class="middle-card-content">
-            <div class="middle-card-main">
-              <p class="middle-card-title">${state.cart.length > 1 ? `${state.cart.length} Gift Cards` : first.cardTitle}</p>
-              <div class="middle-card-center">
-                <div class="middle-card-value">
-                  <span class="middle-card-currency">$</span>
-                  <p class="middle-card-amount">${total}</p>
-                </div>
-              </div>
+      <div class="checkout-brand-carrousel-shell">
+        <section class="brand-carrousel-organism checkout-brand-carrousel" aria-label="Vales">
+          <div class="brand-carrousel-track">
+            <div class="brand-carrousel-side brand-carrousel-side-left">
+              ${state.cart[active - 1] ? giftCard(state.cart[active - 1]) : ""}
             </div>
-            <div class="middle-card-footer">
-              <span class="middle-card-footer-start">Que necesitas saber</span>
-              <span class="middle-card-footer-end" aria-hidden="true"></span>
+            <div class="brand-carrousel-center">
+              <div class="brand-carrousel-center-card">${giftCard(state.cart[active])}</div>
+            </div>
+            <div class="brand-carrousel-side brand-carrousel-side-right">
+              ${state.cart[active + 1] ? giftCard(state.cart[active + 1]) : ""}
             </div>
           </div>
-        </article>
-      </section>
+          ${
+            state.cart.length > 1
+              ? `
+            <button class="oky-flow-carousel-nav is-prev" data-action="carousel-prev" type="button"
+              aria-label="Anterior" ${active === 0 ? "disabled" : ""}>
+              <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button class="oky-flow-carousel-nav is-next" data-action="carousel-next" type="button"
+              aria-label="Siguiente" ${active === state.cart.length - 1 ? "disabled" : ""}>
+              <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            </button>
+          `
+              : ""
+          }
+        </section>
+      </div>
 
       <article class="dual-molecule is-default" style="width:100%">
         <span class="dual-floating-label">¿Para quién es?</span>
@@ -658,9 +692,21 @@ function screenCheckout(state) {
       <div class="summary-box summary-box-compact oky-flow-push" style="width:100%">
         <div class="summary-card">
           <div class="summary-card-body">
+            <div class="summary-row">
+              <span class="summary-label-strong">Subtotal</span>
+              <span class="summary-label-strong">${money(total)}</span>
+            </div>
+            ${
+              applied > 0
+                ? `<div class="summary-row">
+                     <span class="summary-value-success">OKY Cash</span>
+                     <span class="summary-value-success">-${money(applied)}</span>
+                   </div>`
+                : ""
+            }
             <div class="summary-row summary-row-total">
               <span class="summary-label-strong">TOTAL</span>
-              <span class="summary-label-strong">${money(total)}</span>
+              <span class="summary-label-strong">${money(toCard)}</span>
             </div>
           </div>
           <div class="summary-cta-row">
@@ -827,7 +873,10 @@ function screenPurchases(state, { celebrate = false } = {}) {
       celebrate
         ? `<div class="oky-flow-celebration" data-action="dismiss-celebration" role="button" tabindex="0">
             <div class="oky-flow-celebration-confetti" data-role="celebration-confetti"></div>
-            <img class="oky-flow-stamp" src="oky-stamp-exitosa.png" alt="Compra Exitosa" />
+            <div class="oky-flow-stamp-group">
+              <img class="oky-flow-stamp" src="oky-stamp-exitosa.png" alt="" />
+              <p class="oky-flow-stamp-label">Compra exitosa</p>
+            </div>
           </div>`
         : ""
     }
@@ -1099,6 +1148,7 @@ function renderScreen(state) {
 
 export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   let state = createInitialState(userType);
+  let celebrationTimer = 0;
 
   function render() {
     root.innerHTML = `
@@ -1116,7 +1166,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        las barras se movían con el contenido. Se re-parentan al frame,
        que es el contenedor fijo real. */
     const confettiHost = root.querySelector("[data-role='celebration-confetti']");
-    if (confettiHost) seedCelebration(confettiHost);
+    if (confettiHost) {
+      seedCelebration(confettiHost);
+      /* El sello es una celebración, no una pantalla: se retira solo y
+         deja a la vista los vales recién comprados. */
+      clearTimeout(celebrationTimer);
+      celebrationTimer = setTimeout(() => {
+        if (state.screen === "success") go("purchases", {}, { push: false });
+      }, 2600);
+    }
 
     const frame = root.querySelector(".oky-flow-frame");
     const scroll = frame.querySelector(".oky-flow-scroll");
@@ -1244,7 +1302,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.cartOpen = false;
       return render();
     }
-    if (action === "go:checkout") return go("checkout");
+    if (action === "go:checkout") {
+      state.checkoutIndex = 0;
+      return go("checkout");
+    }
     if (action === "go:decision") return go("decision");
 
     if (action === "open-pdp") return go("pdp", { product: el.dataset.product });
@@ -1283,6 +1344,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
+    if (action === "carousel-prev" || action === "carousel-next") {
+      const step = action === "carousel-next" ? 1 : -1;
+      state.checkoutIndex = clamp(state.checkoutIndex + step, 0, state.cart.length - 1);
+      return render();
+    }
+
     if (action === "confirm-methods") return goBack();
 
     if (action === "pay") {
@@ -1291,7 +1358,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
-    if (action === "dismiss-celebration") return go("purchases", {}, { push: false });
+    if (action === "dismiss-celebration") {
+      clearTimeout(celebrationTimer);
+      return go("purchases", {}, { push: false });
+    }
     if (action === "open-purchase") return go("purchase-detail", { id: el.dataset.id });
     if (action === "open-voucher") return go("voucher", { key: el.dataset.key });
 

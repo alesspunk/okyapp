@@ -8846,3 +8846,160 @@ button.header-icon {
   white-space: nowrap;
   font-size: 12px;
 }
+
+/* ── Checkout · carrusel de vales (Figma 99105:31960) ────────
+   Con más de un vale las cards se encogen y el vecino asoma a los
+   lados, lo que además libera alto para el summary de tres filas. */
+/* El organismo centra su track; aquí tiene que anclarse a la
+   izquierda para que el desplazamiento por slide cuadre. */
+/* .middle-card-shell.is-checkout fija width:min(300px,100%) y gana
+   por especificidad, así que el ancho del slide se escribe con la
+   misma fuerza o el carrusel se desplaza mal. */
+.oky-flow-voucher-carousel .middle-card-shell.is-checkout/* Las cards del carrusel son más bajas que la suelta. */
+.oky-flow-voucher-slide .middle-card-molecule,
+.oky-flow-carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 28px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--border-main);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--primary-main);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+.oky-flow-carousel-nav.is-prev {
+  left: 0;
+}
+
+.oky-flow-carousel-nav.is-next {
+  right: 0;
+}
+
+/* El rótulo es una píldora verde montada sobre el borde inferior
+   del sello, como en el flow de Figma. */
+.oky-flow-stamp-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.oky-flow-stamp-label {
+  position: relative;
+  margin: -34px 0 0;
+  padding: 8px 20px;
+  border-radius: 8px;
+  background: #43a047;
+  color: var(--white);
+  font-family: "Lato", sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+/* ── Checkout · carrusel de vales ────────────────────────────
+   Reglas portadas de public/checkout-pages.css (.checkout-brand-
+   carrousel), que solo carga el mockup suelto. Las cards vecinas
+   van absolutas a los lados, así que el centro manda en el alto y
+   queda sitio para el summary de tres filas. */
+.checkout-brand-carrousel-shell {
+  width: calc(100% + 32px);
+  margin: 0 -16px;
+  overflow: hidden;
+}
+
+.checkout-brand-carrousel {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+.checkout-brand-carrousel .brand-carrousel-track {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.checkout-brand-carrousel .brand-carrousel-side {
+  position: absolute;
+  top: 0;
+  width: 232px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.checkout-brand-carrousel .brand-carrousel-side-left {
+  left: -186px;
+}
+
+.checkout-brand-carrousel .brand-carrousel-side-right {
+  right: -186px;
+}
+
+.checkout-brand-carrousel .brand-carrousel-center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Las cards del carrusel son más bajas que la suelta. */
+.checkout-brand-carrousel .middle-card-shell.is-checkout {
+  width: 232px;
+  max-width: 232px;
+}
+
+.checkout-brand-carrousel .middle-card-molecule,
+.checkout-brand-carrousel .middle-card-content {
+  min-height: 140px;
+}
+
+.checkout-brand-carrousel .middle-card-amount {
+  font-size: 44px;
+}
+
+.oky-flow-carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 28px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--border-main);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--primary-main);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+.oky-flow-carousel-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.oky-flow-carousel-nav.is-prev {
+  left: 20px;
+}
+
+.oky-flow-carousel-nav.is-next {
+  right: 20px;
+}
