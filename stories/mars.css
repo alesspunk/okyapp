@@ -7095,6 +7095,14 @@ body {
   margin-top: var(--payment-card-stack-offset);
 }
 
+/* La card no lleva z-index propio, así que sus hijos posicionados
+   (patrón, arte, footer) se pintaban por encima de la card siguiente
+   y el footer de la de atrás se veía sobre la de adelante. Aislando
+   cada card el orden del DOM vuelve a mandar. */
+.payment-card-stack > .payment-card-molecule {
+  isolation: isolate;
+}
+
 /* ═══════════════════════════════════════════════════════════
    OKY Cash — Prototipo clickable (Pages/OKY Cash/Prototype)
    Figma: "7600 - UX Exploration", canvas "Cash Back" (99101:20345).
@@ -7152,16 +7160,30 @@ body {
   --discount-ribbon-notch: var(--warning-main);
 }
 
-/* ── Shell del prototipo ─────────────────────────────────── */
-/* El viewport del diseño es 360x800 y varias piezas del repo
-   (.status-bar, .page-header-screen) miden 360px fijos, así que el
-   borde va por fuera del content-box: 360 de contenido + 1px de
-   bisel a cada lado. Con border-box quedaba en 358 y desbordaba 2px. */
+/* ═══════════════════════════════════════════════════════════
+   Shell del prototipo OKY Cash
+   Las reglas de layout salen de public/pdp-pages.css y
+   public/checkout-pages.css: esos archivos solo los cargan los
+   mockups sueltos, Storybook nunca los ve, y por eso el PDP se
+   veía alineado a la izquierda. Aquí van portadas y scopeadas al
+   frame para que la story y el HTML standalone rindan igual.
+
+   Constantes del viewport (Figma 360x800):
+     · márgenes laterales 16px SIEMPRE, contenido centrado
+     · navbar 56px fija abajo en TODAS las pantallas
+     · saving bar 40px justo encima de la navbar
+   ═══════════════════════════════════════════════════════════ */
 .oky-flow-frame {
+  --oky-nav-h: 56px;
+  --oky-bar-h: 40px;
+  --oky-gutter: 16px;
+
   position: relative;
   width: 360px;
   max-width: 100%;
   height: 800px;
+  /* .status-bar y .page-header-screen miden 360px fijos, así que
+     el borde va por fuera del content-box (360 + 1px de bisel). */
   box-sizing: content-box;
   overflow: hidden;
   border: 1px solid var(--border-main);
@@ -7176,7 +7198,10 @@ body {
   inset: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  box-sizing: border-box;
   scrollbar-width: none;
+  /* la navbar es fija y siempre está, así que el hueco es fijo */
+  padding-bottom: var(--oky-nav-h);
 }
 
 .oky-flow-scroll::-webkit-scrollbar {
@@ -7184,82 +7209,140 @@ body {
   display: none;
 }
 
-/* deja hueco para navbar (56) y/o saving bar (40) fijos */
-.oky-flow-scroll.has-nav {
-  padding-bottom: 56px;
+/* + saving bar */
+.oky-flow-scroll.has-bar {
+  padding-bottom: calc(var(--oky-nav-h) + var(--oky-bar-h));
 }
 
-.oky-flow-scroll.has-nav-bar {
-  padding-bottom: 96px;
+/* + barra de un solo CTA */
+.oky-flow-scroll.has-cta {
+  padding-bottom: calc(var(--oky-nav-h) + 72px);
 }
 
-.oky-flow-scroll.has-cta-bar {
-  padding-bottom: 72px;
+/* + summary acoplado al fondo (PDP) */
+.oky-flow-scroll.has-dock {
+  padding-bottom: calc(var(--oky-nav-h) + var(--oky-bar-h) + 168px);
 }
 
-/* barra fija inferior de un solo CTA (Figma 359x70/72) */
-.oky-flow-cta-bar {
+/* Contenido estándar: 16px por lado y centrado. */
+.oky-flow-section {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 12px var(--oky-gutter) 16px;
+}
+
+.oky-flow-section.is-flush {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Pila centrada del PDP (equivale a .pdp-page-stack). */
+.oky-flow-stack-center {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 8px var(--oky-gutter) 0;
+}
+
+.oky-flow-stack-center > * {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* ── Barras fijas ────────────────────────────────────────── */
+.oky-flow-navbar {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 6;
-  box-sizing: border-box;
-  padding: 16px 20px;
-  border-top: 1px solid var(--border-main);
+  height: var(--oky-nav-h);
+  z-index: 90;
   background: var(--white);
+}
+
+.oky-flow-savingbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--oky-nav-h);
+  z-index: 80;
+}
+
+.oky-flow-cta-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--oky-nav-h);
+  z-index: 80;
+  box-sizing: border-box;
+  padding: 11px var(--oky-gutter);
+  background: var(--white);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .oky-flow-cta-bar .btn {
   width: 100%;
 }
 
-/* saving bar fija sobre el navbar */
-.oky-flow-savingbar {
+/* Summary acoplado al fondo, encima del saving bar (Figma PDP).
+   Copia el degradado de .pdp-page-summary-wrap. */
+.oky-flow-dock {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 56px;
-  z-index: 5;
+  bottom: calc(var(--oky-nav-h) + var(--oky-bar-h));
+  z-index: 70;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  padding: 16px var(--oky-gutter) 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 18%, #fff 100%);
+  pointer-events: none;
 }
 
-.oky-flow-navbar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 5;
+.oky-flow-dock > * {
+  width: 100%;
+  pointer-events: auto;
 }
 
-/* navbar con label: el repo usa .is-no-label en las pages, Figma
-   muestra los 5 labels y el ícono central es un bitmap. */
 .oky-flow-navbar .bottom-nav {
   width: 100%;
-  border-radius: 0 0 24px 24px;
+  height: 100%;
+  box-sizing: border-box;
+  border-top: 1px solid var(--border-main);
 }
 
 .oky-flow-navbar .nav-item {
-  color: var(--primary-base);
-  cursor: default;
-}
-
-.oky-flow-navbar .nav-item[data-action] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   cursor: pointer;
+  color: var(--primary-main);
 }
 
 .oky-flow-navbar .nav-item.is-dim {
+  cursor: default;
   opacity: 0.55;
 }
 
 .oky-flow-navbar .nav-label {
-  font-family: "Lato", sans-serif;
-  font-weight: 700;
-  line-height: 1.57;
+  font-size: 10px;
+  line-height: 1.2;
 }
 
 .oky-flow-coin {
-  width: 30px;
-  height: 32px;
+  width: 28px;
+  height: 30px;
   object-fit: contain;
 }
 
@@ -8071,57 +8154,473 @@ body {
   right: 12px;
   bottom: 6px;
 }
+/* ── Home: se mezcla el mockup de homepage (homecard-organism)
+   con las marcas clickables del prototipo ─────────────────── */
 
-/* ── Home: grid de dos marcas por fila ───────────────────────
-   No hay tamaño de brand-item entre is-medium (217px) y el de
-   112px con label: dos is-medium no caben en los 328px útiles.
-   En vez de inventar una variante nueva del átomo, se reajustan
-   sus custom properties manteniendo la proporción 217:136. */
-.oky-flow-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 158px);
-  justify-content: center;
-  gap: 12px 12px;
+/* Tabs de país (Figma: USA activa en blanco, GUA en gris). */
+.oky-flow-tabs {
+  display: flex;
+  width: 100%;
+  background: var(--white);
 }
 
-.oky-flow-tile {
+.oky-flow-tab {
+  flex: 1;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  background: #eceff3;
+  color: var(--text-secondary);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.oky-flow-tab:first-child {
+  border-radius: 0 12px 0 0;
+}
+
+.oky-flow-tab:last-child {
+  border-radius: 12px 0 0 0;
+}
+
+.oky-flow-tab.is-active {
+  background: var(--white);
+  color: var(--primary-main);
+  border-radius: 0;
+  box-shadow: inset 0 -3px 0 var(--primary-main);
+}
+
+.oky-flow-tab-flag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Encabezado de sección con countdown a la derecha. */
+.oky-flow-home-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.oky-flow-home-title {
+  margin: 0;
+  font-family: "Lato", sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: var(--primary-main);
+}
+
+.oky-flow-countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 16px;
+  background: var(--accent-color);
+  color: var(--warning-text);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* El homecard del mockup mide 330px; dentro del frame se ajusta
+   a los 328 útiles (360 - 16 - 16). */
+.oky-flow-frame .homecard-organism {
+  width: 100%;
+  min-height: 0;
+  margin-bottom: 0;
+}
+
+.oky-flow-frame .homecard-content-photo {
+  width: 100%;
+}
+
+/* Las marcas del prototipo son botones clickables. */
+.oky-flow-frame .homecard-photo-item {
+  width: 100%;
+  box-sizing: border-box;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.oky-flow-frame .homecard-photo-item[disabled] {
+  cursor: default;
+}
+
+/* El logo llena el placeholder completo (pedido explícito). */
+.oky-flow-frame .homecard-photo-logo,
+.oky-flow-frame .homecard-tile-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* El ribbon se ancla a la esquina de la foto en vez de ir con
+   offsets absolutos heredados del mockup de 224px. */
+.oky-flow-frame .homecard-photo-ribbon-wrap {
+  left: auto;
+  top: auto;
+  right: 8px;
+  bottom: 10px;
+}
+
+.oky-flow-frame .homecard-photo-ribbon-wrap .discount-ribbon-wrap {
+  position: static;
+  width: auto;
+  max-width: none;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 6px;
+  background: var(--discount-ribbon-bg);
+}
+
+.oky-flow-frame .homecard-photo-ribbon-wrap .discount-ribbon-wrap::before,
+.oky-flow-frame .homecard-photo-ribbon-wrap .discount-ribbon-wrap::after {
+  content: none;
+}
+
+.oky-flow-frame .homecard-photo-ribbon-wrap .discount-ribbon-text {
+  font-size: 14px;
+}
+
+/* ── Carrito: drawer desde la derecha con backdrop ──────────
+   Figma 99105:38191: el panel deja ver ~36px de la pantalla
+   anterior atenuada, y saving bar + navbar quedan por fuera. */
+.oky-flow-drawer-backdrop {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: calc(var(--oky-nav-h) + var(--oky-bar-h));
+  z-index: 100;
+  border: 0;
+  padding: 0;
+  background: rgba(16, 16, 16, 0.45);
+  animation: oky-flow-fade 0.18s ease-out;
+}
+
+.oky-flow-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: calc(var(--oky-nav-h) + var(--oky-bar-h));
+  z-index: 101;
+  width: 324px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  background: #f4f4f6;
+  border-radius: 16px 0 0 16px;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.18);
+  animation: oky-flow-slide-in 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes oky-flow-slide-in {
+  from { transform: translateX(100%); }
+  to { transform: none; }
+}
+
+@keyframes oky-flow-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.oky-flow-drawer-head {
+  display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 16px 16px 12px;
+}
+
+.oky-flow-drawer-title {
+  margin: 0;
+  font-family: "Lato", sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--primary-main);
+}
+
+.oky-flow-drawer-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 0 12px;
+}
+
+.oky-flow-drawer-body::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
+.oky-flow-drawer-foot {
+  padding: 12px;
+}
+
+.oky-flow-cart-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 4px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.oky-flow-cart-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 36px;
+  align-items: start;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.oky-flow-cart-row + .oky-flow-cart-row {
+  border-top: 1px solid var(--border-main);
+}
+
+.oky-flow-cart-art {
+  width: 56px;
+  height: 56px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid var(--border-main);
+  background: var(--white);
+  object-fit: cover;
+}
+
+.oky-flow-cart-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.oky-flow-cart-title {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-main);
+}
+
+.oky-flow-cart-price {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--primary-main);
+}
+
+/* En el carrito el chip de cashback siempre va aqua, sin importar
+   el tier (verificado en el frame del carrito). */
+.oky-flow-cart-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 4px;
+  background: #a8faf5;
+  color: #00524d;
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.oky-flow-cart-trash {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-main);
+  background: var(--white);
+  color: var(--error-dark);
+  cursor: pointer;
+}
+
+.oky-flow-cart-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 4px 12px;
+  font-family: "Lato", sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--primary-main);
+}
+
+.oky-flow-cart-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.oky-flow-cart-actions .btn {
+  flex: 1;
+}
+
+/* ── Cabecera del Home ───────────────────────────────────── */
+/* El carrito del Figma es un bitmap suelto con su punto rojo:
+   sin el círculo de .header-icon. */
+.oky-flow-iconbtn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
 }
 
-.oky-flow-tile .brand-item-atom.is-medium {
-  --brand-item-card-width: 158px;
-  --brand-item-card-height: 99px;
-  --brand-item-card-radius: 10px;
-  --brand-item-card-image-padding: 13px 19px;
-  --brand-item-card-inner-radius: 9px;
+.oky-flow-iconbtn img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
-/* El ribbon va donde el átomo lo espera: overlay notcheado en la
-   esquina superior derecha del arte, sobre el frame posicionado. */
-.oky-flow-tile .brand-item-atom.is-medium {
-  position: relative;
+.oky-flow-iconbtn .oky-flow-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--error-main);
 }
 
-.oky-flow-tile .discount-ribbon-wrap {
-  top: 6px;
-  right: 6px;
-  width: 84px;
-  max-width: 84px;
-  height: 30px;
+/* ── OKY Cash (destino del coin de la navbar) ────────────── */
+.oky-flow-cash-hero {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0 4px;
 }
 
-.oky-flow-tile .discount-ribbon-wrap .discount-ribbon-text {
-  font-size: 13px;
-  line-height: 1.6;
+.oky-flow-cash-hero img {
+  width: 72px;
+  height: 78px;
+  object-fit: contain;
 }
 
-.oky-flow-tile-label {
+.oky-flow-cash-hero-amount {
+  font-family: "Lato", sans-serif;
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--primary-main);
+}
+
+.oky-flow-cash-hero-label {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.oky-flow-activity {
+  width: 100%;
+  background: var(--white);
+  border-radius: 16px;
+  border: 1px solid var(--border-main);
+  padding: 4px 16px;
+  box-sizing: border-box;
+}
+
+.oky-flow-activity-row {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.oky-flow-activity-row + .oky-flow-activity-row {
+  border-top: 1px solid var(--border-main);
+}
+
+.oky-flow-activity-name {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--text-primary);
+}
+
+.oky-flow-activity-date {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.oky-flow-activity-amount {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.oky-flow-activity-amount.is-in {
+  color: var(--success-dark);
+}
+
+.oky-flow-activity-amount.is-out {
+  color: var(--text-primary);
+}
+
+/* El CTA doble del carrito va en una sola línea (Figma). */
+.oky-flow-cart-actions .btn {
+  white-space: nowrap;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+/* El ribbon del PDP cuelga de la esquina inferior derecha de la
+   card en vez de pisar el footer de links. */
+.discount-ribbon-wrap.is-pdp-bottom {
+  top: auto;
+  bottom: -12px;
+  right: 12px;
+}
+
+/* El ribbon baja lo suficiente para no pisar los links del footer. */
+.discount-ribbon-wrap.is-pdp-bottom {
+  bottom: -16px;
+}
+
+/* "Agregar" queda deshabilitado mientras el monto sea 0. */
+.oky-flow-frame .btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Los logos de marca de las tarjetas son blancos sobre transparente
+   (están hechos para la card de color), así que sobre una fila
+   blanca hay que devolverles su fondo. */
+.oky-flow-method-art.is-visa,
+.oky-flow-method-art.is-mastercard {
+  box-sizing: border-box;
+  padding: 4px;
+  border-radius: 5px;
+}
+
+.oky-flow-method-art.is-visa {
+  background: #1a1f71;
+}
+
+.oky-flow-method-art.is-mastercard {
+  background: #f79e1b;
 }

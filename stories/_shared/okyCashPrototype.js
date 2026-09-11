@@ -3,71 +3,82 @@
    Pages/OKY Cash/Prototype
 
    Fuente de verdad: Figma "7600 - UX Exploration",
-   canvas "Cash Back" (99101:20345). Frames leídos vía MCP:
+   canvas "Cash Back" (99101:20345). Frames leídos con el MCP:
 
      Home                   99105:31149
      PDP Lyft               99105:32284
      PDP Nike tier naranja  99105:37017   ($200 → 20%)
      PDP Nike tier aqua     99140:13571   ($201 → 5%)
-     Producto Agregado      99140:54432
-     Carrito                99105:38191
+     Carrito (drawer)       99105:38191
      Checkout               99105:31768
      Métodos de pago        99105:41588
      Progress Bar           99140:56017
      Success (Lottie)       99140:56018
      Tus compras            99140:56031
      Mi wallet              99105:43773
+     OKY Cash (dashboard)   99135:103474
      Onboarding Contactos   99140:47037
 
    Reglas del diseño que se respetan aquí:
    · El monto se escribe en un input con label flotante
-     "Desde 10 hasta 1,000" — no hay chips ni slider en el PDP.
+     "Desde 10 hasta 1,000"; arranca en 0.
    · El cashback vive SOLO en el ribbon y el Saving Bar; nunca
-     se suma al summary de precio (regla explícita del spec
-     frame 99105:32415).
-   · Tier: ≤$50 y >$200 → aqua #a8faf5/#00524d con 5%.
-     $50–$200 → naranja #ff9800/#663d00 con 20%.
-   · Checkout aplica OKY Cash con un CHECKBOX dentro de una fila
-     agrupada de método de pago. Es split payment: el chip morado
-     es lo que va a la tarjeta, el chip teal lo que sale del saldo.
-   · Métodos de pago cambia el monto con un SLIDER teal, con la
-     leyenda "$X de $Y · Guardas $Z para después".
-   · "Onboarding Contactos" NO es un modal: es una pantalla
-     morada #410d86 a pantalla completa, sin scrim ni cerrar.
+     se suma al summary de precio (regla del frame 99105:32415).
+   · Tier: ≤$50 y >$200 → aqua #a8faf5/#00524d al 5%.
+     $50–$200 → naranja al 20%. En el CARRITO el chip siempre va
+     aqua, sin importar el tier (verificado en 99105:38191).
+   · El carrito NO es una pantalla: es un drawer que entra desde
+     la derecha con backdrop, y deja fuera saving bar y navbar.
+   · La navbar va fija abajo en TODAS las pantallas.
+   · El ícono de wallet del header abre "Mi wallet"; el coin de la
+     navbar abre "OKY Cash", que es otra página (99135:103474).
 
-   Reutiliza sin reimplementar: .pdp-page-* / .checkout-page-* /
-   .success-page-* (los mockups HTML), .middle-card-*,
-   .brand-item-atom, .summary-box, .discount-ribbon, .saving-bar,
-   .payment-method-*, .dual-molecule, .plateu-*, .input-dinamic,
-   .bottom-nav, .btn y el molecule Payment Card.
+   Iconografía: se usa solo fa-solid / fa-regular. Las clases
+   fa-light dependen de las webfonts Pro servidas desde /public,
+   que no existen fuera de Storybook y dejaban los iconos en
+   blanco (back arrow y navbar incluidos).
+
+   Reutiliza sin reimplementar: .homecard-* (mockup de homepage),
+   .middle-card-*, .brand-item-atom, .summary-box, .discount-ribbon,
+   .saving-bar, .payment-method-*, .dual-molecule, .plateu-*,
+   .input-dinamic, .bottom-nav, .btn, History Card y Payment Card.
 ───────────────────────────────────────────────────────── */
 
 import { findPaymentCard, renderPaymentCard } from "./paymentCards";
+import { renderHistoryCard } from "./historyCards";
 
 /* ── Catálogo ────────────────────────────────────────────── */
 
 const PRODUCTS = {
-  lyft: {
-    key: "lyft",
-    label: "Lyft",
-    cardTitle: "Lyft Gift Card",
-    art: "oky-card-lyft.png",
-    min: 10,
-    max: 1000,
-    defaultAmount: 10,
-    legal: false,
-  },
   nike: {
     key: "nike",
     label: "Nike",
     cardTitle: "Nike Gift Card",
     art: "oky-card-nike.png",
+    hero: "promo-image1.png",
     min: 10,
     max: 1000,
-    defaultAmount: 200,
     legal: true,
   },
+  lyft: {
+    key: "lyft",
+    label: "Lyft",
+    cardTitle: "Lyft Gift Card",
+    art: "oky-card-lyft.png",
+    hero: "promo-image3.png",
+    min: 10,
+    max: 1000,
+    legal: false,
+  },
 };
+
+/* Marcas decorativas del Home, tomadas del mockup de homepage. */
+const HOME_TILES = [
+  { label: "Krispy Kreme", art: "oky-card-krispy.png" },
+  { label: "Under Armour", art: "oky-card-underarmour.png" },
+  { label: "Google Play", art: "oky-card-googleplay.png" },
+  { label: "Amazon", art: "amazon.png" },
+];
 
 /* Tier del cashback. Verificado contra los dos frames de Nike:
    $200 → "Ganas 20%" naranja · $201 → "Ganas 5%" aqua. */
@@ -78,19 +89,17 @@ function getTier(amount) {
   return { rate: 0.05, ribbon: "is-tier-base", bar: "" };
 }
 
-/* Vales del Wallet. Lyft y Nike son los funcionales; el resto es
-   decorativo, como pide el brief. */
 const WALLET_VOUCHERS = [
-  { key: "krispy", label: "Krispy Kreme", art: "oky-card-krispy.png", count: 1, live: false },
-  { key: "underarmour", label: "Under Armour", art: "oky-card-underarmour.png", count: 1, live: false },
-  { key: "lyft", label: "Lyft", art: "oky-card-lyft.png", count: 1, live: true },
-  { key: "nike", label: "Nike", art: "oky-card-nike.png", count: 1, live: true },
+  { key: "krispy", label: "Krispy Kreme", art: "oky-card-krispy.png", live: false },
+  { key: "underarmour", label: "Under Armour", art: "oky-card-underarmour.png", live: false },
+  { key: "lyft", label: "Lyft", art: "oky-card-lyft.png", live: true },
+  { key: "nike", label: "Nike", art: "oky-card-nike.png", live: true },
 ];
 
 const money = (v) => `$${(Number(v) || 0).toFixed(2)}`;
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 
-function todayMock(offsetDays = 0) {
+function stamp(offsetDays = 0) {
   const d = new Date();
   d.setDate(d.getDate() - offsetDays);
   const m = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
@@ -104,22 +113,31 @@ function createInitialState(userType) {
 
   return {
     userType,
-    /* El saldo del diseño es $56.00 disponible con $36.00 en la card */
     okyCashBalance: returning ? 56 : 20,
     screen: "home",
     params: {},
     history: [],
-    amounts: { lyft: PRODUCTS.lyft.defaultAmount, nike: PRODUCTS.nike.defaultAmount },
-    cart: null,
+    /* El PDP arranca siempre en 0. */
+    amounts: { nike: 0, lyft: 0 },
+    cart: [],
+    cartOpen: false,
     okyCashEnabled: false,
     okyCashApplied: 0,
     purchases: returning
-      ? [{ id: "seed", productKey: "lyft", amount: 20, cashback: 1, used: 5, date: todayMock(6) }]
+      ? [{ id: "seed", productKey: "lyft", amount: 20, cashback: 1, used: 5, date: stamp(6) }]
       : [],
-    lastPurchaseId: null,
+    activity: returning
+      ? [
+          { date: stamp(18), amount: "+ $4.07", order: "Orden #01112442" },
+          { date: stamp(41), amount: "+ $2.10", order: "Orden #01112441" },
+        ]
+      : [],
     decisionSeen: false,
   };
 }
+
+const cartTotal = (state) => state.cart.reduce((sum, item) => sum + item.amount, 0);
+const cartCashback = (state) => state.cart.reduce((sum, item) => sum + item.cashback, 0);
 
 /* ── Piezas compartidas ─────────────────────────────────── */
 
@@ -128,53 +146,54 @@ function statusBar() {
     <div class="status-bar">
       <div>9:41</div>
       <div style="display:flex;gap:8px">
-        <i class="fa-regular fa-signal" aria-hidden="true"></i>
-        <i class="fa-regular fa-wifi" aria-hidden="true"></i>
-        <i class="fa-regular fa-battery-full" aria-hidden="true"></i>
+        <i class="fa-solid fa-signal" aria-hidden="true"></i>
+        <i class="fa-solid fa-wifi" aria-hidden="true"></i>
+        <i class="fa-solid fa-battery-full" aria-hidden="true"></i>
       </div>
     </div>
   `;
 }
 
-/* Header del PDP/Checkout: back + título vacío + cart 3D con dot */
-function pdpHeader({ cart = true } = {}) {
+/* Un solo botón de atrás para todas las pantallas. */
+function backButton() {
   return `
-    <div class="page-header-screen pdp-page-header">
-      <button class="header-icon header-icon-light oky-flow-header-icon" data-action="back" type="button" aria-label="Atrás">
-        <i class="fa-light fa-arrow-left icon-medium" aria-hidden="true"></i>
-      </button>
-      <div class="page-header-title page-header-title-empty" aria-hidden="true"></div>
-      ${
-        cart
-          ? `<button class="header-icon header-icon-bitmap header-icon-bitmap-cart" data-action="go:cart" type="button" aria-label="Carrito">
-              <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="Cart-3d-icon.png" alt="" />
-              <span class="header-icon-indicator-dot"></span>
-            </button>`
-          : `<span class="header-icon header-icon-placeholder" aria-hidden="true"></span>`
-      }
-    </div>
+    <button class="oky-flow-header-icon" data-action="back" type="button" aria-label="Atrás">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+    </button>
   `;
 }
 
-/* Header con título (Mi wallet / Métodos de pago / Tus compras) */
-function titledHeader(title, { action = "" } = {}) {
+function titledHeader(title, { trailing = "" } = {}) {
   return `
     <header class="oky-flow-header">
-      <button class="oky-flow-header-icon" data-action="back" type="button" aria-label="Atrás">
-        <i class="fa-light fa-arrow-left" aria-hidden="true"></i>
-      </button>
+      ${backButton()}
       <h1 class="oky-flow-title">${title}</h1>
       ${
-        action
-          ? `<span class="oky-flow-header-icon" aria-hidden="true"><i class="fa-light ${action}"></i></span>`
+        trailing
+          ? `<span class="oky-flow-header-icon" aria-hidden="true"><i class="fa-solid ${trailing}"></i></span>`
           : `<span class="oky-flow-header-icon" aria-hidden="true"></span>`
       }
     </header>
   `;
 }
 
-/* Navbar del diseño: Home · Notificaciones · OKY Cash (bitmap) ·
-   Ayuda · Menú, con labels. Solo Home y OKY Cash navegan. */
+/* Header del PDP/Checkout: atrás + carrito con su contador. */
+function productHeader(state) {
+  const count = state.cart.length;
+  return `
+    <header class="oky-flow-header">
+      ${backButton()}
+      <span class="oky-flow-title" aria-hidden="true"></span>
+      <button class="oky-flow-iconbtn" data-action="open-cart" type="button" aria-label="Carrito">
+        <img src="Cart-3d-icon.png" alt="" />
+        ${count ? `<span class="oky-flow-dot"></span>` : ""}
+      </button>
+    </header>
+  `;
+}
+
+/* Navbar: fija abajo en todas las pantallas. Solo Home y el coin
+   de OKY Cash navegan; el resto queda atenuado. */
 function navbar(active) {
   const item = (key, label, icon, action) => `
     <div class="nav-item ${key === active ? "active" : ""} ${action ? "" : "is-dim"}"
@@ -182,7 +201,7 @@ function navbar(active) {
       ${
         key === "okycash"
           ? `<img class="oky-flow-coin" src="oky-cash-coin.png" alt="" />`
-          : `<i class="fa-light fa-${icon} icon-medium" aria-hidden="true"></i>`
+          : `<i class="fa-solid fa-${icon}" style="font-size:20px" aria-hidden="true"></i>`
       }
       <span class="nav-label">${label}</span>
     </div>
@@ -193,21 +212,19 @@ function navbar(active) {
       <div class="bottom-nav">
         ${item("home", "Home", "house", "nav:home")}
         ${item("notif", "Notificaciones", "bell", null)}
-        ${item("okycash", "OKY Cash", null, "nav:wallet")}
-        ${item("ayuda", "Ayuda", "messages", null)}
+        ${item("okycash", "OKY Cash", null, "nav:okycash")}
+        ${item("ayuda", "Ayuda", "comments", null)}
         ${item("menu", "Menú", "bars", null)}
       </div>
     </nav>
   `;
 }
 
-function savingBar(cashback, tier, { fixed = true } = {}) {
+function savingBar(cashback, tier, copy) {
   return `
-    <div class="${fixed ? "oky-flow-savingbar" : ""}">
+    <div class="oky-flow-savingbar">
       <div class="saving-bar is-oky-cash ${tier.bar}">
-        <div class="saving-bar-copy">
-          <span>Ganas <strong>${money(cashback)}</strong> de <strong>OKY Cash</strong></span>
-        </div>
+        <div class="saving-bar-copy"><span>${copy(money(cashback))}</span></div>
       </div>
     </div>
   `;
@@ -215,44 +232,69 @@ function savingBar(cashback, tier, { fixed = true } = {}) {
 
 /* ── Home (99105:31149) ─────────────────────────────────── */
 function screenHome(state) {
-  /* El ribbon del tile refleja el tier del monto actual del producto,
-     así el % que se ve aquí es el mismo que aparecerá en el PDP. */
-  const tile = (product) => {
-    const tier = getTier(state.amounts[product.key]);
+  /* Una marca del carrusel = homecard-photo-item del mockup de
+     homepage, pero como <button> para que sea clickable. */
+  const photoItem = (product) => {
+    const tier = getTier(state.amounts[product.key] || 200);
     return `
-      <button class="oky-flow-tile" data-action="open-pdp" data-product="${product.key}" type="button">
-        <span class="brand-item-atom is-medium">
-          <span class="brand-item-frame">
-            <span class="brand-item-base"><img src="${product.art}" alt="${product.label}" /></span>
-          </span>
-          <span class="discount-ribbon discount-ribbon-wrap ${tier.ribbon}">
-            <span class="discount-ribbon-text token-price-percent">Ganas ${Math.round(tier.rate * 100)}%</span>
-          </span>
-        </span>
-        <span class="oky-flow-tile-label token-product-text">${product.label}</span>
+      <button class="homecard-photo-item" data-action="open-pdp" data-product="${product.key}" type="button">
+        <div class="homecard-photo-media-wrap">
+          <img class="homecard-photo-hero" src="${product.hero}" alt="${product.label}" />
+          <div class="homecard-photo-ribbon-wrap">
+            <div class="discount-ribbon discount-ribbon-wrap ${tier.ribbon}">
+              <span class="discount-ribbon-text token-price-percent">Ganas hasta 20%</span>
+            </div>
+          </div>
+        </div>
+        <div class="homecard-photo-logo-stack">
+          <div class="homecard-photo-logo-wrap">
+            <img class="homecard-photo-logo" src="${product.art}" alt="${product.label}" />
+          </div>
+          <p class="token-brand homecard-photo-name">${product.label}</p>
+        </div>
       </button>
     `;
   };
 
+  const tile = (brand) => `
+    <article class="homecard-tile">
+      <div class="homecard-tile-logo-wrap">
+        <img class="homecard-tile-logo" src="${brand.art}" alt="${brand.label}" />
+      </div>
+      <p class="token-brand homecard-tile-name">${brand.label}</p>
+    </article>
+  `;
+
   return `
     ${statusBar()}
-    <div class="page-header-screen" style="justify-content:space-between">
-      <span class="header-icon header-icon-bitmap" aria-hidden="true">
-        <img class="header-icon-bitmap-image" src="Wallet-icon.png" alt="" />
-      </span>
+    <div class="page-header-screen" style="justify-content:space-between;padding:0 12px">
+      <button class="oky-flow-iconbtn" data-action="nav:wallet" type="button" aria-label="Mi wallet">
+        <img src="Wallet-icon.png" alt="" />
+      </button>
       <img class="header-logo" src="logo-oky.svg" alt="OKY" />
-      <button class="header-icon header-icon-bitmap header-icon-bitmap-cart" data-action="go:cart" type="button" aria-label="Carrito">
-        <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="Cart-3d-icon.png" alt="" />
+      <button class="oky-flow-iconbtn" data-action="open-cart" type="button" aria-label="Carrito">
+        <img src="Cart-3d-icon.png" alt="" />
+        ${state.cart.length ? `<span class="oky-flow-dot"></span>` : ""}
+      </button>
+    </div>
+
+    <div class="oky-flow-tabs">
+      <button class="oky-flow-tab is-active" type="button">
+        <span class="oky-flow-tab-flag">🇺🇸</span>USA
+      </button>
+      <button class="oky-flow-tab" type="button">
+        <span class="oky-flow-tab-flag">🇬🇹</span>GUA
+        <i class="fa-solid fa-chevron-down" style="font-size:11px" aria-hidden="true"></i>
       </button>
     </div>
 
     <div class="oky-flow-section">
-      <div class="input-wrapper">
-        <i class="fa-regular fa-magnifying-glass search-icon" aria-hidden="true"></i>
+      <div class="input-wrapper" style="width:100%">
+        <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
         <input class="input-field search-input search-input-empty" value="" placeholder="Buscar marcas" readonly />
       </div>
 
-      <button class="oky-flow-cash-strip" data-action="nav:wallet" type="button">
+      <button class="oky-flow-cash-strip" data-action="nav:okycash" type="button">
         <img src="oky-cash-coin.png" alt="" />
         <span class="oky-flow-cash-strip-copy">
           <span class="oky-flow-cash-strip-amount"><span>$</span><strong>${state.okyCashBalance.toFixed(2)}</strong></span>
@@ -261,11 +303,35 @@ function screenHome(state) {
         <span class="btn btn-primary btn-small" style="pointer-events:none">Explora</span>
       </button>
 
-      <p class="promo-strip-heading" style="margin:4px 0 0">Labor Day</p>
-      <div class="oky-flow-grid">
-        ${tile(PRODUCTS.nike)}
-        ${tile(PRODUCTS.lyft)}
+      <div class="oky-flow-home-head">
+        <h2 class="oky-flow-home-title">Labor Day</h2>
+        <span class="oky-flow-countdown">
+          <i class="fa-solid fa-clock" aria-hidden="true"></i>Termina en 20:43:32
+        </span>
       </div>
+
+      <section class="homecard-organism homecard-organism-photo">
+        <div class="homecard-content homecard-content-photo">
+          <div class="homecard-photo-track">
+            ${photoItem(PRODUCTS.nike)}
+            ${photoItem(PRODUCTS.lyft)}
+          </div>
+        </div>
+      </section>
+
+      <section class="homecard-organism">
+        <header class="homecard-header">
+          <h3 class="token-h6 homecard-title">Novedades</h3>
+        </header>
+        <div class="homecard-content homecard-content-default" style="padding:0 16px">
+          <div class="homecard-grid">
+            ${HOME_TILES.map(tile).join("")}
+          </div>
+        </div>
+        <footer class="homecard-footer">
+          <button class="btn btn-primary btn-small" type="button">Ver más</button>
+        </footer>
+      </section>
     </div>
 
     ${navbar("home")}
@@ -278,61 +344,24 @@ function screenPdp(state) {
   const amount = state.amounts[product.key];
   const tier = getTier(amount);
   const cashback = amount * tier.rate;
-  const added = state.params.added === true;
-
-  const summary = added
-    ? `
-      <div class="summary-card">
-        <div class="summary-card-body">
-          <div class="summary-row">
-            <span class="summary-label-strong">Subtotal</span>
-            <span class="summary-label-strong">${money(amount)}</span>
-          </div>
-        </div>
-        <div class="summary-cta-row double" style="gap:16px">
-          <button class="oky-flow-header-icon" data-action="remove-cart" type="button" aria-label="Quitar"
-            style="border:1px solid var(--primary-base);border-radius:16px;padding:8px;width:auto;height:auto;color:var(--error-dark)">
-            <i class="fa-light fa-trash-alt" aria-hidden="true"></i>
-          </button>
-          <button class="btn btn-outlined btn-large" data-action="nav:home" type="button" style="flex:1">Seguir comprando</button>
-        </div>
-        <div class="summary-cta-row">
-          <button class="btn btn-primary summary-btn" data-action="go:cart" type="button">Ver carrito</button>
-        </div>
-      </div>
-    `
-    : `
-      <div class="summary-card">
-        <div class="summary-card-body">
-          <div class="summary-row">
-            <span class="summary-label-strong">Subtotal</span>
-            <span class="summary-label-strong">${money(amount)}</span>
-          </div>
-        </div>
-        <div class="summary-cta-row">
-          <button class="btn btn-primary summary-btn" data-action="add-to-cart" data-product="${product.key}" type="button">
-            <i class="fa-regular fa-plus" aria-hidden="true"></i>Agregar
-          </button>
-        </div>
-      </div>
-    `;
+  const inCart = state.cart.some((item) => item.productKey === product.key);
 
   return `
     ${statusBar()}
-    ${pdpHeader()}
+    ${productHeader(state)}
 
-    <div class="pdp-page-stack" style="padding-top:8px">
-      <div class="pdp-page-brand-slot">
+    <div class="oky-flow-stack-center">
+      <div>
         <section class="brand-item-atom is-with-label" aria-label="${product.label}">
           <p class="brand-item-label token-product-text">${product.label}</p>
           <div class="brand-item-frame">
             <div class="brand-item-base"><img src="${product.art}" alt="${product.label}" /></div>
           </div>
         </section>
-        <p class="oky-flow-brand-online">Online</p>
       </div>
+      <div><p class="oky-flow-brand-online">Online</p></div>
 
-      <div class="pdp-page-card-slot">
+      <div>
         <section class="middle-card-shell is-pdp" aria-label="${product.cardTitle}">
           <article class="middle-card-molecule is-amount">
             <div class="middle-card-content">
@@ -347,7 +376,7 @@ function screenPdp(state) {
               </div>
               <div class="middle-card-footer">
                 <span class="middle-card-footer-start">Redemption Instructions</span>
-                <span class="middle-card-footer-end" aria-hidden="true"></span>
+                <span class="middle-card-footer-end">Terms &amp; Conditions</span>
               </div>
             </div>
             <div class="discount-ribbon discount-ribbon-wrap is-pdp-bottom ${tier.ribbon}">
@@ -357,13 +386,13 @@ function screenPdp(state) {
         </section>
       </div>
 
-      <div class="pdp-page-input-slot">
-        <div class="input-wrapper">
+      <div>
+        <div class="input-wrapper" style="width:100%">
           <label id="oky-amount-label" class="input-label input-label-dinamic" for="oky-amount">
             Desde ${product.min} hasta ${product.max.toLocaleString("en-US")}
           </label>
           <span class="input-dinamic-prefix" aria-hidden="true">$</span>
-          <input id="oky-amount" class="input-field input-dinamic input-dinamic-hasvalue" type="text"
+          <input id="oky-amount" class="input-field input-dinamic${amount ? " input-dinamic-hasvalue" : ""}" type="text"
             inputmode="decimal" value="${amount}" data-action="input-amount" data-product="${product.key}"
             aria-labelledby="oky-amount-label" />
         </div>
@@ -371,52 +400,136 @@ function screenPdp(state) {
 
       ${
         product.legal
-          ? `<p class="oky-flow-legal"><strong>Disponibilidad limitada</strong> Las gift cards con descuento especial estarán disponibles por tiempo limitado o hasta que se agote el inventario.</p>`
+          ? `<div><p class="oky-flow-legal"><strong>Disponibilidad limitada</strong> Las gift cards con descuento especial estarán disponibles por tiempo limitado o hasta que se agote el inventario.</p></div>`
           : ""
       }
     </div>
 
-    <section class="pdp-page-summary-wrap" aria-label="Resumen">
-      <div class="summary-box summary-box-compact">${summary}</div>
-    </section>
+    <div class="oky-flow-dock">
+      <div class="summary-box summary-box-compact">
+        <div class="summary-card">
+          <div class="summary-card-body">
+            <div class="summary-row">
+              <span class="summary-label-strong">Subtotal</span>
+              <span class="summary-label-strong" data-role="pdp-subtotal">${money(amount)}</span>
+            </div>
+          </div>
+          <div class="summary-cta-row">
+            ${
+              inCart
+                ? `<button class="btn btn-primary summary-btn" data-action="open-cart" type="button">Ver carrito</button>`
+                : `<button class="btn btn-primary summary-btn" data-action="add-to-cart" data-product="${product.key}"
+                     type="button" ${amount > 0 ? "" : "disabled"}>
+                     <i class="fa-solid fa-plus" aria-hidden="true"></i>Agregar
+                   </button>`
+            }
+          </div>
+        </div>
+      </div>
+    </div>
 
-    ${savingBar(cashback, tier)}
+    ${savingBar(cashback, tier, (v) => `Ganas <strong>${v}</strong> de <strong>OKY Cash</strong>`)}
     ${navbar("")}
   `;
 }
 
-/* ── Carrito (99105:38191) ──────────────────────────────── */
-function screenCart(state) {
-  if (!state.cart) {
-    return `
-      ${statusBar()}
-      ${titledHeader("Carrito")}
-      <div class="oky-flow-section">
-        <p class="oky-flow-empty">Tu carrito está vacío.</p>
-        <button class="btn btn-outlined btn-large" data-action="nav:home" type="button">Ir a comprar</button>
-      </div>
-      ${navbar("")}
-    `;
-  }
+/* ── Carrito: drawer desde la derecha (99105:38191) ─────── */
+function cartDrawer(state) {
+  const total = cartTotal(state);
+  const cashback = cartCashback(state);
 
-  const { amount, cashback, productKey } = state.cart;
-  const product = PRODUCTS[productKey];
-  const tier = getTier(amount);
+  const rows = state.cart.length
+    ? state.cart
+        .map((item) => {
+          const product = PRODUCTS[item.productKey];
+          const tier = getTier(item.amount);
+          return `
+            <div class="oky-flow-cart-row">
+              <img class="oky-flow-cart-art" src="${product.art}" alt="${product.label}" />
+              <div class="oky-flow-cart-copy">
+                <p class="oky-flow-cart-title">${product.cardTitle}</p>
+                <p class="oky-flow-cart-price">${money(item.amount)}</p>
+                <span class="oky-flow-cart-chip">Ganas ${Math.round(tier.rate * 100)}%</span>
+              </div>
+              <button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
+                type="button" aria-label="Quitar ${product.label}">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+              </button>
+            </div>
+          `;
+        })
+        .join("")
+    : `<p class="oky-flow-empty">Tu carrito está vacío.</p>`;
+
+  return `
+    <button class="oky-flow-drawer-backdrop" data-action="close-cart" type="button" aria-label="Cerrar carrito"></button>
+    <aside class="oky-flow-drawer" aria-label="Carrito">
+      <div class="oky-flow-drawer-head">
+        <button class="oky-flow-header-icon" data-action="close-cart" type="button" aria-label="Ir atrás">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        </button>
+        <h2 class="oky-flow-drawer-title">Ir atrás</h2>
+      </div>
+
+      <div class="oky-flow-drawer-body">
+        <div class="oky-flow-cart-card">${rows}</div>
+      </div>
+
+      <div class="oky-flow-drawer-foot">
+        <div class="oky-flow-cart-total">
+          <span>TOTAL</span>
+          <span>${money(total)}</span>
+        </div>
+        <div class="oky-flow-cart-actions">
+          <button class="btn btn-outlined btn-large" data-action="close-cart" type="button">Seguir comprando</button>
+          <button class="btn btn-primary btn-large" data-action="go:checkout" type="button"
+            ${state.cart.length ? "" : "disabled"}>Ir a pagar</button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="oky-flow-savingbar">
+      <div class="saving-bar is-oky-cash">
+        <div class="saving-bar-copy">
+          <span>Compra y gana <strong>${money(cashback)}+</strong> en <strong>OKY Cash</strong></span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ── Checkout (99105:31768) ─────────────────────────────── */
+function screenCheckout(state) {
+  const total = cartTotal(state);
+  const cashback = cartCashback(state);
+  const tier = getTier(total);
+  const first = PRODUCTS[state.cart[0].productKey];
+  const applied = state.okyCashEnabled
+    ? Math.min(state.okyCashApplied || state.okyCashBalance, total, state.okyCashBalance)
+    : 0;
+  const toCard = Math.max(total - applied, 0);
 
   return `
     ${statusBar()}
-    ${titledHeader("Carrito")}
+    ${productHeader(state)}
 
     <div class="oky-flow-section">
-      <section class="middle-card-shell is-checkout" aria-label="${product.cardTitle}">
+      <section class="brand-item-atom is-with-label">
+        <p class="brand-item-label token-product-text">${first.label}</p>
+        <div class="brand-item-frame">
+          <div class="brand-item-base"><img src="${first.art}" alt="${first.label}" /></div>
+        </div>
+      </section>
+
+      <section class="middle-card-shell is-checkout" style="width:100%">
         <article class="middle-card-molecule is-egift">
           <div class="middle-card-content">
             <div class="middle-card-main">
-              <p class="middle-card-title">${product.cardTitle}</p>
+              <p class="middle-card-title">${state.cart.length > 1 ? `${state.cart.length} Gift Cards` : first.cardTitle}</p>
               <div class="middle-card-center">
                 <div class="middle-card-value">
                   <span class="middle-card-currency">$</span>
-                  <p class="middle-card-amount">${amount}</p>
+                  <p class="middle-card-amount">${total}</p>
                 </div>
               </div>
             </div>
@@ -428,162 +541,65 @@ function screenCart(state) {
         </article>
       </section>
 
-      <div class="summary-box summary-box-compact">
+      <article class="dual-molecule is-default" style="width:100%">
+        <span class="dual-floating-label">¿Para quién es?</span>
+        <div class="dual-card">
+          <span class="dual-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+          <div class="dual-copy">
+            <p class="dual-title">Para mí</p>
+            <p class="dual-subtitle">+1 407 284-8092</p>
+          </div>
+          <span class="dual-action" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
+        </div>
+      </article>
+
+      <div class="payment-method-input oky-flow-paygroup" style="width:100%">
+        <span class="payment-method-label">Método de pago</span>
+        <div class="oky-flow-payrow is-first" data-action="open-methods" role="button" tabindex="0">
+          <img class="oky-flow-method-art is-visa" src="payment-card-logo-visa.png" alt="Visa" />
+          <p class="oky-flow-payrow-copy">**2111</p>
+          <span class="oky-flow-chip is-card">${money(toCard)}</span>
+          <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true" style="color:var(--primary-base)"></i>
+        </div>
+        <div class="oky-flow-payrow is-last" data-action="toggle-okycash" role="button" tabindex="0">
+          <span class="oky-flow-check" aria-hidden="true">
+            <i class="fa-${state.okyCashEnabled ? "solid fa-square-check" : "regular fa-square"}"></i>
+          </span>
+          <p class="oky-flow-payrow-copy">OKY Cash</p>
+          <span class="oky-flow-chip is-cash">${money(state.okyCashEnabled ? applied : state.okyCashBalance)}</span>
+          <button class="oky-flow-header-icon" data-action="open-methods" type="button"
+            aria-label="Editar monto" style="width:24px">
+            <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true" style="font-size:16px"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="summary-box summary-box-compact" style="width:100%">
         <div class="summary-card">
           <div class="summary-card-body">
             <div class="summary-row summary-row-total">
               <span class="summary-label-strong">TOTAL</span>
-              <span class="summary-label-strong">${money(amount)}</span>
+              <span class="summary-label-strong">${money(total)}</span>
             </div>
           </div>
           <div class="summary-cta-row">
-            <button class="btn btn-primary summary-btn" data-action="go:checkout" type="button">Ir a pagar</button>
+            <button class="btn btn-primary summary-btn" data-action="pay" type="button">Comprar</button>
           </div>
         </div>
       </div>
     </div>
 
-    ${savingBar(cashback, tier)}
-    ${navbar("")}
-  `;
-}
-
-/* ── Checkout (99105:31768) ─────────────────────────────── */
-function screenCheckout(state) {
-  const { amount, cashback, productKey } = state.cart;
-  const product = PRODUCTS[productKey];
-  const tier = getTier(amount);
-  const applied = state.okyCashEnabled ? Math.min(state.okyCashApplied || state.okyCashBalance, amount, state.okyCashBalance) : 0;
-  const toCard = Math.max(amount - applied, 0);
-
-  return `
-    ${statusBar()}
-    <div class="checkout-page-header-wrap page-header-organism is-checkout-overlap">
-      ${pdpHeader()}
-      <div class="checkout-page-brand-overlap page-header-organism-brand-overlap">
-        <div class="brand-item-atom is-with-label">
-          <p class="brand-item-label token-product-text">${product.label}</p>
-          <div class="brand-item-frame">
-            <div class="brand-item-base"><img src="${product.art}" alt="${product.label}" /></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <section class="checkout-page-main" style="padding-top:48px">
-      <div class="checkout-brand-carrousel-shell">
-        <section class="brand-carrousel-organism checkout-brand-carrousel" aria-label="Producto">
-          <div class="brand-carrousel-track">
-            <div class="brand-carrousel-center">
-              <div class="brand-carrousel-center-card">
-                <section class="middle-card-shell is-checkout">
-                  <article class="middle-card-molecule is-egift">
-                    <div class="middle-card-content">
-                      <div class="middle-card-main">
-                        <p class="middle-card-title">Gift Card</p>
-                        <div class="middle-card-center">
-                          <div class="middle-card-value">
-                            <span class="middle-card-currency">$</span>
-                            <p class="middle-card-amount">${amount}</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="middle-card-footer">
-                        <span class="middle-card-footer-start">Que necesitas saber</span>
-                        <span class="middle-card-footer-end" aria-hidden="true"></span>
-                      </div>
-                    </div>
-                  </article>
-                </section>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <section class="checkout-recipient-wrap" aria-label="¿Para quién es?">
-        <article class="dual-molecule is-default">
-          <span class="dual-floating-label">¿Para quién es?</span>
-          <div class="dual-card">
-            <span class="dual-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
-            <div class="dual-copy">
-              <p class="dual-title">Para mí</p>
-              <p class="dual-subtitle">+1 407 284-8092</p>
-            </div>
-            <span class="dual-action" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
-          </div>
-        </article>
-      </section>
-
-      <section class="checkout-payment-wrap" aria-label="Método de pago">
-        <div class="payment-method-input oky-flow-paygroup">
-          <span class="payment-method-label">Método de pago</span>
-          <div class="oky-flow-payrow is-first" data-action="open-methods" role="button" tabindex="0">
-            <img class="oky-flow-method-art" src="payment-card-logo-visa.png" alt="Visa" />
-            <p class="oky-flow-payrow-copy">**2111</p>
-            <span class="oky-flow-chip is-card">${money(toCard)}</span>
-            <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true" style="color:var(--primary-base)"></i>
-          </div>
-          <div class="oky-flow-payrow is-last ${state.okyCashEnabled ? "is-checked" : ""}" data-action="toggle-okycash" role="button" tabindex="0">
-            <span class="oky-flow-check ${state.okyCashEnabled ? "is-checked" : ""}" aria-hidden="true">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <p class="oky-flow-payrow-copy">OKY Cash</p>
-            <span class="oky-flow-chip is-cash">${money(state.okyCashEnabled ? applied : state.okyCashBalance)}</span>
-            <button class="oky-flow-header-icon" data-action="open-methods" type="button" aria-label="Editar monto" style="width:24px">
-              <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true" style="font-size:16px"></i>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section class="checkout-summary-wrap" aria-label="Resumen">
-        <div class="summary-box summary-box-compact">
-          <div class="summary-card">
-            <div class="summary-card-body">
-              <div class="summary-row">
-                <span class="summary-label-strong">Subtotal</span>
-                <span class="summary-label-strong">${money(amount)}</span>
-              </div>
-              ${
-                applied > 0
-                  ? `
-              <div class="summary-row">
-                <span class="summary-value-success">OKY Cash</span>
-                <span class="summary-value-success">-${money(applied)}</span>
-              </div>`
-                  : ""
-              }
-              <div class="summary-row summary-row-total">
-                <span class="summary-label-strong">TOTAL</span>
-                <span class="summary-label-strong">${money(toCard)}</span>
-              </div>
-            </div>
-            <div class="summary-cta-row">
-              <button class="btn btn-primary summary-btn" data-action="pay" type="button">Comprar</button>
-            </div>
-          </div>
-        </div>
-      </section>
-    </section>
-
-    <div class="oky-flow-savingbar">
-      <div class="saving-bar is-oky-cash ${tier.bar}">
-        <div class="saving-bar-copy">
-          <span>Compra y gana <strong>${money(cashback)}+</strong> en <strong>OKY Cash</strong></span>
-        </div>
-      </div>
-    </div>
+    ${savingBar(cashback, { bar: "" }, (v) => `Compra y gana <strong>${v}+</strong> en <strong>OKY Cash</strong>`)}
     ${navbar("")}
   `;
 }
 
 /* ── Métodos de pago (99105:41588) ──────────────────────── */
 function screenMethods(state) {
-  const { amount } = state.cart;
-  const max = Math.min(state.okyCashBalance, amount);
+  const total = cartTotal(state);
+  const max = Math.min(state.okyCashBalance, total);
   const applied = clamp(state.okyCashApplied, 0, max);
-  const toCard = Math.max(amount - applied, 0);
+  const toCard = Math.max(total - applied, 0);
   const keep = Math.max(state.okyCashBalance - applied, 0);
   const progress = max > 0 ? (applied / max) * 100 : 0;
 
@@ -597,19 +613,19 @@ function screenMethods(state) {
     ${titledHeader("Métodos de pago")}
 
     <div class="oky-flow-section" style="gap:8px">
-      <button class="oky-flow-addcard" data-action="noop" type="button">
-        <i class="fa-light fa-plus" aria-hidden="true"></i>Agregar tarjeta crédito/débito
+      <button class="oky-flow-addcard" type="button">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>Agregar tarjeta crédito/débito
       </button>
 
-      <div class="payment-card-stack" style="--payment-card-stack-offset:-144px;margin:0 auto">
+      <div class="payment-card-stack" style="--payment-card-stack-offset:-144px">
         ${renderPaymentCard(visa)}
         ${renderPaymentCard(cash)}
       </div>
 
-      <div class="oky-flow-method-group" style="padding-top:8px">
+      <div class="oky-flow-method-group" style="width:100%;padding-top:8px">
         <div class="oky-flow-method-row is-selected">
           <span class="oky-flow-radio" aria-hidden="true"><i class="fa-solid fa-circle-dot"></i></span>
-          <img class="oky-flow-method-art" src="payment-card-logo-visa.png" alt="Visa" />
+          <img class="oky-flow-method-art is-visa" src="payment-card-logo-visa.png" alt="Visa" />
           <p class="oky-flow-method-name">**2111</p>
           <span class="oky-flow-chip is-card">${money(toCard)}</span>
         </div>
@@ -633,42 +649,32 @@ function screenMethods(state) {
         </div>
       </div>
 
-      <div class="oky-flow-method-row" style="margin-top:8px">
+      <div class="oky-flow-method-row" style="width:100%;margin-top:8px">
         <span class="oky-flow-radio" aria-hidden="true"><i class="fa-regular fa-circle"></i></span>
-        <img class="oky-flow-method-art" src="payment-card-logo-mastercard.png" alt="" />
+        <img class="oky-flow-method-art is-mastercard" src="payment-card-logo-mastercard.png" alt="" />
         <p class="oky-flow-method-name is-regular">**4566</p>
       </div>
     </div>
 
     <div class="oky-flow-cta-bar">
-      <button class="btn btn-primary btn-large" data-action="confirm-methods" type="button" data-role="methods-cta">
-        Siguiente - <span data-role="methods-cta-amount">${money(toCard)}</span>
+      <button class="btn btn-primary btn-large" data-action="confirm-methods" type="button">
+        Siguiente - ${money(total)}
       </button>
     </div>
+    ${navbar("")}
   `;
 }
 
 /* ── Processing (99140:56017) ───────────────────────────── */
 function screenProcessing(state) {
-  const product = PRODUCTS[state.cart ? state.cart.productKey : "lyft"];
-  const rows = [
-    { name: "Google Play", time: "7:18 PM" },
-    { name: "Nike", time: "7:19 PM" },
-    { name: product.label, time: "7:20 PM" },
-  ];
+  const rows = state.cart.map((item, i) => ({
+    name: PRODUCTS[item.productKey].label,
+    time: `7:1${8 + i} PM`,
+  }));
 
   return `
     ${statusBar()}
-    ${pdpHeader()}
-    <div class="oky-flow-section" style="opacity:0.35">
-      <section class="brand-item-atom is-with-label">
-        <p class="brand-item-label token-product-text">${product.label}</p>
-        <div class="brand-item-frame">
-          <div class="brand-item-base"><img src="${product.art}" alt="" /></div>
-        </div>
-      </section>
-    </div>
-
+    ${titledHeader("")}
     <div class="modal-molecule-backdrop" style="position:absolute;inset:0;z-index:15"></div>
 
     <section class="oky-flow-sheet">
@@ -691,55 +697,48 @@ function screenProcessing(state) {
         <span>Redireccionando…</span>
       </div>
     </section>
+    ${navbar("")}
   `;
 }
 
 /* ── Tus compras (99140:56031) + Success (99140:56018) ─── */
 function screenPurchases(state, { celebrate = false } = {}) {
-  const bought = state.purchases
+  const list = state.purchases
     .slice()
     .reverse()
-    .map((p) => {
-      const product = PRODUCTS[p.productKey];
-      return { key: product.key, art: product.art, label: product.label, count: 1, live: true, id: p.id };
-    });
-
-  const list = bought.length
-    ? bought
-    : [{ key: "lyft", art: PRODUCTS.lyft.art, label: "Lyft", count: 1, live: false }];
+    .map((p) => ({ ...PRODUCTS[p.productKey], id: p.id }));
 
   return `
     ${statusBar()}
-    <header class="oky-flow-header">
-      <button class="oky-flow-header-icon" data-action="back" type="button" aria-label="Atrás">
-        <i class="fa-light fa-arrow-left" aria-hidden="true"></i>
-      </button>
-      <h1 class="oky-flow-title">Tus compras</h1>
-      <span class="oky-flow-header-icon" aria-hidden="true"><i class="fa-light fa-receipt"></i></span>
-    </header>
+    ${titledHeader("Tus compras", { trailing: "fa-receipt" })}
 
-    <div class="oky-flow-section" style="padding-top:8px">
-      <div class="oky-flow-stack">
-        ${list
-          .map(
-            (v) => `
-          <button class="oky-flow-voucher" ${v.id ? `data-action="open-purchase" data-id="${v.id}"` : "disabled"} type="button">
-            <img src="${v.art}" alt="${v.label}" />
-            <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
-          </button>
-        `,
-          )
-          .join("")}
-      </div>
+    <div class="oky-flow-section">
+      ${
+        list.length
+          ? `<div class="oky-flow-stack">
+              ${list
+                .map(
+                  (v) => `
+                <button class="oky-flow-voucher" data-action="open-purchase" data-id="${v.id}" type="button">
+                  <img src="${v.art}" alt="${v.label}" />
+                  <span class="oky-flow-voucher-badge">1<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
+                </button>
+              `,
+                )
+                .join("")}
+            </div>`
+          : `<p class="oky-flow-empty">Todavía no tienes compras.</p>`
+      }
     </div>
 
     <div class="oky-flow-cta-bar">
       <button class="btn btn-outlined btn-large" data-action="nav:wallet" type="button"
         style="display:inline-flex;align-items:center;justify-content:center;gap:8px">
-        <img src="oky-wallet-3d.png" alt="" style="width:32px;height:32px;object-fit:contain" />
+        <img src="oky-wallet-3d.png" alt="" style="width:28px;height:28px;object-fit:contain" />
         Mi Wallet
       </button>
     </div>
+    ${navbar("")}
 
     ${
       celebrate
@@ -755,7 +754,8 @@ function screenPurchases(state, { celebrate = false } = {}) {
 
 /* ── Detalle de compra ──────────────────────────────────── */
 function screenPurchaseDetail(state) {
-  const purchase = state.purchases.find((p) => p.id === state.params.id) || state.purchases[state.purchases.length - 1];
+  const purchase =
+    state.purchases.find((p) => p.id === state.params.id) || state.purchases[state.purchases.length - 1];
   const product = PRODUCTS[purchase.productKey];
 
   const rows = [
@@ -776,7 +776,7 @@ function screenPurchaseDetail(state) {
         <img src="${product.art}" alt="${product.label}" />
         <span class="oky-flow-voucher-badge">1<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
       </div>
-      <div class="summary-box summary-box-compact">
+      <div class="summary-box summary-box-compact" style="width:100%">
         <div class="summary-card">
           <div class="summary-card-body">
             ${rows
@@ -793,6 +793,7 @@ function screenPurchaseDetail(state) {
         </div>
       </div>
     </div>
+    ${navbar("")}
   `;
 }
 
@@ -802,7 +803,13 @@ function screenWallet(state) {
   cash.balance = { ...cash.balance, value: state.okyCashBalance.toFixed(2) };
   cash.art = "oky-saldo-card-art.png";
 
-  const filters = ["OKY Cash", "Gift Cards", "OKY Vales", "Servicios", "Recargas"];
+  const filters = [
+    { label: "OKY Cash", icon: "oky-cash-coin.png" },
+    { label: "Gift Cards", icon: "plateu9.png" },
+    { label: "OKY Vales", icon: "plateu10.png" },
+    { label: "Servicios", icon: "plateu11.png" },
+    { label: "Recargas", icon: "plateu12.png" },
+  ];
 
   return `
     ${statusBar()}
@@ -814,8 +821,8 @@ function screenWallet(state) {
           .map(
             (f, i) => `
           <div class="plateu-item">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="${i === 0 ? "oky-cash-coin.png" : `plateu${8 + i}.png`}" alt="" /></div>
-            ${i === 0 ? `<span class="plateu-chip is-outlined">${f}</span>` : `<span class="plateu-label">${f}</span>`}
+            <div class="plateu-icon-wrap"><img class="plateu-icon" src="${f.icon}" alt="" /></div>
+            ${i === 0 ? `<span class="plateu-chip is-outlined">${f.label}</span>` : `<span class="plateu-label">${f.label}</span>`}
           </div>
         `,
           )
@@ -824,30 +831,86 @@ function screenWallet(state) {
     </section>
 
     <div class="oky-flow-section" style="gap:16px">
-      <div class="oky-flow-section-head"><i class="fa-solid fa-wallet"></i>OKY CASH<i class="fa-solid fa-chevron-down"></i></div>
-      <div style="display:flex;justify-content:center">${renderPaymentCard(cash)}</div>
+      <div class="oky-flow-section-head">
+        <i class="fa-solid fa-wallet" aria-hidden="true"></i>OKY CASH
+        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+      </div>
+      <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
 
-      <div class="oky-flow-section-head"><i class="fa-solid fa-gift"></i>giftcards<i class="fa-solid fa-chevron-down"></i></div>
+      <div class="oky-flow-section-head">
+        <i class="fa-solid fa-gift" aria-hidden="true"></i>GIFT CARDS
+        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+      </div>
       <div class="oky-flow-stack">
         ${WALLET_VOUCHERS.map(
           (v) => `
           <button class="oky-flow-voucher" ${v.live ? `data-action="open-voucher" data-key="${v.key}"` : "disabled"} type="button">
             <img src="${v.art}" alt="${v.label}" />
-            <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
+            <span class="oky-flow-voucher-badge">1<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
           </button>
         `,
         ).join("")}
       </div>
-      <div style="display:flex;justify-content:center">
-        <button class="btn btn-primary btn-small" data-action="go:purchases" type="button">Ver más</button>
+      <button class="btn btn-primary btn-small" data-action="go:purchases" type="button">Ver más</button>
+    </div>
+
+    ${navbar("")}
+  `;
+}
+
+/* ── OKY Cash: destino del coin de la navbar (99135:103474) ─ */
+function screenOkyCash(state) {
+  const cash = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
+  cash.balance = { ...cash.balance, value: state.okyCashBalance.toFixed(2) };
+  cash.art = "oky-saldo-card-art.png";
+
+  const rows = state.activity.length
+    ? state.activity
+        .map((entry) =>
+          renderHistoryCard({
+            key: "oky-cash",
+            id: "99135:104411",
+            layout: "row",
+            icon: { glyph: "fa-coins", weight: "fa-solid" },
+            date: entry.date,
+            amount: entry.amount,
+            meta: { type: "order", note: entry.order },
+            chip: { label: "Acreditado", tone: "success", icon: "fa-circle-check" },
+          }),
+        )
+        .join("")
+    : `<p class="oky-flow-empty">Todavía no tienes movimientos de OKY Cash.</p>`;
+
+  return `
+    ${statusBar()}
+    ${titledHeader("OKY Cash")}
+
+    <div class="oky-flow-section" style="gap:16px">
+      <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
+
+      <div class="oky-flow-home-head">
+        <span class="oky-flow-section-head" style="padding:0">ACTIVIDAD</span>
+        <button class="btn btn-outlined btn-small" type="button">
+          <i class="fa-solid fa-sliders" aria-hidden="true"></i>&nbsp;Filtrar
+        </button>
       </div>
+
+      <div class="input-wrapper" style="width:100%">
+        <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+        <input class="input-field search-input search-input-empty" value="" placeholder="Buscar" readonly />
+      </div>
+
+      <div class="oky-flow-home-head">
+        <h2 class="oky-flow-home-title" style="font-size:16px">ESTE MES</h2>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;width:100%">${rows}</div>
     </div>
 
     ${navbar("okycash")}
   `;
 }
 
-/* ── Detalle de vale (Lyft / Nike) ──────────────────────── */
+/* ── Detalle de vale ────────────────────────────────────── */
 function screenVoucher(state) {
   const product = PRODUCTS[state.params.key];
   const purchase = state.purchases.filter((p) => p.productKey === product.key).slice(-1)[0];
@@ -861,7 +924,7 @@ function screenVoucher(state) {
         <span class="oky-flow-voucher-badge">1<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
       </div>
 
-      <div class="summary-box summary-box-compact">
+      <div class="summary-box summary-box-compact" style="width:100%">
         <div class="summary-card">
           <div class="summary-card-body">
             ${
@@ -886,6 +949,7 @@ function screenVoucher(state) {
         </div>
       </div>
     </div>
+    ${navbar("")}
   `;
 }
 
@@ -908,22 +972,20 @@ function screenDecision() {
 
 /* ── Router ─────────────────────────────────────────────── */
 
+/* Hueco inferior por pantalla. La navbar (56px) ya está contada
+   en .oky-flow-scroll, aquí solo se suma lo que va encima. */
 const SCROLL_CLASS = {
-  home: "has-nav",
-  pdp: "has-nav-bar",
-  cart: "has-nav-bar",
-  checkout: "has-nav-bar",
-  methods: "has-cta-bar",
-  purchases: "has-cta-bar",
-  success: "has-cta-bar",
-  wallet: "has-nav",
+  pdp: "has-dock",
+  checkout: "has-bar",
+  methods: "has-cta",
+  purchases: "has-cta",
+  success: "has-cta",
 };
 
 function renderScreen(state) {
   switch (state.screen) {
     case "home": return screenHome(state);
     case "pdp": return screenPdp(state);
-    case "cart": return screenCart(state);
     case "checkout": return screenCheckout(state);
     case "methods": return screenMethods(state);
     case "processing": return screenProcessing(state);
@@ -931,39 +993,10 @@ function renderScreen(state) {
     case "purchases": return screenPurchases(state);
     case "purchase-detail": return screenPurchaseDetail(state);
     case "wallet": return screenWallet(state);
+    case "okycash": return screenOkyCash(state);
     case "voucher": return screenVoucher(state);
     default: return screenHome(state);
   }
-}
-
-/* Ráfaga de confeti de un solo uso al activar OKY Cash en Checkout
-   (la casilla es opcional; se celebra cada vez que pasa de apagada
-   a encendida, como en el Figma real — no un loop ni un overlay fijo). */
-const CONFETTI_COLORS = ["#09b4b0", "#ffb400", "#552588", "#a8faf5"];
-
-function burstConfetti(container) {
-  if (!container) return;
-  const pieces = [];
-
-  for (let i = 0; i < 10; i += 1) {
-    const piece = document.createElement("span");
-    piece.className = "oky-flow-confetti-piece";
-    const angle = Math.random() * Math.PI * 2;
-    const distance = 22 + Math.random() * 20;
-    piece.style.setProperty("--piece-x", `${20 + Math.random() * 60}%`);
-    piece.style.setProperty("--piece-dx", `${Math.cos(angle) * distance}px`);
-    piece.style.setProperty("--piece-dy", `${Math.sin(angle) * distance - 10}px`);
-    piece.style.setProperty("--piece-rot", `${Math.random() * 90 - 45}deg`);
-    piece.style.setProperty("--piece-rot-end", `${180 + Math.random() * 180}deg`);
-    piece.style.setProperty("--piece-color", CONFETTI_COLORS[i % CONFETTI_COLORS.length]);
-    piece.style.setProperty("--piece-delay", `${Math.random() * 120}ms`);
-    piece.style.setProperty("--piece-w", `${4 + Math.random() * 3}px`);
-    piece.style.setProperty("--piece-h", `${7 + Math.random() * 5}px`);
-    container.appendChild(piece);
-    pieces.push(piece);
-  }
-
-  setTimeout(() => pieces.forEach((p) => p.remove()), 1100);
 }
 
 export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
@@ -978,15 +1011,28 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         <div class="oky-flow-scroll ${SCROLL_CLASS[state.screen] || ""}">
           ${renderScreen(state)}
         </div>
+        ${state.cartOpen ? cartDrawer(state) : ""}
         ${showDecision ? screenDecision() : ""}
       </div>
     `;
+
+    /* Las barras se escriben dentro de la plantilla de cada pantalla
+       por comodidad, pero .oky-flow-scroll está posicionado, así que
+       ahí dentro un position:absolute se ancla al box que scrollea y
+       las barras se movían con el contenido. Se re-parentan al frame,
+       que es el contenedor fijo real. */
+    const frame = root.querySelector(".oky-flow-frame");
+    const scroll = frame.querySelector(".oky-flow-scroll");
+    scroll
+      .querySelectorAll(".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock")
+      .forEach((bar) => frame.appendChild(bar));
   }
 
   function go(screen, params = {}, { push = true } = {}) {
     if (push) state.history.push({ screen: state.screen, params: state.params });
     state.screen = screen;
     state.params = params;
+    state.cartOpen = false;
     render();
   }
 
@@ -995,18 +1041,36 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (!prev) return go("home", {}, { push: false });
     state.screen = prev.screen;
     state.params = prev.params;
+    state.cartOpen = false;
     render();
   }
 
   function completePurchase() {
-    const { amount, cashback, productKey } = state.cart;
-    const used = state.okyCashEnabled ? clamp(state.okyCashApplied, 0, Math.min(state.okyCashBalance, amount)) : 0;
-    const id = `p-${Date.now()}`;
+    const total = cartTotal(state);
+    const used = state.okyCashEnabled
+      ? clamp(state.okyCashApplied, 0, Math.min(state.okyCashBalance, total))
+      : 0;
+    let earned = 0;
 
-    state.purchases.push({ id, productKey, amount, cashback, used, date: todayMock(0) });
-    state.okyCashBalance = state.okyCashBalance - used + cashback;
-    state.lastPurchaseId = id;
-    state.cart = null;
+    state.cart.forEach((item, i) => {
+      state.purchases.push({
+        id: `p-${Date.now()}-${i}`,
+        productKey: item.productKey,
+        amount: item.amount,
+        cashback: item.cashback,
+        used: i === 0 ? used : 0,
+        date: stamp(0),
+      });
+      earned += item.cashback;
+      state.activity.unshift({
+        date: stamp(0),
+        amount: `+ ${money(item.cashback)}`,
+        order: `Orden #${11112440 + state.activity.length + 1}`,
+      });
+    });
+
+    state.okyCashBalance = state.okyCashBalance - used + earned;
+    state.cart = [];
     state.okyCashEnabled = false;
     state.okyCashApplied = 0;
     state.history = [];
@@ -1018,44 +1082,55 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (!el || el.disabled) return;
     const action = el.dataset.action;
 
-    if (action === "noop") return;
     if (action === "back") return goBack();
     if (action === "nav:home") return go("home");
     if (action === "nav:wallet") return go("wallet");
-    if (action === "go:cart") return go("cart");
-    if (action === "go:checkout") return go("checkout");
+    if (action === "nav:okycash") return go("okycash");
     if (action === "go:purchases") return go("purchases");
+
+    if (action === "open-cart") {
+      state.cartOpen = true;
+      return render();
+    }
+    if (action === "close-cart") {
+      state.cartOpen = false;
+      return render();
+    }
+    if (action === "go:checkout") return go("checkout");
 
     if (action === "open-pdp") return go("pdp", { product: el.dataset.product });
 
     if (action === "add-to-cart") {
       const product = PRODUCTS[el.dataset.product];
       const amount = state.amounts[product.key];
+      if (!amount) return;
       const tier = getTier(amount);
-      state.cart = { productKey: product.key, amount, cashback: amount * tier.rate };
-      return go("pdp", { product: product.key, added: true }, { push: false });
+      state.cart = state.cart
+        .filter((item) => item.productKey !== product.key)
+        .concat({ productKey: product.key, amount, cashback: amount * tier.rate });
+      state.cartOpen = true;
+      return render();
     }
 
-    if (action === "remove-cart") {
-      state.cart = null;
-      return go("pdp", { product: state.params.product }, { push: false });
+    if (action === "remove-item") {
+      state.cart = state.cart.filter((item) => item.productKey !== el.dataset.product);
+      return render();
     }
 
     if (action === "open-methods") {
       if (!state.okyCashEnabled) {
         state.okyCashEnabled = true;
-        state.okyCashApplied = Math.min(state.okyCashBalance, state.cart.amount);
+        state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
       }
       return go("methods");
     }
 
     if (action === "toggle-okycash") {
-      const turningOn = !state.okyCashEnabled;
-      state.okyCashEnabled = turningOn;
-      state.okyCashApplied = turningOn ? Math.min(state.okyCashBalance, state.cart.amount) : 0;
-      render();
-      if (turningOn) burstConfetti(root.querySelector(".oky-flow-payrow.is-last"));
-      return;
+      state.okyCashEnabled = !state.okyCashEnabled;
+      state.okyCashApplied = state.okyCashEnabled
+        ? Math.min(state.okyCashBalance, cartTotal(state))
+        : 0;
+      return render();
     }
 
     if (action === "confirm-methods") return goBack();
@@ -1076,7 +1151,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
   });
 
-  /* Monto del PDP: patch puntual para no perder el foco al teclear. */
+  /* Monto del PDP: se parchean solo los nodos afectados para no
+     perder el foco del input en cada tecla. */
   root.addEventListener("input", (event) => {
     const amountInput = event.target.closest("[data-action='input-amount']");
     if (amountInput) {
@@ -1088,10 +1164,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const tier = getTier(amount);
       const cashback = amount * tier.rate;
 
+      amountInput.classList.toggle("input-dinamic-hasvalue", amount > 0);
+
       const bigAmount = root.querySelector(".middle-card-amount");
       if (bigAmount) bigAmount.textContent = amount;
 
-      const ribbon = root.querySelector(".discount-ribbon-wrap");
+      const ribbon = root.querySelector(".discount-ribbon-wrap.is-pdp-bottom");
       if (ribbon) {
         ribbon.classList.remove("is-tier-base", "is-tier-promo");
         ribbon.classList.add(tier.ribbon);
@@ -1105,28 +1183,29 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           `Ganas <strong>${money(cashback)}</strong> de <strong>OKY Cash</strong>`;
       }
 
-      root.querySelectorAll(".summary-row .summary-label-strong").forEach((node) => {
-        if (node.textContent.trim().startsWith("$")) node.textContent = money(amount);
-      });
+      const subtotal = root.querySelector("[data-role='pdp-subtotal']");
+      if (subtotal) subtotal.textContent = money(amount);
+
+      const addBtn = root.querySelector("[data-action='add-to-cart']");
+      if (addBtn) addBtn.disabled = amount <= 0;
       return;
     }
 
     const slider = event.target.closest("[data-action='slide-okycash']");
     if (slider) {
-      const max = Math.min(state.okyCashBalance, state.cart.amount);
+      const total = cartTotal(state);
+      const max = Math.min(state.okyCashBalance, total);
       const applied = clamp(Number(slider.value) || 0, 0, max);
       state.okyCashApplied = applied;
       state.okyCashEnabled = applied > 0;
 
       const keep = Math.max(state.okyCashBalance - applied, 0);
       slider.parentElement.style.setProperty("--oky-cash-progress", `${max ? (applied / max) * 100 : 0}%`);
+
       const cashChip = root.querySelector(".oky-flow-method-row.is-cash .oky-flow-chip.is-cash");
       if (cashChip) cashChip.textContent = money(applied);
-      const toCard = Math.max(state.cart.amount - applied, 0);
       const cardChip = root.querySelector(".oky-flow-method-row.is-selected .oky-flow-chip.is-card");
-      if (cardChip) cardChip.textContent = money(toCard);
-      const ctaAmount = root.querySelector("[data-role='methods-cta-amount']");
-      if (ctaAmount) ctaAmount.textContent = money(toCard);
+      if (cardChip) cardChip.textContent = money(Math.max(total - applied, 0));
       const caption = root.querySelector(".oky-flow-cash-caption");
       if (caption) {
         caption.innerHTML =
