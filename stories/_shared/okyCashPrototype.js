@@ -596,7 +596,7 @@ function screenCheckout(state) {
             </div>
           </div>
           <div class="middle-card-footer">
-            <span class="middle-card-footer-start">Que necesitas saber</span>
+            <span class="middle-card-footer-start">Que debo saber</span>
             <span class="middle-card-footer-end" aria-hidden="true"></span>
           </div>
         </div>
