@@ -702,13 +702,20 @@ function screenCheckout(state) {
       <div class="summary-box summary-box-compact oky-flow-push" style="width:100%">
         <div class="summary-card">
           <div class="summary-card-body">
-            <div class="summary-row">
-              <span class="summary-label-strong">Subtotal</span>
-              <span class="summary-label-strong">${money(total)}</span>
-            </div>
             ${
+              /* Sin OKY Cash aplicado, Subtotal y TOTAL son el mismo
+                 número: se muestra solo TOTAL (Figma 99105:31768). */
               applied > 0
                 ? `<div class="summary-row">
+                     <span class="summary-label-strong">Subtotal
+                       <button class="oky-flow-info" data-action="open-cart" type="button"
+                         aria-label="Ver el carrito">
+                         <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                       </button>
+                     </span>
+                     <span class="summary-label-strong">${money(total)}</span>
+                   </div>
+                   <div class="summary-row">
                      <span class="summary-value-success">OKY Cash</span>
                      <span class="summary-value-success">-${money(applied)}</span>
                    </div>`
