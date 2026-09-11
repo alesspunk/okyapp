@@ -26,6 +26,14 @@ body { margin:0; padding:24px; background:#eceef2; display:flex; justify-content
   --primary-dark: #230741;
   --secondary-main: #18afa5;
   --accent-color: #ffb400;
+
+  /* Tiers de cashback: un solo par por tier, para que ribbon, saving
+     bar, chips y el chip de countdown no vuelvan a irse cada uno por
+     su lado (el bar usaba #ff9800 y el ribbon #ffb400). */
+  --tier-base-bg: #a8faf5;
+  --tier-base-text: #00524d;
+  --tier-promo-bg: #ffb400;
+  --tier-promo-text: #663d00;
   --border-main: rgba(0, 0, 0, 0.23);
   --border-active: #410088;
   --white: #ffffff;
@@ -5628,7 +5636,7 @@ body {
   max-width: 100%;
   height: 32px;
   padding: 10px;
-  background: #a8faf5;
+  background: var(--tier-base-bg);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.17);
   overflow: hidden;
 }
@@ -5644,7 +5652,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #00524d;
+  color: var(--tier-base-text);
   font-family: "Lato", sans-serif;
   font-weight: 900;
   font-size: 16px;
@@ -7140,11 +7148,11 @@ body {
    .discount-ribbon) ↔ naranja #FF9800/#663D00, que son exacta-
    mente --warning-main y --warning-text. */
 .saving-bar.is-tier-promo {
-  background: var(--warning-main);
+  background: var(--tier-promo-bg);
 }
 
 .saving-bar.is-tier-promo .saving-bar-copy {
-  color: var(--warning-text);
+  color: var(--tier-promo-text);
 }
 
 /* Saving Bar del flujo OKY Cash: 40px, sin icono, pesos mixtos
@@ -7170,9 +7178,9 @@ body {
 /* Ribbon naranja del tier promocional. --accent-color es #ffb400,
    Figma pide #ff9800 → se apunta a --warning-main. */
 .discount-ribbon.is-tier-promo {
-  --discount-ribbon-bg: var(--accent-color);
-  --discount-ribbon-text: var(--warning-text);
-  --discount-ribbon-notch: var(--accent-color);
+  --discount-ribbon-bg: var(--tier-promo-bg);
+  --discount-ribbon-text: var(--tier-promo-text);
+  --discount-ribbon-notch: var(--tier-promo-bg);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -8147,9 +8155,9 @@ body {
    hardcodeado). No toco los tokens globales porque los consumen
    Summary Box, Promo Code y Super Ribbon; se declara aquí. */
 .discount-ribbon.is-tier-base {
-  --discount-ribbon-bg: #a8faf5;
-  --discount-ribbon-text: #00524d;
-  --discount-ribbon-notch: #00524d;
+  --discount-ribbon-bg: var(--tier-base-bg);
+  --discount-ribbon-text: var(--tier-base-text);
+  --discount-ribbon-notch: var(--tier-base-text);
 }
 
 .discount-ribbon.is-tier-base .discount-ribbon-text,
@@ -8236,8 +8244,8 @@ body {
   height: 32px;
   padding: 0 12px;
   border-radius: 16px;
-  background: var(--accent-color);
-  color: var(--warning-text);
+  background: var(--tier-promo-bg);
+  color: var(--tier-promo-text);
   font-family: "Nunito Sans", sans-serif;
   font-size: 13px;
   font-weight: 700;
