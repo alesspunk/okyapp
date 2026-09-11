@@ -9093,3 +9093,15 @@ button.header-icon {
 .oky-flow-method-row .oky-flow-radio {
   margin-left: 8px;
 }
+
+/* La bandera de la Top Card va redonda, como el asset del sistema. */
+.prime-card-top-flag .flag-atom,
+.prime-card-top-flag .flag-atom img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.prime-card-top-flag .flag-atom img {
+  object-fit: cover;
+}

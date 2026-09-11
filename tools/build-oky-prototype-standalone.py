@@ -135,6 +135,27 @@ for name in MODULES:
 
 bundle = "\n\n".join(chunks)
 
+# El átomo Flag apunta a /flagpack/4x3/<iso>.svg, que Storybook sirve
+# desde node_modules. Fuera de ahí no existe y el atom cae a su estado
+# "missing" (el recuadro gris con el código). Se reapunta a las
+# banderas redondas que ya viven en images/.
+FLAGPACK = {"us": "usa-flag.png", "gt": "guatemala-flag.png"}
+_flags = {
+    iso: data_uri(os.path.join(IMAGES, asset))
+    for iso, asset in FLAGPACK.items()
+    if os.path.exists(os.path.join(IMAGES, asset))
+}
+if _flags:
+    # El src se arma con un template literal, así que se sustituye la
+    # expresión entera por una búsqueda en la tabla.
+    table = ", ".join(f'"{iso}": "{uri}"' for iso, uri in _flags.items())
+    bundle = bundle.replace(
+        'const src = `/flagpack/4x3/${country.alpha2.toLowerCase()}.svg`;',
+        'var __FLAGS = {' + table + '};\n'
+        '  const src = __FLAGS[country.alpha2.toLowerCase()] '
+        '|| `/flagpack/4x3/${country.alpha2.toLowerCase()}.svg`;',
+    )
+
 # ── 3. Imágenes → data URIs ───────────────────────────────
 names = set(re.findall(r'["\']([A-Za-z0-9_.\-]+\.(?:png|svg|webp|jpe?g))["\']', bundle))
 missing = []
