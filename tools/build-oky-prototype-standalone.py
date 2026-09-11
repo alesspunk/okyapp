@@ -70,7 +70,24 @@ css += """
 .fal {
   font-family: "Font Awesome 6 Pro", "FA Free Solid Fallback";
 }
-""" % free_uri("fa-solid-900.woff2")
+
+/* mars.css no declara la familia Brands (en Storybook la trae el CSS
+   de Font Awesome Free); aquí hay que inlinearla o fa-cc-visa y
+   fa-cc-mastercard salen como cajas. */
+@font-face {
+  font-family: "Font Awesome 6 Brands";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("%s") format("woff2");
+}
+
+.fa-brands,
+.fab {
+  font-family: "Font Awesome 6 Brands";
+  font-weight: 400;
+}
+""" % (free_uri("fa-solid-900.woff2"), free_uri("fa-brands-400.woff2"))
 
 font_refs = {f"{n_faces} @font-face"}
 
@@ -84,18 +101,39 @@ if os.path.exists(fa_path):
     fa_css.append(text)
 
 # ── 2. JS bundle ──────────────────────────────────────────
-def load_module(rel):
-    return open(os.path.join(ROOT, "stories", "_shared", rel), encoding="utf-8").read()
+# Cada módulo va en su propio IIFE y publica solo sus exports.
+# Concatenarlos en un scope plano rompía en silencio: paymentCards.js
+# y middleCard.js definen ambos renderFooter, y la segunda pisaba a la
+# primera (la Payment Card acababa imprimiendo "undefined").
+MODULES = [
+    "flag", "paymentCards", "historyCards", "plateu", "discoveryHeader",
+    "middleCard", "primeCards", "cardOrganism", "okyCashPrototype",
+]
 
-parts = [load_module("paymentCards.js"), load_module("historyCards.js"),
-         load_module("plateu.js"), load_module("discoveryHeader.js"),
-         load_module("okyCashPrototype.js")]
-bundle = []
-for text in parts:
-    text = re.sub(r'(?m)^import \{[^}]*\} from "\./[^"]+";\n', '', text)
-    text = re.sub(r'(?m)^export (function|const)', r'\1', text)
-    bundle.append(text)
-bundle = "\n\n".join(bundle)
+def load_module(name):
+    with open(os.path.join(ROOT, "stories", "_shared", name + ".js"), encoding="utf-8") as f:
+        return f.read()
+
+chunks = ["var __mods = {};"]
+for name in MODULES:
+    text = load_module(name)
+
+    exports = re.findall(r'(?m)^export\s+(?:function|const|let|var)\s+([A-Za-z0-9_$]+)', text)
+
+    imports = []
+    for names, dep in re.findall(r'(?m)^import\s*\{([^}]*)\}\s*from\s*"\./([A-Za-z0-9_$]+)(?:\.js)?";', text):
+        wanted = [n.strip() for n in names.split(",") if n.strip()]
+        imports.append(f'  var {{ {", ".join(wanted)} }} = __mods["{dep}"];')
+    text = re.sub(r'(?m)^import\s*\{[^}]*\}\s*from\s*"\.[^"]*";\n', '', text)
+    text = re.sub(r'(?m)^export\s+(function|const|let|var)\s', r'\1 ', text)
+
+    body = "\n".join(imports) + "\n" + text
+    returned = ", ".join(exports)
+    chunks.append(
+        f'__mods["{name}"] = (function () {{\n{body}\n  return {{ {returned} }};\n}})();'
+    )
+
+bundle = "\n\n".join(chunks)
 
 # ── 3. Imágenes → data URIs ───────────────────────────────
 names = set(re.findall(r'["\']([A-Za-z0-9_.\-]+\.(?:png|svg|webp|jpe?g))["\']', bundle))
@@ -130,7 +168,7 @@ body {{ margin:0; padding:24px; background:#eceef2; display:flex; justify-conten
 <div id="oky-app"></div>
 <script>
 {bundle}
-mountOkyCashPrototype(document.getElementById("oky-app"), {{ userType: "first-time" }});
+__mods["okyCashPrototype"].mountOkyCashPrototype(document.getElementById("oky-app"), {{ userType: "first-time" }});
 </script>
 </body>
 </html>
