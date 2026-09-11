@@ -8092,6 +8092,10 @@ body {
 .oky-flow-cash-strip-copy {
   flex: 1 1 auto;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
 }
 
 .oky-flow-cash-strip-amount {
@@ -9096,9 +9100,11 @@ button.header-icon {
   cursor: pointer;
 }
 
-/* El carrusel sube 15px para dar aire al summary de abajo. */
+/* El carrusel sube 15px y cede otros 8 por abajo, para dar aire al
+   summary de tres filas. */
 .oky-flow-frame .checkout-brand-carrousel-shell {
   margin-top: -15px;
+  margin-bottom: -8px;
 }
 
 /* El checkout apila seis bloques en 704px útiles: con el summary de

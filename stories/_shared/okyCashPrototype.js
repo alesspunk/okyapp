@@ -57,7 +57,7 @@ const PRODUCTS = {
     label: "Nike",
     cardTitle: "Nike Gift Card",
     art: "oky-card-nike.png",
-    hero: "promo-image1.png",
+    hero: "promo-image8.png",
     min: 10,
     max: 1000,
     legal: true,
@@ -67,7 +67,7 @@ const PRODUCTS = {
     label: "Lyft",
     cardTitle: "Lyft Gift Card",
     art: "oky-card-lyft.png",
-    hero: "promo-image3.png",
+    hero: "promo-image1.png",
     min: 10,
     max: 1000,
     legal: false,
@@ -84,8 +84,8 @@ const HOME_TILES = [
 
 /* Tarjetas decorativas de "Solo por hoy" (MARS 7295:52037). */
 const TODAY_CARDS = [
-  { label: "Nordstrom", art: "oky-brand-nordstrom.png", photo: "oky-hoy-1.png", rate: 17 },
-  { label: "Macy's", art: "oky-brand-macys.png", photo: "oky-hoy-2.png", rate: 12 },
+  { label: "Nordstrom", art: "oky-brand-nordstrom.png", photo: "promo-image2.png", rate: 17 },
+  { label: "Macy's", art: "oky-brand-macys.png", photo: "promo-image4.png", rate: 12 },
 ];
 
 /* Tier del cashback. Verificado contra los dos frames de Nike:
