@@ -860,10 +860,20 @@ function screenProcessing(state) {
 
 /* ── Tus compras (99140:56031) + Success (99140:56018) ─── */
 function screenPurchases(state, { celebrate = false } = {}) {
-  const list = state.purchases
+  /* Una tarjeta por marca con su cantidad en el badge, como el vale
+     del wallet. Comprar Nike dos veces da una tarjeta con "2", no dos
+     tarjetas que parecen duplicadas. */
+  const byBrand = [];
+  state.purchases
     .slice()
     .reverse()
-    .map((p) => ({ ...PRODUCTS[p.productKey], id: p.id }));
+    .forEach((p) => {
+      const found = byBrand.find((b) => b.key === p.productKey);
+      if (found) found.count += 1;
+      else byBrand.push({ key: p.productKey, id: p.id, count: 1, ...PRODUCTS[p.productKey] });
+    });
+
+  const list = byBrand;
 
   return `
     ${statusBar()}
@@ -878,7 +888,7 @@ function screenPurchases(state, { celebrate = false } = {}) {
                   (v) => `
                 <button class="oky-flow-voucher" data-action="open-purchase" data-id="${v.id}" type="button">
                   <img src="${v.art}" alt="${v.label}" />
-                  <span class="oky-flow-voucher-badge">1<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
+                  <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
                 </button>
               `,
                 )
