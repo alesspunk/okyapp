@@ -7330,9 +7330,10 @@ body {
   color: var(--primary-main);
 }
 
+/* El componente pinta todos los items con --primary-main; los que
+   no navegan solo cambian el cursor, no el color. */
 .oky-flow-navbar .nav-item.is-dim {
   cursor: default;
-  opacity: 0.55;
 }
 
 .oky-flow-navbar .nav-label {
@@ -8149,11 +8150,6 @@ body {
 /* En el PDP el ribbon va abajo-derecha de la middle card, no arriba.
    bottom queda positivo (dentro de la shell): en negativo se salía
    de la card y quedaba montado sobre el input de monto de abajo. */
-.discount-ribbon-wrap.is-pdp-bottom {
-  top: auto;
-  right: 12px;
-  bottom: 6px;
-}
 /* ── Home: se mezcla el mockup de homepage (homecard-organism)
    con las marcas clickables del prototipo ─────────────────── */
 
@@ -8269,32 +8265,6 @@ body {
 
 /* El ribbon se ancla a la esquina de la foto en vez de ir con
    offsets absolutos heredados del mockup de 224px. */
-.oky-flow-frame .homecard-photo-ribbon-wrap {
-  left: auto;
-  top: auto;
-  right: 8px;
-  bottom: 10px;
-}
-
-.oky-flow-frame .homecard-photo-ribbon-wrap .discount-ribbon-wrap {
-  position: static;
-  width: auto;
-  max-width: none;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 6px;
-  background: var(--discount-ribbon-bg);
-}
-
-.oky-flow-frame .homecard-photo-ribbon-wrap .discount-ribbon-wrap::before,
-.oky-flow-frame .homecard-photo-ribbon-wrap .discount-ribbon-wrap::after {
-  content: none;
-}
-
-.oky-flow-frame .homecard-photo-ribbon-wrap .discount-ribbon-text {
-  font-size: 14px;
-}
-
 /* ── Carrito: drawer desde la derecha con backdrop ──────────
    Figma 99105:38191: el panel deja ver ~36px de la pantalla
    anterior atenuada, y saving bar + navbar quedan por fuera. */
@@ -8590,17 +8560,7 @@ body {
 
 /* El ribbon del PDP cuelga de la esquina inferior derecha de la
    card en vez de pisar el footer de links. */
-.discount-ribbon-wrap.is-pdp-bottom {
-  top: auto;
-  bottom: -12px;
-  right: 12px;
-}
-
 /* El ribbon baja lo suficiente para no pisar los links del footer. */
-.discount-ribbon-wrap.is-pdp-bottom {
-  bottom: -16px;
-}
-
 /* "Agregar" queda deshabilitado mientras el monto sea 0. */
 .oky-flow-frame .btn:disabled {
   opacity: 0.45;
@@ -8623,4 +8583,65 @@ body {
 
 .oky-flow-method-art.is-mastercard {
   background: #f79e1b;
+}
+
+/* ── Colocación del discount ribbon ──────────────────────────
+   Convención del sistema (ver .tactic-discount-wrap y
+   .homecard-photo-ribbon-wrap): el ribbon NO se mueve por su
+   cuenta. Un wrapper posicionado lo coloca y el ribbon se resetea
+   a relative/top:0/right:0, que es lo que mantiene el notch
+   pegado a su esquina superior derecha. */
+.oky-flow-ribbon-slot {
+  position: absolute;
+  right: 12px;
+  bottom: -14px;
+  z-index: 3;
+}
+
+.oky-flow-ribbon-slot .discount-ribbon-wrap,
+.oky-flow-frame .homecard-photo-ribbon-wrap .discount-ribbon-wrap {
+  position: relative;
+  top: 0;
+  right: 0;
+}
+
+/* En el Home el ribbon se ancla a la esquina inferior derecha de
+   la foto, no a los offsets de 224px que trae el mockup. */
+.oky-flow-frame .homecard-photo-ribbon-wrap {
+  left: auto;
+  top: auto;
+  right: 6px;
+  bottom: 8px;
+}
+
+/* ── Página que llena el alto del scroll ─────────────────────
+   Equivale a .checkout-page-scroll + .checkout-page-main del
+   mockup: con esto el summary se empuja con margin-top:auto y
+   queda pegado arriba del saving bar sin tener que scrollear. */
+.oky-flow-page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.oky-flow-page > .oky-flow-section {
+  flex: 1 1 auto;
+}
+
+.oky-flow-push {
+  margin-top: auto;
+}
+
+/* El brand se mete dentro del header en vez de dejar el hueco
+   (mockup: .pdp-page-brand-slot { margin-top: -55px }). */
+.oky-flow-brand-slot {
+  position: relative;
+  z-index: 2;
+  margin-top: -46px;
+}
+
+/* El checkbox es el mismo control tanto en <span> como en <button>. */
+button.oky-flow-check {
+  font: inherit;
 }

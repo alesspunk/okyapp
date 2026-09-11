@@ -46,6 +46,7 @@
 
 import { findPaymentCard, renderPaymentCard } from "./paymentCards";
 import { renderHistoryCard } from "./historyCards";
+import { renderDiscoveryHeader } from "./discoveryHeader";
 
 /* ── Catálogo ────────────────────────────────────────────── */
 
@@ -97,6 +98,10 @@ const WALLET_VOUCHERS = [
 ];
 
 const money = (v) => `$${(Number(v) || 0).toFixed(2)}`;
+/* El monto grande de la card va sin decimales cuando es redondo
+   ("$ 200"), como en Figma, y con dos cuando no ("$ 12.50"). */
+const bigAmount = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(2));
+const moneyField = (v) => (Number(v) || 0).toFixed(2);
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 
 function stamp(offsetDays = 0) {
@@ -117,8 +122,8 @@ function createInitialState(userType) {
     screen: "home",
     params: {},
     history: [],
-    /* El PDP arranca siempre en 0. */
-    amounts: { nike: 0, lyft: 0 },
+    /* El PDP arranca en 5.00, así "Agregar" nunca nace deshabilitado. */
+    amounts: { nike: 5, lyft: 5 },
     cart: [],
     cartOpen: false,
     okyCashEnabled: false,
@@ -242,7 +247,7 @@ function screenHome(state) {
           <img class="homecard-photo-hero" src="${product.hero}" alt="${product.label}" />
           <div class="homecard-photo-ribbon-wrap">
             <div class="discount-ribbon discount-ribbon-wrap ${tier.ribbon}">
-              <span class="discount-ribbon-text token-price-percent">Ganas hasta 20%</span>
+              <span class="discount-ribbon-text token-price-percent">Gana 20%</span>
             </div>
           </div>
         </div>
@@ -266,34 +271,15 @@ function screenHome(state) {
   `;
 
   return `
-    ${statusBar()}
-    <div class="page-header-screen" style="justify-content:space-between;padding:0 12px">
-      <button class="oky-flow-iconbtn" data-action="nav:wallet" type="button" aria-label="Mi wallet">
-        <img src="Wallet-icon.png" alt="" />
-      </button>
-      <img class="header-logo" src="logo-oky.svg" alt="OKY" />
-      <button class="oky-flow-iconbtn" data-action="open-cart" type="button" aria-label="Carrito">
-        <img src="Cart-3d-icon.png" alt="" />
-        ${state.cart.length ? `<span class="oky-flow-dot"></span>` : ""}
-      </button>
-    </div>
-
-    <div class="oky-flow-tabs">
-      <button class="oky-flow-tab is-active" type="button">
-        <span class="oky-flow-tab-flag">🇺🇸</span>USA
-      </button>
-      <button class="oky-flow-tab" type="button">
-        <span class="oky-flow-tab-flag">🇬🇹</span>GUA
-        <i class="fa-solid fa-chevron-down" style="font-size:11px" aria-hidden="true"></i>
-      </button>
-    </div>
+    ${renderDiscoveryHeader({
+      side: "Left",
+      state: "State 1",
+      walletAction: "nav:wallet",
+      cartAction: "open-cart",
+      cartIndicated: state.cart.length > 0,
+    })}
 
     <div class="oky-flow-section">
-      <div class="input-wrapper" style="width:100%">
-        <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
-        <input class="input-field search-input search-input-empty" value="" placeholder="Buscar marcas" readonly />
-      </div>
-
       <button class="oky-flow-cash-strip" data-action="nav:okycash" type="button">
         <img src="oky-cash-coin.png" alt="" />
         <span class="oky-flow-cash-strip-copy">
@@ -351,7 +337,7 @@ function screenPdp(state) {
     ${productHeader(state)}
 
     <div class="oky-flow-stack-center">
-      <div>
+      <div class="oky-flow-brand-slot">
         <section class="brand-item-atom is-with-label" aria-label="${product.label}">
           <p class="brand-item-label token-product-text">${product.label}</p>
           <div class="brand-item-frame">
@@ -370,7 +356,7 @@ function screenPdp(state) {
                 <div class="middle-card-center">
                   <div class="middle-card-value">
                     <span class="middle-card-currency">$</span>
-                    <p class="middle-card-amount">${amount}</p>
+                    <p class="middle-card-amount">${bigAmount(amount)}</p>
                   </div>
                 </div>
               </div>
@@ -379,8 +365,10 @@ function screenPdp(state) {
                 <span class="middle-card-footer-end">Terms &amp; Conditions</span>
               </div>
             </div>
-            <div class="discount-ribbon discount-ribbon-wrap is-pdp-bottom ${tier.ribbon}">
-              <span class="discount-ribbon-text token-price-percent">Ganas ${Math.round(tier.rate * 100)}%</span>
+            <div class="oky-flow-ribbon-slot">
+              <div class="discount-ribbon discount-ribbon-wrap ${tier.ribbon}">
+                <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(tier.rate * 100)}%</span>
+              </div>
             </div>
           </article>
         </section>
@@ -392,8 +380,8 @@ function screenPdp(state) {
             Desde ${product.min} hasta ${product.max.toLocaleString("en-US")}
           </label>
           <span class="input-dinamic-prefix" aria-hidden="true">$</span>
-          <input id="oky-amount" class="input-field input-dinamic${amount ? " input-dinamic-hasvalue" : ""}" type="text"
-            inputmode="decimal" value="${amount}" data-action="input-amount" data-product="${product.key}"
+          <input id="oky-amount" class="input-field input-dinamic input-dinamic-hasvalue" type="text"
+            inputmode="decimal" value="${moneyField(amount)}" data-action="input-amount" data-product="${product.key}"
             aria-labelledby="oky-amount-label" />
         </div>
       </div>
@@ -428,7 +416,7 @@ function screenPdp(state) {
       </div>
     </div>
 
-    ${savingBar(cashback, tier, (v) => `Ganas <strong>${v}</strong> de <strong>OKY Cash</strong>`)}
+    ${savingBar(cashback, tier, (v) => `Gana <strong>${v}</strong> de <strong>OKY Cash</strong>`)}
     ${navbar("")}
   `;
 }
@@ -449,7 +437,7 @@ function cartDrawer(state) {
               <div class="oky-flow-cart-copy">
                 <p class="oky-flow-cart-title">${product.cardTitle}</p>
                 <p class="oky-flow-cart-price">${money(item.amount)}</p>
-                <span class="oky-flow-cart-chip">Ganas ${Math.round(tier.rate * 100)}%</span>
+                <span class="oky-flow-cart-chip">Gana ${Math.round(tier.rate * 100)}%</span>
               </div>
               <button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
                 type="button" aria-label="Quitar ${product.label}">
@@ -510,11 +498,12 @@ function screenCheckout(state) {
   const toCard = Math.max(total - applied, 0);
 
   return `
+    <div class="oky-flow-page">
     ${statusBar()}
     ${productHeader(state)}
 
     <div class="oky-flow-section">
-      <section class="brand-item-atom is-with-label">
+      <section class="brand-item-atom is-with-label oky-flow-brand-slot">
         <p class="brand-item-label token-product-text">${first.label}</p>
         <div class="brand-item-frame">
           <div class="brand-item-base"><img src="${first.art}" alt="${first.label}" /></div>
@@ -561,11 +550,13 @@ function screenCheckout(state) {
           <span class="oky-flow-chip is-card">${money(toCard)}</span>
           <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true" style="color:var(--primary-base)"></i>
         </div>
-        <div class="oky-flow-payrow is-last" data-action="toggle-okycash" role="button" tabindex="0">
-          <span class="oky-flow-check" aria-hidden="true">
-            <i class="fa-${state.okyCashEnabled ? "solid fa-square-check" : "regular fa-square"}"></i>
-          </span>
-          <p class="oky-flow-payrow-copy">OKY Cash</p>
+        <div class="oky-flow-payrow is-last">
+          <button class="oky-flow-check${state.okyCashEnabled ? " is-checked" : ""}"
+            data-action="toggle-okycash" type="button"
+            aria-pressed="${state.okyCashEnabled}" aria-label="Usar OKY Cash">
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+          </button>
+          <p class="oky-flow-payrow-copy" data-action="toggle-okycash" role="button" tabindex="0">OKY Cash</p>
           <span class="oky-flow-chip is-cash">${money(state.okyCashEnabled ? applied : state.okyCashBalance)}</span>
           <button class="oky-flow-header-icon" data-action="open-methods" type="button"
             aria-label="Editar monto" style="width:24px">
@@ -574,7 +565,7 @@ function screenCheckout(state) {
         </div>
       </div>
 
-      <div class="summary-box summary-box-compact" style="width:100%">
+      <div class="summary-box summary-box-compact oky-flow-push" style="width:100%">
         <div class="summary-card">
           <div class="summary-card-body">
             <div class="summary-row summary-row-total">
@@ -587,6 +578,7 @@ function screenCheckout(state) {
           </div>
         </div>
       </div>
+    </div>
     </div>
 
     ${savingBar(cashback, { bar: "" }, (v) => `Compra y gana <strong>${v}+</strong> en <strong>OKY Cash</strong>`)}
@@ -632,8 +624,10 @@ function screenMethods(state) {
 
         <div class="oky-flow-method-row is-cash">
           <div class="oky-flow-method-head">
-            <button class="oky-flow-check" data-action="toggle-okycash" type="button" aria-label="Usar OKY Cash">
-              <i class="fa-${state.okyCashEnabled ? "solid fa-square-check" : "regular fa-square"}"></i>
+            <button class="oky-flow-check${state.okyCashEnabled ? " is-checked" : ""}"
+              data-action="toggle-okycash" type="button"
+              aria-pressed="${state.okyCashEnabled}" aria-label="Usar OKY Cash">
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
             </button>
             <img class="oky-flow-coin" src="oky-cash-coin.png" alt="" style="width:24px;height:26px" />
             <p class="oky-flow-method-label">OKY Cash</p>
@@ -1157,30 +1151,37 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const amountInput = event.target.closest("[data-action='input-amount']");
     if (amountInput) {
       const product = PRODUCTS[amountInput.dataset.product];
-      const raw = Number(String(amountInput.value).replace(/[^\d.]/g, "")) || 0;
-      const amount = clamp(raw, 0, product.max);
+
+      /* Campo de moneda: solo dígitos y como mucho dos decimales.
+         El valor se reescribe únicamente si el saneo cambió algo,
+         para no mover el cursor mientras se teclea. */
+      const clean = String(amountInput.value)
+        .replace(/[^\d.]/g, "")
+        .replace(/\.(?=.*\.)/g, "")
+        .replace(/^(\d*\.\d{0,2}).*$/, "$1");
+      if (clean !== amountInput.value) amountInput.value = clean;
+
+      const amount = clamp(Number(clean) || 0, 0, product.max);
       state.amounts[product.key] = amount;
 
       const tier = getTier(amount);
       const cashback = amount * tier.rate;
 
-      amountInput.classList.toggle("input-dinamic-hasvalue", amount > 0);
+      const bigEl = root.querySelector(".middle-card-amount");
+      if (bigEl) bigEl.textContent = bigAmount(amount);
 
-      const bigAmount = root.querySelector(".middle-card-amount");
-      if (bigAmount) bigAmount.textContent = amount;
-
-      const ribbon = root.querySelector(".discount-ribbon-wrap.is-pdp-bottom");
+      const ribbon = root.querySelector(".oky-flow-ribbon-slot .discount-ribbon-wrap");
       if (ribbon) {
         ribbon.classList.remove("is-tier-base", "is-tier-promo");
         ribbon.classList.add(tier.ribbon);
-        ribbon.querySelector(".discount-ribbon-text").textContent = `Ganas ${Math.round(tier.rate * 100)}%`;
+        ribbon.querySelector(".discount-ribbon-text").textContent = `Gana ${Math.round(tier.rate * 100)}%`;
       }
 
       const bar = root.querySelector(".saving-bar");
       if (bar) {
         bar.classList.toggle("is-tier-promo", tier.bar === "is-tier-promo");
         bar.querySelector(".saving-bar-copy span").innerHTML =
-          `Ganas <strong>${money(cashback)}</strong> de <strong>OKY Cash</strong>`;
+          `Gana <strong>${money(cashback)}</strong> de <strong>OKY Cash</strong>`;
       }
 
       const subtotal = root.querySelector("[data-role='pdp-subtotal']");

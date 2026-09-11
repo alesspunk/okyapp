@@ -50,6 +50,28 @@ css, n_faces = re.subn(
 
 # La cara del kit custom no se usa en el prototipo: se deja fuera.
 css = re.sub(r'@font-face\s*\{[^}]*?fontawesome-kit[^}]*?\}', '', css, flags=re.S)
+
+# Font Awesome Free Regular solo trae ~163 glifos: fa-signal, fa-wifi,
+# fa-battery-full o fa-magnifying-glass no están y salían como cajas.
+# Se añade una familia de respaldo apuntando a Solid y se encadena
+# detrás de la Pro: el navegador cae glifo a glifo a la que exista.
+css += """
+@font-face {
+  font-family: "FA Free Solid Fallback";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("%s") format("woff2");
+}
+
+.fa-regular,
+.far,
+.fa-light,
+.fal {
+  font-family: "Font Awesome 6 Pro", "FA Free Solid Fallback";
+}
+""" % free_uri("fa-solid-900.woff2")
+
 font_refs = {f"{n_faces} @font-face"}
 
 # Del CSS de Font Awesome Free solo interesa el mapa de codepoints;
@@ -66,6 +88,7 @@ def load_module(rel):
     return open(os.path.join(ROOT, "stories", "_shared", rel), encoding="utf-8").read()
 
 parts = [load_module("paymentCards.js"), load_module("historyCards.js"),
+         load_module("plateu.js"), load_module("discoveryHeader.js"),
          load_module("okyCashPrototype.js")]
 bundle = []
 for text in parts:
