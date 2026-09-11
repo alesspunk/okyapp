@@ -117,6 +117,8 @@ const money = (v) => `$${(Number(v) || 0).toFixed(2)}`;
 const bigAmount = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(2));
 const moneyField = (v) => (Number(v) || 0).toFixed(2);
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+/* Índice circular para los carruseles. */
+const wrap = (i, n) => (n <= 0 ? 0 : ((i % n) + n) % n);
 
 const MONTHS_SHORT = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
 const MONTHS_LONG = [
@@ -172,6 +174,7 @@ function createInitialState(userType) {
     ],
     decisionSeen: false,
     recipient: "",
+    toastClosed: false,
   };
 }
 
@@ -636,24 +639,22 @@ function screenCheckout(state) {
         <section class="brand-carrousel-organism checkout-brand-carrousel" aria-label="Vales">
           <div class="brand-carrousel-track">
             <div class="brand-carrousel-side brand-carrousel-side-left">
-              ${state.cart[active - 1] ? giftCard(state.cart[active - 1]) : ""}
+              ${state.cart.length > 1 ? giftCard(state.cart[wrap(active - 1, state.cart.length)]) : ""}
             </div>
             <div class="brand-carrousel-center">
               <div class="brand-carrousel-center-card">${giftCard(state.cart[active])}</div>
             </div>
             <div class="brand-carrousel-side brand-carrousel-side-right">
-              ${state.cart[active + 1] ? giftCard(state.cart[active + 1]) : ""}
+              ${state.cart.length > 1 ? giftCard(state.cart[wrap(active + 1, state.cart.length)]) : ""}
             </div>
           </div>
           ${
             state.cart.length > 1
               ? `
-            <button class="oky-flow-carousel-nav is-prev" data-action="carousel-prev" type="button"
-              aria-label="Anterior" ${active === 0 ? "disabled" : ""}>
+            <button class="oky-flow-carousel-nav is-prev" data-action="carousel-prev" type="button" aria-label="Anterior">
               <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
             </button>
-            <button class="oky-flow-carousel-nav is-next" data-action="carousel-next" type="button"
-              aria-label="Siguiente" ${active === state.cart.length - 1 ? "disabled" : ""}>
+            <button class="oky-flow-carousel-nav is-next" data-action="carousel-next" type="button" aria-label="Siguiente">
               <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
             </button>
           `
@@ -1052,14 +1053,20 @@ function screenVoucher(state) {
     ${titledHeader(title)}
     <div class="oky-flow-section">
       ${
-        purchase
-          ? `<div class="toast-banner toast-banner-success" role="status">
-              <span class="toast-banner-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
-              <span class="toast-banner-message">Compra exitosa</span>
+        purchase && !state.toastClosed
+          ? `<div class="oky-flow-toast-row">
+              <div class="toast-banner toast-banner-success" role="status">
+                <span class="toast-banner-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+                <span class="toast-banner-message">Compra exitosa</span>
+              </div>
+              <button class="oky-flow-toast-close" data-action="close-toast" type="button" aria-label="Cerrar">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </button>
             </div>`
           : ""
       }
 
+      <div class="oky-flow-card-carousel">
       ${renderCardOrganism({
         topVariantPath: "Molecule/Top Card/Gift Card",
         topBrandLabel: product.label,
@@ -1074,6 +1081,34 @@ function screenVoucher(state) {
         bottomVariantPath: "Molecule/Bottom Card/Gift Card",
         bottomButtonLabel: "Help",
       })}
+      ${
+        state.params.id && state.purchases.length > 1
+          ? `
+        <button class="oky-flow-carousel-nav is-prev" data-action="voucher-prev" type="button" aria-label="Vale anterior">
+          <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        </button>
+        <button class="oky-flow-carousel-nav is-next" data-action="voucher-next" type="button" aria-label="Vale siguiente">
+          <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+        </button>
+      `
+          : ""
+      }
+      </div>
+
+      ${
+        state.params.id && state.purchases.length > 1
+          ? `<div class="carrusel-dots-wrap" style="width:100%">
+              <div class="carrusel-dots">
+                ${state.purchases
+                  .map(
+                    (p) =>
+                      `<span class="promo-dot${p.id === state.params.id ? " promo-dot-active" : ""}"></span>`,
+                  )
+                  .join("")}
+              </div>
+            </div>`
+          : ""
+      }
 
       <button class="btn btn-outlined btn-large" style="width:100%" type="button">
         <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>&nbsp;Compartir
@@ -1326,10 +1361,24 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
+    /* Los carruseles dan la vuelta: del último se pasa al primero. */
     if (action === "carousel-prev" || action === "carousel-next") {
       const step = action === "carousel-next" ? 1 : -1;
-      state.checkoutIndex = clamp(state.checkoutIndex + step, 0, state.cart.length - 1);
+      state.checkoutIndex = wrap(state.checkoutIndex + step, state.cart.length);
       return render();
+    }
+
+    if (action === "close-toast") {
+      state.toastClosed = true;
+      return render();
+    }
+
+    if (action === "voucher-prev" || action === "voucher-next") {
+      const step = action === "voucher-next" ? 1 : -1;
+      const list = state.purchases;
+      const at = list.findIndex((p) => p.id === state.params.id);
+      const next = list[wrap((at < 0 ? 0 : at) + step, list.length)];
+      return go("voucher", { id: next.id }, { push: false });
     }
 
     if (action === "select-card") {

@@ -9038,3 +9038,47 @@ button.header-icon {
 .oky-flow-carousel-nav.is-next {
   right: 20px;
 }
+
+/* Las flechas del vale se montan sobre el organismo Card, igual que
+   en el carrusel del checkout. */
+.oky-flow-card-carousel {
+  position: relative;
+  width: 100%;
+}
+
+/* El toast del vale lleva su cierre al lado (Figma). */
+.oky-flow-toast-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.oky-flow-toast-row .toast-banner {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.oky-flow-toast-close {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--primary-main);
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* En el vale las flechas van pegadas al borde, no sobre el monto. */
+.oky-flow-card-carousel .oky-flow-carousel-nav.is-prev {
+  left: -8px;
+}
+
+.oky-flow-card-carousel .oky-flow-carousel-nav.is-next {
+  right: -8px;
+}
