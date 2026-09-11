@@ -112,11 +112,28 @@ const bigAmount = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(2));
 const moneyField = (v) => (Number(v) || 0).toFixed(2);
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 
+const MONTHS_SHORT = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+const MONTHS_LONG = [
+  "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+  "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE",
+];
+
 function stamp(offsetDays = 0) {
   const d = new Date();
   d.setDate(d.getDate() - offsetDays);
-  const m = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
-  return `${String(d.getDate()).padStart(2, "0")} / ${m[d.getMonth()]} / ${d.getFullYear()}`;
+  return `${String(d.getDate()).padStart(2, "0")} / ${MONTHS_SHORT[d.getMonth()]} / ${d.getFullYear()}`;
+}
+
+/* Título del grupo del historial: el mes en curso es "ESTE MES" y el
+   resto se nombra "JULIO 2026", como en 99135:103474. */
+function monthGroup(offsetDays = 0) {
+  const now = new Date();
+  const d = new Date();
+  d.setDate(d.getDate() - offsetDays);
+  if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
+    return "ESTE MES";
+  }
+  return `${MONTHS_LONG[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 /* ── Estado ──────────────────────────────────────────────── */
@@ -139,12 +156,12 @@ function createInitialState(userType) {
     purchases: returning
       ? [{ id: "seed", productKey: "lyft", amount: 20, cashback: 1, used: 5, date: stamp(6) }]
       : [],
-    activity: returning
-      ? [
-          { date: stamp(18), amount: "+ $4.07", order: "Orden #01112442" },
-          { date: stamp(41), amount: "+ $2.10", order: "Orden #01112441" },
-        ]
-      : [],
+    activity: [
+      { date: stamp(18), group: monthGroup(18), amount: "+ $4.07", order: "Orden #01112442" },
+      { date: stamp(24), group: monthGroup(24), amount: "+ $2.10", order: "Orden #01112441" },
+      { date: stamp(41), group: monthGroup(41), amount: "+ $2.24", order: "Orden #01112438" },
+      { date: stamp(52), group: monthGroup(52), amount: "+ $1.85", order: "Orden #01112430" },
+    ],
     decisionSeen: false,
     recipient: "",
   };
@@ -669,6 +686,7 @@ function screenMethods(state) {
   const cash = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
   cash.balance = { ...cash.balance, value: keep.toFixed(2) };
   cash.art = "oky-saldo-card-art.png";
+  cash.cta = { ...cash.cta, action: "nav:okycash" };
 
   return `
     ${statusBar()}
@@ -863,6 +881,7 @@ function screenWallet(state) {
   const cash = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
   cash.balance = { ...cash.balance, value: state.okyCashBalance.toFixed(2) };
   cash.art = "oky-saldo-card-art.png";
+  cash.cta = { ...cash.cta, action: "nav:okycash" };
 
   const filters = [
     { label: "OKY Cash", icon: "oky-cash-coin.png" },
@@ -925,19 +944,36 @@ function screenOkyCash(state) {
   cash.balance = { ...cash.balance, value: state.okyCashBalance.toFixed(2) };
   cash.art = "oky-saldo-card-art.png";
 
-  const rows = state.activity.length
-    ? state.activity
-        .map((entry) =>
-          renderHistoryCard({
-            key: "oky-cash",
-            id: "99135:104411",
-            layout: "row",
-            icon: { glyph: "fa-coins", weight: "fa-solid" },
-            date: entry.date,
-            amount: entry.amount,
-            meta: { type: "order", note: entry.order },
-            chip: { label: "Acreditado", tone: "success", icon: "fa-circle-check" },
-          }),
+  /* Los movimientos se agrupan por mes conservando el orden. */
+  const groups = [];
+  state.activity.forEach((entry) => {
+    const label = entry.group || monthGroup(0);
+    const last = groups[groups.length - 1];
+    if (last && last.label === label) last.items.push(entry);
+    else groups.push({ label, items: [entry] });
+  });
+
+  const historyRow = (entry) =>
+    renderHistoryCard({
+      key: "oky-cash",
+      id: "99135:104411",
+      layout: "row",
+      icon: { glyph: "fa-coins", weight: "fa-solid" },
+      date: entry.date,
+      amount: entry.amount,
+      meta: { type: "order", note: entry.order },
+      chip: { label: "Acreditado", tone: "success", icon: "fa-circle-check" },
+    });
+
+  const rows = groups.length
+    ? groups
+        .map(
+          (group) => `
+          <div class="oky-flow-history-group">
+            <h2 class="oky-flow-history-label">${group.label}</h2>
+            ${group.items.map(historyRow).join("")}
+          </div>
+        `,
         )
         .join("")
     : `<p class="oky-flow-empty">Todavía no tienes movimientos de OKY Cash.</p>`;
@@ -961,10 +997,7 @@ function screenOkyCash(state) {
         <input class="input-field search-input search-input-empty" value="" placeholder="Buscar" readonly />
       </div>
 
-      <div class="oky-flow-home-head">
-        <h2 class="oky-flow-home-title" style="font-size:16px">ESTE MES</h2>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:12px;width:100%">${rows}</div>
+      <div class="oky-flow-history">${rows}</div>
     </div>
 
     ${navbar("okycash")}
@@ -1124,6 +1157,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       earned += item.cashback;
       state.activity.unshift({
         date: stamp(0),
+        group: monthGroup(0),
         amount: `+ ${money(item.cashback)}`,
         order: `Orden #${11112440 + state.activity.length + 1}`,
       });

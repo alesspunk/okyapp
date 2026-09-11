@@ -250,7 +250,7 @@ function renderFooter(card) {
 
   const action = card.cta
     ? `
-      <button class="payment-card-cta" type="button">
+      <button class="payment-card-cta" type="button"${card.cta.action ? ` data-action="${card.cta.action}"` : ""}>
         <span>${card.cta.label}</span>
         <i class="fa-solid ${card.cta.icon}" aria-hidden="true"></i>
       </button>

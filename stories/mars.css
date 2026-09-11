@@ -8819,3 +8819,27 @@ button.header-icon {
     transform: translate(var(--piece-drift, 0), 820px) rotate(var(--piece-spin, 540deg));
   }
 }
+
+/* Historial de OKY Cash agrupado por mes (99135:103474). */
+.oky-flow-history {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.oky-flow-history-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.oky-flow-history-label {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--primary-main);
+}
