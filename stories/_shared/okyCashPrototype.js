@@ -104,6 +104,13 @@ const WALLET_VOUCHERS = [
   { key: "nike", label: "Nike", art: "oky-card-nike.png", live: true },
 ];
 
+/* Tarjetas tokenizadas. La seleccionada es la que se combina con
+   OKY Cash; la otra baja como fila suelta (Figma 99105:41895). */
+const CARDS = [
+  { key: "visa", label: "**2111", mark: "fa-cc-visa", variant: "Molecule/Payment Card/Visa" },
+  { key: "mastercard", label: "**4566", mark: "fa-cc-mastercard", variant: "Molecule/Payment Card/Mastercard" },
+];
+
 const money = (v) => `$${(Number(v) || 0).toFixed(2)}`;
 /* El monto grande de la card va sin decimales cuando es redondo
    ("$ 200"), como en Figma, y con dos cuando no ("$ 12.50"). */
@@ -153,6 +160,7 @@ function createInitialState(userType) {
     checkoutIndex: 0,
     okyCashEnabled: false,
     okyCashApplied: 0,
+    selectedCard: "visa",
     purchases: returning
       ? [{ id: "seed", productKey: "lyft", amount: 20, cashback: 1, used: 5, date: stamp(6) }]
       : [],
@@ -609,6 +617,7 @@ function screenCheckout(state) {
     ? Math.min(state.okyCashApplied || state.okyCashBalance, total, state.okyCashBalance)
     : 0;
   const toCard = Math.max(total - applied, 0);
+  const checkoutCard = CARDS.find((c) => c.key === state.selectedCard) || CARDS[0];
 
   return `
     <div class="oky-flow-page">
@@ -668,8 +677,8 @@ function screenCheckout(state) {
       <div class="payment-method-input oky-flow-paygroup" style="width:100%">
         <span class="payment-method-label">Método de pago</span>
         <div class="oky-flow-payrow is-first" data-action="open-methods" role="button" tabindex="0">
-          <i class="fa-brands fa-cc-visa oky-flow-method-mark is-visa" aria-label="Visa"></i>
-          <p class="oky-flow-payrow-copy">**2111</p>
+          <i class="fa-brands ${checkoutCard.mark} oky-flow-method-mark is-${checkoutCard.key}" aria-hidden="true"></i>
+          <p class="oky-flow-payrow-copy">${checkoutCard.label}</p>
           <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-card">${money(toCard)}</span></span>
           <span class="oky-flow-payrow-more" aria-hidden="true">
             <i class="fa-solid fa-ellipsis-vertical"></i>
@@ -731,7 +740,10 @@ function screenMethods(state) {
   const keep = Math.max(state.okyCashBalance - applied, 0);
   const progress = max > 0 ? (applied / max) * 100 : 0;
 
-  const visa = { ...findPaymentCard("Molecule/Payment Card/Visa") };
+  const selected = CARDS.find((c) => c.key === state.selectedCard) || CARDS[0];
+  const others = CARDS.filter((c) => c.key !== selected.key);
+
+  const top = { ...findPaymentCard(selected.variant) };
   const cash = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
   cash.balance = { ...cash.balance, value: keep.toFixed(2) };
   cash.art = "oky-saldo-card-art.png";
@@ -747,15 +759,15 @@ function screenMethods(state) {
       </button>
 
       <div class="payment-card-stack" style="--payment-card-stack-offset:-144px">
-        ${renderPaymentCard(visa)}
+        ${renderPaymentCard(top)}
         ${renderPaymentCard(cash)}
       </div>
 
       <div class="oky-flow-method-group" style="width:100%;padding-top:8px">
         <div class="oky-flow-method-row is-selected">
           <span class="oky-flow-radio" aria-hidden="true"><i class="fa-solid fa-circle-dot"></i></span>
-          <i class="fa-brands fa-cc-visa oky-flow-method-mark is-visa" aria-label="Visa"></i>
-          <p class="oky-flow-method-name">**2111</p>
+          <i class="fa-brands ${selected.mark} oky-flow-method-mark is-${selected.key}" aria-hidden="true"></i>
+          <p class="oky-flow-method-name">${selected.label}</p>
           <span class="oky-flow-chip is-card">${money(toCard)}</span>
         </div>
 
@@ -780,11 +792,18 @@ function screenMethods(state) {
         </div>
       </div>
 
-      <div class="oky-flow-method-row" style="width:100%;margin-top:8px">
-        <span class="oky-flow-radio" aria-hidden="true"><i class="fa-regular fa-circle"></i></span>
-        <i class="fa-brands fa-cc-mastercard oky-flow-method-mark is-mastercard" aria-label="Mastercard"></i>
-        <p class="oky-flow-method-name is-regular">**4566</p>
-      </div>
+      ${others
+        .map(
+          (card) => `
+        <div class="oky-flow-method-row" style="width:100%;margin-top:8px"
+          data-action="select-card" data-card="${card.key}" role="button" tabindex="0">
+          <span class="oky-flow-radio" aria-hidden="true"><i class="fa-regular fa-circle"></i></span>
+          <i class="fa-brands ${card.mark} oky-flow-method-mark is-${card.key}" aria-hidden="true"></i>
+          <p class="oky-flow-method-name is-regular">${card.label}</p>
+        </div>
+      `,
+        )
+        .join("")}
     </div>
 
     <div class="oky-flow-cta-bar">
@@ -1347,6 +1366,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "carousel-prev" || action === "carousel-next") {
       const step = action === "carousel-next" ? 1 : -1;
       state.checkoutIndex = clamp(state.checkoutIndex + step, 0, state.cart.length - 1);
+      return render();
+    }
+
+    if (action === "select-card") {
+      state.selectedCard = el.dataset.card;
       return render();
     }
 
