@@ -7155,9 +7155,9 @@ body {
 /* Ribbon naranja del tier promocional. --accent-color es #ffb400,
    Figma pide #ff9800 → se apunta a --warning-main. */
 .discount-ribbon.is-tier-promo {
-  --discount-ribbon-bg: var(--warning-main);
+  --discount-ribbon-bg: var(--accent-color);
   --discount-ribbon-text: var(--warning-text);
-  --discount-ribbon-notch: var(--warning-main);
+  --discount-ribbon-notch: var(--accent-color);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -8363,35 +8363,6 @@ body {
 /* ── Cabecera del Home ───────────────────────────────────── */
 /* El carrito del Figma es un bitmap suelto con su punto rojo:
    sin el círculo de .header-icon. */
-.oky-flow-iconbtn {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-}
-
-.oky-flow-iconbtn img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-}
-
-.oky-flow-iconbtn .oky-flow-dot {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--error-main);
-}
-
 /* ── OKY Cash (destino del coin de la navbar) ────────────── */
 .oky-flow-cash-hero {
   width: 100%;
@@ -8658,44 +8629,6 @@ button.header-icon {
   width: auto;
 }
 
-/* ── Home · "Solo por hoy" (MARS 7295:52037) ─────────────────
-   Reusa homecard-photo-item, pero en pista horizontal sobre el
-   fondo paper en vez de dentro de una card blanca. */
-.oky-flow-season-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 32px;
-  padding: 0 14px;
-  border-radius: 16px;
-  background: #a8faf5;
-  color: #00524d;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.oky-flow-hoy-track {
-  display: flex;
-  gap: 12px;
-  width: 100%;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 4px;
-}
-
-.oky-flow-hoy-track::-webkit-scrollbar {
-  display: none;
-}
-
-.oky-flow-hoy-track .homecard-photo-item {
-  flex: 0 0 auto;
-  width: auto;
-  padding: 0;
-  background: transparent;
-}
-
 /* El carrusel de banners deja ver el siguiente (MARS 6449:41089). */
 .oky-flow-frame .carousel-container {
   scrollbar-width: none;
@@ -8742,13 +8675,13 @@ button.header-icon {
   color: #eb001b;
 }
 
-/* Las dos píldoras del checkout arrancan en la misma x: se les da
-   una columna de ancho fijo y se anclan a su izquierda, en vez de
-   quedar empujadas por el ancho de su propio texto. */
-.oky-flow-paygroup .oky-flow-chip {
+/* Las dos píldoras arrancan en la misma x sin estirarse: la celda
+   tiene ancho fijo y el chip abraza su texto dentro de ella. */
+.oky-flow-chip-cell {
+  flex: 0 0 104px;
   width: 104px;
-  box-sizing: border-box;
-  text-align: center;
+  display: flex;
+  justify-content: flex-start;
 }
 
 /* Ambas filas cierran con el mismo control de 24px para que las
@@ -8842,4 +8775,74 @@ button.header-icon {
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: var(--primary-main);
+}
+
+/* El Tactic Strip del mockup mide 330px; dentro del frame se ajusta
+   a los 328 útiles y su carrusel scrollea. */
+.oky-flow-frame .tactic-strip {
+  width: 100%;
+}
+
+.oky-flow-frame .tactic-strip-carousel-window {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.oky-flow-frame .tactic-strip-carousel-window::-webkit-scrollbar {
+  display: none;
+}
+
+/* El anillo de foco por defecto lo pinta el sistema con el color de
+   acento del equipo (ámbar en algunos Mac); aquí se fuerza el morado
+   de marca. */
+.oky-flow-frame .input-field:focus,
+.oky-flow-frame .input-field:focus-visible {
+  outline: none;
+  border-color: var(--primary-main);
+  box-shadow: 0 0 0 3px rgba(65, 0, 136, 0.16);
+}
+
+/* Sin status bar, el título necesita su propio aire arriba. */
+.oky-flow-decision {
+  padding-top: 48px;
+}
+
+/* Cada tarjeta del carrusel recorta lo suyo: el logo va montado
+   sobre su propia foto, no sobre la tarjeta vecina. */
+.oky-flow-frame .tactic-strip-carousel-track {
+  gap: 12px;
+}
+
+.oky-flow-frame .tactic-offer {
+  flex: 0 0 auto;
+}
+
+.oky-flow-frame .tactic-offer-hero {
+  border-radius: 20px;
+}
+
+/* El header del Tactic Strip está dimensionado para 330px sueltos;
+   dentro del frame el título va en una línea y el super ribbon cede
+   el ancho sobrante. */
+.oky-flow-frame .tactic-strip-header {
+  gap: 8px;
+  min-width: 0;
+}
+
+.oky-flow-frame .tactic-strip-title {
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.oky-flow-frame .tactic-strip-header .super-ribbon {
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.oky-flow-frame .tactic-strip-header .super-ribbon-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
 }
