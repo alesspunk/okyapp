@@ -174,7 +174,6 @@ function createInitialState(userType) {
     ],
     decisionSeen: false,
     recipient: "",
-    toastClosed: false,
   };
 }
 
@@ -1059,20 +1058,6 @@ function screenVoucher(state) {
     ${statusBar()}
     ${titledHeader(title)}
     <div class="oky-flow-section">
-      ${
-        purchase && !state.toastClosed
-          ? `<div class="oky-flow-toast-row">
-              <div class="toast-banner toast-banner-success" role="status">
-                <span class="toast-banner-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
-                <span class="toast-banner-message">Compra exitosa</span>
-              </div>
-              <button class="oky-flow-toast-close" data-action="close-toast" type="button" aria-label="Cerrar">
-                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-              </button>
-            </div>`
-          : ""
-      }
-
       <div class="oky-flow-card-carousel">
       ${renderCardOrganism({
         topVariantPath: "Molecule/Top Card/Gift Card",
@@ -1375,11 +1360,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return render();
     }
 
-    if (action === "close-toast") {
-      state.toastClosed = true;
-      return render();
-    }
-
     if (action === "voucher-prev" || action === "voucher-next") {
       const step = action === "voucher-next" ? 1 : -1;
       const list = state.purchases;
@@ -1396,6 +1376,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "confirm-methods") return goBack();
 
     if (action === "pay") {
+      /* Un segundo toque mientras corre el procesamiento duplicaría
+         la compra. */
+      if (state.screen === "processing") return;
       go("processing", {}, { push: false });
       setTimeout(completePurchase, 1400);
       return;

@@ -9065,34 +9065,6 @@ button.header-icon {
   width: 100%;
 }
 
-/* El toast del vale lleva su cierre al lado (Figma). */
-.oky-flow-toast-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-}
-
-.oky-flow-toast-row .toast-banner {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.oky-flow-toast-close {
-  flex: 0 0 auto;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--primary-main);
-  font-size: 22px;
-  cursor: pointer;
-}
-
 /* En el vale las flechas van pegadas al borde, no sobre el monto. */
 .oky-flow-card-carousel .oky-flow-carousel-nav.is-prev {
   left: -8px;
@@ -11391,7 +11363,6 @@ function createInitialState(userType) {
     ],
     decisionSeen: false,
     recipient: "",
-    toastClosed: false,
   };
 }
 
@@ -12276,20 +12247,6 @@ function screenVoucher(state) {
     ${statusBar()}
     ${titledHeader(title)}
     <div class="oky-flow-section">
-      ${
-        purchase && !state.toastClosed
-          ? `<div class="oky-flow-toast-row">
-              <div class="toast-banner toast-banner-success" role="status">
-                <span class="toast-banner-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
-                <span class="toast-banner-message">Compra exitosa</span>
-              </div>
-              <button class="oky-flow-toast-close" data-action="close-toast" type="button" aria-label="Cerrar">
-                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-              </button>
-            </div>`
-          : ""
-      }
-
       <div class="oky-flow-card-carousel">
       ${renderCardOrganism({
         topVariantPath: "Molecule/Top Card/Gift Card",
@@ -12592,11 +12549,6 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return render();
     }
 
-    if (action === "close-toast") {
-      state.toastClosed = true;
-      return render();
-    }
-
     if (action === "voucher-prev" || action === "voucher-next") {
       const step = action === "voucher-next" ? 1 : -1;
       const list = state.purchases;
@@ -12613,6 +12565,9 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "confirm-methods") return goBack();
 
     if (action === "pay") {
+      /* Un segundo toque mientras corre el procesamiento duplicaría
+         la compra. */
+      if (state.screen === "processing") return;
       go("processing", {}, { push: false });
       setTimeout(completePurchase, 1400);
       return;
