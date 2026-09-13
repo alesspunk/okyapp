@@ -9345,11 +9345,7 @@ button.header-icon {
 /* La campaña tiñe la banda que va del buscador al carrusel: el
    Discovery Header ya trae el search dentro, así que el color se
    aplica ahí y se continúa en la banda de abajo. */
-.oky-flow-theme {
-  --home-theme: #e2711d;
-}
-
-.oky-flow-theme .discovery-header-search {
+.oky-flow-home .discovery-header-search {
   background: var(--home-theme);
   padding-top: 12px;
 }
@@ -9607,4 +9603,106 @@ button.list-plp-row {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Home: banda de campaña con degradado, ritmo vertical sin
+   divisores y banderas del folder con el átomo Flag.
+───────────────────────────────────────────────────────── */
+
+/* El wrapper abarca todo el home: el sticky del header se limita a la
+   caja de su padre, así que ese padre tiene que ser el contenido
+   entero y no solo la banda. */
+.oky-flow-home {
+  position: relative;
+  --home-theme: #e2711d;
+}
+
+/* El carrusel de banners respeta los 16px de margen del resto de la
+   app y arranca pegado a la izquierda. */
+.oky-flow-banner-track {
+  padding: 0 var(--oky-gutter) 6px;
+  justify-content: flex-start;
+  scrollbar-width: none;
+}
+
+.oky-flow-banner-track::-webkit-scrollbar {
+  display: none;
+}
+
+.oky-flow-banner-track .carousel-banner {
+  flex: 0 0 auto;
+  border: 0;
+}
+
+/* La banda ya no corta en seco: el degradado la continúa 320px
+   hacia abajo, por detrás del contenido. */
+.oky-flow-home .oky-flow-theme-band {
+  border-radius: 0;
+}
+
+.oky-flow-theme-fade {
+  height: 320px;
+  /* Se monta el contenido encima en vez de empujarlo 320px. */
+  margin-bottom: -320px;
+  background: linear-gradient(180deg, #ff9019 0%, rgba(255, 144, 25, 0) 100%);
+  pointer-events: none;
+}
+
+/* El contenido va por encima del degradado. */
+.oky-flow-home .oky-flow-section {
+  position: relative;
+  z-index: 1;
+  gap: 20px;
+}
+
+/* Entre organismos manda el gap de la sección: fuera los filetes
+   grises que traían Tactic Strip y Promo Strip de sus mockups. */
+.oky-flow-frame .tactic-strip {
+  width: 100%;
+  padding: 0;
+  border-top: 0;
+  border-bottom: 0;
+}
+
+.oky-flow-frame .promo-strip-divider {
+  display: none;
+}
+
+.oky-flow-frame .tactic-strip-title,
+.oky-flow-frame .tactic-strip-header {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ── Folder: banderas con el átomo Flag (flagpack) ───────── */
+.folder-flag .flag-atom {
+  width: 32px;
+  height: 24px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.folder-flag .flag-atom img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* El flag del vale es el mismo átomo recortado en círculo: el SVG de
+   flagpack es 4:3, así que se encuadra con cover. */
+.prime-card-top-flag .flag-atom img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* El Discovery Header se queda arriba mientras se scrollea el home:
+   así el folder colapsado y el buscador siguen a mano. */
+.oky-flow-frame .oky-flow-home .discovery-header-organism {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--white);
 }

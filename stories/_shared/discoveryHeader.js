@@ -11,6 +11,7 @@
 ───────────────────────────────────────────────────────── */
 
 import { buildPlateu } from "./plateu";
+import { renderFlag } from "./flag";
 
 export const SIDE_OPTIONS = ["Left", "Right"];
 export const STATE_OPTIONS = ["State 1", "State 2", "State 3"];
@@ -67,14 +68,12 @@ export const DISCOVERY_CONFIG = {
 const COUNTRY_BASE = {
   left: {
     code: "USA",
-    flag: "usa-flag.png",
-    collapsedFlag: "flag-usa.png",
+    iso: "US",
     alt: "USA flag",
   },
   right: {
     code: "GUA",
-    flag: "guatemala-flag.png",
-    collapsedFlag: "flag-guate.png",
+    iso: "GT",
     alt: "Guatemala flag",
   },
 };
@@ -204,7 +203,7 @@ function renderFolderOption({
   side,
   selectedSide,
   code,
-  flag,
+  flagCode,
   alt,
   showChevrons,
   codeOffset = 0,
@@ -231,8 +230,10 @@ function renderFolderOption({
   return `
     <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="${optionStyle.join(";")}">
       ${
+        /* La bandera es el átomo Flag (flagpack), no un bitmap suelto:
+           mismo 4:3, borde y radio que el resto del sistema. */
         withFlag
-          ? `<span class="folder-flag ${flagVariant === "rect" ? "is-rect" : ""}" aria-hidden="true"><img src="${flag}" alt="${alt}"></span>`
+          ? `<span class="folder-flag ${flagVariant === "rect" ? "is-rect" : ""}" aria-hidden="true">${renderFlag({ code: flagCode, size: "Large" })}</span>`
           : ""
       }
       <span class="folder-code"${style ? ` style="${style}"` : ""}>${code}</span>
@@ -270,7 +271,7 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true }
                 side: "left",
                 selectedSide,
                 code: COUNTRY_BASE.left.code,
-                flag: COUNTRY_BASE.left.collapsedFlag,
+                flagCode: COUNTRY_BASE.left.iso,
                 alt: COUNTRY_BASE.left.alt,
                 showChevrons: false,
                 withFlag: true,
@@ -281,7 +282,7 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true }
                 side: "right",
                 selectedSide,
                 code: COUNTRY_BASE.right.code,
-                flag: COUNTRY_BASE.right.collapsedFlag,
+                flagCode: COUNTRY_BASE.right.iso,
                 alt: COUNTRY_BASE.right.alt,
                 showChevrons,
                 withFlag: true,
@@ -314,7 +315,7 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true }
               side: "left",
               selectedSide,
               code: COUNTRY_BASE.left.code,
-              flag: COUNTRY_BASE.left.flag,
+              flagCode: COUNTRY_BASE.left.iso,
               alt: COUNTRY_BASE.left.alt,
               showChevrons: false,
             })}
@@ -323,7 +324,7 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true }
               side: "right",
               selectedSide,
               code: COUNTRY_BASE.right.code,
-              flag: COUNTRY_BASE.right.flag,
+              flagCode: COUNTRY_BASE.right.iso,
               alt: COUNTRY_BASE.right.alt,
               showChevrons,
             })}

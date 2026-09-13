@@ -80,22 +80,25 @@ const PRODUCTS = {
    Cada una abre su propia PLP; Nike y Lyft, además, conservan el PDP
    directo porque son las que mueven el flujo de cashback. */
 const BRANDS = {
-  googleplay: { label: "Google Play", art: "google.webp" },
-  starbucks: { label: "Starbucks", art: "starbucks.webp" },
-  cvs: { label: "CVS", art: "cvs.webp" },
-  apple: { label: "Apple", art: "apple.webp" },
-  macys: { label: "Macy's", art: "macys.webp" },
-  target: { label: "Target", art: "target.webp" },
-  seveneleven: { label: "7 Eleven", art: "7eleven.png" },
-  burgerking: { label: "Burger King", art: "burguerking.webp" },
-  ihop: { label: "IHOP", art: "ihop.webp" },
-  mcdonalds: { label: "McDonald's", art: "mcdonalds.webp" },
-  campero: { label: "Pollo Campero", art: "pollo-campero.webp" },
-  applebees: { label: "Applebee's", art: "applebees.webp" },
-  amazon: { label: "Amazon", art: "amazon.png" },
-  ebay: { label: "eBay", art: "ebay.png" },
-  xbox: { label: "Xbox", art: "xbox.png" },
+  googleplay: { label: "Google Play", art: "google.webp", rate: 5 },
+  starbucks: { label: "Starbucks", art: "starbucks.webp", rate: 10 },
+  cvs: { label: "CVS", art: "cvs.webp", rate: 5 },
+  apple: { label: "Apple", art: "apple.webp", rate: 5 },
+  macys: { label: "Macy's", art: "macys.webp", rate: 12 },
+  target: { label: "Target", art: "target.webp", rate: 8 },
+  seveneleven: { label: "7 Eleven", art: "7eleven.png", rate: 6 },
+  burgerking: { label: "Burger King", art: "burguerking.webp", rate: 9 },
+  ihop: { label: "IHOP", art: "ihop.webp", rate: 7 },
+  mcdonalds: { label: "McDonald's", art: "mcdonalds.webp", rate: 6 },
+  campero: { label: "Pollo Campero", art: "pollo-campero.webp", rate: 10 },
+  applebees: { label: "Applebee's", art: "applebees.webp", rate: 8 },
+  amazon: { label: "Amazon", art: "amazon.png", rate: 7 },
+  ebay: { label: "eBay", art: "ebay.png", rate: 7 },
+  xbox: { label: "Xbox", art: "xbox.png", rate: 7 },
 };
+
+/* Monto con el que abre el PDP de una marca nueva. */
+const BRAND_DEFAULT_AMOUNT = 5;
 
 /* Toda marca es también un producto: así el PDP, el carrito y el
    checkout funcionan igual venga de donde venga. */
@@ -106,8 +109,11 @@ Object.entries(BRANDS).forEach(([key, brand]) => {
     cardTitle: `${brand.label} Gift Card`,
     art: brand.art,
     hero: brand.art,
-    min: 10,
+    min: 5,
     max: 1000,
+    /* Porcentaje propio de la marca: no depende del monto como en
+       Nike y Lyft, que son los que enseñan la regla de tiers. */
+    rate: brand.rate,
     legal: true,
   };
 });
@@ -141,7 +147,7 @@ const HOME_CATEGORIES = [
 /* Denominaciones que lista la PLP de cada marca. Los montos caen a
    propósito a ambos lados del rango especial, así el ribbon de la
    lista ya enseña la regla de tiers. */
-const PLP_AMOUNTS = [10, 25, 60, 100, 250];
+const PLP_AMOUNTS = [5, 10, 25, 60, 100];
 
 /* Tarjetas de "Solo por hoy" (MARS 7295:52037). */
 const TODAY_CARDS = [
@@ -150,8 +156,19 @@ const TODAY_CARDS = [
 ];
 
 /* Tier del cashback. Verificado contra los dos frames de Nike:
-   $200 → "Ganas 20%" naranja · $201 → "Ganas 5%" aqua. */
-function getTier(amount) {
+   $200 → "Ganas 20%" naranja · $201 → "Ganas 5%" aqua.
+
+   Solo Nike y Lyft se mueven con el monto; el resto de las marcas
+   trae su propio porcentaje fijo y el tier se arma con él. */
+function getTier(amount, product) {
+  if (product && product.rate) {
+    const promo = product.rate >= 20;
+    return {
+      rate: product.rate / 100,
+      ribbon: promo ? "is-tier-promo" : "is-tier-base",
+      bar: promo ? "is-tier-promo" : "",
+    };
+  }
   if (amount > 50 && amount <= 200) {
     return { rate: 0.2, ribbon: "is-tier-promo", bar: "is-tier-promo" };
   }
@@ -239,6 +256,8 @@ function createInitialState(userType) {
       { date: stamp(52), group: monthGroup(52), amount: "+ $1.85", order: "Orden #01112430" },
     ],
     decisionSeen: false,
+    /* El folder del Discovery Header se colapsa al scrollear el home. */
+    headerCollapsed: false,
     recipient: "",
   };
 }
@@ -324,9 +343,11 @@ function navbar(active) {
     <div class="nav-item ${key === active ? "active" : ""} ${action ? "" : "is-dim"}"
       ${action ? `data-action="${action}" role="button" tabindex="0"` : ""}>
       ${
+        /* El item activo va en Solid y el resto en Regular; OKY Cash
+           es siempre la moneda, que es una imagen. */
         key === "okycash"
           ? `<img class="oky-flow-coin" src="oky-cash-coin.png" alt="" />`
-          : `<i class="fa-solid fa-${icon}" style="font-size:20px" aria-hidden="true"></i>`
+          : `<i class="fa-${key === active ? "solid" : "regular"} fa-${icon}" style="font-size:20px" aria-hidden="true"></i>`
       }
       <span class="nav-label">${label}</span>
     </div>
@@ -356,6 +377,19 @@ function savingBar(cashback, tier, copy) {
 }
 
 /* ── Home (99105:31149) ─────────────────────────────────── */
+/* El Discovery Header del home, en el estado que toque: State 1 con el
+   folder desplegado y State 2 con el folder colapsado, que es el que
+   el organismo trae para cuando la página ya está scrolleada. */
+function homeHeader(state, headerState) {
+  return renderDiscoveryHeader({
+    side: "Left",
+    state: headerState,
+    walletAction: "nav:wallet",
+    cartAction: "open-cart",
+    cartIndicated: state.cart.length > 0,
+  });
+}
+
 function screenHome(state) {
   /* Una oferta del strip táctico: foto, logo de marca colgado a la
      izquierda y el ribbon con el cashback (MARS 7295:52037). */
@@ -397,17 +431,13 @@ function screenHome(state) {
   };
 
   return `
-    <div class="oky-flow-theme">
-      ${renderDiscoveryHeader({
-        side: "Left",
-        state: "State 1",
-        walletAction: "nav:wallet",
-        cartAction: "open-cart",
-        cartIndicated: state.cart.length > 0,
-      })}
+    <div class="oky-flow-home">
+      ${homeHeader(state, state.headerCollapsed ? "State 2" : "State 1")}
 
       <div class="oky-flow-theme-band">
-        <div class="carousel-container">
+        <div class="carousel-container oky-flow-banner-track">
+          <div class="carousel-banner"><img src="oky-banner-spooky-1.png" alt="Spooky Deals · 20% 30% 40% OFF" /></div>
+          <div class="carousel-banner"><img src="oky-banner-spooky-2.png" alt="Spooky Deals · hasta 40% OFF en experiencias" /></div>
           <div class="carousel-banner"><img src="oky-banner-1.png" alt="Promo Verano" /></div>
           <div class="carousel-banner"><img src="oky-banner-2.png" alt="Promo" /></div>
         </div>
@@ -419,15 +449,15 @@ function screenHome(state) {
           </div>
         </div>
       </div>
-    </div>
+      <div class="oky-flow-theme-fade" aria-hidden="true"></div>
 
     <div class="oky-flow-section">
       <section class="tactic-strip">
         <header class="tactic-strip-header">
-          <h3 class="token-h6 tactic-strip-title">Solo por hoy</h3>
+          <h3 class="token-h6 tactic-strip-title">🎃 Spooky Deals</h3>
           <div class="super-ribbon super-ribbon-type-normal">
-            <span class="super-ribbon-icon"><i class="fa-solid fa-tags" aria-hidden="true"></i></span>
-            <span class="super-ribbon-text">Descuentos de temporada</span>
+            <span class="super-ribbon-icon"><i class="fa-solid fa-percent" aria-hidden="true"></i></span>
+            <span class="super-ribbon-text">Super Deals</span>
           </div>
         </header>
 
@@ -486,6 +516,7 @@ function screenHome(state) {
         website for additional terms and conditions.
       </p>
     </div>
+    </div>
 
     ${navbar("home")}
   `;
@@ -537,7 +568,7 @@ function screenPlp(state) {
       <div class="list-plp-anatomy">
         <div class="list-plp-inner">
           ${PLP_AMOUNTS.map((amount) => {
-            const tier = getTier(amount);
+            const tier = getTier(amount, product);
             return `
             <article>
               <button class="list-plp-row" data-action="open-pdp" data-product="${product.key}" data-amount="${amount}" type="button">
@@ -571,7 +602,7 @@ function screenPlp(state) {
 function screenPdp(state) {
   const product = PRODUCTS[state.params.product];
   const amount = state.amounts[product.key];
-  const tier = getTier(amount);
+  const tier = getTier(amount, product);
   const cashback = amount * tier.rate;
   const inCart = state.cart.some((item) => item.productKey === product.key);
 
@@ -675,7 +706,7 @@ function cartDrawer(state) {
     ? state.cart
         .map((item) => {
           const product = PRODUCTS[item.productKey];
-          const tier = getTier(item.amount);
+          const tier = getTier(item.amount, product);
           return `
             <div class="oky-flow-cart-row">
               <div class="oky-flow-cart-head">
@@ -1423,6 +1454,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       )
       .forEach((bar) => frame.appendChild(bar));
 
+    bindHeaderScroll(scroll);
+
     /* El drawer trae su propia saving bar; la de la pantalla de abajo
        se quita para que no quede pintada encima. */
     if (state.cartOpen) {
@@ -1432,11 +1465,42 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
   }
 
+  /* Transición de scroll del Discovery Header: al bajar, el folder pasa
+     a su variante colapsada (35px en vez de 77px) y al volver arriba se
+     despliega otra vez. Solo se reemplaza ese nodo —no se re-renderiza
+     la pantalla— y se compensa el scrollTop con la diferencia de alto
+     para que el contenido no pegue un salto. La histéresis evita que
+     parpadee justo en el umbral. */
+  function bindHeaderScroll(scroll) {
+    if (state.screen !== "home") return;
+
+    scroll.addEventListener(
+      "scroll",
+      () => {
+        const y = scroll.scrollTop;
+        const next = state.headerCollapsed ? y > 40 : y > 96;
+        if (next === state.headerCollapsed) return;
+
+        const host = scroll.querySelector(".discovery-header-organism");
+        if (!host) return;
+
+        const before = host.offsetHeight;
+        host.insertAdjacentHTML("beforebegin", homeHeader(state, next ? "State 2" : "State 1"));
+        host.remove();
+        const fresh = scroll.querySelector(".discovery-header-organism");
+        scroll.scrollTop = y + (fresh.offsetHeight - before);
+        state.headerCollapsed = next;
+      },
+      { passive: true },
+    );
+  }
+
   function go(screen, params = {}, { push = true } = {}) {
     if (push) state.history.push({ screen: state.screen, params: state.params });
     state.screen = screen;
     state.params = params;
     state.cartOpen = false;
+    state.headerCollapsed = false;
     render();
   }
 
@@ -1446,6 +1510,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.screen = prev.screen;
     state.params = prev.params;
     state.cartOpen = false;
+    state.headerCollapsed = false;
     render();
   }
 
@@ -1566,7 +1631,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          home se entra con el que ya tenga la marca. */
       const key = el.dataset.product;
       if (el.dataset.amount) state.amounts[key] = Number(el.dataset.amount);
-      else if (!state.amounts[key]) state.amounts[key] = 51;
+      else if (!state.amounts[key]) state.amounts[key] = BRAND_DEFAULT_AMOUNT;
       return go("pdp", { product: key });
     }
 
@@ -1574,7 +1639,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const product = PRODUCTS[el.dataset.product];
       const amount = state.amounts[product.key];
       if (!amount) return;
-      const tier = getTier(amount);
+      const tier = getTier(amount, product);
       state.cart = state.cart
         .filter((item) => item.productKey !== product.key)
         .concat({ productKey: product.key, amount, cashback: amount * tier.rate });
@@ -1671,7 +1736,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const amount = clamp(Number(clean) || 0, 0, product.max);
       state.amounts[product.key] = amount;
 
-      const tier = getTier(amount);
+      const tier = getTier(amount, product);
       const cashback = amount * tier.rate;
 
       const bigEl = root.querySelector(".middle-card-amount");
