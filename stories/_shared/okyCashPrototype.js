@@ -100,6 +100,20 @@ const BRANDS = {
 /* Monto con el que abre el PDP de una marca nueva. */
 const BRAND_DEFAULT_AMOUNT = 5;
 
+/* La promo de "Spooky Deals" dura dos minutos: mientras corre, el rango
+   de $50 a $200 paga 20%; al vencer, todo vuelve al 5% base. Es a
+   propósito corta — la prueba de usabilidad quiere ver qué hace la
+   persona con el reloj encima. */
+const PROMO_MS = 2 * 60 * 1000;
+
+/* mm:ss para el Super Ribbon "Por tiempo". */
+function countdownLabel(msLeft) {
+  const total = Math.max(0, Math.ceil(msLeft / 1000));
+  const mm = String(Math.floor(total / 60)).padStart(2, "0");
+  const ss = String(total % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
+}
+
 /* Toda marca es también un producto: así el PDP, el carrito y el
    checkout funcionan igual venga de donde venga. */
 Object.entries(BRANDS).forEach(([key, brand]) => {
@@ -146,8 +160,8 @@ const HOME_CATEGORIES = [
 
 /* Tarjetas de "Solo por hoy" (MARS 7295:52037). */
 const TODAY_CARDS = [
-  { key: "macys", photo: "promo-image4.png", rate: 12 },
-  { key: "starbucks", photo: "promo-image2.png", rate: 17 },
+  { key: "macys", photo: "promo-image4.png" },
+  { key: "starbucks", photo: "promo-image2.png" },
 ];
 
 /* Tier del cashback. Verificado contra los dos frames de Nike:
@@ -155,7 +169,7 @@ const TODAY_CARDS = [
 
    Solo Nike y Lyft se mueven con el monto; el resto de las marcas
    trae su propio porcentaje fijo y el tier se arma con él. */
-function getTier(amount, product) {
+function getTier(amount, product, promoLive = true) {
   if (product && product.rate) {
     const promo = product.rate >= 20;
     return {
@@ -164,7 +178,8 @@ function getTier(amount, product) {
       bar: promo ? "is-tier-promo" : "",
     };
   }
-  if (amount > 50 && amount <= 200) {
+  /* El 20% solo existe mientras la promo esté viva. */
+  if (promoLive && amount > 50 && amount <= 200) {
     return { rate: 0.2, ribbon: "is-tier-promo", bar: "is-tier-promo" };
   }
   return { rate: 0.05, ribbon: "is-tier-base", bar: "" };
@@ -253,6 +268,9 @@ function createInitialState(userType) {
     decisionSeen: false,
     /* El folder del Discovery Header se colapsa al scrollear el home. */
     headerCollapsed: false,
+    /* Fin de la promo; se fija al montar el prototipo. */
+    promoEndsAt: Date.now() + PROMO_MS,
+    promoLive: true,
     recipient: "",
   };
 }
@@ -385,6 +403,25 @@ function homeHeader(state, headerState) {
   });
 }
 
+/* Super Ribbon "Por tiempo" con la cuenta atrás real de la promo; al
+   vencer cambia a la variante "Finito". */
+function promoRibbon(state) {
+  if (!state.promoLive) {
+    return `
+      <div class="super-ribbon super-ribbon-type-finito">
+        <span class="super-ribbon-icon"><i class="fa-solid fa-fire-flame-simple" aria-hidden="true"></i></span>
+        <span class="super-ribbon-text">La promo terminó</span>
+      </div>
+    `;
+  }
+  return `
+    <div class="super-ribbon super-ribbon-type-por-tiempo">
+      <span class="super-ribbon-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+      <span class="super-ribbon-text" data-role="promo-countdown">Termina en ${countdownLabel(state.promoEndsAt - Date.now())}</span>
+    </div>
+  `;
+}
+
 function screenHome(state) {
   /* Una oferta del strip táctico: foto, logo de marca colgado a la
      izquierda y el ribbon con el cashback (MARS 7295:52037). */
@@ -409,6 +446,9 @@ function screenHome(state) {
       </button>
     `;
   };
+
+  /* Nike y Lyft anuncian el tier de la promo; cuando vence, el 5% base. */
+  const promoRate = state.promoLive ? 20 : 5;
 
   /* Card de marca del organismo Promo Strip: arte de la gift card,
      nombre debajo y, si trae rate, el chip de cashback. */
@@ -449,17 +489,16 @@ function screenHome(state) {
       <section class="tactic-strip">
         <header class="tactic-strip-header">
           <h3 class="token-h6 tactic-strip-title">🎃 Spooky Deals</h3>
-          <div class="super-ribbon super-ribbon-type-normal">
-            <span class="super-ribbon-icon"><i class="fa-solid fa-percent" aria-hidden="true"></i></span>
-            <span class="super-ribbon-text">Super Deals</span>
-          </div>
+          ${promoRibbon(state)}
         </header>
 
         <div class="tactic-strip-carousel-window">
           <div class="tactic-strip-carousel-track">
-            ${offer({ key: "nike", photo: PRODUCTS.nike.hero, rate: 20, action: "open-pdp" })}
-            ${offer({ key: "lyft", photo: PRODUCTS.lyft.hero, rate: 20, action: "open-pdp" })}
-            ${TODAY_CARDS.map((card) => offer({ ...card, action: "open-pdp" })).join("")}
+            ${offer({ key: "nike", photo: PRODUCTS.nike.hero, rate: promoRate, action: "open-pdp" })}
+            ${offer({ key: "lyft", photo: PRODUCTS.lyft.hero, rate: promoRate, action: "open-pdp" })}
+            ${TODAY_CARDS.map((card) =>
+              offer({ ...card, rate: BRANDS[card.key].rate, action: "open-pdp" }),
+            ).join("")}
           </div>
         </div>
       </section>
@@ -520,7 +559,7 @@ function screenHome(state) {
 function screenPdp(state) {
   const product = PRODUCTS[state.params.product];
   const amount = state.amounts[product.key];
-  const tier = getTier(amount, product);
+  const tier = getTier(amount, product, state.promoLive);
   const cashback = amount * tier.rate;
   const inCart = state.cart.some((item) => item.productKey === product.key);
 
@@ -624,7 +663,7 @@ function cartDrawer(state) {
     ? state.cart
         .map((item) => {
           const product = PRODUCTS[item.productKey];
-          const tier = getTier(item.amount, product);
+          const tier = getTier(item.amount, product, state.promoLive);
           return `
             <div class="oky-flow-cart-row">
               <div class="oky-flow-cart-head">
@@ -1557,7 +1596,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const product = PRODUCTS[el.dataset.product];
       const amount = state.amounts[product.key];
       if (!amount) return;
-      const tier = getTier(amount, product);
+      const tier = getTier(amount, product, state.promoLive);
       state.cart = state.cart
         .filter((item) => item.productKey !== product.key)
         .concat({ productKey: product.key, amount, cashback: amount * tier.rate });
@@ -1654,7 +1693,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const amount = clamp(Number(clean) || 0, 0, product.max);
       state.amounts[product.key] = amount;
 
-      const tier = getTier(amount, product);
+      const tier = getTier(amount, product, state.promoLive);
       const cashback = amount * tier.rate;
 
       const bigEl = root.querySelector(".middle-card-amount");
@@ -1706,6 +1745,30 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (cardBalance) cardBalance.textContent = keep.toFixed(2);
     }
   });
+
+  /* Reloj de la promo. Cada segundo solo se reescribe el texto del
+     ribbon —re-renderizar entero robaría el foco del campo de monto—
+     y al llegar a cero se hace un render completo para que ribbons,
+     saving bars y el carrito recalculen con el 5%. */
+  setInterval(() => {
+    if (!state.promoLive) return;
+
+    const left = state.promoEndsAt - Date.now();
+    if (left > 0) {
+      const label = root.querySelector("[data-role='promo-countdown']");
+      if (label) label.textContent = `Termina en ${countdownLabel(left)}`;
+      return;
+    }
+
+    state.promoLive = false;
+    /* Lo que ya está en el carrito también pierde el 20%: es
+       justamente lo que la prueba quiere ver. */
+    state.cart = state.cart.map((item) => ({
+      ...item,
+      cashback: item.amount * getTier(item.amount, PRODUCTS[item.productKey], false).rate,
+    }));
+    render();
+  }, 1000);
 
   render();
 }
