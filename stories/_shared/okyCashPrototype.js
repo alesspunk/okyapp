@@ -76,18 +76,77 @@ const PRODUCTS = {
   },
 };
 
-/* Marcas decorativas del Home, tomadas del mockup de homepage. */
-const HOME_TILES = [
-  { label: "Krispy Kreme", art: "oky-card-krispy.png" },
-  { label: "Under Armour", art: "oky-card-underarmour.png" },
-  { label: "Google Play", art: "oky-card-googleplay.png" },
-  { label: "Amazon", art: "amazon.png" },
+/* Marcas del Home, con el arte de gift card que ya vive en images/.
+   Cada una abre su propia PLP; Nike y Lyft, además, conservan el PDP
+   directo porque son las que mueven el flujo de cashback. */
+const BRANDS = {
+  googleplay: { label: "Google Play", art: "google.webp" },
+  starbucks: { label: "Starbucks", art: "starbucks.webp" },
+  cvs: { label: "CVS", art: "cvs.webp" },
+  apple: { label: "Apple", art: "apple.webp" },
+  macys: { label: "Macy's", art: "macys.webp" },
+  target: { label: "Target", art: "target.webp" },
+  seveneleven: { label: "7 Eleven", art: "7eleven.png" },
+  burgerking: { label: "Burger King", art: "burguerking.webp" },
+  ihop: { label: "IHOP", art: "ihop.webp" },
+  mcdonalds: { label: "McDonald's", art: "mcdonalds.webp" },
+  campero: { label: "Pollo Campero", art: "pollo-campero.webp" },
+  applebees: { label: "Applebee's", art: "applebees.webp" },
+  amazon: { label: "Amazon", art: "amazon.png" },
+  ebay: { label: "eBay", art: "ebay.png" },
+  xbox: { label: "Xbox", art: "xbox.png" },
+};
+
+/* Toda marca es también un producto: así el PDP, el carrito y el
+   checkout funcionan igual venga de donde venga. */
+Object.entries(BRANDS).forEach(([key, brand]) => {
+  PRODUCTS[key] = {
+    key,
+    label: brand.label,
+    cardTitle: `${brand.label} Gift Card`,
+    art: brand.art,
+    hero: brand.art,
+    min: 10,
+    max: 1000,
+    legal: true,
+  };
+});
+
+/* Secciones de marcas del Home (Figma "Theme 1", 99135:106016). */
+const HOME_SECTIONS = [
+  { title: "Novedades", keys: ["googleplay", "starbucks", "cvs", "apple", "macys", "target"] },
+  {
+    title: "Comida Rápida",
+    keys: ["seveneleven", "burgerking", "ihop", "mcdonalds", "campero", "applebees"],
+  },
 ];
 
-/* Tarjetas decorativas de "Solo por hoy" (MARS 7295:52037). */
+/* Fila de marcas con su chip de cashback, bajo un título con CTA. */
+const GEEKY_DEALS = [
+  { key: "amazon", rate: 7 },
+  { key: "ebay", rate: 7 },
+  { key: "xbox", rate: 7 },
+];
+
+/* Accesos por categoría (Molecules/Tiles · Macro/Tile). */
+const HOME_CATEGORIES = [
+  { label: "Comida", icon: "combo.webp" },
+  { label: "Supermercado", icon: "super.webp" },
+  { label: "Tecnología", icon: "app.webp" },
+  { label: "Hogar", icon: "home.webp" },
+  { label: "Regalos", icon: "regalos.webp" },
+  { label: "Servicios", icon: "servicios.webp" },
+];
+
+/* Denominaciones que lista la PLP de cada marca. Los montos caen a
+   propósito a ambos lados del rango especial, así el ribbon de la
+   lista ya enseña la regla de tiers. */
+const PLP_AMOUNTS = [10, 25, 60, 100, 250];
+
+/* Tarjetas de "Solo por hoy" (MARS 7295:52037). */
 const TODAY_CARDS = [
-  { label: "Nordstrom", art: "oky-brand-nordstrom.png", photo: "promo-image2.png", rate: 17 },
-  { label: "Macy's", art: "oky-brand-macys.png", photo: "promo-image4.png", rate: 12 },
+  { key: "macys", photo: "promo-image4.png", rate: 12 },
+  { key: "starbucks", photo: "promo-image2.png", rate: 17 },
 ];
 
 /* Tier del cashback. Verificado contra los dos frames de Nike:
@@ -227,16 +286,17 @@ function backButton(action = "back") {
   `;
 }
 
-function titledHeader(title, { trailing = "" } = {}) {
+function titledHeader(title, { trailing = "", trailingAction = "" } = {}) {
+  /* El icono de la derecha es decorativo salvo que se le pase una
+     acción; entonces pasa a ser botón (el carrito de la PLP). */
+  const attrs = trailingAction
+    ? `class="oky-flow-header-icon" data-action="${trailingAction}" role="button" tabindex="0"`
+    : `class="oky-flow-header-icon" aria-hidden="true"`;
   return `
     <header class="oky-flow-header">
       ${backButton()}
       <h1 class="oky-flow-title">${title}</h1>
-      ${
-        trailing
-          ? `<span class="oky-flow-header-icon" aria-hidden="true"><i class="fa-solid ${trailing}"></i></span>`
-          : `<span class="oky-flow-header-icon" aria-hidden="true"></span>`
-      }
+      <span ${attrs}>${trailing ? `<i class="fa-solid ${trailing}"></i>` : ""}</span>
     </header>
   `;
 }
@@ -297,47 +357,56 @@ function savingBar(cashback, tier, copy) {
 
 /* ── Home (99105:31149) ─────────────────────────────────── */
 function screenHome(state) {
-  /* Una marca del carrusel = homecard-photo-item del mockup de
-     homepage, pero como <button> para que sea clickable. */
-  const photoItem = (product) => `
-      <button class="homecard-photo-item" data-action="open-pdp" data-product="${product.key}" type="button">
-        <div class="homecard-photo-media-wrap">
-          <img class="homecard-photo-hero" src="${product.hero}" alt="${product.label}" />
-          <div class="homecard-photo-ribbon-wrap">
-            <div class="discount-ribbon discount-ribbon-wrap is-tier-promo">
-              <span class="discount-ribbon-text token-price-percent">Gana 20%</span>
+  /* Una oferta del strip táctico: foto, logo de marca colgado a la
+     izquierda y el ribbon con el cashback (MARS 7295:52037). */
+  const offer = ({ key, photo, rate, action }) => {
+    const product = PRODUCTS[key];
+    return `
+      <button class="tactic-offer tactic-offer-left" data-action="${action}" data-product="${key}" data-brand="${key}" type="button">
+        <div class="tactic-offer-hero-wrap">
+          <img class="tactic-offer-hero" src="${photo}" alt="${product.label}" />
+          <div class="tactic-logo-wrap tactic-logo-wrap-left">
+            <img class="tactic-logo" src="${product.art}" alt="${product.label}" />
+          </div>
+          <div class="tactic-discount-wrap tactic-discount-wrap-left">
+            <div class="discount-ribbon discount-ribbon-wrap ${rate >= 20 ? "is-tier-promo" : "is-tier-base"}">
+              <span class="discount-ribbon-text token-price-percent">Gana ${rate}%</span>
             </div>
           </div>
         </div>
-        <div class="homecard-photo-logo-stack">
-          <div class="homecard-photo-logo-wrap">
-            <img class="homecard-photo-logo" src="${product.art}" alt="${product.label}" />
-          </div>
-          <p class="token-brand homecard-photo-name">${product.label}</p>
+        <div class="tactic-brand-row">
+          <p class="token-brand tactic-brand">${product.label}</p>
         </div>
       </button>
     `;
+  };
 
-  const tile = (brand) => `
-    <article class="homecard-tile">
-      <div class="homecard-tile-logo-wrap">
-        <img class="homecard-tile-logo" src="${brand.art}" alt="${brand.label}" />
-      </div>
-      <p class="token-brand homecard-tile-name">${brand.label}</p>
-    </article>
-  `;
+  /* Card de marca del organismo Promo Strip: arte de la gift card,
+     nombre debajo y, si trae rate, el chip de cashback. */
+  const brandCard = (key, rate) => {
+    const product = PRODUCTS[key];
+    return `
+      <button class="promo-strip-item oky-flow-brand-card" data-action="open-plp" data-brand="${key}" type="button">
+        <span class="promo-strip-image-box">
+          <img src="${product.art}" alt="${product.label}" />
+        </span>
+        <span class="token-brand promo-strip-brand">${product.label}</span>
+        ${rate ? `<span class="oky-flow-brand-rate">Gana ${rate}%</span>` : ""}
+      </button>
+    `;
+  };
 
   return `
-    ${renderDiscoveryHeader({
-      side: "Left",
-      state: "State 1",
-      walletAction: "nav:wallet",
-      cartAction: "open-cart",
-      cartIndicated: state.cart.length > 0,
-    })}
+    <div class="oky-flow-theme">
+      ${renderDiscoveryHeader({
+        side: "Left",
+        state: "State 1",
+        walletAction: "nav:wallet",
+        cartAction: "open-cart",
+        cartIndicated: state.cart.length > 0,
+      })}
 
-    <div class="oky-flow-section">
-      <div style="width:100%">
+      <div class="oky-flow-theme-band">
         <div class="carousel-container">
           <div class="carousel-banner"><img src="oky-banner-1.png" alt="Promo Verano" /></div>
           <div class="carousel-banner"><img src="oky-banner-2.png" alt="Promo" /></div>
@@ -350,25 +419,9 @@ function screenHome(state) {
           </div>
         </div>
       </div>
+    </div>
 
-      ${cashStrip(state)}
-
-      <div class="oky-flow-home-head">
-        <h2 class="oky-flow-home-title">Labor Day</h2>
-        <span class="oky-flow-countdown">
-          <i class="fa-solid fa-clock" aria-hidden="true"></i>Termina en 20:43:32
-        </span>
-      </div>
-
-      <section class="homecard-organism homecard-organism-photo">
-        <div class="homecard-content homecard-content-photo">
-          <div class="homecard-photo-track">
-            ${photoItem(PRODUCTS.nike)}
-            ${photoItem(PRODUCTS.lyft)}
-          </div>
-        </div>
-      </section>
-
+    <div class="oky-flow-section">
       <section class="tactic-strip">
         <header class="tactic-strip-header">
           <h3 class="token-h6 tactic-strip-title">Solo por hoy</h3>
@@ -380,44 +433,135 @@ function screenHome(state) {
 
         <div class="tactic-strip-carousel-window">
           <div class="tactic-strip-carousel-track">
-            ${TODAY_CARDS.map(
-              (card) => `
-              <article class="tactic-offer tactic-offer-left">
-                <div class="tactic-offer-hero-wrap">
-                  <img class="tactic-offer-hero" src="${card.photo}" alt="${card.label}" />
-                  <div class="tactic-logo-wrap tactic-logo-wrap-left">
-                    <img class="tactic-logo" src="${card.art}" alt="${card.label}" />
-                  </div>
-                  <div class="tactic-discount-wrap tactic-discount-wrap-left">
-                    <div class="discount-ribbon discount-ribbon-wrap is-tier-base">
-                      <span class="discount-ribbon-text token-price-percent">Gana ${card.rate}%</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="tactic-brand-row">
-                  <p class="token-brand tactic-brand">${card.label}</p>
-                </div>
-              </article>
-            `,
-            ).join("")}
+            ${offer({ key: "nike", photo: PRODUCTS.nike.hero, rate: 20, action: "open-pdp" })}
+            ${offer({ key: "lyft", photo: PRODUCTS.lyft.hero, rate: 20, action: "open-pdp" })}
+            ${TODAY_CARDS.map((card) => offer({ ...card, action: "open-plp" })).join("")}
           </div>
         </div>
       </section>
 
-      <section class="homecard-organism">
-        <header class="homecard-header">
-          <h3 class="token-h6 homecard-title">Novedades</h3>
-        </header>
-        <div class="homecard-content homecard-content-default" style="padding:0 16px">
-          <div class="homecard-grid">
-            ${HOME_TILES.map(tile).join("")}
-          </div>
+      ${cashStrip(state)}
+
+      <section class="promo-strip-organism oky-flow-deals">
+        <div class="promo-strip-heading-wrap oky-flow-deals-head">
+          <h3 class="token-h6 promo-strip-heading">
+            <i class="fa-solid fa-bolt" aria-hidden="true"></i>Geeky Deals
+          </h3>
+          <span class="btn btn-outlined btn-small">Ver más</span>
         </div>
-        <footer class="homecard-footer">
-          <button class="btn btn-primary btn-small" type="button">Ver más</button>
-        </footer>
+        <div class="promo-strip-divider"></div>
+        <div class="promo-strip-row oky-flow-deals-row">
+          ${GEEKY_DEALS.map((deal) => brandCard(deal.key, deal.rate)).join("")}
+        </div>
+      </section>
+
+      <div class="oky-flow-tile-grid">
+        ${HOME_CATEGORIES.map(
+          (cat) => `
+          <div class="service-tile is-label-top">
+            <div class="tile-label">${cat.label}</div>
+            <div class="tile-icon"><img src="${cat.icon}" alt="" /></div>
+          </div>
+        `,
+        ).join("")}
+      </div>
+
+      ${HOME_SECTIONS.map(
+        (section) => `
+        <section class="homecard-organism">
+          <header class="homecard-header">
+            <h3 class="token-h6 homecard-title">${section.title}</h3>
+          </header>
+          <div class="homecard-content oky-flow-brand-grid">
+            ${section.keys.map((key) => brandCard(key)).join("")}
+          </div>
+        </section>
+      `,
+      ).join("")}
+
+      <p class="oky-flow-legal">
+        The merchants represented are not sponsors of the rewards or otherwise affiliated with
+        Merkado Services LLC. The logos and other identifying marks attached are trademarks of and
+        owned by each represented company and/or its affiliates. Please visit each company's
+        website for additional terms and conditions.
+      </p>
+    </div>
+
+    ${navbar("home")}
+  `;
+}
+
+/* ── PLP de marca (anatomía de plp-page.html) ─────────────
+   Cabecera con el Brand Item, el Plateu de catálogo y la lista de
+   denominaciones. Cada fila abre el PDP de esa marca con su monto,
+   así que el ribbon de la lista ya adelanta el tier. */
+function screenPlp(state) {
+  const product = PRODUCTS[state.params.brand] || PRODUCTS.nike;
+
+  const filters = [
+    { label: "Productos", icon: "plateu5.png" },
+    { label: "Vales", icon: "plateu6.png" },
+    { label: "Ofertas", icon: "plateu7.png" },
+  ];
+
+  return `
+    ${statusBar()}
+    <div class="oky-flow-plp-top">
+      ${titledHeader("", { trailing: "fa-cart-shopping", trailingAction: "open-cart" })}
+      <div class="oky-flow-plp-brand">
+        <section class="brand-item-atom is-with-label" aria-label="${product.label}">
+          <p class="brand-item-label token-product-text">${product.label}</p>
+          <div class="brand-item-frame">
+            <div class="brand-item-base"><img src="${product.art}" alt="${product.label}" /></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="plateu-molecule is-static is-default oky-flow-plp-plateu" aria-label="Categorías">
+        <div class="plateu-track is-static">
+          ${filters
+            .map(
+              (f, i) => `
+            <div class="plateu-item">
+              <div class="plateu-icon-wrap"><img class="plateu-icon" src="${f.icon}" alt="" /></div>
+              ${i === 0 ? `<span class="plateu-chip is-outlined">${f.label}</span>` : `<span class="plateu-label">${f.label}</span>`}
+            </div>
+          `,
+            )
+            .join("")}
+        </div>
       </section>
     </div>
+
+    <section class="oky-flow-plp-list">
+      <div class="list-plp-anatomy">
+        <div class="list-plp-inner">
+          ${PLP_AMOUNTS.map((amount) => {
+            const tier = getTier(amount);
+            return `
+            <article>
+              <button class="list-plp-row" data-action="open-pdp" data-product="${product.key}" data-amount="${amount}" type="button">
+                <span class="list-plp-image"><img src="${product.art}" alt="${product.label}" /></span>
+                <span class="list-plp-copy">
+                  <span class="token-product-text-plp">Gift Card de ${money(amount)}</span>
+                  <span class="list-plp-prices">
+                    <span class="token-price-tag-plp">${money(amount)}</span>
+                  </span>
+                  <span class="discount-ribbon discount-ribbon-list ${tier.ribbon}">
+                    <span class="discount-ribbon-text token-price-percent">Gana ${tier.rate * 100}%</span>
+                  </span>
+                </span>
+                <span class="chip-ds chip-ds-add0 chip-ds-shadow list-plp-action list-plp-chip-add0">
+                  <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                </span>
+              </button>
+              <div class="list-plp-divider"></div>
+            </article>
+          `;
+          }).join("")}
+        </div>
+      </div>
+    </section>
 
     ${navbar("home")}
   `;
@@ -1199,6 +1343,7 @@ const SCROLL_CLASS = {
 function renderScreen(state) {
   switch (state.screen) {
     case "home": return screenHome(state);
+    case "plp": return screenPlp(state);
     case "pdp": return screenPdp(state);
     case "checkout": return screenCheckout(state);
     case "methods": return screenMethods(state);
@@ -1414,7 +1559,16 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
     if (action === "go:decision") return go("decision");
 
-    if (action === "open-pdp") return go("pdp", { product: el.dataset.product });
+    if (action === "open-plp") return go("plp", { brand: el.dataset.brand });
+
+    if (action === "open-pdp") {
+      /* La PLP manda el monto de la denominación tocada; desde el
+         home se entra con el que ya tenga la marca. */
+      const key = el.dataset.product;
+      if (el.dataset.amount) state.amounts[key] = Number(el.dataset.amount);
+      else if (!state.amounts[key]) state.amounts[key] = 51;
+      return go("pdp", { product: key });
+    }
 
     if (action === "add-to-cart") {
       const product = PRODUCTS[el.dataset.product];

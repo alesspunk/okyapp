@@ -9336,3 +9336,275 @@ button.header-icon {
     animation-iteration-count: 1;
   }
 }
+
+/* ─────────────────────────────────────────────────────────
+   Home con el layout del frame "Theme 1" (Figma 99135:106016)
+   y la PLP de marca (anatomía de plp-page.html).
+───────────────────────────────────────────────────────── */
+
+/* La campaña tiñe la banda que va del buscador al carrusel: el
+   Discovery Header ya trae el search dentro, así que el color se
+   aplica ahí y se continúa en la banda de abajo. */
+.oky-flow-theme {
+  --home-theme: #e2711d;
+}
+
+.oky-flow-theme .discovery-header-search {
+  background: var(--home-theme);
+  padding-top: 12px;
+}
+
+.oky-flow-theme-band {
+  background: var(--home-theme);
+  padding: 0 0 12px;
+  border-radius: 0 0 20px 20px;
+}
+
+.oky-flow-theme-band .carrusel-dots-wrap {
+  padding-top: 10px;
+}
+
+.oky-flow-theme-band .promo-dot {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.oky-flow-theme-band .promo-dot-active {
+  background: var(--white);
+}
+
+/* Las ofertas del strip táctico son botones. */
+button.tactic-offer {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* ── Geeky Deals: título con CTA + fila de marcas ────────── */
+.oky-flow-deals {
+  width: 100%;
+  background: transparent;
+}
+
+.oky-flow-deals-head {
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0;
+}
+
+.oky-flow-deals-head .promo-strip-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+}
+
+.oky-flow-deals-row {
+  /* Sangra hasta el borde del frame para que la tercera marca asome,
+     como en el frame de Figma. */
+  padding: 16px var(--oky-gutter) 0 0;
+  margin-right: calc(var(--oky-gutter) * -1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.oky-flow-deals-row::-webkit-scrollbar {
+  display: none;
+}
+
+.oky-flow-deals-row .oky-flow-brand-card {
+  flex: 0 0 150px;
+  width: 150px;
+}
+
+/* ── Card de marca (Promo Strip item como botón) ─────────── */
+.oky-flow-brand-card {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  align-items: stretch;
+  text-align: center;
+  gap: 6px;
+}
+
+.oky-flow-brand-card .promo-strip-image-box {
+  width: 100%;
+  /* 50:31 como el resto de las cards de marca del prototipo. */
+  height: auto;
+  aspect-ratio: 50 / 31;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+}
+
+.oky-flow-brand-card .promo-strip-brand {
+  display: block;
+  font-weight: 600;
+}
+
+/* Chip de cashback bajo el nombre, a todo el ancho de la card. */
+.oky-flow-brand-rate {
+  display: block;
+  padding: 6px 0;
+  border-radius: 8px;
+  background: var(--tier-base-bg);
+  color: var(--tier-base-text);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* ── Grid de marcas dentro del HomeCard ─────────────────── */
+/* El HomeCard viene del mockup con medidas fijas (330x526 y el
+   contenido recortado a 407px con degradado al pie). Aquí el card
+   crece con su grid y no recorta nada. */
+.oky-flow-frame .homecard-organism {
+  width: 100%;
+  min-height: 0;
+  margin-bottom: 0;
+}
+
+.oky-flow-brand-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 12px;
+  height: auto;
+  overflow: visible;
+  padding: 0 16px 16px;
+}
+
+.oky-flow-brand-grid::after {
+  display: none;
+}
+
+/* .promo-strip-item mide 167px fijos; en el grid manda la columna. */
+.oky-flow-brand-grid .oky-flow-brand-card {
+  width: 100%;
+}
+
+/* ── Accesos por categoría (Macro/Tile) ─────────────────── */
+.oky-flow-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.oky-flow-tile-grid .service-tile {
+  width: 100%;
+  height: 120px;
+}
+
+/* En el frame de Figma el rótulo va arriba y alineado a la
+   izquierda, con el icono debajo ocupando el resto. */
+.service-tile.is-label-top {
+  justify-content: flex-start;
+  gap: 2px;
+}
+
+.service-tile.is-label-top .tile-label {
+  align-self: flex-start;
+  text-align: left;
+  font-size: 13px;
+}
+
+.service-tile.is-label-top .tile-icon {
+  width: 64px;
+  height: 64px;
+  margin: auto;
+}
+
+.service-tile.is-label-top .tile-icon img {
+  object-fit: contain;
+}
+
+/* ── Legal del pie del home ─────────────────────────────── */
+.oky-flow-legal {
+  margin: 0;
+  padding: 4px 0 8px;
+  color: var(--text-secondary);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* ── PLP de marca ───────────────────────────────────────── */
+.oky-flow-plp-top {
+  position: relative;
+  background: var(--white);
+  padding-bottom: 8px;
+}
+
+/* El Brand Item va centrado bajo la cabecera y por encima del
+   Plateu, que trae su propio panel blanco con sombra. */
+.oky-flow-plp-brand {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 10px;
+}
+
+.oky-flow-plp-plateu {
+  display: flex;
+  justify-content: center;
+  padding: 0 10px;
+}
+
+.oky-flow-plp-list {
+  padding: 8px 0 0;
+}
+
+.oky-flow-plp-list .list-plp-inner {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--oky-gutter) 16px;
+  gap: 16px;
+}
+
+.oky-flow-plp-list .list-plp-divider {
+  margin-top: 16px;
+  border-top: 1px solid var(--divider);
+}
+
+/* Toda la fila es el botón que abre el PDP con esa denominación. */
+button.list-plp-row {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.oky-flow-plp-list .list-plp-image {
+  border-radius: 16px;
+  border: 0;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+}
+
+.oky-flow-plp-list .list-plp-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.oky-flow-plp-list .list-plp-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.oky-flow-plp-list .list-plp-action {
+  align-self: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
