@@ -140,11 +140,12 @@ for name in MODULES:
 
 bundle = "\n\n".join(chunks)
 
-# El átomo Flag apunta a /flagpack/4x3/<iso>.svg, que Storybook sirve
-# desde node_modules. Fuera de ahí no existe y el atom cae a su estado
-# "missing" (el recuadro gris con el código). Se reapunta a las
-# banderas redondas que ya viven en images/.
-FLAGPACK = {"us": "usa-flag.png", "gt": "guatemala-flag.png"}
+# El átomo Flag apunta a /flagpack/4x3/<iso>.svg. El paquete flagpack
+# vive en node_modules, que aquí no existe, así que los dos SVG que usa
+# el prototipo están hechos vendor en images/flagpack/4x3/ — eso hace
+# que resuelvan igual en Storybook (images/ se sirve en la raíz) y que
+# aquí se puedan inlinear.
+FLAGPACK = {"us": "flagpack/4x3/us.svg", "gt": "flagpack/4x3/gt.svg"}
 _flags = {
     iso: data_uri(os.path.join(IMAGES, asset))
     for iso, asset in FLAGPACK.items()
