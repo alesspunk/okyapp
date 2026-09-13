@@ -12,17 +12,16 @@ También está publicado en
 
 ## Qué se puede recorrer
 
-Home → PLP de marca → PDP → carrito → paso de contacto → checkout →
-métodos de pago → compra → Tus compras → detalle de la orden → Mi wallet →
-OKY Cash.
+Home → PDP → carrito → paso de contacto → checkout → métodos de pago →
+compra → Tus compras → detalle de la orden → Mi wallet → OKY Cash.
 
 Lo que responde de verdad, no es maqueta:
 
-- **Cada marca tiene su PLP.** El Home lista quince marcas reales y todas
-  abren su propia PLP —Brand Item, Plateu de catálogo y la lista de
-  denominaciones con su ribbon—, y de ahí se entra al PDP con ese monto. Nike
-  y Lyft siguen abriendo el PDP directo desde el strip táctico, que es el
-  camino corto del flujo de cashback.
+- **Quince marcas, un solo PDP.** Toda marca del Home abre la misma pantalla
+  que Nike y Lyft, arrancando en $5.00: se le pone monto, se agrega al carrito
+  y se paga por el flujo de siempre. Cada una trae su porcentaje fijo de
+  cashback; Nike y Lyft son las únicas que se mueven con el monto, porque son
+  las que enseñan la regla de tiers.
 - **Tiers de cashback.** El monto del PDP se escribe y el ribbon y el saving
   bar cambian en vivo: hasta $50 y sobre $200 va 5% aqua, entre $50 y $200 va
   20% mostaza. Ambos productos arrancan en $51, dentro del rango especial.
@@ -52,8 +51,7 @@ pantalla lleva anotado su frame en la cabecera de
 
 El Home sigue la disposición del frame **"Theme 1"** (`99135:106016`): banda
 de campaña con buscador y carrusel, strip táctico, píldora de OKY Cash, fila
-de marcas con CTA, accesos por categoría y los HomeCard de marcas. La PLP
-copia la anatomía de `plp-page.html`.
+de marcas con CTA, accesos por categoría y los HomeCard de marcas.
 
 La animación de cashback es el `animacion.lottie` que exportó el equipo de
 diseño ([LottieFiles](https://app.lottiefiles.com/share/0dc159a5-fea6-48c6-b8fd-70d0a0ade9af)),
