@@ -29,6 +29,11 @@ Lo que responde de verdad, no es maqueta:
   historial de OKY Cash queda agrupado por mes.
 - **Carruseles circulares.** Con más de un vale, checkout y detalle de la
   orden pasan de uno a otro sin salir de la pantalla.
+- **La compra termina en tres tiempos.** El sello de *Compra exitosa*, con una
+  píldora que adelanta cuánto OKY Cash dejó esa compra; la animación *Ganaste
+  OKY Cash*; y el acuse. La animación se puede saltar tocándola.
+- **El acuse no acumula.** *Tus compras* enseña solo las gift cards de la orden
+  recién pagada. El repositorio que sí acumula es Mi wallet.
 
 El cashback vive solo en el ribbon y el saving bar: nunca se suma al summary
 de precio.
@@ -38,6 +43,12 @@ de precio.
 Figma **7600 - UX Exploration**, canvas "Cash Back" (`99101:20345`). Cada
 pantalla lleva anotado su frame en la cabecera de
 `stories/_shared/okyCashPrototype.js`.
+
+La animación de cashback es el `animacion.lottie` que exportó el equipo de
+diseño ([LottieFiles](https://app.lottiefiles.com/share/0dc159a5-fea6-48c6-b8fd-70d0a0ade9af)),
+aplanado a un JSON con sus webp en data URI y reproducido con lottie-web 5.12.2
+(build light) hecho vendor en `stories/_shared/lottieLight.js`, porque el repo
+no tiene npm.
 
 Se compone con los componentes que ya existen en el Storybook —Discovery
 Header, Card, Tactic Strip, Payment Card, History Card, Middle Card, Brand
