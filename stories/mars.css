@@ -9345,15 +9345,42 @@ button.header-icon {
 /* La campaña tiñe la banda que va del buscador al carrusel: el
    Discovery Header ya trae el search dentro, así que el color se
    aplica ahí y se continúa en la banda de abajo. */
+/* Un solo degradado de 320px desde el buscador: cubre search bar,
+   carrusel y muere justo antes del título de la sección. Va detrás
+   de todo, así que el buscador y la banda quedan transparentes. */
+.oky-flow-home::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* status bar 44 + header 56 + folder 77 */
+  top: 177px;
+  height: 320px;
+  /* Sólido tras el buscador y el carrusel; el desvanecido se gasta en
+     el último tramo, que es donde cae el título de la sección. */
+  background: linear-gradient(
+    180deg,
+    #ff9019 0%,
+    #ff9019 48%,
+    rgba(255, 144, 25, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
 .oky-flow-home .discovery-header-search {
-  background: var(--home-theme);
+  background: transparent;
   padding-top: 12px;
 }
 
 .oky-flow-theme-band {
-  background: var(--home-theme);
+  /* Por encima del degradado, que va posicionado: si no, el ::before
+     del home pintaría sobre los banners y los tapaba. */
+  position: relative;
+  z-index: 1;
+  background: transparent;
   padding: 0 0 12px;
-  border-radius: 0 0 20px 20px;
+  border-radius: 0;
 }
 
 .oky-flow-theme-band .carrusel-dots-wrap {
@@ -9527,84 +9554,6 @@ button.tactic-offer {
   line-height: 1.5;
 }
 
-/* ── PLP de marca ───────────────────────────────────────── */
-.oky-flow-plp-top {
-  position: relative;
-  background: var(--white);
-  padding-bottom: 8px;
-}
-
-/* El Brand Item va centrado bajo la cabecera y por encima del
-   Plateu, que trae su propio panel blanco con sombra. */
-.oky-flow-plp-brand {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  padding: 4px 0 10px;
-}
-
-.oky-flow-plp-plateu {
-  display: flex;
-  justify-content: center;
-  padding: 0 10px;
-}
-
-.oky-flow-plp-list {
-  padding: 8px 0 0;
-}
-
-.oky-flow-plp-list .list-plp-inner {
-  display: flex;
-  flex-direction: column;
-  padding: 0 var(--oky-gutter) 16px;
-  gap: 16px;
-}
-
-.oky-flow-plp-list .list-plp-divider {
-  margin-top: 16px;
-  border-top: 1px solid var(--divider);
-}
-
-/* Toda la fila es el botón que abre el PDP con esa denominación. */
-button.list-plp-row {
-  border: 0;
-  background: none;
-  padding: 0;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.oky-flow-plp-list .list-plp-image {
-  border-radius: 16px;
-  border: 0;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
-}
-
-.oky-flow-plp-list .list-plp-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.oky-flow-plp-list .list-plp-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.oky-flow-plp-list .list-plp-action {
-  align-self: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 /* ─────────────────────────────────────────────────────────
    Home: banda de campaña con degradado, ritmo vertical sin
    divisores y banderas del folder con el átomo Flag.
@@ -9639,14 +9588,6 @@ button.list-plp-row {
    hacia abajo, por detrás del contenido. */
 .oky-flow-home .oky-flow-theme-band {
   border-radius: 0;
-}
-
-.oky-flow-theme-fade {
-  height: 320px;
-  /* Se monta el contenido encima en vez de empujarlo 320px. */
-  margin-bottom: -320px;
-  background: linear-gradient(180deg, #ff9019 0%, rgba(255, 144, 25, 0) 100%);
-  pointer-events: none;
 }
 
 /* El contenido va por encima del degradado. */
@@ -9704,5 +9645,18 @@ button.list-plp-row {
   position: sticky;
   top: 0;
   z-index: 40;
+}
+
+/* Ya scrolleado el header se despega del degradado, así que se pinta
+   su propio fondo para que el contenido no se le vea por detrás. */
+.oky-flow-frame.is-header-collapsed .oky-flow-home .discovery-header-organism {
   background: var(--white);
+}
+
+
+
+/* El Plateu del wallet y de la PLP va sin sombra: en Figma el panel
+   es plano. */
+.oky-flow-frame .plateu-molecule {
+  box-shadow: none;
 }
