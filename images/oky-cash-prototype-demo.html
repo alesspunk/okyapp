@@ -9661,6 +9661,9 @@ button.tactic-offer {
   position: sticky;
   top: 0;
   z-index: 40;
+  /* El organismo trae fondo blanco propio y tapaba el degradado justo
+     detrás del buscador, que es donde tiene que arrancar el naranja. */
+  background: transparent;
 }
 
 /* Ya scrolleado el header se despega del degradado, así que se pinta
@@ -9675,6 +9678,12 @@ button.tactic-offer {
    es plano. */
 .oky-flow-frame .plateu-molecule {
   box-shadow: none;
+}
+
+/* El título de la campaña va sobre el naranja, así que lleva el marrón
+   del tema y no el morado de marca. */
+.oky-flow-frame .tactic-strip-title {
+  color: #593706;
 }
 
 @font-face {
