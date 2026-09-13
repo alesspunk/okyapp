@@ -22,6 +22,12 @@ Lo que responde de verdad, no es maqueta:
   y se paga por el flujo de siempre. Cada una trae su porcentaje fijo de
   cashback; Nike y Lyft son las únicas que se mueven con el monto, porque son
   las que enseñan la regla de tiers.
+- **La promo tiene reloj.** El Super Ribbon del strip es la variante *Por
+  tiempo* con una cuenta atrás real de dos minutos desde que se abre el
+  prototipo. Mientras corre, el rango de $50 a $200 paga 20%; al vencer, ese
+  rango desaparece y todo —PDP, saving bar, las cards del strip y lo que ya
+  esté en el carrito— vuelve al 5%. Es a propósito: la prueba de usabilidad
+  quiere ver qué hace la persona con el reloj encima.
 - **Tiers de cashback.** El monto del PDP se escribe y el ribbon y el saving
   bar cambian en vivo: hasta $50 y sobre $200 va 5% aqua, entre $50 y $200 va
   20% mostaza. Ambos productos arrancan en $51, dentro del rango especial.
