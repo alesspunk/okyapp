@@ -9570,7 +9570,8 @@ button.tactic-offer {
 /* El carrusel de banners respeta los 16px de margen del resto de la
    app y arranca pegado a la izquierda. */
 .oky-flow-banner-track {
-  padding: 0 var(--oky-gutter) 6px;
+  /* 8px de aire para que no quede pegado al buscador. */
+  padding: 8px var(--oky-gutter) 6px;
   justify-content: flex-start;
   scrollbar-width: none;
 }
