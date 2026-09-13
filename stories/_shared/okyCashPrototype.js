@@ -77,8 +77,8 @@ const PRODUCTS = {
 };
 
 /* Marcas del Home, con el arte de gift card que ya vive en images/.
-   Cada una abre su propia PLP; Nike y Lyft, además, conservan el PDP
-   directo porque son las que mueven el flujo de cashback. */
+   Todas abren el mismo PDP que Nike y Lyft —monto editable, ribbon de
+   cashback y "Agregar"— arrancando en $5.00. */
 const BRANDS = {
   googleplay: { label: "Google Play", art: "google.webp", rate: 5 },
   starbucks: { label: "Starbucks", art: "starbucks.webp", rate: 10 },
@@ -136,18 +136,13 @@ const GEEKY_DEALS = [
 
 /* Accesos por categoría (Molecules/Tiles · Macro/Tile). */
 const HOME_CATEGORIES = [
-  { label: "Comida", icon: "combo.webp" },
-  { label: "Supermercado", icon: "super.webp" },
-  { label: "Tecnología", icon: "app.webp" },
-  { label: "Hogar", icon: "home.webp" },
-  { label: "Regalos", icon: "regalos.webp" },
-  { label: "Servicios", icon: "servicios.webp" },
+  { label: "Comida", icon: "tile-comida.png" },
+  { label: "Diversión", icon: "tile-diversion.png" },
+  { label: "Experiencias", icon: "tile-experiencias.png" },
+  { label: "Hogar", icon: "tile-hogar.png" },
+  { label: "Regalos", icon: "tile-regalos.png" },
+  { label: "Tecnología", icon: "tile-tecnologia.png" },
 ];
-
-/* Denominaciones que lista la PLP de cada marca. Los montos caen a
-   propósito a ambos lados del rango especial, así el ribbon de la
-   lista ya enseña la regla de tiers. */
-const PLP_AMOUNTS = [5, 10, 25, 60, 100];
 
 /* Tarjetas de "Solo por hoy" (MARS 7295:52037). */
 const TODAY_CARDS = [
@@ -343,11 +338,11 @@ function navbar(active) {
     <div class="nav-item ${key === active ? "active" : ""} ${action ? "" : "is-dim"}"
       ${action ? `data-action="${action}" role="button" tabindex="0"` : ""}>
       ${
-        /* El item activo va en Solid y el resto en Regular; OKY Cash
-           es siempre la moneda, que es una imagen. */
+        /* El item activo va en Solid y el resto en Light; OKY Cash es
+           siempre la moneda, que es una imagen. */
         key === "okycash"
           ? `<img class="oky-flow-coin" src="oky-cash-coin.png" alt="" />`
-          : `<i class="fa-${key === active ? "solid" : "regular"} fa-${icon}" style="font-size:20px" aria-hidden="true"></i>`
+          : `<i class="fa-${key === active ? "solid" : "light"} fa-${icon}" style="font-size:20px" aria-hidden="true"></i>`
       }
       <span class="nav-label">${label}</span>
     </div>
@@ -420,7 +415,7 @@ function screenHome(state) {
   const brandCard = (key, rate) => {
     const product = PRODUCTS[key];
     return `
-      <button class="promo-strip-item oky-flow-brand-card" data-action="open-plp" data-brand="${key}" type="button">
+      <button class="promo-strip-item oky-flow-brand-card" data-action="open-pdp" data-product="${key}" type="button">
         <span class="promo-strip-image-box">
           <img src="${product.art}" alt="${product.label}" />
         </span>
@@ -449,7 +444,6 @@ function screenHome(state) {
           </div>
         </div>
       </div>
-      <div class="oky-flow-theme-fade" aria-hidden="true"></div>
 
     <div class="oky-flow-section">
       <section class="tactic-strip">
@@ -465,7 +459,7 @@ function screenHome(state) {
           <div class="tactic-strip-carousel-track">
             ${offer({ key: "nike", photo: PRODUCTS.nike.hero, rate: 20, action: "open-pdp" })}
             ${offer({ key: "lyft", photo: PRODUCTS.lyft.hero, rate: 20, action: "open-pdp" })}
-            ${TODAY_CARDS.map((card) => offer({ ...card, action: "open-plp" })).join("")}
+            ${TODAY_CARDS.map((card) => offer({ ...card, action: "open-pdp" })).join("")}
           </div>
         </div>
       </section>
@@ -517,82 +511,6 @@ function screenHome(state) {
       </p>
     </div>
     </div>
-
-    ${navbar("home")}
-  `;
-}
-
-/* ── PLP de marca (anatomía de plp-page.html) ─────────────
-   Cabecera con el Brand Item, el Plateu de catálogo y la lista de
-   denominaciones. Cada fila abre el PDP de esa marca con su monto,
-   así que el ribbon de la lista ya adelanta el tier. */
-function screenPlp(state) {
-  const product = PRODUCTS[state.params.brand] || PRODUCTS.nike;
-
-  const filters = [
-    { label: "Productos", icon: "plateu5.png" },
-    { label: "Vales", icon: "plateu6.png" },
-    { label: "Ofertas", icon: "plateu7.png" },
-  ];
-
-  return `
-    ${statusBar()}
-    <div class="oky-flow-plp-top">
-      ${titledHeader("", { trailing: "fa-cart-shopping", trailingAction: "open-cart" })}
-      <div class="oky-flow-plp-brand">
-        <section class="brand-item-atom is-with-label" aria-label="${product.label}">
-          <p class="brand-item-label token-product-text">${product.label}</p>
-          <div class="brand-item-frame">
-            <div class="brand-item-base"><img src="${product.art}" alt="${product.label}" /></div>
-          </div>
-        </section>
-      </div>
-
-      <section class="plateu-molecule is-static is-default oky-flow-plp-plateu" aria-label="Categorías">
-        <div class="plateu-track is-static">
-          ${filters
-            .map(
-              (f, i) => `
-            <div class="plateu-item">
-              <div class="plateu-icon-wrap"><img class="plateu-icon" src="${f.icon}" alt="" /></div>
-              ${i === 0 ? `<span class="plateu-chip is-outlined">${f.label}</span>` : `<span class="plateu-label">${f.label}</span>`}
-            </div>
-          `,
-            )
-            .join("")}
-        </div>
-      </section>
-    </div>
-
-    <section class="oky-flow-plp-list">
-      <div class="list-plp-anatomy">
-        <div class="list-plp-inner">
-          ${PLP_AMOUNTS.map((amount) => {
-            const tier = getTier(amount, product);
-            return `
-            <article>
-              <button class="list-plp-row" data-action="open-pdp" data-product="${product.key}" data-amount="${amount}" type="button">
-                <span class="list-plp-image"><img src="${product.art}" alt="${product.label}" /></span>
-                <span class="list-plp-copy">
-                  <span class="token-product-text-plp">Gift Card de ${money(amount)}</span>
-                  <span class="list-plp-prices">
-                    <span class="token-price-tag-plp">${money(amount)}</span>
-                  </span>
-                  <span class="discount-ribbon discount-ribbon-list ${tier.ribbon}">
-                    <span class="discount-ribbon-text token-price-percent">Gana ${tier.rate * 100}%</span>
-                  </span>
-                </span>
-                <span class="chip-ds chip-ds-add0 chip-ds-shadow list-plp-action list-plp-chip-add0">
-                  <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                </span>
-              </button>
-              <div class="list-plp-divider"></div>
-            </article>
-          `;
-          }).join("")}
-        </div>
-      </div>
-    </section>
 
     ${navbar("home")}
   `;
@@ -1143,10 +1061,10 @@ function screenWallet(state) {
 
   const filters = [
     { label: "OKY Cash", icon: "oky-cash-coin.png" },
-    { label: "Gift Cards", icon: "plateu9.png" },
-    { label: "OKY Vales", icon: "plateu10.png" },
-    { label: "Servicios", icon: "plateu11.png" },
-    { label: "Recargas", icon: "plateu12.png" },
+    { label: "Gift Cards", icon: "plateu-giftcards.png" },
+    { label: "OKY Vales", icon: "plateu-vales.png" },
+    { label: "Servicios", icon: "plateu-servicios.png" },
+    { label: "Recargas", icon: "plateu-recargas.png" },
   ];
 
   return `
@@ -1374,7 +1292,6 @@ const SCROLL_CLASS = {
 function renderScreen(state) {
   switch (state.screen) {
     case "home": return screenHome(state);
-    case "plp": return screenPlp(state);
     case "pdp": return screenPdp(state);
     case "checkout": return screenCheckout(state);
     case "methods": return screenMethods(state);
@@ -1490,6 +1407,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         const fresh = scroll.querySelector(".discovery-header-organism");
         scroll.scrollTop = y + (fresh.offsetHeight - before);
         state.headerCollapsed = next;
+        /* Despegado del top, el buscador ya no tiene detrás el
+           degradado del home y necesita su propio fondo. */
+        root.querySelector(".oky-flow-frame").classList.toggle("is-header-collapsed", next);
       },
       { passive: true },
     );
@@ -1623,8 +1543,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return go("checkout");
     }
     if (action === "go:decision") return go("decision");
-
-    if (action === "open-plp") return go("plp", { brand: el.dataset.brand });
 
     if (action === "open-pdp") {
       /* La PLP manda el monto de la denominación tocada; desde el

@@ -27,9 +27,12 @@ css = open(os.path.join(ROOT, "stories", "mars.css"), encoding="utf-8").read()
 # 183 KB contra 8.9 MB. Las caras light (100/300) caen a solid para
 # que cualquier fa-light suelto siga dibujando algo.
 FREE = os.path.join(ROOT, "public/fontawesome-free/webfonts")
+# Font Awesome Free no trae la cara Light (300): es exclusiva de Pro.
+# Cae a Regular y no a Solid, que es el trazo más cercano — así los
+# iconos inactivos de la navbar siguen leyéndose como contorno.
 WEIGHT_FONT = {
-    "100": "fa-solid-900.woff2",
-    "300": "fa-solid-900.woff2",
+    "100": "fa-regular-400.woff2",
+    "300": "fa-regular-400.woff2",
     "400": "fa-regular-400.woff2",
     "900": "fa-solid-900.woff2",
 }
