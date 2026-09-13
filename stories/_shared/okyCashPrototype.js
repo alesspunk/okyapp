@@ -48,6 +48,8 @@ import { findPaymentCard, renderPaymentCard } from "./paymentCards";
 import { renderHistoryCard } from "./historyCards";
 import { renderDiscoveryHeader } from "./discoveryHeader";
 import { renderCardOrganism } from "./cardOrganism";
+import { lottie } from "./lottieLight";
+import { OKY_CASH_WIN_ANIMATION } from "./okyCashWinAnimation";
 
 /* ── Catálogo ────────────────────────────────────────────── */
 
@@ -163,9 +165,14 @@ function createInitialState(userType) {
     okyCashEnabled: false,
     okyCashApplied: 0,
     selectedCard: "visa",
+    /* Repositorio acumulado de gift cards: alimenta Mi wallet. */
     purchases: returning
       ? [{ id: "seed", productKey: "lyft", amount: 20, cashback: 1, used: 5, date: stamp(6) }]
       : [],
+    /* Solo las gift cards de la última orden: es lo que se ve en
+       "Tus compras" al terminar de pagar. No acumula. */
+    lastOrder: [],
+    lastEarned: 0,
     activity: [
       { date: stamp(18), group: monthGroup(18), amount: "+ $4.07", order: "Orden #01112442" },
       { date: stamp(24), group: monthGroup(24), amount: "+ $2.10", order: "Orden #01112441" },
@@ -192,6 +199,21 @@ function statusBar() {
         <i class="fa-solid fa-battery-full" aria-hidden="true"></i>
       </div>
     </div>
+  `;
+}
+
+/* Píldora de saldo de OKY Cash. Vive en el home y se repite al pie
+   de "Tus compras", donde el saldo acaba de cambiar por la compra. */
+function cashStrip(state) {
+  return `
+    <button class="oky-flow-cash-strip" data-action="nav:okycash" type="button">
+      <img src="oky-cash-coin.png" alt="" />
+      <span class="oky-flow-cash-strip-copy">
+        <span class="oky-flow-cash-strip-amount"><span>$</span><strong>${state.okyCashBalance.toFixed(2)}</strong></span>
+        <span class="oky-flow-cash-strip-label">OKY Cash</span>
+      </span>
+      <span class="btn btn-primary btn-small" style="pointer-events:none">Explora</span>
+    </button>
   `;
 }
 
@@ -329,14 +351,7 @@ function screenHome(state) {
         </div>
       </div>
 
-      <button class="oky-flow-cash-strip" data-action="nav:okycash" type="button">
-        <img src="oky-cash-coin.png" alt="" />
-        <span class="oky-flow-cash-strip-copy">
-          <span class="oky-flow-cash-strip-amount"><span>$</span><strong>${state.okyCashBalance.toFixed(2)}</strong></span>
-          <span class="oky-flow-cash-strip-label">OKY Cash</span>
-        </span>
-        <span class="btn btn-primary btn-small" style="pointer-events:none">Explora</span>
-      </button>
+      ${cashStrip(state)}
 
       <div class="oky-flow-home-head">
         <h2 class="oky-flow-home-title">Labor Day</h2>
@@ -859,12 +874,12 @@ function screenProcessing(state) {
 }
 
 /* ── Tus compras (99140:56031) + Success (99140:56018) ─── */
-function screenPurchases(state, { celebrate = false } = {}) {
-  /* Una tarjeta por marca con su cantidad en el badge, como el vale
-     del wallet. Comprar Nike dos veces da una tarjeta con "2", no dos
-     tarjetas que parecen duplicadas. */
+function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
+  /* Esta pantalla es el acuse de la compra que se acaba de hacer, no
+     un histórico: sale de state.lastOrder. Lo que acumula todas las
+     gift cards es Mi wallet, que lee state.purchases. */
   const byBrand = [];
-  state.purchases
+  state.lastOrder
     .slice()
     .reverse()
     .forEach((p) => {
@@ -898,10 +913,11 @@ function screenPurchases(state, { celebrate = false } = {}) {
       }
     </div>
 
-    <div class="oky-flow-cta-bar">
+    <div class="oky-flow-cta-bar has-cash-strip">
       <button class="btn btn-outlined btn-large oky-flow-wallet-btn" data-action="nav:wallet" type="button">
         <img src="Wallet-icon.png" alt="" />Mi Wallet
       </button>
+      ${cashStrip(state)}
     </div>
     ${navbar("")}
 
@@ -912,6 +928,30 @@ function screenPurchases(state, { celebrate = false } = {}) {
             <div class="oky-flow-stamp-group">
               <img class="oky-flow-stamp" src="oky-stamp-exitosa.png" alt="" />
               <p class="oky-flow-stamp-label">Compra exitosa</p>
+              ${
+                /* Microinteracción: el sello no solo confirma el pago,
+                   también adelanta que esa compra generó OKY Cash. */
+                state.lastEarned
+                  ? `<span class="oky-flow-stamp-earned">
+                      <img src="oky-cash-coin.png" alt="" />
+                      <span>+${money(state.lastEarned)} en OKY Cash</span>
+                    </span>`
+                  : ""
+              }
+            </div>
+          </div>`
+        : ""
+    }
+
+    ${
+      cashWin
+        ? `<div class="oky-flow-cashwin" data-action="dismiss-cashwin" role="button" tabindex="0">
+            <div class="oky-flow-cashwin-stage" data-role="cashwin-lottie"></div>
+            <div class="oky-flow-cashwin-copy">
+              <p class="oky-flow-cashwin-kicker">Ganaste</p>
+              <p class="oky-flow-cashwin-amount"><span>$</span>${state.lastEarned.toFixed(2)}</p>
+              <p class="oky-flow-cashwin-label">en OKY Cash</p>
+              <span class="oky-flow-cashwin-hint">Toca para continuar</span>
             </div>
           </div>`
         : ""
@@ -1059,6 +1099,10 @@ function screenVoucher(state) {
     ? state.purchases.find((p) => p.id === state.params.id)
     : state.purchases.filter((p) => p.productKey === state.params.key).slice(-1)[0];
 
+  /* Con id se entra desde "Tus compras": el slider recorre los vales de
+     esa orden, no todo el repositorio del wallet. */
+  const order = state.lastOrder;
+
   const product = PRODUCTS[purchase ? purchase.productKey : state.params.key];
   const amount = purchase ? purchase.amount : state.amounts[product.key];
 
@@ -1086,7 +1130,7 @@ function screenVoucher(state) {
         bottomButtonLabel: "Help",
       })}
       ${
-        state.params.id && state.purchases.length > 1
+        state.params.id && order.length > 1
           ? `
         <button class="oky-flow-carousel-nav is-prev" data-action="voucher-prev" type="button" aria-label="Vale anterior">
           <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
@@ -1100,10 +1144,10 @@ function screenVoucher(state) {
       </div>
 
       ${
-        state.params.id && state.purchases.length > 1
+        state.params.id && order.length > 1
           ? `<div class="carrusel-dots-wrap" style="width:100%">
               <div class="carrusel-dots">
-                ${state.purchases
+                ${order
                   .map(
                     (p) =>
                       `<span class="promo-dot${p.id === state.params.id ? " promo-dot-active" : ""}"></span>`,
@@ -1146,8 +1190,10 @@ const SCROLL_CLASS = {
   pdp: "has-dock",
   checkout: "has-bar",
   methods: "has-cta",
-  purchases: "has-cta",
-  success: "has-cta",
+  /* "Tus compras" lleva CTA + píldora de saldo, de ahí el hueco mayor. */
+  purchases: "has-cta-strip",
+  success: "has-cta-strip",
+  cashwin: "has-cta-strip",
 };
 
 function renderScreen(state) {
@@ -1158,6 +1204,7 @@ function renderScreen(state) {
     case "methods": return screenMethods(state);
     case "processing": return screenProcessing(state);
     case "success": return screenPurchases(state, { celebrate: true });
+    case "cashwin": return screenPurchases(state, { cashWin: true });
     case "purchases": return screenPurchases(state);
     case "wallet": return screenWallet(state);
     case "okycash": return screenOkyCash(state);
@@ -1170,8 +1217,16 @@ function renderScreen(state) {
 export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   let state = createInitialState(userType);
   let celebrationTimer = 0;
+  let winAnimation = null;
 
   function render() {
+    /* El player de Lottie deja listeners y un rAF vivos; si el overlay
+       desaparece del DOM sin destruirlo, se acumulan por compra. */
+    if (winAnimation) {
+      winAnimation.destroy();
+      winAnimation = null;
+    }
+
     root.innerHTML = `
       <div class="oky-flow-frame">
         <div class="oky-flow-scroll ${SCROLL_CLASS[state.screen] || ""}">
@@ -1190,17 +1245,37 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (confettiHost) {
       seedCelebration(confettiHost);
       /* El sello es una celebración, no una pantalla: se retira solo y
-         deja a la vista los vales recién comprados. */
+         da paso a la animación de "Ganaste OKY Cash". */
       clearTimeout(celebrationTimer);
       celebrationTimer = setTimeout(() => {
-        if (state.screen === "success") go("purchases", {}, { push: false });
+        if (state.screen === "success") go(nextAfterStamp(), {}, { push: false });
       }, 2600);
+    }
+
+    /* Animación "Ganaste OKY Cash" (dotLottie del equipo de diseño).
+       Se reproduce una vez y al terminar deja la pantalla de la
+       compra; un toque la salta. */
+    const winHost = root.querySelector("[data-role='cashwin-lottie']");
+    if (winHost) {
+      winAnimation = lottie.loadAnimation({
+        container: winHost,
+        renderer: "svg",
+        loop: false,
+        autoplay: true,
+        animationData: OKY_CASH_WIN_ANIMATION,
+        rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
+      });
+      winAnimation.addEventListener("complete", () => {
+        if (state.screen === "cashwin") go("purchases", {}, { push: false });
+      });
     }
 
     const frame = root.querySelector(".oky-flow-frame");
     const scroll = frame.querySelector(".oky-flow-scroll");
     scroll
-      .querySelectorAll(".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock")
+      .querySelectorAll(
+        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock, .oky-flow-cashwin",
+      )
       .forEach((bar) => frame.appendChild(bar));
 
     /* El drawer trae su propia saving bar; la de la pantalla de abajo
@@ -1229,22 +1304,31 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     render();
   }
 
+  /* Tras el sello de "Compra exitosa" va la animación de cashback;
+     si la compra no generó OKY Cash se salta. */
+  const nextAfterStamp = () => (state.lastEarned > 0 ? "cashwin" : "purchases");
+
   function completePurchase() {
     const total = cartTotal(state);
     const used = state.okyCashEnabled
       ? clamp(state.okyCashApplied, 0, Math.min(state.okyCashBalance, total))
       : 0;
     let earned = 0;
+    /* La orden se guarda aparte de purchases: "Tus compras" enseña solo
+       esto y Mi wallet sigue acumulando. */
+    state.lastOrder = [];
 
     state.cart.forEach((item, i) => {
-      state.purchases.push({
+      const purchase = {
         id: `p-${Date.now()}-${i}`,
         productKey: item.productKey,
         amount: item.amount,
         cashback: item.cashback,
         used: i === 0 ? used : 0,
         date: stamp(0),
-      });
+      };
+      state.purchases.push(purchase);
+      state.lastOrder.push(purchase);
       earned += item.cashback;
       state.activity.unshift({
         date: stamp(0),
@@ -1255,6 +1339,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     });
 
     state.okyCashBalance = state.okyCashBalance - used + earned;
+    state.lastEarned = earned;
     state.cart = [];
     state.okyCashEnabled = false;
     state.okyCashApplied = 0;
@@ -1374,7 +1459,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "voucher-prev" || action === "voucher-next") {
       const step = action === "voucher-next" ? 1 : -1;
-      const list = state.purchases;
+      const list = state.lastOrder;
       const at = list.findIndex((p) => p.id === state.params.id);
       const next = list[wrap((at < 0 ? 0 : at) + step, list.length)];
       return go("voucher", { id: next.id }, { push: false });
@@ -1398,8 +1483,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "dismiss-celebration") {
       clearTimeout(celebrationTimer);
-      return go("purchases", {}, { push: false });
+      return go(nextAfterStamp(), {}, { push: false });
     }
+    if (action === "dismiss-cashwin") return go("purchases", {}, { push: false });
     if (action === "open-purchase") return go("voucher", { id: el.dataset.id });
     if (action === "open-voucher") return go("voucher", { key: el.dataset.key });
 

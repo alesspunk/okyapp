@@ -107,7 +107,12 @@ if os.path.exists(fa_path):
 # primera (la Payment Card acababa imprimiendo "undefined").
 MODULES = [
     "flag", "paymentCards", "historyCards", "plateu", "discoveryHeader",
-    "middleCard", "primeCards", "cardOrganism", "okyCashPrototype",
+    "middleCard", "primeCards", "cardOrganism",
+    # lottie-web vendorizado + el dotLottie de "Ganaste OKY Cash" ya
+    # aplanado con sus webp en data URI: el HTML suelto reproduce la
+    # animación sin pedir nada por red.
+    "lottieLight", "okyCashWinAnimation",
+    "okyCashPrototype",
 ]
 
 def load_module(name):
