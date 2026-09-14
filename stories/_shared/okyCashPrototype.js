@@ -330,6 +330,8 @@ function createInitialState(userType) {
     /* Cashback recién ganado que aún no se ha mirado: hace saltar la
        moneda de la navbar. */
     cashUnseen: false,
+    /* Órdenes con el desglose abierto en la actividad. */
+    openOrders: [],
     /* Diseño de la tarjeta de OKY Cash y el que se está hojeando. */
     cardDesign: "black",
     cardDesignIndex: 0,
@@ -1278,31 +1280,93 @@ function screenOkyCash(state) {
     else groups.push({ label, items: [entry] });
   });
 
-  const historyRow = (entry) =>
+  const chipFor = (positive) =>
+    positive
+      ? { label: "Acreditado", tone: "success", icon: "fa-circle-check" }
+      : { label: "Usado", tone: "neutral", icon: "fa-circle-arrow-down" };
+
+  const historyRow = ({ date, amount, order, positive }) =>
     renderHistoryCard({
       key: "oky-cash",
       id: "99135:104411",
       layout: "row",
       icon: { glyph: "fa-coins", weight: "fa-solid" },
-      date: entry.date,
-      amount: entry.amount,
-      meta: { type: "order", note: entry.order },
-      chip:
-        entry.kind === "debit"
-          ? { label: "Usado", tone: "neutral", icon: "fa-circle-arrow-down" }
-          : { label: "Acreditado", tone: "success", icon: "fa-circle-check" },
+      date,
+      amount,
+      meta: { type: "order", note: order },
+      chip: chipFor(positive),
     });
+
+  /* La lista arranca por orden, no por vale: una fila por compra con lo
+     que movió en total. El desglose por marca —que es lo bueno— queda
+     detrás de un toque, así que la primera pantalla no abruma. */
+  const orderRow = (order) => {
+    if (order.items.length < 2) {
+      const only = order.items[0];
+      return historyRow({
+        date: only.date,
+        amount: only.amount,
+        order: only.order,
+        positive: only.kind !== "debit",
+      });
+    }
+
+    const net = order.items.reduce((sum, i) => sum + (i.value || 0), 0);
+    const open = state.openOrders.includes(order.id);
+
+    return `
+      <div class="oky-flow-order ${open ? "is-open" : ""}" data-action="toggle-order"
+        data-order="${order.id}" role="button" tabindex="0" aria-expanded="${open}">
+        ${historyRow({
+          date: order.date,
+          amount: `${net < 0 ? "-" : "+"} ${money(Math.abs(net))}`,
+          order: order.id,
+          positive: net >= 0,
+        })}
+        <div class="oky-flow-order-panel">
+          <span class="oky-flow-order-toggle">
+            ${order.items.length} movimientos
+            <i class="fa-solid fa-chevron-${open ? "up" : "down"}" aria-hidden="true"></i>
+          </span>
+          ${
+            open
+              ? `<ul class="oky-flow-order-detail">
+                  ${order.items
+                    .map(
+                      (i) => `
+                    <li class="oky-flow-order-line">
+                      <span>${i.label || i.order}</span>
+                      <span class="${i.kind === "debit" ? "is-debit" : "is-credit"}">${i.amount}</span>
+                    </li>
+                  `,
+                    )
+                    .join("")}
+                </ul>`
+              : ""
+          }
+        </div>
+      </div>
+    `;
+  };
 
   const rows = groups.length
     ? groups
-        .map(
-          (group) => `
+        .map((group) => {
+          /* Dentro del mes, los movimientos se juntan por orden. */
+          const orders = [];
+          group.items.forEach((entry) => {
+            const found = orders.find((o) => o.id === entry.order);
+            if (found) found.items.push(entry);
+            else orders.push({ id: entry.order, date: entry.date, items: [entry] });
+          });
+
+          return `
           <div class="oky-flow-history-group">
             <h2 class="oky-flow-history-label">${group.label}</h2>
-            ${group.items.map(historyRow).join("")}
+            ${orders.map(orderRow).join("")}
           </div>
-        `,
-        )
+        `;
+        })
         .join("")
     : `<p class="oky-flow-empty">Todavía no tienes movimientos de OKY Cash.</p>`;
 
@@ -1716,6 +1780,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         amount: `- ${money(used)}`,
         order,
         kind: "debit",
+        label: "Pagado con OKY Cash",
+        value: -used,
       });
     }
 
@@ -1737,6 +1803,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         amount: `+ ${money(item.cashback)}`,
         order,
         kind: "credit",
+        /* Para el desglose por marca dentro de la orden. */
+        label: PRODUCTS[item.productKey].label,
+        value: item.cashback,
       });
     });
 
@@ -1928,6 +1997,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return go(nextAfterStamp(), {}, { push: false });
     }
     if (action === "dismiss-cashwin") return go("purchases", {}, { push: false });
+    if (action === "toggle-order") {
+      const id = el.dataset.order;
+      state.openOrders = state.openOrders.includes(id)
+        ? state.openOrders.filter((o) => o !== id)
+        : state.openOrders.concat(id);
+      return render();
+    }
+
     if (action === "open-purchase") return go("voucher", { id: el.dataset.id });
     if (action === "open-voucher") {
       const key = el.dataset.key;
