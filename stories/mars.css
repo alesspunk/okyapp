@@ -2292,7 +2292,10 @@ body {
   align-items: center;
   justify-content: center;
   overflow: clip;
-  border-radius: 6px;
+  /* Mismo radio que .brand-item-base, que mide igual: con 6px contra
+     8px las esquinas de la tarjeta asomaban fuera del recorte. Las
+     variantes big/medium ya comparten --brand-item-card-radius. */
+  border-radius: 8px;
 }
 
 .brand-item-atom.is-big .brand-item-frame,
@@ -7457,7 +7460,9 @@ body {
   height: 100%;
   object-fit: cover;
   border: 2px solid var(--white);
-  border-radius: 8px;
+  /* Concéntrico con la card: 16px del contenedor menos su borde de
+     1px. Con 8px se veían dos curvas distintas en la misma esquina. */
+  border-radius: 15px;
   box-sizing: border-box;
   display: block;
 }
@@ -8595,10 +8600,16 @@ button.header-icon {
   height: 38px;
 }
 
+/* A 61x38 la card pide 6px; el recorte del frame va con ella para que
+   no queden dos curvas en la misma esquina. */
+.oky-flow-cart-row .brand-item-frame,
+.oky-flow-cart-row .brand-item-base {
+  border-radius: 6px;
+}
+
 .oky-flow-cart-row .brand-item-base {
   border-width: 1px;
   border-color: var(--border-main);
-  border-radius: 6px;
   background: var(--white);
 }
 
