@@ -12532,6 +12532,22 @@ function createInitialState(userType) {
 const cartTotal = (state) => state.cart.reduce((sum, item) => sum + item.amount, 0);
 const cartCashback = (state) => state.cart.reduce((sum, item) => sum + item.cashback, 0);
 
+/* Saldo que se va a aplicar a esta orden. */
+function appliedOkyCash(state) {
+  if (!state.okyCashEnabled) return 0;
+  return clamp(state.okyCashApplied, 0, Math.min(state.okyCashBalance, cartTotal(state)));
+}
+
+/* El cashback se gana sobre dinero real: la parte que sale del saldo de
+   OKY Cash no genera más OKY Cash. Se reparte en proporción a lo que
+   acaba pagando la tarjeta. */
+function earnedCashback(state) {
+  const total = cartTotal(state);
+  if (total <= 0) return 0;
+  const byCard = total - appliedOkyCash(state);
+  return cartCashback(state) * (byCard / total);
+}
+
 /* ── Piezas compartidas ─────────────────────────────────── */
 
 function statusBar() {
@@ -12987,6 +13003,8 @@ function cartDrawer(state) {
 function screenCheckout(state) {
   const total = cartTotal(state);
   const cashback = cartCashback(state);
+  const used = appliedOkyCash(state);
+  const earned = earnedCashback(state);
   const tier = getTier(total);
   const active = clamp(state.checkoutIndex, 0, Math.max(state.cart.length - 1, 0));
   const giftCard = (item) => `
@@ -13130,7 +13148,11 @@ function screenCheckout(state) {
     </div>
     </div>
 
-    ${savingBar(cashback, { bar: "" }, (v) => `Compra y gana <strong>${v}+</strong> en <strong>OKY Cash</strong>`)}
+    ${savingBar(earned, { bar: "" }, (v) => {
+      if (used <= 0) return `Compra y gana <strong>${v}+</strong> en <strong>OKY Cash</strong>`;
+      if (earned <= 0) return `Con <strong>OKY Cash</strong> no ganas cashback`;
+      return `Ganas <strong>${v}</strong> por lo que pagas con tarjeta`;
+    })}
     ${navbar("", state)}
   `;
 }
@@ -13947,9 +13969,9 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   function completePurchase() {
     const total = cartTotal(state);
-    const used = state.okyCashEnabled
-      ? clamp(state.okyCashApplied, 0, Math.min(state.okyCashBalance, total))
-      : 0;
+    const used = appliedOkyCash(state);
+    /* Solo lo pagado con tarjeta genera cashback. */
+    const byCardShare = total > 0 ? (total - used) / total : 0;
     let earned = 0;
     /* La orden se guarda aparte de purchases: "Tus compras" enseña solo
        esto y Mi wallet sigue acumulando. */
@@ -13984,17 +14006,21 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       };
       state.purchases.push(purchase);
       state.lastOrder.push(purchase);
-      earned += item.cashback;
-      state.activity.unshift({
-        date: stamp(0),
-        group: monthGroup(0),
-        amount: `+ ${money(item.cashback)}`,
-        order,
-        kind: "credit",
-        /* Para el desglose por marca dentro de la orden. */
-        label: PRODUCTS[item.productKey].label,
-        value: item.cashback,
-      });
+
+      const itemEarned = item.cashback * byCardShare;
+      earned += itemEarned;
+      if (itemEarned > 0) {
+        state.activity.unshift({
+          date: stamp(0),
+          group: monthGroup(0),
+          amount: `+ ${money(itemEarned)}`,
+          order,
+          kind: "credit",
+          /* Para el desglose por marca dentro de la orden. */
+          label: PRODUCTS[item.productKey].label,
+          value: itemEarned,
+        });
+      }
     });
 
     state.okyCashBalance = state.okyCashBalance - used + earned;
