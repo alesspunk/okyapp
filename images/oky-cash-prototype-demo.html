@@ -9170,6 +9170,10 @@ button.header-icon {
   position: absolute;
   bottom: 4px;
   left: 50%;
+  /* Centrado con left:50% el ancho disponible es la mitad de la caja y
+     el texto, que va en una línea, se salía del chip. */
+  width: max-content;
+  max-width: 100%;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -9684,6 +9688,17 @@ button.tactic-offer {
    del tema y no el morado de marca. */
 .oky-flow-frame .tactic-strip-title {
   color: #593706;
+}
+
+/* La History Card solo trae chips success y error; gastar saldo no es
+   ninguna de las dos, así que lleva un tono neutro. */
+.history-card-chip.is-neutral {
+  background: var(--background);
+  color: var(--text-secondary);
+}
+
+.history-card-chip.is-neutral .history-card-chip-icon {
+  color: var(--text-secondary);
 }
 
 @font-face {
@@ -12092,6 +12107,8 @@ function createInitialState(userType) {
     decisionSeen: false,
     /* El folder del Discovery Header se colapsa al scrollear el home. */
     headerCollapsed: false,
+    /* Correlativo de órdenes para el historial de OKY Cash. */
+    orderSeq: 0,
     /* Fin de la promo; se fija al montar el prototipo. */
     promoEndsAt: Date.now() + PROMO_MS,
     promoLive: true,
@@ -12915,6 +12932,33 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
   `;
 }
 
+/* Los vales del wallet: primero lo que la persona compró de verdad,
+   agrupado por marca y con su cantidad, y detrás las marcas de muestra
+   que todavía no ha comprado. Aquí sí se acumula — este es el
+   repositorio de gift cards. */
+function walletVouchers(state) {
+  const owned = [];
+  state.purchases
+    .slice()
+    .reverse()
+    .forEach((purchase) => {
+      const found = owned.find((v) => v.key === purchase.productKey);
+      if (found) {
+        found.count += 1;
+        return;
+      }
+      const product = PRODUCTS[purchase.productKey];
+      owned.push({ key: product.key, label: product.label, art: product.art, count: 1, live: true });
+    });
+
+  const demo = WALLET_VOUCHERS.filter((v) => !owned.some((o) => o.key === v.key)).map((v) => ({
+    ...v,
+    count: 1,
+  }));
+
+  return [...owned, ...demo];
+}
+
 /* ── Mi wallet (99105:43773) ────────────────────────────── */
 function screenWallet(state) {
   const cash = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
@@ -12961,17 +13005,16 @@ function screenWallet(state) {
         <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
       </div>
       <div class="oky-flow-stack">
-        ${WALLET_VOUCHERS.map((v) => {
-          /* Los vales comprados llevan su cantidad real; los demás son
-             decorativos y quedan en 1. */
-          const owned = state.purchases.filter((p) => p.productKey === v.key).length;
-          return `
+        ${walletVouchers(state)
+          .map(
+            (v) => `
           <button class="oky-flow-voucher" ${v.live ? `data-action="open-voucher" data-key="${v.key}"` : "disabled"} type="button">
             <img src="${v.art}" alt="${v.label}" />
-            <span class="oky-flow-voucher-badge">${owned || 1}<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
+            <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
           </button>
-        `;
-        }).join("")}
+        `,
+          )
+          .join("")}
       </div>
     </div>
 
@@ -13005,7 +13048,10 @@ function screenOkyCash(state) {
       date: entry.date,
       amount: entry.amount,
       meta: { type: "order", note: entry.order },
-      chip: { label: "Acreditado", tone: "success", icon: "fa-circle-check" },
+      chip:
+        entry.kind === "debit"
+          ? { label: "Usado", tone: "neutral", icon: "fa-circle-arrow-down" }
+          : { label: "Acreditado", tone: "success", icon: "fa-circle-check" },
     });
 
   const rows = groups.length
@@ -13311,6 +13357,22 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        esto y Mi wallet sigue acumulando. */
     state.lastOrder = [];
 
+    /* Un número por orden, no por vale. */
+    state.orderSeq += 1;
+    const order = `Orden #${11112440 + state.orderSeq}`;
+
+    /* Lo que se pagó con saldo también es un movimiento: sin esta
+       línea el saldo bajaba y el historial no lo explicaba. */
+    if (used > 0) {
+      state.activity.unshift({
+        date: stamp(0),
+        group: monthGroup(0),
+        amount: `- ${money(used)}`,
+        order,
+        kind: "debit",
+      });
+    }
+
     state.cart.forEach((item, i) => {
       const purchase = {
         id: `p-${Date.now()}-${i}`,
@@ -13327,7 +13389,8 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         date: stamp(0),
         group: monthGroup(0),
         amount: `+ ${money(item.cashback)}`,
-        order: `Orden #${11112440 + state.activity.length + 1}`,
+        order,
+        kind: "credit",
       });
     });
 
