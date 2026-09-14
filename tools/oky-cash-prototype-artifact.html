@@ -4372,7 +4372,7 @@ body {
 }
 
 .middle-card-shell.is-checkout .middle-card-ribbon-slot {
-  top: 12px;
+  top: 2px;
   right: -13px;
 }
 
@@ -10044,6 +10044,69 @@ button.tactic-offer {
   color: var(--primary-main);
 }
 
+/* ── Pista de que hay más abajo (home) ───────────────────── */
+/* Flota sobre la navbar, en el lenguaje de las píldoras del sistema:
+   blanco, sombra suave y el morado de marca. El chevron se asoma hacia
+   abajo una y otra vez, despacio, sin llegar a mover la píldora. */
+.oky-flow-scroll-hint {
+  position: absolute;
+  left: 50%;
+  /* Pegada a la navbar: así se lee como chrome y no como algo que
+     aterrizó en medio del contenido. */
+  bottom: calc(var(--oky-nav-h) + 8px);
+  z-index: 60;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--border-main);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--primary-main);
+  box-shadow: 0 6px 18px rgba(65, 13, 134, 0.18);
+  cursor: pointer;
+  opacity: 1;
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease;
+}
+
+.oky-flow-scroll-hint i {
+  font-size: 15px;
+  animation: oky-flow-scroll-hint-nudge 2.4s cubic-bezier(0.32, 0.72, 0, 1) infinite;
+}
+
+/* Fuera de la vista en cuanto se scrollea; sigue ahí para cuando se
+   vuelva arriba. */
+.oky-flow-scroll-hint.is-hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(8px) scale(0.9);
+  pointer-events: none;
+}
+
+@keyframes oky-flow-scroll-hint-nudge {
+  0%,
+  55%,
+  100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(4px);
+  }
+  38% {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-scroll-hint i {
+    animation: none;
+  }
+}
+
 @font-face {
   font-family: "FA Free Solid Fallback";
   font-style: normal;
@@ -12823,6 +12886,11 @@ function screenHome(state) {
     </div>
     </div>
 
+    <button class="oky-flow-scroll-hint" data-action="scroll-more" type="button"
+      aria-label="Ver más contenido">
+      <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+    </button>
+
     ${navbar("home", state)}
   `;
 }
@@ -13875,7 +13943,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const scroll = frame.querySelector(".oky-flow-scroll");
     scroll
       .querySelectorAll(
-        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock, .oky-flow-cashwin",
+        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock, .oky-flow-cashwin, .oky-flow-scroll-hint",
       )
       .forEach((bar) => frame.appendChild(bar));
 
@@ -13905,6 +13973,12 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       "scroll",
       () => {
         const y = scroll.scrollTop;
+
+        /* La pista de scroll cumplió su trabajo en cuanto la persona
+           se mueve; no hay razón para seguir insistiendo. */
+        const hint = root.querySelector(".oky-flow-scroll-hint");
+        if (hint) hint.classList.toggle("is-hidden", y > 24);
+
         const next = state.headerCollapsed ? y > 40 : y > 96;
         if (next === state.headerCollapsed) return;
 
@@ -14095,6 +14169,11 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       clearTimeout(celebrationTimer);
       state = createInitialState(userType);
       return render();
+    }
+
+    if (action === "scroll-more") {
+      const scroll = root.querySelector(".oky-flow-scroll");
+      return scroll.scrollBy({ top: scroll.clientHeight * 0.8, behavior: "smooth" });
     }
 
     if (action === "back") return goBack();

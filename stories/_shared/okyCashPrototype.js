@@ -637,6 +637,11 @@ function screenHome(state) {
     </div>
     </div>
 
+    <button class="oky-flow-scroll-hint" data-action="scroll-more" type="button"
+      aria-label="Ver más contenido">
+      <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+    </button>
+
     ${navbar("home", state)}
   `;
 }
@@ -1689,7 +1694,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const scroll = frame.querySelector(".oky-flow-scroll");
     scroll
       .querySelectorAll(
-        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock, .oky-flow-cashwin",
+        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock, .oky-flow-cashwin, .oky-flow-scroll-hint",
       )
       .forEach((bar) => frame.appendChild(bar));
 
@@ -1719,6 +1724,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       "scroll",
       () => {
         const y = scroll.scrollTop;
+
+        /* La pista de scroll cumplió su trabajo en cuanto la persona
+           se mueve; no hay razón para seguir insistiendo. */
+        const hint = root.querySelector(".oky-flow-scroll-hint");
+        if (hint) hint.classList.toggle("is-hidden", y > 24);
+
         const next = state.headerCollapsed ? y > 40 : y > 96;
         if (next === state.headerCollapsed) return;
 
@@ -1909,6 +1920,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       clearTimeout(celebrationTimer);
       state = createInitialState(userType);
       return render();
+    }
+
+    if (action === "scroll-more") {
+      const scroll = root.querySelector(".oky-flow-scroll");
+      return scroll.scrollBy({ top: scroll.clientHeight * 0.8, behavior: "smooth" });
     }
 
     if (action === "back") return goBack();
