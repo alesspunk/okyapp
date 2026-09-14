@@ -7459,9 +7459,10 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border: 2px solid var(--white);
-  /* Concéntrico con la card: 16px del contenedor menos su borde de
-     1px. Con 8px se veían dos curvas distintas en la misma esquina. */
+  /* Sin el borde blanco de 2px: el arte llena la card de lado a lado.
+     El radio es el del contenedor menos su borde de 1px, para que las
+     dos curvas sean la misma. */
+  border: 0;
   border-radius: 15px;
   box-sizing: border-box;
   display: block;
