@@ -4670,8 +4670,10 @@ body {
 }
 
 .prime-card-top-hero {
-  width: 200px;
-  height: 126px;
+  /* Medida del logo de marca en Figma (99140:18229). Estaba en 200x126
+     y se comía la card. */
+  width: 144px;
+  height: 90px;
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -7516,6 +7518,9 @@ body {
 
 .oky-flow-voucher-badge i {
   font-size: 12px;
+  /* El vale ya está comprado: un check dice eso mejor que un QR, que
+     promete un código que ahí no se escanea. */
+  color: var(--success-main);
 }
 
 /* ── Header de sección del Wallet ───────────────────────── */

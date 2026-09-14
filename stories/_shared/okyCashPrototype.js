@@ -84,7 +84,9 @@ const PRODUCTS = {
 const BRANDS = {
   googleplay: { label: "Google Play", art: "google.webp", bg: "#ffffff", rate: 5 },
   starbucks: { label: "Starbucks", art: "starbucks.webp", bg: "#ffffff", rate: 10 },
-  cvs: { label: "CVS", art: "cvs.webp", bg: "#f0bdc4", rate: 5 },
+  /* CVS salía pixelado —su arte es un webp de 14 KB—; Home Depot viene
+     a 1200px y aguanta cualquier tamaño. */
+  homedepot: { label: "Home Depot", art: "homedepot.png", bg: "#f68b1f", rate: 5 },
   apple: { label: "Apple", art: "apple.webp", bg: "#f2f2f5", rate: 5 },
   macys: { label: "Macy's", art: "macys.webp", bg: "#ffffff", rate: 12 },
   target: { label: "Target", art: "target.webp", bg: "#99464a", rate: 8 },
@@ -196,7 +198,7 @@ Object.entries(BRANDS).forEach(([key, brand]) => {
 
 /* Secciones de marcas del Home (Figma "Theme 1", 99135:106016). */
 const HOME_SECTIONS = [
-  { title: "Novedades", keys: ["googleplay", "starbucks", "cvs", "apple", "macys", "target"] },
+  { title: "Novedades", keys: ["googleplay", "starbucks", "homedepot", "apple", "macys", "target"] },
   {
     title: "Comida Rápida",
     keys: ["seveneleven", "burgerking", "ihop", "mcdonalds", "dominos", "applebees"],
@@ -1169,7 +1171,7 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
                 <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
                   data-action="open-purchase" data-id="${v.id}" type="button">
                   <img src="${v.art}" alt="${v.label}" />
-                  <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
+                  <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
                 </button>
               `,
                 )
@@ -1328,7 +1330,7 @@ function screenWallet(state) {
             data-action="open-voucher" data-key="${v.key}" type="button">
             <img src="${v.art}" alt="${v.label}" />
             ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
-            <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
+            <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
           </button>
         `,
           )
