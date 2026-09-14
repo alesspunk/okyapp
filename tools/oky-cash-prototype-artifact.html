@@ -14623,8 +14623,16 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
     if (action === "go:decision") {
       /* Solo se pregunta la primera vez: una vez elegido, "Ir a pagar"
-         va derecho al checkout. */
-      if (state.decisionSeen) {
+         va derecho al checkout.
+
+         En móvil no se pregunta nunca: el modal se quedaba trabado en
+         el teléfono —el toque en "Para mi" no llegaba— y dejaba la
+         prueba sin manera de llegar al pago. Se asume "Para mí", que es
+         lo que la pantalla proponía por defecto. En escritorio sigue
+         igual. */
+      if (state.decisionSeen || phone.matches) {
+        state.decisionSeen = true;
+        state.recipient = "Para mí";
         state.checkoutIndex = 0;
         return go("checkout");
       }
