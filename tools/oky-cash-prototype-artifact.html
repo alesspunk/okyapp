@@ -10337,6 +10337,14 @@ button.tactic-offer {
   .oky-flow-frame {
     --oky-home-gradient-top: 133px;
   }
+
+  /* El lienzo del teléfono es más bajo que los 800px de diseño y el
+     sello, centrado, dejaba la píldora del cashback pegada al borde.
+     Sube 40px él y lo que lleva encima; el confeti se queda donde
+     está, que llena la pantalla entera. */
+  .oky-flow-frame .oky-flow-stamp-group {
+    transform: translateY(-40px);
+  }
 }
 
 /* ── Aviso de promo vencida en el strip ──────────────────── */
