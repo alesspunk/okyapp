@@ -9952,42 +9952,48 @@ button.tactic-offer {
   }
 }
 
-/* La moneda de la navbar avisa de cashback nuevo con un salto tipo
-   dock de macOS: anticipa aplastándose, estira al subir y aterriza con
-   un rebote corto. El ciclo dura 4 minutos y el salto ocupa los
-   primeros 1.8s, así que salta una vez y calla hasta la siguiente.
-   El tope son 6px: sobre la moneda quedan 7px libres dentro de la
-   navbar, así que no llega a rozar la línea gris de arriba. */
+/* La moneda de la navbar avisa de cashback nuevo girando sobre su eje,
+   que en un disco se lee como lo que es: una moneda que da vueltas. La
+   perspectiva va dentro del propio transform, así ningún ancestro se
+   convierte en bloque contenedor. Dos vueltas completas, un salto de
+   6px —queda 1px por debajo de la línea gris del navbar— y un par de
+   destellos cuando pasa de canto. El ciclo son 4 minutos y el giro
+   ocupa los primeros 2s: gira una vez y calla hasta la siguiente. */
 .oky-flow-coin.is-bouncing {
-  transform-origin: bottom center;
-  animation: oky-flow-coin-hop 240s ease-in-out infinite;
+  transform-origin: center;
+  animation: oky-flow-coin-spin 240s linear infinite;
 }
 
-@keyframes oky-flow-coin-hop {
+@keyframes oky-flow-coin-spin {
   0%,
   100% {
-    transform: translateY(0) scale(1, 1);
+    transform: perspective(340px) rotateY(0) translateY(0) scale(1);
+    filter: none;
   }
-  0.1% {
-    transform: translateY(0) scale(1.12, 0.88);
+  0.12% {
+    transform: perspective(340px) rotateY(0) translateY(1px) scale(1.06, 0.94);
   }
-  0.24% {
-    transform: translateY(-5px) scale(0.93, 1.09);
+  0.26% {
+    transform: perspective(340px) rotateY(150deg) translateY(-5px) scale(1.04);
+    filter: brightness(1.4);
   }
-  0.34% {
-    transform: translateY(-6px) scale(1, 1);
+  0.38% {
+    transform: perspective(340px) rotateY(360deg) translateY(-6px) scale(1.03);
+    filter: none;
   }
-  0.46% {
-    transform: translateY(0) scale(1.1, 0.9);
-  }
-  0.56% {
-    transform: translateY(-2px) scale(0.97, 1.03);
+  0.52% {
+    transform: perspective(340px) rotateY(530deg) translateY(-3px) scale(1.01);
+    filter: brightness(1.25);
   }
   0.66% {
-    transform: translateY(0) scale(1.05, 0.95);
+    transform: perspective(340px) rotateY(720deg) translateY(0) scale(1);
+    filter: none;
   }
-  0.75% {
-    transform: translateY(0) scale(1, 1);
+  0.74% {
+    transform: perspective(340px) rotateY(720deg) translateY(0) scale(1.05, 0.95);
+  }
+  0.83% {
+    transform: perspective(340px) rotateY(720deg) translateY(0) scale(1);
   }
 }
 
