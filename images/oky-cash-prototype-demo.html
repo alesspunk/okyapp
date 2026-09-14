@@ -10417,21 +10417,11 @@ button.tactic-offer {
   margin-top: -4px;
 }
 
-/* ── PDP sin navbar ─────────────────────────────────────── */
-/* El PDP es una pantalla de una sola decisión —cuánto y agregar— y la
-   navbar solo empujaba el campo del monto fuera del fold. Se va, y el
-   dock baja a ocupar su sitio. */
-.oky-flow-frame.is-pdp .oky-flow-navbar {
-  display: none;
-}
-
-.oky-flow-frame.is-pdp .oky-flow-dock {
-  bottom: var(--oky-bar-h);
-}
-
-.oky-flow-frame.is-pdp .oky-flow-scroll.has-dock {
-  padding-bottom: calc(var(--oky-bar-h) + 168px);
-}
+/* ── PDP ────────────────────────────────────────────────── */
+/* La navbar vuelve: quitarla dejaba el dock por debajo de la saving
+   bar —que sigue anclada encima de la navbar— y la barra tapaba el
+   botón de Agregar. Con las dos en su sitio el campo del monto entra
+   igual en el fold, que era lo que se buscaba. */
 
 @font-face {
   font-family: "FA Free Solid Fallback";
@@ -14284,7 +14274,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     root.innerHTML = `
-      <div class="oky-flow-frame${state.screen === "pdp" ? " is-pdp" : ""}">
+      <div class="oky-flow-frame">
         <div class="oky-flow-scroll ${SCROLL_CLASS[state.screen] || ""}">
           ${renderScreen(state)}
         </div>

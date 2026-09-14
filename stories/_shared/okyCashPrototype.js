@@ -1706,7 +1706,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     root.innerHTML = `
-      <div class="oky-flow-frame${state.screen === "pdp" ? " is-pdp" : ""}">
+      <div class="oky-flow-frame">
         <div class="oky-flow-scroll ${SCROLL_CLASS[state.screen] || ""}">
           ${renderScreen(state)}
         </div>
