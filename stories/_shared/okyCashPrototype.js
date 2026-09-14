@@ -758,6 +758,9 @@ function cartDrawer(state) {
                     <span class="brand-item-base"><img src="${product.art}" alt="${product.label}" /></span>
                   </span>
                 </span>
+                <span class="discount-ribbon discount-ribbon-list ${tier.ribbon}">
+                  <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(tier.rate * 100)}%</span>
+                </span>
                 <button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
                   type="button" aria-label="Quitar ${product.label}">
                   <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
@@ -766,9 +769,6 @@ function cartDrawer(state) {
               <div class="oky-flow-cart-body">
                 <p class="oky-flow-cart-title">${product.cardTitle}</p>
                 <p class="oky-flow-cart-price">${money(item.amount)}</p>
-                <span class="discount-ribbon discount-ribbon-list ${tier.ribbon}">
-                  <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(tier.rate * 100)}%</span>
-                </span>
               </div>
             </div>
           `;

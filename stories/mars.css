@@ -8380,13 +8380,16 @@ body {
 
 /* En el carrito el chip de cashback siempre va aqua, sin importar
    el tier (verificado en el frame del carrito). */
+/* Cuadrado de 40px con esquinas de 16px, como en Figma (99105:38341);
+   estaba a 36px y border-radius 50%, que lo volvía un círculo. */
 .oky-flow-cart-trash {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 16px;
   border: 1px solid var(--border-main);
   background: var(--white);
   color: var(--error-dark);
@@ -8597,11 +8600,20 @@ button.header-icon {
   border-top: 1px solid var(--border-main);
 }
 
+/* Logo y ribbon en la misma línea, centrados entre sí: el ribbon ya no
+   ocupa un renglón propio bajo el precio. El tacho queda a la derecha. */
 .oky-flow-cart-head {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
   gap: 12px;
+}
+
+.oky-flow-cart-head .discount-ribbon-list {
+  margin: 0;
+}
+
+.oky-flow-cart-head .oky-flow-cart-trash {
+  margin-left: auto;
 }
 
 /* Mismo brand item del sistema, a la medida del carrito. */
@@ -8628,8 +8640,8 @@ button.header-icon {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
-  padding-top: 8px;
+  gap: 2px;
+  padding-top: 10px;
 }
 
 .oky-flow-cart-title {
