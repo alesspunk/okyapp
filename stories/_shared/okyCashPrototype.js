@@ -90,7 +90,7 @@ const BRANDS = {
   burgerking: { label: "Burger King", art: "burguerking.webp", rate: 9 },
   ihop: { label: "IHOP", art: "ihop.webp", rate: 7 },
   mcdonalds: { label: "McDonald's", art: "mcdonalds.webp", rate: 6 },
-  campero: { label: "Pollo Campero", art: "pollo-campero.webp", rate: 10 },
+  dominos: { label: "Domino's", art: "dominos.png", rate: 8 },
   applebees: { label: "Applebee's", art: "applebees.webp", rate: 8 },
   amazon: { label: "Amazon", art: "amazon.png", rate: 7 },
   ebay: { label: "eBay", art: "ebay.png", rate: 7 },
@@ -137,7 +137,7 @@ const HOME_SECTIONS = [
   { title: "Novedades", keys: ["googleplay", "starbucks", "cvs", "apple", "macys", "target"] },
   {
     title: "Comida Rápida",
-    keys: ["seveneleven", "burgerking", "ihop", "mcdonalds", "campero", "applebees"],
+    keys: ["seveneleven", "burgerking", "ihop", "mcdonalds", "dominos", "applebees"],
   },
 ];
 
