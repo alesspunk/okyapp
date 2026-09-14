@@ -1385,7 +1385,15 @@ function screenOkyCash(state) {
       });
     }
 
-    const net = order.items.reduce((sum, i) => sum + (i.value || 0), 0);
+    /* El titular de la orden es lo que esa compra ACREDITÓ, no el neto.
+       Gastar OKY Cash no es una pérdida —es para lo que está—, así que
+       restarlo del encabezado dejaba una orden que dio $1.93 marcada en
+       rojo como "Usado". El gasto sigue ahí, como una línea más del
+       desglose. Solo cuando la compra no acreditó nada (se pagó entera
+       con OKY Cash) el titular es lo que salió. */
+    const earned = order.items.reduce((sum, i) => sum + Math.max(i.value || 0, 0), 0);
+    const spent = order.items.reduce((sum, i) => sum + Math.min(i.value || 0, 0), 0);
+    const headline = earned > 0 ? earned : spent;
     const open = state.openOrders.includes(order.id);
 
     return `
@@ -1393,9 +1401,9 @@ function screenOkyCash(state) {
         data-order="${order.id}" role="button" tabindex="0" aria-expanded="${open}">
         ${historyRow({
           date: order.date,
-          amount: `${net < 0 ? "-" : "+"} ${money(Math.abs(net))}`,
+          amount: `${headline < 0 ? "-" : "+"} ${money(Math.abs(headline))}`,
           order: order.id,
-          positive: net >= 0,
+          positive: headline >= 0,
         })}
         <div class="oky-flow-order-panel">
           <span class="oky-flow-order-toggle">
