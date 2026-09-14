@@ -97,6 +97,51 @@ const BRANDS = {
   xbox: { label: "Xbox", art: "xbox.png", rate: 7 },
 };
 
+/* Diseños de la tarjeta de OKY Cash (Figma 99135:103902). La molécula
+   Payment Card ya acepta fondo sólido o degradado por `buildStyle`, así
+   que cada diseño es solo eso más su arte. */
+const CARD_DESIGNS = [
+  {
+    key: "black",
+    label: "Lo que va, vuelve",
+    note: "Cada regalo que envíes a tu familia volverá a ti como un ripple effect.",
+    style: { backgroundMode: "solid", backgroundColor: "#000000", borderColor: "#000000" },
+  },
+  {
+    key: "purple",
+    label: "Morado OKY",
+    note: "El morado de siempre, el de la marca que ya conoces.",
+    style: { backgroundMode: "solid", backgroundColor: "#410d86", borderColor: "#410d86" },
+  },
+  {
+    key: "teal",
+    label: "Turquesa",
+    note: "El verde agua del cashback, para que se note lo que ganas.",
+    style: {
+      backgroundMode: "gradient",
+      gradientFrom: "#0ab5b1",
+      gradientTo: "#109794",
+      gradientAngle: 92,
+      borderColor: "#0ab5b1",
+    },
+  },
+  {
+    key: "mustard",
+    label: "Mostaza",
+    note: "El mostaza de las promos especiales.",
+    style: {
+      backgroundMode: "gradient",
+      gradientFrom: "#ffb400",
+      gradientTo: "#e08f00",
+      gradientAngle: 92,
+      borderColor: "#e08f00",
+      ink: "#663d00",
+    },
+  },
+];
+
+const findCardDesign = (key) => CARD_DESIGNS.find((d) => d.key === key) || CARD_DESIGNS[0];
+
 /* Monto con el que abre el PDP de una marca nueva. */
 const BRAND_DEFAULT_AMOUNT = 5;
 
@@ -272,6 +317,9 @@ function createInitialState(userType) {
     orderSeq: 0,
     /* Marcas cuyo vale ya se abrió: las demás llevan el punto rojo. */
     seenVouchers: [],
+    /* Diseño de la tarjeta de OKY Cash y el que se está hojeando. */
+    cardDesign: "black",
+    cardDesignIndex: 0,
     /* Fin de la promo; se fija al montar el prototipo. */
     promoEndsAt: Date.now() + PROMO_MS,
     promoLive: true,
@@ -897,10 +945,7 @@ function screenMethods(state) {
   const others = CARDS.filter((c) => c.key !== selected.key);
 
   const top = { ...findPaymentCard(selected.variant) };
-  const cash = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
-  cash.balance = { ...cash.balance, value: keep.toFixed(2) };
-  cash.art = "oky-saldo-card-art.png";
-  cash.cta = { ...cash.cta, action: "nav:okycash" };
+  const cash = okyCashCard(state, { balance: keep });
 
   return `
     ${statusBar()}
@@ -1090,6 +1135,18 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
   `;
 }
 
+/* La tarjeta de OKY Cash, con el saldo al día y el diseño elegido.
+   Las tres pantallas que la pintan pasan por aquí. */
+function okyCashCard(state, { balance, cta } = {}) {
+  const card = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
+  card.balance = { ...card.balance, value: (balance ?? state.okyCashBalance).toFixed(2) };
+  card.art = "oky-saldo-card-art.png";
+  card.cta = cta === null ? null : { ...card.cta, action: cta || "nav:okycash" };
+  /* El lápiz abre el selector de diseño. */
+  card.editAction = "nav:carddesign";
+  return { ...card, ...findCardDesign(state.cardDesign).style };
+}
+
 /* ¿Queda alguna gift card comprada que todavía no se haya abierto? */
 function hasNewVouchers(state) {
   return state.purchases.some((p) => !state.seenVouchers.includes(p.productKey));
@@ -1132,10 +1189,7 @@ function walletVouchers(state) {
 
 /* ── Mi wallet (99105:43773) ────────────────────────────── */
 function screenWallet(state) {
-  const cash = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
-  cash.balance = { ...cash.balance, value: state.okyCashBalance.toFixed(2) };
-  cash.art = "oky-saldo-card-art.png";
-  cash.cta = { ...cash.cta, action: "nav:okycash" };
+  const cash = okyCashCard(state);
 
   const filters = [
     { label: "OKY Cash", icon: "oky-cash-coin.png" },
@@ -1196,11 +1250,8 @@ function screenWallet(state) {
 
 /* ── OKY Cash: destino del coin de la navbar (99135:103474) ─ */
 function screenOkyCash(state) {
-  const cash = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
-  cash.balance = { ...cash.balance, value: state.okyCashBalance.toFixed(2) };
-  cash.art = "oky-saldo-card-art.png";
   /* Aquí ya estás en la actividad, así que la tarjeta va sin ese CTA. */
-  cash.cta = null;
+  const cash = okyCashCard(state, { cta: null });
 
   /* Los movimientos se agrupan por mes conservando el orden. */
   const groups = [];
@@ -1340,6 +1391,66 @@ function screenVoucher(state) {
   `;
 }
 
+/* ── Personaliza tu billetera (99135:103902) ──────────────
+   Carrusel de diseños con los vecinos asomando, radio en la esquina
+   de cada tarjeta, dots y "Elegir" al pie. */
+function screenCardDesign(state) {
+  const at = wrap(state.cardDesignIndex, CARD_DESIGNS.length);
+  const current = CARD_DESIGNS[at];
+
+  const preview = (design, i) => {
+    /* La vista previa es solo el diseño: sin marca, sin saldo y sin
+       footer, como en el frame. */
+    const card = {
+      ...findPaymentCard("Molecule/Payment Card/OKY Cash Black"),
+      ...design.style,
+      art: "oky-saldo-card-art.png",
+      showHeader: false,
+      showFooter: false,
+      cta: null,
+      editIcon: null,
+    };
+    return `
+      <button class="oky-flow-design-slide ${i === at ? "is-active" : ""}"
+        data-action="pick-design" data-index="${i}" type="button" aria-pressed="${i === at}">
+        <span class="oky-flow-design-radio" aria-hidden="true"></span>
+        ${renderPaymentCard(card)}
+      </button>
+    `;
+  };
+
+  return `
+    ${statusBar()}
+    ${titledHeader("Personaliza tu billetera")}
+
+    <div class="oky-flow-section oky-flow-design">
+      <div class="oky-flow-design-copy">
+        <h2 class="oky-flow-design-title">${current.label}</h2>
+        <p class="oky-flow-design-note">${current.note}</p>
+      </div>
+
+      <div class="oky-flow-design-window">
+        <div class="oky-flow-design-track" style="--design-at:${at}">
+          ${CARD_DESIGNS.map(preview).join("")}
+        </div>
+      </div>
+
+      <div class="carrusel-dots-wrap" style="width:100%">
+        <div class="carrusel-dots">
+          ${CARD_DESIGNS.map(
+            (d, i) => `<span class="promo-dot${i === at ? " promo-dot-active" : ""}"></span>`,
+          ).join("")}
+        </div>
+      </div>
+    </div>
+
+    <div class="oky-flow-cta-bar">
+      <button class="btn btn-primary btn-large" data-action="choose-design" type="button">Elegir</button>
+    </div>
+    ${navbar("okycash")}
+  `;
+}
+
 /* ── Onboarding Contactos (99140:47037) ─────────────────── */
 function screenDecision() {
   return `
@@ -1364,6 +1475,7 @@ const SCROLL_CLASS = {
   pdp: "has-dock",
   checkout: "has-bar",
   methods: "has-cta",
+  carddesign: "has-cta",
   /* "Tus compras" lleva CTA + píldora de saldo, de ahí el hueco mayor. */
   purchases: "has-cta-strip",
   success: "has-cta-strip",
@@ -1382,6 +1494,7 @@ function renderScreen(state) {
     case "purchases": return screenPurchases(state);
     case "wallet": return screenWallet(state);
     case "okycash": return screenOkyCash(state);
+    case "carddesign": return screenCardDesign(state);
     case "voucher": return screenVoucher(state);
     case "decision": return screenDecision();
     default: return screenHome(state);
@@ -1651,6 +1764,22 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "nav:home") return go("home");
     if (action === "nav:wallet") return go("wallet");
     if (action === "nav:okycash") return go("okycash");
+
+    if (action === "nav:carddesign") {
+      /* El selector abre en el diseño que está puesto. */
+      state.cardDesignIndex = CARD_DESIGNS.findIndex((d) => d.key === state.cardDesign);
+      return go("carddesign");
+    }
+
+    if (action === "pick-design") {
+      state.cardDesignIndex = Number(el.dataset.index);
+      return render();
+    }
+
+    if (action === "choose-design") {
+      state.cardDesign = CARD_DESIGNS[wrap(state.cardDesignIndex, CARD_DESIGNS.length)].key;
+      return goBack();
+    }
     if (action === "go:purchases") return go("purchases");
 
     if (action === "open-cart") {
