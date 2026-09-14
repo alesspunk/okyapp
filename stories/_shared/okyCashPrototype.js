@@ -112,12 +112,15 @@ const CARD_DESIGNS = [
     key: "bubbles",
     label: "Burbujas",
     note: "Las monedas suben solas, como lo que ganas sin darte cuenta.",
-    /* Diseño completo del frame: va de fondo a sangre, sin arte encima. */
+    /* Diseño completo del frame: va de fondo a sangre. Sin arte encima
+       y sin el patrón de arcos ni el borde de la molécula, que sobre
+       una ilustración a sangre se leían como un marco pálido. */
     art: null,
     style: {
       backgroundMode: "solid",
       backgroundColor: "url(oky-card-design-bubbles.png) center/cover no-repeat",
-      borderColor: "#8b6fd6",
+      showBorder: false,
+      pattern: null,
     },
   },
   {
