@@ -8613,7 +8613,8 @@ button.header-icon {
   margin: 0;
 }
 
-.oky-flow-cart-head .oky-flow-cart-trash {
+/* Los dos botones de la fila van juntos a la derecha. */
+.oky-flow-cart-head .oky-flow-cart-edit {
   margin-left: auto;
 }
 
@@ -10135,4 +10136,20 @@ button.tactic-offer {
 .oky-flow-frame .dual-action {
   width: 24px;
   margin-right: -4px;
+}
+
+/* El lápiz comparte caja con el tacho —40px, esquinas de 16px— y se
+   distingue por el color: morado de marca en vez del rojo de borrar. */
+.oky-flow-cart-edit {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  border: 1px solid var(--border-main);
+  background: var(--white);
+  color: var(--primary-main);
+  cursor: pointer;
 }

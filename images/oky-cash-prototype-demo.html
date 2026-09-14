@@ -8628,7 +8628,8 @@ button.header-icon {
   margin: 0;
 }
 
-.oky-flow-cart-head .oky-flow-cart-trash {
+/* Los dos botones de la fila van juntos a la derecha. */
+.oky-flow-cart-head .oky-flow-cart-edit {
   margin-left: auto;
 }
 
@@ -10150,6 +10151,22 @@ button.tactic-offer {
 .oky-flow-frame .dual-action {
   width: 24px;
   margin-right: -4px;
+}
+
+/* El lápiz comparte caja con el tacho —40px, esquinas de 16px— y se
+   distingue por el color: morado de marca en vez del rojo de borrar. */
+.oky-flow-cart-edit {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  border: 1px solid var(--border-main);
+  background: var(--white);
+  color: var(--primary-main);
+  cursor: pointer;
 }
 
 @font-face {
@@ -12948,7 +12965,9 @@ function screenPdp(state) {
   const amount = state.amounts[product.key];
   const tier = getTier(amount, product, state.promoLive);
   const cashback = amount * tier.rate;
-  const inCart = state.cart.some((item) => item.productKey === product.key);
+  const cartItem = state.cart.find((item) => item.productKey === product.key);
+  /* Ya está en el carrito, pero con otro monto: hay algo que guardar. */
+  const changed = cartItem && cartItem.amount !== amount;
 
   return `
     ${statusBar()}
@@ -13022,11 +13041,11 @@ function screenPdp(state) {
           </div>
           <div class="summary-cta-row">
             ${
-              inCart
+              cartItem && !changed
                 ? `<button class="btn btn-primary summary-btn" data-action="open-cart" type="button">Ver carrito</button>`
                 : `<button class="btn btn-primary summary-btn" data-action="add-to-cart" data-product="${product.key}"
                      type="button" ${amount > 0 ? "" : "disabled"}>
-                     <i class="fa-solid fa-plus" aria-hidden="true"></i>Agregar
+                     ${changed ? "" : `<i class="fa-solid fa-plus" aria-hidden="true"></i>`}${changed ? "Actualizar" : "Agregar"}
                    </button>`
             }
           </div>
@@ -13062,6 +13081,10 @@ function cartDrawer(state) {
                 <span class="discount-ribbon discount-ribbon-list ${tier.ribbon}">
                   <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(tier.rate * 100)}%</span>
                 </span>
+                <button class="oky-flow-cart-edit" data-action="edit-item" data-product="${item.productKey}"
+                  type="button" aria-label="Cambiar el monto de ${product.label}">
+                  <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+                </button>
                 <button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
                   type="button" aria-label="Quitar ${product.label}">
                   <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
@@ -13282,7 +13305,7 @@ function screenCheckout(state) {
 
     ${savingBar(earned, { bar: "" }, (v) => {
       if (used <= 0) return `Compra y gana <strong>${v}+</strong> en <strong>OKY Cash</strong>`;
-      if (earned <= 0) return `Con <strong>OKY Cash</strong> no ganas cashback`;
+      if (earned <= 0) return `No acumulas <strong>OKY Cash</strong> en esta compra`;
       return `Ganas <strong>${v}</strong> por lo que pagas con tarjeta`;
     })}
     ${navbar("", state)}
@@ -14268,7 +14291,15 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.checkoutIndex = 0;
       return go("checkout");
     }
-    if (action === "go:decision") return go("decision");
+    if (action === "go:decision") {
+      /* Solo se pregunta la primera vez: una vez elegido, "Ir a pagar"
+         va derecho al checkout. */
+      if (state.decisionSeen) {
+        state.checkoutIndex = 0;
+        return go("checkout");
+      }
+      return go("decision");
+    }
 
     if (action === "open-pdp") {
       /* La PLP manda el monto de la denominación tocada; desde el
@@ -14289,6 +14320,15 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         .concat({ productKey: product.key, amount, cashback: amount * tier.rate });
       state.cartOpen = true;
       return render();
+    }
+
+    if (action === "edit-item") {
+      /* Vuelve al PDP con el monto que tiene en el carrito; al agregar
+         otra vez, esa marca se reemplaza en vez de duplicarse. */
+      const key = el.dataset.product;
+      const inCart = state.cart.find((item) => item.productKey === key);
+      if (inCart) state.amounts[key] = inCart.amount;
+      return go("pdp", { product: key });
     }
 
     if (action === "remove-item") {
@@ -14415,8 +14455,21 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const subtotal = root.querySelector("[data-role='pdp-subtotal']");
       if (subtotal) subtotal.textContent = money(amount);
 
-      const addBtn = root.querySelector("[data-action='add-to-cart']");
-      if (addBtn) addBtn.disabled = amount <= 0;
+      /* El CTA se reescribe solo: si el vale ya está en el carrito y el
+         monto cambió, pasa de "Ver carrito" a "Actualizar". Se toca
+         nada más esa fila para no perder el foco del campo. */
+      const ctaRow = root.querySelector(".summary-cta-row");
+      const inCartNow = state.cart.find((item) => item.productKey === product.key);
+      if (ctaRow && inCartNow) {
+        ctaRow.innerHTML =
+          inCartNow.amount === amount
+            ? `<button class="btn btn-primary summary-btn" data-action="open-cart" type="button">Ver carrito</button>`
+            : `<button class="btn btn-primary summary-btn" data-action="add-to-cart" data-product="${product.key}"
+                 type="button" ${amount > 0 ? "" : "disabled"}>Actualizar</button>`;
+      } else {
+        const addBtn = root.querySelector("[data-action='add-to-cart']");
+        if (addBtn) addBtn.disabled = amount <= 0;
+      }
       return;
     }
 
