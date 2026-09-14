@@ -12694,11 +12694,23 @@ function createInitialState(userType) {
        "Tus compras" al terminar de pagar. No acumula. */
     lastOrder: [],
     lastEarned: 0,
+    /* Historial de ejemplo. Las entradas de una misma orden van juntas y
+       en orden, que es como las agrupa la pantalla: las órdenes con más
+       de un movimiento traen su desglose por marca detrás del toque. */
     activity: [
-      { date: stamp(18), group: monthGroup(18), amount: "+ $4.07", order: "Orden #01112442" },
-      { date: stamp(24), group: monthGroup(24), amount: "+ $2.10", order: "Orden #01112441" },
-      { date: stamp(41), group: monthGroup(41), amount: "+ $2.24", order: "Orden #01112438" },
-      { date: stamp(52), group: monthGroup(52), amount: "+ $1.85", order: "Orden #01112430" },
+      /* Agosto */
+      { date: stamp(18), group: monthGroup(18), amount: "+ $2.80", order: "Orden #01112442", kind: "credit", label: "Amazon", value: 2.8 },
+      { date: stamp(18), group: monthGroup(18), amount: "+ $1.27", order: "Orden #01112442", kind: "credit", label: "Starbucks", value: 1.27 },
+      { date: stamp(24), group: monthGroup(24), amount: "+ $2.10", order: "Orden #01112441", kind: "credit", label: "Target", value: 2.1 },
+      { date: stamp(33), group: monthGroup(33), amount: "+ $1.50", order: "Orden #01112439", kind: "credit", label: "Apple", value: 1.5 },
+      { date: stamp(33), group: monthGroup(33), amount: "+ $0.95", order: "Orden #01112439", kind: "credit", label: "CVS", value: 0.95 },
+      { date: stamp(33), group: monthGroup(33), amount: "- $8.00", order: "Orden #01112439", kind: "debit", label: "Pagado con OKY Cash", value: -8 },
+      { date: stamp(41), group: monthGroup(41), amount: "+ $2.24", order: "Orden #01112438", kind: "credit", label: "Google Play", value: 2.24 },
+      /* Julio */
+      { date: stamp(48), group: monthGroup(48), amount: "+ $1.35", order: "Orden #01112434", kind: "credit", label: "Burger King", value: 1.35 },
+      { date: stamp(48), group: monthGroup(48), amount: "+ $0.90", order: "Orden #01112434", kind: "credit", label: "McDonald's", value: 0.9 },
+      { date: stamp(52), group: monthGroup(52), amount: "+ $1.85", order: "Orden #01112430", kind: "credit", label: "eBay", value: 1.85 },
+      { date: stamp(60), group: monthGroup(60), amount: "- $12.00", order: "Orden #01112427", kind: "debit", label: "Pagado con OKY Cash", value: -12 },
     ],
     decisionSeen: false,
     /* El folder del Discovery Header se colapsa al scrollear el home. */
