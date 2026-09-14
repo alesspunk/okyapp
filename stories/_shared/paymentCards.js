@@ -273,7 +273,9 @@ export function renderPaymentCard(card) {
     : "";
 
   const edit = card.editIcon
-    ? `<button class="payment-card-edit" type="button" aria-label="Editar">
+    ? `<button class="payment-card-edit" type="button" aria-label="Editar"${
+        card.editAction ? ` data-action="${card.editAction}"` : ""
+      }>
         <img src="${card.editIcon}" alt="" />
       </button>`
     : "";

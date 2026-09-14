@@ -9752,3 +9752,94 @@ button.tactic-offer {
   right: -4px;
   top: 0;
 }
+
+/* ── Personaliza tu billetera (99135:103902) ─────────────── */
+.oky-flow-design {
+  gap: 20px;
+  padding-top: 24px;
+}
+
+.oky-flow-design-copy {
+  text-align: center;
+  padding: 0 8px;
+}
+
+.oky-flow-design-title {
+  margin: 0 0 8px;
+  font-family: "Lato", sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--primary-base);
+}
+
+.oky-flow-design-note {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+/* Ventana a sangre: los diseños vecinos asoman por los dos lados. */
+.oky-flow-design-window {
+  width: calc(100% + var(--oky-gutter) * 2);
+  margin: 0 calc(var(--oky-gutter) * -1);
+  overflow: hidden;
+}
+
+.oky-flow-design-track {
+  --design-slide: 276px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 8px calc((360px - var(--design-slide)) / 2);
+  transform: translateX(calc(var(--design-at, 0) * (var(--design-slide) + 12px) * -1));
+  transition: transform 320ms cubic-bezier(0.22, 0.75, 0.3, 1);
+}
+
+.oky-flow-design-slide {
+  position: relative;
+  flex: 0 0 var(--design-slide);
+  width: var(--design-slide);
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.55;
+  transform: scale(0.94);
+  transition:
+    opacity 240ms ease,
+    transform 240ms ease;
+}
+
+.oky-flow-design-slide.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* La Payment Card mide 328px; en el carrusel entra a 276. */
+.oky-flow-design-slide .payment-card-molecule {
+  width: 100%;
+  max-width: none;
+}
+
+/* Radio de selección en la esquina, como en el frame. */
+.oky-flow-design-radio {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.oky-flow-design-slide.is-active .oky-flow-design-radio::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--white);
+}
