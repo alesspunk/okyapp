@@ -1331,6 +1331,9 @@ function screenOkyCash(state) {
       icon: { glyph: "fa-coins", weight: "fa-solid" },
       date,
       amount,
+      /* El signo manda el color: verde oscuro lo que entra, rojo lo que
+         sale. La molécula ya acepta el tono por argumento. */
+      amountTone: positive ? "credit" : "debit",
       meta: { type: "order", note: order },
       chip: chipFor(positive),
     });
@@ -1353,7 +1356,7 @@ function screenOkyCash(state) {
     const open = state.openOrders.includes(order.id);
 
     return `
-      <div class="oky-flow-order ${open ? "is-open" : ""}" data-action="toggle-order"
+      <div class="oky-flow-order has-panel ${open ? "is-open" : ""}" data-action="toggle-order"
         data-order="${order.id}" role="button" tabindex="0" aria-expanded="${open}">
         ${historyRow({
           date: order.date,

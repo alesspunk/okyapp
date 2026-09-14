@@ -10112,6 +10112,37 @@ button.tactic-offer {
   }
 }
 
+/* Los montos del historial por signo: verde oscuro lo acreditado, rojo
+   lo que sale del saldo. */
+.history-card-amount.is-credit {
+  color: var(--success-dark);
+}
+
+.history-card-amount.is-debit {
+  color: var(--error-main);
+}
+
+/* Con panel debajo, la card renuncia a sus esquinas inferiores para que
+   las dos piezas se lean como una sola. */
+.oky-flow-order.has-panel .history-card-molecule {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: 0;
+}
+
+.oky-flow-order.has-panel .oky-flow-order-panel {
+  margin-top: 0;
+}
+
+/* Y el desglose hereda el mismo código de color. */
+.oky-flow-order-line .is-credit {
+  color: var(--success-dark);
+}
+
+.oky-flow-order-line .is-debit {
+  color: var(--error-main);
+}
+
 @font-face {
   font-family: "FA Free Solid Fallback";
   font-style: normal;
@@ -13587,6 +13618,9 @@ function screenOkyCash(state) {
       icon: { glyph: "fa-coins", weight: "fa-solid" },
       date,
       amount,
+      /* El signo manda el color: verde oscuro lo que entra, rojo lo que
+         sale. La molécula ya acepta el tono por argumento. */
+      amountTone: positive ? "credit" : "debit",
       meta: { type: "order", note: order },
       chip: chipFor(positive),
     });
@@ -13609,7 +13643,7 @@ function screenOkyCash(state) {
     const open = state.openOrders.includes(order.id);
 
     return `
-      <div class="oky-flow-order ${open ? "is-open" : ""}" data-action="toggle-order"
+      <div class="oky-flow-order has-panel ${open ? "is-open" : ""}" data-action="toggle-order"
         data-order="${order.id}" role="button" tabindex="0" aria-expanded="${open}">
         ${historyRow({
           date: order.date,
