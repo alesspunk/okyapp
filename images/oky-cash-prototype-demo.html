@@ -10055,12 +10055,13 @@ button.tactic-offer {
    abajo una y otra vez, despacio, sin llegar a mover la píldora. */
 .oky-flow-scroll-hint {
   position: absolute;
-  left: 50%;
+  /* A la derecha y no centrada: en el centro caía justo sobre la
+     moneda de la navbar y parecía estar señalando OKY Cash. */
+  right: var(--oky-gutter);
   /* Pegada a la navbar: así se lee como chrome y no como algo que
      aterrizó en medio del contenido. */
   bottom: calc(var(--oky-nav-h) + 8px);
   z-index: 60;
-  transform: translateX(-50%);
   width: 40px;
   height: 40px;
   display: flex;
@@ -10088,7 +10089,7 @@ button.tactic-offer {
    vuelva arriba. */
 .oky-flow-scroll-hint.is-hidden {
   opacity: 0;
-  transform: translateX(-50%) translateY(8px) scale(0.9);
+  transform: translateY(8px) scale(0.9);
   pointer-events: none;
 }
 
@@ -10141,6 +10142,14 @@ button.tactic-offer {
 
 .oky-flow-order-line .is-debit {
   color: var(--error-main);
+}
+
+/* Los tres puntos de la fila de contacto son una caja de 40px dentro de
+   un card con 16px de padding; los de las filas de pago miden 24px con
+   13px de aire. Así los centros no coincidían. Se igualan aquí. */
+.oky-flow-frame .dual-action {
+  width: 24px;
+  margin-right: -4px;
 }
 
 @font-face {
@@ -13987,17 +13996,6 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock, .oky-flow-cashwin, .oky-flow-scroll-hint",
       )
       .forEach((bar) => frame.appendChild(bar));
-
-    /* La pista se alinea con la moneda de la navbar, no con el centro
-       del frame: los cinco items no miden lo mismo ("Notificaciones"
-       es el más ancho), así que el del medio no cae en el 50%. */
-    const hint = frame.querySelector(".oky-flow-scroll-hint");
-    const coin = frame.querySelector(".bottom-nav .oky-flow-coin");
-    if (hint && coin) {
-      const frameBox = frame.getBoundingClientRect();
-      const coinBox = coin.getBoundingClientRect();
-      hint.style.left = `${coinBox.left + coinBox.width / 2 - frameBox.left}px`;
-    }
 
     bindHeaderScroll(scroll);
 

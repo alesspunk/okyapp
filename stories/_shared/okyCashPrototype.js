@@ -1701,17 +1701,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       )
       .forEach((bar) => frame.appendChild(bar));
 
-    /* La pista se alinea con la moneda de la navbar, no con el centro
-       del frame: los cinco items no miden lo mismo ("Notificaciones"
-       es el más ancho), así que el del medio no cae en el 50%. */
-    const hint = frame.querySelector(".oky-flow-scroll-hint");
-    const coin = frame.querySelector(".bottom-nav .oky-flow-coin");
-    if (hint && coin) {
-      const frameBox = frame.getBoundingClientRect();
-      const coinBox = coin.getBoundingClientRect();
-      hint.style.left = `${coinBox.left + coinBox.width / 2 - frameBox.left}px`;
-    }
-
     bindHeaderScroll(scroll);
 
     /* El drawer trae su propia saving bar; la de la pantalla de abajo
