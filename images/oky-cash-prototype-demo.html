@@ -12338,6 +12338,13 @@ const BRAND_DEFAULT_AMOUNT = 5;
    persona con el reloj encima. */
 const PROMO_MS = 2 * 60 * 1000;
 
+/* El reloj se detiene mientras la persona está en el carrito o
+   ajustando el checkout: que se le venza a media compra sería una
+   trampa, no la ansiedad que busca la prueba. */
+function promoPaused(state) {
+  return state.cartOpen || state.screen === "checkout" || state.screen === "methods";
+}
+
 /* mm:ss para el Super Ribbon "Por tiempo". */
 function countdownLabel(msLeft) {
   const total = Math.max(0, Math.ceil(msLeft / 1000));
@@ -12655,11 +12662,12 @@ function homeHeader(state, headerState) {
 /* Super Ribbon "Por tiempo" con la cuenta atrás real de la promo; al
    vencer cambia a la variante "Finito". */
 function promoRibbon(state) {
+  /* Vencida la promo, el strip vuelve a su ribbon de siempre. */
   if (!state.promoLive) {
     return `
-      <div class="super-ribbon super-ribbon-type-finito">
-        <span class="super-ribbon-icon"><i class="fa-solid fa-fire-flame-simple" aria-hidden="true"></i></span>
-        <span class="super-ribbon-text">La promo terminó</span>
+      <div class="super-ribbon super-ribbon-type-normal">
+        <span class="super-ribbon-icon"><i class="fa-solid fa-percent" aria-hidden="true"></i></span>
+        <span class="super-ribbon-text">Super Deals</span>
       </div>
     `;
   }
@@ -14277,10 +14285,22 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      ribbon —re-renderizar entero robaría el foco del campo de monto—
      y al llegar a cero se hace un render completo para que ribbons,
      saving bars y el carrito recalculen con el 5%. */
+  let promoTick = Date.now();
   setInterval(() => {
+    const now = Date.now();
+    const elapsed = now - promoTick;
+    promoTick = now;
+
     if (!state.promoLive) return;
 
-    const left = state.promoEndsAt - Date.now();
+    /* En pausa el vencimiento se corre hacia adelante lo mismo que
+       avanzó el reloj, así que lo que queda no se mueve. */
+    if (promoPaused(state)) {
+      state.promoEndsAt += elapsed;
+      return;
+    }
+
+    const left = state.promoEndsAt - now;
     if (left > 0) {
       const label = root.querySelector("[data-role='promo-countdown']");
       if (label) label.textContent = `Termina en ${countdownLabel(left)}`;
