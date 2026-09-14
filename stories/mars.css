@@ -9407,8 +9407,10 @@ button.header-icon {
   position: absolute;
   left: 0;
   right: 0;
-  /* status bar 44 + header 56 + folder 77 */
-  top: 177px;
+  /* Arranca justo debajo del folder, para que el buscador quede por
+     encima del naranja: status bar 44 + header 56 + folder 77. En móvil
+     la barra de estado no se pinta, así que son 44px menos. */
+  top: var(--oky-home-gradient-top, 177px);
   height: 320px;
   /* Sólido tras el buscador y el carrusel; el desvanecido se gasta en
      el último tramo, que es donde cae el título de la sección. */
@@ -10266,6 +10268,12 @@ button.tactic-offer {
      encima, así que duplicarla solo gasta alto. */
   .oky-flow-frame .status-bar {
     display: none;
+  }
+
+  /* Sin esos 44px, todo sube: el degradado del home tiene que subir
+     con ellos o arranca encima del buscador. */
+  .oky-flow-frame {
+    --oky-home-gradient-top: 133px;
   }
 }
 
