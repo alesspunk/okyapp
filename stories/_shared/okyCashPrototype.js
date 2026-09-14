@@ -160,8 +160,8 @@ const HOME_CATEGORIES = [
 
 /* Tarjetas de "Solo por hoy" (MARS 7295:52037). */
 const TODAY_CARDS = [
-  { key: "macys", photo: "promo-image4.png" },
-  { key: "starbucks", photo: "promo-image2.png" },
+  { key: "macys", photo: "promo-image2.png" },
+  { key: "starbucks", photo: "promo-image4.png" },
 ];
 
 /* Tier del cashback. Verificado contra los dos frames de Nike:
@@ -270,6 +270,8 @@ function createInitialState(userType) {
     headerCollapsed: false,
     /* Correlativo de órdenes para el historial de OKY Cash. */
     orderSeq: 0,
+    /* Marcas cuyo vale ya se abrió: las demás llevan el punto rojo. */
+    seenVouchers: [],
     /* Fin de la promo; se fija al montar el prototipo. */
     promoEndsAt: Date.now() + PROMO_MS,
     promoLive: true,
@@ -1102,7 +1104,15 @@ function walletVouchers(state) {
         return;
       }
       const product = PRODUCTS[purchase.productKey];
-      owned.push({ key: product.key, label: product.label, art: product.art, count: 1, live: true });
+      owned.push({
+        key: product.key,
+        label: product.label,
+        art: product.art,
+        count: 1,
+        live: true,
+        /* Recién comprado y todavía sin abrir. */
+        isNew: !state.seenVouchers.includes(product.key),
+      });
     });
 
   const demo = WALLET_VOUCHERS.filter((v) => !owned.some((o) => o.key === v.key)).map((v) => ({
@@ -1164,6 +1174,7 @@ function screenWallet(state) {
             (v) => `
           <button class="oky-flow-voucher" ${v.live ? `data-action="open-voucher" data-key="${v.key}"` : "disabled"} type="button">
             <img src="${v.art}" alt="${v.label}" />
+            ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
             <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
           </button>
         `,
@@ -1375,6 +1386,21 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   let celebrationTimer = 0;
   let winAnimation = null;
 
+  /* Control de la prueba, no de la app: vive fuera del teléfono para
+     que no se confunda con la UI. render() reescribe el root, así que
+     el botón es un nodo propio que se vuelve a colgar en cada pasada. */
+  root.style.display = "flex";
+  root.style.flexDirection = "column";
+  root.style.alignItems = "center";
+  root.style.gap = "16px";
+
+  const resetButton = document.createElement("button");
+  resetButton.type = "button";
+  resetButton.className = "oky-flow-reset";
+  resetButton.dataset.action = "reset";
+  resetButton.innerHTML =
+    '<i class="fa-solid fa-rotate-left" aria-hidden="true"></i>Reiniciar prototipo';
+
   function render() {
     /* El player de Lottie deja listeners y un rAF vivos; si el overlay
        desaparece del DOM sin destruirlo, se acumulan por compra. */
@@ -1443,6 +1469,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         .querySelectorAll(".oky-flow-savingbar:not(.is-drawer-bar), .oky-flow-dock, .oky-flow-cta-bar")
         .forEach((bar) => bar.remove());
     }
+
+    root.appendChild(resetButton);
   }
 
   /* Transición de scroll del Discovery Header: al bajar, el folder pasa
@@ -1604,6 +1632,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (!el || el.disabled) return;
     const action = el.dataset.action;
 
+    if (action === "reset") {
+      /* Vuelve a cero: saldo, carrito, compras, historial y el reloj
+         de la promo, que arranca de nuevo con sus dos minutos. */
+      clearTimeout(celebrationTimer);
+      state = createInitialState(userType);
+      return render();
+    }
+
     if (action === "back") return goBack();
     if (action === "nav:home") return go("home");
     if (action === "nav:wallet") return go("wallet");
@@ -1704,7 +1740,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
     if (action === "dismiss-cashwin") return go("purchases", {}, { push: false });
     if (action === "open-purchase") return go("voucher", { id: el.dataset.id });
-    if (action === "open-voucher") return go("voucher", { key: el.dataset.key });
+    if (action === "open-voucher") {
+      const key = el.dataset.key;
+      if (!state.seenVouchers.includes(key)) state.seenVouchers.push(key);
+      return go("voucher", { key });
+    }
 
     if (action === "decision-self") {
       state.decisionSeen = true;

@@ -1196,17 +1196,21 @@ body {
   pointer-events: none;
 }
 
+/* Los dos iconos 3D del header son instancias de 32x32 en el frame
+   (99135:106020). Estaban en una caja de 40x40 con la imagen a 44x34
+   y un nudge de -2px, así que ni coincidían con el diseño ni entre
+   ellos: el carrito, que es un PNG cuadrado, se leía más grande que
+   la cartera. Misma caja y contain para los dos. */
 .header-icon-bitmap-cart,
 .header-icon-bitmap-wallet-wrap {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
 }
 
 .header-icon-bitmap-cart-image,
 .header-icon-bitmap-wallet {
-  width: 44px;
-  height: 34px;
-  transform: translate(-2px, 1px);
+  width: 100%;
+  height: 100%;
 }
 
 .header-icon-bitmap-wallet-indicated-left {
@@ -7367,6 +7371,7 @@ body {
 }
 
 .oky-flow-header-icon {
+  position: relative;
   flex: 0 0 32px;
   width: 32px;
   height: 32px;
@@ -9672,4 +9677,54 @@ button.tactic-offer {
 
 .history-card-chip.is-neutral .history-card-chip-icon {
   color: var(--text-secondary);
+}
+
+/* Indicador de vale nuevo: el mismo punto del header, sobre la card. */
+.oky-flow-voucher-dot {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  background: var(--error-main);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* La flecha de atrás mide 32px y el glifo no llena ni eso, así que
+   había clicks que se perdían. Un área transparente la lleva a los
+   44px de destino táctil sin mover nada de sitio. */
+.oky-flow-header-icon::before,
+.oky-flow-frame .header-icon::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+}
+
+.oky-flow-frame .header-icon {
+  position: relative;
+}
+
+/* Botón de reinicio del prototipo: va bajo el teléfono, fuera del
+   marco, porque es un control de la prueba y no parte de la app. */
+.oky-flow-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid var(--border-main);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--text-secondary);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.oky-flow-reset:hover {
+  color: var(--primary-main);
+  border-color: var(--primary-main);
 }
