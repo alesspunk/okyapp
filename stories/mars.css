@@ -9387,18 +9387,6 @@ button.header-icon {
   border-radius: 0;
 }
 
-.oky-flow-theme-band .carrusel-dots-wrap {
-  padding-top: 10px;
-}
-
-.oky-flow-theme-band .promo-dot {
-  background: rgba(255, 255, 255, 0.45);
-}
-
-.oky-flow-theme-band .promo-dot-active {
-  background: var(--white);
-}
-
 /* Las ofertas del strip táctico son botones. */
 button.tactic-offer {
   border: 0;

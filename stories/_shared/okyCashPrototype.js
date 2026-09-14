@@ -478,13 +478,6 @@ function screenHome(state) {
           <div class="carousel-banner"><img src="oky-banner-1.png" alt="Promo Verano" /></div>
           <div class="carousel-banner"><img src="oky-banner-2.png" alt="Promo" /></div>
         </div>
-        <div class="carrusel-dots-wrap" style="width:100%">
-          <div class="carrusel-dots">
-            ${[0, 1, 2, 3, 4]
-              .map((i) => `<span class="promo-dot${i === 0 ? " promo-dot-active" : ""}"></span>`)
-              .join("")}
-          </div>
-        </div>
       </div>
 
     <div class="oky-flow-section">
