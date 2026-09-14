@@ -10215,3 +10215,69 @@ button.tactic-offer {
     display: none;
   }
 }
+
+/* ── Aviso de promo vencida en el strip ──────────────────── */
+/* Entra con una sacudida corta —el gesto de algo que se acaba, no de
+   algo que se celebra— y late una vez para que no pase desapercibido. */
+.super-ribbon.is-ending {
+  animation:
+    oky-flow-promo-end-in 420ms cubic-bezier(0.32, 0.72, 0, 1) both,
+    oky-flow-promo-end-pulse 900ms ease-in-out 420ms 1;
+}
+
+@keyframes oky-flow-promo-end-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.94);
+  }
+  45% {
+    transform: translateY(2px) scale(1.04) rotate(-1.2deg);
+  }
+  70% {
+    transform: translateY(0) scale(1) rotate(0.8deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0);
+  }
+}
+
+@keyframes oky-flow-promo-end-pulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 16px 4px rgba(0, 0, 0, 0.08);
+  }
+  50% {
+    box-shadow: 0 4px 18px 6px rgba(244, 67, 54, 0.45);
+  }
+}
+
+/* Y el aqua entra después sin ruido: la promo ya pasó. */
+.super-ribbon.is-settling {
+  animation: oky-flow-promo-settle 420ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes oky-flow-promo-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Las cards del strip acusan el golpe cuando su porcentaje cae. */
+.oky-flow-frame .tactic-strip .discount-ribbon {
+  transition:
+    background-color 420ms ease,
+    color 420ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .super-ribbon.is-ending,
+  .super-ribbon.is-settling {
+    animation: none;
+  }
+}

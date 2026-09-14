@@ -357,6 +357,8 @@ function createInitialState(userType) {
     /* Fin de la promo; se fija al montar el prototipo. */
     promoEndsAt: Date.now() + PROMO_MS,
     promoLive: true,
+    /* Ventana corta tras el vencimiento, para el aviso del strip. */
+    promoEnded: false,
     recipient: "",
   };
 }
@@ -510,10 +512,20 @@ function homeHeader(state, headerState) {
 /* Super Ribbon "Por tiempo" con la cuenta atrás real de la promo; al
    vencer cambia a la variante "Finito". */
 function promoRibbon(state) {
-  /* Vencida la promo, el strip vuelve a su ribbon de siempre. */
+  /* Al vencer hay un momento de aviso —el ribbon se pone en rojo y lo
+     dice— y después el strip vuelve a su ribbon de siempre. */
+  if (state.promoEnded) {
+    return `
+      <div class="super-ribbon super-ribbon-type-finito is-ending">
+        <span class="super-ribbon-icon"><i class="fa-solid fa-hourglass-end" aria-hidden="true"></i></span>
+        <span class="super-ribbon-text">Promo terminada</span>
+      </div>
+    `;
+  }
+
   if (!state.promoLive) {
     return `
-      <div class="super-ribbon super-ribbon-type-normal">
+      <div class="super-ribbon super-ribbon-type-normal is-settling">
         <span class="super-ribbon-icon"><i class="fa-solid fa-percent" aria-hidden="true"></i></span>
         <span class="super-ribbon-text">Super Deals</span>
       </div>
@@ -2228,7 +2240,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       ...item,
       cashback: item.amount * getTier(item.amount, PRODUCTS[item.productKey], false).rate,
     }));
+
+    /* El aviso dura lo que tarda en leerse; después el strip se asienta
+       en su ribbon normal. */
+    state.promoEnded = true;
     render();
+    setTimeout(() => {
+      state.promoEnded = false;
+      render();
+    }, 2400);
   }, 1000);
 
   render();
