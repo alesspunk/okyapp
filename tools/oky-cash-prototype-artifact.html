@@ -13012,7 +13012,12 @@ function screenCheckout(state) {
   const earned = earnedCashback(state);
   const tier = getTier(total);
   const active = clamp(state.checkoutIndex, 0, Math.max(state.cart.length - 1, 0));
-  const giftCard = (item) => `
+  /* Cada vale lleva su propio porcentaje en el wrap ribbon, igual que
+     en el PDP: con el reloj en pausa aquí dentro, el 20% de Nike no se
+     convierte en 5% mientras se ajusta el pago. */
+  const giftCard = (item) => {
+    const itemTier = getTier(item.amount, PRODUCTS[item.productKey], state.promoLive);
+    return `
     <section class="middle-card-shell is-checkout">
       <article class="middle-card-molecule is-egift">
         <div class="middle-card-content">
@@ -13030,9 +13035,15 @@ function screenCheckout(state) {
             <span class="middle-card-footer-end" aria-hidden="true"></span>
           </div>
         </div>
+        <div class="middle-card-ribbon-slot">
+          <div class="discount-ribbon discount-ribbon-wrap ${itemTier.ribbon}">
+            <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(itemTier.rate * 100)}%</span>
+          </div>
+        </div>
       </article>
     </section>
   `;
+  };
 
   const first = PRODUCTS[state.cart[active].productKey];
   const applied = state.okyCashEnabled
