@@ -7720,7 +7720,8 @@ body {
   flex-direction: column;
   align-items: stretch;
   gap: 4px;
-  min-height: 104px;
+  /* Los 104px eran el alto del slider y su leyenda; sin ellos la fila
+     hugea su contenido como las demás. */
   padding: 8px 12px;
   border: 2px solid var(--primary-base);
   border-top: 0;
@@ -12493,7 +12494,7 @@ function createInitialState(userType) {
 
   return {
     userType,
-    okyCashBalance: returning ? 56 : 20,
+    okyCashBalance: returning ? 56 : 5,
     screen: "home",
     params: {},
     history: [],
@@ -13187,7 +13188,6 @@ function screenMethods(state) {
   const applied = clamp(state.okyCashApplied, 0, max);
   const toCard = Math.max(total - applied, 0);
   const keep = Math.max(state.okyCashBalance - applied, 0);
-  const progress = max > 0 ? (applied / max) * 100 : 0;
 
   const selected = CARDS.find((c) => c.key === state.selectedCard) || CARDS[0];
   const others = CARDS.filter((c) => c.key !== selected.key);
@@ -13228,13 +13228,6 @@ function screenMethods(state) {
             <p class="oky-flow-method-label">OKY Cash</p>
             <span class="oky-flow-chip is-cash">${money(applied)}</span>
           </div>
-          <div class="oky-flow-cash-slider" style="--oky-cash-progress:${progress}%">
-            <input type="range" min="0" max="${max}" step="0.5" value="${applied}"
-              data-action="slide-okycash" aria-label="Monto de OKY Cash" />
-          </div>
-          <p class="oky-flow-cash-caption">
-            ${money(applied)} de ${money(state.okyCashBalance)} &nbsp;·&nbsp; Guardas <strong>${money(keep)}</strong> para después
-          </p>
         </div>
       </div>
 
@@ -14305,29 +14298,6 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
-    const slider = event.target.closest("[data-action='slide-okycash']");
-    if (slider) {
-      const total = cartTotal(state);
-      const max = Math.min(state.okyCashBalance, total);
-      const applied = clamp(Number(slider.value) || 0, 0, max);
-      state.okyCashApplied = applied;
-      state.okyCashEnabled = applied > 0;
-
-      const keep = Math.max(state.okyCashBalance - applied, 0);
-      slider.parentElement.style.setProperty("--oky-cash-progress", `${max ? (applied / max) * 100 : 0}%`);
-
-      const cashChip = root.querySelector(".oky-flow-method-row.is-cash .oky-flow-chip.is-cash");
-      if (cashChip) cashChip.textContent = money(applied);
-      const cardChip = root.querySelector(".oky-flow-method-row.is-selected .oky-flow-chip.is-card");
-      if (cardChip) cardChip.textContent = money(Math.max(total - applied, 0));
-      const caption = root.querySelector(".oky-flow-cash-caption");
-      if (caption) {
-        caption.innerHTML =
-          `${money(applied)} de ${money(state.okyCashBalance)} &nbsp;·&nbsp; Guardas <strong>${money(keep)}</strong> para después`;
-      }
-      const cardBalance = root.querySelector(".payment-card-molecule.is-oky-cash-black .payment-card-amount-value");
-      if (cardBalance) cardBalance.textContent = keep.toFixed(2);
-    }
   });
 
   /* Reloj de la promo. Cada segundo solo se reescribe el texto del

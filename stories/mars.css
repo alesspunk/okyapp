@@ -7705,7 +7705,8 @@ body {
   flex-direction: column;
   align-items: stretch;
   gap: 4px;
-  min-height: 104px;
+  /* Los 104px eran el alto del slider y su leyenda; sin ellos la fila
+     hugea su contenido como las demás. */
   padding: 8px 12px;
   border: 2px solid var(--primary-base);
   border-top: 0;
