@@ -7418,11 +7418,11 @@ body {
 
 /* ── "Online" bajo el brand item (PDP) ──────────────────── */
 .oky-flow-brand-online {
-  /* Los canales de canje se quedan —dicen algo—, pero pagaban 20px de
+  /* Los canales de canje se quedan —dicen algo—, pero pagaban 28px de
      aire entre el logo y la card que hacían falta abajo: sin ellos el
-     campo del monto no entraba en el fold. Los 12 del padding y 8 más
-     que se le quitan al hueco de la pila. */
-  margin: 0 0 -8px;
+     campo del monto no entraba en el fold. Se le descuentan 8px arriba
+     y 8 abajo al hueco de la pila, más los 12 de su propio padding. */
+  margin: -8px 0 -8px;
   padding-bottom: 0;
   font-family: "Lato", sans-serif;
   font-size: 10px;
@@ -10394,4 +10394,20 @@ button.tactic-offer {
 .oky-flow-section.is-voucher {
   padding-top: 0;
   margin-top: -4px;
+}
+
+/* ── PDP sin navbar ─────────────────────────────────────── */
+/* El PDP es una pantalla de una sola decisión —cuánto y agregar— y la
+   navbar solo empujaba el campo del monto fuera del fold. Se va, y el
+   dock baja a ocupar su sitio. */
+.oky-flow-frame.is-pdp .oky-flow-navbar {
+  display: none;
+}
+
+.oky-flow-frame.is-pdp .oky-flow-dock {
+  bottom: var(--oky-bar-h);
+}
+
+.oky-flow-frame.is-pdp .oky-flow-scroll.has-dock {
+  padding-bottom: calc(var(--oky-bar-h) + 168px);
 }

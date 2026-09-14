@@ -1658,17 +1658,37 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        su ancho de diseño (360 sin borde en móvil). */
     const frame = root.querySelector(".oky-flow-frame");
     if (!frame) return;
-    const design = frame.offsetWidth || 360;
     const vv = window.visualViewport;
+
+    /* El teclado de iOS encoge el visual viewport, no el layout. Si se
+       re-mide con él abierto, el lienzo se recorta a lo que queda por
+       encima del teclado: la interfaz se sube, deja una franja blanca
+       debajo y —lo peor— lo que se ve y lo que se toca dejan de
+       coincidir, que es por lo que había botones que no respondían.
+       Con foco en un campo, o con el visual viewport claramente más
+       corto que el layout, se conserva la medida anterior. */
+    const fitted = root.style.getPropertyValue("--oky-fit");
+    const shrunk = vv && vv.height < window.innerHeight * 0.85;
+    if (fitted && (shrunk || isEditing())) return;
+
+    const design = frame.offsetWidth || 360;
     const scale = (vv ? vv.width : window.innerWidth) / design;
     if (!scale) return;
     root.style.setProperty("--oky-fit", String(scale));
     root.style.setProperty("--oky-frame-h", (vv ? vv.height : window.innerHeight) / scale + "px");
   }
 
+  function isEditing() {
+    const el = document.activeElement;
+    return !!el && (el.matches("input, textarea, select") || el.isContentEditable);
+  }
+
   window.addEventListener("resize", fitToViewport);
   window.addEventListener("orientationchange", fitToViewport);
   if (window.visualViewport) window.visualViewport.addEventListener("resize", fitToViewport);
+  /* Al cerrarse el teclado el visual viewport vuelve a su sitio, pero
+     iOS no siempre avisa: se re-mide al soltar el campo. */
+  root.addEventListener("focusout", () => setTimeout(fitToViewport, 120));
 
   const resetButton = document.createElement("button");
   resetButton.type = "button";
@@ -1686,7 +1706,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     root.innerHTML = `
-      <div class="oky-flow-frame">
+      <div class="oky-flow-frame${state.screen === "pdp" ? " is-pdp" : ""}">
         <div class="oky-flow-scroll ${SCROLL_CLASS[state.screen] || ""}">
           ${renderScreen(state)}
         </div>
