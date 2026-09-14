@@ -59,6 +59,7 @@ const PRODUCTS = {
     label: "Nike",
     cardTitle: "Nike Gift Card",
     art: "oky-card-nike.png",
+    bg: "#ef4c26",
     hero: "promo-image8.png",
     min: 10,
     max: 1000,
@@ -69,6 +70,7 @@ const PRODUCTS = {
     label: "Lyft",
     cardTitle: "Lyft Gift Card",
     art: "oky-card-lyft.png",
+    bg: "#1d0c17",
     hero: "promo-image1.png",
     min: 10,
     max: 1000,
@@ -80,21 +82,21 @@ const PRODUCTS = {
    Todas abren el mismo PDP que Nike y Lyft —monto editable, ribbon de
    cashback y "Agregar"— arrancando en $5.00. */
 const BRANDS = {
-  googleplay: { label: "Google Play", art: "google.webp", rate: 5 },
-  starbucks: { label: "Starbucks", art: "starbucks.webp", rate: 10 },
-  cvs: { label: "CVS", art: "cvs.webp", rate: 5 },
-  apple: { label: "Apple", art: "apple.webp", rate: 5 },
-  macys: { label: "Macy's", art: "macys.webp", rate: 12 },
-  target: { label: "Target", art: "target.webp", rate: 8 },
-  seveneleven: { label: "7 Eleven", art: "7eleven.png", rate: 6 },
-  burgerking: { label: "Burger King", art: "burguerking.webp", rate: 9 },
-  ihop: { label: "IHOP", art: "ihop.webp", rate: 7 },
-  mcdonalds: { label: "McDonald's", art: "mcdonalds.webp", rate: 6 },
-  dominos: { label: "Domino's", art: "dominos.png", rate: 8 },
-  applebees: { label: "Applebee's", art: "applebees.webp", rate: 8 },
-  amazon: { label: "Amazon", art: "amazon.png", rate: 7 },
-  ebay: { label: "eBay", art: "ebay.png", rate: 7 },
-  xbox: { label: "Xbox", art: "xbox.png", rate: 7 },
+  googleplay: { label: "Google Play", art: "google.webp", bg: "#ffffff", rate: 5 },
+  starbucks: { label: "Starbucks", art: "starbucks.webp", bg: "#ffffff", rate: 10 },
+  cvs: { label: "CVS", art: "cvs.webp", bg: "#f0bdc4", rate: 5 },
+  apple: { label: "Apple", art: "apple.webp", bg: "#f2f2f5", rate: 5 },
+  macys: { label: "Macy's", art: "macys.webp", bg: "#ffffff", rate: 12 },
+  target: { label: "Target", art: "target.webp", bg: "#99464a", rate: 8 },
+  seveneleven: { label: "7 Eleven", art: "7eleven.png", bg: "#ea572d", rate: 6 },
+  burgerking: { label: "Burger King", art: "burguerking.webp", bg: "#f6ead5", rate: 9 },
+  ihop: { label: "IHOP", art: "ihop.webp", bg: "#669482", rate: 7 },
+  mcdonalds: { label: "McDonald's", art: "mcdonalds.webp", bg: "#fe0015", rate: 6 },
+  dominos: { label: "Domino's", art: "dominos.png", bg: "#006aa6", rate: 8 },
+  applebees: { label: "Applebee's", art: "applebees.webp", bg: "#eac7cb", rate: 8 },
+  amazon: { label: "Amazon", art: "amazon.png", bg: "#141c26", rate: 7 },
+  ebay: { label: "eBay", art: "ebay.png", bg: "#00186b", rate: 7 },
+  xbox: { label: "Xbox", art: "xbox.png", bg: "#4d9d4c", rate: 7 },
 };
 
 /* Diseños de la tarjeta de OKY Cash (Figma 99135:103902). La molécula
@@ -178,6 +180,9 @@ Object.entries(BRANDS).forEach(([key, brand]) => {
     /* Porcentaje propio de la marca: no depende del monto como en
        Nike y Lyft, que son los que enseñan la regla de tiers. */
     rate: brand.rate,
+    /* Color de fondo del arte, para que la card no deje blanco
+       asomando por las esquinas. */
+    bg: brand.bg,
     legal: true,
   };
 });
@@ -236,10 +241,10 @@ function getTier(amount, product, promoLive = true) {
 }
 
 const WALLET_VOUCHERS = [
-  { key: "krispy", label: "Krispy Kreme", art: "oky-card-krispy.png", live: false },
-  { key: "underarmour", label: "Under Armour", art: "oky-card-underarmour.png", live: false },
-  { key: "lyft", label: "Lyft", art: "oky-card-lyft.png", live: true },
-  { key: "nike", label: "Nike", art: "oky-card-nike.png", live: true },
+  { key: "krispy", label: "Krispy Kreme", art: "oky-card-krispy.png", bg: "#ffffff", live: false },
+  { key: "underarmour", label: "Under Armour", art: "oky-card-underarmour.png", bg: "#ed1b24", live: false },
+  { key: "lyft", label: "Lyft", art: "oky-card-lyft.png", bg: "#1d0c17", live: true },
+  { key: "nike", label: "Nike", art: "oky-card-nike.png", bg: "#ef4c26", live: true },
 ];
 
 /* Tarjetas tokenizadas. La seleccionada es la que se combina con
@@ -322,6 +327,9 @@ function createInitialState(userType) {
     orderSeq: 0,
     /* Marcas cuyo vale ya se abrió: las demás llevan el punto rojo. */
     seenVouchers: [],
+    /* Cashback recién ganado que aún no se ha mirado: hace saltar la
+       moneda de la navbar. */
+    cashUnseen: false,
     /* Diseño de la tarjeta de OKY Cash y el que se está hojeando. */
     cardDesign: "black",
     cardDesignIndex: 0,
@@ -408,7 +416,7 @@ function productHeader(state, { backAction = "back" } = {}) {
 
 /* Navbar: fija abajo en todas las pantallas. Solo Home y el coin
    de OKY Cash navegan; el resto queda atenuado. */
-function navbar(active) {
+function navbar(active, state = {}) {
   const item = (key, label, icon, action) => `
     <div class="nav-item ${key === active ? "active" : ""} ${action ? "" : "is-dim"}"
       ${action ? `data-action="${action}" role="button" tabindex="0"` : ""}>
@@ -416,7 +424,7 @@ function navbar(active) {
         /* El item activo va en Solid y el resto en Light; OKY Cash es
            siempre la moneda, que es una imagen. */
         key === "okycash"
-          ? `<img class="oky-flow-coin" src="oky-cash-coin.png" alt="" />`
+          ? `<img class="oky-flow-coin ${state.cashUnseen ? "is-bouncing" : ""}" src="oky-cash-coin.png" alt="" />`
           : `<i class="fa-${key === active ? "solid" : "light"} fa-${icon}" style="font-size:20px" aria-hidden="true"></i>`
       }
       <span class="nav-label">${label}</span>
@@ -603,7 +611,7 @@ function screenHome(state) {
     </div>
     </div>
 
-    ${navbar("home")}
+    ${navbar("home", state)}
   `;
 }
 
@@ -700,7 +708,7 @@ function screenPdp(state) {
     </div>
 
     ${savingBar(cashback, tier, (v) => `Gana <strong>${v}</strong> de <strong>OKY Cash</strong>`)}
-    ${navbar("")}
+    ${navbar("", state)}
   `;
 }
 
@@ -933,7 +941,7 @@ function screenCheckout(state) {
     </div>
 
     ${savingBar(cashback, { bar: "" }, (v) => `Compra y gana <strong>${v}+</strong> en <strong>OKY Cash</strong>`)}
-    ${navbar("")}
+    ${navbar("", state)}
   `;
 }
 
@@ -1014,7 +1022,7 @@ function screenMethods(state) {
         Siguiente - ${money(total)}
       </button>
     </div>
-    ${navbar("")}
+    ${navbar("", state)}
   `;
 }
 
@@ -1050,7 +1058,7 @@ function screenProcessing(state) {
         <span>Redireccionando…</span>
       </div>
     </section>
-    ${navbar("")}
+    ${navbar("", state)}
   `;
 }
 
@@ -1082,7 +1090,8 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
               ${list
                 .map(
                   (v) => `
-                <button class="oky-flow-voucher" data-action="open-purchase" data-id="${v.id}" type="button">
+                <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
+                  data-action="open-purchase" data-id="${v.id}" type="button">
                   <img src="${v.art}" alt="${v.label}" />
                   <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
                 </button>
@@ -1100,7 +1109,7 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
       </button>
       ${cashStrip(state)}
     </div>
-    ${navbar("")}
+    ${navbar("", state)}
 
     ${
       celebrate
@@ -1177,6 +1186,7 @@ function walletVouchers(state) {
         key: product.key,
         label: product.label,
         art: product.art,
+        bg: product.bg,
         count: 1,
         live: true,
         /* Recién comprado y todavía sin abrir. */
@@ -1238,7 +1248,8 @@ function screenWallet(state) {
         ${walletVouchers(state)
           .map(
             (v) => `
-          <button class="oky-flow-voucher" ${v.live ? `data-action="open-voucher" data-key="${v.key}"` : "disabled"} type="button">
+          <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
+            ${v.live ? `data-action="open-voucher" data-key="${v.key}"` : "disabled"} type="button">
             <img src="${v.art}" alt="${v.label}" />
             ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
             <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
@@ -1249,7 +1260,7 @@ function screenWallet(state) {
       </div>
     </div>
 
-    ${navbar("")}
+    ${navbar("", state)}
   `;
 }
 
@@ -1317,7 +1328,7 @@ function screenOkyCash(state) {
       <div class="oky-flow-history">${rows}</div>
     </div>
 
-    ${navbar("okycash")}
+    ${navbar("okycash", state)}
   `;
 }
 
@@ -1392,7 +1403,7 @@ function screenVoucher(state) {
         <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>&nbsp;Compartir
       </button>
     </div>
-    ${navbar("")}
+    ${navbar("", state)}
   `;
 }
 
@@ -1452,7 +1463,7 @@ function screenCardDesign(state) {
     <div class="oky-flow-cta-bar">
       <button class="btn btn-primary btn-large" data-action="choose-design" type="button">Elegir</button>
     </div>
-    ${navbar("okycash")}
+    ${navbar("okycash", state)}
   `;
 }
 
@@ -1731,6 +1742,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     state.okyCashBalance = state.okyCashBalance - used + earned;
     state.lastEarned = earned;
+    state.cashUnseen = earned > 0;
     state.cart = [];
     state.okyCashEnabled = false;
     state.okyCashApplied = 0;
@@ -1796,7 +1808,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "back") return goBack();
     if (action === "nav:home") return go("home");
     if (action === "nav:wallet") return go("wallet");
-    if (action === "nav:okycash") return go("okycash");
+    if (action === "nav:okycash") {
+      state.cashUnseen = false;
+      return go("okycash");
+    }
 
     if (action === "nav:carddesign") {
       /* El selector abre en el diseño que está puesto. */
