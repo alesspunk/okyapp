@@ -7049,6 +7049,10 @@ body {
   display: block;
   width: 100%;
   height: 100%;
+  /* El SVG viene gris y sobre las ilustraciones se perdía. brightness(0)
+     lo aplana a negro e invert(1) lo pasa a blanco; la sombra lo
+     despega también de los diseños claros. */
+  filter: brightness(0) invert(1) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45));
 }
 
 /* ── Variantes ──────────────────────────────────────────── */
