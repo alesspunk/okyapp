@@ -3483,9 +3483,16 @@ body {
   --super-ribbon-text: var(--white);
 }
 
+/* Mismo par que el wrap ribbon "Gana 5%": su aqua de fondo y su verde
+   profundo de texto, que sobre ese fondo se lee bastante mejor que
+   --secondary-dark. */
 .super-ribbon-type-normal {
-  --super-ribbon-bg: var(--secondary-light);
-  --super-ribbon-text: var(--secondary-dark);
+  --super-ribbon-bg: var(--tier-base-bg);
+  --super-ribbon-text: var(--tier-base-text);
+}
+
+.super-ribbon-type-normal .super-ribbon-text {
+  font-weight: 700;
 }
 
 .super-ribbon-type-por-temporada {
