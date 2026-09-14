@@ -9703,6 +9703,38 @@ button.tactic-offer {
   background: transparent;
 }
 
+/* El alto se interpola mientras se cambia de State: sin esto el header
+   pega un tirón de 100px y el contenido de abajo con él. */
+.oky-flow-frame .oky-flow-home .discovery-header-organism.is-swapping {
+  overflow: hidden;
+  transition: height 240ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Y lo que vuelve —wallet, logo y carrito— entra desde arriba en vez de
+   aparecer de golpe a media animación. */
+.oky-flow-frame .oky-flow-home .discovery-header-organism.is-swapping .app-header {
+  animation: oky-flow-header-in 240ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes oky-flow-header-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-frame .oky-flow-home .discovery-header-organism.is-swapping,
+  .oky-flow-frame .oky-flow-home .discovery-header-organism.is-swapping .app-header {
+    transition: none;
+    animation: none;
+  }
+}
+
 /* Ya scrolleado el header se despega del degradado, así que se pinta
    su propio fondo para que el contenido no se le vea por detrás. */
 .oky-flow-frame.is-header-collapsed .oky-flow-home .discovery-header-organism {
@@ -10252,7 +10284,13 @@ button.tactic-offer {
        clavados a 360px— y el alto del lienzo se recalcula para que, ya
        escalado, mida exactamente el viewport: proporción intacta y ni
        franjas ni recorte. */
-    position: fixed;
+    /* Absoluto, no fijo. En iOS un elemento position:fixed se ancla al
+       layout viewport mientras nosotros lo medimos contra el visual
+       viewport, y durante las transiciones de la barra de Safari el
+       compositor deja el área táctil donde estaba: se ve el botón en su
+       sitio y el toque cae en otro. Anclado al origen del documento
+       —que aquí no scrollea— no hay dos viewports que reconciliar. */
+    position: absolute;
     top: 0;
     left: 0;
     max-width: none;

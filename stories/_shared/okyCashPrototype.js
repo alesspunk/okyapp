@@ -590,7 +590,7 @@ function screenHome(state) {
 
   return `
     <div class="oky-flow-home">
-      ${homeHeader(state, state.headerCollapsed ? "State 2" : "State 1")}
+      ${homeHeader(state, state.headerCollapsed ? "State 3" : "State 1")}
 
       <div class="oky-flow-theme-band">
         <div class="carousel-container oky-flow-banner-track">
@@ -1638,8 +1638,17 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (!phone.matches) {
       root.style.removeProperty("--oky-fit");
       root.style.removeProperty("--oky-frame-h");
+      root.style.alignItems = "center";
+      root.style.gap = "16px";
       return;
     }
+
+    /* El frame se escala desde su esquina superior izquierda, así que
+       la pila tiene que dejarlo ahí: centrado, su caja de 360px queda
+       descolgada dentro de un viewport más ancho y el dibujo aparece
+       corrido respecto a donde se toca. */
+    root.style.alignItems = "flex-start";
+    root.style.gap = "0";
 
     /* Escala uniforme por el ancho —así el diseño no se deforma— y el
        lienzo se estira en alto lo que haga falta para que, una vez
@@ -1739,12 +1748,19 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     fitToViewport();
   }
 
-  /* Transición de scroll del Discovery Header: al bajar, el folder pasa
-     a su variante colapsada (35px en vez de 77px) y al volver arriba se
-     despliega otra vez. Solo se reemplaza ese nodo —no se re-renderiza
-     la pantalla— y se compensa el scrollTop con la diferencia de alto
-     para que el contenido no pegue un salto. La histéresis evita que
-     parpadee justo en el umbral. */
+  /* Transición de scroll del Discovery Header: al bajar se va el header
+     de wallet/logo/carrito y quedan folder colapsado y buscador; al
+     volver arriba se despliega otra vez. Solo se reemplaza ese nodo, no
+     se re-renderiza la pantalla.
+
+     Antes se compensaba el scrollTop con la diferencia de alto para que
+     el contenido no saltara, y con 100px de diferencia eso se volvió un
+     bucle: colapsar en y=97 dejaba el scroll en -3 → 0, que es la
+     condición de desplegar, que volvía a poner el scroll en 100, que
+     vuelve a colapsar. El header se quedaba trabado en su versión corta
+     y no volvía nunca. Ahora no se toca el scroll —los umbrales quedan
+     estables, sin realimentación— y el salto se resuelve como toca:
+     animando el alto del header. */
   function bindHeaderScroll(scroll) {
     if (state.screen !== "home") return;
 
@@ -1767,12 +1783,36 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         const before = host.offsetHeight;
         /* Colapsado se va al State 3: fuera wallet, logo y carrito, y
            quedan solo el folder minimizado y el buscador compacto. Eso
-           devuelve ~96px de alto al contenido mientras se scrollea. */
+           devuelve ~100px de alto al contenido mientras se scrollea. */
         host.insertAdjacentHTML("beforebegin", homeHeader(state, next ? "State 3" : "State 1"));
         host.remove();
         const fresh = scroll.querySelector(".discovery-header-organism");
-        scroll.scrollTop = y + (fresh.offsetHeight - before);
         state.headerCollapsed = next;
+
+        /* El cambio de alto se anima en vez de darse de golpe: se parte
+           del alto viejo y se deja correr la transición hasta el nuevo.
+           Al desplegar, además, el header entra desvanecido desde
+           arriba, que es de donde vuelve. */
+        const after = fresh.offsetHeight;
+        if (after !== before) {
+          fresh.classList.add("is-swapping");
+          fresh.style.height = before + "px";
+          /* Forzar reflow para que el navegador tenga dos valores que
+             interpolar y no colapse las dos asignaciones en una. */
+          void fresh.offsetHeight;
+          fresh.style.height = after + "px";
+          const settle = (event) => {
+            if (event && event.target !== fresh) return;
+            fresh.classList.remove("is-swapping");
+            fresh.style.height = "";
+            fresh.removeEventListener("transitionend", settle);
+          };
+          fresh.addEventListener("transitionend", settle);
+          /* Si la transición no llega a dispararse (prefers-reduced-motion,
+             pestaña en segundo plano) el header no puede quedarse con un
+             alto fijo encima. */
+          setTimeout(settle, 400);
+        }
         /* Despegado del top, el buscador ya no tiene detrás el
            degradado del home y necesita su propio fondo. */
         root.querySelector(".oky-flow-frame").classList.toggle("is-header-collapsed", next);
