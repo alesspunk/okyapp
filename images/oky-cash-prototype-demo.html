@@ -7461,7 +7461,11 @@ body {
 
 .oky-flow-voucher {
   position: relative;
-  width: 343px;
+  /* 343px fijos desbordaban los 328px de la columna y, al no encoger,
+     la pila se iba hacia la derecha. Llena el stack y se queda
+     centrada. */
+  width: 100%;
+  max-width: 343px;
   height: 215px;
   box-sizing: border-box;
   overflow: hidden;
@@ -7491,10 +7495,12 @@ body {
   cursor: default;
 }
 
-/* badge de cantidad + QR, absoluto (Figma left 271 / top 13) */
+/* badge de cantidad + QR (Figma top 13). Se ancla por la derecha en
+   vez de por la izquierda: con left:271px estaba calculado para una
+   card de 343px y al ajustarse a la columna quedaba a 5px del borde. */
 .oky-flow-voucher-badge {
   position: absolute;
-  left: 271px;
+  right: 13px;
   top: 13px;
   display: inline-flex;
   align-items: center;
