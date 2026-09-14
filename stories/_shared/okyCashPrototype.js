@@ -805,7 +805,7 @@ function cartDrawer(state) {
               </div>
             </div>
             <div class="summary-cta-row double">
-              <button class="btn btn-outlined btn-large" data-action="close-cart" type="button">Seguir comprando</button>
+              <button class="btn btn-outlined btn-large" data-action="nav:home" type="button">Seguir comprando</button>
               <button class="btn btn-primary btn-large" data-action="go:decision" type="button"
                 ${state.cart.length ? "" : "disabled"}>Ir a pagar</button>
             </div>
@@ -1700,6 +1700,17 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock, .oky-flow-cashwin, .oky-flow-scroll-hint",
       )
       .forEach((bar) => frame.appendChild(bar));
+
+    /* La pista se alinea con la moneda de la navbar, no con el centro
+       del frame: los cinco items no miden lo mismo ("Notificaciones"
+       es el más ancho), así que el del medio no cae en el 50%. */
+    const hint = frame.querySelector(".oky-flow-scroll-hint");
+    const coin = frame.querySelector(".bottom-nav .oky-flow-coin");
+    if (hint && coin) {
+      const frameBox = frame.getBoundingClientRect();
+      const coinBox = coin.getBoundingClientRect();
+      hint.style.left = `${coinBox.left + coinBox.width / 2 - frameBox.left}px`;
+    }
 
     bindHeaderScroll(scroll);
 
