@@ -105,18 +105,26 @@ const CARD_DESIGNS = [
     key: "black",
     label: "Lo que va, vuelve",
     note: "Cada regalo que envíes a tu familia volverá a ti como un ripple effect.",
+    art: "oky-saldo-card-art.png",
     style: { backgroundMode: "solid", backgroundColor: "#000000", borderColor: "#000000" },
   },
   {
-    key: "purple",
-    label: "Morado OKY",
-    note: "El morado de siempre, el de la marca que ya conoces.",
-    style: { backgroundMode: "solid", backgroundColor: "#410d86", borderColor: "#410d86" },
+    key: "bubbles",
+    label: "Burbujas",
+    note: "Las monedas suben solas, como lo que ganas sin darte cuenta.",
+    /* Diseño completo del frame: va de fondo a sangre, sin arte encima. */
+    art: null,
+    style: {
+      backgroundMode: "solid",
+      backgroundColor: "url(oky-card-design-bubbles.png) center/cover no-repeat",
+      borderColor: "#8b6fd6",
+    },
   },
   {
     key: "teal",
     label: "Turquesa",
     note: "El verde agua del cashback, para que se note lo que ganas.",
+    art: "oky-card-art-scatter.png",
     style: {
       backgroundMode: "gradient",
       gradientFrom: "#0ab5b1",
@@ -126,17 +134,11 @@ const CARD_DESIGNS = [
     },
   },
   {
-    key: "mustard",
-    label: "Mostaza",
-    note: "El mostaza de las promos especiales.",
-    style: {
-      backgroundMode: "gradient",
-      gradientFrom: "#ffb400",
-      gradientTo: "#e08f00",
-      gradientAngle: 92,
-      borderColor: "#e08f00",
-      ink: "#663d00",
-    },
+    key: "purple",
+    label: "Morado OKY",
+    note: "El morado de siempre, el de la marca que ya conoces.",
+    art: "oky-card-art-wave.png",
+    style: { backgroundMode: "solid", backgroundColor: "#410d86", borderColor: "#410d86" },
   },
 ];
 
@@ -1140,11 +1142,11 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
 function okyCashCard(state, { balance, cta } = {}) {
   const card = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
   card.balance = { ...card.balance, value: (balance ?? state.okyCashBalance).toFixed(2) };
-  card.art = "oky-saldo-card-art.png";
   card.cta = cta === null ? null : { ...card.cta, action: cta || "nav:okycash" };
   /* El lápiz abre el selector de diseño. */
   card.editAction = "nav:carddesign";
-  return { ...card, ...findCardDesign(state.cardDesign).style };
+  const design = findCardDesign(state.cardDesign);
+  return { ...card, ...design.style, art: design.art };
 }
 
 /* ¿Queda alguna gift card comprada que todavía no se haya abierto? */
@@ -1404,7 +1406,7 @@ function screenCardDesign(state) {
     const card = {
       ...findPaymentCard("Molecule/Payment Card/OKY Cash Black"),
       ...design.style,
-      art: "oky-saldo-card-art.png",
+      art: design.art,
       showHeader: false,
       showFooter: false,
       cta: null,
@@ -1645,6 +1647,34 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     render();
   }
 
+  /* Mueve el carrusel de diseños sin rehacer la pantalla: desplaza el
+     track, pasa el estado activo y cambia el copy con un fundido. */
+  function paintDesignCarousel() {
+    const at = wrap(state.cardDesignIndex, CARD_DESIGNS.length);
+    const design = CARD_DESIGNS[at];
+
+    const track = root.querySelector(".oky-flow-design-track");
+    if (track) track.style.setProperty("--design-at", at);
+
+    root.querySelectorAll(".oky-flow-design-slide").forEach((slide, i) => {
+      slide.classList.toggle("is-active", i === at);
+      slide.setAttribute("aria-pressed", String(i === at));
+    });
+
+    root.querySelectorAll(".oky-flow-design .promo-dot").forEach((dot, i) => {
+      dot.classList.toggle("promo-dot-active", i === at);
+    });
+
+    const copy = root.querySelector(".oky-flow-design-copy");
+    if (!copy) return;
+    copy.classList.remove("is-swapping");
+    /* Reflow para poder relanzar la animación en el mismo frame. */
+    void copy.offsetWidth;
+    copy.classList.add("is-swapping");
+    copy.querySelector(".oky-flow-design-title").textContent = design.label;
+    copy.querySelector(".oky-flow-design-note").textContent = design.note;
+  }
+
   /* Tras el sello de "Compra exitosa" va la animación de cashback;
      si la compra no generó OKY Cash se salta. */
   const nextAfterStamp = () => (state.lastEarned > 0 ? "cashwin" : "purchases");
@@ -1772,8 +1802,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "pick-design") {
-      state.cardDesignIndex = Number(el.dataset.index);
-      return render();
+      const next = Number(el.dataset.index);
+      if (next === state.cardDesignIndex) return;
+      state.cardDesignIndex = next;
+      /* Se parchea en sitio en vez de re-renderizar: si se rehace el
+         DOM, el track nace ya en su posición nueva y la transición no
+         llega a correr — ese era el salto. */
+      return paintDesignCarousel();
     }
 
     if (action === "choose-design") {
