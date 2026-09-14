@@ -9155,6 +9155,10 @@ button.header-icon {
   position: absolute;
   bottom: 4px;
   left: 50%;
+  /* Centrado con left:50% el ancho disponible es la mitad de la caja y
+     el texto, que va en una línea, se salía del chip. */
+  width: max-content;
+  max-width: 100%;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -9669,4 +9673,15 @@ button.tactic-offer {
    del tema y no el morado de marca. */
 .oky-flow-frame .tactic-strip-title {
   color: #593706;
+}
+
+/* La History Card solo trae chips success y error; gastar saldo no es
+   ninguna de las dos, así que lleva un tono neutro. */
+.history-card-chip.is-neutral {
+  background: var(--background);
+  color: var(--text-secondary);
+}
+
+.history-card-chip.is-neutral .history-card-chip-icon {
+  color: var(--text-secondary);
 }
