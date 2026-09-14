@@ -9898,3 +9898,48 @@ button.tactic-offer {
     animation-duration: 1ms;
   }
 }
+
+/* La moneda de la navbar avisa de cashback nuevo con un salto tipo
+   dock de macOS: anticipa aplastándose, estira al subir y aterriza con
+   un rebote corto. El ciclo dura 4 minutos y el salto ocupa los
+   primeros 1.8s, así que salta una vez y calla hasta la siguiente.
+   El tope son 6px: sobre la moneda quedan 7px libres dentro de la
+   navbar, así que no llega a rozar la línea gris de arriba. */
+.oky-flow-coin.is-bouncing {
+  transform-origin: bottom center;
+  animation: oky-flow-coin-hop 240s ease-in-out infinite;
+}
+
+@keyframes oky-flow-coin-hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  0.1% {
+    transform: translateY(0) scale(1.12, 0.88);
+  }
+  0.24% {
+    transform: translateY(-5px) scale(0.93, 1.09);
+  }
+  0.34% {
+    transform: translateY(-6px) scale(1, 1);
+  }
+  0.46% {
+    transform: translateY(0) scale(1.1, 0.9);
+  }
+  0.56% {
+    transform: translateY(-2px) scale(0.97, 1.03);
+  }
+  0.66% {
+    transform: translateY(0) scale(1.05, 0.95);
+  }
+  0.75% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-coin.is-bouncing {
+    animation: none;
+  }
+}
