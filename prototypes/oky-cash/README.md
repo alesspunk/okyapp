@@ -28,6 +28,9 @@ Lo que responde de verdad, no es maqueta:
   rango desaparece y todo —PDP, saving bar, las cards del strip y lo que ya
   esté en el carrito— vuelve al 5%. Es a propósito: la prueba de usabilidad
   quiere ver qué hace la persona con el reloj encima.
+- **La tarjeta se personaliza.** El lápiz de la Payment Card —en OKY Cash y en
+  Métodos de pago— abre *Personaliza tu billetera* con cuatro diseños; el que
+  se elige se aplica también en Mi wallet.
 - **Tiers de cashback.** El monto del PDP se escribe y el ribbon y el saving
   bar cambian en vivo: hasta $50 y sobre $200 va 5% aqua, entre $50 y $200 va
   20% mostaza. Ambos productos arrancan en $51, dentro del rango especial.
