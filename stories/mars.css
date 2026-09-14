@@ -10401,3 +10401,18 @@ button.tactic-offer {
    bar —que sigue anclada encima de la navbar— y la barra tapaba el
    botón de Agregar. Con las dos en su sitio el campo del monto entra
    igual en el fold, que era lo que se buscaba. */
+
+/* ── Zoom accidental por doble toque ────────────────────── */
+/* En un teléfono el prototipo se usa a base de toques rápidos y
+   seguidos —el carrusel, el +/- del monto, la navbar— y Safari y Chrome
+   leen dos toques cercanos como "dar zoom". Con el frame escalado eso
+   deja la pantalla a medio ampliar y sin manera obvia de volver.
+
+   touch-action: manipulation apaga exactamente eso: el doble toque para
+   ampliar y el retardo de 300ms que lo acompaña. El scroll y el pellizco
+   para ampliar siguen funcionando, que es lo que no se debe quitar —es
+   el gesto con el que alguien con poca visión lee la pantalla. */
+.oky-flow-frame,
+.oky-flow-frame * {
+  touch-action: manipulation;
+}

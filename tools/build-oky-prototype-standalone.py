@@ -197,7 +197,8 @@ html = f"""<!doctype html>
 </style>
 <style>
 body {{ margin:0; padding:24px; background:#eceef2; display:flex; justify-content:center;
-        font-family:"Nunito Sans",sans-serif; }}
+        font-family:"Nunito Sans",sans-serif; touch-action:manipulation;
+        -webkit-text-size-adjust:100%; }}
 /* En un móvil el prototipo se come la pantalla: ni padding ni fondo de
    escritorio, y el negro de detrás hace de marco del dispositivo. */
 @media (max-width: 640px) {{
@@ -230,7 +231,8 @@ artifact = f"""<title>OKY Cash Prototype</title>
 </style>
 <style>
 body {{ margin:0; padding:24px; background:#eceef2; display:flex; justify-content:center;
-        font-family:"Nunito Sans",sans-serif; min-height:100vh; box-sizing:border-box; }}
+        font-family:"Nunito Sans",sans-serif; min-height:100vh; box-sizing:border-box;
+        touch-action:manipulation; -webkit-text-size-adjust:100%; }}
 @media (max-width: 640px) {{
   body {{ padding:0; background:#fff; align-items:center; min-height:100dvh;
           height:100dvh; overflow:hidden; }}
