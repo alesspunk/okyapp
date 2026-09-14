@@ -463,7 +463,10 @@ function navbar(active, state = {}) {
         /* El item activo va en Solid y el resto en Light; OKY Cash es
            siempre la moneda, que es una imagen. */
         key === "okycash"
-          ? `<img class="oky-flow-coin ${state.cashUnseen ? "is-bouncing" : ""}" src="oky-cash-coin.png" alt="" />`
+          ? `<span class="oky-flow-coin-3d ${state.cashUnseen ? "is-spinning" : ""}">
+              <img class="oky-flow-coin" src="oky-cash-coin.png" alt="" />
+              <span class="oky-flow-coin-back" aria-hidden="true">$</span>
+            </span>`
           : `<i class="fa-${key === active ? "solid" : "light"} fa-${icon}" style="font-size:20px" aria-hidden="true"></i>`
       }
       <span class="nav-label">${label}</span>
@@ -1675,16 +1678,27 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   function fitToViewport() {
     if (!phone.matches) {
-      root.style.removeProperty("--oky-fit");
+      root.style.removeProperty("--oky-fit-x");
+      root.style.removeProperty("--oky-fit-y");
       return;
     }
-    const scale = Math.min(window.innerWidth / 362, window.innerHeight / 802);
-    root.style.setProperty("--oky-fit", String(scale));
+    const frame = root.querySelector(".oky-flow-frame");
+    if (!frame) return;
+
+    /* Cada eje se escala por su cuenta. Encajar el 360x800 entero
+       dejaba franjas negras a los lados —un iPhone no tiene la misma
+       proporción—, y recortar para llenar se comía la navbar. La
+       diferencia de proporción es menor al 2%, así que estirar no se
+       nota y no se pierde ni un píxel de la pantalla.
+       Se mide la caja real: en móvil el frame va sin borde. */
+    const vv = window.visualViewport;
+    root.style.setProperty("--oky-fit-x", String((vv ? vv.width : window.innerWidth) / frame.offsetWidth));
+    root.style.setProperty("--oky-fit-y", String((vv ? vv.height : window.innerHeight) / frame.offsetHeight));
   }
 
-  fitToViewport();
   window.addEventListener("resize", fitToViewport);
   window.addEventListener("orientationchange", fitToViewport);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", fitToViewport);
 
   const resetButton = document.createElement("button");
   resetButton.type = "button";
@@ -1763,6 +1777,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     root.appendChild(resetButton);
+    fitToViewport();
   }
 
   /* Transición de scroll del Discovery Header: al bajar, el folder pasa

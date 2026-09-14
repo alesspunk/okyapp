@@ -9933,14 +9933,49 @@ button.tactic-offer {
 }
 
 /* La moneda de la navbar avisa de cashback nuevo girando sobre su eje,
-   que en un disco se lee como lo que es: una moneda que da vueltas. La
-   perspectiva va dentro del propio transform, así ningún ancestro se
-   convierte en bloque contenedor. Dos vueltas completas, un salto de
-   6px —queda 1px por debajo de la línea gris del navbar— y un par de
-   destellos cuando pasa de canto. El ciclo son 4 minutos y el giro
-   ocupa los primeros 2s: gira una vez y calla hasta la siguiente. */
-.oky-flow-coin.is-bouncing {
-  transform-origin: center;
+   que en un disco se lee como lo que es: una moneda que da vueltas.
+   Tiene dos caras de verdad —el arte por delante y el $ por detrás—,
+   así que a media vuelta se ve el reverso en vez de la misma cara del
+   revés. Dos vueltas completas, un salto de 6px (queda 1px por debajo
+   de la línea gris del navbar). Sin filter: un filter aplana el
+   contexto 3D del elemento y con él puesto la cara de atrás no se
+   llegaba a ver nunca. El
+   ciclo son 4 minutos y el giro ocupa los primeros 2s: gira una vez y
+   calla hasta la siguiente. */
+.oky-flow-coin-3d {
+  position: relative;
+  display: inline-block;
+  width: 28px;
+  height: 30px;
+  transform-style: preserve-3d;
+}
+
+.oky-flow-coin-3d .oky-flow-coin {
+  display: block;
+  backface-visibility: hidden;
+}
+
+.oky-flow-coin-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  /* Mismo metal que el canto de la moneda. */
+  background:
+    radial-gradient(120% 120% at 30% 25%, #fdfdff 0%, #d9d9e4 42%, #a9a9bb 78%, #8d8da1 100%);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.75);
+  color: var(--primary-main);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+}
+
+.oky-flow-coin-3d.is-spinning {
   animation: oky-flow-coin-spin 240s linear infinite;
 }
 
@@ -9948,26 +9983,21 @@ button.tactic-offer {
   0%,
   100% {
     transform: perspective(340px) rotateY(0) translateY(0) scale(1);
-    filter: none;
   }
   0.12% {
     transform: perspective(340px) rotateY(0) translateY(1px) scale(1.06, 0.94);
   }
   0.26% {
     transform: perspective(340px) rotateY(150deg) translateY(-5px) scale(1.04);
-    filter: brightness(1.4);
   }
   0.38% {
     transform: perspective(340px) rotateY(360deg) translateY(-6px) scale(1.03);
-    filter: none;
   }
   0.52% {
     transform: perspective(340px) rotateY(530deg) translateY(-3px) scale(1.01);
-    filter: brightness(1.25);
   }
   0.66% {
     transform: perspective(340px) rotateY(720deg) translateY(0) scale(1);
-    filter: none;
   }
   0.74% {
     transform: perspective(340px) rotateY(720deg) translateY(0) scale(1.05, 0.95);
@@ -9977,8 +10007,9 @@ button.tactic-offer {
   }
 }
 
+
 @media (prefers-reduced-motion: reduce) {
-  .oky-flow-coin.is-bouncing {
+  .oky-flow-coin-3d.is-spinning {
     animation: none;
   }
 }
@@ -10209,7 +10240,7 @@ button.tactic-offer {
     border: 0;
     border-radius: 0;
     box-shadow: none;
-    transform: scale(var(--oky-fit, 1));
+    transform: scale(var(--oky-fit-x, 1), var(--oky-fit-y, 1));
     /* Desde el centro: con el origen arriba, el alto extra del escalado
        empujaba la navbar fuera de la pantalla. */
     transform-origin: center center;
