@@ -19,6 +19,11 @@
 <style>
 body { margin:0; padding:24px; background:#eceef2; display:flex; justify-content:center;
         font-family:"Nunito Sans",sans-serif; }
+/* En un móvil el prototipo se come la pantalla: ni padding ni fondo de
+   escritorio, y el negro de detrás hace de marco del dispositivo. */
+@media (max-width: 640px) {
+  body { padding:0; background:#000; align-items:center; min-height:100dvh; overflow:hidden; }
+}
 :root {
   --primary-main: #410088;
   --primary-base: #552588; /* Figma token `primary/base` — morado de cards/CTAs en UX Handoff */
@@ -10171,6 +10176,44 @@ button.tactic-offer {
   cursor: pointer;
 }
 
+/* ─────────────────────────────────────────────────────────
+   El prototipo como dispositivo: carcasa en escritorio, a
+   pantalla completa en un móvil de verdad.
+───────────────────────────────────────────────────────── */
+
+/* En escritorio el frame va dentro de un bisel oscuro, como las
+   maquetas de dispositivo de Figma. El radio exterior es el interior
+   (24px) más el grosor del bisel, así la curva de dentro no cambia. */
+@media (min-width: 641px) {
+  .oky-flow-frame {
+    border: 12px solid #16161a;
+    border-radius: 36px;
+    box-shadow:
+      0 0 0 2px #35353c,
+      0 30px 60px -12px rgba(16, 4, 36, 0.45),
+      0 8px 20px -6px rgba(16, 4, 36, 0.3);
+  }
+}
+
+/* En móvil: sin carcasa, sin sombra y ocupando la pantalla. */
+@media (max-width: 640px) {
+  .oky-flow-frame {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: scale(var(--oky-fit, 1));
+    /* Desde el centro: con el origen arriba, el alto extra del escalado
+       empujaba la navbar fuera de la pantalla. */
+    transform-origin: center center;
+  }
+
+  /* El botón de reinicio es un control de la prueba: fuera cuando el
+     prototipo se abre como si fuera la app. */
+  .oky-flow-reset {
+    display: none;
+  }
+}
+
 @font-face {
   font-family: "FA Free Solid Fallback";
   font-style: normal;
@@ -13955,6 +13998,27 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   root.style.flexDirection = "column";
   root.style.alignItems = "center";
   root.style.gap = "16px";
+
+  /* En una pantalla de móvil el prototipo se abre a pantalla completa,
+     sin carcasa ni botón de reinicio, para que se lea como la app y no
+     como una maqueta. El frame conserva sus 360x800 de diseño y se
+     escala para encajar: así ninguna de las medidas que llevamos
+     ajustadas cambia, que es justo lo que pasaría si lo volviéramos
+     fluido (hay una veintena de componentes clavados a 360px). */
+  const phone = window.matchMedia("(max-width: 640px)");
+
+  function fitToViewport() {
+    if (!phone.matches) {
+      root.style.removeProperty("--oky-fit");
+      return;
+    }
+    const scale = Math.min(window.innerWidth / 362, window.innerHeight / 802);
+    root.style.setProperty("--oky-fit", String(scale));
+  }
+
+  fitToViewport();
+  window.addEventListener("resize", fitToViewport);
+  window.addEventListener("orientationchange", fitToViewport);
 
   const resetButton = document.createElement("button");
   resetButton.type = "button";

@@ -1641,6 +1641,27 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   root.style.alignItems = "center";
   root.style.gap = "16px";
 
+  /* En una pantalla de móvil el prototipo se abre a pantalla completa,
+     sin carcasa ni botón de reinicio, para que se lea como la app y no
+     como una maqueta. El frame conserva sus 360x800 de diseño y se
+     escala para encajar: así ninguna de las medidas que llevamos
+     ajustadas cambia, que es justo lo que pasaría si lo volviéramos
+     fluido (hay una veintena de componentes clavados a 360px). */
+  const phone = window.matchMedia("(max-width: 640px)");
+
+  function fitToViewport() {
+    if (!phone.matches) {
+      root.style.removeProperty("--oky-fit");
+      return;
+    }
+    const scale = Math.min(window.innerWidth / 362, window.innerHeight / 802);
+    root.style.setProperty("--oky-fit", String(scale));
+  }
+
+  fitToViewport();
+  window.addEventListener("resize", fitToViewport);
+  window.addEventListener("orientationchange", fitToViewport);
+
   const resetButton = document.createElement("button");
   resetButton.type = "button";
   resetButton.className = "oky-flow-reset";

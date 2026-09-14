@@ -10155,3 +10155,41 @@ button.tactic-offer {
   color: var(--primary-main);
   cursor: pointer;
 }
+
+/* ─────────────────────────────────────────────────────────
+   El prototipo como dispositivo: carcasa en escritorio, a
+   pantalla completa en un móvil de verdad.
+───────────────────────────────────────────────────────── */
+
+/* En escritorio el frame va dentro de un bisel oscuro, como las
+   maquetas de dispositivo de Figma. El radio exterior es el interior
+   (24px) más el grosor del bisel, así la curva de dentro no cambia. */
+@media (min-width: 641px) {
+  .oky-flow-frame {
+    border: 12px solid #16161a;
+    border-radius: 36px;
+    box-shadow:
+      0 0 0 2px #35353c,
+      0 30px 60px -12px rgba(16, 4, 36, 0.45),
+      0 8px 20px -6px rgba(16, 4, 36, 0.3);
+  }
+}
+
+/* En móvil: sin carcasa, sin sombra y ocupando la pantalla. */
+@media (max-width: 640px) {
+  .oky-flow-frame {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: scale(var(--oky-fit, 1));
+    /* Desde el centro: con el origen arriba, el alto extra del escalado
+       empujaba la navbar fuera de la pantalla. */
+    transform-origin: center center;
+  }
+
+  /* El botón de reinicio es un control de la prueba: fuera cuando el
+     prototipo se abre como si fuera la app. */
+  .oky-flow-reset {
+    display: none;
+  }
+}
