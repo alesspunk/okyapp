@@ -377,6 +377,7 @@ export function renderDiscoveryHeader({
   cartAction = "",
   cartIndicated,
   walletIndicated = false,
+  showPlateu = true,
 }) {
   const safeSide = SIDE_OPTIONS.includes(side) ? side : "Left";
   const safeState = STATE_OPTIONS.includes(state) ? state : "State 1";
@@ -388,7 +389,7 @@ export function renderDiscoveryHeader({
       ${renderAppHeader(config.header, { walletAction, cartAction, cartIndicated, walletIndicated })}
       ${renderFolder(config.folder, { showNewItemChip })}
       ${renderSearchInput({ compact: config.searchCompact })}
-      ${config.plateu ? renderPlateuHome() : ""}
+      ${config.plateu && showPlateu ? renderPlateuHome() : ""}
     </section>
   `;
 }

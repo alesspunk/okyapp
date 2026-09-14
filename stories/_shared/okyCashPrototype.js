@@ -509,6 +509,9 @@ function homeHeader(state, headerState) {
     cartIndicated: state.cart.length > 0,
     /* Mismo indicador que el carrito: hay vales comprados sin abrir. */
     walletIndicated: hasNewVouchers(state),
+    /* El State 3 del organismo trae el carrusel de categorías; aquí no
+       se usa, y el punto de colapsar es justamente ganar alto. */
+    showPlateu: false,
   });
 }
 
@@ -1762,7 +1765,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         if (!host) return;
 
         const before = host.offsetHeight;
-        host.insertAdjacentHTML("beforebegin", homeHeader(state, next ? "State 2" : "State 1"));
+        /* Colapsado se va al State 3: fuera wallet, logo y carrito, y
+           quedan solo el folder minimizado y el buscador compacto. Eso
+           devuelve ~96px de alto al contenido mientras se scrollea. */
+        host.insertAdjacentHTML("beforebegin", homeHeader(state, next ? "State 3" : "State 1"));
         host.remove();
         const fresh = scroll.querySelector(".discovery-header-organism");
         scroll.scrollTop = y + (fresh.offsetHeight - before);
