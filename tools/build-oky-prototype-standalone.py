@@ -166,7 +166,10 @@ if _flags:
     )
 
 # ── 3. Imágenes → data URIs ───────────────────────────────
+# Nombres entre comillas y también los que van dentro de un url(...)
+# de CSS inline, como el fondo a sangre de un diseño de tarjeta.
 names = set(re.findall(r'["\']([A-Za-z0-9_.\-]+\.(?:png|svg|webp|jpe?g))["\']', bundle))
+names |= set(re.findall(r'url\(([A-Za-z0-9_.\-]+\.(?:png|svg|webp|jpe?g))\)', bundle))
 missing = []
 for name in sorted(names):
     disk = os.path.join(IMAGES, name)
@@ -174,7 +177,11 @@ for name in sorted(names):
         missing.append(name)
         continue
     uri = data_uri(disk)
-    bundle = bundle.replace(f'"{name}"', f'"{uri}"').replace(f"'{name}'", f"'{uri}'")
+    bundle = (
+        bundle.replace(f'"{name}"', f'"{uri}"')
+        .replace(f"'{name}'", f"'{uri}'")
+        .replace(f"url({name})", f"url({uri})")
+    )
 if missing:
     raise SystemExit("Missing image assets: " + ", ".join(missing))
 
