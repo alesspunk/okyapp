@@ -1545,20 +1545,9 @@ function screenVoucher(state) {
       }
       </div>
 
-      ${
-        many
-          ? `<div class="carrusel-dots-wrap" style="width:100%">
-              <div class="carrusel-dots">
-                ${deck
-                  .map((_, i) => `<span class="promo-dot${i === at ? " promo-dot-active" : ""}"></span>`)
-                  .join("")}
-              </div>
-            </div>`
-          : ""
-      }
-
-      <button class="btn btn-outlined btn-large" style="width:100%" type="button">
-        <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>&nbsp;Compartir
+      <button class="btn btn-outlined btn-large" style="width:100%" type="button"
+        data-action="share" data-label="${card.label}" data-amount="${amount}">
+        <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>&nbsp;Compartir
       </button>
     </div>
     ${navbar("", state)}
@@ -2137,6 +2126,93 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const step = action === "carousel-next" ? 1 : -1;
       state.checkoutIndex = wrap(state.checkoutIndex + step, state.cart.length);
       return render();
+    }
+
+    if (action === "copy-code") {
+      /* El código no sirve de nada si hay que transcribirlo a mano. */
+      const line = el.closest(".prime-card-bottom-line");
+      const mark = () => {
+        if (!line || line.classList.contains("is-copied")) return;
+        line.classList.add("is-copied");
+        const glyph = el.querySelector("i");
+        const had = glyph && glyph.className;
+        if (glyph) glyph.className = "fa-solid fa-check";
+        /* El verde del número va por estilo directo: la card hereda su
+           morado de un contenedor y la hoja tiene varias reglas para
+           este valor según la variante de la molécula. */
+        const value = line.querySelector(".prime-card-bottom-line-value");
+        if (value) value.style.color = "var(--success-main)";
+        setTimeout(() => {
+          line.classList.remove("is-copied");
+          if (glyph && had) glyph.className = had;
+          if (value) value.style.color = "";
+        }, 1500);
+      };
+
+      const value = el.dataset.value || "";
+
+      /* La API asíncrona falla en cuanto el documento no tiene el foco
+         —pasa en WebViews y en pestañas embebidas—, así que hay un plan
+         B con el textarea de toda la vida. */
+      const legacy = () => {
+        const pad = document.createElement("textarea");
+        pad.value = value;
+        pad.setAttribute("readonly", "");
+        pad.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none";
+        document.body.appendChild(pad);
+        pad.select();
+        pad.setSelectionRange(0, value.length);
+        try {
+          document.execCommand("copy");
+        } catch (error) {
+          /* Sin portapapeles no hay nada que confirmar. */
+        }
+        pad.remove();
+        mark();
+      };
+
+      if (navigator.clipboard) navigator.clipboard.writeText(value).then(mark, legacy);
+      else legacy();
+      return;
+    }
+
+    if (action === "share") {
+      /* Hoja de compartir nativa: en iOS y Android abre la del sistema
+         —WhatsApp, Mensajes, AirDrop— que es lo que la prueba necesita
+         ver. Donde no existe (escritorio sin soporte) se copia al
+         portapapeles y el botón lo dice un momento. */
+      const label = el.dataset.label || "gift card";
+      const amount = Number(el.dataset.amount) || 0;
+      const payload = {
+        title: `Gift Card de ${label}`,
+        text: `Te comparto una gift card de ${label} por ${money(amount)} — OKY`,
+        url: location.href,
+      };
+
+      if (navigator.share) {
+        /* El rechazo del usuario llega como AbortError: no es un fallo
+           que haya que contar. */
+        navigator.share(payload).catch(() => {});
+        return;
+      }
+
+      const say = (text) => {
+        const before = el.innerHTML;
+        el.innerHTML = `<i class="fa-solid fa-check" aria-hidden="true"></i>&nbsp;${text}`;
+        setTimeout(() => {
+          el.innerHTML = before;
+        }, 1600);
+      };
+
+      if (navigator.clipboard) {
+        navigator.clipboard
+          .writeText(`${payload.text} ${payload.url}`)
+          .then(() => say("Copiado"))
+          .catch(() => say("No se pudo copiar"));
+        return;
+      }
+      say("No disponible aquí");
+      return;
     }
 
     if (action === "voucher-prev" || action === "voucher-next") {

@@ -191,8 +191,16 @@ function renderLinkIcon(icon = "fa-arrow-up-right-from-square", className = "") 
   `;
 }
 
-function renderCopyIcon() {
-  return renderLinkIcon("fa-copy", "prime-card-copy-icon");
+/* El icono de copiar es un botón de verdad: el prototipo escucha
+   data-action y lo lleva al portapapeles. En las stories sueltas no hay
+   quien escuche y se queda en un icono, como estaba. */
+function renderCopyIcon(value) {
+  return `
+    <button class="prime-card-copy" type="button" data-action="copy-code"
+      data-value="${value == null ? "" : String(value)}" aria-label="Copiar">
+      ${renderLinkIcon("fa-copy", "prime-card-copy-icon")}
+    </button>
+  `;
 }
 
 function renderTopFooter(card) {
@@ -250,7 +258,7 @@ function renderBottomLine(line) {
     <div class="prime-card-bottom-line">
       <div class="prime-card-bottom-line-header">
         <span class="prime-card-bottom-line-label">${line.label}</span>
-        ${line.copyable ? renderCopyIcon() : ""}
+        ${line.copyable ? renderCopyIcon(line.value) : ""}
       </div>
       <p class="prime-card-bottom-line-value token-code">${line.value}</p>
     </div>
