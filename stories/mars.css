@@ -10240,10 +10240,19 @@ button.tactic-offer {
     border: 0;
     border-radius: 0;
     box-shadow: none;
-    transform: scale(var(--oky-fit-x, 1), var(--oky-fit-y, 1));
-    /* Desde el centro: con el origen arriba, el alto extra del escalado
-       empujaba la navbar fuera de la pantalla. */
-    transform-origin: center center;
+    /* Un solo factor para los dos ejes: escalar cada uno por su cuenta
+       llenaba la pantalla pero estiraba el diseño (en un iPhone el ancho
+       pide ~1.12 y el alto ~0.99). El ancho manda —los componentes están
+       clavados a 360px— y el alto del lienzo se recalcula para que, ya
+       escalado, mida exactamente el viewport: proporción intacta y ni
+       franjas ni recorte. */
+    position: fixed;
+    top: 0;
+    left: 0;
+    max-width: none;
+    height: var(--oky-frame-h, 800px);
+    transform: scale(var(--oky-fit, 1));
+    transform-origin: top left;
   }
 
   /* El botón de reinicio es un control de la prueba: fuera cuando el
@@ -10317,4 +10326,10 @@ button.tactic-offer {
   .super-ribbon.is-settling {
     animation: none;
   }
+}
+
+/* El vale abre más cerca de la cabecera: 20px menos de aire arriba. */
+.oky-flow-section.is-voucher {
+  padding-top: 0;
+  margin-top: -4px;
 }

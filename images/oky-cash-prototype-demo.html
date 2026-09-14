@@ -10261,10 +10261,19 @@ button.tactic-offer {
     border: 0;
     border-radius: 0;
     box-shadow: none;
-    transform: scale(var(--oky-fit-x, 1), var(--oky-fit-y, 1));
-    /* Desde el centro: con el origen arriba, el alto extra del escalado
-       empujaba la navbar fuera de la pantalla. */
-    transform-origin: center center;
+    /* Un solo factor para los dos ejes: escalar cada uno por su cuenta
+       llenaba la pantalla pero estiraba el diseño (en un iPhone el ancho
+       pide ~1.12 y el alto ~0.99). El ancho manda —los componentes están
+       clavados a 360px— y el alto del lienzo se recalcula para que, ya
+       escalado, mida exactamente el viewport: proporción intacta y ni
+       franjas ni recorte. */
+    position: fixed;
+    top: 0;
+    left: 0;
+    max-width: none;
+    height: var(--oky-frame-h, 800px);
+    transform: scale(var(--oky-fit, 1));
+    transform-origin: top left;
   }
 
   /* El botón de reinicio es un control de la prueba: fuera cuando el
@@ -10338,6 +10347,12 @@ button.tactic-offer {
   .super-ribbon.is-settling {
     animation: none;
   }
+}
+
+/* El vale abre más cerca de la cabecera: 20px menos de aire arriba. */
+.oky-flow-section.is-voucher {
+  padding-top: 0;
+  margin-top: -4px;
 }
 
 @font-face {
@@ -13806,7 +13821,7 @@ function screenWallet(state) {
           .map(
             (v) => `
           <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
-            ${v.live ? `data-action="open-voucher" data-key="${v.key}"` : "disabled"} type="button">
+            data-action="open-voucher" data-key="${v.key}" type="button">
             <img src="${v.art}" alt="${v.label}" />
             ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
             <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
@@ -13962,27 +13977,37 @@ function screenVoucher(state) {
     ? state.purchases.find((p) => p.id === state.params.id)
     : state.purchases.filter((p) => p.productKey === state.params.key).slice(-1)[0];
 
-  /* Con id se entra desde "Tus compras": el slider recorre los vales de
-     esa orden, no todo el repositorio del wallet. */
-  const order = state.lastOrder;
+  /* Dos mazos según de dónde se entre: con id, los vales de la orden
+     recién pagada; con key, todas las gift cards del wallet. Los dos
+     dan la vuelta, así que de la última se pasa a la primera.
+     El mazo del wallet lleva sus propios datos de marca: hay tarjetas
+     ahí —Krispy Kreme, Under Armour— que no son productos comprables
+     y no están en PRODUCTS. */
+  const wallet = walletVouchers(state);
+  const deck = state.params.id
+    ? state.lastOrder.map((p) => ({ id: p.id, key: p.productKey }))
+    : wallet;
+  const at = deck.findIndex((v) => (state.params.id ? v.id === state.params.id : v.key === state.params.key));
+  const many = deck.length > 1;
 
-  const product = PRODUCTS[purchase ? purchase.productKey : state.params.key];
-  const amount = purchase ? purchase.amount : state.amounts[product.key];
+  const card = PRODUCTS[purchase ? purchase.productKey : state.params.key] ||
+    wallet.find((v) => v.key === state.params.key) || { key: state.params.key, label: "", art: "" };
+  const amount = purchase ? purchase.amount : state.amounts[card.key] || BRAND_DEFAULT_AMOUNT;
 
   /* Desde "Tus compras" la pantalla es el detalle de la orden; desde
      Mi wallet, el vale de la marca. */
-  const title = state.params.id ? "Detalle de la orden" : product.label;
+  const title = state.params.id ? "Detalle de la orden" : card.label;
 
   return `
     ${statusBar()}
     ${titledHeader(title)}
-    <div class="oky-flow-section">
+    <div class="oky-flow-section is-voucher">
       <div class="oky-flow-card-carousel">
       ${renderCardOrganism({
         topVariantPath: "Molecule/Top Card/Gift Card",
-        topBrandLabel: product.label,
-        topHeroImage: product.art,
-        topHeroAlt: product.label,
+        topBrandLabel: card.label,
+        topHeroImage: card.art,
+        topHeroAlt: card.label,
         topFooterLeftLabel: "Terms & Conditions",
         topFooterRightLabel: "Brand Disclaimer",
         middleCardPath: "Molecule/Middle Card/Amount",
@@ -13993,7 +14018,7 @@ function screenVoucher(state) {
         bottomButtonLabel: "Help",
       })}
       ${
-        state.params.id && order.length > 1
+        many
           ? `
         <button class="oky-flow-carousel-nav is-prev" data-action="voucher-prev" type="button" aria-label="Vale anterior">
           <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
@@ -14007,14 +14032,11 @@ function screenVoucher(state) {
       </div>
 
       ${
-        state.params.id && order.length > 1
+        many
           ? `<div class="carrusel-dots-wrap" style="width:100%">
               <div class="carrusel-dots">
-                ${order
-                  .map(
-                    (p) =>
-                      `<span class="promo-dot${p.id === state.params.id ? " promo-dot-active" : ""}"></span>`,
-                  )
+                ${deck
+                  .map((_, i) => `<span class="promo-dot${i === at ? " promo-dot-active" : ""}"></span>`)
                   .join("")}
               </div>
             </div>`
@@ -14026,66 +14048,6 @@ function screenVoucher(state) {
       </button>
     </div>
     ${navbar("", state)}
-  `;
-}
-
-/* ── Personaliza tu billetera (99135:103902) ──────────────
-   Carrusel de diseños con los vecinos asomando, radio en la esquina
-   de cada tarjeta, dots y "Elegir" al pie. */
-function screenCardDesign(state) {
-  const at = wrap(state.cardDesignIndex, CARD_DESIGNS.length);
-  const current = CARD_DESIGNS[at];
-
-  const preview = (design, i) => {
-    /* La vista previa es solo el diseño: sin marca, sin saldo y sin
-       footer, como en el frame. */
-    const card = {
-      ...findPaymentCard("Molecule/Payment Card/OKY Cash Black"),
-      ...design.style,
-      art: design.art,
-      showHeader: false,
-      showFooter: false,
-      cta: null,
-      editIcon: null,
-    };
-    return `
-      <button class="oky-flow-design-slide ${i === at ? "is-active" : ""}"
-        data-action="pick-design" data-index="${i}" type="button" aria-pressed="${i === at}">
-        <span class="oky-flow-design-radio" aria-hidden="true"></span>
-        ${renderPaymentCard(card)}
-      </button>
-    `;
-  };
-
-  return `
-    ${statusBar()}
-    ${titledHeader("Personaliza tu billetera")}
-
-    <div class="oky-flow-section oky-flow-design">
-      <div class="oky-flow-design-copy">
-        <h2 class="oky-flow-design-title">${current.label}</h2>
-        <p class="oky-flow-design-note">${current.note}</p>
-      </div>
-
-      <div class="oky-flow-design-window">
-        <div class="oky-flow-design-track" style="--design-at:${at}">
-          ${CARD_DESIGNS.map(preview).join("")}
-        </div>
-      </div>
-
-      <div class="carrusel-dots-wrap" style="width:100%">
-        <div class="carrusel-dots">
-          ${CARD_DESIGNS.map(
-            (d, i) => `<span class="promo-dot${i === at ? " promo-dot-active" : ""}"></span>`,
-          ).join("")}
-        </div>
-      </div>
-    </div>
-
-    <div class="oky-flow-cta-bar">
-      <button class="btn btn-primary btn-large" data-action="choose-design" type="button">Elegir</button>
-    </div>
-    ${navbar("okycash", state)}
   `;
 }
 
@@ -14162,22 +14124,23 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   function fitToViewport() {
     if (!phone.matches) {
-      root.style.removeProperty("--oky-fit-x");
-      root.style.removeProperty("--oky-fit-y");
+      root.style.removeProperty("--oky-fit");
+      root.style.removeProperty("--oky-frame-h");
       return;
     }
+
+    /* Escala uniforme por el ancho —así el diseño no se deforma— y el
+       lienzo se estira en alto lo que haga falta para que, una vez
+       escalado, cubra justo el viewport. El frame es el único que sabe
+       su ancho de diseño (360 sin borde en móvil). */
     const frame = root.querySelector(".oky-flow-frame");
     if (!frame) return;
-
-    /* Cada eje se escala por su cuenta. Encajar el 360x800 entero
-       dejaba franjas negras a los lados —un iPhone no tiene la misma
-       proporción—, y recortar para llenar se comía la navbar. La
-       diferencia de proporción es menor al 2%, así que estirar no se
-       nota y no se pierde ni un píxel de la pantalla.
-       Se mide la caja real: en móvil el frame va sin borde. */
+    const design = frame.offsetWidth || 360;
     const vv = window.visualViewport;
-    root.style.setProperty("--oky-fit-x", String((vv ? vv.width : window.innerWidth) / frame.offsetWidth));
-    root.style.setProperty("--oky-fit-y", String((vv ? vv.height : window.innerHeight) / frame.offsetHeight));
+    const scale = (vv ? vv.width : window.innerWidth) / design;
+    if (!scale) return;
+    root.style.setProperty("--oky-fit", String(scale));
+    root.style.setProperty("--oky-frame-h", (vv ? vv.height : window.innerHeight) / scale + "px");
   }
 
   window.addEventListener("resize", fitToViewport);
@@ -14593,10 +14556,20 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "voucher-prev" || action === "voucher-next") {
       const step = action === "voucher-next" ? 1 : -1;
-      const list = state.lastOrder;
-      const at = list.findIndex((p) => p.id === state.params.id);
+      /* Mismo mazo que pinta la pantalla: la orden si se entró por id,
+         el wallet entero si se entró por marca. */
+      if (state.params.id) {
+        const list = state.lastOrder;
+        const at = list.findIndex((p) => p.id === state.params.id);
+        const next = list[wrap((at < 0 ? 0 : at) + step, list.length)];
+        return go("voucher", { id: next.id }, { push: false });
+      }
+      const list = walletVouchers(state);
+      const at = list.findIndex((v) => v.key === state.params.key);
       const next = list[wrap((at < 0 ? 0 : at) + step, list.length)];
-      return go("voucher", { id: next.id }, { push: false });
+      /* Abrirlo por el carrusel también lo da por visto. */
+      if (!state.seenVouchers.includes(next.key)) state.seenVouchers.push(next.key);
+      return go("voucher", { key: next.key }, { push: false });
     }
 
     if (action === "select-card") {
