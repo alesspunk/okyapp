@@ -404,6 +404,8 @@ function homeHeader(state, headerState) {
     walletAction: "nav:wallet",
     cartAction: "open-cart",
     cartIndicated: state.cart.length > 0,
+    /* Mismo indicador que el carrito: hay vales comprados sin abrir. */
+    walletIndicated: hasNewVouchers(state),
   });
 }
 
@@ -1086,6 +1088,11 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
         : ""
     }
   `;
+}
+
+/* ¿Queda alguna gift card comprada que todavía no se haya abierto? */
+function hasNewVouchers(state) {
+  return state.purchases.some((p) => !state.seenVouchers.includes(p.productKey));
 }
 
 /* Los vales del wallet: primero lo que la persona compró de verdad,

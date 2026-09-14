@@ -9728,3 +9728,9 @@ button.tactic-offer {
   color: var(--primary-main);
   border-color: var(--primary-main);
 }
+
+/* El carrito lleva el punto 5px más a la derecha: su asa deja hueco
+   arriba a la izquierda y el punto se montaba sobre el dibujo. */
+.header-icon-bitmap-cart .header-icon-indicator-dot {
+  right: -4px;
+}

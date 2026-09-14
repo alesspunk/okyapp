@@ -179,7 +179,10 @@ function renderCartBitmap({ indicated = false, action = "" } = {}) {
   `;
 }
 
-function renderAppHeader(kind, { walletAction = "", cartAction = "", cartIndicated } = {}) {
+function renderAppHeader(
+  kind,
+  { walletAction = "", cartAction = "", cartIndicated, walletIndicated = false } = {},
+) {
   if (kind === "none") return "";
 
   const dot = cartIndicated === undefined ? kind === "logged-cart" : cartIndicated;
@@ -189,7 +192,7 @@ function renderAppHeader(kind, { walletAction = "", cartAction = "", cartIndicat
     <section data-pen-id="${kind === "logged-cart" ? "ArMsV" : "WO8oM"}">
       <div class="app-header">
         <div class="header-left-group">
-          ${renderWalletBitmap({ action: walletAction })}
+          ${renderWalletBitmap({ action: walletAction, indicated: walletIndicated })}
         </div>
         <img class="header-logo" src="logo-oky.svg" alt="OKY" />
         ${right}
@@ -373,6 +376,7 @@ export function renderDiscoveryHeader({
   walletAction = "",
   cartAction = "",
   cartIndicated,
+  walletIndicated = false,
 }) {
   const safeSide = SIDE_OPTIONS.includes(side) ? side : "Left";
   const safeState = STATE_OPTIONS.includes(state) ? state : "State 1";
@@ -381,7 +385,7 @@ export function renderDiscoveryHeader({
   return `
     <section class="discovery-header-organism" data-side="${safeSide}" data-state="${safeState}" data-pen-id="${config.penId}">
       ${renderStatusBar()}
-      ${renderAppHeader(config.header, { walletAction, cartAction, cartIndicated })}
+      ${renderAppHeader(config.header, { walletAction, cartAction, cartIndicated, walletIndicated })}
       ${renderFolder(config.folder, { showNewItemChip })}
       ${renderSearchInput({ compact: config.searchCompact })}
       ${config.plateu ? renderPlateuHome() : ""}
