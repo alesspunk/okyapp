@@ -10680,6 +10680,11 @@ button.tactic-offer {
   height: 132px;
   object-fit: contain;
   margin-bottom: 4px;
+  /* El dibujo no está centrado dentro de su propio PNG: su centro cae
+     un 10.7% a la derecha y un 1.5% arriba del centro del lienzo
+     (medido sobre el alfa). Se compensa para que el carrito quede a
+     plomo con el título y el botón, no la caja de la imagen. */
+  transform: translate(-10.7%, 1.5%);
 }
 
 .oky-flow-cart-empty-title {
