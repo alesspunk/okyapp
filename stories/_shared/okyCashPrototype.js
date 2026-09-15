@@ -249,6 +249,15 @@ function getTier(amount, product, promoLive = true) {
   return { rate: 0.05, ribbon: "is-tier-base", bar: "" };
 }
 
+/* Lo que guarda el wallet además de gift cards. Cada sección tiene su
+   propio mazo: el carrusel del detalle recorre lo de esa sección, no
+   todo lo que haya en la billetera. */
+const WALLET_EXTRAS = {
+  vales: [{ key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", bg: "#ed761c", count: 1 }],
+  servicios: [{ key: "eegsa", label: "EEGSA", art: "eggsa.webp", bg: "#ffffff", count: 1 }],
+  recargas: [{ key: "tigo", label: "Tigo", art: "tigo.webp", bg: "#00377b", count: 1 }],
+};
+
 const WALLET_VOUCHERS = [
   { key: "krispy", label: "Krispy Kreme", art: "oky-card-krispy.png", bg: "#ffffff", live: false },
   { key: "underarmour", label: "Under Armour", art: "oky-card-underarmour.png", bg: "#ed1b24", live: false },
@@ -346,6 +355,7 @@ function createInitialState(userType) {
     headerCollapsed: false,
     /* Secciones abiertas de Mi wallet. */
     openSections: ["cash", "gift"],
+
     /* Correlativo de órdenes para el historial de OKY Cash. */
     orderSeq: 0,
     /* Marcas cuyo vale ya se abrió: las demás llevan el punto rojo. */
@@ -1304,7 +1314,9 @@ function screenWallet(state) {
     { label: "Gift Cards", icon: "plateu-giftcards.png" },
     { label: "OKY Vales", icon: "plateu-vales.png" },
     { label: "Servicios", icon: "plateu-servicios.png" },
-    { label: "Recargas", icon: "plateu-recargas.png" },
+    /* El de recargas era una antena de satélite; una recarga es saldo
+       que entra al teléfono, y ese es el icono del set. */
+    { label: "Recargas", icon: "recargas.webp" },
   ];
 
   /* Cabecera de sección: además de plegar, dice de un vistazo lo que
@@ -1331,6 +1343,20 @@ function screenWallet(state) {
       <div>${content}</div>
     </div>
   `;
+
+  const voucherButton = (v, deck) => `
+    <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
+      data-action="open-voucher" data-key="${v.key}" data-deck="${deck}" type="button" aria-label="${v.label}">
+      <img src="${v.art}" alt="${v.label}" />
+      ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
+      <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+    </button>
+  `;
+
+  const stack = (items, deck, empty) =>
+    items.length
+      ? `<div class="oky-flow-stack">${items.map((v) => voucherButton(v, deck)).join("")}</div>`
+      : `<p class="oky-flow-empty">${empty}</p>`;
 
   return `
     ${statusBar()}
@@ -1361,25 +1387,16 @@ function screenWallet(state) {
         "Gift Cards",
         `${vouchers.length}${news ? ` · ${news} nueva${news > 1 ? "s" : ""}` : ""}`,
       )}
-      ${body(
-        "gift",
-        vouchers.length
-          ? `<div class="oky-flow-stack">
-              ${vouchers
-                .map(
-                  (v) => `
-                <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
-                  data-action="open-voucher" data-key="${v.key}" type="button" aria-label="${v.label}">
-                  <img src="${v.art}" alt="${v.label}" />
-                  ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
-                  <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
-                </button>
-              `,
-                )
-                .join("")}
-            </div>`
-          : `<p class="oky-flow-empty">Todavía no tienes gift cards.</p>`,
-      )}
+      ${body("gift", stack(vouchers, "gift", "Todavía no tienes gift cards."))}
+
+      ${sectionHead("vales", "fa-ticket", "OKY Vales", String(WALLET_EXTRAS.vales.length))}
+      ${body("vales", stack(WALLET_EXTRAS.vales, "vales", "Todavía no tienes vales."))}
+
+      ${sectionHead("servicios", "fa-file-invoice-dollar", "Servicios", String(WALLET_EXTRAS.servicios.length))}
+      ${body("servicios", stack(WALLET_EXTRAS.servicios, "servicios", "Todavía no tienes servicios."))}
+
+      ${sectionHead("recargas", "fa-mobile-screen", "Recargas", String(WALLET_EXTRAS.recargas.length))}
+      ${body("recargas", stack(WALLET_EXTRAS.recargas, "recargas", "Todavía no tienes recargas."))}
     </div>
 
     ${navbar("", state)}
@@ -1558,7 +1575,11 @@ function screenVoucher(state) {
      El mazo del wallet lleva sus propios datos de marca: hay tarjetas
      ahí —Krispy Kreme, Under Armour— que no son productos comprables
      y no están en PRODUCTS. */
-  const wallet = walletVouchers(state);
+  const section = state.params.deck || "gift";
+  const wallet = section === "gift" ? walletVouchers(state) : WALLET_EXTRAS[section] || [];
+  /* Un vale de Pollo Campero no es una gift card: la card lo dice. */
+  const kind =
+    { vales: "OKY Vale", servicios: "Servicio", recargas: "Recarga" }[section] || "Gift Card";
   const deck = state.params.id
     ? state.lastOrder.map((p) => ({ id: p.id, key: p.productKey }))
     : wallet;
@@ -1586,7 +1607,7 @@ function screenVoucher(state) {
         topFooterLeftLabel: "Terms & Conditions",
         topFooterRightLabel: "Brand Disclaimer",
         middleCardPath: "Molecule/Middle Card/Amount",
-        middleTitle: "Gift Card",
+        middleTitle: kind,
         middleCurrency: "$",
         middleAmount: String(amount),
         bottomVariantPath: "Molecule/Bottom Card/Gift Card",
@@ -2366,12 +2387,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         const next = list[wrap((at < 0 ? 0 : at) + step, list.length)];
         return go("voucher", { id: next.id }, { push: false });
       }
-      const list = walletVouchers(state);
+      const section = state.params.deck || "gift";
+      const list = section === "gift" ? walletVouchers(state) : WALLET_EXTRAS[section] || [];
       const at = list.findIndex((v) => v.key === state.params.key);
       const next = list[wrap((at < 0 ? 0 : at) + step, list.length)];
       /* Abrirlo por el carrusel también lo da por visto. */
       if (!state.seenVouchers.includes(next.key)) state.seenVouchers.push(next.key);
-      return go("voucher", { key: next.key }, { push: false });
+      return go("voucher", { key: next.key, deck: section }, { push: false });
     }
 
     if (action === "select-card") {
@@ -2407,7 +2429,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "open-voucher") {
       const key = el.dataset.key;
       if (!state.seenVouchers.includes(key)) state.seenVouchers.push(key);
-      return go("voucher", { key });
+      return go("voucher", { key, deck: el.dataset.deck || "gift" });
     }
 
     if (action === "decision-self") {
