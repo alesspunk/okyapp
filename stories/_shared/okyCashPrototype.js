@@ -1403,7 +1403,7 @@ function screenOkyCash(state) {
   const chipFor = (positive) =>
     positive
       ? { label: "Acreditado", tone: "success", icon: "fa-circle-check" }
-      : { label: "Usado", tone: "neutral", icon: "fa-circle-arrow-down" };
+      : { label: "Debitado", tone: "neutral", icon: "fa-circle-arrow-down" };
 
   const historyRow = ({ date, amount, order, positive }) =>
     renderHistoryCard({
@@ -1424,50 +1424,67 @@ function screenOkyCash(state) {
      que movió en total. El desglose por marca —que es lo bueno— queda
      detrás de un toque, así que la primera pantalla no abruma. */
   const orderRow = (order) => {
-    if (order.items.length < 2) {
-      const only = order.items[0];
-      return historyRow({
-        date: only.date,
-        amount: only.amount,
-        order: only.order,
-        positive: only.kind !== "debit",
-      });
+    /* Lo que salió y lo que entró son dos hechos distintos y cada uno
+       lleva su card: primero el débito —el saldo que se gastó, que es
+       lo que pasó primero— y debajo lo que esa misma compra acreditó,
+       ya sin la línea del pago, que ahora vive en su propia card. */
+    const debits = order.items.filter((i) => i.kind === "debit");
+    const credits = order.items.filter((i) => i.kind !== "debit");
+
+    const spent = debits.reduce((sum, i) => sum + (i.value || 0), 0);
+    const earned = credits.reduce((sum, i) => sum + (i.value || 0), 0);
+
+    const debitCard = debits.length
+      ? historyRow({
+          date: order.date,
+          amount: `- ${money(Math.abs(spent))}`,
+          order: order.id,
+          positive: false,
+        })
+      : "";
+
+    if (!credits.length) return debitCard;
+
+    /* Un solo movimiento acreditado no necesita desplegable. */
+    if (credits.length < 2) {
+      const only = credits[0];
+      return (
+        debitCard +
+        historyRow({
+          date: only.date,
+          amount: only.amount,
+          order: only.order,
+          positive: true,
+        })
+      );
     }
 
-    /* El titular de la orden es lo que esa compra ACREDITÓ, no el neto.
-       Gastar OKY Cash no es una pérdida —es para lo que está—, así que
-       restarlo del encabezado dejaba una orden que dio $1.93 marcada en
-       rojo como "Usado". El gasto sigue ahí, como una línea más del
-       desglose. Solo cuando la compra no acreditó nada (se pagó entera
-       con OKY Cash) el titular es lo que salió. */
-    const earned = order.items.reduce((sum, i) => sum + Math.max(i.value || 0, 0), 0);
-    const spent = order.items.reduce((sum, i) => sum + Math.min(i.value || 0, 0), 0);
-    const headline = earned > 0 ? earned : spent;
     const open = state.openOrders.includes(order.id);
 
     return `
+      ${debitCard}
       <div class="oky-flow-order has-panel ${open ? "is-open" : ""}" data-action="toggle-order"
         data-order="${order.id}" role="button" tabindex="0" aria-expanded="${open}">
         ${historyRow({
           date: order.date,
-          amount: `${headline < 0 ? "-" : "+"} ${money(Math.abs(headline))}`,
+          amount: `+ ${money(earned)}`,
           order: order.id,
-          positive: headline >= 0,
+          positive: true,
         })}
         <div class="oky-flow-order-panel">
           <span class="oky-flow-order-toggle">
-            ${order.items.length} movimientos
+            ${credits.length} movimientos
             <i class="fa-solid fa-chevron-${open ? "up" : "down"}" aria-hidden="true"></i>
           </span>
           ${
             open
               ? `<ul class="oky-flow-order-detail">
-                  ${order.items
+                  ${credits
                     .map(
                       (i) => `
                     <li class="oky-flow-order-line">
                       <span>${i.label || i.order}</span>
-                      <span class="${i.kind === "debit" ? "is-debit" : "is-credit"}">${i.amount}</span>
+                      <span class="is-credit">${i.amount}</span>
                     </li>
                   `,
                     )
