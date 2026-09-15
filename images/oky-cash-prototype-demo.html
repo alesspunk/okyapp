@@ -14236,9 +14236,10 @@ function screenOkyCash(state) {
      detrás de un toque, así que la primera pantalla no abruma. */
   const orderRow = (order) => {
     /* Lo que salió y lo que entró son dos hechos distintos y cada uno
-       lleva su card: primero el débito —el saldo que se gastó, que es
-       lo que pasó primero— y debajo lo que esa misma compra acreditó,
-       ya sin la línea del pago, que ahora vive en su propia card. */
+       lleva su card. Arriba lo acreditado y debajo lo debitado: leer
+       primero lo que ganaste deja mejor sabor que abrir la compra con un
+       número en rojo. La línea del pago ya no está en el desglose, vive
+       en su propia card. */
     const debits = order.items.filter((i) => i.kind === "debit");
     const credits = order.items.filter((i) => i.kind !== "debit");
 
@@ -14260,20 +14261,18 @@ function screenOkyCash(state) {
     if (credits.length < 2) {
       const only = credits[0];
       return (
-        debitCard +
         historyRow({
           date: only.date,
           amount: only.amount,
           order: only.order,
           positive: true,
-        })
+        }) + debitCard
       );
     }
 
     const open = state.openOrders.includes(order.id);
 
     return `
-      ${debitCard}
       <div class="oky-flow-order has-panel ${open ? "is-open" : ""}" data-action="toggle-order"
         data-order="${order.id}" role="button" tabindex="0" aria-expanded="${open}">
         ${historyRow({
@@ -14305,6 +14304,7 @@ function screenOkyCash(state) {
           }
         </div>
       </div>
+      ${debitCard}
     `;
   };
 
