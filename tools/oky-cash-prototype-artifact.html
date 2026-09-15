@@ -15440,8 +15440,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "share") {
       /* Hoja de compartir nativa: en iOS y Android abre la del sistema
          —WhatsApp, Mensajes, AirDrop— que es lo que la prueba necesita
-         ver. Donde no existe (escritorio sin soporte) se copia al
-         portapapeles y el botón lo dice un momento. */
+         ver. */
       const label = el.dataset.label || "gift card";
       const amount = Number(el.dataset.amount) || 0;
       const payload = {
@@ -15450,29 +15449,52 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         url: location.href,
       };
 
-      if (navigator.share) {
-        /* El rechazo del usuario llega como AbortError: no es un fallo
-           que haya que contar. */
-        navigator.share(payload).catch(() => {});
-        return;
-      }
-
-      const say = (text) => {
+      const say = (text, icon = "fa-circle-check") => {
         const before = el.innerHTML;
-        el.innerHTML = `<i class="fa-solid fa-check" aria-hidden="true"></i>&nbsp;${text}`;
+        el.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i>&nbsp;${text}`;
         setTimeout(() => {
           el.innerHTML = before;
         }, 1600);
       };
 
-      if (navigator.clipboard) {
-        navigator.clipboard
-          .writeText(`${payload.text} ${payload.url}`)
-          .then(() => say("Copiado"))
-          .catch(() => say("No se pudo copiar"));
+      /* Plan B cuando no hay hoja nativa: el enlace al portapapeles. */
+      const copy = () => {
+        const text = `${payload.text} ${payload.url}`;
+        const legacy = () => {
+          const pad = document.createElement("textarea");
+          pad.value = text;
+          pad.setAttribute("readonly", "");
+          pad.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none";
+          document.body.appendChild(pad);
+          pad.select();
+          pad.setSelectionRange(0, text.length);
+          try {
+            document.execCommand("copy");
+            say("Copiado");
+          } catch (error) {
+            say("No se pudo compartir", "fa-circle-exclamation");
+          }
+          pad.remove();
+        };
+        if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => say("Copiado"), legacy);
+        else legacy();
+      };
+
+      if (navigator.share) {
+        /* Dos fallos distintos: si la persona cierra la hoja no pasa
+           nada —AbortError—, pero si el navegador la niega (dentro de un
+           iframe sin permiso web-share, por ejemplo) hay que dar salida
+           igual en vez de dejar el botón muerto, que es lo que se veía. */
+        Promise.resolve()
+          .then(() => navigator.share(payload))
+          .catch((error) => {
+            if (error && error.name === "AbortError") return;
+            copy();
+          });
         return;
       }
-      say("No disponible aquí");
+
+      copy();
       return;
     }
 
