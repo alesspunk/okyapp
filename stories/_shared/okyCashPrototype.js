@@ -344,6 +344,8 @@ function createInitialState(userType) {
     decisionSeen: false,
     /* El folder del Discovery Header se colapsa al scrollear el home. */
     headerCollapsed: false,
+    /* Secciones abiertas de Mi wallet. */
+    openSections: ["cash", "gift"],
     /* Correlativo de órdenes para el historial de OKY Cash. */
     orderSeq: 0,
     /* Marcas cuyo vale ya se abrió: las demás llevan el punto rojo. */
@@ -1232,7 +1234,18 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
 function okyCashCard(state, { balance, cta } = {}) {
   const card = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
   card.balance = { ...card.balance, value: (balance ?? state.okyCashBalance).toFixed(2) };
-  card.cta = cta === null ? null : { ...card.cta, action: cta || "nav:okycash" };
+
+  /* Con el saldo en cero no hay actividad que ver: el CTA pasa a
+     explicar qué es OKY Cash en vez de llevar a una lista vacía. */
+  const amount = balance ?? state.okyCashBalance;
+  card.cta =
+    cta === null
+      ? null
+      : {
+          ...card.cta,
+          label: amount > 0 ? card.cta.label : "Conoce más",
+          action: cta || "nav:okycash",
+        };
   /* El lápiz abre el selector de diseño. */
   card.editAction = "nav:carddesign";
   const design = findCardDesign(state.cardDesign);
@@ -1283,6 +1296,8 @@ function walletVouchers(state) {
 /* ── Mi wallet (99105:43773) ────────────────────────────── */
 function screenWallet(state) {
   const cash = okyCashCard(state);
+  const vouchers = walletVouchers(state);
+  const news = vouchers.filter((v) => v.isNew).length;
 
   const filters = [
     { label: "OKY Cash", icon: "oky-cash-coin.png" },
@@ -1291,6 +1306,31 @@ function screenWallet(state) {
     { label: "Servicios", icon: "plateu-servicios.png" },
     { label: "Recargas", icon: "plateu-recargas.png" },
   ];
+
+  /* Cabecera de sección: además de plegar, dice de un vistazo lo que
+     hay dentro —el saldo, cuántas gift cards— para que valga la pena
+     cuando está cerrada. */
+  const sectionHead = (key, icon, label, meta) => {
+    const open = state.openSections.includes(key);
+    return `
+      <button class="oky-flow-section-head" data-action="toggle-section" data-section="${key}"
+        type="button" aria-expanded="${open}">
+        <span class="oky-flow-section-head-label">
+          <i class="fa-solid ${icon}" aria-hidden="true"></i>${label}
+        </span>
+        <span class="oky-flow-section-head-meta">
+          ${meta ? `<span class="oky-flow-section-head-value">${meta}</span>` : ""}
+          <i class="fa-solid fa-chevron-down oky-flow-section-caret" aria-hidden="true"></i>
+        </span>
+      </button>
+    `;
+  };
+
+  const body = (key, content) => `
+    <div class="oky-flow-section-body ${state.openSections.includes(key) ? "" : "is-collapsed"}">
+      <div>${content}</div>
+    </div>
+  `;
 
   return `
     ${statusBar()}
@@ -1311,31 +1351,35 @@ function screenWallet(state) {
       </div>
     </section>
 
-    <div class="oky-flow-section" style="gap:16px">
-      <div class="oky-flow-section-head">
-        <i class="fa-solid fa-wallet" aria-hidden="true"></i>OKY CASH
-        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
-      </div>
-      <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
+    <div class="oky-flow-section" style="gap:12px">
+      ${sectionHead("cash", "fa-wallet", "OKY Cash", money(state.okyCashBalance))}
+      ${body("cash", `<div class="oky-flow-card-slot">${renderPaymentCard(cash)}</div>`)}
 
-      <div class="oky-flow-section-head">
-        <i class="fa-solid fa-gift" aria-hidden="true"></i>GIFT CARDS
-        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
-      </div>
-      <div class="oky-flow-stack">
-        ${walletVouchers(state)
-          .map(
-            (v) => `
-          <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
-            data-action="open-voucher" data-key="${v.key}" type="button">
-            <img src="${v.art}" alt="${v.label}" />
-            ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
-            <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
-          </button>
-        `,
-          )
-          .join("")}
-      </div>
+      ${sectionHead(
+        "gift",
+        "fa-gift",
+        "Gift Cards",
+        `${vouchers.length}${news ? ` · ${news} nueva${news > 1 ? "s" : ""}` : ""}`,
+      )}
+      ${body(
+        "gift",
+        vouchers.length
+          ? `<div class="oky-flow-stack">
+              ${vouchers
+                .map(
+                  (v) => `
+                <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
+                  data-action="open-voucher" data-key="${v.key}" type="button" aria-label="${v.label}">
+                  <img src="${v.art}" alt="${v.label}" />
+                  ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
+                  <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+                </button>
+              `,
+                )
+                .join("")}
+            </div>`
+          : `<p class="oky-flow-empty">Todavía no tienes gift cards.</p>`,
+      )}
     </div>
 
     ${navbar("", state)}
@@ -1551,6 +1595,67 @@ function screenVoucher(state) {
       </button>
     </div>
     ${navbar("", state)}
+  `;
+}
+
+
+/* ── Personaliza tu billetera (99135:103902) ──────────────
+   Carrusel de diseños con los vecinos asomando, radio en la esquina
+   de cada tarjeta, dots y "Elegir" al pie. */
+function screenCardDesign(state) {
+  const at = wrap(state.cardDesignIndex, CARD_DESIGNS.length);
+  const current = CARD_DESIGNS[at];
+
+  const preview = (design, i) => {
+    /* La vista previa es solo el diseño: sin marca, sin saldo y sin
+       footer, como en el frame. */
+    const card = {
+      ...findPaymentCard("Molecule/Payment Card/OKY Cash Black"),
+      ...design.style,
+      art: design.art,
+      showHeader: false,
+      showFooter: false,
+      cta: null,
+      editIcon: null,
+    };
+    return `
+      <button class="oky-flow-design-slide ${i === at ? "is-active" : ""}"
+        data-action="pick-design" data-index="${i}" type="button" aria-pressed="${i === at}">
+        <span class="oky-flow-design-radio" aria-hidden="true"></span>
+        ${renderPaymentCard(card)}
+      </button>
+    `;
+  };
+
+  return `
+    ${statusBar()}
+    ${titledHeader("Personaliza tu billetera")}
+
+    <div class="oky-flow-section oky-flow-design">
+      <div class="oky-flow-design-copy">
+        <h2 class="oky-flow-design-title">${current.label}</h2>
+        <p class="oky-flow-design-note">${current.note}</p>
+      </div>
+
+      <div class="oky-flow-design-window">
+        <div class="oky-flow-design-track" style="--design-at:${at}">
+          ${CARD_DESIGNS.map(preview).join("")}
+        </div>
+      </div>
+
+      <div class="carrusel-dots-wrap" style="width:100%">
+        <div class="carrusel-dots">
+          ${CARD_DESIGNS.map(
+            (d, i) => `<span class="promo-dot${i === at ? " promo-dot-active" : ""}"></span>`,
+          ).join("")}
+        </div>
+      </div>
+    </div>
+
+    <div class="oky-flow-cta-bar">
+      <button class="btn btn-primary btn-large" data-action="choose-design" type="button">Elegir</button>
+    </div>
+    ${navbar("okycash", state)}
   `;
 }
 
@@ -2128,15 +2233,33 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return render();
     }
 
+    if (action === "toggle-section") {
+      /* Se pliega en sitio, sin re-renderizar: así la animación corre y
+         no se pierde el scroll. */
+      const key = el.dataset.section;
+      const open = state.openSections.includes(key);
+      state.openSections = open
+        ? state.openSections.filter((k) => k !== key)
+        : [...state.openSections, key];
+      el.setAttribute("aria-expanded", String(!open));
+      const panel = el.nextElementSibling;
+      if (panel) panel.classList.toggle("is-collapsed", open);
+      return;
+    }
+
     if (action === "copy-code") {
       /* El código no sirve de nada si hay que transcribirlo a mano. */
       const line = el.closest(".prime-card-bottom-line");
       const mark = () => {
         if (!line || line.classList.contains("is-copied")) return;
         line.classList.add("is-copied");
+        /* El check suelto no existe en la cara que carga el archivo
+           standalone y salía como caja; el circle-check sí, y además
+           dice mejor "listo". */
         const glyph = el.querySelector("i");
         const had = glyph && glyph.className;
-        if (glyph) glyph.className = "fa-solid fa-check";
+        if (glyph) glyph.className = "fa-solid fa-circle-check";
+        el.style.color = "var(--success-main)";
         /* El verde del número va por estilo directo: la card hereda su
            morado de un contenedor y la hoja tiene varias reglas para
            este valor según la variante de la molécula. */
@@ -2145,6 +2268,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         setTimeout(() => {
           line.classList.remove("is-copied");
           if (glyph && had) glyph.className = had;
+          el.style.color = "";
           if (value) value.style.color = "";
         }, 1500);
       };
