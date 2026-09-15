@@ -2072,6 +2072,17 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     );
   }
 
+  /* Pantallas de después de pagar. Salir de ellas cierra la compra: la
+     flecha de atrás vuelve al home y no al recibo, que ya se vio y al
+     que nadie quiere volver. */
+  const POST_PURCHASE = ["success", "cashwin", "purchases"];
+
+  function leavePurchase(screen) {
+    if (!POST_PURCHASE.includes(state.screen)) return go(screen);
+    state.history = [{ screen: "home", params: {} }];
+    return go(screen, {}, { push: false });
+  }
+
   function go(screen, params = {}, { push = true } = {}) {
     if (push) state.history.push({ screen: state.screen, params: state.params });
     state.screen = screen;
@@ -2251,10 +2262,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "back") return goBack();
     if (action === "nav:home") return go("home");
-    if (action === "nav:wallet") return go("wallet");
+    if (action === "nav:wallet") return leavePurchase("wallet");
     if (action === "nav:okycash") {
       state.cashUnseen = false;
-      return go("okycash");
+      return leavePurchase("okycash");
     }
 
     if (action === "nav:carddesign") {
