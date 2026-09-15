@@ -506,7 +506,7 @@ function navbar(active, state = {}) {
         ${item("home", "Home", "house", "nav:home")}
         ${item("notif", "Notificaciones", "bell", null)}
         ${item("okycash", "OKY Cash", null, "nav:okycash")}
-        ${item("ayuda", "Ayuda", "comments", null)}
+        ${item("ayuda", "Ayuda", "messages", null)}
         ${item("menu", "Menú", "bars", null)}
       </div>
     </nav>

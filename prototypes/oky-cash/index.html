@@ -10730,6 +10730,11 @@ button.tactic-offer {
   font-weight: 400;
 }
 
+/* Iconos que solo existen en Font Awesome Pro. Aquí cargan las caras
+   Free, así que sin esto salen como caja. Cada uno cae al Free más
+   cercano; en Storybook, con las caras Pro, se dibuja el de verdad. */
+.fa-messages { --fa: "\f27a"; }
+
 </style>
 </head>
 <body>
@@ -13357,7 +13362,7 @@ function navbar(active, state = {}) {
         ${item("home", "Home", "house", "nav:home")}
         ${item("notif", "Notificaciones", "bell", null)}
         ${item("okycash", "OKY Cash", null, "nav:okycash")}
-        ${item("ayuda", "Ayuda", "comments", null)}
+        ${item("ayuda", "Ayuda", "messages", null)}
         ${item("menu", "Menú", "bars", null)}
       </div>
     </nav>

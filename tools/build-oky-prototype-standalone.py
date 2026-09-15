@@ -90,6 +90,11 @@ css += """
   font-family: "Font Awesome 6 Brands";
   font-weight: 400;
 }
+
+/* Iconos que solo existen en Font Awesome Pro. Aquí cargan las caras
+   Free, así que sin esto salen como caja. Cada uno cae al Free más
+   cercano; en Storybook, con las caras Pro, se dibuja el de verdad. */
+.fa-messages { --fa: "\\f27a"; }
 """ % (free_uri("fa-solid-900.woff2"), free_uri("fa-brands-400.woff2"))
 
 font_refs = {f"{n_faces} @font-face"}
