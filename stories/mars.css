@@ -10612,3 +10612,12 @@ button.tactic-offer {
   max-width: 100%;
   white-space: nowrap;
 }
+
+/* "Ver más" de la pila del wallet: centrado bajo la última card, como
+   en el frame. La pila se solapa, así que va con aire propio. */
+.oky-flow-stack-more {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding-top: 12px;
+}

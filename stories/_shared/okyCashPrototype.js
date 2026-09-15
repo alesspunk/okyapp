@@ -366,6 +366,8 @@ function createInitialState(userType) {
     headerCollapsed: false,
     /* Secciones abiertas de Mi wallet. */
     openSections: ["cash", "gift"],
+    /* Cuántas cards se han pedido ya en cada sección del wallet. */
+    walletShown: { gift: WALLET_PAGE, vales: WALLET_PAGE, servicios: WALLET_PAGE },
 
     /* Correlativo de órdenes para el historial de OKY Cash. */
     orderSeq: 0,
@@ -1271,6 +1273,22 @@ function okyCashCard(state, { balance, cta } = {}) {
   return { ...card, ...design.style, art: design.art };
 }
 
+/* Cuántas cards se apilan de una vez en cada sección del wallet. Más
+   allá de eso la pila deja de leerse y hay que dibujar de más, así que
+   el resto entra por tandas con "Ver más". */
+const WALLET_PAGE = 5;
+
+function walletVoucherButton(v, deck) {
+  return `
+    <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
+      data-action="open-voucher" data-key="${v.key}" data-deck="${deck}" type="button" aria-label="${v.label}">
+      <img src="${v.art}" alt="${v.label}" />
+      ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
+      <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+    </button>
+  `;
+}
+
 /* ¿Queda alguna gift card comprada que todavía no se haya abierto? */
 function hasNewVouchers(state) {
   return state.purchases.some((p) => !state.seenVouchers.includes(p.productKey));
@@ -1353,19 +1371,27 @@ function screenWallet(state) {
     </div>
   `;
 
-  const voucherButton = (v, deck) => `
-    <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
-      data-action="open-voucher" data-key="${v.key}" data-deck="${deck}" type="button" aria-label="${v.label}">
-      <img src="${v.art}" alt="${v.label}" />
-      ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
-      <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
-    </button>
-  `;
-
-  const stack = (items, deck, empty) =>
-    items.length
-      ? `<div class="oky-flow-stack">${items.map((v) => voucherButton(v, deck)).join("")}</div>`
-      : `<p class="oky-flow-empty">${empty}</p>`;
+  /* De la pila solo se dibujan las primeras; el resto llega por tandas
+     del mismo tamaño cuando se pide. */
+  const stack = (items, deck, empty) => {
+    if (!items.length) return `<p class="oky-flow-empty">${empty}</p>`;
+    const shown = state.walletShown[deck] || WALLET_PAGE;
+    const visible = items.slice(0, shown);
+    return `
+      <div class="oky-flow-stack" data-stack="${deck}">
+        ${visible.map((v) => walletVoucherButton(v, deck)).join("")}
+      </div>
+      ${
+        items.length > visible.length
+          ? `<div class="oky-flow-stack-more">
+              <button class="btn btn-primary btn-small" data-action="wallet-more" data-section="${deck}" type="button">
+                Ver más
+              </button>
+            </div>`
+          : ""
+      }
+    `;
+  };
 
   return `
     ${statusBar()}
@@ -2377,6 +2403,22 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const step = action === "carousel-next" ? 1 : -1;
       state.checkoutIndex = wrap(state.checkoutIndex + step, state.cart.length);
       return render();
+    }
+
+    if (action === "wallet-more") {
+      /* Se añade la siguiente tanda al final de la pila en vez de
+         re-renderizar: así no se pierde el scroll ni parpadea lo que ya
+         estaba dibujado. */
+      const deck = el.dataset.section;
+      const items = deck === "gift" ? walletVouchers(state) : WALLET_EXTRAS[deck] || [];
+      const from = state.walletShown[deck] || WALLET_PAGE;
+      const to = from + WALLET_PAGE;
+      state.walletShown[deck] = to;
+
+      const list = root.querySelector(`[data-stack="${deck}"]`);
+      if (list) list.insertAdjacentHTML("beforeend", items.slice(from, to).map((v) => walletVoucherButton(v, deck)).join(""));
+      if (items.length <= to) el.parentElement.remove();
+      return;
     }
 
     if (action === "wallet-jump") {
