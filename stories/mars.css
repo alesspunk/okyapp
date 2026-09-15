@@ -8716,9 +8716,16 @@ button.header-icon {
   margin: 0;
 }
 
-/* Los dos botones de la fila van juntos a la derecha. */
-.oky-flow-cart-head .oky-flow-cart-edit {
+/* Los dos botones van juntos a la derecha y en columna: el lápiz
+   arriba, el tacho debajo. En fila se comían el ancho del ribbon, y
+   apilados el destructivo queda más lejos del pulgar que descansa
+   sobre el lápiz. */
+.oky-flow-cart-head .oky-flow-cart-actions {
   margin-left: auto;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 /* Mismo brand item del sistema, a la medida del carrito. */
@@ -10622,4 +10629,49 @@ button.tactic-offer {
   justify-content: center;
   width: 100%;
   padding-top: 12px;
+}
+
+/* ── Carrito vacío ──────────────────────────────────────── */
+/* Un cuadro blanco con una línea gris no dice nada. El vacío cuenta
+   qué falta, qué se gana llenándolo y por dónde seguir, centrado en el
+   hueco que deja el drawer sin filas. */
+.oky-flow-cart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 380px;
+  padding: 24px 24px 32px;
+  text-align: center;
+}
+
+.oky-flow-cart-empty-art {
+  width: 132px;
+  height: 132px;
+  object-fit: contain;
+  margin-bottom: 4px;
+}
+
+.oky-flow-cart-empty-title {
+  margin: 0;
+  font-family: "Lato", sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--primary-base);
+}
+
+.oky-flow-cart-empty-note {
+  margin: 0 0 12px;
+  max-width: 240px;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+/* Sin nada que pagar, el pie no tiene de qué hablar: el único camino
+   es el botón del vacío. */
+.oky-flow-drawer-foot.is-hidden {
+  display: none;
 }

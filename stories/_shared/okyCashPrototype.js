@@ -823,14 +823,16 @@ function cartDrawer(state) {
                 <span class="discount-ribbon discount-ribbon-list ${tier.ribbon}">
                   <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(tier.rate * 100)}%</span>
                 </span>
-                <button class="oky-flow-cart-edit" data-action="edit-item" data-product="${item.productKey}"
-                  type="button" aria-label="Cambiar el monto de ${product.label}">
-                  <i class="fa-solid fa-pencil" aria-hidden="true"></i>
-                </button>
-                <button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
-                  type="button" aria-label="Quitar ${product.label}">
-                  <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
-                </button>
+                <span class="oky-flow-cart-actions">
+                  <button class="oky-flow-cart-edit" data-action="edit-item" data-product="${item.productKey}"
+                    type="button" aria-label="Cambiar el monto de ${product.label}">
+                    <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+                  </button>
+                  <button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
+                    type="button" aria-label="Quitar ${product.label}">
+                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                  </button>
+                </span>
               </div>
               <div class="oky-flow-cart-body">
                 <p class="oky-flow-cart-title">${product.cardTitle}</p>
@@ -840,7 +842,7 @@ function cartDrawer(state) {
           `;
         })
         .join("")
-    : `<p class="oky-flow-empty">Tu carrito está vacío.</p>`;
+    : "";
 
   return `
     <button class="oky-flow-drawer-backdrop" data-action="close-cart" type="button" aria-label="Cerrar carrito"></button>
@@ -853,10 +855,23 @@ function cartDrawer(state) {
       </div>
 
       <div class="oky-flow-drawer-body">
-        <div class="oky-flow-cart-card">${rows}</div>
+        ${
+          state.cart.length
+            ? `<div class="oky-flow-cart-card">${rows}</div>`
+            : `<div class="oky-flow-cart-empty">
+                <img class="oky-flow-cart-empty-art" src="Cart-3d-icon.png" alt="" />
+                <h3 class="oky-flow-cart-empty-title">Tu carrito está vacío</h3>
+                <p class="oky-flow-cart-empty-note">
+                  Agrega una gift card y empieza a ganar OKY Cash en cada compra.
+                </p>
+                <button class="btn btn-primary btn-large" data-action="nav:home" type="button">
+                  Explorar marcas
+                </button>
+              </div>`
+        }
       </div>
 
-      <div class="oky-flow-drawer-foot">
+      <div class="oky-flow-drawer-foot${state.cart.length ? "" : " is-hidden"}">
         <div class="summary-box summary-box-compact">
           <div class="summary-card">
             <div class="summary-card-body">
@@ -875,13 +890,17 @@ function cartDrawer(state) {
       </div>
     </aside>
 
-    <div class="oky-flow-savingbar is-drawer-bar">
-      <div class="saving-bar is-oky-cash">
-        <div class="saving-bar-copy">
-          <span>Compra y gana <strong>${money(cashback)}+</strong> en <strong>OKY Cash</strong></span>
-        </div>
-      </div>
-    </div>
+    ${
+      state.cart.length
+        ? `<div class="oky-flow-savingbar is-drawer-bar">
+            <div class="saving-bar is-oky-cash">
+              <div class="saving-bar-copy">
+                <span>Compra y gana <strong>${money(cashback)}+</strong> en <strong>OKY Cash</strong></span>
+              </div>
+            </div>
+          </div>`
+        : ""
+    }
   `;
 }
 
