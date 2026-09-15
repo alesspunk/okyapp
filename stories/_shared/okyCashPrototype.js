@@ -1393,7 +1393,7 @@ function screenWallet(state) {
      apretujar las que ya hay. */
   const filters = [
     { key: "cash", label: "OKY Cash", icon: "oky-cash-coin.png" },
-    { key: "gift", label: "Gift Cards", icon: "plateu-giftcards.png" },
+    { key: "gift", label: "Gift cards", icon: "plateu-giftcards.png" },
     { key: "vales", label: "OKY Vales", icon: "plateu-vales.png" },
     { key: "servicios", label: "Servicios", icon: "plateu-servicios.png" },
   ];

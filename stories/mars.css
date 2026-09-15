@@ -10620,6 +10620,10 @@ button.tactic-offer {
 .oky-flow-wallet-nav .plateu-label {
   max-width: 100%;
   white-space: nowrap;
+  /* En sentence case, no en versales: son nombres de categoría, no
+     rótulos de sistema, y "OKY Cash" pierde su forma en mayúsculas. */
+  text-transform: none;
+  letter-spacing: 0.2px;
 }
 
 /* "Ver más" de la pila del wallet: centrado bajo la última card, como
