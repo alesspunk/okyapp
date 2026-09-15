@@ -10675,3 +10675,20 @@ button.tactic-offer {
 .oky-flow-drawer-foot.is-hidden {
   display: none;
 }
+
+/* ── Strip de moda (debajo de Geeky Deals) ──────────────── */
+/* Mismo organismo que Spooky Deals, pero fuera del degradado del home:
+   aquí el título va en el morado de marca y no en el marrón del tema. */
+.oky-flow-frame .oky-flow-style-strip .tactic-strip-title {
+  display: inline-flex;
+  align-items: center;
+  color: var(--primary-base);
+}
+
+.oky-flow-frame .oky-flow-style-strip .tactic-strip-title i {
+  font-size: 16px;
+}
+
+.oky-flow-frame .oky-flow-style-strip .tactic-strip-header {
+  align-items: center;
+}

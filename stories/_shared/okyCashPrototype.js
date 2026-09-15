@@ -99,6 +99,12 @@ const BRANDS = {
   amazon: { label: "Amazon", art: "amazon.png", bg: "#141c26", rate: 7 },
   ebay: { label: "eBay", art: "ebay.png", bg: "#00186b", rate: 7 },
   xbox: { label: "Xbox", art: "xbox.png", bg: "#4d9d4c", rate: 7 },
+  /* Marcas del strip de moda. Gap y Old Navy no tienen arte de gift
+     card en el repo: van con una card de texto en images/ —fácil de
+     reemplazar por la buena en cuanto exista. */
+  adidas: { label: "Adidas", art: "adidas.png", bg: "#1c1919", rate: 9 },
+  gap: { label: "Gap", art: "brand-gap.svg", bg: "#0b2a4a", rate: 8 },
+  oldnavy: { label: "Old Navy", art: "brand-oldnavy.svg", bg: "#12284c", rate: 10 },
 };
 
 /* Diseños de la tarjeta de OKY Cash (Figma 99135:103902). La molécula
@@ -228,6 +234,14 @@ const HOME_CATEGORIES = [
 ];
 
 /* Tarjetas de "Solo por hoy" (MARS 7295:52037). */
+/* Strip de moda, debajo de Geeky Deals: mismo patrón que Spooky Deals
+   —foto, logo encima y ribbon— pero sin cronómetro. */
+const STYLE_CARDS = [
+  { key: "adidas", photo: "promo-image3.png" },
+  { key: "gap", photo: "promo-image6.png" },
+  { key: "oldnavy", photo: "promo-image7.png" },
+];
+
 const TODAY_CARDS = [
   { key: "macys", photo: "promo-image2.png" },
   { key: "starbucks", photo: "promo-image4.png" },
@@ -656,6 +670,23 @@ function screenHome(state) {
         <div class="promo-strip-divider"></div>
         <div class="promo-strip-row oky-flow-deals-row">
           ${GEEKY_DEALS.map((deal) => brandCard(deal.key, deal.rate)).join("")}
+        </div>
+      </section>
+
+      <section class="tactic-strip oky-flow-style-strip">
+        <header class="tactic-strip-header">
+          <h3 class="token-h6 tactic-strip-title">
+            <i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;Moda
+          </h3>
+          <span class="btn btn-outlined btn-small">Ver más</span>
+        </header>
+
+        <div class="tactic-strip-carousel-window">
+          <div class="tactic-strip-carousel-track">
+            ${STYLE_CARDS.map((card) =>
+              offer({ ...card, rate: BRANDS[card.key].rate, action: "open-pdp" }),
+            ).join("")}
+          </div>
         </div>
       </section>
 
