@@ -10223,7 +10223,7 @@ button.tactic-offer {
 }
 
 .oky-flow-order-line .is-credit {
-  color: #2e7d32;
+  color: var(--success-text);
 }
 
 .oky-flow-order-line .is-debit {
@@ -10294,14 +10294,16 @@ button.tactic-offer {
   }
 }
 
-/* Los montos del historial por signo: verde oscuro lo acreditado, rojo
-   lo que sale del saldo. */
+/* Los montos del historial por signo. Lo acreditado en el verde más
+   oscuro del set, que se lee mejor a este tamaño. Lo que sale va en el
+   morado de marca y no en rojo: gastar el saldo no es un error ni una
+   pérdida —es para lo que está—, y el rojo lo hacía sonar a alarma. */
 .history-card-amount.is-credit {
-  color: var(--success-dark);
+  color: var(--success-text);
 }
 
 .history-card-amount.is-debit {
-  color: var(--error-main);
+  color: var(--primary-main);
 }
 
 /* Con panel debajo, la card renuncia a sus esquinas inferiores para que
@@ -10334,11 +10336,11 @@ button.tactic-offer {
 
 /* Y el desglose hereda el mismo código de color. */
 .oky-flow-order-line .is-credit {
-  color: var(--success-dark);
+  color: var(--success-text);
 }
 
 .oky-flow-order-line .is-debit {
-  color: var(--error-main);
+  color: var(--primary-main);
 }
 
 /* Los tres puntos de la fila de contacto son una caja de 40px dentro de
