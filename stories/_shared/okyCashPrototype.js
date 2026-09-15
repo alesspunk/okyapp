@@ -530,7 +530,7 @@ function navbar(active, state = {}) {
 
 /* `ending` pinta el aviso de promo vencida: la barra se pone en rojo y
    lo dice, y al momento vuelve a su color de siempre. */
-function savingBar(cashback, tier, copy, { ending = false, settled = false } = {}) {
+function savingBar(cashback, tier, copy, { ending = false, settled = false, timer = null } = {}) {
   if (ending) {
     return `
       <div class="oky-flow-savingbar">
@@ -546,6 +546,14 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false } = {
   return `
     <div class="oky-flow-savingbar">
       <div class="saving-bar is-oky-cash ${tier.bar} ${settled ? "is-settled" : ""}">
+        ${
+          timer
+            ? `<span class="saving-bar-timer">
+                <i class="fa-solid fa-clock" aria-hidden="true"></i>
+                <span data-role="promo-countdown" data-format="short">${timer}</span>
+              </span>`
+            : ""
+        }
         <div class="saving-bar-copy"><span>${copy(money(cashback))}</span></div>
       </div>
     </div>
@@ -849,6 +857,12 @@ function screenPdp(state) {
       /* Vencida la promo, la primera vez que la barra vuelve al aqua lo
          hace saliendo del rojo, no apareciendo de golpe. */
       settled: !state.promoLive && !state.promoEnded && state.promoSettling,
+      /* Solo donde el reloj significa algo: el 20% es el único tier que
+         se cae cuando se acaba el tiempo. */
+      timer:
+        state.promoLive && tier.bar === "is-tier-promo"
+          ? countdownLabel(state.promoEndsAt - Date.now())
+          : null,
     })}
     ${navbar("", state)}
   `;
@@ -2802,8 +2816,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     const left = state.promoEndsAt - now;
     if (left > 0) {
-      const label = root.querySelector("[data-role='promo-countdown']");
-      if (label) label.textContent = `Termina en ${countdownLabel(left)}`;
+      /* El reloj ya no está solo en el home: el PDP lleva su versión
+         mínima. Cada uno declara cómo quiere el texto. */
+      root.querySelectorAll("[data-role='promo-countdown']").forEach((label) => {
+        label.textContent =
+          label.dataset.format === "short"
+            ? countdownLabel(left)
+            : `Termina en ${countdownLabel(left)}`;
+      });
       return;
     }
 
