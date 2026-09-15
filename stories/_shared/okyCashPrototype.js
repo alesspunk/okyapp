@@ -400,6 +400,7 @@ function createInitialState(userType) {
     promoLive: true,
     /* Ventana corta tras el vencimiento, para el aviso del strip. */
     promoEnded: false,
+    promoSettling: false,
     recipient: "",
   };
 }
@@ -527,10 +528,24 @@ function navbar(active, state = {}) {
   `;
 }
 
-function savingBar(cashback, tier, copy) {
+/* `ending` pinta el aviso de promo vencida: la barra se pone en rojo y
+   lo dice, y al momento vuelve a su color de siempre. */
+function savingBar(cashback, tier, copy, { ending = false, settled = false } = {}) {
+  if (ending) {
+    return `
+      <div class="oky-flow-savingbar">
+        <div class="saving-bar is-oky-cash is-ending">
+          <div class="saving-bar-copy">
+            <span><i class="fa-solid fa-hourglass-end" aria-hidden="true"></i>&nbsp;Promo terminada</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   return `
     <div class="oky-flow-savingbar">
-      <div class="saving-bar is-oky-cash ${tier.bar}">
+      <div class="saving-bar is-oky-cash ${tier.bar} ${settled ? "is-settled" : ""}">
         <div class="saving-bar-copy"><span>${copy(money(cashback))}</span></div>
       </div>
     </div>
@@ -826,7 +841,15 @@ function screenPdp(state) {
       </div>
     </div>
 
-    ${savingBar(cashback, tier, (v) => `Gana <strong>${v}</strong> de <strong>OKY Cash</strong>`)}
+    ${savingBar(cashback, tier, (v) => `Gana <strong>${v}</strong> de <strong>OKY Cash</strong>`, {
+      /* El ribbon de arriba solo cambia de mostaza a aqua; el aviso de
+         que la promo venció lo da la barra, que es donde el ojo está
+         cuando se mira el monto. */
+      ending: state.promoEnded,
+      /* Vencida la promo, la primera vez que la barra vuelve al aqua lo
+         hace saliendo del rojo, no apareciendo de golpe. */
+      settled: !state.promoLive && !state.promoEnded && state.promoSettling,
+    })}
     ${navbar("", state)}
   `;
 }
@@ -2808,7 +2831,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     render();
     setTimeout(() => {
       state.promoEnded = false;
+      /* Marca la pasada en la que el aqua entra desde el rojo; se apaga
+         enseguida para que un render posterior no repita la animación. */
+      state.promoSettling = true;
       render();
+      setTimeout(() => {
+        state.promoSettling = false;
+      }, 600);
     }, 2400);
   }, 1000);
 
