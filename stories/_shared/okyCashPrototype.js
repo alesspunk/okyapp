@@ -1463,7 +1463,12 @@ function screenOkyCash(state) {
       key: "oky-cash",
       id: "99135:104411",
       layout: "row",
-      icon: { glyph: "fa-coins", weight: "fa-solid" },
+      /* Montón de monedas lo que entra, una sola lo que sale. El
+         fa-coin suelto es exclusivo de Font Awesome Pro y el archivo
+         standalone carga las caras Free —saldría como caja—, así que
+         para el débito va el signo de dólar dentro del círculo, que a
+         este tamaño se lee como una moneda. */
+      icon: { glyph: positive ? "fa-coins" : "fa-dollar-sign", weight: "fa-solid" },
       date,
       amount,
       /* El signo manda el color: verde oscuro lo que entra, rojo lo que
