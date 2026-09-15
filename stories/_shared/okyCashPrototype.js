@@ -1252,7 +1252,9 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
 
 /* La tarjeta de OKY Cash, con el saldo al día y el diseño elegido.
    Las tres pantallas que la pintan pasan por aquí. */
-function okyCashCard(state, { balance, cta } = {}) {
+/* cta: acción del botón. null lo quita; false lo deja sin enlace, solo
+   como rótulo. label pisa el texto por defecto. */
+function okyCashCard(state, { balance, cta, label } = {}) {
   const card = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
   card.balance = { ...card.balance, value: (balance ?? state.okyCashBalance).toFixed(2) };
 
@@ -1264,8 +1266,8 @@ function okyCashCard(state, { balance, cta } = {}) {
       ? null
       : {
           ...card.cta,
-          label: amount > 0 ? card.cta.label : "Conoce más",
-          action: cta || "nav:okycash",
+          label: label || (amount > 0 ? card.cta.label : "Conoce más"),
+          action: cta === false ? "" : cta || "nav:okycash",
         };
   /* El lápiz abre el selector de diseño. */
   card.editAction = "nav:carddesign";
@@ -1438,8 +1440,9 @@ function screenWallet(state) {
 
 /* ── OKY Cash: destino del coin de la navbar (99135:103474) ─ */
 function screenOkyCash(state) {
-  /* Aquí ya estás en la actividad, así que la tarjeta va sin ese CTA. */
-  const cash = okyCashCard(state, { cta: null });
+  /* Aquí ya estás en la actividad, así que el CTA no lleva a ninguna
+     parte: se queda como rótulo, invitando a conocer el programa. */
+  const cash = okyCashCard(state, { cta: false, label: "Conoce OKY Cash" });
 
   /* Los movimientos se agrupan por mes conservando el orden. */
   const groups = [];
