@@ -14365,19 +14365,9 @@ function screenOkyCash(state) {
 
     if (!credits.length) return debitCard;
 
-    /* Un solo movimiento acreditado no necesita desplegable. */
-    if (credits.length < 2) {
-      const only = credits[0];
-      return (
-        historyRow({
-          date: only.date,
-          amount: only.amount,
-          order: only.order,
-          positive: true,
-        }) + debitCard
-      );
-    }
-
+    /* También con un solo movimiento se despliega: que unas órdenes
+       abran y otras no obliga a adivinar cuáles esconden algo. Abrir y
+       encontrar la marca con el mismo monto confirma de dónde salió. */
     const open = state.openOrders.includes(order.id);
 
     return `
@@ -14391,7 +14381,7 @@ function screenOkyCash(state) {
         })}
         <div class="oky-flow-order-panel">
           <span class="oky-flow-order-toggle">
-            ${credits.length} movimientos
+            ${credits.length} movimiento${credits.length > 1 ? "s" : ""}
             <i class="fa-solid fa-chevron-${open ? "up" : "down"}" aria-hidden="true"></i>
           </span>
           ${
