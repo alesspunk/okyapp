@@ -1455,8 +1455,8 @@ function screenOkyCash(state) {
 
   const chipFor = (positive) =>
     positive
-      ? { label: "Acreditado", tone: "success", icon: "fa-circle-check" }
-      : { label: "Debitado", tone: "neutral", icon: "fa-circle-arrow-down" };
+      ? { label: "Ganado", tone: "success", icon: "fa-circle-check" }
+      : { label: "Usado", tone: "neutral", icon: "fa-circle-arrow-down" };
 
   const historyRow = ({ date, amount, order, positive }) =>
     renderHistoryCard({
