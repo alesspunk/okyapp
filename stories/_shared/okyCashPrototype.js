@@ -258,9 +258,14 @@ function getTier(amount, product, promoLive = true) {
    propio mazo: el carrusel del detalle recorre lo de esa sección, no
    todo lo que haya en la billetera. */
 const WALLET_EXTRAS = {
-  vales: [{ key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", bg: "#ed761c", count: 1 }],
+  /* Las recargas viven con los vales: son lo mismo para quien las
+     guarda —algo canjeable que no es una gift card de marca— y dos
+     secciones de un elemento cada una no le servían a nadie. */
+  vales: [
+    { key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", bg: "#ed761c", count: 1 },
+    { key: "tigo", label: "Tigo", art: "tigo.webp", bg: "#00377b", count: 1 },
+  ],
   servicios: [{ key: "eegsa", label: "EEGSA", art: "eggsa.webp", bg: "#ffffff", count: 1 }],
-  recargas: [{ key: "tigo", label: "Tigo", art: "tigo.webp", bg: "#00377b", count: 1 }],
 };
 
 const WALLET_VOUCHERS = [
@@ -1321,7 +1326,6 @@ function screenWallet(state) {
     { key: "gift", label: "Gift Cards", icon: "plateu-giftcards.png" },
     { key: "vales", label: "OKY Vales", icon: "plateu-vales.png" },
     { key: "servicios", label: "Servicios", icon: "plateu-servicios.png" },
-    { key: "recargas", label: "Recargas", icon: "recargas.webp" },
   ];
 
   /* Cabecera de sección: además de plegar, dice de un vistazo lo que
@@ -1400,9 +1404,6 @@ function screenWallet(state) {
 
       ${sectionHead("servicios", "fa-file-invoice-dollar", "Servicios", String(WALLET_EXTRAS.servicios.length))}
       ${body("servicios", stack(WALLET_EXTRAS.servicios, "servicios", "Todavía no tienes servicios."))}
-
-      ${sectionHead("recargas", "fa-mobile-screen", "Recargas", String(WALLET_EXTRAS.recargas.length))}
-      ${body("recargas", stack(WALLET_EXTRAS.recargas, "recargas", "Todavía no tienes recargas."))}
     </div>
 
     ${navbar("", state)}
@@ -1584,8 +1585,7 @@ function screenVoucher(state) {
   const section = state.params.deck || "gift";
   const wallet = section === "gift" ? walletVouchers(state) : WALLET_EXTRAS[section] || [];
   /* Un vale de Pollo Campero no es una gift card: la card lo dice. */
-  const kind =
-    { vales: "OKY Vale", servicios: "Servicio", recargas: "Recarga" }[section] || "Gift Card";
+  const kind = { vales: "OKY Vale", servicios: "Servicio" }[section] || "Gift Card";
   const deck = state.params.id
     ? state.lastOrder.map((p) => ({ id: p.id, key: p.productKey }))
     : wallet;
