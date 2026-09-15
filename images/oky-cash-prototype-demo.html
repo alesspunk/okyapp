@@ -14614,6 +14614,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       .forEach((bar) => frame.appendChild(bar));
 
     bindHeaderScroll(scroll);
+    bindSwipes();
 
     /* El drawer trae su propia saving bar; la de la pantalla de abajo
        se quita para que no quede pintada encima. */
@@ -14625,6 +14626,96 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     root.appendChild(resetButton);
     fitToViewport();
+  }
+
+  /* Gestos: los carruseles se pasan con el dedo, no solo con las
+     flechas. Se escucha pointer —vale para dedo, lápiz y ratón— y el
+     gesto acaba disparando el mismo botón que ya existía, así que no
+     hay dos caminos que mantener.
+
+     Un swipe termina en click sobre lo que haya debajo; ese click se
+     traga en captura para que arrastrar sobre una card no la abra. */
+  function bindSwipe(el, onSwipe) {
+    if (!el) return;
+    let id = null;
+    let x0 = 0;
+    let y0 = 0;
+    let swipedAt = 0;
+
+    /* El click que el navegador manda después de un arrastre se traga
+       durante un instante, para que pasar de card no abra la card de
+       debajo. Por ventana de tiempo y no con un listener de un solo uso:
+       si el gesto no acaba en click —un arrastre largo no siempre lo
+       produce— el de un solo uso se quedaría armado y se comería el
+       siguiente toque de verdad. */
+    el.addEventListener(
+      "click",
+      (event) => {
+        if (Date.now() - swipedAt > 350) return;
+        event.preventDefault();
+        event.stopPropagation();
+      },
+      true,
+    );
+
+    el.addEventListener(
+      "pointerdown",
+      (event) => {
+        id = event.pointerId;
+        x0 = event.clientX;
+        y0 = event.clientY;
+      },
+      { passive: true },
+    );
+
+    const end = (event) => {
+      if (id !== event.pointerId) return;
+      id = null;
+      const dx = event.clientX - x0;
+      const dy = event.clientY - y0;
+      /* 40px de recorrido y claramente más horizontal que vertical:
+         así un scroll de la pantalla no cuenta como pase. */
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+      /* El pase va primero y la ventana se abre después: las flechas
+         viven dentro del propio carrusel, así que al revés el filtro se
+         comería el click que dispara el gesto. */
+      onSwipe(dx < 0 ? 1 : -1);
+      swipedAt = Date.now();
+    };
+
+    el.addEventListener("pointerup", end, { passive: true });
+    el.addEventListener(
+      "pointercancel",
+      () => {
+        id = null;
+      },
+      { passive: true },
+    );
+  }
+
+  function bindSwipes() {
+    const tap = (action) => {
+      const button = root.querySelector(`[data-action="${action}"]`);
+      if (button) button.click();
+    };
+
+    /* Vale del wallet y detalle de la orden. */
+    bindSwipe(root.querySelector(".oky-flow-card-carousel"), (dir) =>
+      tap(dir > 0 ? "voucher-next" : "voucher-prev"),
+    );
+
+    /* Marcas del checkout. */
+    bindSwipe(root.querySelector(".checkout-brand-carrousel-shell"), (dir) =>
+      tap(dir > 0 ? "carousel-next" : "carousel-prev"),
+    );
+
+    /* Diseños de la tarjeta: aquí no hay flechas, así que el gesto va
+       directo al slide vecino, que es el mismo control que los dots. */
+    bindSwipe(root.querySelector(".oky-flow-design-window"), (dir) => {
+      const next = wrap(state.cardDesignIndex + dir, CARD_DESIGNS.length);
+      const slide = root.querySelector(`[data-action="pick-design"][data-index="${next}"]`);
+      if (slide) slide.click();
+    });
   }
 
   /* Transición de scroll del Discovery Header: al bajar se va el header
