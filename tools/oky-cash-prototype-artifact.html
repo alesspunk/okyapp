@@ -15553,7 +15553,17 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.openOrders = state.openOrders.includes(id)
         ? state.openOrders.filter((o) => o !== id)
         : state.openOrders.concat(id);
-      return render();
+
+      /* render() rehace el contenedor que scrollea, y con él el scroll
+         se iba al principio: abrir una orden de agosto devolvía a la
+         cabecera. Se guarda la posición y se restaura sobre el nodo
+         nuevo, que es otro objeto. */
+      const before = root.querySelector(".oky-flow-scroll");
+      const y = before ? before.scrollTop : 0;
+      render();
+      const after = root.querySelector(".oky-flow-scroll");
+      if (after) after.scrollTop = y;
+      return;
     }
 
     if (action === "open-purchase") return go("voucher", { id: el.dataset.id });
