@@ -12934,6 +12934,11 @@ const findCardDesign = (key) => CARD_DESIGNS.find((d) => d.key === key) || CARD_
 /* Monto con el que abre el PDP de una marca nueva. */
 const BRAND_DEFAULT_AMOUNT = 5;
 
+/* Las dos marcas que arrancan dentro de la banda del descuento
+   especial, y el monto con el que abren mientras la promo vive. */
+const PROMO_PRODUCTS = ["nike", "lyft"];
+const PROMO_DEFAULT_AMOUNT = 51;
+
 /* La promo de "Spooky Deals" dura dos minutos: mientras corre, el rango
    de $50 a $200 paga 20%; al vencer, todo vuelve al 5% base. Es a
    propósito corta — la prueba de usabilidad quiere ver qué hace la
@@ -13096,8 +13101,9 @@ function createInitialState(userType) {
     screen: "home",
     params: {},
     history: [],
-    /* Arranca en 51, dentro del rango de descuento especial (20%). */
-    amounts: { nike: 51, lyft: 51 },
+    /* Arranca en 51, dentro del rango de descuento especial (20%);
+       al vencer la promo vuelve a los 5 del resto de marcas. */
+    amounts: { nike: PROMO_DEFAULT_AMOUNT, lyft: PROMO_DEFAULT_AMOUNT },
     cart: [],
     cartOpen: false,
     checkoutIndex: 0,
@@ -15426,6 +15432,16 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     state.promoLive = false;
+
+    /* Nike y Lyft arrancan en $51 porque ese monto entra en la banda
+       del 20%; sin promo esa banda ya no existe y el PDP tiene que
+       abrir en los mismos $5 que el resto de marcas. Solo se cambia si
+       el monto sigue siendo el de fábrica: si la persona escribió otro,
+       es suyo y no se le toca. */
+    PROMO_PRODUCTS.forEach((key) => {
+      if (state.amounts[key] === PROMO_DEFAULT_AMOUNT) state.amounts[key] = BRAND_DEFAULT_AMOUNT;
+    });
+
     /* Lo que ya está en el carrito también pierde el 20%: es
        justamente lo que la prueba quiere ver. */
     state.cart = state.cart.map((item) => ({
