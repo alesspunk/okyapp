@@ -610,8 +610,6 @@ function screenHome(state) {
         <div class="carousel-container oky-flow-banner-track">
           <div class="carousel-banner"><img src="oky-banner-spooky-1.png" alt="Spooky Deals · 20% 30% 40% OFF" /></div>
           <div class="carousel-banner"><img src="oky-banner-spooky-2.png" alt="Spooky Deals · hasta 40% OFF en experiencias" /></div>
-          <div class="carousel-banner"><img src="oky-banner-1.png" alt="Promo Verano" /></div>
-          <div class="carousel-banner"><img src="oky-banner-2.png" alt="Promo" /></div>
         </div>
       </div>
 
@@ -1309,14 +1307,15 @@ function screenWallet(state) {
   const vouchers = walletVouchers(state);
   const news = vouchers.filter((v) => v.isNew).length;
 
+  /* La barra es un navegador, no un adorno: cada icono lleva a su
+     sección. Va en scroll horizontal para que quepan más categorías sin
+     apretujar las que ya hay. */
   const filters = [
-    { label: "OKY Cash", icon: "oky-cash-coin.png" },
-    { label: "Gift Cards", icon: "plateu-giftcards.png" },
-    { label: "OKY Vales", icon: "plateu-vales.png" },
-    { label: "Servicios", icon: "plateu-servicios.png" },
-    /* El de recargas era una antena de satélite; una recarga es saldo
-       que entra al teléfono, y ese es el icono del set. */
-    { label: "Recargas", icon: "recargas.webp" },
+    { key: "cash", label: "OKY Cash", icon: "oky-cash-coin.png" },
+    { key: "gift", label: "Gift Cards", icon: "plateu-giftcards.png" },
+    { key: "vales", label: "OKY Vales", icon: "plateu-vales.png" },
+    { key: "servicios", label: "Servicios", icon: "plateu-servicios.png" },
+    { key: "recargas", label: "Recargas", icon: "recargas.webp" },
   ];
 
   /* Cabecera de sección: además de plegar, dice de un vistazo lo que
@@ -1362,15 +1361,16 @@ function screenWallet(state) {
     ${statusBar()}
     ${titledHeader("Mi wallet")}
 
-    <section class="plateu-molecule is-static is-default" aria-label="Filtros">
+    <section class="plateu-molecule is-static is-default oky-flow-wallet-nav" aria-label="Categorías">
       <div class="plateu-track is-static">
         ${filters
           .map(
             (f, i) => `
-          <div class="plateu-item">
+          <button class="plateu-item" type="button" data-action="wallet-jump" data-section="${f.key}"
+            aria-label="Ir a ${f.label}">
             <div class="plateu-icon-wrap"><img class="plateu-icon" src="${f.icon}" alt="" /></div>
             ${i === 0 ? `<span class="plateu-chip is-outlined">${f.label}</span>` : `<span class="plateu-label">${f.label}</span>`}
-          </div>
+          </button>
         `,
           )
           .join("")}
@@ -2360,6 +2360,31 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const step = action === "carousel-next" ? 1 : -1;
       state.checkoutIndex = wrap(state.checkoutIndex + step, state.cart.length);
       return render();
+    }
+
+    if (action === "wallet-jump") {
+      /* La barra navega: abre la sección si estaba plegada y la sube a
+         la vista. Todo en sitio, sin re-renderizar, para no perder el
+         scroll ni cortar la animación. */
+      const key = el.dataset.section;
+      root.querySelectorAll(".oky-flow-wallet-nav .plateu-item").forEach((item) => {
+        const on = item === el;
+        const chip = item.querySelector(".plateu-chip, .plateu-label");
+        if (chip) chip.className = on ? "plateu-chip is-outlined" : "plateu-label";
+      });
+
+      const head = root.querySelector(`[data-action="toggle-section"][data-section="${key}"]`);
+      if (!head) return;
+      if (!state.openSections.includes(key)) {
+        state.openSections = [...state.openSections, key];
+        head.setAttribute("aria-expanded", "true");
+        const panel = head.nextElementSibling;
+        if (panel) panel.classList.remove("is-collapsed");
+      }
+      /* Un instante para que el panel empiece a abrirse: si se pide el
+         scroll en el mismo frame, se calcula contra el alto de antes. */
+      setTimeout(() => head.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+      return;
     }
 
     if (action === "toggle-section") {

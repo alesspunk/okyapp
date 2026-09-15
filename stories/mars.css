@@ -8189,7 +8189,10 @@ body {
   padding: 8px;
   box-sizing: border-box;
   border-radius: 16px;
-  background: var(--secondary-light);
+  /* Mismo aqua que los ribbons de cashback: es la misma familia de
+     mensaje —lo que ganas— y con dos verdes distintos parecía otro
+     sistema. Aplica igual en el home y en el checkout. */
+  background: var(--tier-base-bg);
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.17));
   cursor: pointer;
   border: 0;
@@ -10548,4 +10551,56 @@ button.tactic-offer {
   .prime-card-bottom-line.is-copied .prime-card-bottom-line-header::after {
     animation: none;
   }
+}
+
+/* El arte del segundo banner de Halloween trae 4px de blanco alrededor
+   —viene recortado con margen—, y sobre el naranja del home eso se leía
+   como un borde raro. Un pelín de escala se lo come sin tocar el
+   encuadre. */
+.oky-flow-frame .carousel-banner img {
+  transform: scale(1.03);
+}
+
+/* ── Barra de categorías de Mi wallet ───────────────────── */
+/* Es un navegador: va en scroll horizontal para que quepan categorías
+   nuevas sin encoger las que ya están, y cada icono es un botón. */
+.oky-flow-wallet-nav .plateu-track.is-static {
+  width: auto;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  padding: 16px 16px 12px;
+  gap: 20px;
+  scrollbar-width: none;
+}
+
+.oky-flow-wallet-nav .plateu-track.is-static::-webkit-scrollbar {
+  display: none;
+}
+
+.oky-flow-wallet-nav .plateu-item {
+  flex: 0 0 auto;
+  width: 64px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  scroll-snap-align: start;
+  gap: 6px;
+}
+
+.oky-flow-wallet-nav .plateu-item:active .plateu-icon-wrap {
+  transform: scale(0.94);
+}
+
+.oky-flow-wallet-nav .plateu-icon-wrap {
+  transition: transform 160ms ease-out;
+}
+
+/* El rótulo de la categoría activa no debe empujar a las vecinas. */
+.oky-flow-wallet-nav .plateu-chip,
+.oky-flow-wallet-nav .plateu-label {
+  max-width: 100%;
+  white-space: nowrap;
 }
