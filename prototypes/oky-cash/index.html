@@ -10701,6 +10701,14 @@ button.tactic-offer {
 /* ── Strip de moda (debajo de Geeky Deals) ──────────────── */
 /* Mismo organismo que Spooky Deals, pero fuera del degradado del home:
    aquí el título va en el morado de marca y no en el marrón del tema. */
+/* Ese -16px es un ajuste del strip de Spooky Deals, que vive dentro
+   del degradado; aquí sobra y dejaba a Moda pegada a Geeky Deals.
+   Restaurados los márgenes, mandan los 20px de la sección. */
+.oky-flow-frame .oky-flow-style-strip {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 .oky-flow-frame .oky-flow-style-strip .tactic-strip-title {
   display: inline-flex;
   align-items: center;
