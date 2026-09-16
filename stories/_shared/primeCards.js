@@ -273,6 +273,7 @@ function renderBottomMedia(media) {
   return `
     <div class="prime-card-bottom-media is-${media.type}">
       <img src="${media.src}" alt="${media.alt || ""}" />
+      ${media.caption ? `<p class="prime-card-bottom-media-caption">${media.caption}</p>` : ""}
     </div>
   `;
 }
@@ -335,16 +336,19 @@ export function resolveCardTop(args = {}) {
 
 export function resolveCardBottom(args = {}) {
   const base = findCardBottom(args.variantPath);
-  const overrideLines = Array.isArray(args.lines) && args.lines.length ? args.lines : null;
+  const overrideLines = Array.isArray(args.lines) ? args.lines : null;
 
   return {
     ...base,
+    /* Una lista vacía es una respuesta válida: el vale compartido
+       cambia sus códigos por el sello. */
     lines: overrideLines ?? base.lines,
     content: overrideLines ? null : base.content,
-    media: base.media,
+    media: args.media || base.media,
     expiry: typeof args.expiry === "string" ? args.expiry.trim() : base.expiry,
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,
     showButtonLabel: typeof args.showButtonLabel === "boolean" ? args.showButtonLabel : true,
+    showButton: typeof args.showButton === "boolean" ? args.showButton : true,
     whatsappImage: args.whatsappImage?.trim() || "whatsapp-icon-card-bottom.png",
   };
 }
@@ -369,12 +373,20 @@ export function renderCardBottom(card) {
           <div class="prime-card-bottom-main">
             ${renderBottomMain(card)}
           </div>
-          <div class="prime-card-bottom-side">
-            <div class="prime-card-bottom-expiry">${card.expiry || "&nbsp;"}</div>
-            <div class="prime-card-bottom-button-slot">
-              ${renderBottomButton(card)}
+          ${
+            /* showButton: false deja la parte de abajo sin columna de
+               ayuda —el vale compartido no tiene nada que consultar—. */
+            card.showButton === false
+              ? ""
+              : `
+            <div class="prime-card-bottom-side">
+              <div class="prime-card-bottom-expiry">${card.expiry || "&nbsp;"}</div>
+              <div class="prime-card-bottom-button-slot">
+                ${renderBottomButton(card)}
+              </div>
             </div>
-          </div>
+          `
+          }
         </div>
       </article>
     </div>

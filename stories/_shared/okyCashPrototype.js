@@ -1789,7 +1789,7 @@ function screenVoucher(state) {
     ${statusBar()}
     ${titledHeader(title)}
     <div class="oky-flow-section is-voucher">
-      <div class="oky-flow-card-carousel">
+      <div class="oky-flow-card-carousel${shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
         topVariantPath: "Molecule/Top Card/Gift Card",
         topBrandLabel: card.label,
@@ -1803,6 +1803,16 @@ function screenVoucher(state) {
         middleAmount: String(amount),
         bottomVariantPath: "Molecule/Bottom Card/Gift Card",
         bottomButtonLabel: "Help",
+        /* Compartido, la parte de abajo de la card deja de mostrar
+           credenciales —ya salieron de aquí— y pasa a ser el sello con
+           la fecha, que es la anatomía del frame "Canjeado". */
+        ...(shared
+          ? {
+              bottomLines: [],
+              bottomShowButton: false,
+              bottomMedia: { type: "stamp", src: "oky-seal-shared.png", alt: "Compartido" },
+            }
+          : {}),
       })}
       ${
         many
@@ -1825,10 +1835,7 @@ function screenVoucher(state) {
            el recibo de una compra recién hecha. */
         shared
           ? `
-        <div class="oky-flow-voucher-shared">
-          <img class="oky-flow-voucher-seal" src="oky-seal-shared.png" alt="Compartido" />
-          <p class="oky-flow-voucher-shared-date">${sharedOn}</p>
-        </div>
+        <p class="oky-flow-voucher-shared-date">${sharedOn}</p>
 
         <div class="oky-flow-voucher-actions">
           <button class="oky-flow-switch is-on" data-action="toggle-shared" data-key="${card.key}"
@@ -1836,7 +1843,7 @@ function screenVoucher(state) {
             <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
             <span class="oky-flow-switch-label">Compartido</span>
           </button>
-          <button class="btn btn-outlined btn-small" data-action="ask-archive" data-key="${card.key}" type="button">
+          <button class="btn btn-outlined oky-flow-archive-btn" data-action="ask-archive" data-key="${card.key}" type="button">
             Archivar
           </button>
         </div>

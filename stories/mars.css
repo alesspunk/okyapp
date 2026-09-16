@@ -10502,9 +10502,12 @@ button.tactic-offer {
   }
 }
 
-/* El vale abre más cerca de la cabecera: 20px menos de aire arriba. */
+/* El vale abre más cerca de la cabecera: 20px menos de aire arriba. Y
+   el pie de acciones necesita su propio aire para no quedar pegado a
+   la navbar. */
 .oky-flow-section.is-voucher {
   padding-top: 0;
+  padding-bottom: 16px;
   margin-top: -4px;
 }
 
@@ -10830,32 +10833,65 @@ button.tactic-offer {
   display: none;
 }
 
-/* ── Vale compartido: sello y acciones ──────────────────── */
-.oky-flow-voucher-shared {
-  display: flex;
+/* ── Vale compartido ────────────────────────────────────── */
+/* El sello va dentro de la Bottom Card, en el sitio que ocupaban las
+   credenciales: es la misma anatomía de la molécula —contenido y media—
+   solo que el media ahora es el sello y su fecha. */
+.prime-card-bottom-media.is-stamp {
+  position: relative;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  justify-content: center;
+  gap: 4px;
   width: 100%;
-  margin-top: -4px;
+  padding: 4px 0 8px;
 }
 
-.oky-flow-voucher-seal {
-  width: 132px;
-  height: 132px;
+.prime-card-bottom-media.is-stamp img {
+  width: 140px;
+  height: 140px;
   object-fit: contain;
-  /* El sello viene exportado sobre su fondo claro; mezclarlo en
-     multiply lo asienta sobre el blanco de la pantalla sin recortes. */
-  mix-blend-mode: multiply;
 }
 
-.oky-flow-voucher-shared-date {
+/* El check tenue del borde derecho, como en el frame: la card ya está
+   marcada, no hace falta más que insinuarlo. */
+.prime-card-bottom-media.is-stamp::after {
+  content: "\f00c";
+  position: absolute;
+  right: 16px;
+  bottom: 34px;
+  font-family: "Font Awesome 6 Pro", "FA Free Solid Fallback";
+  font-weight: 900;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.22);
+}
+
+.prime-card-bottom-media-caption {
   margin: 0;
   font-family: "Nunito Sans", sans-serif;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.4px;
   color: var(--text-secondary);
+}
+
+/* La fecha del canje va debajo de la card, no dentro. */
+.oky-flow-voucher-shared-date {
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary);
+}
+
+/* Compartido, el monto deja de ser una promesa: la card del medio se
+   apaga a gris y el vale se lee como algo que ya pasó. */
+.oky-flow-card-carousel.is-redeemed .middle-card-molecule {
+  filter: grayscale(1);
+  opacity: 0.72;
 }
 
 .oky-flow-voucher-actions {
@@ -10911,6 +10947,15 @@ button.tactic-offer {
   transform: translateX(20px);
 }
 
+/* El botón de archivar es el del frame: 137x40, no el chip pequeño. */
+.oky-flow-archive-btn {
+  min-width: 137px;
+  height: 40px;
+  padding: 0 20px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
 /* ── Hoja de confirmación ───────────────────────────────── */
 .oky-flow-sheet-backdrop {
   position: absolute;
@@ -10935,7 +10980,11 @@ button.tactic-offer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 16px 20px;
+  /* Ocupa el mismo alto que en el frame —dos tercios de la pantalla— y
+     reparte: cabecera arriba, ilustración llenando el hueco y acciones
+     al pie. Antes la hoja crecía con el contenido y sobraba morado. */
+  height: 68%;
+  padding: 28px 16px 24px;
   border-radius: 28px 28px 0 0;
   background: var(--primary-base);
   text-align: center;
@@ -10981,20 +11030,31 @@ button.tactic-offer {
 
 .oky-flow-sheet-art {
   position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 196px;
-  height: 196px;
-  margin: 12px 0 16px;
+  width: 100%;
+  margin: 8px 0 12px;
+}
+
+/* Los dos anillos del frame, detrás de la ilustración. */
+.oky-flow-sheet-art::after {
+  content: "";
+  position: absolute;
+  width: 208px;
+  height: 208px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
 }
 
 .oky-flow-sheet-art img {
   position: relative;
-  width: 172px;
-  height: 172px;
+  width: auto;
+  max-width: 78%;
+  height: 100%;
+  max-height: 232px;
   object-fit: contain;
 }
 
@@ -11003,13 +11063,14 @@ button.tactic-offer {
 .oky-flow-sheet-art::before {
   content: "";
   position: absolute;
-  width: 152px;
-  height: 152px;
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
 }
 
 .oky-flow-sheet-actions {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: stretch;

@@ -62,6 +62,11 @@ export function resolveCardOrganismArgs(args = {}) {
       variantPath: CARD_BOTTOM_PATHS.includes(args.bottomVariantPath) ? args.bottomVariantPath : bottomBase.path,
       transactionId: typeof args.bottomTransactionId === "string" ? args.bottomTransactionId : bottomBase.transactionId,
       expiry: typeof args.bottomExpiry === "string" ? args.bottomExpiry : bottomBase.expiry,
+      /* El vale compartido cambia los códigos por el sello: se puede
+         pasar una lista vacía y un media propio. */
+      lines: Array.isArray(args.bottomLines) ? args.bottomLines : undefined,
+      media: args.bottomMedia,
+      showButton: args.bottomShowButton,
       buttonLabel: args.bottomButtonLabel?.trim() || bottomBase.buttonLabel,
       showButtonLabel:
         typeof args.bottomShowButtonLabel === "boolean" ? args.bottomShowButtonLabel : true,
