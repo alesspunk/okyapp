@@ -1683,10 +1683,14 @@ function sectionOfVoucher(key) {
    el resto entra por tandas con "Ver más". */
 const WALLET_PAGE = 5;
 
+/* La bandera dice de qué marketplace salió la tarjeta: los vales y los
+   servicios son de Guatemala; las gift cards, del catálogo de USA. */
+function countryOfSection(section) {
+  return section === "gift" ? "US" : "GT";
+}
+
 function walletVoucherButton(v, deck) {
-  /* La bandera dice de qué marketplace salió el vale: los OKY Vales son
-     de Guatemala, todo lo demás del catálogo de USA. */
-  const country = deck === "vales" ? "GT" : "US";
+  const country = countryOfSection(deck);
   return `
     <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
       data-action="open-voucher" data-key="${v.key}" data-deck="${deck}" type="button" aria-label="${v.label}">
@@ -2148,7 +2152,7 @@ function screenVoucher(state) {
       <div class="oky-flow-card-carousel${shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
         topVariantPath: "Molecule/Top Card/Gift Card",
-        topFlagCode: sectionOfVoucher(card.key) === "vales" ? "GT" : "US",
+        topFlagCode: countryOfSection(sectionOfVoucher(card.key)),
         topBrandLabel: card.label,
         topHeroImage: card.art,
         topHeroAlt: card.label,
