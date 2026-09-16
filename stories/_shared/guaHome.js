@@ -113,11 +113,15 @@ export const GUA_HOME_MARKUP = `
         <section class="mockup-block homecard" data-pen-id="76102:40872-homecard-comida-rapida">
           <section class="homecard-organism">
             <header class="homecard-header">
-              <h3 class="token-h6 homecard-title">Comida Rápida</h3>
+              <h3 class="token-h6 homecard-title">Novedades</h3>
             </header>
 
             <div class="homecard-content homecard-content-default">
               <div class="homecard-grid">
+                <article class="homecard-tile is-live" data-action="open-tigo" role="button" tabindex="0">
+                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="tigo.webp" alt="Tigo" /></div>
+                  <p class="token-brand homecard-tile-name">Tigo</p>
+                </article>
                 <article class="homecard-tile">
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="mcdonalds.webp" alt="McDonald's logo" /></div>
                   <p class="token-brand homecard-tile-name">McDonald's</p>

@@ -11750,3 +11750,28 @@ button.tactic-offer {
 .oky-flow-gua-pdp .pdp-page-stack {
   padding-bottom: 0;
 }
+
+/* La card de Tigo es la única viva de esa parrilla. */
+.homecard-tile.is-live {
+  cursor: pointer;
+}
+
+.homecard-tile.is-live:active {
+  transform: scale(0.98);
+}
+
+/* ── Plateu del PDP de Tigo ─────────────────────────────── */
+/* Los nombres de categoría van en sentence case, como en el resto de
+   la app, y el activo se marca con borde mostaza en vez de rellenarse:
+   el relleno pesaba más que el propio icono. */
+.oky-flow-gua-pdp .plateu-label,
+.oky-flow-gua-pdp .plateu-chip {
+  text-transform: none;
+  letter-spacing: 0.2px;
+}
+
+.oky-flow-gua-pdp .plateu-chip {
+  background: transparent;
+  border: 1px solid var(--accent-color);
+  color: var(--primary-base);
+}

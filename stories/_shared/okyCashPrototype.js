@@ -240,6 +240,8 @@ PRODUCTS.tigo = {
   rate: 5,
   bg: "#00377b",
   legal: false,
+  /* Comprado, se guarda con los vales y no con las gift cards. */
+  wallet: "vales",
 };
 
 /* Secciones de marcas del Home (Figma "Theme 1", 99135:106016). */
@@ -613,7 +615,10 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
    el organismo trae para cuando la página ya está scrolleada. */
 function homeHeader(state, headerState) {
   return renderDiscoveryHeader({
-    side: "Left",
+    /* El átomo Folder tiene dos variantes y la que manda es qué país
+       está delante: Left con USA al frente, Right con GUA. Es el mismo
+       comportamiento que la story del componente. */
+    side: state.screen === "homegua" ? "Right" : "Left",
     state: headerState,
     walletAction: "nav:wallet",
     cartAction: "open-cart",
@@ -1453,7 +1458,10 @@ const CATEGORY_OF = {
    Archivar no borra —el vale sigue existiendo— solo lo saca de la vista
    principal, que es lo que la gente espera de un archivo. */
 function walletDeck(state, section, { filtered = true } = {}) {
-  const all = section === "gift" ? walletVouchers(state) : WALLET_EXTRAS[section] || [];
+  const all =
+    section === "gift"
+      ? walletVouchers(state)
+      : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]);
   return all.filter((v) => {
     if (state.archivedVouchers.includes(v.key)) return false;
     if (filtered && state.walletFilter && CATEGORY_OF[v.key] !== state.walletFilter) return false;
@@ -1475,13 +1483,19 @@ function walletCategories(state) {
 
 /* Todo lo archivado, venga de la sección que venga. */
 function archivedDeck(state) {
-  const all = [...walletVouchers(state), ...WALLET_EXTRAS.vales, ...WALLET_EXTRAS.servicios];
+  const all = [
+    ...walletVouchers(state),
+    ...walletVouchers(state, "vales"),
+    ...WALLET_EXTRAS.vales,
+    ...WALLET_EXTRAS.servicios,
+  ];
   return state.archivedVouchers
     .map((key) => all.find((v) => v.key === key))
     .filter(Boolean);
 }
 
 function sectionOfVoucher(key) {
+  if (PRODUCTS[key] && PRODUCTS[key].wallet) return PRODUCTS[key].wallet;
   if (WALLET_EXTRAS.vales.some((v) => v.key === key)) return "vales";
   if (WALLET_EXTRAS.servicios.some((v) => v.key === key)) return "servicios";
   return "gift";
@@ -1512,7 +1526,14 @@ function hasNewVouchers(state) {
    agrupado por marca y con su cantidad, y detrás las marcas de muestra
    que todavía no ha comprado. Aquí sí se acumula — este es el
    repositorio de gift cards. */
-function walletVouchers(state) {
+/* Lo comprado manda sobre la muestra: si Tigo ya se compró, el vale de
+   ejemplo de esa misma marca no se repite debajo. */
+function mergeWalletSection(owned, demo = []) {
+  return [...owned, ...demo.filter((v) => !owned.some((o) => o.key === v.key))];
+}
+
+/* section: "gift" o "vales" — dónde guarda cada producto lo comprado. */
+function walletVouchers(state, section = "gift") {
   const owned = [];
   state.purchases
     .slice()
@@ -1523,7 +1544,9 @@ function walletVouchers(state) {
         found.count += 1;
         return;
       }
+
       const product = PRODUCTS[purchase.productKey];
+      if ((product.wallet || "gift") !== section) return;
       owned.push({
         key: product.key,
         label: product.label,
@@ -1536,10 +1559,12 @@ function walletVouchers(state) {
       });
     });
 
-  const demo = WALLET_VOUCHERS.filter((v) => !owned.some((o) => o.key === v.key)).map((v) => ({
-    ...v,
-    count: 1,
-  }));
+  /* Las gift cards traen además las marcas de muestra; los vales no,
+     que esos vienen de WALLET_EXTRAS. */
+  const demo =
+    section === "gift"
+      ? WALLET_VOUCHERS.filter((v) => !owned.some((o) => o.key === v.key)).map((v) => ({ ...v, count: 1 }))
+      : [];
 
   return [...owned, ...demo];
 }
@@ -1887,7 +1912,10 @@ function screenVoucher(state) {
   const section = state.params.deck || "gift";
   /* Lo archivado sigue siendo abrible desde su sección de archivados,
      así que el mazo de aquí lo incluye. */
-  const wallet = section === "gift" ? walletVouchers(state) : WALLET_EXTRAS[section] || [];
+  const wallet =
+    section === "gift"
+      ? walletVouchers(state)
+      : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]);
   /* Un vale de Pollo Campero no es una gift card: la card lo dice. */
   const kind = { vales: "OKY Vale", servicios: "Servicio" }[section] || "Gift Card";
   const deck = state.params.id
@@ -3314,7 +3342,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         return go("voucher", { id: next.id }, { push: false });
       }
       const section = state.params.deck || "gift";
-      const list = section === "gift" ? walletVouchers(state) : WALLET_EXTRAS[section] || [];
+      const list =
+        section === "gift"
+          ? walletVouchers(state)
+          : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]);
       const at = list.findIndex((v) => v.key === state.params.key);
       const next = list[wrap((at < 0 ? 0 : at) + step, list.length)];
       /* Abrirlo por el carrusel también lo da por visto. */
