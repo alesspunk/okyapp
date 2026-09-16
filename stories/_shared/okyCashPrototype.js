@@ -49,6 +49,7 @@ import { renderHistoryCard } from "./historyCards";
 import { renderDiscoveryHeader } from "./discoveryHeader";
 import { renderCardOrganism } from "./cardOrganism";
 import { GUA_HOME_MARKUP } from "./guaHome";
+import { renderFlag } from "./flag";
 import { lottie } from "./lottieLight";
 import { OKY_CASH_WIN_ANIMATION } from "./okyCashWinAnimation";
 
@@ -1331,7 +1332,7 @@ function screenMethods(state) {
 
       <div class="oky-flow-method-group" style="width:100%;padding-top:8px">
         <div class="oky-flow-method-row is-selected">
-          <span class="oky-flow-radio" aria-hidden="true"><i class="fa-solid fa-circle-dot"></i></span>
+          <span class="oky-flow-radio is-on" aria-hidden="true"></span>
           <i class="fa-brands ${selected.mark} oky-flow-method-mark is-${selected.key}" aria-hidden="true"></i>
           <p class="oky-flow-method-name">${selected.label}</p>
           <span class="oky-flow-chip is-card">${money(toCard)}</span>
@@ -1356,7 +1357,7 @@ function screenMethods(state) {
           (card) => `
         <div class="oky-flow-method-row" style="width:100%;margin-top:8px"
           data-action="select-card" data-card="${card.key}" role="button" tabindex="0">
-          <span class="oky-flow-radio" aria-hidden="true"><i class="fa-regular fa-circle"></i></span>
+          <span class="oky-flow-radio" aria-hidden="true"></span>
           <i class="fa-brands ${card.mark} oky-flow-method-mark is-${card.key}" aria-hidden="true"></i>
           <p class="oky-flow-method-name is-regular">${card.label}</p>
         </div>
@@ -1564,16 +1565,60 @@ const CATEGORY_OF = {
 /* Lo que se ve en una sección del wallet: lo suyo, menos lo archivado.
    Archivar no borra —el vale sigue existiendo— solo lo saca de la vista
    principal, que es lo que la gente espera de un archivo. */
+/* El filtro es un solo radiogrupo, pero mezcla dos ejes: categoría y
+   estado. Los de estado llevan prefijo para no chocar con las claves de
+   categoría. */
+const STATE_FILTERS = {
+  "@archived": {
+    label: "Archivadas",
+    test: (state, v) => state.archivedVouchers.includes(v.key),
+  },
+  "@shared": {
+    label: "Compartidas",
+    test: (state, v) => state.sharedVouchers.includes(v.key),
+  },
+  "@unshared": {
+    label: "No compartidas",
+    test: (state, v) => !state.sharedVouchers.includes(v.key),
+  },
+};
+
 function walletDeck(state, section, { filtered = true } = {}) {
   const all =
     section === "gift"
       ? walletVouchers(state)
       : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]);
+  const mode = filtered ? state.walletFilter : "";
+  const byState = STATE_FILTERS[mode];
+
   return all.filter((v) => {
-    if (state.archivedVouchers.includes(v.key)) return false;
-    if (filtered && state.walletFilter && CATEGORY_OF[v.key] !== state.walletFilter) return false;
+    const archived = state.archivedVouchers.includes(v.key);
+    /* Viendo el archivo, lo archivado es justo lo que se busca; en
+       cualquier otra vista se queda fuera. */
+    if (mode === "@archived") return archived;
+    if (archived) return false;
+    if (byState) return byState.test(state, v);
+    if (mode && CATEGORY_OF[v.key] !== mode) return false;
     return true;
   });
+}
+
+/* Cuántas hay en cada filtro de estado, para el contador del listado. */
+function walletStateCounts(state) {
+  const all = ["gift", "vales", "servicios"].flatMap((section) =>
+    section === "gift"
+      ? walletVouchers(state)
+      : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]),
+  );
+  return Object.fromEntries(
+    Object.entries(STATE_FILTERS).map(([key, filter]) => [
+      key,
+      all.filter((v) => {
+        const archived = state.archivedVouchers.includes(v.key);
+        return key === "@archived" ? archived : !archived && filter.test(state, v);
+      }).length,
+    ]),
+  );
 }
 
 /* Solo las categorías con marcas en el wallet, y cuántas hay en cada
@@ -1614,12 +1659,18 @@ function sectionOfVoucher(key) {
 const WALLET_PAGE = 5;
 
 function walletVoucherButton(v, deck) {
+  /* La bandera dice de qué marketplace salió el vale: los OKY Vales son
+     de Guatemala, todo lo demás del catálogo de USA. */
+  const country = deck === "vales" ? "GT" : "US";
   return `
     <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
       data-action="open-voucher" data-key="${v.key}" data-deck="${deck}" type="button" aria-label="${v.label}">
       <img src="${v.art}" alt="${v.label}" />
       ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
-      <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+      <span class="oky-flow-voucher-marks">
+        <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+        <span class="oky-flow-voucher-flag">${renderFlag({ code: country, size: "Small" })}</span>
+      </span>
     </button>
   `;
 }
@@ -1764,7 +1815,7 @@ function screenWallet(state) {
 
     <div class="oky-flow-wallet-filter">
       <span class="oky-flow-wallet-filter-label">
-        ${state.walletFilter ? (WALLET_CATEGORIES.find((c) => c.key === state.walletFilter) || {}).label : "Todas las categorías"}
+        ${walletFilterLabel(state)}
       </span>
       ${
         /* Con filtro puesto el botón lo dice y ofrece quitarlo ahí
@@ -1835,7 +1886,7 @@ function screenWallet(state) {
       ${
         /* El archivo solo existe cuando hay algo dentro: una sección
            vacía permanente solo sería ruido. */
-        archived.length
+        archived.length && state.walletFilter !== "@archived"
           ? `
         ${sectionHead("archivados", "fa-box-archive", "Archivados", String(archived.length))}
         ${body(
@@ -2244,8 +2295,17 @@ const CONFIRM_SHEETS = {
 /* Hoja de filtros: blanca, con radios y una sola decisión por vez.
    Cada opción trae su cuenta —no hay que abrir para ver si hay algo— y
    "Todas" vive arriba como salida rápida. */
+/* Lo que dice la cabecera del wallet: la categoría, el estado o que no
+   hay filtro puesto. */
+function walletFilterLabel(state) {
+  if (!state.walletFilter) return "Todas las categorías";
+  if (STATE_FILTERS[state.walletFilter]) return STATE_FILTERS[state.walletFilter].label;
+  return (WALLET_CATEGORIES.find((c) => c.key === state.walletFilter) || {}).label || "Todas las categorías";
+}
+
 function filterSheet(state) {
   const cats = walletCategories(state);
+  const counts = walletStateCounts(state);
   const option = (key, label, count) => {
     const on = state.walletFilter === key;
     return `
@@ -2271,6 +2331,10 @@ function filterSheet(state) {
       <div class="oky-flow-filter-list" role="radiogroup">
         ${option("", "Todas las categorías", null)}
         ${cats.map((cat) => option(cat.key, cat.label, cat.count)).join("")}
+        <span class="oky-flow-filter-divider" aria-hidden="true"></span>
+        ${Object.entries(STATE_FILTERS)
+          .map(([key, filter]) => option(key, filter.label, counts[key]))
+          .join("")}
       </div>
     </section>
   `;

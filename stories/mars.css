@@ -7212,12 +7212,15 @@ body {
   --payment-card-border: var(--white);
 }
 
+/* La tarjeta de OKY Cash va a 16px, no a los 24px de las bancarias. */
 .payment-card-molecule.is-oky-cash-black {
+  --payment-card-radius: 16px;
   --payment-card-bg: #000000;
   --payment-card-border: #000000;
 }
 
 .payment-card-molecule.is-oky-cash-teal {
+  --payment-card-radius: 16px;
   --payment-card-bg: linear-gradient(91.71deg, #0ab5b1 38.84%, #109794 104.52%);
   --payment-card-border: var(--border-main);
   --payment-card-pattern-opacity: 0.27;
@@ -7634,10 +7637,37 @@ body {
 /* badge de cantidad + QR (Figma top 13). Se ancla por la derecha en
    vez de por la izquierda: con left:271px estaba calculado para una
    card de 343px y al ajustarse a la columna quedaba a 5px del borde. */
-.oky-flow-voucher-badge {
+/* Contador y bandera comparten la esquina: en una fila, para que no se
+   pisen en la franja que asoma de cada tarjeta apilada. */
+.oky-flow-voucher-marks {
   position: absolute;
   right: 13px;
   top: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.oky-flow-voucher-flag {
+  display: inline-flex;
+  width: 28px;
+  height: 21px;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.oky-flow-voucher-flag .flag-atom,
+.oky-flow-voucher-flag .flag-atom img {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: inherit;
+  box-shadow: none;
+  object-fit: cover;
+}
+
+.oky-flow-voucher-badge {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -7968,11 +7998,9 @@ body {
   color: #21514d;
 }
 
-.oky-flow-method-row .oky-flow-radio {
-  flex: 0 0 24px;
-  font-size: 22px;
-  color: var(--primary-base);
-}
+/* El radio lo dibuja .oky-flow-radio entero —borde y punto—; antes
+   llevaba además un icono de Font Awesome dentro y se veían dos
+   círculos montados. */
 
 .oky-flow-method-art {
   flex: 0 0 32px;
@@ -11477,10 +11505,21 @@ button.tactic-offer {
   transition: border-color 160ms ease-out;
 }
 
+/* Separa los filtros de categoría de los de estado: son dos ejes en la
+   misma lista y sin la línea se leen como uno solo. */
+.oky-flow-filter-divider {
+  display: block;
+  height: 1px;
+  margin: 8px 0;
+  background: var(--border-main);
+}
+
+.oky-flow-radio.is-on,
 .oky-flow-filter-option.is-on .oky-flow-radio {
   border-color: var(--primary-main);
 }
 
+.oky-flow-radio.is-on::after,
 .oky-flow-filter-option.is-on .oky-flow-radio::after {
   content: "";
   position: absolute;
