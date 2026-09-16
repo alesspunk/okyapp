@@ -62,7 +62,7 @@ const PRODUCTS = {
     cardTitle: "Nike Gift Card",
     art: "oky-card-nike.png",
     bg: "#ef4c26",
-    hero: "promo-image8.png",
+    hero: "photo-nike.png",
     min: 10,
     max: 1000,
     legal: true,
@@ -1861,24 +1861,22 @@ function screenWallet(state) {
       <button class="oky-flow-section-head" data-action="toggle-section" data-section="${key}"
         type="button" aria-expanded="${open}">
         <span class="oky-flow-section-head-label">
-          <i class="fa-solid ${icon}" aria-hidden="true"></i>${label}
+          <i class="fa-solid ${icon}" aria-hidden="true"></i>${label}${
+            /* El contador va pegado al título; el saldo de OKY Cash no,
+               que ese es un importe y vive en su chip. */
+            meta && !chip ? ` (${meta})` : ""
+          }
         </span>
         <span class="oky-flow-section-head-meta">
           ${
-            /* La novedad va aparte del contador y en rojo: es un aviso,
-               no una cuenta más. Se apaga al abrir la tarjeta. */
-            news
-              ? `<span class="oky-flow-section-news">${news} nueva${news > 1 ? "s" : ""}</span>`
-              : ""
+            /* La novedad es un aviso, no una cuenta: un círculo rojo con
+               el número, alineado con el chip de OKY Cash de arriba. */
+            news ? `<span class="oky-flow-section-news">${news}</span>` : ""
           }
           ${
             /* El chip va siempre en el DOM y se esconde al desplegar: el
                plegado es en sitio, sin re-render, y así puede volver. */
-            !meta
-              ? ""
-              : chip
-                ? `<span class="oky-flow-chip is-cash"${open ? " hidden" : ""}>${meta}</span>`
-                : `<span class="oky-flow-section-head-value">${meta}</span>`
+            meta && chip ? `<span class="oky-flow-chip is-cash"${open ? " hidden" : ""}>${meta}</span>` : ""
           }
           <i class="fa-solid fa-chevron-down oky-flow-section-caret" aria-hidden="true"></i>
         </span>
@@ -2989,17 +2987,26 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      y no volvía nunca. Ahora no se toca el scroll —los umbrales quedan
      estables, sin realimentación— y el salto se resuelve como toca:
      animando el alto del header. */
-  /* Filtrando, las secciones se pliegan: el resultado se lee de un
-     vistazo por sus contadores y se abre la que interese. Al quitar el
-     filtro vuelve a estar abierto lo que lo estaba antes. */
+  /* Filtrando se abren todas las secciones: lo que se busca es ver los
+     resultados, no contarlos. Al quitar el filtro vuelve a estar
+     abierto lo que lo estaba antes. */
   function setWalletFilter(next) {
     const was = state.walletFilter;
     if (next && !was) state.openBeforeFilter = state.openSections;
     state.walletFilter = next;
-    state.openSections = next ? [] : state.openBeforeFilter || state.openSections;
+    state.openSections = next
+      ? ["gift", "vales", "servicios"]
+      : state.openBeforeFilter || state.openSections;
     if (!next) state.openBeforeFilter = null;
     state.sheet = null;
     return render();
+  }
+
+  /* El chip del saldo solo acompaña a la cabecera plegada: abierta, el
+     importe ya está en la tarjeta y se estaría diciendo dos veces. */
+  function syncHeadChip(head, isOpen) {
+    const chip = head.querySelector(".oky-flow-section-head-meta .oky-flow-chip");
+    if (chip) chip.hidden = isOpen;
   }
 
   function goCountry(country) {
@@ -3576,6 +3583,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         head.setAttribute("aria-expanded", "true");
         const panel = head.nextElementSibling;
         if (panel) panel.classList.remove("is-collapsed");
+        syncHeadChip(head, true);
       }
       /* Un instante para que el panel empiece a abrirse: si se pide el
          scroll en el mismo frame, se calcula contra el alto de antes.
@@ -3609,10 +3617,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       el.setAttribute("aria-expanded", String(!open));
       const panel = el.nextElementSibling;
       if (panel) panel.classList.toggle("is-collapsed", open);
-      /* El chip del saldo solo acompaña a la cabecera plegada: abierta,
-         el saldo ya está en la tarjeta. */
-      const chip = el.querySelector(".oky-flow-section-head-meta .oky-flow-chip");
-      if (chip) chip.hidden = !open;
+      syncHeadChip(el, !open);
       return;
     }
 

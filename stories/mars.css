@@ -7922,21 +7922,23 @@ body {
   border-top: 0;
 }
 
-/* El aviso de novedades de una sección del wallet: rojo y en píldora,
-   separado del contador para que no se lean como un solo número. */
+/* El aviso de novedades: un círculo rojo con el número, del alto del
+   chip de OKY Cash para que los dos caigan en la misma vertical. */
 .oky-flow-section-news {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
-  border-radius: 999px;
+  justify-content: center;
+  border-radius: 50%;
   background: var(--error-main);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1.5;
-  letter-spacing: 0.2px;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.15px;
   color: var(--white);
-  white-space: nowrap;
 }
 
 /* Fila única: se redondea entera, que no hay nada a lo que pegarse. */
