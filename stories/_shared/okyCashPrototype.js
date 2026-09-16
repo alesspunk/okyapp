@@ -486,6 +486,9 @@ function createInitialState(userType) {
     countrySheet: null,
     /* Aviso de "agregado al carrito", que se apaga solo. */
     addedToast: false,
+    /* Lo que estaba abierto antes de filtrar, para devolverlo al
+       quitar el filtro. */
+    openBeforeFilter: null,
     /* Cuántas cards se han pedido ya en cada sección del wallet. */
     walletShown: { gift: WALLET_PAGE, vales: WALLET_PAGE, servicios: WALLET_PAGE },
     /* Vales que ya se compartieron y vales archivados (por key). Los dos
@@ -1174,6 +1177,8 @@ function screenCheckout(state) {
   const earned = earnedCashback(state);
   const tier = getTier(total);
   const active = clamp(state.checkoutIndex, 0, Math.max(state.cart.length - 1, 0));
+  /* Con el saldo en cero la mitad de OKY Cash no pinta nada. */
+  const hasCash = state.okyCashBalance > 0;
   /* Cada vale lleva su propio porcentaje en el wrap ribbon, igual que
      en el PDP: con el reloj en pausa aquí dentro, el 20% de Nike no se
      convierte en 5% mientras se ajusta el pago. */
@@ -1277,7 +1282,7 @@ function screenCheckout(state) {
 
       <div class="payment-method-input oky-flow-paygroup" style="width:100%">
         <span class="payment-method-label">Método de pago</span>
-        <div class="oky-flow-payrow is-first" data-action="open-methods" role="button" tabindex="0">
+        <div class="oky-flow-payrow ${hasCash ? "is-first" : "is-only"}" data-action="open-methods" role="button" tabindex="0">
           <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
           <p class="oky-flow-payrow-copy">${checkoutCard.label}</p>
           <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-card">${money(toCard)}</span></span>
@@ -1285,6 +1290,13 @@ function screenCheckout(state) {
             <i class="fa-solid fa-ellipsis-vertical"></i>
           </span>
         </div>
+        ${
+          /* Sin saldo no hay nada que activar: la fila de OKY Cash sobra
+             y el método de pago se queda solo, con las cuatro esquinas
+             redondeadas. */
+          !hasCash
+            ? ""
+            : `
         <div class="oky-flow-payrow is-last">
           <button class="oky-flow-check${state.okyCashEnabled ? " is-checked" : ""}"
             data-action="toggle-okycash" type="button"
@@ -1297,6 +1309,8 @@ function screenCheckout(state) {
             <i class="fa-solid fa-ellipsis-vertical"></i>
           </button>
         </div>
+        `
+        }
       </div>
 
       <div class="summary-box summary-box-compact oky-flow-push" style="width:100%">
@@ -1680,6 +1694,18 @@ function walletCategories(state) {
   })).filter((cat) => cat.count > 0);
 }
 
+/* El mazo del carrusel del vale: lo que está en uso de esa sección, en
+   cualquiera de ellas. Lo archivado sale del carrusel y se abre solo
+   —desde el filtro—; para volver al mazo hay que desarchivarlo. */
+function voucherCarousel(state, section, key) {
+  const all =
+    section === "gift"
+      ? walletVouchers(state)
+      : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]);
+  if (state.archivedVouchers.includes(key)) return all.filter((v) => v.key === key);
+  return all.filter((v) => !state.archivedVouchers.includes(v.key));
+}
+
 /* Todo lo archivado, venga de la sección que venga. */
 function archivedDeck(state) {
   const all = [
@@ -1784,7 +1810,8 @@ function screenWallet(state) {
   const vouchers = walletDeck(state, "gift");
   const vales = walletDeck(state, "vales");
   const servicios = walletDeck(state, "servicios");
-  const news = vouchers.filter((v) => v.isNew).length;
+  /* Lo comprado y todavía sin abrir, por sección. */
+  const newsIn = (deck) => deck.filter((v) => v.isNew).length;
 
   /* La barra es un navegador, no un adorno: cada icono lleva a su
      sección. Va en scroll horizontal para que quepan más categorías sin
@@ -1799,7 +1826,7 @@ function screenWallet(state) {
   /* Cabecera de sección: además de plegar, dice de un vistazo lo que
      hay dentro —el saldo, cuántas gift cards— para que valga la pena
      cuando está cerrada. */
-  const sectionHead = (key, icon, label, meta, { chip = false } = {}) => {
+  const sectionHead = (key, icon, label, meta, { chip = false, news = 0 } = {}) => {
     const open = state.openSections.includes(key);
     return `
       <button class="oky-flow-section-head" data-action="toggle-section" data-section="${key}"
@@ -1808,6 +1835,13 @@ function screenWallet(state) {
           <i class="fa-solid ${icon}" aria-hidden="true"></i>${label}
         </span>
         <span class="oky-flow-section-head-meta">
+          ${
+            /* La novedad va aparte del contador y en rojo: es un aviso,
+               no una cuenta más. Se apaga al abrir la tarjeta. */
+            news
+              ? `<span class="oky-flow-section-news">${news} nueva${news > 1 ? "s" : ""}</span>`
+              : ""
+          }
           ${
             /* El chip va siempre en el DOM y se esconde al desplegar: el
                plegado es en sitio, sin re-render, y así puede volver. */
@@ -1906,12 +1940,9 @@ function screenWallet(state) {
            ruido. Sin filtro se quedan, que son la estructura. */
         vouchers.length || !state.walletFilter
           ? `
-        ${sectionHead(
-          "gift",
-          "fa-gift",
-          "Gift Cards",
-          `${vouchers.length}${news ? ` · ${news} nueva${news > 1 ? "s" : ""}` : ""}`,
-        )}
+        ${sectionHead("gift", "fa-gift", "Gift Cards", String(vouchers.length), {
+          news: newsIn(vouchers),
+        })}
         ${body("gift", stack(vouchers, "gift", "Todavía no tienes gift cards."))}
       `
           : ""
@@ -1920,7 +1951,7 @@ function screenWallet(state) {
       ${
         vales.length || !state.walletFilter
           ? `
-        ${sectionHead("vales", "fa-ticket", "OKY Vales", String(vales.length))}
+        ${sectionHead("vales", "fa-ticket", "OKY Vales", String(vales.length), { news: newsIn(vales) })}
         ${body("vales", stack(vales, "vales", "Todavía no tienes vales."))}
       `
           : ""
@@ -1929,7 +1960,9 @@ function screenWallet(state) {
       ${
         servicios.length || !state.walletFilter
           ? `
-        ${sectionHead("servicios", "fa-file-invoice-dollar", "Servicios", String(servicios.length))}
+        ${sectionHead("servicios", "fa-file-invoice-dollar", "Servicios", String(servicios.length), {
+          news: newsIn(servicios),
+        })}
         ${body("servicios", stack(servicios, "servicios", "Todavía no tienes servicios."))}
       `
           : ""
@@ -2116,12 +2149,7 @@ function screenVoucher(state) {
      ahí —Krispy Kreme, Under Armour— que no son productos comprables
      y no están en PRODUCTS. */
   const section = state.params.deck || "gift";
-  /* Lo archivado sigue siendo abrible desde su sección de archivados,
-     así que el mazo de aquí lo incluye. */
-  const wallet =
-    section === "gift"
-      ? walletVouchers(state)
-      : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]);
+  const wallet = voucherCarousel(state, section, state.params.key);
   /* Un vale de Pollo Campero no es una gift card: la card lo dice. */
   const kind = { vales: "OKY Vale", servicios: "Servicio" }[section] || "Gift Card";
   const deck = state.params.id
@@ -2932,6 +2960,19 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      y no volvía nunca. Ahora no se toca el scroll —los umbrales quedan
      estables, sin realimentación— y el salto se resuelve como toca:
      animando el alto del header. */
+  /* Filtrando, las secciones se pliegan: el resultado se lee de un
+     vistazo por sus contadores y se abre la que interese. Al quitar el
+     filtro vuelve a estar abierto lo que lo estaba antes. */
+  function setWalletFilter(next) {
+    const was = state.walletFilter;
+    if (next && !was) state.openBeforeFilter = state.openSections;
+    state.walletFilter = next;
+    state.openSections = next ? [] : state.openBeforeFilter || state.openSections;
+    if (!next) state.openBeforeFilter = null;
+    state.sheet = null;
+    return render();
+  }
+
   function goCountry(country) {
     if (country === "usa") state.usaSeen = true;
     state.country = country;
@@ -3393,14 +3434,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "pick-filter") {
       /* Elegir cierra: una sola decisión, sin botón de aplicar. */
-      state.walletFilter = el.dataset.cat || "";
-      state.sheet = null;
-      return render();
+      return setWalletFilter(el.dataset.cat || "");
     }
 
     if (action === "clear-filter") {
-      state.walletFilter = "";
-      return render();
+      return setWalletFilter("");
     }
 
     if (action === "toggle-shared") {
@@ -3681,10 +3719,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         return go("voucher", { id: next.id }, { push: false });
       }
       const section = state.params.deck || "gift";
-      const list =
-        section === "gift"
-          ? walletVouchers(state)
-          : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]);
+      const list = voucherCarousel(state, section, state.params.key);
       const at = list.findIndex((v) => v.key === state.params.key);
       const next = list[wrap((at < 0 ? 0 : at) + step, list.length)];
       /* Abrirlo por el carrusel también lo da por visto. */

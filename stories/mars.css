@@ -7909,6 +7909,28 @@ body {
   border-top: 0;
 }
 
+/* El aviso de novedades de una sección del wallet: rojo y en píldora,
+   separado del contador para que no se lean como un solo número. */
+.oky-flow-section-news {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--error-main);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.5;
+  letter-spacing: 0.2px;
+  color: var(--white);
+  white-space: nowrap;
+}
+
+/* Fila única: se redondea entera, que no hay nada a lo que pegarse. */
+.oky-flow-payrow.is-only {
+  border-radius: 8px;
+}
+
 .oky-flow-payrow-copy {
   flex: 1 1 auto;
   min-width: 0;
