@@ -10829,3 +10829,314 @@ button.tactic-offer {
 .saving-bar.is-settled .saving-bar-timer {
   display: none;
 }
+
+/* ── Vale compartido: sello y acciones ──────────────────── */
+.oky-flow-voucher-shared {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  margin-top: -4px;
+}
+
+.oky-flow-voucher-seal {
+  width: 132px;
+  height: 132px;
+  object-fit: contain;
+  /* El sello viene exportado sobre su fondo claro; mezclarlo en
+     multiply lo asienta sobre el blanco de la pantalla sin recortes. */
+  mix-blend-mode: multiply;
+}
+
+.oky-flow-voucher-shared-date {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--text-secondary);
+}
+
+.oky-flow-voucher-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Interruptor propio: el de la librería no acepta rótulo al lado ni el
+   verde del estado. */
+.oky-flow-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary-base);
+}
+
+.oky-flow-switch-track {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--border-main);
+  transition: background 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.oky-flow-switch.is-on .oky-flow-switch-track {
+  background: var(--success-main);
+}
+
+.oky-flow-switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.oky-flow-switch.is-on .oky-flow-switch-knob {
+  transform: translateX(20px);
+}
+
+/* ── Hoja de confirmación ───────────────────────────────── */
+.oky-flow-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  /* Por encima de la navbar y de las barras del pie: mientras la hoja
+     está abierta, no hay nada más que tocar. */
+  z-index: 120;
+  border: 0;
+  padding: 0;
+  background: rgba(16, 4, 36, 0.55);
+  cursor: pointer;
+  animation: oky-flow-sheet-fade 240ms ease-out both;
+}
+
+.oky-flow-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 121;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 20px;
+  border-radius: 28px 28px 0 0;
+  background: var(--primary-base);
+  text-align: center;
+  /* La curva de las hojas de iOS: sale rápido y frena al final. */
+  animation: oky-flow-sheet-up 360ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.oky-flow-sheet-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--white);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.oky-flow-sheet-title {
+  margin: 4px 12px 0;
+  font-family: "Lato", sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.15;
+  color: var(--white);
+  text-wrap: balance;
+}
+
+.oky-flow-sheet-note {
+  margin: 8px 12px 0;
+  max-width: 280px;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.oky-flow-sheet-art {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 196px;
+  height: 196px;
+  margin: 12px 0 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.oky-flow-sheet-art img {
+  position: relative;
+  width: 172px;
+  height: 172px;
+  object-fit: contain;
+}
+
+/* Dos anillos como en el frame: el de dentro asienta la ilustración y
+   el de fuera la separa del morado plano de la hoja. */
+.oky-flow-sheet-art::before {
+  content: "";
+  position: absolute;
+  width: 152px;
+  height: 152px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.oky-flow-sheet-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+}
+
+.oky-flow-sheet-confirm {
+  height: 48px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--primary-base);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.oky-flow-sheet-dismiss {
+  height: 44px;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.86);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@keyframes oky-flow-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes oky-flow-sheet-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Aviso efímero ──────────────────────────────────────── */
+/* Por encima de la navbar, no encima del contenido: se lee y se va. */
+.oky-flow-toast {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: calc(var(--oky-nav-h) + 12px);
+  z-index: 75;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 12px 10px 16px;
+  border-radius: 14px;
+  background: #241335;
+  color: var(--white);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(16, 4, 36, 0.35);
+  animation: oky-flow-toast-in 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.oky-flow-toast button {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--white);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+@keyframes oky-flow-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Archivados ─────────────────────────────────────────── */
+.oky-flow-voucher-archived {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Lo archivado se ve apagado: sigue ahí, pero ya no es lo principal. */
+.oky-flow-voucher-archived .oky-flow-voucher {
+  filter: grayscale(0.35);
+  opacity: 0.72;
+}
+
+.oky-flow-unarchive {
+  margin-top: -14px;
+  padding: 7px 14px;
+  border: 1px solid var(--border-main);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--primary-base);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-sheet,
+  .oky-flow-sheet-backdrop,
+  .oky-flow-toast {
+    animation: none;
+  }
+}

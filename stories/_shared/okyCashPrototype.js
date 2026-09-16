@@ -382,6 +382,16 @@ function createInitialState(userType) {
     openSections: ["cash", "gift"],
     /* Cuántas cards se han pedido ya en cada sección del wallet. */
     walletShown: { gift: WALLET_PAGE, vales: WALLET_PAGE, servicios: WALLET_PAGE },
+    /* Vales que ya se compartieron y vales archivados (por key). */
+    sharedVouchers: [],
+    archivedVouchers: [],
+    /* El modal de archivar explica a dónde va el vale; una vez visto,
+       archivar es directo y se puede deshacer desde el aviso. */
+    archiveExplained: false,
+    /* Hoja de confirmación abierta, si hay: {type, key}. */
+    sheet: null,
+    /* Aviso efímero al pie: {text, action, label, key}. */
+    toast: null,
 
     /* Correlativo de órdenes para el historial de OKY Cash. */
     orderSeq: 0,
@@ -1362,6 +1372,28 @@ function okyCashCard(state, { balance, cta, label } = {}) {
   return { ...card, ...design.style, art: design.art };
 }
 
+/* Lo que se ve en una sección del wallet: lo suyo, menos lo archivado.
+   Archivar no borra —el vale sigue existiendo— solo lo saca de la vista
+   principal, que es lo que la gente espera de un archivo. */
+function walletDeck(state, section) {
+  const all = section === "gift" ? walletVouchers(state) : WALLET_EXTRAS[section] || [];
+  return all.filter((v) => !state.archivedVouchers.includes(v.key));
+}
+
+/* Todo lo archivado, venga de la sección que venga. */
+function archivedDeck(state) {
+  const all = [...walletVouchers(state), ...WALLET_EXTRAS.vales, ...WALLET_EXTRAS.servicios];
+  return state.archivedVouchers
+    .map((key) => all.find((v) => v.key === key))
+    .filter(Boolean);
+}
+
+function sectionOfVoucher(key) {
+  if (WALLET_EXTRAS.vales.some((v) => v.key === key)) return "vales";
+  if (WALLET_EXTRAS.servicios.some((v) => v.key === key)) return "servicios";
+  return "gift";
+}
+
 /* Cuántas cards se apilan de una vez en cada sección del wallet. Más
    allá de eso la pila deja de leerse y hay que dibujar de más, así que
    el resto entra por tandas con "Ver más". */
@@ -1422,7 +1454,10 @@ function walletVouchers(state) {
 /* ── Mi wallet (99105:43773) ────────────────────────────── */
 function screenWallet(state) {
   const cash = okyCashCard(state);
-  const vouchers = walletVouchers(state);
+  const vouchers = walletDeck(state, "gift");
+  const vales = walletDeck(state, "vales");
+  const servicios = walletDeck(state, "servicios");
+  const archived = archivedDeck(state);
   const news = vouchers.filter((v) => v.isNew).length;
 
   /* La barra es un navegador, no un adorno: cada icono lleva a su
@@ -1514,11 +1549,38 @@ function screenWallet(state) {
       )}
       ${body("gift", stack(vouchers, "gift", "Todavía no tienes gift cards."))}
 
-      ${sectionHead("vales", "fa-ticket", "OKY Vales", String(WALLET_EXTRAS.vales.length))}
-      ${body("vales", stack(WALLET_EXTRAS.vales, "vales", "Todavía no tienes vales."))}
+      ${sectionHead("vales", "fa-ticket", "OKY Vales", String(vales.length))}
+      ${body("vales", stack(vales, "vales", "Todavía no tienes vales."))}
 
-      ${sectionHead("servicios", "fa-file-invoice-dollar", "Servicios", String(WALLET_EXTRAS.servicios.length))}
-      ${body("servicios", stack(WALLET_EXTRAS.servicios, "servicios", "Todavía no tienes servicios."))}
+      ${sectionHead("servicios", "fa-file-invoice-dollar", "Servicios", String(servicios.length))}
+      ${body("servicios", stack(servicios, "servicios", "Todavía no tienes servicios."))}
+
+      ${
+        /* El archivo solo existe cuando hay algo dentro: una sección
+           vacía permanente solo sería ruido. */
+        archived.length
+          ? `
+        ${sectionHead("archivados", "fa-box-archive", "Archivados", String(archived.length))}
+        ${body(
+          "archivados",
+          `<div class="oky-flow-stack">
+            ${archived
+              .map(
+                (v) => `
+              <div class="oky-flow-voucher-archived">
+                ${walletVoucherButton(v, sectionOfVoucher(v.key))}
+                <button class="oky-flow-unarchive" data-action="unarchive" data-key="${v.key}" type="button">
+                  <i class="fa-solid fa-box-open" aria-hidden="true"></i>&nbsp;Desarchivar
+                </button>
+              </div>
+            `,
+              )
+              .join("")}
+          </div>`,
+        )}
+      `
+          : ""
+      }
     </div>
 
     ${navbar("", state)}
@@ -1694,6 +1756,8 @@ function screenVoucher(state) {
      ahí —Krispy Kreme, Under Armour— que no son productos comprables
      y no están en PRODUCTS. */
   const section = state.params.deck || "gift";
+  /* Lo archivado sigue siendo abrible desde su sección de archivados,
+     así que el mazo de aquí lo incluye. */
   const wallet = section === "gift" ? walletVouchers(state) : WALLET_EXTRAS[section] || [];
   /* Un vale de Pollo Campero no es una gift card: la card lo dice. */
   const kind = { vales: "OKY Vale", servicios: "Servicio" }[section] || "Gift Card";
@@ -1710,6 +1774,16 @@ function screenVoucher(state) {
   /* Desde "Tus compras" la pantalla es el detalle de la orden; desde
      Mi wallet, el vale de la marca. */
   const title = state.params.id ? "Detalle de la orden" : card.label;
+
+  /* Compartir y archivar son cosas del wallet: en el detalle de una
+     compra recién pagada no tienen sentido todavía. */
+  const fromWallet = !state.params.id;
+  const shared = fromWallet && state.sharedVouchers.includes(card.key);
+  const sharedOn = new Date()
+    .toLocaleDateString("es-GT", { day: "2-digit", month: "short", year: "numeric" })
+    .replace(/\./g, "")
+    .toUpperCase()
+    .replace(/ /g, " / ");
 
   return `
     ${statusBar()}
@@ -1744,10 +1818,37 @@ function screenVoucher(state) {
       }
       </div>
 
-      <button class="btn btn-outlined btn-large" style="width:100%" type="button"
-        data-action="share" data-label="${card.label}" data-amount="${amount}">
-        <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>&nbsp;Compartir
-      </button>
+      ${
+        /* El vale compartido cambia de estado: el sello dice que ya
+           salió de aquí y el pie ofrece lo único que queda por hacer,
+           archivarlo. Solo en Mi wallet —desde "Tus compras" el vale es
+           el recibo de una compra recién hecha. */
+        shared
+          ? `
+        <div class="oky-flow-voucher-shared">
+          <img class="oky-flow-voucher-seal" src="oky-seal-shared.png" alt="Compartido" />
+          <p class="oky-flow-voucher-shared-date">${sharedOn}</p>
+        </div>
+
+        <div class="oky-flow-voucher-actions">
+          <button class="oky-flow-switch is-on" data-action="toggle-shared" data-key="${card.key}"
+            type="button" role="switch" aria-checked="true">
+            <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
+            <span class="oky-flow-switch-label">Compartido</span>
+          </button>
+          <button class="btn btn-outlined btn-small" data-action="ask-archive" data-key="${card.key}" type="button">
+            Archivar
+          </button>
+        </div>
+      `
+          : `
+        <button class="btn btn-outlined btn-large" style="width:100%" type="button"
+          data-action="share" data-label="${card.label}" data-amount="${amount}"
+          data-key="${fromWallet ? card.key : ""}">
+          <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>&nbsp;Compartir
+        </button>
+      `
+      }
     </div>
     ${navbar("", state)}
   `;
@@ -1811,6 +1912,79 @@ function screenCardDesign(state) {
       <button class="btn btn-primary btn-large" data-action="choose-design" type="button">Elegir</button>
     </div>
     ${navbar("okycash", state)}
+  `;
+}
+
+/* ── Hojas de confirmación (99105:39840 y 99105:39676) ────
+   Las dos del flujo de archivar, en el mismo componente: ilustración
+   3D sobre morado, título, explicación y acciones. Frente al diseño
+   original cambian dos cosas, las dos por lo mismo —que la decisión se
+   entienda sin releer—:
+
+   · El texto de "no compartido" iba en doble negación ("¿Estás seguro
+     que no compartiste ya este vale?" + "Sí estoy seguro"), donde el
+     sí confirma una negación. Ahora la pregunta es afirmativa y el
+     botón dice qué va a pasar.
+   · Cada hoja gana una salida explícita. La X de la esquina existe,
+     pero en móvil es un blanco de 24px arriba del todo: el par de
+     botones deja las dos decisiones al alcance del pulgar. */
+const CONFIRM_SHEETS = {
+  unshare: {
+    art: "oky-share-hands.png",
+    title: "¿No llegaste a compartirlo?",
+    note: "Lo devolvemos a pendiente. El vale y su código siguen intactos.",
+    confirm: "Sí, no lo compartí",
+    dismiss: "Cancelar",
+    action: "confirm-unshare",
+  },
+  archive: {
+    art: "oky-archive-hands.png",
+    title: "¿Deseas archivarla?",
+    note: "Te sugerimos archivar. Podrás verla en tus archivados cuando quieras.",
+    confirm: "Archivar",
+    dismiss: "Ahora no",
+    action: "confirm-archive",
+  },
+};
+
+function confirmSheet(state) {
+  const sheet = CONFIRM_SHEETS[state.sheet.type];
+  if (!sheet) return "";
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-sheet" role="dialog" aria-modal="true" aria-label="${sheet.title}">
+      <button class="oky-flow-sheet-close" data-action="close-sheet" type="button" aria-label="Cerrar">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <h2 class="oky-flow-sheet-title">${sheet.title}</h2>
+      <p class="oky-flow-sheet-note">${sheet.note}</p>
+      <div class="oky-flow-sheet-art">
+        <img src="${sheet.art}" alt="" />
+      </div>
+      <div class="oky-flow-sheet-actions">
+        <button class="oky-flow-sheet-confirm" data-action="${sheet.action}" data-key="${state.sheet.key}" type="button">
+          ${sheet.confirm}
+        </button>
+        <button class="oky-flow-sheet-dismiss" data-action="close-sheet" type="button">${sheet.dismiss}</button>
+      </div>
+    </section>
+  `;
+}
+
+/* Aviso al pie con salida: archivar es reversible, así que en vez de
+   preguntar otra vez se hace y se ofrece deshacer —el patrón de Gmail,
+   Mail y compañía—. La hoja solo aparece la primera vez, cuando todavía
+   hace falta explicar a dónde va el vale. */
+function toastBar(state) {
+  return `
+    <div class="oky-flow-toast" role="status">
+      <span>${state.toast.text}</span>
+      ${
+        state.toast.label
+          ? `<button data-action="${state.toast.action}" data-key="${state.toast.key}" type="button">${state.toast.label}</button>`
+          : ""
+      }
+    </div>
   `;
 }
 
@@ -1960,6 +2134,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           ${renderScreen(state)}
         </div>
         ${state.cartOpen ? cartDrawer(state) : ""}
+        ${state.sheet ? confirmSheet(state) : ""}
+        ${state.toast ? toastBar(state) : ""}
       </div>
     `;
 
@@ -2181,6 +2357,26 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       },
       { passive: true },
     );
+  }
+
+  let toastTimer = 0;
+
+  function showToast(toast) {
+    clearTimeout(toastTimer);
+    state.toast = toast;
+    toastTimer = setTimeout(() => {
+      state.toast = null;
+      render();
+    }, 5000);
+  }
+
+  /* Archivar saca el vale del wallet y devuelve a la lista, que es
+     donde se ve el resultado. El aviso con "Deshacer" es la red. */
+  function archiveVoucher(key) {
+    if (!state.archivedVouchers.includes(key)) state.archivedVouchers.push(key);
+    showToast({ text: "Vale archivado", label: "Deshacer", action: "undo-archive", key });
+    state.history = [{ screen: "home", params: {} }];
+    return go("wallet", {}, { push: false });
   }
 
   /* Pantallas de después de pagar. Salir de ellas cierra la compra: la
@@ -2490,6 +2686,64 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return render();
     }
 
+    if (action === "toggle-shared") {
+      /* Quitar la marca es lo único que puede confundir —el vale ya se
+         mandó— así que eso sí se pregunta. Ponerla no llega por aquí:
+         la pone el compartir. */
+      state.sheet = { type: "unshare", key: el.dataset.key };
+      return render();
+    }
+
+    if (action === "confirm-unshare") {
+      const key = el.dataset.key;
+      state.sharedVouchers = state.sharedVouchers.filter((k) => k !== key);
+      state.sheet = null;
+      return render();
+    }
+
+    if (action === "ask-archive") {
+      const key = el.dataset.key;
+      /* La primera vez se explica a dónde va; después se archiva y se
+         ofrece deshacer, que es más rápido y igual de seguro. */
+      if (!state.archiveExplained) {
+        state.sheet = { type: "archive", key };
+        return render();
+      }
+      return archiveVoucher(key);
+    }
+
+    if (action === "confirm-archive") {
+      state.archiveExplained = true;
+      const key = el.dataset.key;
+      state.sheet = null;
+      return archiveVoucher(key);
+    }
+
+    if (action === "undo-archive") {
+      const key = el.dataset.key;
+      state.archivedVouchers = state.archivedVouchers.filter((k) => k !== key);
+      state.toast = null;
+      clearTimeout(toastTimer);
+      return go("voucher", { key, deck: sectionOfVoucher(key) }, { push: false });
+    }
+
+    if (action === "unarchive") {
+      const key = el.dataset.key;
+      state.archivedVouchers = state.archivedVouchers.filter((k) => k !== key);
+      showToast({ text: "Vale devuelto a tu wallet" });
+      const scroll = root.querySelector(".oky-flow-scroll");
+      const y = scroll ? scroll.scrollTop : 0;
+      render();
+      const fresh = root.querySelector(".oky-flow-scroll");
+      if (fresh) fresh.scrollTop = y;
+      return;
+    }
+
+    if (action === "close-sheet") {
+      state.sheet = null;
+      return render();
+    }
+
     if (action === "wallet-more") {
       /* Se añade la siguiente tanda al final de la pila en vez de
          re-renderizar: así no se pierde el scroll ni parpadea lo que ya
@@ -2610,6 +2864,19 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         url: location.href,
       };
 
+      /* Solo cuenta como compartido si la hoja llegó a abrirse o si el
+         enlace acabó en el portapapeles. Cancelar no comparte nada. */
+      const markShared = () => {
+        const key = el.dataset.key;
+        if (!key || state.sharedVouchers.includes(key)) return;
+        state.sharedVouchers.push(key);
+        const scroll = root.querySelector(".oky-flow-scroll");
+        const y = scroll ? scroll.scrollTop : 0;
+        render();
+        const fresh = root.querySelector(".oky-flow-scroll");
+        if (fresh) fresh.scrollTop = y;
+      };
+
       const say = (text, icon = "fa-circle-check") => {
         const before = el.innerHTML;
         el.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i>&nbsp;${text}`;
@@ -2632,12 +2899,19 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           try {
             document.execCommand("copy");
             say("Copiado");
+            pad.remove();
+            markShared();
+            return;
           } catch (error) {
             say("No se pudo compartir", "fa-circle-exclamation");
           }
           pad.remove();
         };
-        if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => say("Copiado"), legacy);
+        if (navigator.clipboard)
+          navigator.clipboard.writeText(text).then(() => {
+            say("Copiado");
+            markShared();
+          }, legacy);
         else legacy();
       };
 
@@ -2648,6 +2922,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
            igual en vez de dejar el botón muerto, que es lo que se veía. */
         Promise.resolve()
           .then(() => navigator.share(payload))
+          .then(markShared)
           .catch((error) => {
             if (error && error.name === "AbortError") return;
             copy();
