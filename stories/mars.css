@@ -11909,6 +11909,11 @@ button.tactic-offer {
   cursor: pointer;
 }
 
+/* La pastilla de saldo, entre el carrusel y las macrocategorías. */
+.oky-flow-gua-cash {
+  padding: 4px 0 14px;
+}
+
 /* El nombre de la marca va centrado bajo su logo, no pegado al borde
    izquierdo de la celda. */
 .oky-flow-gua .homecard-tile-name {

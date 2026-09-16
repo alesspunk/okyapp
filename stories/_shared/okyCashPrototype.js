@@ -2294,10 +2294,25 @@ function toastBar(state) {
 /* El mockup "Homepage 1" tal cual, con nuestro Discovery Header encima
    para que el folder siga en el orden de siempre —USA a la izquierda,
    GUA a la derecha— y se pueda volver. */
+/* Donde arrancan las macrocategorías del home de Guatemala: la pastilla
+   de saldo se cuela justo antes, después del carrusel. */
+const GUA_TILES_ANCHOR = `<section class="mockup-block mockup-left-tiles-block"`;
+
 function screenHomeGua(state) {
+  const body = GUA_HOME_MARKUP.replace(
+    GUA_TILES_ANCHOR,
+    `<div class="oky-flow-gua-cash">${cashStrip(state)}</div>${GUA_TILES_ANCHOR}`,
+  );
+
   return `
     ${homeHeader(state, "State 1")}
-    <div class="oky-flow-gua">${GUA_HOME_MARKUP}</div>
+    <div class="oky-flow-gua">${body}</div>
+
+    <button class="oky-flow-scroll-hint" data-action="scroll-more" type="button"
+      aria-label="Ver más contenido">
+      <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+    </button>
+
     ${navbar("home", state)}
   `;
 }
@@ -2784,7 +2799,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      estables, sin realimentación— y el salto se resuelve como toca:
      animando el alto del header. */
   function bindHeaderScroll(scroll) {
-    if (state.screen !== "home") return;
+    /* Las dos homes llevan el mismo Discovery Header, así que las dos
+       colapsan al bajar y las dos esconden la pista de scroll. */
+    if (state.screen !== "home" && state.screen !== "homegua") return;
 
     scroll.addEventListener(
       "scroll",
