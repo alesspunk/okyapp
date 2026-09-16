@@ -368,13 +368,36 @@ function monthGroup(offsetDays = 0) {
 
 /* ── Estado ──────────────────────────────────────────────── */
 
+/* Enlace directo a una de las dos homes: #usa / #gua, o ?home=usa.
+   Sirve para mandar a cada persona de la prueba a la que toque sin
+   explicarle cómo cambiar de país. */
+function initialScreen() {
+  const raw = `${typeof location === "undefined" ? "" : location.hash + location.search}`.toLowerCase();
+  if (/usa|eeuu|estados/.test(raw)) return "home";
+  if (/gua|guate/.test(raw)) return "homegua";
+  return "homegua";
+}
+
+/* Y al cambiar de país el enlace se actualiza, para poder copiarlo tal
+   como está en pantalla. */
+function markCountryInUrl(country) {
+  if (typeof history === "undefined" || !history.replaceState) return;
+  try {
+    history.replaceState(null, "", `#${country}`);
+  } catch (error) {
+    /* Algunos hosts no dejan tocar la URL; no es crítico. */
+  }
+}
+
 function createInitialState(userType) {
   const returning = userType === "returning";
 
   return {
     userType,
     okyCashBalance: returning ? 56 : 5,
-    screen: "home",
+    /* El prototipo abre en Guatemala; USA se descubre por el folder. La
+       prueba puede empezar en cualquiera de las dos con un enlace. */
+    screen: initialScreen(),
     params: {},
     history: [],
     /* Arranca en 51, dentro del rango de descuento especial (20%);
@@ -450,6 +473,9 @@ function createInitialState(userType) {
     /* Ventana corta tras el vencimiento, para el aviso del strip. */
     promoEnded: false,
     promoSettling: false,
+    /* El chip "Nuevo" sobre USA es solo aviso: en cuanto se entra una
+       vez, no vuelve a aparecer. */
+    usaSeen: false,
     recipient: "",
   };
 }
@@ -619,6 +645,9 @@ function homeHeader(state, headerState) {
        está delante: Left con USA al frente, Right con GUA. Es el mismo
        comportamiento que la story del componente. */
     side: state.screen === "homegua" ? "Right" : "Left",
+    /* El aviso va sobre la pestaña que todavía no se ha visitado. */
+    showNewItemChip: !state.usaSeen,
+    newItemSide: "left",
     state: headerState,
     walletAction: "nav:wallet",
     cartAction: "open-cart",
@@ -2479,6 +2508,17 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     return !!el && (el.matches("input, textarea, select") || el.isContentEditable);
   }
 
+  /* Cambiar el hash con la pestaña ya abierta también lleva al país
+     que pide el enlace: si no, pegar #usa sobre una sesión en curso no
+     haría nada, porque el documento no se recarga. */
+  window.addEventListener("hashchange", () => {
+    const target = initialScreen();
+    if (state.screen === target) return;
+    if (target === "home") state.usaSeen = true;
+    state.history = [];
+    go(target, {}, { push: false });
+  });
+
   window.addEventListener("resize", fitToViewport);
   window.addEventListener("orientationchange", fitToViewport);
   if (window.visualViewport) window.visualViewport.addEventListener("resize", fitToViewport);
@@ -2941,7 +2981,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "back") return goBack();
-    if (action === "nav:home") return go("home");
+    if (action === "nav:home") {
+      state.usaSeen = true;
+      markCountryInUrl("usa");
+      return go("home");
+    }
     if (action === "nav:wallet") return leavePurchase("wallet");
     if (action === "nav:okycash") {
       state.cashUnseen = false;
@@ -3064,7 +3108,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return go("tigopdp");
     }
 
-    if (action === "nav:homegua") return go("homegua");
+    if (action === "nav:homegua") {
+      markCountryInUrl("gua");
+      return go("homegua");
+    }
 
     if (action === "open-filter") {
       state.sheet = { type: "filter" };

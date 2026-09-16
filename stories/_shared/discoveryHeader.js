@@ -250,7 +250,7 @@ function renderFolderOption({
   `;
 }
 
-function renderFolder(property1, { showNewItemChip = true, showChevrons = true } = {}) {
+function renderFolder(property1, { showNewItemChip = true, showChevrons = true, newItemSide = "right" } = {}) {
   const isCollapsed = property1.startsWith("Collapsed");
   const isLeft = property1 === "Left" || property1 === "Collapsed Left";
 
@@ -335,7 +335,7 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true }
           </div>
           ${
             showChipOnLeftExpanded
-              ? `<span class="folder-new-item-chip chip-ds chip-ds-new-item" aria-label="New item">Nuevo</span>`
+              ? `<span class="folder-new-item-chip chip-ds chip-ds-new-item ${newItemSide === "left" ? "is-on-left" : ""}" aria-label="New item">Nuevo</span>`
               : ""
           }
           <span class="folder-selection-line" style="left:${isLeft ? 51 : 235}px;width:${isLeft ? 86 : 66}px" aria-hidden="true"></span>
@@ -374,6 +374,7 @@ export function renderDiscoveryHeader({
   side,
   state,
   showNewItemChip = true,
+  newItemSide = "right",
   walletAction = "",
   cartAction = "",
   cartIndicated,
@@ -388,7 +389,7 @@ export function renderDiscoveryHeader({
     <section class="discovery-header-organism" data-side="${safeSide}" data-state="${safeState}" data-pen-id="${config.penId}">
       ${renderStatusBar()}
       ${renderAppHeader(config.header, { walletAction, cartAction, cartIndicated, walletIndicated })}
-      ${renderFolder(config.folder, { showNewItemChip })}
+      ${renderFolder(config.folder, { showNewItemChip, newItemSide })}
       ${renderSearchInput({ compact: config.searchCompact })}
       ${config.plateu && showPlateu ? renderPlateuHome() : ""}
     </section>

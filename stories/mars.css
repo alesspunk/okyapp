@@ -11775,3 +11775,9 @@ button.tactic-offer {
   border: 1px solid var(--accent-color);
   color: var(--primary-base);
 }
+
+/* El aviso "Nuevo" puede señalar la pestaña de la izquierda: es la que
+   todavía no se ha visitado cuando el prototipo abre en Guatemala. */
+.folder-new-item-chip.is-on-left {
+  left: 72px;
+}
