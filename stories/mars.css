@@ -11955,10 +11955,18 @@ button.tactic-offer {
 }
 
 /* ── PDP de Tigo: aire de más ───────────────────────────── */
-/* El plateu del sistema reserva 40px arriba para la variante que lleva
-   chip flotante; aquí no hay chip y esa banda quedaba vacía. */
+/* El plateu del sistema mide 125px de alto y alinea sus items abajo,
+   reservando arriba la banda de la variante con chip flotante. Aquí no
+   hay chip: el carril se ajusta a los iconos y el aire que queda sobre
+   ellos es el del propio stack. */
+.oky-flow-gua-pdp .plateu-molecule,
 .oky-flow-gua-pdp .plateu-track.is-static {
-  padding: 12px 20px 8px;
+  height: auto;
+  align-items: center;
+}
+
+.oky-flow-gua-pdp .plateu-track.is-static {
+  padding: 0 20px 8px;
 }
 
 .oky-flow-gua-pdp .pdp-page-stack {
@@ -12165,4 +12173,63 @@ button.tactic-offer {
 
 .oky-flow-frame .oky-flow-apparel .homecard-footer {
   padding-bottom: 16px;
+}
+
+/* ── Aviso de "agregado al carrito" (Figma 99105:32149) ── */
+.oky-flow-added {
+  position: absolute;
+  inset: 0;
+  z-index: 130;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.oky-flow-added-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 16, 16, 0.45);
+  animation: oky-flow-fade 180ms ease-out both;
+}
+
+.oky-flow-added-toast {
+  position: relative;
+  width: auto;
+  max-width: calc(100% - 48px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  animation: oky-flow-added-in 220ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes oky-flow-added-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-added-backdrop,
+  .oky-flow-added-toast {
+    animation: none;
+  }
+}
+
+/* El icono de método de pago es una tarjeta genérica, no la marca del
+   emisor: en el prototipo da igual quién la emite. */
+img.oky-flow-method-mark {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+/* El brand slot del PDP de Tigo se sube 55px sobre la cabecera y su
+   caja tapaba el botón de atrás y el carrito; dentro no hay nada que
+   se pulse. */
+.oky-flow-gua-pdp .pdp-page-brand-slot {
+  pointer-events: none;
 }

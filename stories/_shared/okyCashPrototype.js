@@ -479,9 +479,13 @@ function createInitialState(userType) {
     /* El folder del Discovery Header se colapsa al scrollear el home. */
     headerCollapsed: false,
     /* Secciones abiertas de Mi wallet. */
-    openSections: ["cash", "gift"],
+    /* OKY Cash arranca plegada: su saldo ya se lee en la cabecera. Lo
+       que trae novedades se abre solo —al comprar se añade su sección. */
+    openSections: ["gift"],
     /* Aviso de cambio de marketplace; guarda a dónde se iba. */
     countrySheet: null,
+    /* Aviso de "agregado al carrito", que se apaga solo. */
+    addedToast: false,
     /* Cuántas cards se han pedido ya en cada sección del wallet. */
     walletShown: { gift: WALLET_PAGE, vales: WALLET_PAGE, servicios: WALLET_PAGE },
     /* Vales que ya se compartieron y vales archivados (por key). Los dos
@@ -675,6 +679,22 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
         }
         <div class="saving-bar-copy"><span>${copy(money(cashback))}</span></div>
       </div>
+    </div>
+  `;
+}
+
+/* Confirmación de que el vale entró al carrito (Figma 99105:32149):
+   la pantalla se atenúa un instante y el toast lo dice en el centro. */
+function addedToast() {
+  return `
+    <div class="oky-flow-added" aria-hidden="true">
+      <div class="oky-flow-added-backdrop"></div>
+      <article class="toast-banner toast-banner-success oky-flow-added-toast" role="status">
+        <span class="fa-icon toast-banner-icon icon-main-success" aria-hidden="true">
+          <i class="fa-solid fa-circle-check"></i>
+        </span>
+        <p class="token-body1 toast-banner-message">Agregado al carrito 🎉</p>
+      </article>
     </div>
   `;
 }
@@ -1258,7 +1278,7 @@ function screenCheckout(state) {
       <div class="payment-method-input oky-flow-paygroup" style="width:100%">
         <span class="payment-method-label">Método de pago</span>
         <div class="oky-flow-payrow is-first" data-action="open-methods" role="button" tabindex="0">
-          <i class="fa-brands ${checkoutCard.mark} oky-flow-method-mark is-${checkoutCard.key}" aria-hidden="true"></i>
+          <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
           <p class="oky-flow-payrow-copy">${checkoutCard.label}</p>
           <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-card">${money(toCard)}</span></span>
           <span class="oky-flow-payrow-more" aria-hidden="true">
@@ -1283,9 +1303,11 @@ function screenCheckout(state) {
         <div class="summary-card">
           <div class="summary-card-body">
             ${
-              /* Sin OKY Cash aplicado, Subtotal y TOTAL son el mismo
-                 número: se muestra solo TOTAL (Figma 99105:31768). */
-              applied > 0
+              /* Con OKY Cash marcado se abre el desglose aunque el saldo
+                 sea cero: si no, la casilla parece no hacer nada. Sin
+                 marcar, Subtotal y TOTAL son el mismo número y basta el
+                 TOTAL (Figma 99105:31768). */
+              state.okyCashEnabled
                 ? `<div class="summary-row">
                      <span class="summary-label-strong">(${state.cart.length}) Subtotal
                        <button class="oky-flow-info" data-action="open-cart" type="button"
@@ -1358,7 +1380,7 @@ function screenMethods(state) {
       <div class="oky-flow-method-group" style="width:100%;padding-top:8px">
         <div class="oky-flow-method-row is-selected">
           <span class="oky-flow-radio is-on" aria-hidden="true"></span>
-          <i class="fa-brands ${selected.mark} oky-flow-method-mark is-${selected.key}" aria-hidden="true"></i>
+          <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
           <p class="oky-flow-method-name">${selected.label}</p>
           <span class="oky-flow-chip is-card">${money(toCard)}</span>
         </div>
@@ -1383,7 +1405,7 @@ function screenMethods(state) {
         <div class="oky-flow-method-row" style="width:100%;margin-top:8px"
           data-action="select-card" data-card="${card.key}" role="button" tabindex="0">
           <span class="oky-flow-radio" aria-hidden="true"></span>
-          <i class="fa-brands ${card.mark} oky-flow-method-mark is-${card.key}" aria-hidden="true"></i>
+          <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
           <p class="oky-flow-method-name is-regular">${card.label}</p>
         </div>
       `,
@@ -1778,7 +1800,7 @@ function screenWallet(state) {
   /* Cabecera de sección: además de plegar, dice de un vistazo lo que
      hay dentro —el saldo, cuántas gift cards— para que valga la pena
      cuando está cerrada. */
-  const sectionHead = (key, icon, label, meta) => {
+  const sectionHead = (key, icon, label, meta, { chip = false } = {}) => {
     const open = state.openSections.includes(key);
     return `
       <button class="oky-flow-section-head" data-action="toggle-section" data-section="${key}"
@@ -1787,7 +1809,13 @@ function screenWallet(state) {
           <i class="fa-solid ${icon}" aria-hidden="true"></i>${label}
         </span>
         <span class="oky-flow-section-head-meta">
-          ${meta ? `<span class="oky-flow-section-head-value">${meta}</span>` : ""}
+          ${
+            meta
+              ? chip
+                ? `<span class="oky-flow-chip is-cash">${meta}</span>`
+                : `<span class="oky-flow-section-head-value">${meta}</span>`
+              : ""
+          }
           <i class="fa-solid fa-chevron-down oky-flow-section-caret" aria-hidden="true"></i>
         </span>
       </button>
@@ -1866,7 +1894,7 @@ function screenWallet(state) {
         state.walletFilter
           ? ""
           : `
-        ${sectionHead("cash", "fa-wallet", "OKY Cash", money(state.okyCashBalance))}
+        ${sectionHead("cash", "fa-wallet", "OKY Cash", money(state.okyCashBalance), { chip: true })}
         ${body("cash", `<div class="oky-flow-card-slot">${renderPaymentCard(cash)}</div>`)}
       `
       }
@@ -1915,7 +1943,9 @@ function screenWallet(state) {
       ${
         /* El archivo solo existe cuando hay algo dentro: una sección
            vacía permanente solo sería ruido. */
-        archived.length && state.walletFilter !== "@archived"
+        /* Con cualquier filtro puesto el archivo no aparece: lo
+           archivado solo se ve eligiendo "Archivadas". */
+        archived.length && !state.walletFilter
           ? `
         ${sectionHead("archivados", "fa-box-archive", "Archivados", String(archived.length))}
         ${body(
@@ -2139,6 +2169,7 @@ function screenVoucher(state) {
      compra recién pagada no tienen sentido todavía. */
   const fromWallet = !state.params.id;
   const shared = fromWallet && state.sharedVouchers.includes(card.key);
+  const archived = fromWallet && state.archivedVouchers.includes(card.key);
   const sharedOn = new Date()
     .toLocaleDateString("es-GT", { day: "2-digit", month: "short", year: "numeric" })
     .replace(/\./g, "")
@@ -2195,11 +2226,16 @@ function screenVoucher(state) {
       </div>
 
       ${
-        /* El vale compartido cambia de estado: el sello dice que ya
-           salió de aquí y el pie ofrece lo único que queda por hacer,
-           archivarlo. Solo en Mi wallet —desde "Tus compras" el vale es
-           el recibo de una compra recién hecha. */
-        shared
+        /* Archivado, lo único que queda por hacer es sacarlo del
+           archivo: ni compartir ni volver a archivar tienen sentido. */
+        archived
+          ? `
+        <button class="btn btn-outlined btn-large" style="width:100%" type="button"
+          data-action="unarchive" data-key="${card.key}">
+          <i class="fa-solid fa-box-open" aria-hidden="true"></i>&nbsp;Desarchivar
+        </button>
+      `
+          : shared
           ? `
         <div class="oky-flow-voucher-actions">
           <button class="oky-flow-switch is-on" data-action="toggle-shared" data-key="${card.key}"
@@ -2740,6 +2776,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   resetButton.innerHTML =
     '<i class="fa-solid fa-rotate-left" aria-hidden="true"></i>Reiniciar prototipo';
 
+  let addedTimer = null;
+
   function render() {
     /* El player de Lottie deja listeners y un rAF vivos; si el overlay
        desaparece del DOM sin destruirlo, se acumulan por compra. */
@@ -2756,6 +2794,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.cartOpen ? cartDrawer(state) : ""}
         ${state.sheet ? (state.sheet.type === "filter" ? filterSheet(state) : confirmSheet(state)) : ""}
         ${state.countrySheet ? countrySheet(state) : ""}
+        ${state.addedToast ? addedToast() : ""}
         ${state.toast ? toastBar(state) : ""}
       </div>
     `;
@@ -3317,8 +3356,16 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.cart = state.cart
         .filter((item) => item.productKey !== product.key)
         .concat({ productKey: product.key, amount, cashback: amount * tier.rate });
-      state.cartOpen = true;
-      return render();
+      /* El carrito ya no se abre solo: el aviso confirma y la pantalla
+         se queda donde estaba, con el CTA ya en "Ver carrito". */
+      state.addedToast = true;
+      render();
+      clearTimeout(addedTimer);
+      addedTimer = setTimeout(() => {
+        state.addedToast = false;
+        render();
+      }, 1400);
+      return;
     }
 
     if (action === "edit-item") {
