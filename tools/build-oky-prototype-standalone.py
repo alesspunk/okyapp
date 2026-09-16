@@ -258,3 +258,10 @@ __mods["okyCashPrototype"].mountOkyCashPrototype(document.getElementById("oky-ap
 art_out = os.path.join(ROOT, "tools", "oky-cash-prototype-artifact.html")
 open(art_out, "w", encoding="utf-8").write(artifact)
 print(f"wrote {art_out}  ({len(artifact)/1024/1024:.1f} MB)")
+
+# La copia que publica Vercel. Es la misma página suelta del demo: se
+# escribe desde aquí para que no se quede atrás en cada build.
+vercel_out = os.path.join(ROOT, "prototypes", "oky-cash", "index.html")
+os.makedirs(os.path.dirname(vercel_out), exist_ok=True)
+open(vercel_out, "w", encoding="utf-8").write(html)
+print(f"wrote {vercel_out}  ({len(html)/1024/1024:.1f} MB)")
