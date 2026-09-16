@@ -1810,7 +1810,12 @@ function screenVoucher(state) {
           ? {
               bottomLines: [],
               bottomShowButton: false,
-              bottomMedia: { type: "stamp", src: "oky-seal-shared.png", alt: "Compartido" },
+              bottomMedia: {
+                type: "stamp",
+                src: "oky-seal-shared.png",
+                alt: "Compartido",
+                caption: sharedOn,
+              },
             }
           : {}),
       })}
@@ -1835,15 +1840,13 @@ function screenVoucher(state) {
            el recibo de una compra recién hecha. */
         shared
           ? `
-        <p class="oky-flow-voucher-shared-date">${sharedOn}</p>
-
         <div class="oky-flow-voucher-actions">
           <button class="oky-flow-switch is-on" data-action="toggle-shared" data-key="${card.key}"
             type="button" role="switch" aria-checked="true">
             <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
             <span class="oky-flow-switch-label">Compartido</span>
           </button>
-          <button class="btn btn-outlined oky-flow-archive-btn" data-action="ask-archive" data-key="${card.key}" type="button">
+          <button class="btn btn-outlined btn-large oky-flow-archive-btn" data-action="ask-archive" data-key="${card.key}" type="button">
             Archivar
           </button>
         </div>

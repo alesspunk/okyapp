@@ -10853,33 +10853,9 @@ button.tactic-offer {
   object-fit: contain;
 }
 
-/* El check tenue del borde derecho, como en el frame: la card ya está
-   marcada, no hace falta más que insinuarlo. */
-.prime-card-bottom-media.is-stamp::after {
-  content: "\f00c";
-  position: absolute;
-  right: 16px;
-  bottom: 34px;
-  font-family: "Font Awesome 6 Pro", "FA Free Solid Fallback";
-  font-weight: 900;
-  font-size: 13px;
-  color: rgba(0, 0, 0, 0.22);
-}
-
+/* La fecha del canje, justo debajo del sello y dentro de la card. */
 .prime-card-bottom-media-caption {
   margin: 0;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-  color: var(--text-secondary);
-}
-
-/* La fecha del canje va debajo de la card, no dentro. */
-.oky-flow-voucher-shared-date {
-  margin: 0;
-  width: 100%;
-  text-align: center;
   font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-weight: 800;
@@ -10947,13 +10923,12 @@ button.tactic-offer {
   transform: translateX(20px);
 }
 
-/* El botón de archivar es el del frame: 137x40, no el chip pequeño. */
+/* El ancho del frame (137px) sobre el tamaño large del sistema, que ya
+   trae su alto y su radio de píldora: en OKY no hay botones de esquina
+   viva. */
 .oky-flow-archive-btn {
   min-width: 137px;
-  height: 40px;
-  padding: 0 20px;
-  font-size: 15px;
-  font-weight: 800;
+  flex: 0 0 auto;
 }
 
 /* ── Hoja de confirmación ───────────────────────────────── */
