@@ -11793,3 +11793,43 @@ button.tactic-offer {
   width: 100%;
   text-align: center;
 }
+
+/* ── PDP de Tigo: aire de más ───────────────────────────── */
+/* El plateu del sistema reserva 40px arriba para la variante que lleva
+   chip flotante; aquí no hay chip y esa banda quedaba vacía. */
+.oky-flow-gua-pdp .plateu-track.is-static {
+  padding: 12px 20px 8px;
+}
+
+.oky-flow-gua-pdp .pdp-page-stack {
+  gap: 8px;
+}
+
+.oky-flow-gua-pdp .pdp-page-brand-slot {
+  padding-top: 0;
+}
+
+/* El resumen se ancla sobre la navbar, como el dock del PDP de USA:
+   deja de empujar la página hacia abajo y se ve siempre. Tigo no lleva
+   saving bar, así que no hay nada más que descontar. */
+.oky-flow-gua-pdp .pdp-page-summary-wrap.oky-flow-dock {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--oky-nav-h);
+  width: auto;
+  padding: 12px var(--oky-gutter) 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 18%, #fff 100%);
+}
+
+/* El divisor del resumen sobra: separa el total del botón con una línea
+   donde basta el aire, y en esta pantalla cada píxel cuenta. */
+.oky-flow-gua-pdp .summary-divider {
+  display: none;
+}
+
+/* El contenido reserva el alto real del dock para que el slider nunca
+   quede debajo del resumen. */
+.oky-flow-scroll.has-tigo-dock {
+  padding-bottom: calc(var(--oky-nav-h) + 150px);
+}

@@ -175,8 +175,7 @@ const BRAND_DEFAULT_AMOUNT = 5;
 /* Tigo es la única marca comprable de la home de Guatemala. No entra
    por BRANDS porque no vive en ninguna parrilla del home de USA: su
    PDP es la página propia que ya existe en Pages/PDP Pages, y ahí el
-   monto se elige con slider y lleva costo por servicio. */
-const TIGO_FEE = 3.5;
+   monto se elige con slider. */
 const TIGO_DEFAULT_AMOUNT = 50;
 
 /* En el flujo de Guatemala la compra va a un contacto ya conocido, así
@@ -230,9 +229,10 @@ Object.entries(BRANDS).forEach(([key, brand]) => {
   };
 });
 
-/* Tigo, la marca de la home de Guatemala. Gana OKY Cash igual que las
-   demás; lo que cambia es su PDP, que es la página propia con slider y
-   costo por servicio. */
+/* Tigo, la marca de la home de Guatemala. No da cashback —no lleva
+   ribbon ni saving bar en ningún paso—, pero sí se puede pagar con el
+   OKY Cash acumulado. Su PDP es la página propia, con slider y costo
+   por servicio. */
 PRODUCTS.tigo = {
   key: "tigo",
   label: "Tigo",
@@ -241,7 +241,9 @@ PRODUCTS.tigo = {
   hero: "tigo.webp",
   min: 5,
   max: 100,
-  rate: 5,
+  rate: 0,
+  /* Sin descuento: ni ribbon ni saving bar, y no suma OKY Cash. */
+  noCashback: true,
   bg: "#00377b",
   legal: false,
   /* Comprado, se guarda con los vales y no con las gift cards. */
@@ -294,6 +296,9 @@ const TODAY_CARDS = [
    Solo Nike y Lyft se mueven con el monto; el resto de las marcas
    trae su propio porcentaje fijo y el tier se arma con él. */
 function getTier(amount, product, promoLive = true) {
+  if (product && product.noCashback) {
+    return { rate: 0, ribbon: "", bar: "" };
+  }
   if (product && product.rate) {
     const promo = product.rate >= 20;
     return {
@@ -977,9 +982,13 @@ function cartDrawer(state) {
                     <span class="brand-item-base"><img src="${product.art}" alt="${product.label}" /></span>
                   </span>
                 </span>
-                <span class="discount-ribbon discount-ribbon-list ${tier.ribbon}">
-                  <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(tier.rate * 100)}%</span>
-                </span>
+                ${
+                  tier.rate
+                    ? `<span class="discount-ribbon discount-ribbon-list ${tier.ribbon}">
+                        <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(tier.rate * 100)}%</span>
+                      </span>`
+                    : ""
+                }
                 <button class="oky-flow-cart-edit" data-action="edit-item" data-product="${item.productKey}"
                   type="button" aria-label="Cambiar el monto de ${product.label}">
                   <i class="fa-solid fa-pencil" aria-hidden="true"></i>
@@ -1048,7 +1057,7 @@ function cartDrawer(state) {
     </aside>
 
     ${
-      state.cart.length
+      state.cart.length && cashback > 0
         ? `<div class="oky-flow-savingbar is-drawer-bar">
             <div class="saving-bar is-oky-cash">
               <div class="saving-bar-copy">
@@ -1092,11 +1101,15 @@ function screenCheckout(state) {
             <span class="middle-card-footer-end" aria-hidden="true"></span>
           </div>
         </div>
-        <div class="middle-card-ribbon-slot">
-          <div class="discount-ribbon discount-ribbon-wrap ${itemTier.ribbon}">
-            <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(itemTier.rate * 100)}%</span>
-          </div>
-        </div>
+        ${
+          itemTier.rate
+            ? `<div class="middle-card-ribbon-slot">
+                <div class="discount-ribbon discount-ribbon-wrap ${itemTier.ribbon}">
+                  <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(itemTier.rate * 100)}%</span>
+                </div>
+              </div>`
+            : ""
+        }
       </article>
     </section>
   `;
@@ -1225,11 +1238,15 @@ function screenCheckout(state) {
     </div>
     </div>
 
-    ${savingBar(earned, { bar: "" }, (v) => {
-      if (used <= 0) return `Compra y gana <strong>${v}+</strong> en <strong>OKY Cash</strong>`;
-      if (earned <= 0) return `No acumulas <strong>OKY Cash</strong> en esta compra`;
-      return `Ganas <strong>${v}</strong> por lo que pagas con tarjeta`;
-    })}
+    ${
+      cashback > 0
+        ? savingBar(earned, { bar: "" }, (v) => {
+            if (used <= 0) return `Compra y gana <strong>${v}+</strong> en <strong>OKY Cash</strong>`;
+            if (earned <= 0) return `No acumulas <strong>OKY Cash</strong> en esta compra`;
+            return `Ganas <strong>${v}</strong> por lo que pagas con tarjeta`;
+          })
+        : ""
+    }
     ${navbar("", state)}
   `;
 }
@@ -2255,7 +2272,6 @@ function screenTigoPdp(state) {
   const product = PRODUCTS.tigo;
   const progress = ((amount - product.min) / (product.max - product.min)) * 100;
   const inCart = state.cart.some((item) => item.productKey === "tigo");
-  const FEE = TIGO_FEE;
 
   return `
     ${statusBar()}
@@ -2363,30 +2379,22 @@ function screenTigoPdp(state) {
         </div>
       </section>
 
-      <section class="pdp-page-summary-wrap" aria-label="Resumen de compra">
-        <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="pdp">
-          <div class="summary-type-overlay">
-            <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
-          </div>
+      <section class="pdp-page-summary-wrap oky-flow-dock" aria-label="Resumen de compra">
+        <div class="summary-box summary-box-compact" data-flow="products" data-step="pdp">
           <div class="summary-card">
             <div class="summary-card-body">
               <div class="summary-row">
-                <span class="summary-label-strong">Producto</span>
-                <span class="summary-label-strong">${money(amount)}</span>
-              </div>
-              <div class="summary-row">
-                <span class="summary-label">Costo por servicio</span>
-                <span class="summary-label">${money(FEE)}</span>
-              </div>
-              <div class="summary-row summary-row-total pdp-page-summary-total">
-                <span class="summary-label-strong">PAGAS</span>
-                <span class="summary-label-strong">${money(amount + FEE)}</span>
+                <span class="summary-label-strong">Subtotal</span>
+                <span class="summary-label-strong" data-role="tigo-subtotal">${money(amount)}</span>
               </div>
             </div>
-            <div class="summary-divider"></div>
             <div class="summary-cta-row">
-              <button class="btn btn-primary summary-btn" data-action="${inCart ? "open-cart" : "add-to-cart"}" data-product="tigo"
-                type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i>${inCart ? "Ver carrito" : "Agregar"}</button>
+              ${
+                inCart
+                  ? `<button class="btn btn-primary summary-btn" data-action="open-cart" type="button">Ver carrito</button>`
+                  : `<button class="btn btn-primary summary-btn" data-action="add-to-cart" data-product="tigo"
+                       type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i>Agregar</button>`
+              }
             </div>
           </div>
         </div>
@@ -2394,7 +2402,6 @@ function screenTigoPdp(state) {
       <div class="pdp-page-footer-spacer"></div>
     
     </div>
-    ${savingBar(amount * getTier(amount, product, state.promoLive).rate, getTier(amount, product, state.promoLive), (v) => `Gana <strong>${v}</strong> de <strong>OKY Cash</strong>`)}
     ${navbar("", state)}
   `;
 }
@@ -2421,7 +2428,7 @@ function screenDecision() {
    en .oky-flow-scroll, aquí solo se suma lo que va encima. */
 const SCROLL_CLASS = {
   pdp: "has-dock",
-  tigopdp: "has-bar",
+  tigopdp: "has-tigo-dock",
   checkout: "has-bar",
   methods: "has-cta",
 
@@ -2430,6 +2437,13 @@ const SCROLL_CLASS = {
   success: "has-cta-strip",
   cashwin: "has-cta-strip",
 };
+
+/* El checkout pierde la saving bar cuando nada del carrito gana
+   OKY Cash —Tigo, por ejemplo—, y con ella su hueco. */
+function scrollClass(state) {
+  if (state.screen === "checkout" && cartCashback(state) <= 0) return "";
+  return SCROLL_CLASS[state.screen] || "";
+}
 
 function renderScreen(state) {
   switch (state.screen) {
@@ -2556,7 +2570,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     root.innerHTML = `
       <div class="oky-flow-frame">
-        <div class="oky-flow-scroll ${SCROLL_CLASS[state.screen] || ""}">
+        <div class="oky-flow-scroll ${scrollClass(state)}">
           ${renderScreen(state)}
         </div>
         ${state.cartOpen ? cartDrawer(state) : ""}
@@ -3494,14 +3508,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
       const big = root.querySelector(".oky-flow-gua-pdp .middle-card-amount");
       if (big) big.textContent = String(value);
-      const rows = root.querySelectorAll(".oky-flow-gua-pdp .summary-card-body .summary-row");
-      if (rows[0]) rows[0].lastElementChild.textContent = money(value);
-      if (rows[2]) rows[2].lastElementChild.textContent = money(value + TIGO_FEE);
-      const bar = root.querySelector(".oky-flow-savingbar .saving-bar-copy span");
-      if (bar) {
-        const tier = getTier(value, PRODUCTS.tigo, state.promoLive);
-        bar.innerHTML = `Gana <strong>${money(value * tier.rate)}</strong> de <strong>OKY Cash</strong>`;
-      }
+      const sub = root.querySelector("[data-role='tigo-subtotal']");
+      if (sub) sub.textContent = money(value);
       return;
     }
 

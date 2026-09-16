@@ -11816,6 +11816,46 @@ button.tactic-offer {
   text-align: center;
 }
 
+/* ── PDP de Tigo: aire de más ───────────────────────────── */
+/* El plateu del sistema reserva 40px arriba para la variante que lleva
+   chip flotante; aquí no hay chip y esa banda quedaba vacía. */
+.oky-flow-gua-pdp .plateu-track.is-static {
+  padding: 12px 20px 8px;
+}
+
+.oky-flow-gua-pdp .pdp-page-stack {
+  gap: 8px;
+}
+
+.oky-flow-gua-pdp .pdp-page-brand-slot {
+  padding-top: 0;
+}
+
+/* El resumen se ancla sobre la navbar, como el dock del PDP de USA:
+   deja de empujar la página hacia abajo y se ve siempre. Tigo no lleva
+   saving bar, así que no hay nada más que descontar. */
+.oky-flow-gua-pdp .pdp-page-summary-wrap.oky-flow-dock {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--oky-nav-h);
+  width: auto;
+  padding: 12px var(--oky-gutter) 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 18%, #fff 100%);
+}
+
+/* El divisor del resumen sobra: separa el total del botón con una línea
+   donde basta el aire, y en esta pantalla cada píxel cuenta. */
+.oky-flow-gua-pdp .summary-divider {
+  display: none;
+}
+
+/* El contenido reserva el alto real del dock para que el slider nunca
+   quede debajo del resumen. */
+.oky-flow-scroll.has-tigo-dock {
+  padding-bottom: calc(var(--oky-nav-h) + 150px);
+}
+
 @font-face {
   font-family: "FA Free Solid Fallback";
   font-style: normal;
@@ -14517,8 +14557,7 @@ const BRAND_DEFAULT_AMOUNT = 5;
 /* Tigo es la única marca comprable de la home de Guatemala. No entra
    por BRANDS porque no vive en ninguna parrilla del home de USA: su
    PDP es la página propia que ya existe en Pages/PDP Pages, y ahí el
-   monto se elige con slider y lleva costo por servicio. */
-const TIGO_FEE = 3.5;
+   monto se elige con slider. */
 const TIGO_DEFAULT_AMOUNT = 50;
 
 /* En el flujo de Guatemala la compra va a un contacto ya conocido, así
@@ -14572,9 +14611,10 @@ Object.entries(BRANDS).forEach(([key, brand]) => {
   };
 });
 
-/* Tigo, la marca de la home de Guatemala. Gana OKY Cash igual que las
-   demás; lo que cambia es su PDP, que es la página propia con slider y
-   costo por servicio. */
+/* Tigo, la marca de la home de Guatemala. No da cashback —no lleva
+   ribbon ni saving bar en ningún paso—, pero sí se puede pagar con el
+   OKY Cash acumulado. Su PDP es la página propia, con slider y costo
+   por servicio. */
 PRODUCTS.tigo = {
   key: "tigo",
   label: "Tigo",
@@ -14583,7 +14623,9 @@ PRODUCTS.tigo = {
   hero: "data:image/webp;base64,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Lvr2sZd++JD37r3o9O/WMJCAADwtaiWNTAAQoSJucwNSTMUf7lWXX56g21f2g243SK3z7GIbHv3o3FvPX/PX87ec9ETSmDzNbEa69reOrOm/6F+/+UAeYMUwMEJBSpdf7Nl9744TX++bOjhVbLcAAAAkABRVdtpIZofmPrWH8IMvJ55z9xINAJSwSFh12Oz9Ur3748t+Xp5xuBtgWds2zmtf9diFdb304PLrtrzekcLYMPjjZgEABkIAALL2uPnki2957tEz0rgEK7lc2fp6x9uRTe/CWz+/ASTPJI2GgTo3uhH+4dF3/eXb11y8/7IVl6fWf9yybArb1LxojeHw/rnAIBEAQABgSJWnQbf+pHnr5XtMsv8wLLuB2bAwotOKd9/5nq++fMlby103l4WSAsmyMTzW7/vbB58VQgAMAAIx8yze9ultO56s0XWKChfmTgqAEanuaRADbao7m97iQzf3AGgNfUEHCJ4IhWNuNWbIKShISwUAwDffnPA0AEru4vrxJZ01JDEDADCnssiD//C7uju5/vLQvqlaUc89a/WLDt3csWR17odHz/je+V0X3HlAKcigg9DKFInXfPM9t61G73/3ss9o5br9W452ewxburrxvBffdOJiC4JkZgMAyhpSK6TkaUvX9u3lod+cru16sJFLkVpCINEuXYnd97d+COTQtjowVVZl7exGSxYpLkNAASDMM/z045HvHN2y83maDpOqiGBuKqd5L2V5FB+rkNXGhdSaXx8cuuz6FF0QAAEDcScAI2yHpB0AVNDg6huf7wAAEDzT/sM7vja+4EG3fgKDBABQtCSLSmfuzB2snXPy66Agcacnl564ednUpkKQktkAAA+oyZrl7FV/8B2AwxmOGBKWNlncdXkwn8FsEQGCpe1L27cfchFAMXU7f/mpx0zvKscidZ0EAAGAR+GZwsk1gUoqcljR4NFBABDAUEjnZvTk4SO2v26mSjCnnqgbHdLu+Z4HgsWnIko67mX1jLOXYchi0UkDzwTAADAPAAAAGmR7xpkZEkhLubXuxN65ewMgCykBACHBFhTEYiNiCcNXlqadCHQV1nw6cc7nd/3q0ecpCwQHAIAVI6EmKrJECSVIgIjgM0gFAALAsC/vjpmTJBIirGiNX99y0dXH/fDoM6IgJO5OKgARwZXgCelZygLDZGYjAAiJwqzJPU/etehy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",
   min: 5,
   max: 100,
-  rate: 5,
+  rate: 0,
+  /* Sin descuento: ni ribbon ni saving bar, y no suma OKY Cash. */
+  noCashback: true,
   bg: "#00377b",
   legal: false,
   /* Comprado, se guarda con los vales y no con las gift cards. */
@@ -14636,6 +14678,9 @@ const TODAY_CARDS = [
    Solo Nike y Lyft se mueven con el monto; el resto de las marcas
    trae su propio porcentaje fijo y el tier se arma con él. */
 function getTier(amount, product, promoLive = true) {
+  if (product && product.noCashback) {
+    return { rate: 0, ribbon: "", bar: "" };
+  }
   if (product && product.rate) {
     const promo = product.rate >= 20;
     return {
@@ -15319,9 +15364,13 @@ function cartDrawer(state) {
                     <span class="brand-item-base"><img src="${product.art}" alt="${product.label}" /></span>
                   </span>
                 </span>
-                <span class="discount-ribbon discount-ribbon-list ${tier.ribbon}">
-                  <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(tier.rate * 100)}%</span>
-                </span>
+                ${
+                  tier.rate
+                    ? `<span class="discount-ribbon discount-ribbon-list ${tier.ribbon}">
+                        <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(tier.rate * 100)}%</span>
+                      </span>`
+                    : ""
+                }
                 <button class="oky-flow-cart-edit" data-action="edit-item" data-product="${item.productKey}"
                   type="button" aria-label="Cambiar el monto de ${product.label}">
                   <i class="fa-solid fa-pencil" aria-hidden="true"></i>
@@ -15390,7 +15439,7 @@ function cartDrawer(state) {
     </aside>
 
     ${
-      state.cart.length
+      state.cart.length && cashback > 0
         ? `<div class="oky-flow-savingbar is-drawer-bar">
             <div class="saving-bar is-oky-cash">
               <div class="saving-bar-copy">
@@ -15434,11 +15483,15 @@ function screenCheckout(state) {
             <span class="middle-card-footer-end" aria-hidden="true"></span>
           </div>
         </div>
-        <div class="middle-card-ribbon-slot">
-          <div class="discount-ribbon discount-ribbon-wrap ${itemTier.ribbon}">
-            <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(itemTier.rate * 100)}%</span>
-          </div>
-        </div>
+        ${
+          itemTier.rate
+            ? `<div class="middle-card-ribbon-slot">
+                <div class="discount-ribbon discount-ribbon-wrap ${itemTier.ribbon}">
+                  <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(itemTier.rate * 100)}%</span>
+                </div>
+              </div>`
+            : ""
+        }
       </article>
     </section>
   `;
@@ -15567,11 +15620,15 @@ function screenCheckout(state) {
     </div>
     </div>
 
-    ${savingBar(earned, { bar: "" }, (v) => {
-      if (used <= 0) return `Compra y gana <strong>${v}+</strong> en <strong>OKY Cash</strong>`;
-      if (earned <= 0) return `No acumulas <strong>OKY Cash</strong> en esta compra`;
-      return `Ganas <strong>${v}</strong> por lo que pagas con tarjeta`;
-    })}
+    ${
+      cashback > 0
+        ? savingBar(earned, { bar: "" }, (v) => {
+            if (used <= 0) return `Compra y gana <strong>${v}+</strong> en <strong>OKY Cash</strong>`;
+            if (earned <= 0) return `No acumulas <strong>OKY Cash</strong> en esta compra`;
+            return `Ganas <strong>${v}</strong> por lo que pagas con tarjeta`;
+          })
+        : ""
+    }
     ${navbar("", state)}
   `;
 }
@@ -16597,7 +16654,6 @@ function screenTigoPdp(state) {
   const product = PRODUCTS.tigo;
   const progress = ((amount - product.min) / (product.max - product.min)) * 100;
   const inCart = state.cart.some((item) => item.productKey === "tigo");
-  const FEE = TIGO_FEE;
 
   return `
     ${statusBar()}
@@ -16705,30 +16761,22 @@ function screenTigoPdp(state) {
         </div>
       </section>
 
-      <section class="pdp-page-summary-wrap" aria-label="Resumen de compra">
-        <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="pdp">
-          <div class="summary-type-overlay">
-            <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
-          </div>
+      <section class="pdp-page-summary-wrap oky-flow-dock" aria-label="Resumen de compra">
+        <div class="summary-box summary-box-compact" data-flow="products" data-step="pdp">
           <div class="summary-card">
             <div class="summary-card-body">
               <div class="summary-row">
-                <span class="summary-label-strong">Producto</span>
-                <span class="summary-label-strong">${money(amount)}</span>
-              </div>
-              <div class="summary-row">
-                <span class="summary-label">Costo por servicio</span>
-                <span class="summary-label">${money(FEE)}</span>
-              </div>
-              <div class="summary-row summary-row-total pdp-page-summary-total">
-                <span class="summary-label-strong">PAGAS</span>
-                <span class="summary-label-strong">${money(amount + FEE)}</span>
+                <span class="summary-label-strong">Subtotal</span>
+                <span class="summary-label-strong" data-role="tigo-subtotal">${money(amount)}</span>
               </div>
             </div>
-            <div class="summary-divider"></div>
             <div class="summary-cta-row">
-              <button class="btn btn-primary summary-btn" data-action="${inCart ? "open-cart" : "add-to-cart"}" data-product="tigo"
-                type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i>${inCart ? "Ver carrito" : "Agregar"}</button>
+              ${
+                inCart
+                  ? `<button class="btn btn-primary summary-btn" data-action="open-cart" type="button">Ver carrito</button>`
+                  : `<button class="btn btn-primary summary-btn" data-action="add-to-cart" data-product="tigo"
+                       type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i>Agregar</button>`
+              }
             </div>
           </div>
         </div>
@@ -16736,7 +16784,6 @@ function screenTigoPdp(state) {
       <div class="pdp-page-footer-spacer"></div>
     
     </div>
-    ${savingBar(amount * getTier(amount, product, state.promoLive).rate, getTier(amount, product, state.promoLive), (v) => `Gana <strong>${v}</strong> de <strong>OKY Cash</strong>`)}
     ${navbar("", state)}
   `;
 }
@@ -16763,7 +16810,7 @@ function screenDecision() {
    en .oky-flow-scroll, aquí solo se suma lo que va encima. */
 const SCROLL_CLASS = {
   pdp: "has-dock",
-  tigopdp: "has-bar",
+  tigopdp: "has-tigo-dock",
   checkout: "has-bar",
   methods: "has-cta",
 
@@ -16772,6 +16819,13 @@ const SCROLL_CLASS = {
   success: "has-cta-strip",
   cashwin: "has-cta-strip",
 };
+
+/* El checkout pierde la saving bar cuando nada del carrito gana
+   OKY Cash —Tigo, por ejemplo—, y con ella su hueco. */
+function scrollClass(state) {
+  if (state.screen === "checkout" && cartCashback(state) <= 0) return "";
+  return SCROLL_CLASS[state.screen] || "";
+}
 
 function renderScreen(state) {
   switch (state.screen) {
@@ -16898,7 +16952,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     root.innerHTML = `
       <div class="oky-flow-frame">
-        <div class="oky-flow-scroll ${SCROLL_CLASS[state.screen] || ""}">
+        <div class="oky-flow-scroll ${scrollClass(state)}">
           ${renderScreen(state)}
         </div>
         ${state.cartOpen ? cartDrawer(state) : ""}
@@ -17836,14 +17890,8 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
       const big = root.querySelector(".oky-flow-gua-pdp .middle-card-amount");
       if (big) big.textContent = String(value);
-      const rows = root.querySelectorAll(".oky-flow-gua-pdp .summary-card-body .summary-row");
-      if (rows[0]) rows[0].lastElementChild.textContent = money(value);
-      if (rows[2]) rows[2].lastElementChild.textContent = money(value + TIGO_FEE);
-      const bar = root.querySelector(".oky-flow-savingbar .saving-bar-copy span");
-      if (bar) {
-        const tier = getTier(value, PRODUCTS.tigo, state.promoLive);
-        bar.innerHTML = `Gana <strong>${money(value * tier.rate)}</strong> de <strong>OKY Cash</strong>`;
-      }
+      const sub = root.querySelector("[data-role='tigo-subtotal']");
+      if (sub) sub.textContent = money(value);
       return;
     }
 
