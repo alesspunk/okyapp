@@ -476,6 +476,8 @@ function createInitialState(userType) {
     headerCollapsed: false,
     /* Secciones abiertas de Mi wallet. */
     openSections: ["cash", "gift"],
+    /* Aviso de cambio de marketplace; guarda a dónde se iba. */
+    countrySheet: null,
     /* Cuántas cards se han pedido ya en cada sección del wallet. */
     walletShown: { gift: WALLET_PAGE, vales: WALLET_PAGE, servicios: WALLET_PAGE },
     /* Vales que ya se compartieron y vales archivados (por key). */
@@ -668,6 +670,31 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
         <div class="saving-bar-copy"><span>${copy(money(cashback))}</span></div>
       </div>
     </div>
+  `;
+}
+
+/* Cada marketplace tiene su propio carrito —marcas, monedas y reglas
+   distintas—, así que cambiar de país lo vacía. Antes de hacerlo se
+   avisa, con la salida de completar la compra a mano. */
+function countrySheet(state) {
+  return `
+    <div class="oky-flow-country-backdrop" aria-hidden="true"></div>
+    <section class="oky-flow-country" role="dialog" aria-modal="true" aria-labelledby="oky-country-title">
+      <button class="oky-flow-country-close" data-action="country-stay" type="button" aria-label="Cerrar">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <h2 class="oky-flow-country-title" id="oky-country-title">¿Deseas cambiar el país destino?</h2>
+      <p class="oky-flow-country-note">El cambio de país borra tu carrito.</p>
+      <div class="oky-flow-country-art" aria-hidden="true">
+        <img src="oky-globe-warning.png" alt="" />
+      </div>
+      <div class="oky-flow-country-actions">
+        <button class="btn btn-large oky-flow-country-primary" data-action="country-checkout" type="button">
+          Completar Compra
+        </button>
+        <button class="oky-flow-country-link" data-action="country-switch" type="button">Cambiar país</button>
+      </div>
+    </section>
   `;
 }
 
@@ -2634,6 +2661,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         </div>
         ${state.cartOpen ? cartDrawer(state) : ""}
         ${state.sheet ? (state.sheet.type === "filter" ? filterSheet(state) : confirmSheet(state)) : ""}
+        ${state.countrySheet ? countrySheet(state) : ""}
         ${state.toast ? toastBar(state) : ""}
       </div>
     `;
@@ -2798,6 +2826,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      y no volvía nunca. Ahora no se toca el scroll —los umbrales quedan
      estables, sin realimentación— y el salto se resuelve como toca:
      animando el alto del header. */
+  function goCountry(country) {
+    if (country === "usa") state.usaSeen = true;
+    state.country = country;
+    markCountryInUrl(country);
+    return go(country === "usa" ? "home" : "homegua");
+  }
+
   function bindHeaderScroll(scroll) {
     /* Las dos homes llevan el mismo Discovery Header, así que las dos
        colapsan al bajar y las dos esconden la pista de scroll. */
@@ -3082,11 +3117,34 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return go(state.country === "gua" ? "homegua" : "home");
     }
 
-    if (action === "nav:home") {
-      state.usaSeen = true;
-      state.country = "usa";
-      markCountryInUrl("usa");
-      return go("home");
+    if (action === "nav:home" || action === "nav:homegua") {
+      const target = action === "nav:home" ? "usa" : "gua";
+      /* Con el carrito lleno no se cambia de marketplace en silencio. */
+      if (state.cart.length && state.country !== target) {
+        state.countrySheet = { to: target };
+        return render();
+      }
+      return goCountry(target);
+    }
+
+    if (action === "country-stay") {
+      state.countrySheet = null;
+      return render();
+    }
+
+    if (action === "country-checkout") {
+      state.countrySheet = null;
+      state.cartOpen = true;
+      return render();
+    }
+
+    if (action === "country-switch") {
+      const target = (state.countrySheet || {}).to === "usa" ? "usa" : "gua";
+      state.countrySheet = null;
+      state.cart = [];
+      state.okyCashEnabled = false;
+      state.okyCashApplied = 0;
+      return goCountry(target);
     }
     if (action === "nav:wallet") return leavePurchase("wallet");
     if (action === "nav:okycash") {
@@ -3212,12 +3270,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "open-tigo") {
       if (state.amounts.tigo == null) state.amounts.tigo = TIGO_DEFAULT_AMOUNT;
       return go("tigopdp");
-    }
-
-    if (action === "nav:homegua") {
-      state.country = "gua";
-      markCountryInUrl("gua");
-      return go("homegua");
     }
 
     if (action === "open-filter") {
