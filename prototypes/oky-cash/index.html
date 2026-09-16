@@ -15196,8 +15196,10 @@ function createInitialState(userType) {
     countrySheet: null,
     /* Cuántas cards se han pedido ya en cada sección del wallet. */
     walletShown: { gift: WALLET_PAGE, vales: WALLET_PAGE, servicios: WALLET_PAGE },
-    /* Vales que ya se compartieron y vales archivados (por key). */
-    sharedVouchers: [],
+    /* Vales que ya se compartieron y vales archivados (por key). Los dos
+       primeros arrancan compartidos para que el filtro de compartidas y
+       el sello del vale se vean sin tener que compartir algo antes. */
+    sharedVouchers: ["underarmour", "pollocampero"],
     archivedVouchers: [],
     /* El modal de archivar explica a dónde va el vale; una vez visto,
        archivar es directo y se puede deshacer desde el aviso. */
