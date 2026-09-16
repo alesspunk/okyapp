@@ -10859,20 +10859,47 @@ button.tactic-offer {
 /* El sello va dentro de la Bottom Card, en el sitio que ocupaban las
    credenciales: es la misma anatomía de la molécula —contenido y media—
    solo que el media ahora es el sello y su fecha. */
+/* El sello ocupa exactamente lo que ocupaban las credenciales: la card
+   no puede cambiar de alto al compartirse, o el pie —interruptor y
+   archivar— daría un salto. El bloque se estira y la imagen se encoge
+   dentro de él. */
 .prime-card-bottom-media.is-stamp {
   position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 2px;
   width: 100%;
-  padding: 4px 0 8px;
 }
 
 .prime-card-bottom-media.is-stamp img {
-  width: 140px;
-  height: 140px;
+  flex: 0 1 auto;
+  min-height: 0;
+  width: auto;
+  max-width: 140px;
+  height: 100%;
   object-fit: contain;
+}
+
+/* El alto de la card lo fija el estado con credenciales, que es el que
+   manda: compartida se ajusta a él. */
+.oky-flow-card-carousel .card-bottom-molecule {
+  min-height: 189px;
+}
+
+.oky-flow-card-carousel.is-redeemed .card-bottom-molecule,
+.oky-flow-card-carousel.is-redeemed .prime-card-bottom-content,
+.oky-flow-card-carousel.is-redeemed .prime-card-bottom-main {
+  height: 189px;
+  box-sizing: border-box;
+}
+
+.oky-flow-card-carousel.is-redeemed .prime-card-bottom-main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 /* La fecha del canje, justo debajo del sello y dentro de la card. */
