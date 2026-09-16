@@ -179,6 +179,10 @@ const BRAND_DEFAULT_AMOUNT = 5;
 const TIGO_FEE = 3.5;
 const TIGO_DEFAULT_AMOUNT = 50;
 
+/* En el flujo de Guatemala la compra va a un contacto ya conocido, así
+   que el checkout no pregunta para quién es: lo dice. */
+const GUA_RECIPIENT = { name: "Daniel Paz", phone: "+502 6578-8744" };
+
 /* Las dos marcas que arrancan dentro de la banda del descuento
    especial, y el monto con el que abren mientras la promo vive. */
 const PROMO_PRODUCTS = ["nike", "lyft"];
@@ -398,6 +402,10 @@ function createInitialState(userType) {
     /* El prototipo abre en Guatemala; USA se descubre por el folder. La
        prueba puede empezar en cualquiera de las dos con un enlace. */
     screen: initialScreen(),
+    /* País del flujo en curso: cambia con el folder y decide las dos
+       cosas que no se comparten —el modal de para quién es y los datos
+       de quien recibe—. */
+    country: initialScreen() === "home" ? "usa" : "gua",
     params: {},
     history: [],
     /* Arranca en 51, dentro del rango de descuento especial (20%);
@@ -593,7 +601,7 @@ function navbar(active, state = {}) {
   return `
     <nav class="oky-flow-navbar">
       <div class="bottom-nav">
-        ${item("home", "Home", "house", "nav:home")}
+        ${item("home", "Home", "house", "nav:country-home")}
         ${item("notif", "Notificaciones", "bell", null)}
         ${item("okycash", "OKY Cash", null, "nav:okycash")}
         ${item("ayuda", "Ayuda", "messages", null)}
@@ -848,7 +856,7 @@ function screenPdp(state) {
 
   return `
     ${statusBar()}
-    ${productHeader(state, { backAction: "nav:home" })}
+    ${productHeader(state, { backAction: "nav:country-home" })}
 
     <div class="oky-flow-stack-center">
       <div class="oky-flow-brand-slot">
@@ -1013,7 +1021,7 @@ function cartDrawer(state) {
                 <p class="oky-flow-cart-empty-note">
                   Agrega una gift card y empieza a ganar OKY Cash en cada compra.
                 </p>
-                <button class="btn btn-primary btn-large" data-action="nav:home" type="button">
+                <button class="btn btn-primary btn-large" data-action="nav:country-home" type="button">
                   Explorar marcas
                 </button>
               </div>`
@@ -1030,7 +1038,7 @@ function cartDrawer(state) {
               </div>
             </div>
             <div class="summary-cta-row double">
-              <button class="btn btn-outlined btn-large" data-action="nav:home" type="button">Seguir comprando</button>
+              <button class="btn btn-outlined btn-large" data-action="nav:country-home" type="button">Seguir comprando</button>
               <button class="btn btn-primary btn-large" data-action="go:decision" type="button"
                 ${state.cart.length ? "" : "disabled"}>Ir a pagar</button>
             </div>
@@ -1147,8 +1155,12 @@ function screenCheckout(state) {
         <div class="dual-card">
           <span class="dual-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
           <div class="dual-copy">
-            <p class="dual-title">${state.recipient || "Para mí"}</p>
-            <p class="dual-subtitle">+1 407 284-8092</p>
+            <p class="dual-title">${
+              state.country === "gua" ? GUA_RECIPIENT.name : state.recipient || "Para mí"
+            }</p>
+            <p class="dual-subtitle">${
+              state.country === "gua" ? GUA_RECIPIENT.phone : "+1 407 284-8092"
+            }</p>
           </div>
           <span class="dual-action" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
         </div>
@@ -2515,6 +2527,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const target = initialScreen();
     if (state.screen === target) return;
     if (target === "home") state.usaSeen = true;
+    state.country = target === "home" ? "usa" : "gua";
     state.history = [];
     go(target, {}, { push: false });
   });
@@ -2981,8 +2994,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "back") return goBack();
+    if (action === "nav:country-home") {
+      /* Home vuelve a la home del país en el que se está, no siempre a
+         la de USA: el folder es el único que cambia de país. */
+      return go(state.country === "gua" ? "homegua" : "home");
+    }
+
     if (action === "nav:home") {
       state.usaSeen = true;
+      state.country = "usa";
       markCountryInUrl("usa");
       return go("home");
     }
@@ -3035,9 +3055,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          prueba sin manera de llegar al pago. Se asume "Para mí", que es
          lo que la pantalla proponía por defecto. En escritorio sigue
          igual. */
-      if (state.decisionSeen || phone.matches) {
+      /* En Guatemala el destinatario ya viene puesto, así que no hay
+         nada que preguntar. En USA sigue igual que siempre. */
+      if (state.decisionSeen || phone.matches || state.country === "gua") {
         state.decisionSeen = true;
-        state.recipient = "Para mí";
+        state.recipient = state.country === "gua" ? GUA_RECIPIENT.name : "Para mí";
         state.checkoutIndex = 0;
         return go("checkout");
       }
@@ -3109,6 +3131,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "nav:homegua") {
+      state.country = "gua";
       markCountryInUrl("gua");
       return go("homegua");
     }

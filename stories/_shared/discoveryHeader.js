@@ -194,7 +194,7 @@ function renderAppHeader(
         <div class="header-left-group">
           ${renderWalletBitmap({ action: walletAction, indicated: walletIndicated })}
         </div>
-        <img class="header-logo" src="logo-oky.svg" alt="OKY" />
+        <img class="header-logo" src="logo-oky.svg" alt="OKY" data-action="nav:country-home" role="button" tabindex="0" />
         ${right}
       </div>
     </section>

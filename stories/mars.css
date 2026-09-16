@@ -11781,3 +11781,15 @@ button.tactic-offer {
 .folder-new-item-chip.is-on-left {
   left: 72px;
 }
+
+/* El logo lleva a la home del país en el que estés. */
+.header-logo[data-action] {
+  cursor: pointer;
+}
+
+/* El nombre de la marca va centrado bajo su logo, no pegado al borde
+   izquierdo de la celda. */
+.oky-flow-gua .homecard-tile-name {
+  width: 100%;
+  text-align: center;
+}

@@ -142,10 +142,7 @@ export const GUA_HOME_MARKUP = `
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="ihop.webp" alt="iHop logo" /></div>
                   <p class="token-brand homecard-tile-name">iHop</p>
                 </article>
-                <article class="homecard-tile">
-                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="applebees.webp" alt="Applebee's logo" /></div>
-                  <p class="token-brand homecard-tile-name">Applebee's</p>
-                </article>
+
               </div>
             </div>
 
