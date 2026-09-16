@@ -14984,6 +14984,17 @@ const TIGO_DEFAULT_AMOUNT = 50;
 /* En el flujo de Guatemala la compra va a un contacto ya conocido, así
    que el checkout no pregunta para quién es: lo dice. */
 const GUA_RECIPIENT = { name: "Daniel Paz", phone: "+502 6578-8744" };
+const USA_RECIPIENT = { name: "Para mí", phone: "+1 407 287-8787" };
+
+/* Quién recibe lo sale del carrito, no del país en el que se esté: una
+   compra de Guatemala va a un contacto y una de USA es para uno mismo,
+   y el orden en que se hagan no puede cambiarlo. */
+function orderCountry(state) {
+  const items = state.cart.length
+    ? state.cart.map((item) => item.productKey)
+    : state.lastOrder.map((p) => p.productKey);
+  return items.some((key) => (PRODUCTS[key] || {}).country === "gua") ? "gua" : "usa";
+}
 
 /* Las dos marcas que arrancan dentro de la banda del descuento
    especial, y el monto con el que abren mientras la promo vive. */
@@ -15047,6 +15058,7 @@ PRODUCTS.tigo = {
   rate: 0,
   /* Sin descuento: ni ribbon ni saving bar, y no suma OKY Cash. */
   noCashback: true,
+  country: "gua",
   bg: "#00377b",
   legal: false,
   /* Comprado, se guarda con los vales y no con las gift cards. */
@@ -15981,6 +15993,10 @@ function screenCheckout(state) {
   const active = clamp(state.checkoutIndex, 0, Math.max(state.cart.length - 1, 0));
   /* Con el saldo en cero la mitad de OKY Cash no pinta nada. */
   const hasCash = state.okyCashBalance > 0;
+  const recipient =
+    orderCountry(state) === "gua"
+      ? GUA_RECIPIENT
+      : { name: state.recipient || USA_RECIPIENT.name, phone: USA_RECIPIENT.phone };
   /* Cada vale lleva su propio porcentaje en el wrap ribbon, igual que
      en el PDP: con el reloj en pausa aquí dentro, el 20% de Nike no se
      convierte en 5% mientras se ajusta el pago. */
@@ -16071,12 +16087,8 @@ function screenCheckout(state) {
         <div class="dual-card">
           <span class="dual-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
           <div class="dual-copy">
-            <p class="dual-title">${
-              state.country === "gua" ? GUA_RECIPIENT.name : state.recipient || "Para mí"
-            }</p>
-            <p class="dual-subtitle">${
-              state.country === "gua" ? GUA_RECIPIENT.phone : "+1 407 284-8092"
-            }</p>
+            <p class="dual-title">${recipient.name}</p>
+            <p class="dual-subtitle">${recipient.phone}</p>
           </div>
           <span class="dual-action" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
         </div>
@@ -18146,9 +18158,14 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          igual. */
       /* En Guatemala el destinatario ya viene puesto, así que no hay
          nada que preguntar. En USA sigue igual que siempre. */
-      if (state.decisionSeen || phone.matches || state.country === "gua") {
-        state.decisionSeen = true;
-        state.recipient = state.country === "gua" ? GUA_RECIPIENT.name : "Para mí";
+      if (state.decisionSeen || phone.matches || orderCountry(state) === "gua") {
+        /* Lo de Guatemala no pregunta ni deja rastro: el destinatario lo
+           pone la propia orden, así que state.recipient sigue siendo lo
+           que la persona eligió para sus compras de USA. */
+        if (orderCountry(state) !== "gua") {
+          state.decisionSeen = true;
+          state.recipient = USA_RECIPIENT.name;
+        }
         state.checkoutIndex = 0;
         return go("checkout");
       }
@@ -18169,18 +18186,27 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const amount = state.amounts[product.key];
       if (!amount) return;
       const tier = getTier(amount, product, state.promoLive);
+      const updating = state.cart.some((item) => item.productKey === product.key);
       state.cart = state.cart
         .filter((item) => item.productKey !== product.key)
         .concat({ productKey: product.key, amount, cashback: amount * tier.rate });
-      /* El carrito ya no se abre solo: el aviso confirma y la pantalla
-         se queda donde estaba, con el CTA ya en "Ver carrito". */
+
+      /* Cambiar el monto de algo que ya estaba no es una novedad: abre
+         el carrito y ya. Lo que entra por primera vez se confirma con
+         el aviso y, al apagarse, el carrito entra desde el lado. */
+      if (updating) {
+        state.cartOpen = true;
+        return render();
+      }
+
       state.addedToast = true;
       render();
       clearTimeout(addedTimer);
       addedTimer = setTimeout(() => {
         state.addedToast = false;
+        state.cartOpen = true;
         render();
-      }, 1400);
+      }, 1200);
       return;
     }
 
