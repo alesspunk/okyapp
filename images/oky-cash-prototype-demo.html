@@ -7491,10 +7491,16 @@ body {
   height: 215px;
   box-sizing: border-box;
   overflow: hidden;
-  border: 1px solid var(--border-main);
+  /* El borde va por dentro y no como border: el color del borde lo pisa
+     el estilo en línea de cada marca —lleva el fondo de su arte— y
+     además así no se come un píxel del dibujo. Valores del Brand Item
+     de Figma: borde rgba(0,0,0,.231) y sombra 0 0 12px rgba(0,0,0,.1). */
+  border: 0;
   border-radius: 16px;
   background: var(--white);
-  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.1));
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.231373),
+    0 0 12px rgba(0, 0, 0, 0.1);
   padding: 0;
   cursor: pointer;
   display: block;
@@ -7505,10 +7511,10 @@ body {
   height: 100%;
   object-fit: cover;
   /* Sin el borde blanco de 2px: el arte llena la card de lado a lado.
-     El radio es el del contenedor menos su borde de 1px, para que las
-     dos curvas sean la misma. */
+     Con el borde por dentro ya no hay que descontar ese píxel: misma
+     curva que el contenedor. */
   border: 0;
-  border-radius: 15px;
+  border-radius: 16px;
   box-sizing: border-box;
   display: block;
 }
