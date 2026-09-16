@@ -390,6 +390,8 @@ function createInitialState(userType) {
     archiveExplained: false,
     /* Hoja de confirmación abierta, si hay: {type, key}. */
     sheet: null,
+    /* Categoría por la que se filtra Mi wallet; vacío es "todas". */
+    walletFilter: "",
     /* Aviso efímero al pie: {text, action, label, key}. */
     toast: null,
 
@@ -1372,12 +1374,68 @@ function okyCashCard(state, { balance, cta, label } = {}) {
   return { ...card, ...design.style, art: design.art };
 }
 
+/* Categorías del wallet. Cada marca cae en una y el filtro se arma
+   solo con las que tienen algo dentro: ofrecer una categoría vacía es
+   ofrecer un callejón. */
+const WALLET_CATEGORIES = [
+  { key: "comida", label: "Comida y restaurantes" },
+  { key: "moda", label: "Moda" },
+  { key: "tecnologia", label: "Tecnología y entretenimiento" },
+  { key: "hogar", label: "Hogar" },
+  { key: "transporte", label: "Transporte" },
+  { key: "servicios", label: "Servicios y recargas" },
+];
+
+const CATEGORY_OF = {
+  starbucks: "comida",
+  seveneleven: "comida",
+  burgerking: "comida",
+  ihop: "comida",
+  mcdonalds: "comida",
+  dominos: "comida",
+  applebees: "comida",
+  krispy: "comida",
+  pollocampero: "comida",
+  nike: "moda",
+  adidas: "moda",
+  gap: "moda",
+  oldnavy: "moda",
+  underarmour: "moda",
+  macys: "moda",
+  apple: "tecnologia",
+  xbox: "tecnologia",
+  googleplay: "tecnologia",
+  amazon: "tecnologia",
+  ebay: "tecnologia",
+  homedepot: "hogar",
+  target: "hogar",
+  lyft: "transporte",
+  eegsa: "servicios",
+  tigo: "servicios",
+};
+
 /* Lo que se ve en una sección del wallet: lo suyo, menos lo archivado.
    Archivar no borra —el vale sigue existiendo— solo lo saca de la vista
    principal, que es lo que la gente espera de un archivo. */
-function walletDeck(state, section) {
+function walletDeck(state, section, { filtered = true } = {}) {
   const all = section === "gift" ? walletVouchers(state) : WALLET_EXTRAS[section] || [];
-  return all.filter((v) => !state.archivedVouchers.includes(v.key));
+  return all.filter((v) => {
+    if (state.archivedVouchers.includes(v.key)) return false;
+    if (filtered && state.walletFilter && CATEGORY_OF[v.key] !== state.walletFilter) return false;
+    return true;
+  });
+}
+
+/* Solo las categorías con marcas en el wallet, y cuántas hay en cada
+   una: el contador evita abrir para descubrir que no hay nada. */
+function walletCategories(state) {
+  const items = ["gift", "vales", "servicios"].flatMap((section) =>
+    walletDeck(state, section, { filtered: false }),
+  );
+  return WALLET_CATEGORIES.map((cat) => ({
+    ...cat,
+    count: items.filter((v) => CATEGORY_OF[v.key] === cat.key).length,
+  })).filter((cat) => cat.count > 0);
 }
 
 /* Todo lo archivado, venga de la sección que venga. */
@@ -1521,39 +1579,75 @@ function screenWallet(state) {
     ${statusBar()}
     ${titledHeader("Mi wallet")}
 
-    <section class="plateu-molecule is-static is-default oky-flow-wallet-nav" aria-label="Categorías">
-      <div class="plateu-track is-static">
-        ${filters
-          .map(
-            (f, i) => `
-          <button class="plateu-item" type="button" data-action="wallet-jump" data-section="${f.key}"
-            aria-label="Ir a ${f.label}">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="${f.icon}" alt="" /></div>
-            ${i === 0 ? `<span class="plateu-chip is-outlined">${f.label}</span>` : `<span class="plateu-label">${f.label}</span>`}
-          </button>
-        `,
-          )
-          .join("")}
-      </div>
-    </section>
+    <div class="oky-flow-wallet-filter">
+      <span class="oky-flow-wallet-filter-label">
+        ${state.walletFilter ? (WALLET_CATEGORIES.find((c) => c.key === state.walletFilter) || {}).label : "Todas las categorías"}
+      </span>
+      ${
+        /* Con filtro puesto el botón lo dice y ofrece quitarlo ahí
+           mismo: un filtro activo que no se ve es la forma más común de
+           dejar a alguien mirando una lista vacía. */
+        state.walletFilter
+          ? `<button class="btn btn-primary btn-small oky-flow-filter-btn is-on" data-action="clear-filter" type="button">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i>&nbsp;Quitar filtro
+            </button>`
+          : `<button class="btn btn-outlined btn-small oky-flow-filter-btn" data-action="open-filter" type="button">
+              <i class="fa-solid fa-sliders" aria-hidden="true"></i>&nbsp;Filtrar
+            </button>`
+      }
+    </div>
 
     <div class="oky-flow-section" style="gap:12px">
-      ${sectionHead("cash", "fa-wallet", "OKY Cash", money(state.okyCashBalance))}
-      ${body("cash", `<div class="oky-flow-card-slot">${renderPaymentCard(cash)}</div>`)}
+      ${
+        /* OKY Cash no es una categoría de marca: filtrando, sobra. */
+        state.walletFilter
+          ? ""
+          : `
+        ${sectionHead("cash", "fa-wallet", "OKY Cash", money(state.okyCashBalance))}
+        ${body("cash", `<div class="oky-flow-card-slot">${renderPaymentCard(cash)}</div>`)}
+      `
+      }
 
-      ${sectionHead(
-        "gift",
-        "fa-gift",
-        "Gift Cards",
-        `${vouchers.length}${news ? ` · ${news} nueva${news > 1 ? "s" : ""}` : ""}`,
-      )}
-      ${body("gift", stack(vouchers, "gift", "Todavía no tienes gift cards."))}
+      ${
+        /* Con filtro puesto, una sección sin resultados no se dibuja:
+           el contador de la cabecera ya dice cuántas hay, y un cero es
+           ruido. Sin filtro se quedan, que son la estructura. */
+        vouchers.length || !state.walletFilter
+          ? `
+        ${sectionHead(
+          "gift",
+          "fa-gift",
+          "Gift Cards",
+          `${vouchers.length}${news ? ` · ${news} nueva${news > 1 ? "s" : ""}` : ""}`,
+        )}
+        ${body("gift", stack(vouchers, "gift", "Todavía no tienes gift cards."))}
+      `
+          : ""
+      }
 
-      ${sectionHead("vales", "fa-ticket", "OKY Vales", String(vales.length))}
-      ${body("vales", stack(vales, "vales", "Todavía no tienes vales."))}
+      ${
+        vales.length || !state.walletFilter
+          ? `
+        ${sectionHead("vales", "fa-ticket", "OKY Vales", String(vales.length))}
+        ${body("vales", stack(vales, "vales", "Todavía no tienes vales."))}
+      `
+          : ""
+      }
 
-      ${sectionHead("servicios", "fa-file-invoice-dollar", "Servicios", String(servicios.length))}
-      ${body("servicios", stack(servicios, "servicios", "Todavía no tienes servicios."))}
+      ${
+        servicios.length || !state.walletFilter
+          ? `
+        ${sectionHead("servicios", "fa-file-invoice-dollar", "Servicios", String(servicios.length))}
+        ${body("servicios", stack(servicios, "servicios", "Todavía no tienes servicios."))}
+      `
+          : ""
+      }
+
+      ${
+        state.walletFilter && !vouchers.length && !vales.length && !servicios.length
+          ? `<p class="oky-flow-empty">Nada en esta categoría todavía.</p>`
+          : ""
+      }
 
       ${
         /* El archivo solo existe cuando hay algo dentro: una sección
@@ -1957,6 +2051,41 @@ const CONFIRM_SHEETS = {
   },
 };
 
+/* Hoja de filtros: blanca, con radios y una sola decisión por vez.
+   Cada opción trae su cuenta —no hay que abrir para ver si hay algo— y
+   "Todas" vive arriba como salida rápida. */
+function filterSheet(state) {
+  const cats = walletCategories(state);
+  const option = (key, label, count) => {
+    const on = state.walletFilter === key;
+    return `
+      <button class="oky-flow-filter-option${on ? " is-on" : ""}" data-action="pick-filter"
+        data-cat="${key}" type="button" role="radio" aria-checked="${on}">
+        <span class="oky-flow-radio" aria-hidden="true"></span>
+        <span class="oky-flow-filter-option-label">${label}</span>
+        ${count == null ? "" : `<span class="oky-flow-filter-option-count">${count}</span>`}
+      </button>
+    `;
+  };
+
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-sheet is-filter" role="dialog" aria-modal="true" aria-label="Filtrar por categoría">
+      <div class="oky-flow-sheet-grab" aria-hidden="true"></div>
+      <header class="oky-flow-filter-head">
+        <h2 class="oky-flow-filter-title">Filtrar</h2>
+        <button class="oky-flow-sheet-close is-dark" data-action="close-sheet" type="button" aria-label="Cerrar">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+      <div class="oky-flow-filter-list" role="radiogroup">
+        ${option("", "Todas las categorías", null)}
+        ${cats.map((cat) => option(cat.key, cat.label, cat.count)).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function confirmSheet(state) {
   const sheet = CONFIRM_SHEETS[state.sheet.type];
   if (!sheet) return "";
@@ -2144,7 +2273,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           ${renderScreen(state)}
         </div>
         ${state.cartOpen ? cartDrawer(state) : ""}
-        ${state.sheet ? confirmSheet(state) : ""}
+        ${state.sheet ? (state.sheet.type === "filter" ? filterSheet(state) : confirmSheet(state)) : ""}
         ${state.toast ? toastBar(state) : ""}
       </div>
     `;
@@ -2693,6 +2822,23 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "carousel-prev" || action === "carousel-next") {
       const step = action === "carousel-next" ? 1 : -1;
       state.checkoutIndex = wrap(state.checkoutIndex + step, state.cart.length);
+      return render();
+    }
+
+    if (action === "open-filter") {
+      state.sheet = { type: "filter" };
+      return render();
+    }
+
+    if (action === "pick-filter") {
+      /* Elegir cierra: una sola decisión, sin botón de aplicar. */
+      state.walletFilter = el.dataset.cat || "";
+      state.sheet = null;
+      return render();
+    }
+
+    if (action === "clear-filter") {
+      state.walletFilter = "";
       return render();
     }
 
