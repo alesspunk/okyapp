@@ -114,7 +114,7 @@ if os.path.exists(fa_path):
 # y middleCard.js definen ambos renderFooter, y la segunda pisaba a la
 # primera (la Payment Card acababa imprimiendo "undefined").
 MODULES = [
-    "flag", "paymentCards", "historyCards", "plateu", "discoveryHeader",
+    "flag", "paymentCards", "historyCards", "plateu", "discoveryHeader", "guaHome",
     "middleCard", "primeCards", "cardOrganism",
     # lottie-web vendorizado + el dotLottie de "Ganaste OKY Cash" ya
     # aplanado con sus webp en data URI: el HTML suelto reproduce la
@@ -173,10 +173,15 @@ if _flags:
 # ── 3. Imágenes → data URIs ───────────────────────────────
 # Nombres entre comillas y también los que van dentro de un url(...)
 # de CSS inline, como el fondo a sangre de un diseño de tarjeta.
+# Arte que solo vive en las variantes de catálogo de Storybook y que el
+# prototipo no dibuja nunca. Inlinearlo costaba 1,6 MB del archivo y el
+# Artifact no admite más de 16.
+CATALOG_ONLY = {"plp-cajita-feliz.webp"}
+
 names = set(re.findall(r'["\']([A-Za-z0-9_.\-]+\.(?:png|svg|webp|jpe?g))["\']', bundle))
 names |= set(re.findall(r'url\(([A-Za-z0-9_.\-]+\.(?:png|svg|webp|jpe?g))\)', bundle))
 missing = []
-for name in sorted(names):
+for name in sorted(names - CATALOG_ONLY):
     disk = os.path.join(IMAGES, name)
     if not os.path.exists(disk):
         missing.append(name)

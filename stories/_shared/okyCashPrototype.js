@@ -48,6 +48,7 @@ import { findPaymentCard, renderPaymentCard } from "./paymentCards";
 import { renderHistoryCard } from "./historyCards";
 import { renderDiscoveryHeader } from "./discoveryHeader";
 import { renderCardOrganism } from "./cardOrganism";
+import { GUA_HOME_MARKUP } from "./guaHome";
 import { lottie } from "./lottieLight";
 import { OKY_CASH_WIN_ANIMATION } from "./okyCashWinAnimation";
 
@@ -171,6 +172,13 @@ const findCardDesign = (key) => CARD_DESIGNS.find((d) => d.key === key) || CARD_
 /* Monto con el que abre el PDP de una marca nueva. */
 const BRAND_DEFAULT_AMOUNT = 5;
 
+/* Tigo es la única marca comprable de la home de Guatemala. No entra
+   por BRANDS porque no vive en ninguna parrilla del home de USA: su
+   PDP es la página propia que ya existe en Pages/PDP Pages, y ahí el
+   monto se elige con slider y lleva costo por servicio. */
+const TIGO_FEE = 3.5;
+const TIGO_DEFAULT_AMOUNT = 50;
+
 /* Las dos marcas que arrancan dentro de la banda del descuento
    especial, y el monto con el que abren mientras la promo vive. */
 const PROMO_PRODUCTS = ["nike", "lyft"];
@@ -217,6 +225,22 @@ Object.entries(BRANDS).forEach(([key, brand]) => {
     legal: true,
   };
 });
+
+/* Tigo, la marca de la home de Guatemala. Gana OKY Cash igual que las
+   demás; lo que cambia es su PDP, que es la página propia con slider y
+   costo por servicio. */
+PRODUCTS.tigo = {
+  key: "tigo",
+  label: "Tigo",
+  cardTitle: "Paquete de Internet",
+  art: "tigo.webp",
+  hero: "tigo.webp",
+  min: 5,
+  max: 100,
+  rate: 5,
+  bg: "#00377b",
+  legal: false,
+};
 
 /* Secciones de marcas del Home (Figma "Theme 1", 99135:106016). */
 const HOME_SECTIONS = [
@@ -2142,6 +2166,170 @@ function toastBar(state) {
   `;
 }
 
+/* ── Home de Guatemala ──────────────────────────────────── */
+/* El mockup "Homepage 1" tal cual, con nuestro Discovery Header encima
+   para que el folder siga en el orden de siempre —USA a la izquierda,
+   GUA a la derecha— y se pueda volver. */
+function screenHomeGua(state) {
+  return `
+    ${homeHeader(state, "State 1")}
+    <div class="oky-flow-gua">${GUA_HOME_MARKUP}</div>
+    ${navbar("home", state)}
+  `;
+}
+
+/* ── PDP de Tigo (Pages/PDP Pages · PDP Page 1) ───────────
+   La misma página, conectada al carrito: el slider mueve el monto, el
+   resumen recalcula y "Agregar" entra al flujo de siempre. */
+function screenTigoPdp(state) {
+  const amount = state.amounts.tigo ?? TIGO_DEFAULT_AMOUNT;
+  const product = PRODUCTS.tigo;
+  const progress = ((amount - product.min) / (product.max - product.min)) * 100;
+  const inCart = state.cart.some((item) => item.productKey === "tigo");
+  const FEE = TIGO_FEE;
+
+  return `
+    ${statusBar()}
+    ${productHeader(state, { backAction: "nav:homegua" })}
+    <div class="oky-flow-gua-pdp has-plateu">
+      
+      <section class="pdp-page-section">
+        
+
+        <div class="pdp-page-stack">
+          <div class="pdp-page-brand-slot">
+            <section class="brand-item-atom is-with-label" aria-label="Marca seleccionada">
+              <p class="brand-item-label token-product-text">Tigo</p>
+              <div class="brand-item-frame">
+                <div class="brand-item-base">
+                  <img src="tigo.webp" alt="Tigo" />
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="pdp-page-plateu-slot">
+            <section class="plateu-molecule is-static is-default pdp-page-plateu" aria-label="Categorías telco" data-pen-id="6985:152223">
+              <div class="plateu-track is-static">
+                <div class="plateu-item">
+                  <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu8.png" alt="PAQUETES" /></div>
+                  <span class="plateu-label">Paquetes</span>
+                </div>
+                <div class="plateu-item">
+                  <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu9.png" alt="INTERNET" /></div>
+                  <span class="plateu-chip">Internet</span>
+                </div>
+                <div class="plateu-item">
+                  <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu10.png" alt="RECARGAS" /></div>
+                  <span class="plateu-label">Recargas</span>
+                </div>
+                <div class="plateu-item">
+                  <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu11.png" alt="ANTENITA" /></div>
+                  <span class="plateu-label">Antenita</span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="pdp-page-card-slot">
+            <section class="middle-card-shell is-pdp" aria-label="Detalle principal del producto" data-pen-id="6991:146235">
+              <article class="middle-card-molecule is-amount">
+                <div class="middle-card-content">
+                  <div class="middle-card-main">
+                    <p class="middle-card-title">Paquete de Internet</p>
+                    <div class="middle-card-center">
+                      <div class="middle-card-value">
+                        <span class="middle-card-currency">$</span>
+                        <p class="middle-card-amount">${amount}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="middle-card-footer">
+                    <span class="middle-card-footer-start">Mostrar al cajero</span>
+                    <span class="middle-card-footer-end">Como canjear</span>
+                  </div>
+                </div>
+              </article>
+            </section>
+          </div>
+
+          <div class="pdp-page-slider-slot">
+            <section class="slider-atom" style="--slider-progress:${progress}%" aria-label="Selector de monto">
+              <div class="slider-track-shell" aria-hidden="true">
+                <div class="slider-track"></div>
+                <div class="slider-ticks">
+                  <span class="slider-tick" style="left:0%"></span>
+                  <span class="slider-tick" style="left:10%"></span>
+                  <span class="slider-tick" style="left:20%"></span>
+                  <span class="slider-tick" style="left:30%"></span>
+                  <span class="slider-tick" style="left:40%"></span>
+                  <span class="slider-tick" style="left:50%"></span>
+                  <span class="slider-tick" style="left:60%"></span>
+                  <span class="slider-tick" style="left:70%"></span>
+                  <span class="slider-tick" style="left:80%"></span>
+                  <span class="slider-tick" style="left:90%"></span>
+                  <span class="slider-tick" style="left:100%"></span>
+                </div>
+              </div>
+              <input
+                class="slider-range"
+                type="range"
+                min="5"
+                max="100"
+                step="5"
+                value="${amount}"
+                data-action="tigo-amount"
+                aria-label="Slider en dólares"
+              />
+              <div class="slider-values token-body1">
+                <span>$ 5</span>
+                <span>$ 100</span>
+              </div>
+              <div class="slider-labels token-caption">
+                <span>Mínimo</span>
+                <span>Máximo</span>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="pdp-page-summary-wrap" aria-label="Resumen de compra">
+        <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="pdp">
+          <div class="summary-type-overlay">
+            <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
+          </div>
+          <div class="summary-card">
+            <div class="summary-card-body">
+              <div class="summary-row">
+                <span class="summary-label-strong">Producto</span>
+                <span class="summary-label-strong">${money(amount)}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Costo por servicio</span>
+                <span class="summary-label">${money(FEE)}</span>
+              </div>
+              <div class="summary-row summary-row-total pdp-page-summary-total">
+                <span class="summary-label-strong">PAGAS</span>
+                <span class="summary-label-strong">${money(amount + FEE)}</span>
+              </div>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-cta-row">
+              <button class="btn btn-primary summary-btn" data-action="${inCart ? "open-cart" : "add-to-cart"}" data-product="tigo"
+                type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i>${inCart ? "Ver carrito" : "Agregar"}</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="pdp-page-footer-spacer"></div>
+    
+    </div>
+    ${savingBar(amount * getTier(amount, product, state.promoLive).rate, getTier(amount, product, state.promoLive), (v) => `Gana <strong>${v}</strong> de <strong>OKY Cash</strong>`)}
+    ${navbar("", state)}
+  `;
+}
+
 /* ── Onboarding Contactos (99140:47037) ─────────────────── */
 function screenDecision() {
   return `
@@ -2164,6 +2352,7 @@ function screenDecision() {
    en .oky-flow-scroll, aquí solo se suma lo que va encima. */
 const SCROLL_CLASS = {
   pdp: "has-dock",
+  tigopdp: "has-bar",
   checkout: "has-bar",
   methods: "has-cta",
 
@@ -2186,6 +2375,8 @@ function renderScreen(state) {
     case "wallet": return screenWallet(state);
     case "okycash": return screenOkyCash(state);
     case "carddesign": return screenCardDesign(state);
+    case "homegua": return screenHomeGua(state);
+    case "tigopdp": return screenTigoPdp(state);
     case "voucher": return screenVoucher(state);
     case "decision": return screenDecision();
     default: return screenHome(state);
@@ -2840,6 +3031,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return render();
     }
 
+    if (action === "open-tigo") {
+      if (state.amounts.tigo == null) state.amounts.tigo = TIGO_DEFAULT_AMOUNT;
+      return go("tigopdp");
+    }
+
+    if (action === "nav:homegua") return go("homegua");
+
     if (action === "open-filter") {
       state.sheet = { type: "filter" };
       return render();
@@ -3182,6 +3380,30 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   /* Monto del PDP: se parchean solo los nodos afectados para no
      perder el foco del input en cada tecla. */
   root.addEventListener("input", (event) => {
+    /* El slider de Tigo va por el listener de input, no por el de
+       click: se arrastra. */
+    const slider = event.target.closest("[data-action='tigo-amount']");
+    if (slider) {
+      const value = Number(slider.value) || TIGO_DEFAULT_AMOUNT;
+      state.amounts.tigo = value;
+      const atom = slider.closest(".slider-atom");
+      if (atom) {
+        const pct = ((value - PRODUCTS.tigo.min) / (PRODUCTS.tigo.max - PRODUCTS.tigo.min)) * 100;
+        atom.style.setProperty("--slider-progress", `${pct}%`);
+      }
+      const big = root.querySelector(".oky-flow-gua-pdp .middle-card-amount");
+      if (big) big.textContent = String(value);
+      const rows = root.querySelectorAll(".oky-flow-gua-pdp .summary-card-body .summary-row");
+      if (rows[0]) rows[0].lastElementChild.textContent = money(value);
+      if (rows[2]) rows[2].lastElementChild.textContent = money(value + TIGO_FEE);
+      const bar = root.querySelector(".oky-flow-savingbar .saving-bar-copy span");
+      if (bar) {
+        const tier = getTier(value, PRODUCTS.tigo, state.promoLive);
+        bar.innerHTML = `Gana <strong>${money(value * tier.rate)}</strong> de <strong>OKY Cash</strong>`;
+      }
+      return;
+    }
+
     const amountInput = event.target.closest("[data-action='input-amount']");
     if (amountInput) {
       const product = PRODUCTS[amountInput.dataset.product];

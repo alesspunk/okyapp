@@ -231,7 +231,8 @@ function renderFolderOption({
   }
 
   return `
-    <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="${optionStyle.join(";")}">
+    <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="${optionStyle.join(";")}"
+      ${side === "left" ? `data-action="nav:home"` : `data-action="nav:homegua"`} role="button" tabindex="0">
       ${
         /* La bandera es el átomo Flag (flagpack), no un bitmap suelto:
            mismo 4:3, borde y radio que el resto del sistema. */

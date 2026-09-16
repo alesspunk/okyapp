@@ -11407,3 +11407,346 @@ button.tactic-offer {
 .carrusel-dots button.promo-dot {
   appearance: none;
 }
+
+/* ── Home de Guatemala (mockup-1) ───────────────────────── */
+/* CSS propio del mockup "Homepage 1". Se le quitan su body y su shell
+   de 360x800 con scroll propio, que solo valen cuando la página se
+   abre suelta; el resto son selectores .mockup-* que no chocan con
+   nada del prototipo. */
+
+      .mockup-block {
+        width: 100%;
+        background: #fff;
+      }
+
+      .mockup-discovery-sticky {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        height: var(--discovery-sticky-height, auto);
+        background: transparent;
+        overflow: visible;
+        overflow-anchor: none;
+        pointer-events: none;
+      }
+
+      .mockup-discovery-sticky > .discovery-header-organism {
+        background: #fff;
+        pointer-events: auto;
+      }
+
+      #mockup1-discovery-header .dh-app,
+      #mockup1-discovery-header .dh-folder,
+      #mockup1-discovery-header .dh-search,
+      #mockup1-discovery-header .dh-plateu {
+        overflow: hidden;
+        transition: max-height 220ms ease, opacity 220ms ease, transform 220ms ease, padding 220ms ease;
+      }
+
+      #mockup1-discovery-header .dh-app {
+        max-height: 56px;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      #mockup1-discovery-header .dh-folder {
+        max-height: 77px;
+      }
+
+      #mockup1-discovery-header .dh-search {
+        max-height: 52px;
+      }
+
+      #mockup1-discovery-header .dh-plateu {
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(-8px);
+        pointer-events: none;
+      }
+
+      #mockup1-discovery-header[data-state="State 2"] .dh-folder,
+      #mockup1-discovery-header[data-state="State 3"] .dh-folder {
+        max-height: 35px;
+      }
+
+      #mockup1-discovery-header[data-state="State 3"] .dh-app {
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(-12px);
+        pointer-events: none;
+      }
+
+      #mockup1-discovery-header[data-state="State 3"] .dh-search {
+        max-height: 48px;
+      }
+
+      #mockup1-discovery-header[data-state="State 3"] .dh-plateu {
+        max-height: 80px;
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .mockup-block.search {
+        padding: 8px 16px;
+      }
+
+      .mockup-block.homecard {
+        padding: 12px 15px 4px;
+      }
+
+      .mockup-block + .mockup-block {
+        border-top: none;
+      }
+
+      .mockup-shell .folder-control {
+        overflow: hidden;
+      }
+
+      .mockup-shell .folder-control.is-left::after {
+        content: "";
+        position: absolute;
+        left: 228px;
+        top: 73px;
+        width: 84px;
+        height: 4px;
+        background: #fff;
+        border-radius: 999px;
+        pointer-events: none;
+        z-index: 6;
+      }
+      #mockup1-content-left[hidden],
+      #mockup1-content-right[hidden] {
+        display: none !important;
+      }
+
+      .mockup-left-tiles {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 4px 8px 24px;
+        background: #fff;
+      }
+
+      .mockup-left-tiles-block {
+        padding-top: 10px;
+      }
+
+      .mockup-tiles-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 12px;
+      }
+
+      .mockup-half-tile-wrap {
+        position: relative;
+      }
+
+      .mockup-half-chip {
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+      }
+
+      .mockup-left-tiles .service-tile-half.is-secondary-border {
+        border-color: var(--secondary-main);
+      }
+
+      .mockup-app-nav {
+        position: fixed;
+        left: 50%;
+        width: 360px;
+        transform: translateX(-50%);
+        bottom: max(0px, calc((100vh - 800px) / 2));
+        z-index: 90;
+        display: flex;
+        justify-content: center;
+        pointer-events: none;
+      }
+
+      .mockup-app-nav .bottom-nav {
+        pointer-events: auto;
+      }
+
+      .mockup-app-nav .nav-item i {
+        font-size: 24px;
+        line-height: 1;
+      }
+    
+/* La única tile viva de esa home. */
+.service-tile.is-live {
+  cursor: pointer;
+}
+
+.service-tile.is-live:active {
+  transform: scale(0.97);
+}
+
+/* ── PDP de Tigo dentro del prototipo ───────────────────── */
+/* La página suelta reserva su propio alto de pantalla; aquí vive
+   dentro del scroll del frame, así que se le quita el shell y se le
+   deja aire entre el slider y el resumen, que se solapaban. */
+.oky-flow-gua-pdp {
+  width: 100%;
+  min-height: 0;
+  padding-bottom: 8px;
+}
+
+.oky-flow-gua-pdp .pdp-page-slider-slot {
+  padding-bottom: 20px;
+}
+
+.oky-flow-gua-pdp .pdp-page-footer-spacer,
+.oky-flow-gua-pdp .pdp-page-nav {
+  display: none;
+}
+
+/* El resumen deja de montarse sobre el slider: en la página suelta el
+   solape es parte del diseño, pero ahí no hay un slider justo encima. */
+.oky-flow-gua-pdp .summary-box.with-overlap {
+  margin-top: 0;
+}
+
+/* ── PDP Pages (public/pdp-pages.css) ───────────────────── */
+/* El CSS de las páginas PDP de Storybook, sin dos cosas que solo valen
+   cuando la página se abre suelta: su regla de body y el shell de
+   360x800 con scroll propio. Dentro del frame el scroll ya lo pone el
+   prototipo. */
+.pdp-page-section {
+  width: 100%;
+  background: #fff;
+}
+
+.pdp-page-top {
+  width: 100%;
+  background: #fff;
+}
+
+.pdp-page-status-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.pdp-page-header {
+  width: 358px;
+  padding: 0 8px;
+}
+
+.pdp-page-stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 0 9px 0;
+  box-sizing: border-box;
+}
+
+.pdp-page-brand-slot,
+.pdp-page-plateu-slot,
+.pdp-page-card-slot,
+.pdp-page-input-slot,
+.pdp-page-slider-slot,
+.pdp-page-summary-slot {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.pdp-page-brand-slot {
+  position: relative;
+  z-index: 2;
+  margin-top: -55px;
+}
+
+.pdp-page-plateu-slot {
+  position: relative;
+  z-index: 1;
+}
+
+.pdp-page-shell.has-plateu .pdp-page-plateu-slot {
+  margin-top: -40px;
+}
+
+.pdp-page-plateu {
+  width: 340px;
+  height: 125px;
+}
+
+.pdp-page-shell .middle-card-shell {
+  max-width: 100%;
+}
+
+.pdp-page-slider-slot {
+  padding-top: 4px;
+}
+
+.pdp-page-summary-total {
+  padding-bottom: 8px;
+}
+
+.pdp-page-content-gap {
+  height: 12px;
+}
+
+.pdp-page-summary-wrap {
+  position: fixed;
+  left: 50%;
+  width: 360px;
+  transform: translateX(-50%);
+  bottom: calc(max(0px, ((100vh - 800px) / 2)) + 56px);
+  z-index: 80;
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 10px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 18%, #fff 100%);
+  pointer-events: none;
+}
+
+.pdp-page-summary-wrap .summary-box {
+  pointer-events: auto;
+}
+
+.pdp-page-nav {
+  position: fixed;
+  left: 50%;
+  width: 360px;
+  transform: translateX(-50%);
+  bottom: max(0px, calc((100vh - 800px) / 2));
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.pdp-page-nav .bottom-nav {
+  pointer-events: auto;
+}
+
+.pdp-page-nav .nav-item i {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.pdp-page-footer-spacer {
+  height: 24px;
+}
+
+/* El resumen de la página suelta va en position:fixed, anclado al
+   viewport: dentro del frame eso lo dejaba flotando sobre el slider.
+   Aquí va en el flujo, debajo de lo que resume. */
+.oky-flow-gua-pdp .pdp-page-summary-wrap {
+  position: static;
+  width: 100%;
+  transform: none;
+  padding: 0;
+  background: none;
+}
+
+.oky-flow-gua-pdp .pdp-page-stack {
+  padding-bottom: 0;
+}
