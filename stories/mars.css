@@ -6847,7 +6847,9 @@ body {
 .payment-card-molecule {
   --payment-card-w: 328px;
   --payment-card-h: 214px;
-  --payment-card-radius: 24px;
+  /* 16px en todas: las esquinas no cambian según lleven o no otra
+     tarjeta encima. */
+  --payment-card-radius: 16px;
   --payment-card-bg: #d5d7da;
   --payment-card-ink: var(--white);
   --payment-card-border: transparent;
@@ -7504,8 +7506,10 @@ body {
 
 /* ── Page header con título (Figma 360x64) ──────────────── */
 .oky-flow-header {
+  position: relative;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
   height: 64px;
   padding: 16px;
@@ -7529,15 +7533,24 @@ body {
   font-size: 24px;
 }
 
+/* El título va centrado en la pantalla, no en el hueco que dejan los
+   iconos: sale del flujo para que ni el botón de atrás ni el de la
+   derecha lo muevan de sitio. */
 .oky-flow-title {
-  flex: 1 1 auto;
-  min-width: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 120px);
   margin: 0;
   font-family: "Lato", sans-serif;
   font-size: 24px;
   font-weight: 700;
   line-height: normal;
   letter-spacing: -0.5px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--primary-base);
 }
 
@@ -7990,6 +8003,12 @@ body {
   border: 2px solid var(--primary-base);
   border-radius: 8px 8px 0 0;
   border-bottom: 0;
+}
+
+/* Sin la fila de OKY Cash debajo, el método de pago se cierra solo. */
+.oky-flow-method-row.is-selected.is-only {
+  border-radius: 8px;
+  border-bottom: 2px solid var(--primary-base);
 }
 
 /* fila OKY Cash expandida con el slider (Figma 328x104, #f3fffe) */

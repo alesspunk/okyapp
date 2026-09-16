@@ -1388,6 +1388,10 @@ function screenMethods(state) {
 
   const top = { ...findPaymentCard(selected.variant) };
   const cash = okyCashCard(state, { balance: keep });
+  /* Sin saldo no hay nada que casar con la tarjeta: fuera la card de
+     OKY Cash y fuera su fila, y la del método queda sola y redondeada
+     por sus cuatro esquinas. */
+  const hasCash = state.okyCashBalance > 0;
 
   return `
     ${statusBar()}
@@ -1400,17 +1404,21 @@ function screenMethods(state) {
 
       <div class="payment-card-stack" style="--payment-card-stack-offset:-144px">
         ${renderPaymentCard(top)}
-        ${renderPaymentCard(cash)}
+        ${hasCash ? renderPaymentCard(cash) : ""}
       </div>
 
       <div class="oky-flow-method-group" style="width:100%;padding-top:8px">
-        <div class="oky-flow-method-row is-selected">
+        <div class="oky-flow-method-row ${hasCash ? "is-selected" : "is-selected is-only"}">
           <span class="oky-flow-radio is-on" aria-hidden="true"></span>
           <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
           <p class="oky-flow-method-name">${selected.label}</p>
           <span class="oky-flow-chip is-card">${money(toCard)}</span>
         </div>
 
+        ${
+          !hasCash
+            ? ""
+            : `
         <div class="oky-flow-method-row is-cash">
           <div class="oky-flow-method-head">
             <button class="oky-flow-check${state.okyCashEnabled ? " is-checked" : ""}"
@@ -1423,6 +1431,8 @@ function screenMethods(state) {
             <span class="oky-flow-chip is-cash">${money(applied)}</span>
           </div>
         </div>
+        `
+        }
       </div>
 
       ${others
