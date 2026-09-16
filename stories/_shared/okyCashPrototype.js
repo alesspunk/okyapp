@@ -1011,8 +1011,8 @@ function cartDrawer(state) {
     : "";
 
   return `
-    <button class="oky-flow-drawer-backdrop" data-action="close-cart" type="button" aria-label="Cerrar carrito"></button>
-    <aside class="oky-flow-drawer" aria-label="Carrito">
+    <button class="oky-flow-drawer-backdrop${cashback > 0 ? "" : " is-no-bar"}" data-action="close-cart" type="button" aria-label="Cerrar carrito"></button>
+    <aside class="oky-flow-drawer${cashback > 0 ? "" : " is-no-bar"}" aria-label="Carrito">
       <div class="oky-flow-drawer-head">
         <button class="oky-flow-header-icon" data-action="close-cart" type="button" aria-label="Ir atrás">
           <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
@@ -1042,7 +1042,7 @@ function cartDrawer(state) {
           <div class="summary-card">
             <div class="summary-card-body">
               <div class="summary-row summary-row-total">
-                <span class="summary-label-strong">TOTAL</span>
+                <span class="summary-label-strong">(${state.cart.length}) Subtotal</span>
                 <span class="summary-label-strong">${money(total)}</span>
               </div>
             </div>
@@ -1211,7 +1211,7 @@ function screenCheckout(state) {
                  número: se muestra solo TOTAL (Figma 99105:31768). */
               applied > 0
                 ? `<div class="summary-row">
-                     <span class="summary-label-strong">Subtotal
+                     <span class="summary-label-strong">(${state.cart.length}) Subtotal
                        <button class="oky-flow-info" data-action="open-cart" type="button"
                          aria-label="Ver el carrito">
                          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
@@ -2271,7 +2271,8 @@ function screenTigoPdp(state) {
   const amount = state.amounts.tigo ?? TIGO_DEFAULT_AMOUNT;
   const product = PRODUCTS.tigo;
   const progress = ((amount - product.min) / (product.max - product.min)) * 100;
-  const inCart = state.cart.some((item) => item.productKey === "tigo");
+  const cartItem = state.cart.find((item) => item.productKey === "tigo");
+  const changed = cartItem && cartItem.amount !== amount;
 
   return `
     ${statusBar()}
@@ -2395,10 +2396,10 @@ function screenTigoPdp(state) {
             </div>
             <div class="summary-cta-row">
               ${
-                inCart
+                cartItem && !changed
                   ? `<button class="btn btn-primary summary-btn" data-action="open-cart" type="button">Ver carrito</button>`
                   : `<button class="btn btn-primary summary-btn" data-action="add-to-cart" data-product="tigo"
-                       type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i>Agregar</button>`
+                       type="button">${changed ? "" : `<i class="fa-solid fa-plus" aria-hidden="true"></i>`}${changed ? "Actualizar" : "Agregar"}</button>`
               }
             </div>
           </div>
@@ -3112,6 +3113,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const key = el.dataset.product;
       const inCart = state.cart.find((item) => item.productKey === key);
       if (inCart) state.amounts[key] = inCart.amount;
+      /* Tigo se edita desde su slider, no desde el campo de monto. */
+      if (key === "tigo") return go("tigopdp");
       return go("pdp", { product: key });
     }
 
@@ -3533,6 +3536,18 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (big) big.textContent = String(value);
       const sub = root.querySelector("[data-role='tigo-subtotal']");
       if (sub) sub.textContent = money(value);
+
+      /* Editando desde el carrito: en cuanto el monto deja de ser el
+         guardado, "Ver carrito" pasa a "Actualizar". */
+      const ctaRow = root.querySelector(".oky-flow-dock .summary-cta-row");
+      const saved = state.cart.find((item) => item.productKey === "tigo");
+      if (ctaRow && saved) {
+        ctaRow.innerHTML =
+          saved.amount === value
+            ? `<button class="btn btn-primary summary-btn" data-action="open-cart" type="button">Ver carrito</button>`
+            : `<button class="btn btn-primary summary-btn" data-action="add-to-cart" data-product="tigo"
+                 type="button">Actualizar</button>`;
+      }
       return;
     }
 

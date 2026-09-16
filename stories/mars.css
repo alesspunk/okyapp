@@ -8533,6 +8533,13 @@ body {
   animation: oky-flow-fade 0.18s ease-out;
 }
 
+/* Con saving bar el panel la deja ver; sin ella —Guatemala, que no da
+   cashback— baja hasta la navbar en vez de dejar un hueco blanco. */
+.oky-flow-drawer.is-no-bar,
+.oky-flow-drawer-backdrop.is-no-bar {
+  bottom: var(--oky-nav-h);
+}
+
 .oky-flow-drawer {
   position: absolute;
   top: 0;
@@ -11902,13 +11909,20 @@ button.tactic-offer {
 
 /* El resumen se ancla sobre la navbar, como el dock del PDP de USA:
    deja de empujar la página hacia abajo y se ve siempre. Tigo no lleva
-   saving bar, así que no hay nada más que descontar. */
-.oky-flow-gua-pdp .pdp-page-summary-wrap.oky-flow-dock {
+   saving bar, así que no hay nada más que descontar.
+
+   Va sin el prefijo .oky-flow-gua-pdp a propósito: al montar la
+   pantalla, el dock se mueve al frame y deja de colgar de la página,
+   así que un selector con ese ancestro dejaría de aplicar y volvería el
+   position:fixed de la página suelta —que se ancla al viewport y en
+   desktop deja el resumen fuera del teléfono. */
+.oky-flow-frame > .pdp-page-summary-wrap.oky-flow-dock {
   position: absolute;
   left: 0;
   right: 0;
   bottom: var(--oky-nav-h);
   width: auto;
+  transform: none;
   padding: 12px var(--oky-gutter) 10px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 18%, #fff 100%);
 }
