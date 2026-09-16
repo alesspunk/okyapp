@@ -115,8 +115,15 @@ const CARD_DESIGNS = [
     key: "black",
     label: "Lo que va, vuelve",
     note: "Cada regalo que envíes a tu familia volverá a ti como un ripple effect.",
-    art: "oky-card-coins-swirl.png",
-    style: { backgroundMode: "solid", backgroundColor: "#000000", borderColor: "#000000" },
+    /* La card negra del frame va entera: el remolino sangra hasta los
+       bordes y no cabe como arte suelto encima del fondo. */
+    art: null,
+    style: {
+      backgroundMode: "solid",
+      backgroundColor: "url(oky-card-design-black.png) center/cover no-repeat",
+      showBorder: false,
+      pattern: null,
+    },
   },
   {
     key: "bubbles",
