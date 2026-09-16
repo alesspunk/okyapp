@@ -1335,8 +1335,8 @@ function screenProcessing(state) {
     ${titledHeader("")}
     <div class="modal-molecule-backdrop" style="position:absolute;inset:0;z-index:15"></div>
 
-    <section class="oky-flow-sheet">
-      <h2 class="oky-flow-sheet-title">No cerrar app</h2>
+    <section class="oky-flow-wait">
+      <h2 class="oky-flow-wait-title">No cerrar app</h2>
       <div class="oky-flow-timeline">
         ${rows
           .map(
@@ -1350,12 +1350,11 @@ function screenProcessing(state) {
           )
           .join("")}
       </div>
-      <div class="oky-flow-sheet-footer">
+      <div class="oky-flow-wait-footer">
         <img class="oky-flow-spinner" src="oky-spinner.svg" alt="" />
         <span>Redireccionando…</span>
       </div>
     </section>
-    ${navbar("", state)}
   `;
 }
 

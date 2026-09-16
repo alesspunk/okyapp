@@ -8072,8 +8072,11 @@ body {
   font-size: 24px;
 }
 
-/* ── Processing: sheet con timeline (Figma 99140:56017) ─── */
-.oky-flow-sheet {
+/* ── Processing: sheet con timeline (Figma 99140:56017) ───
+   Clase propia: las hojas de confirmación del wallet se llaman
+   .oky-flow-sheet y, al definirse después, le pisaban el fondo y el
+   color del título a esta. */
+.oky-flow-wait {
   position: absolute;
   left: 0;
   right: 0;
@@ -8088,7 +8091,7 @@ body {
   flex-direction: column;
 }
 
-.oky-flow-sheet-title {
+.oky-flow-wait-title {
   margin: 0;
   padding: 16px 24px;
   font-family: "Lato", sans-serif;
@@ -8157,7 +8160,7 @@ body {
   color: var(--text-secondary);
 }
 
-.oky-flow-sheet-footer {
+.oky-flow-wait-footer {
   flex: 0 0 80px;
   display: flex;
   align-items: center;
@@ -15813,8 +15816,8 @@ function screenProcessing(state) {
     ${titledHeader("")}
     <div class="modal-molecule-backdrop" style="position:absolute;inset:0;z-index:15"></div>
 
-    <section class="oky-flow-sheet">
-      <h2 class="oky-flow-sheet-title">No cerrar app</h2>
+    <section class="oky-flow-wait">
+      <h2 class="oky-flow-wait-title">No cerrar app</h2>
       <div class="oky-flow-timeline">
         ${rows
           .map(
@@ -15828,12 +15831,11 @@ function screenProcessing(state) {
           )
           .join("")}
       </div>
-      <div class="oky-flow-sheet-footer">
+      <div class="oky-flow-wait-footer">
         <img class="oky-flow-spinner" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyLjkwMjMiIGhlaWdodD0iMzIuNTE2NiIgdmlld0JveD0iMCAwIDMyLjkwMjMgMzIuNTE2NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgaWQ9Ikdyb3VwIDEwMzEiPgo8Y2lyY2xlIGlkPSJFbGxpcHNlIDIiIGN4PSIxNiIgY3k9IjE2LjUxNjUiIHI9IjEyLjUiIGZpbGw9IndoaXRlIiBzdHJva2U9IiM2NzUwQTMiIHN0cm9rZS13aWR0aD0iNyIvPgo8cGF0aCBpZD0iVmVjdG9yIDIiIGQ9Ik0yOC45MDIzIDBMMTggMTIuNzIwNkwyMC42MjUgMTYuMjMwOEwzMi45MDIzIDIzLjc1ODNMMjguOTAyMyAwWiIgZmlsbD0id2hpdGUiLz4KPC9nPgo8L3N2Zz4K" alt="" />
         <span>Redireccionando…</span>
       </div>
     </section>
-    ${navbar("", state)}
   `;
 }
 

@@ -8057,8 +8057,11 @@ body {
   font-size: 24px;
 }
 
-/* ── Processing: sheet con timeline (Figma 99140:56017) ─── */
-.oky-flow-sheet {
+/* ── Processing: sheet con timeline (Figma 99140:56017) ───
+   Clase propia: las hojas de confirmación del wallet se llaman
+   .oky-flow-sheet y, al definirse después, le pisaban el fondo y el
+   color del título a esta. */
+.oky-flow-wait {
   position: absolute;
   left: 0;
   right: 0;
@@ -8073,7 +8076,7 @@ body {
   flex-direction: column;
 }
 
-.oky-flow-sheet-title {
+.oky-flow-wait-title {
   margin: 0;
   padding: 16px 24px;
   font-family: "Lato", sans-serif;
@@ -8142,7 +8145,7 @@ body {
   color: var(--text-secondary);
 }
 
-.oky-flow-sheet-footer {
+.oky-flow-wait-footer {
   flex: 0 0 80px;
   display: flex;
   align-items: center;
