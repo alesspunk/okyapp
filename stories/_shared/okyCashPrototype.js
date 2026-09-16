@@ -321,10 +321,9 @@ const WALLET_EXTRAS = {
   /* Las recargas viven con los vales: son lo mismo para quien las
      guarda —algo canjeable que no es una gift card de marca— y dos
      secciones de un elemento cada una no le servían a nadie. */
-  vales: [
-    { key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", bg: "#ed761c", count: 1 },
-    { key: "tigo", label: "Tigo", art: "tigo.webp", bg: "#00377b", count: 1 },
-  ],
+  /* Tigo no va de muestra: aparece aquí solo cuando se compra, como
+     tarjeta nueva. */
+  vales: [{ key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", bg: "#ed761c", count: 1 }],
   servicios: [{ key: "eegsa", label: "EEGSA", art: "eggsa.webp", bg: "#ffffff", count: 1 }],
 };
 
