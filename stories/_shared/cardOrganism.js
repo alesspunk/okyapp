@@ -37,6 +37,7 @@ export function resolveCardOrganismArgs(args = {}) {
       brandLabel: args.topBrandLabel?.trim() || topBase.brandLabel,
       heroImage: args.topHeroImage?.trim() || topBase.heroImage,
       heroAlt: args.topHeroAlt?.trim() || topBase.heroAlt,
+      flagCode: args.topFlagCode?.trim() || topBase.flagCode,
       flagImage: args.topFlagImage?.trim() || topBase.flagImage,
       flagAlt: args.topFlagAlt?.trim() || topBase.flagAlt,
       footerLeftLabel: args.topFooterLeftLabel?.trim() || topBase.footerLeftLabel,

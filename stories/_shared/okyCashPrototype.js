@@ -280,10 +280,13 @@ const HOME_CATEGORIES = [
 /* Tarjetas de "Solo por hoy" (MARS 7295:52037). */
 /* Strip de moda, debajo de Geeky Deals: mismo patrón que Spooky Deals
    —foto, logo encima y ribbon— pero sin cronómetro. */
+/* "Deportes & Apparel" usa el Home Card With Photo (Figma
+   101239:26172): foto a la derecha y el logo de la marca encima, a la
+   izquierda, con su nombre debajo. */
 const STYLE_CARDS = [
-  { key: "adidas", photo: "promo-image3.png" },
-  { key: "gap", photo: "promo-image6.png" },
-  { key: "oldnavy", photo: "promo-image7.png" },
+  { key: "adidas", photo: "photo-adidas.png" },
+  { key: "gap", photo: "photo-gap.png" },
+  { key: "oldnavy", photo: "photo-oldnavy.png" },
 ];
 
 const TODAY_CARDS = [
@@ -841,21 +844,41 @@ function screenHome(state) {
         </div>
       </section>
 
-      <section class="tactic-strip oky-flow-style-strip">
-        <header class="tactic-strip-header">
-          <h3 class="token-h6 tactic-strip-title">
-            <i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;Moda
-          </h3>
-          <span class="btn btn-outlined btn-small">Ver más</span>
+      <section class="homecard-organism homecard-organism-photo oky-flow-apparel">
+        <header class="homecard-header">
+          <h3 class="token-h6 homecard-title">Deportes &amp; Apparel</h3>
         </header>
 
-        <div class="tactic-strip-carousel-window">
-          <div class="tactic-strip-carousel-track">
-            ${STYLE_CARDS.map((card) =>
-              offer({ ...card, rate: BRANDS[card.key].rate, action: "open-pdp" }),
-            ).join("")}
+        <div class="homecard-content homecard-content-photo">
+          <div class="homecard-photo-track">
+            ${STYLE_CARDS.map((card) => {
+              const brand = BRANDS[card.key];
+              return `
+                <article class="homecard-photo-item" data-action="open-pdp" data-product="${card.key}"
+                  role="button" tabindex="0" aria-label="${brand.label}">
+                  <div class="homecard-photo-media-wrap">
+                    <img class="homecard-photo-hero" src="${card.photo}" alt="" />
+                    <div class="homecard-photo-ribbon-wrap">
+                      <div class="discount-ribbon discount-ribbon-wrap is-tier-base">
+                        <span class="discount-ribbon-text token-price-percent">Gana ${brand.rate}%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="homecard-photo-logo-stack">
+                    <div class="homecard-photo-logo-wrap" style="background:${brand.bg}">
+                      <img class="homecard-photo-logo" src="${brand.art}" alt="${brand.label}" />
+                    </div>
+                    <p class="token-brand homecard-photo-name">${brand.label}</p>
+                  </div>
+                </article>
+              `;
+            }).join("")}
           </div>
         </div>
+
+        <footer class="homecard-footer">
+          <button class="btn btn-primary btn-small" type="button">Ver más</button>
+        </footer>
       </section>
 
       <div class="oky-flow-tile-grid">
@@ -1667,9 +1690,9 @@ function walletVoucherButton(v, deck) {
       data-action="open-voucher" data-key="${v.key}" data-deck="${deck}" type="button" aria-label="${v.label}">
       <img src="${v.art}" alt="${v.label}" />
       ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
-      <span class="oky-flow-voucher-marks">
-        <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
-        <span class="oky-flow-voucher-flag">${renderFlag({ code: country, size: "Small" })}</span>
+      <span class="oky-flow-voucher-badge">
+        ${v.count}
+        <span class="oky-flow-voucher-badge-flag">${renderFlag({ code: country, size: "Small" })}</span>
       </span>
     </button>
   `;
@@ -2123,6 +2146,7 @@ function screenVoucher(state) {
       <div class="oky-flow-card-carousel${shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
         topVariantPath: "Molecule/Top Card/Gift Card",
+        topFlagCode: sectionOfVoucher(card.key) === "vales" ? "GT" : "US",
         topBrandLabel: card.label,
         topHeroImage: card.art,
         topHeroAlt: card.label,

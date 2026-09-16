@@ -7637,28 +7637,19 @@ body {
 /* badge de cantidad + QR (Figma top 13). Se ancla por la derecha en
    vez de por la izquierda: con left:271px estaba calculado para una
    card de 343px y al ajustarse a la columna quedaba a 5px del borde. */
-/* Contador y bandera comparten la esquina: en una fila, para que no se
-   pisen en la franja que asoma de cada tarjeta apilada. */
-.oky-flow-voucher-marks {
-  position: absolute;
-  right: 13px;
-  top: 13px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.oky-flow-voucher-flag {
+/* En el wallet la bandera ocupa el sitio del check verde dentro del
+   contador: dice de qué marketplace es el vale sin robar más esquina.
+   En "Tus compras" el contador se queda con su check. */
+.oky-flow-voucher-badge-flag {
   display: inline-flex;
-  width: 28px;
-  height: 21px;
-  border-radius: 3px;
+  width: 16px;
+  height: 12px;
+  border-radius: 2px;
   overflow: hidden;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
-.oky-flow-voucher-flag .flag-atom,
-.oky-flow-voucher-flag .flag-atom img {
+.oky-flow-voucher-badge-flag .flag-atom,
+.oky-flow-voucher-badge-flag .flag-atom img {
   width: 100%;
   height: 100%;
   border: 0;
@@ -7668,6 +7659,9 @@ body {
 }
 
 .oky-flow-voucher-badge {
+  position: absolute;
+  right: 13px;
+  top: 13px;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -12021,19 +12015,21 @@ button.tactic-offer {
   animation: oky-flow-fade 0.18s ease-out;
 }
 
+/* Alto según lo que lleva dentro, no toda la pantalla: la ilustración
+   dejaba dos franjas moradas vacías arriba y abajo. */
 .oky-flow-country {
   position: absolute;
   left: 0;
   right: 0;
-  top: 72px;
   bottom: var(--oky-nav-h);
+  max-height: calc(100% - var(--oky-nav-h) - 64px);
   z-index: 121;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 28px var(--oky-gutter) 20px;
+  gap: 6px;
+  padding: 24px var(--oky-gutter) 20px;
   border-radius: 24px 24px 0 0;
   background: var(--primary-main);
   animation: oky-flow-sheet-up 360ms cubic-bezier(0.32, 0.72, 0, 1) both;
@@ -12078,10 +12074,12 @@ button.tactic-offer {
    mismo morado aclarado. */
 .oky-flow-country-art {
   position: relative;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-height: 0;
   width: 100%;
-  max-width: 240px;
+  max-width: 200px;
+  height: 200px;
+  margin: 6px 0 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12090,7 +12088,7 @@ button.tactic-offer {
 .oky-flow-country-art::before {
   content: "";
   position: absolute;
-  width: min(100%, 220px);
+  width: min(100%, 190px);
   aspect-ratio: 1;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
@@ -12133,4 +12131,38 @@ button.tactic-offer {
   font-weight: 800;
   color: var(--white);
   cursor: pointer;
+}
+
+/* ── Deportes & Apparel: Home Card With Photo ───────────── */
+/* Misma variante del sistema; lo único que cambia es el fondo, que en
+   el frame va con el degradado plateado en vez de blanco plano. */
+.oky-flow-frame .oky-flow-apparel {
+  background: radial-gradient(50% 50% at 50% 50%, #ffffff 0%, #f1f2f5 100%);
+  border: 1px solid rgba(0, 0, 0, 0.231373);
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Las capas de dentro venían pintadas de blanco y tapaban el degradado. */
+.oky-flow-frame .oky-flow-apparel .homecard-content,
+.oky-flow-frame .oky-flow-apparel .homecard-content-photo,
+.oky-flow-frame .oky-flow-apparel .homecard-photo-track,
+.oky-flow-frame .oky-flow-apparel .homecard-photo-item {
+  background: transparent;
+}
+
+/* El logo se recorta al tile y toma el color de la marca, como en las
+   parrillas del home. */
+.oky-flow-frame .oky-flow-apparel .homecard-photo-logo-wrap {
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.oky-flow-frame .oky-flow-apparel .homecard-photo-logo {
+  width: 78%;
+  height: 78%;
+}
+
+.oky-flow-frame .oky-flow-apparel .homecard-footer {
+  padding-bottom: 16px;
 }
