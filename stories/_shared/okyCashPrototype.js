@@ -1695,6 +1695,22 @@ function screenWallet(state) {
     ${statusBar()}
     ${titledHeader("Mi wallet")}
 
+    <section class="plateu-molecule is-static is-default oky-flow-wallet-nav" aria-label="Categorías">
+      <div class="plateu-track is-static">
+        ${filters
+          .map(
+            (f, i) => `
+          <button class="plateu-item" type="button" data-action="wallet-jump" data-section="${f.key}"
+            aria-label="Ir a ${f.label}">
+            <div class="plateu-icon-wrap"><img class="plateu-icon" src="${f.icon}" alt="" /></div>
+            ${i === 0 ? `<span class="plateu-chip is-outlined">${f.label}</span>` : `<span class="plateu-label">${f.label}</span>`}
+          </button>
+        `,
+          )
+          .join("")}
+      </div>
+    </section>
+
     <div class="oky-flow-wallet-filter">
       <span class="oky-flow-wallet-filter-label">
         ${state.walletFilter ? (WALLET_CATEGORIES.find((c) => c.key === state.walletFilter) || {}).label : "Todas las categorías"}
@@ -2941,6 +2957,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
     });
 
+    /* Lo recién comprado se ve solo al entrar al wallet: su sección
+       queda desplegada, que para eso es la novedad. */
+    state.cart.forEach((item) => {
+      const section = PRODUCTS[item.productKey].wallet || "gift";
+      if (!state.openSections.includes(section)) state.openSections = [...state.openSections, section];
+    });
+
     state.okyCashBalance = state.okyCashBalance - used + earned;
     state.lastEarned = earned;
     state.cashUnseen = earned > 0;
@@ -3267,8 +3290,23 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         if (panel) panel.classList.remove("is-collapsed");
       }
       /* Un instante para que el panel empiece a abrirse: si se pide el
-         scroll en el mismo frame, se calcula contra el alto de antes. */
-      setTimeout(() => head.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+         scroll en el mismo frame, se calcula contra el alto de antes.
+
+         El destino se calcula a mano en vez de con scrollIntoView: el
+         frame va escalado, así que las medidas de pantalla hay que
+         pasarlas a píxeles del documento antes de sumarlas al scroll. */
+      const bringUp = (behavior) => {
+        const scroller = head.closest(".oky-flow-scroll");
+        if (!scroller) return;
+        const box = scroller.getBoundingClientRect();
+        const zoom = box.height / scroller.clientHeight || 1;
+        const delta = (head.getBoundingClientRect().top - box.top) / zoom;
+        scroller.scrollTo({ top: scroller.scrollTop + delta - 8, behavior });
+      };
+      setTimeout(() => bringUp("smooth"), 60);
+      /* El panel tarda 280ms en abrirse y al crecer corta el scroll
+         suave a medio camino; pasado ese tiempo se corrige el resto. */
+      setTimeout(() => bringUp("auto"), 420);
       return;
     }
 

@@ -201,6 +201,11 @@ function renderAppHeader(
   `;
 }
 
+/* Centro de cada pestaña dentro del folder de 360px. Son los mismos en
+   las cuatro variantes: así el grupo no salta al pasar de Left a Right
+   ni al aparecer el chevron. */
+const TAB_CENTER = { left: 88, right: 277 };
+
 function renderFolderOption({
   x,
   side,
@@ -216,7 +221,7 @@ function renderFolderOption({
   width,
 }) {
   const isActive = side === selectedSide;
-  const showChevronForOption = showChevrons && side === "right";
+  const showChevronForOption = showChevrons;
   const style = [
     codeOffset ? `margin-left:${codeOffset}px` : "",
     codeOffsetY ? `transform:translateY(${codeOffsetY}px)` : "",
@@ -225,10 +230,6 @@ function renderFolderOption({
     .join(";");
 
   const optionStyle = [`left:${x}px`];
-  if (width) {
-    optionStyle.push(`width:${width}px`);
-    optionStyle.push("justify-content:center");
-  }
 
   return `
     <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="${optionStyle.join(";")}"
@@ -246,6 +247,7 @@ function renderFolderOption({
           ? `<span class="folder-chevron-stack" aria-hidden="true"><img src="chevron.svg" alt=""></span>`
           : ""
       }
+      ${isActive ? `<span class="folder-selection-line" aria-hidden="true"></span>` : ""}
     </span>
   `;
 }
@@ -256,9 +258,6 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
 
   if (isCollapsed) {
     const selectedSide = isLeft ? "left" : "right";
-    const lineX = isLeft ? 52 : 232;
-    const lineTop = 30;
-
     return `
       <section data-pen-id="${isLeft ? "7296:48472" : "7296:48473"}">
         <div class="folder-responsive-host is-collapsed">
@@ -271,18 +270,18 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
             </span>
             <div class="folder-options">
               ${renderFolderOption({
-                x: 57,
+                x: TAB_CENTER.left,
                 side: "left",
                 selectedSide,
                 code: COUNTRY_BASE.left.code,
                 flagCode: COUNTRY_BASE.left.iso,
                 alt: COUNTRY_BASE.left.alt,
-                showChevrons: false,
+                showChevrons,
                 withFlag: true,
                 flagVariant: "rect",
               })}
               ${renderFolderOption({
-                x: 232,
+                x: TAB_CENTER.right,
                 side: "right",
                 selectedSide,
                 code: COUNTRY_BASE.right.code,
@@ -291,10 +290,8 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
                 showChevrons,
                 withFlag: true,
                 flagVariant: "rect",
-                width: 92,
               })}
             </div>
-            <span class="folder-selection-line" style="left:${lineX}px;width:${isLeft ? 90 : 92}px;top:${lineTop}px" aria-hidden="true"></span>
           </div>
         </div>
       </section>
@@ -315,16 +312,16 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
           </span>
           <div class="folder-options">
             ${renderFolderOption({
-              x: isLeft ? 55 : 54,
+              x: TAB_CENTER.left,
               side: "left",
               selectedSide,
               code: COUNTRY_BASE.left.code,
               flagCode: COUNTRY_BASE.left.iso,
               alt: COUNTRY_BASE.left.alt,
-              showChevrons: false,
+              showChevrons,
             })}
             ${renderFolderOption({
-              x: isLeft ? 245 : 235,
+              x: TAB_CENTER.right,
               side: "right",
               selectedSide,
               code: COUNTRY_BASE.right.code,
@@ -338,7 +335,6 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
               ? `<span class="folder-new-item-chip chip-ds chip-ds-new-item ${newItemSide === "left" ? "is-on-left" : ""}" aria-label="New item">Nuevo</span>`
               : ""
           }
-          <span class="folder-selection-line" style="left:${isLeft ? 51 : 235}px;width:${isLeft ? 86 : 66}px" aria-hidden="true"></span>
         </div>
       </div>
     </section>

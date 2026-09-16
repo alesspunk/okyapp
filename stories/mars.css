@@ -4089,9 +4089,13 @@ body {
   inset: 0;
 }
 
+/* left es el centro de la pestaña; el grupo se centra ahí en vez de
+   colgar del borde izquierdo, que es lo que hacía que cambiara de sitio
+   entre variantes. */
 .folder-option {
   position: absolute;
   top: 31px;
+  transform: translateX(-50%);
   height: 26px;
   display: inline-flex;
   align-items: center;
@@ -4221,13 +4225,21 @@ body {
   height: 10px;
 }
 
+/* Cuelga de la opción activa, así abarca bandera + país + chevron sin
+   medidas a mano. */
 .folder-selection-line {
   position: absolute;
-  top: 74px;
+  left: 0;
+  right: 0;
+  top: 43px;
   height: 3px;
   border-radius: 999px;
   background: var(--folder-primary);
   z-index: 5;
+}
+
+.folder-control.is-collapsed .folder-selection-line {
+  top: 23px;
 }
 
 .folder-grid {

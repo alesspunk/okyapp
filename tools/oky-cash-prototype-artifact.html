@@ -4104,9 +4104,13 @@ body {
   inset: 0;
 }
 
+/* left es el centro de la pestaña; el grupo se centra ahí en vez de
+   colgar del borde izquierdo, que es lo que hacía que cambiara de sitio
+   entre variantes. */
 .folder-option {
   position: absolute;
   top: 31px;
+  transform: translateX(-50%);
   height: 26px;
   display: inline-flex;
   align-items: center;
@@ -4236,13 +4240,21 @@ body {
   height: 10px;
 }
 
+/* Cuelga de la opción activa, así abarca bandera + país + chevron sin
+   medidas a mano. */
 .folder-selection-line {
   position: absolute;
-  top: 74px;
+  left: 0;
+  right: 0;
+  top: 43px;
   height: 3px;
   border-radius: 999px;
   background: var(--folder-primary);
   z-index: 5;
+}
+
+.folder-control.is-collapsed .folder-selection-line {
+  top: 23px;
 }
 
 .folder-grid {
@@ -13174,6 +13186,11 @@ function renderAppHeader(
   `;
 }
 
+/* Centro de cada pestaña dentro del folder de 360px. Son los mismos en
+   las cuatro variantes: así el grupo no salta al pasar de Left a Right
+   ni al aparecer el chevron. */
+const TAB_CENTER = { left: 88, right: 277 };
+
 function renderFolderOption({
   x,
   side,
@@ -13189,7 +13206,7 @@ function renderFolderOption({
   width,
 }) {
   const isActive = side === selectedSide;
-  const showChevronForOption = showChevrons && side === "right";
+  const showChevronForOption = showChevrons;
   const style = [
     codeOffset ? `margin-left:${codeOffset}px` : "",
     codeOffsetY ? `transform:translateY(${codeOffsetY}px)` : "",
@@ -13198,10 +13215,6 @@ function renderFolderOption({
     .join(";");
 
   const optionStyle = [`left:${x}px`];
-  if (width) {
-    optionStyle.push(`width:${width}px`);
-    optionStyle.push("justify-content:center");
-  }
 
   return `
     <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="${optionStyle.join(";")}"
@@ -13219,6 +13232,7 @@ function renderFolderOption({
           ? `<span class="folder-chevron-stack" aria-hidden="true"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCAxMiAxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTUuNjg1NTUgMC4zMjQyMTlDNS44NDk2MSAwLjE0NjQ4NCA2LjEzNjcyIDAuMTQ2NDg0IDYuMzAwNzggMC4zMjQyMTlMOC45MjU3OCAyLjk0OTIyQzkuMTAzNTIgMy4xMTMyOCA5LjEwMzUyIDMuNDAwMzkgOC45MjU3OCAzLjU2NDQ1QzguNzYxNzIgMy43NDIxOSA4LjQ3NDYxIDMuNzQyMTkgOC4zMTA1NSAzLjU2NDQ1TDYgMS4yNTM5MUwzLjY3NTc4IDMuNTY0NDVDMy41MTE3MiAzLjc0MjE5IDMuMjI0NjEgMy43NDIxOSAzLjA2MDU1IDMuNTY0NDVDMi44ODI4MSAzLjQwMDM5IDIuODgyODEgMy4xMTMyOCAzLjA2MDU1IDIuOTQ5MjJMNS42ODU1NSAwLjMyNDIxOVoiIGZpbGw9IiMwOTA5MDkiIGZpbGwtb3BhY2l0eT0iMC44Ii8+CjxwYXRoIGQ9Ik01LjY4NTU1IDkuNDM5NDVMMy4wNjA1NSA2LjgxNDQ1QzIuODgyODEgNi42NTAzOSAyLjg4MjgxIDYuMzYzMjggMy4wNjA1NSA2LjE5OTIyQzMuMjI0NjEgNi4wMjE0OCAzLjUxMTcyIDYuMDIxNDggMy42NzU3OCA2LjE5OTIyTDYgOC41MDk3N0w4LjMxMDU1IDYuMTk5MjJDOC40NzQ2MSA2LjAyMTQ4IDguNzYxNzIgNi4wMjE0OCA4LjkyNTc4IDYuMTk5MjJDOS4xMDM1MiA2LjM2MzI4IDkuMTAzNTIgNi42NTAzOSA4LjkyNTc4IDYuODE0NDVMNi4zMDA3OCA5LjQzOTQ1QzYuMTM2NzIgOS42MTcxOSA1Ljg0OTYxIDkuNjE3MTkgNS42ODU1NSA5LjQzOTQ1WiIgZmlsbD0iIzA5MDkwOSIgZmlsbC1vcGFjaXR5PSIwLjgiLz4KPC9zdmc+Cg==" alt=""></span>`
           : ""
       }
+      ${isActive ? `<span class="folder-selection-line" aria-hidden="true"></span>` : ""}
     </span>
   `;
 }
@@ -13229,9 +13243,6 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
 
   if (isCollapsed) {
     const selectedSide = isLeft ? "left" : "right";
-    const lineX = isLeft ? 52 : 232;
-    const lineTop = 30;
-
     return `
       <section data-pen-id="${isLeft ? "7296:48472" : "7296:48473"}">
         <div class="folder-responsive-host is-collapsed">
@@ -13244,18 +13255,18 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
             </span>
             <div class="folder-options">
               ${renderFolderOption({
-                x: 57,
+                x: TAB_CENTER.left,
                 side: "left",
                 selectedSide,
                 code: COUNTRY_BASE.left.code,
                 flagCode: COUNTRY_BASE.left.iso,
                 alt: COUNTRY_BASE.left.alt,
-                showChevrons: false,
+                showChevrons,
                 withFlag: true,
                 flagVariant: "rect",
               })}
               ${renderFolderOption({
-                x: 232,
+                x: TAB_CENTER.right,
                 side: "right",
                 selectedSide,
                 code: COUNTRY_BASE.right.code,
@@ -13264,10 +13275,8 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
                 showChevrons,
                 withFlag: true,
                 flagVariant: "rect",
-                width: 92,
               })}
             </div>
-            <span class="folder-selection-line" style="left:${lineX}px;width:${isLeft ? 90 : 92}px;top:${lineTop}px" aria-hidden="true"></span>
           </div>
         </div>
       </section>
@@ -13288,16 +13297,16 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
           </span>
           <div class="folder-options">
             ${renderFolderOption({
-              x: isLeft ? 55 : 54,
+              x: TAB_CENTER.left,
               side: "left",
               selectedSide,
               code: COUNTRY_BASE.left.code,
               flagCode: COUNTRY_BASE.left.iso,
               alt: COUNTRY_BASE.left.alt,
-              showChevrons: false,
+              showChevrons,
             })}
             ${renderFolderOption({
-              x: isLeft ? 245 : 235,
+              x: TAB_CENTER.right,
               side: "right",
               selectedSide,
               code: COUNTRY_BASE.right.code,
@@ -13311,7 +13320,6 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
               ? `<span class="folder-new-item-chip chip-ds chip-ds-new-item ${newItemSide === "left" ? "is-on-left" : ""}" aria-label="New item">Nuevo</span>`
               : ""
           }
-          <span class="folder-selection-line" style="left:${isLeft ? 51 : 235}px;width:${isLeft ? 86 : 66}px" aria-hidden="true"></span>
         </div>
       </div>
     </section>
@@ -16176,6 +16184,22 @@ function screenWallet(state) {
     ${statusBar()}
     ${titledHeader("Mi wallet")}
 
+    <section class="plateu-molecule is-static is-default oky-flow-wallet-nav" aria-label="Categorías">
+      <div class="plateu-track is-static">
+        ${filters
+          .map(
+            (f, i) => `
+          <button class="plateu-item" type="button" data-action="wallet-jump" data-section="${f.key}"
+            aria-label="Ir a ${f.label}">
+            <div class="plateu-icon-wrap"><img class="plateu-icon" src="${f.icon}" alt="" /></div>
+            ${i === 0 ? `<span class="plateu-chip is-outlined">${f.label}</span>` : `<span class="plateu-label">${f.label}</span>`}
+          </button>
+        `,
+          )
+          .join("")}
+      </div>
+    </section>
+
     <div class="oky-flow-wallet-filter">
       <span class="oky-flow-wallet-filter-label">
         ${state.walletFilter ? (WALLET_CATEGORIES.find((c) => c.key === state.walletFilter) || {}).label : "Todas las categorías"}
@@ -17422,6 +17446,13 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
     });
 
+    /* Lo recién comprado se ve solo al entrar al wallet: su sección
+       queda desplegada, que para eso es la novedad. */
+    state.cart.forEach((item) => {
+      const section = PRODUCTS[item.productKey].wallet || "gift";
+      if (!state.openSections.includes(section)) state.openSections = [...state.openSections, section];
+    });
+
     state.okyCashBalance = state.okyCashBalance - used + earned;
     state.lastEarned = earned;
     state.cashUnseen = earned > 0;
@@ -17748,8 +17779,23 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         if (panel) panel.classList.remove("is-collapsed");
       }
       /* Un instante para que el panel empiece a abrirse: si se pide el
-         scroll en el mismo frame, se calcula contra el alto de antes. */
-      setTimeout(() => head.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+         scroll en el mismo frame, se calcula contra el alto de antes.
+
+         El destino se calcula a mano en vez de con scrollIntoView: el
+         frame va escalado, así que las medidas de pantalla hay que
+         pasarlas a píxeles del documento antes de sumarlas al scroll. */
+      const bringUp = (behavior) => {
+        const scroller = head.closest(".oky-flow-scroll");
+        if (!scroller) return;
+        const box = scroller.getBoundingClientRect();
+        const zoom = box.height / scroller.clientHeight || 1;
+        const delta = (head.getBoundingClientRect().top - box.top) / zoom;
+        scroller.scrollTo({ top: scroller.scrollTop + delta - 8, behavior });
+      };
+      setTimeout(() => bringUp("smooth"), 60);
+      /* El panel tarda 280ms en abrirse y al crecer corta el scroll
+         suave a medio camino; pasado ese tiempo se corrige el resto. */
+      setTimeout(() => bringUp("auto"), 420);
       return;
     }
 
