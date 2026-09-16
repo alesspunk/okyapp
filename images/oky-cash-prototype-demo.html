@@ -16512,12 +16512,19 @@ function walletCategories(state) {
    cualquiera de ellas. Lo archivado sale del carrusel y se abre solo
    —desde el filtro—; para volver al mazo hay que desarchivarlo. */
 function voucherCarousel(state, section, key) {
+  /* Mismo mazo que la lista de la que se entró: si hay un filtro
+     puesto, el carrusel recorre solo lo que ese filtro deja ver. Sin
+     filtro es la sección entera menos lo archivado. */
+  const deck = walletDeck(state, section);
+  if (deck.some((v) => v.key === key)) return deck;
+
+  /* Lo que no está en esa lista —una tarjeta archivada sin el filtro de
+     archivadas— se abre sola. */
   const all =
     section === "gift"
       ? walletVouchers(state)
       : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]);
-  if (state.archivedVouchers.includes(key)) return all.filter((v) => v.key === key);
-  return all.filter((v) => !state.archivedVouchers.includes(v.key));
+  return all.filter((v) => v.key === key);
 }
 
 /* Todo lo archivado, venga de la sección que venga. */
