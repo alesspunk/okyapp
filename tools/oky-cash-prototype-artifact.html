@@ -1195,15 +1195,24 @@ body {
   background: var(--white);
 }
 
+/* Cinco huecos iguales: así cada icono cae en el centro de su quinto
+   —el del medio, en el centro de la barra— y no donde lo dejen los
+   anchos de las etiquetas. */
 .nav-item {
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 8px 12px;
+  padding: 8px 4px;
   height: 100%;
   color: var(--primary-main);
+}
+
+.nav-label {
+  white-space: nowrap;
 }
 
 .nav-item.active {
@@ -14868,10 +14877,24 @@ function monthGroup(offsetDays = 0) {
 /* Enlace directo a una de las dos homes: #usa / #gua, o ?home=usa.
    Sirve para mandar a cada persona de la prueba a la que toque sin
    explicarle cómo cambiar de país. */
+const USA_ALIASES = ["usa", "eeuu", "estados"];
+const GUA_ALIASES = ["gua", "guate", "guatemala", "latam"];
+
 function initialScreen() {
-  const raw = `${typeof location === "undefined" ? "" : location.hash + location.search}`.toLowerCase();
-  if (/usa|eeuu|estados/.test(raw)) return "home";
-  if (/gua|guate/.test(raw)) return "homegua";
+  /* Vale el último tramo de la ruta —/prototypes/oky-cash/usa, /latam—
+     y también el hash o la query, que es lo que se puede usar dentro de
+     un Artifact. El tramo se compara entero: así ninguna carpeta que
+     lleve esas letras dentro decide el país por accidente. */
+  const loc = typeof location === "undefined" ? null : location;
+  if (!loc) return "homegua";
+
+  const segment = loc.pathname.replace(/\/+$/, "").split("/").pop().toLowerCase();
+  if (USA_ALIASES.includes(segment)) return "home";
+  if (GUA_ALIASES.includes(segment)) return "homegua";
+
+  const raw = `${loc.hash}${loc.search}`.toLowerCase();
+  if (USA_ALIASES.some((a) => raw.includes(a))) return "home";
+  if (GUA_ALIASES.some((a) => raw.includes(a))) return "homegua";
   return "homegua";
 }
 
@@ -14880,6 +14903,16 @@ function initialScreen() {
 function markCountryInUrl(country) {
   if (typeof history === "undefined" || !history.replaceState) return;
   try {
+    /* Donde el prototipo vive en su propia ruta, el enlace que queda en
+       la barra es esa misma ruta; en un Artifact, el hash. */
+    const trimmed = location.pathname.replace(/\/+$/, "");
+    const segment = trimmed.split("/").pop().toLowerCase();
+    const known = USA_ALIASES.includes(segment) || GUA_ALIASES.includes(segment);
+    const base = known ? trimmed.slice(0, trimmed.lastIndexOf("/")) : trimmed;
+    if (/\/prototypes\/oky-cash$/.test(base)) {
+      history.replaceState(null, "", `${base}/${country === "usa" ? "usa" : "latam"}`);
+      return;
+    }
     history.replaceState(null, "", `#${country}`);
   } catch (error) {
     /* Algunos hosts no dejan tocar la URL; no es crítico. */

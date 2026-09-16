@@ -1174,15 +1174,24 @@ body {
   background: var(--white);
 }
 
+/* Cinco huecos iguales: así cada icono cae en el centro de su quinto
+   —el del medio, en el centro de la barra— y no donde lo dejen los
+   anchos de las etiquetas. */
 .nav-item {
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 8px 12px;
+  padding: 8px 4px;
   height: 100%;
   color: var(--primary-main);
+}
+
+.nav-label {
+  white-space: nowrap;
 }
 
 .nav-item.active {

@@ -5,6 +5,18 @@
   "outputDirectory": "storybook-static",
   "rewrites": [
     {
+      "source": "/prototypes/oky-cash/usa",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash/latam",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash/gua",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
       "source": "/atomic",
       "destination": "/public/ATOMIC-DESIGN-LIBRARY.html"
     },
