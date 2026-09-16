@@ -2339,8 +2339,10 @@ function screenTigoPdp(state) {
           </div>
 
           <div class="pdp-page-slider-slot">
-            <section class="slider-atom" style="--slider-progress:${progress}%" aria-label="Selector de monto">
-              <div class="slider-track-shell" aria-hidden="true">
+            <section class="slider-atom" style="--slider-progress:${progress}%;--slider-frac:${progress / 100}" aria-label="Selector de monto">
+              <div class="slider-track-shell">
+                <span class="slider-halo" aria-hidden="true"></span>
+                <span class="slider-bubble" aria-hidden="true" data-role="tigo-bubble">$ ${amount}</span>
                 <div class="slider-track"></div>
                 <div class="slider-ticks">
                   <span class="slider-tick" style="left:0%"></span>
@@ -2380,7 +2382,10 @@ function screenTigoPdp(state) {
       </section>
 
       <section class="pdp-page-summary-wrap oky-flow-dock" aria-label="Resumen de compra">
-        <div class="summary-box summary-box-compact" data-flow="products" data-step="pdp">
+        <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="pdp">
+          <div class="summary-type-overlay">
+            <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
+          </div>
           <div class="summary-card">
             <div class="summary-card-body">
               <div class="summary-row">
@@ -3492,6 +3497,21 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
   });
 
+  /* Mientras el dedo está sobre el slider se enciende la burbuja con el
+     monto en vivo y la aureola del grip; al soltar, se apagan. */
+  root.addEventListener("pointerdown", (event) => {
+    const slider = event.target.closest(".slider-range");
+    if (!slider) return;
+    const atom = slider.closest(".slider-atom");
+    if (atom) atom.classList.add("is-dragging");
+  });
+
+  ["pointerup", "pointercancel"].forEach((type) => {
+    window.addEventListener(type, () => {
+      root.querySelectorAll(".slider-atom.is-dragging").forEach((atom) => atom.classList.remove("is-dragging"));
+    });
+  });
+
   /* Monto del PDP: se parchean solo los nodos afectados para no
      perder el foco del input en cada tecla. */
   root.addEventListener("input", (event) => {
@@ -3505,6 +3525,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (atom) {
         const pct = ((value - PRODUCTS.tigo.min) / (PRODUCTS.tigo.max - PRODUCTS.tigo.min)) * 100;
         atom.style.setProperty("--slider-progress", `${pct}%`);
+        atom.style.setProperty("--slider-frac", String(pct / 100));
+        const bubble = atom.querySelector("[data-role='tigo-bubble']");
+        if (bubble) bubble.textContent = `$ ${value}`;
       }
       const big = root.querySelector(".oky-flow-gua-pdp .middle-card-amount");
       if (big) big.textContent = String(value);

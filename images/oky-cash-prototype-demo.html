@@ -954,11 +954,29 @@ body {
   align-items: center;
 }
 
+/* El carril va vacío —blanco con una línea fina— y se rellena de
+   morado hasta el grip, que es el lila claro. */
 .slider-track {
+  position: relative;
   width: 100%;
   height: 20px;
   border-radius: 999px;
-  background: var(--primary-light);
+  background: var(--white);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+}
+
+/* Se pinta por encima de las marcas —de ahí el z-index— para que solo
+   se vean las del tramo que falta, como en el diseño. */
+.slider-track::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--slider-progress, 0%);
+  border-radius: 999px;
+  background: var(--primary-main);
 }
 
 .slider-ticks {
@@ -970,15 +988,88 @@ body {
 .slider-tick {
   position: absolute;
   top: 50%;
-  width: 4px;
-  height: 14px;
+  width: 3px;
+  height: 12px;
   border-radius: 999px;
-  background: rgba(85, 37, 136, 0.12);
+  background: rgba(0, 0, 0, 0.16);
   transform: translate(-50%, -50%);
 }
 
+/* Solo mientras se arrastra: la aureola del grip y la burbuja con el
+   monto que se está eligiendo. Ambas se colocan sobre el centro del
+   grip, que no coincide con el porcentaje del relleno en los extremos
+   —el grip mide 36px y nunca sale del carril—, de ahí el calc. */
+.slider-halo,
+.slider-bubble {
+  position: absolute;
+  left: calc(18px + (100% - 36px) * var(--slider-frac, 0));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 160ms ease,
+    transform 160ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.slider-halo {
+  z-index: 0;
+  top: 50%;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  transform: translate(-50%, -50%) scale(0.6);
+}
+
+.slider-bubble {
+  z-index: 3;
+  bottom: calc(100% - 2px);
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--primary-light);
+  color: var(--primary-main);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  transform: translate(-50%, 6px) scale(0.85);
+  transform-origin: bottom center;
+}
+
+/* La punta de la burbuja, apuntando al grip. */
+.slider-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 16px;
+  height: 12px;
+  background: var(--primary-light);
+  transform: translateX(-50%);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.slider-atom.is-dragging .slider-halo {
+  opacity: 0.32;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.slider-atom.is-dragging .slider-bubble {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slider-halo,
+  .slider-bubble {
+    transition: none;
+  }
+}
+
+/* El input va encima del relleno, que es quien tiene z-index. */
 .slider-range {
   position: absolute;
+  z-index: 2;
   inset: 0;
   width: 100%;
   height: 36px;
@@ -1012,7 +1103,7 @@ body {
   height: 36px;
   border-radius: 50%;
   border: 0;
-  background: var(--primary-main);
+  background: var(--primary-light);
   margin-top: -8px;
   filter: var(--card-shadow);
 }
@@ -1022,7 +1113,7 @@ body {
   height: 36px;
   border-radius: 50%;
   border: 0;
-  background: var(--primary-main);
+  background: var(--primary-light);
   filter: var(--card-shadow);
 }
 
@@ -11853,7 +11944,7 @@ button.tactic-offer {
 /* El contenido reserva el alto real del dock para que el slider nunca
    quede debajo del resumen. */
 .oky-flow-scroll.has-tigo-dock {
-  padding-bottom: calc(var(--oky-nav-h) + 150px);
+  padding-bottom: calc(var(--oky-nav-h) + 180px);
 }
 
 @font-face {
@@ -16721,8 +16812,10 @@ function screenTigoPdp(state) {
           </div>
 
           <div class="pdp-page-slider-slot">
-            <section class="slider-atom" style="--slider-progress:${progress}%" aria-label="Selector de monto">
-              <div class="slider-track-shell" aria-hidden="true">
+            <section class="slider-atom" style="--slider-progress:${progress}%;--slider-frac:${progress / 100}" aria-label="Selector de monto">
+              <div class="slider-track-shell">
+                <span class="slider-halo" aria-hidden="true"></span>
+                <span class="slider-bubble" aria-hidden="true" data-role="tigo-bubble">$ ${amount}</span>
                 <div class="slider-track"></div>
                 <div class="slider-ticks">
                   <span class="slider-tick" style="left:0%"></span>
@@ -16762,7 +16855,10 @@ function screenTigoPdp(state) {
       </section>
 
       <section class="pdp-page-summary-wrap oky-flow-dock" aria-label="Resumen de compra">
-        <div class="summary-box summary-box-compact" data-flow="products" data-step="pdp">
+        <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="pdp">
+          <div class="summary-type-overlay">
+            <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
+          </div>
           <div class="summary-card">
             <div class="summary-card-body">
               <div class="summary-row">
@@ -17874,6 +17970,21 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
   });
 
+  /* Mientras el dedo está sobre el slider se enciende la burbuja con el
+     monto en vivo y la aureola del grip; al soltar, se apagan. */
+  root.addEventListener("pointerdown", (event) => {
+    const slider = event.target.closest(".slider-range");
+    if (!slider) return;
+    const atom = slider.closest(".slider-atom");
+    if (atom) atom.classList.add("is-dragging");
+  });
+
+  ["pointerup", "pointercancel"].forEach((type) => {
+    window.addEventListener(type, () => {
+      root.querySelectorAll(".slider-atom.is-dragging").forEach((atom) => atom.classList.remove("is-dragging"));
+    });
+  });
+
   /* Monto del PDP: se parchean solo los nodos afectados para no
      perder el foco del input en cada tecla. */
   root.addEventListener("input", (event) => {
@@ -17887,6 +17998,9 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (atom) {
         const pct = ((value - PRODUCTS.tigo.min) / (PRODUCTS.tigo.max - PRODUCTS.tigo.min)) * 100;
         atom.style.setProperty("--slider-progress", `${pct}%`);
+        atom.style.setProperty("--slider-frac", String(pct / 100));
+        const bubble = atom.querySelector("[data-role='tigo-bubble']");
+        if (bubble) bubble.textContent = `$ ${value}`;
       }
       const big = root.querySelector(".oky-flow-gua-pdp .middle-card-amount");
       if (big) big.textContent = String(value);
