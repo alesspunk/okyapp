@@ -269,7 +269,7 @@ function renderFooter(card) {
 
 export function renderPaymentCard(card) {
   const art = card.art
-    ? `<div class="payment-card-art" aria-hidden="true"><img src="${card.art}" alt="" /></div>`
+    ? `<div class="payment-card-art ${card.artClass || ""}" aria-hidden="true"><img src="${card.art}" alt="" /></div>`
     : "";
 
   const edit = card.editIcon

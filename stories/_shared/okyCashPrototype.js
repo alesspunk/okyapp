@@ -115,7 +115,7 @@ const CARD_DESIGNS = [
     key: "black",
     label: "Lo que va, vuelve",
     note: "Cada regalo que envíes a tu familia volverá a ti como un ripple effect.",
-    art: "oky-saldo-card-art.png",
+    art: "oky-card-coins-swirl.png",
     style: { backgroundMode: "solid", backgroundColor: "#000000", borderColor: "#000000" },
   },
   {
@@ -137,7 +137,11 @@ const CARD_DESIGNS = [
     key: "teal",
     label: "Turquesa",
     note: "El verde agua del cashback, para que se note lo que ganas.",
-    art: "oky-card-art-scatter.png",
+    /* El patrón va lavado sobre el turquesa —sin color propio y a media
+       opacidad— para que se lea como textura del fondo y no como una
+       foto pegada encima, que es como está en el frame. */
+    art: "oky-card-coins-pattern.png",
+    artClass: "is-washed",
     style: {
       backgroundMode: "gradient",
       gradientFrom: "#0ab5b1",
@@ -150,7 +154,7 @@ const CARD_DESIGNS = [
     key: "purple",
     label: "Morado OKY",
     note: "El morado de siempre, el de la marca que ya conoces.",
-    art: "oky-card-art-wave.png",
+    art: "oky-card-coins-swirl-light.png",
     style: { backgroundMode: "solid", backgroundColor: "#410d86", borderColor: "#410d86" },
   },
 ];
@@ -1371,7 +1375,7 @@ function okyCashCard(state, { balance, cta, label } = {}) {
   /* El lápiz abre el selector de diseño. */
   card.editAction = "nav:carddesign";
   const design = findCardDesign(state.cardDesign);
-  return { ...card, ...design.style, art: design.art };
+  return { ...card, ...design.style, art: design.art, artClass: design.artClass };
 }
 
 /* Categorías del wallet. Cada marca cae en una y el filtro se arma
@@ -1973,6 +1977,7 @@ function screenCardDesign(state) {
       ...findPaymentCard("Molecule/Payment Card/OKY Cash Black"),
       ...design.style,
       art: design.art,
+      artClass: design.artClass,
       showHeader: false,
       showFooter: false,
       cta: null,
@@ -1991,7 +1996,7 @@ function screenCardDesign(state) {
     ${statusBar()}
     ${titledHeader("Personaliza tu billetera")}
 
-    <div class="oky-flow-section oky-flow-design">
+    <div class="oky-flow-section oky-flow-design is-centered">
       <div class="oky-flow-design-copy">
         <h2 class="oky-flow-design-title">${current.label}</h2>
         <p class="oky-flow-design-note">${current.note}</p>
@@ -2006,14 +2011,17 @@ function screenCardDesign(state) {
       <div class="carrusel-dots-wrap" style="width:100%">
         <div class="carrusel-dots">
           ${CARD_DESIGNS.map(
-            (d, i) => `<span class="promo-dot${i === at ? " promo-dot-active" : ""}"></span>`,
+            (d, i) => `
+            <button class="promo-dot${i === at ? " promo-dot-active" : ""}" data-action="pick-design"
+              data-index="${i}" type="button" aria-label="Ver ${d.label}"></button>
+          `,
           ).join("")}
         </div>
       </div>
-    </div>
 
-    <div class="oky-flow-cta-bar">
-      <button class="btn btn-primary btn-large" data-action="choose-design" type="button">Elegir</button>
+      <button class="btn btn-primary btn-large oky-flow-design-cta" data-action="choose-design" type="button">
+        Elegir
+      </button>
     </div>
     ${navbar("okycash", state)}
   `;
@@ -2151,7 +2159,7 @@ const SCROLL_CLASS = {
   pdp: "has-dock",
   checkout: "has-bar",
   methods: "has-cta",
-  carddesign: "has-cta",
+
   /* "Tus compras" lleva CTA + píldora de saldo, de ahí el hueco mayor. */
   purchases: "has-cta-strip",
   success: "has-cta-strip",

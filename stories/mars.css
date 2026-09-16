@@ -11366,3 +11366,44 @@ button.tactic-offer {
   border-radius: 50%;
   background: var(--primary-main);
 }
+
+/* ── Patrón lavado de la tarjeta turquesa ───────────────── */
+/* El arte trae su propio morado; sobre el turquesa se leería como una
+   foto pegada. Se le quita el color y se baja la opacidad para que
+   quede como textura del propio fondo, que es como está en el frame. */
+.payment-card-art.is-washed img {
+  filter: saturate(0) brightness(1.35) contrast(0.9);
+  opacity: 0.28;
+  mix-blend-mode: soft-light;
+}
+
+/* ── Personaliza tu billetera ───────────────────────────── */
+/* Todo el contenido centrado en el alto disponible: el carrusel es la
+   pantalla entera, no una banda con el resto vacío. */
+.oky-flow-design.is-centered {
+  min-height: calc(100% - var(--oky-nav-h));
+  justify-content: center;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+
+/* "Elegir" baja debajo de los dots y deja de ser una barra fija: con
+   el contenido centrado, anclarlo al pie lo dejaba flotando lejos de
+   lo que confirma. */
+.oky-flow-design-cta {
+  width: 100%;
+  max-width: 328px;
+  margin-top: 4px;
+}
+
+/* Los dots también eligen: en un carrusel de cuatro es el atajo para
+   ir al que ya se vio asomar. */
+.carrusel-dots .promo-dot {
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.carrusel-dots button.promo-dot {
+  appearance: none;
+}
