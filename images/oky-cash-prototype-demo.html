@@ -7516,7 +7516,9 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 2;
+  /* Sin z-index: posicionado ya se pinta encima del arte de su propia
+     card, y con un z-index se colaba por encima de las cards de abajo
+     del mazo, que van después. */
   border-radius: 16px;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.231373);
   pointer-events: none;
