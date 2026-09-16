@@ -7155,6 +7155,16 @@ body {
   line-height: 24px;
 }
 
+.oky-flow-section-head-meta .oky-flow-chip[hidden] {
+  display: none;
+}
+
+/* El CTA quedaba alto respecto al lápiz de la esquina opuesta: baja lo
+   que hace falta para que los dos se lean en la misma línea. */
+.payment-card-cta {
+  transform: translate(-5px, 10px);
+}
+
 .payment-card-edit {
   position: absolute;
   left: 15px;

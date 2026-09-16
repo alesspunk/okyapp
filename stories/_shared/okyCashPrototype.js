@@ -1784,7 +1784,6 @@ function screenWallet(state) {
   const vouchers = walletDeck(state, "gift");
   const vales = walletDeck(state, "vales");
   const servicios = walletDeck(state, "servicios");
-  const archived = archivedDeck(state);
   const news = vouchers.filter((v) => v.isNew).length;
 
   /* La barra es un navegador, no un adorno: cada icono lleva a su
@@ -1810,11 +1809,13 @@ function screenWallet(state) {
         </span>
         <span class="oky-flow-section-head-meta">
           ${
-            meta
-              ? chip
-                ? `<span class="oky-flow-chip is-cash">${meta}</span>`
+            /* El chip va siempre en el DOM y se esconde al desplegar: el
+               plegado es en sitio, sin re-render, y así puede volver. */
+            !meta
+              ? ""
+              : chip
+                ? `<span class="oky-flow-chip is-cash"${open ? " hidden" : ""}>${meta}</span>`
                 : `<span class="oky-flow-section-head-value">${meta}</span>`
-              : ""
           }
           <i class="fa-solid fa-chevron-down oky-flow-section-caret" aria-hidden="true"></i>
         </span>
@@ -1940,34 +1941,6 @@ function screenWallet(state) {
           : ""
       }
 
-      ${
-        /* El archivo solo existe cuando hay algo dentro: una sección
-           vacía permanente solo sería ruido. */
-        /* Con cualquier filtro puesto el archivo no aparece: lo
-           archivado solo se ve eligiendo "Archivadas". */
-        archived.length && !state.walletFilter
-          ? `
-        ${sectionHead("archivados", "fa-box-archive", "Archivados", String(archived.length))}
-        ${body(
-          "archivados",
-          `<div class="oky-flow-stack">
-            ${archived
-              .map(
-                (v) => `
-              <div class="oky-flow-voucher-archived">
-                ${walletVoucherButton(v, sectionOfVoucher(v.key))}
-                <button class="oky-flow-unarchive" data-action="unarchive" data-key="${v.key}" type="button">
-                  <i class="fa-solid fa-box-open" aria-hidden="true"></i>&nbsp;Desarchivar
-                </button>
-              </div>
-            `,
-              )
-              .join("")}
-          </div>`,
-        )}
-      `
-          : ""
-      }
     </div>
 
     ${navbar("", state)}
@@ -3555,6 +3528,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       el.setAttribute("aria-expanded", String(!open));
       const panel = el.nextElementSibling;
       if (panel) panel.classList.toggle("is-collapsed", open);
+      /* El chip del saldo solo acompaña a la cabecera plegada: abierta,
+         el saldo ya está en la tarjeta. */
+      const chip = el.querySelector(".oky-flow-section-head-meta .oky-flow-chip");
+      if (chip) chip.hidden = !open;
       return;
     }
 

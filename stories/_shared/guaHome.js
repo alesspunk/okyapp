@@ -30,16 +30,7 @@ export const GUA_HOME_MARKUP = `
                   </article>
                 </div>
               </div>
-              <div class="carrusel-dots-wrap" aria-hidden="true">
-                <div class="carrusel-dots">
-                  <span class="carrusel-dot is-active"></span>
-                  <span class="carrusel-dot"></span>
-                  <span class="carrusel-dot"></span>
-                  <span class="carrusel-dot"></span>
-                  <span class="carrusel-dot"></span>
-                </div>
-              </div>
-            </div>
+              
           </section>
         </section>
 
@@ -47,7 +38,7 @@ export const GUA_HOME_MARKUP = `
           <div class="mockup-left-tiles">
             <div class="mockup-tiles-row">
               <article class="mockup-half-tile-wrap">
-                <span class="mockup-half-chip chip-ds chip-ds-new-item">Nuevo</span>
+                
                 <div class="service-tile service-tile-half is-secondary-border">
                   <div class="tile-icon tile-icon-half"><img src="multimarca.webp" alt="Multimarca" /></div>
                   <div class="tile-label">Multimarca</div>
