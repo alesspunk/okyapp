@@ -10010,7 +10010,7 @@ button.tactic-offer {
 }
 
 .oky-flow-design-track {
-  --design-slide: 276px;
+  --design-slide: 268px;
   /* La curva de las hojas de iOS: arranca decidido y se posa sin
      rebote. La usan el track, las diapositivas y el copy, así que todo
      el gesto se mueve como una sola pieza. */
@@ -10045,9 +10045,13 @@ button.tactic-offer {
   transform: scale(1);
 }
 
-/* La Payment Card mide 328px; en el carrusel entra a 276. */
+/* La Payment Card mide 328x254; la vista previa va en 268x181, que es
+   la proporción del frame —más ancha y más baja—. Aquí la card no
+   lleva cabecera ni pie, así que solo es el arte y el alto se puede
+   fijar sin que nada se apriete. */
 .oky-flow-design-slide .payment-card-molecule {
   width: 100%;
+  height: 181px;
   max-width: none;
 }
 
