@@ -18327,7 +18327,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     /* La primera visita a USA se presenta: banderas y, al acabar, el
        recorrido por lo que hay que saber. */
     if (firstUsa) state.usaIntro = true;
-    go(country === "usa" ? "home" : "homegua");
+    go(country === "usa" ? "home" : "homegua", {}, { market: false });
     if (firstUsa) {
       clearTimeout(introTimer);
       /* El recorrido entra en cuanto la pared cruza, sin esperar a las
@@ -18422,7 +18422,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      archivados, con su "Desarchivar". */
   function archiveVoucher(key) {
     if (!state.archivedVouchers.includes(key)) state.archivedVouchers.push(key);
-    state.history = [{ screen: "home", params: {} }];
+    state.history = [{ screen: homeOfCountry(), params: {} }];
     return go("wallet", {}, { push: false });
   }
 
@@ -18433,11 +18433,47 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   function leavePurchase(screen) {
     if (!POST_PURCHASE.includes(state.screen)) return go(screen);
-    state.history = [{ screen: "home", params: {} }];
+    state.history = [{ screen: homeOfCountry(), params: {} }];
     return go(screen, {}, { push: false });
   }
 
-  function go(screen, params = {}, { push = true } = {}) {
+  /* Portero de marketplace. Cualquier camino que acabe en la tienda
+     del otro país —el botón Home, "Seguir comprando", el atrás que
+     desanda hasta una home anterior— pasa por aquí: con el carrito
+     lleno se pregunta antes, y vacío se cambia de país de verdad. Sin
+     esto se podía acabar en la tienda de Guatemala con una gift card
+     de USA dentro del carrito, que es un estado que no existe. */
+  const HOME_COUNTRY = { home: "usa", homegua: "gua" };
+  const homeOfCountry = () => (state.country === "gua" ? "homegua" : "home");
+
+  /* Lo que decide si se cruza de mercado es el carrito, no la bandera
+     que lleve marcada el estado: con una gift card de USA dentro, ir a
+     la tienda de Guatemala es cruzar, punto. Así ninguna desincronía
+     entre lo que se ve y lo que se cree que se está viendo abre la
+     puerta de atrás. */
+  function crossesMarket(screen) {
+    const target = HOME_COUNTRY[screen];
+    if (!target) return false;
+    return state.cart.length ? orderCountry(state) !== target : target !== state.country;
+  }
+
+  function guardMarket(screen) {
+    const target = HOME_COUNTRY[screen];
+    if (!target) return false;
+    if (state.cart.length && orderCountry(state) !== target) {
+      state.countrySheet = { to: target };
+      render();
+      return true;
+    }
+    if (target !== state.country) {
+      goCountry(target);
+      return true;
+    }
+    return false;
+  }
+
+  function go(screen, params = {}, { push = true, market = true } = {}) {
+    if (market && guardMarket(screen)) return;
     if (push) state.history.push({ screen: state.screen, params: state.params });
     state.screen = screen;
     state.params = params;
@@ -18448,7 +18484,14 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   function goBack() {
     const prev = state.history.pop();
-    if (!prev) return go("home", {}, { push: false });
+    if (!prev) return go(homeOfCountry(), {}, { push: false });
+    /* Atrás tampoco cruza de mercado en silencio: si el carrito está
+       lleno se pregunta y el paso queda deshecho, no a medias. */
+    if (crossesMarket(prev.screen)) {
+      state.history.push(prev);
+      guardMarket(prev.screen);
+      return;
+    }
     state.screen = prev.screen;
     state.params = prev.params;
     state.cartOpen = false;
@@ -18623,8 +18666,9 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "nav:home" || action === "nav:homegua") {
       const target = action === "nav:home" ? "usa" : "gua";
-      /* Con el carrito lleno no se cambia de marketplace en silencio. */
-      if (state.cart.length && state.country !== target) {
+      /* Con el carrito lleno no se cambia de marketplace en silencio, y
+         lo que manda es de dónde salió lo que llevo dentro. */
+      if (state.cart.length && orderCountry(state) !== target) {
         state.countrySheet = { to: target };
         return render();
       }
