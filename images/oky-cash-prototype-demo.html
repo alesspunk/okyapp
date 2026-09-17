@@ -16266,7 +16266,7 @@ function cartDrawer(state) {
               </div>
             </div>
             <div class="summary-cta-row double">
-              <button class="btn btn-outlined btn-large" data-action="nav:country-home" type="button">Seguir comprando</button>
+              <button class="btn btn-outlined btn-large" data-action="keep-shopping" type="button">Seguir comprando</button>
               <button class="btn btn-primary btn-large" data-action="go:decision" type="button"
                 ${state.cart.length ? "" : "disabled"}>Ir a pagar</button>
             </div>
@@ -18595,6 +18595,17 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
     if (action === "close-cart") {
       state.cartOpen = false;
+      return render();
+    }
+    /* "Seguir comprando" devuelve a donde estaba comprando, que casi
+       siempre es el PDP del que acabo de agregar: cerrar el carrito ya
+       lo deja ahí. Solo desde el checkout —donde ya no hay tienda
+       detrás— hace falta llevar a la home de ese mercado. */
+    if (action === "keep-shopping") {
+      state.cartOpen = false;
+      if (state.screen === "checkout" || state.screen === "methods") {
+        return go(orderCountry(state) === "gua" ? "homegua" : "home");
+      }
       return render();
     }
     if (action === "go:checkout") {
