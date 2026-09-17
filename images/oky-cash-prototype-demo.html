@@ -15772,8 +15772,8 @@ function usaIntro() {
        dejar huecos ni alinearse como una reja. */
     const left = (i / COUNT) * 108 - 4 + (rnd(i + 1) - 0.5) * 12;
     const size = 36 + rnd(i + 31) * 76;
-    const delay = rnd(i + 61) * 900;
-    const dur = 1800 + rnd(i + 91) * 1000;
+    const delay = rnd(i + 61) * 480;
+    const dur = 1150 + rnd(i + 91) * 700;
     const drift = (rnd(i + 121) - 0.5) * 140;
     const spin = (rnd(i + 151) - 0.5) * 60;
     const start = rnd(i + 181) * 90;
@@ -17144,7 +17144,7 @@ function screenWallet(state) {
 function screenOkyCash(state) {
   /* Aquí ya estás en la actividad, así que el CTA no lleva a ninguna
      parte: se queda como rótulo, invitando a conocer el programa. */
-  const cash = okyCashCard(state, { cta: false, label: "Gana OKY Cash" });
+  const cash = okyCashCard(state, { cta: false, label: "Conoce más" });
 
   /* Los movimientos se agrupan por mes conservando el orden. */
   const groups = [];
@@ -18227,10 +18227,15 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (firstUsa) {
       clearTimeout(introTimer);
       introTimer = setTimeout(() => {
-        state.usaIntro = false;
         state.tourStep = 0;
         render();
-      }, 3200);
+        /* Las banderas que aún van en el aire terminan su viaje por
+           detrás del recorrido; solo entonces se quitan del DOM. */
+        introTimer = setTimeout(() => {
+          state.usaIntro = false;
+          render();
+        }, 900);
+      }, 1150);
     }
   }
 
