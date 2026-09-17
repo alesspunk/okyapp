@@ -8006,15 +8006,15 @@ body {
   top: -6px;
   left: -4px;
   z-index: 1;
-  min-width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 5px;
+  padding: 0;
   border: 2px solid var(--white);
-  border-radius: 999px;
+  border-radius: 50%;
   background: var(--error-main);
   font-family: "Lato", sans-serif;
   font-size: 11px;
@@ -10946,11 +10946,15 @@ button.tactic-offer {
   gap: 6px;
 }
 
-/* La pestaña abierta se marca también en el icono, no solo en el chip
-   del rótulo: el chip queda abajo y de un vistazo se mira el icono. */
+/* La pestaña abierta se eleva unos píxeles y nada más: un recuadro
+   detrás del icono competía con el propio dibujo, que ya es de color.
+   El chip del rótulo sigue diciendo cuál está abierta. */
 .oky-flow-wallet-nav .plateu-item.is-on .plateu-icon-wrap {
-  background: var(--primary-lightest, #f1ebf9);
-  box-shadow: inset 0 0 0 2px var(--primary-main);
+  transform: translateY(-3px);
+}
+
+.oky-flow-wallet-nav .plateu-item .plateu-icon-wrap {
+  transition: transform 180ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .oky-flow-wallet-nav .plateu-item:active .plateu-icon-wrap {

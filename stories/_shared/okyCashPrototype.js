@@ -2448,7 +2448,7 @@ function walletFilterLabel(state) {
      ordena: por fecha, que es como se buscan, o por número de servicio
      cuando se busca uno concreto. */
   if (state.walletTab === "servicios") {
-    return state.serviceOrder === "id" ? "Por número de servicio" : "Por fecha de pago";
+    return state.serviceOrder === "id" ? "Por ID de pago" : "Por fecha de pago";
   }
   if (!state.walletFilter) return "Todas las categorías";
   return (WALLET_CATEGORIES.find((c) => c.key === state.walletFilter) || {}).label || "Todas las categorías";
@@ -2456,7 +2456,7 @@ function walletFilterLabel(state) {
 
 const SERVICE_ORDERS = [
   { key: "fecha", label: "Por fecha de pago" },
-  { key: "id", label: "Por número de servicio" },
+  { key: "id", label: "Por ID de pago" },
 ];
 
 function filterSheet(state) {
@@ -3136,8 +3136,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const was = state.walletFilter;
     if (next && !was) state.openBeforeFilter = state.openGroups;
     state.walletFilter = next;
+    /* Con filtro puesto se abre lo que tiene resultados y nada más:
+       desplegar una sección para enseñar que está vacía es hacer
+       trabajar a la persona para no darle nada. */
     state.openGroups = next
-      ? WALLET_GROUPS.map((g) => g.key)
+      ? WALLET_GROUPS.filter((g) => walletGroupDeck(state, state.walletTab, g.key).length).map((g) => g.key)
       : state.openBeforeFilter || state.openGroups;
     if (!next) state.openBeforeFilter = null;
     state.sheet = null;
@@ -3485,15 +3488,18 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return goCountry(target);
     }
     if (action === "nav:wallet") {
-      /* Cada entrada al wallet decide de nuevo dónde te deja: la
-         pestaña del tipo que trae novedades y, dentro, la sección que
-         las guarda. Viniendo sin novedades se abre en Activos, que es
-         lo que queda por hacer. Lo que estuviera plegado o desplegado
-         de la visita anterior ya no dice nada de lo que hay ahora. */
+      /* De dónde se entra decide dónde te deja. Desde una tienda, el
+         wallet abre en lo que esa tienda vende —OKY Vales en Guatemala,
+         Gift cards en USA— con Activos desplegado: es la visita de
+         "¿qué tengo?". Desde el final de una compra abre en lo que
+         acabas de comprar, que es lo que vienes a ver. Lo que estuviera
+         plegado o desplegado de la visita anterior ya no dice nada de
+         lo que hay ahora. */
+      const fromPurchase = POST_PURCHASE.includes(state.screen);
       state.walletFilter = "";
       state.openBeforeFilter = null;
-      state.walletTab = walletEntryTab(state);
-      state.openGroups = walletOpenGroups(state);
+      state.walletTab = fromPurchase ? walletEntryTab(state) : state.country === "gua" ? "vales" : "gift";
+      state.openGroups = fromPurchase ? walletOpenGroups(state) : ["activos"];
       return leavePurchase("wallet");
     }
     if (action === "nav:okycash") {
