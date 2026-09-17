@@ -1784,11 +1784,21 @@ const CATEGORY_OF = {
    dentro, las secciones plegables separan los tres estados en que
    puede estar un vale. Un vale cae en uno solo, nunca en dos. */
 const WALLET_TABS = [
-  { key: "cash", label: "OKY Cash", icon: "oky-cash-coin.png" },
-  { key: "gift", label: "Gift cards", icon: "plateu-giftcards.png" },
-  { key: "vales", label: "OKY Vales", icon: "plateu-vales.png" },
-  { key: "servicios", label: "Servicios", icon: "plateu-servicios.png" },
+  { key: "cash", label: "OKY Cash", title: "OKY Cash", icon: "oky-cash-coin.png" },
+  { key: "gift", label: "Gift cards", title: "Gift Cards", icon: "plateu-giftcards.png" },
+  { key: "vales", label: "OKY Vales", title: "OKY Vales", icon: "plateu-vales.png" },
+  { key: "servicios", label: "Servicios", title: "Servicios", icon: "plateu-servicios.png" },
 ];
+
+/* La cabecera dice en qué pestaña estás. El wallet es un solo sitio,
+   pero se entra a él desde cuatro puertas distintas —la moneda de la
+   barra, las píldoras de saldo, el icono del home, el final de una
+   compra— y cada una apunta a una pestaña: el título confirma al
+   aterrizar que llegaste a donde ibas. */
+function walletTitle(state) {
+  const tab = WALLET_TABS.find((t) => t.key === state.walletTab);
+  return tab ? tab.title : "Mi wallet";
+}
 
 const WALLET_GROUPS = [
   { key: "activos", label: "Activos", icon: "fa-ticket", empty: "Nada activo por aquí." },
@@ -2056,7 +2066,7 @@ function screenWallet(state) {
 
   return `
     ${statusBar()}
-    ${titledHeader("Mi wallet")}
+    ${titledHeader(walletTitle(state))}
 
     <section class="plateu-molecule is-static is-default oky-flow-wallet-nav" role="tablist" aria-label="Tipo de vale">
       <div class="plateu-track is-static">
