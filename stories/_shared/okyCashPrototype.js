@@ -1199,13 +1199,17 @@ function screenCheckout(state) {
      en el PDP: con el reloj en pausa aquí dentro, el 20% de Nike no se
      convierte en 5% mientras se ajusta el pago. */
   const giftCard = (item) => {
-    const itemTier = getTier(item.amount, PRODUCTS[item.productKey], state.promoLive);
+    const product = PRODUCTS[item.productKey];
+    const itemTier = getTier(item.amount, product, state.promoLive);
+    /* Lo que no es una gift card dice lo que es: un paquete de internet
+       no se anuncia como gift card. */
+    const itemTitle = product.wallet ? product.cardTitle : "Gift Card";
     return `
     <section class="middle-card-shell is-checkout">
       <article class="middle-card-molecule is-egift">
         <div class="middle-card-content">
           <div class="middle-card-main">
-            <p class="middle-card-title">Gift Card</p>
+            <p class="middle-card-title">${itemTitle}</p>
             <div class="middle-card-center">
               <div class="middle-card-value">
                 <span class="middle-card-currency">$</span>
