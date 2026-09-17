@@ -1509,6 +1509,7 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
     });
 
   const list = byBrand;
+  const earnedHere = state.lastEarned > 0;
 
   return `
     ${statusBar()}
@@ -1534,11 +1535,16 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
       }
     </div>
 
-    <div class="oky-flow-cta-bar has-cash-strip">
+    <div class="oky-flow-cta-bar${earnedHere ? " has-cash-strip" : ""}">
       <button class="btn btn-outlined btn-large oky-flow-wallet-btn" data-action="nav:wallet" type="button">
         <img src="Wallet-icon.png" alt="" />Ver mi Wallet
       </button>
-      ${cashStrip(state)}
+      ${
+        /* La píldora celebra lo que esta compra dejó; si no dejó nada
+           —Tigo no da cashback— no hay nada que celebrar y el botón se
+           queda solo sobre la navbar. */
+        earnedHere ? cashStrip(state) : ""
+      }
     </div>
     ${navbar("", state)}
 
@@ -2703,6 +2709,10 @@ const SCROLL_CLASS = {
    OKY Cash —Tigo, por ejemplo—, y con ella su hueco. */
 function scrollClass(state) {
   if (state.screen === "checkout" && cartCashback(state) <= 0) return "";
+  /* Sin píldora de saldo, la barra de "Tus compras" es solo el botón. */
+  if (["purchases", "success", "cashwin"].includes(state.screen) && state.lastEarned <= 0) {
+    return "has-cta";
+  }
   return SCROLL_CLASS[state.screen] || "";
 }
 
