@@ -402,6 +402,25 @@ function expandUnits(list) {
    vale —"nike#0"— y no por marca. */
 const unitId = (key, unit = 0) => `${key}#${unit}`;
 
+/* Un vale recién comprado y el mismo vale visto en el wallet son la
+   misma cosa: esto dice qué número de vale de su marca le toca, para
+   que compartirlo desde "Tus compras" y compartirlo desde el wallet
+   acaben marcando exactamente el mismo. Los montos de una marca van
+   primero los de muestra y después los comprados, del más reciente al
+   más antiguo, que es como los arma walletVouchers. */
+function unitOfPurchase(state, purchase) {
+  const key = purchase.productKey;
+  const section = (PRODUCTS[key] || {}).wallet || "gift";
+  const demo =
+    section === "gift" ? ((WALLET_VOUCHERS.find((v) => v.key === key) || {}).amounts || []).length : 0;
+  const mine = state.purchases
+    .slice()
+    .reverse()
+    .filter((p) => p.productKey === key);
+  const at = mine.findIndex((p) => p.id === purchase.id);
+  return demo + Math.max(at, 0);
+}
+
 function unitGroup(state, key, unit = 0) {
   const id = unitId(key, unit);
   if (state.archivedVouchers.includes(id)) return "archivados";
@@ -2323,11 +2342,13 @@ function screenVoucher(state) {
      Mi wallet, el vale de la marca. */
   const title = state.params.id ? "Detalle de la orden" : card.label;
 
-  /* Compartir y archivar son cosas del wallet: en el detalle de una
-     compra recién pagada no tienen sentido todavía. */
-  const fromWallet = !state.params.id;
-  const shared = fromWallet && state.sharedVouchers.includes(unitId(card.key, unit));
-  const archived = fromWallet && state.archivedVouchers.includes(unitId(card.key, unit));
+  /* Compartir y archivar valen también recién comprado: es justo
+     cuando se manda el regalo. El vale es el mismo que luego se ve en
+     el wallet, así que marcarlo aquí o allá da igual. */
+  const slot = state.params.id && purchase ? unitOfPurchase(state, purchase) : unit;
+  const id = unitId(card.key, slot);
+  const shared = state.sharedVouchers.includes(id);
+  const archived = state.archivedVouchers.includes(id);
   const sharedOn = new Date()
     .toLocaleDateString("es-GT", { day: "2-digit", month: "short", year: "numeric" })
     .replace(/\./g, "")
@@ -2389,19 +2410,19 @@ function screenVoucher(state) {
         archived
           ? `
         <button class="btn btn-outlined btn-large" style="width:100%" type="button"
-          data-action="unarchive" data-key="${card.key}" data-unit="${unit}">
+          data-action="unarchive" data-key="${card.key}" data-unit="${slot}">
           <i class="fa-solid fa-box-open" aria-hidden="true"></i>&nbsp;Desarchivar
         </button>
       `
           : shared
           ? `
         <div class="oky-flow-voucher-actions">
-          <button class="oky-flow-switch is-on" data-action="toggle-shared" data-key="${card.key}" data-unit="${unit}"
+          <button class="oky-flow-switch is-on" data-action="toggle-shared" data-key="${card.key}" data-unit="${slot}"
             type="button" role="switch" aria-checked="true">
             <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
             <span class="oky-flow-switch-label">Compartido</span>
           </button>
-          <button class="btn btn-outlined btn-large oky-flow-archive-btn" data-action="ask-archive" data-key="${card.key}" data-unit="${unit}" type="button">
+          <button class="btn btn-outlined btn-large oky-flow-archive-btn" data-action="ask-archive" data-key="${card.key}" data-unit="${slot}" type="button">
             Archivar
           </button>
         </div>
@@ -2409,7 +2430,7 @@ function screenVoucher(state) {
           : `
         <button class="btn btn-outlined btn-large" style="width:100%" type="button"
           data-action="share" data-label="${card.label}" data-amount="${amount}"
-          data-key="${fromWallet ? card.key : ""}" data-unit="${unit}">
+          data-key="${card.key}" data-unit="${slot}">
           <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>&nbsp;Compartir
         </button>
       `
@@ -3329,8 +3350,29 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      confirmación ya explicó a dónde va el vale, y de vuelta en el
      wallet se ve que ya no está. Para recuperarlo está el filtro de
      archivados, con su "Desarchivar". */
-  function archiveVoucher(key) {
-    if (!state.archivedVouchers.includes(key)) state.archivedVouchers.push(key);
+  function archiveVoucher(id) {
+    if (!state.archivedVouchers.includes(id)) state.archivedVouchers.push(id);
+
+    /* Archivando desde el detalle de la compra recién pagada, la
+       pantalla se queda con el siguiente vale de esa orden: guardar uno
+       no cierra la revisión de los demás. Cuando ya no queda ninguno
+       sin archivar, no hay orden que enseñar y se sale al wallet, que
+       es donde acabaron. */
+    if (state.screen === "voucher" && state.params.id) {
+      const left = state.lastOrder.filter((p) => {
+        const purchase = state.purchases.find((x) => x.id === p.id);
+        return purchase && !state.archivedVouchers.includes(unitId(p.productKey, unitOfPurchase(state, purchase)));
+      });
+      if (left.length) return go("voucher", { id: left[0].id }, { push: false });
+    }
+
+    /* Y el wallet abre donde acaba de caer: su pestaña, con Archivados
+       desplegado. La hoja prometió que se podría volver a ver; esto lo
+       enseña en vez de contarlo. */
+    state.walletTab = sectionOfVoucher(String(id).split("#")[0]);
+    state.walletFilter = "";
+    state.openBeforeFilter = null;
+    state.openGroups = ["archivados"];
     state.history = [{ screen: homeOfCountry(), params: {} }];
     return go("wallet", {}, { push: false });
   }
