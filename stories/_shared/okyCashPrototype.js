@@ -747,8 +747,8 @@ function usaIntro() {
        dejar huecos ni alinearse como una reja. */
     const left = (i / COUNT) * 108 - 4 + (rnd(i + 1) - 0.5) * 12;
     const size = 36 + rnd(i + 31) * 76;
-    const delay = rnd(i + 61) * 480;
-    const dur = 1150 + rnd(i + 91) * 700;
+    const delay = rnd(i + 61) * 432;
+    const dur = 1035 + rnd(i + 91) * 630;
     const drift = (rnd(i + 121) - 0.5) * 140;
     const spin = (rnd(i + 151) - 0.5) * 60;
     const start = rnd(i + 181) * 90;
@@ -3223,8 +3223,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         introTimer = setTimeout(() => {
           const wall = root.querySelector(".oky-flow-flagrise");
           if (wall) wall.remove();
-        }, 1300);
-      }, 1150);
+        }, 1170);
+      }, 1035);
     }
   }
 
