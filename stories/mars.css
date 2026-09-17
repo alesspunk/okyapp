@@ -12252,20 +12252,27 @@ button.tactic-offer {
   position: relative;
 }
 
+/* El wrap asoma por el borde, que es como cuelga en el frame. */
+.oky-flow-frame .oky-flow-apparel {
+  overflow: visible;
+}
+
 .oky-flow-frame .oky-flow-apparel .homecard-header {
-  padding-right: 128px;
+  padding-right: 116px;
 }
 
 .oky-flow-frame .oky-flow-apparel-ribbon {
   top: 14px;
-  right: 0;
+  right: -6px;
   width: auto;
   max-width: none;
 }
 
+/* Ajustado a su texto: ni una pizca más, para no chocar con el título. */
 .oky-flow-frame .oky-flow-apparel-ribbon .discount-ribbon-text {
   display: block;
-  padding: 4px 12px;
+  padding: 3px 9px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -12390,31 +12397,38 @@ img.oky-flow-method-mark {
 
 .oky-flow-flagrise-item {
   position: absolute;
-  bottom: -60px;
+  bottom: -70px;
   aspect-ratio: 4 / 3;
-  border-radius: 2px;
-  background: url("/flagpack/4x3/us.svg") center/cover no-repeat;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
   will-change: transform, opacity;
   animation-name: oky-flagrise;
   animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
   animation-fill-mode: both;
 }
 
+.oky-flow-flagrise-item .flag-atom,
+.oky-flow-flagrise-item .flag-atom img {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 3px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28);
+  object-fit: cover;
+}
+
 @keyframes oky-flagrise {
   0% {
-    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.7);
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.85);
     opacity: 0;
   }
-  8% {
+  6% {
     opacity: 1;
   }
-  75% {
+  85% {
     opacity: 1;
   }
   100% {
-    transform: translate3d(var(--drift, 0px), calc(-100% - 860px), 0) rotate(var(--spin, 0deg))
-      scale(1);
+    /* Sube hasta salir por arriba: la pared barre la pantalla entera. */
+    transform: translate3d(var(--drift, 0px), -980px, 0) rotate(var(--spin, 0deg)) scale(1.05);
     opacity: 0;
   }
 }
@@ -12427,6 +12441,8 @@ img.oky-flow-method-mark {
   position: absolute;
   inset: 0;
   z-index: 140;
+  /* La sombra del hueco desborda el marco; aquí se recorta. */
+  overflow: hidden;
   --hole-top: 0px;
   --hole-left: 0px;
   --hole-w: 0px;
@@ -12434,72 +12450,20 @@ img.oky-flow-method-mark {
   animation: oky-flow-fade 200ms ease-out both;
 }
 
-.oky-flow-tour-panel {
+/* El recorte es un solo elemento: su sombra gigantesca pinta todo lo
+   de fuera, así que el hueco puede tener las esquinas redondeadas. */
+.oky-flow-tour-hole {
   position: absolute;
-  background: rgba(16, 16, 16, 0.72);
-}
-
-.oky-flow-tour-panel.is-top {
-  left: 0;
-  right: 0;
-  top: 0;
-  height: var(--hole-top);
-}
-
-.oky-flow-tour-panel.is-bottom {
-  left: 0;
-  right: 0;
-  top: calc(var(--hole-top) + var(--hole-h));
-  bottom: 0;
-}
-
-.oky-flow-tour-panel.is-left {
-  left: 0;
   top: var(--hole-top);
-  width: var(--hole-left);
+  left: var(--hole-left);
+  width: var(--hole-w);
   height: var(--hole-h);
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(16, 16, 16, 0.72);
+  pointer-events: none;
 }
-
-.oky-flow-tour-panel.is-right {
-  left: calc(var(--hole-left) + var(--hole-w));
-  right: 0;
-  top: var(--hole-top);
-  height: var(--hole-h);
-}
-
-
-
-
-
-@keyframes oky-flow-tour-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 @media (prefers-reduced-motion: reduce) {
-  .oky-flow-flagrise-item,
   .oky-flow-tour,
   .oky-flow-tour-call {
     animation: none;

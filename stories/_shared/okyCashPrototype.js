@@ -717,20 +717,32 @@ const TOUR_STEPS = [
 /* Lluvia de banderas al entrar a USA por primera vez: un guiño corto,
    que se quita solo. */
 function usaIntro() {
-  /* Muchas, pequeñas y rápidas: la gracia está en la cantidad y en que
-     no salgan todas a la vez ni a la misma velocidad. */
+  /* El "Inferno" del botón de fuego de DuckDuckGo: no son partículas
+     sueltas cruzando la pantalla, es una pared que sube desde el borde
+     de abajo, se traga la vista y se va. Aquí la pared es de banderas:
+     muchas, grandes, encimadas y a distinto ritmo. */
   const rnd = (seed) => {
     const x = Math.sin(seed * 12.9898) * 43758.5453;
     return x - Math.floor(x);
   };
-  const flags = Array.from({ length: 52 }, (_, i) => {
-    const left = rnd(i + 1) * 100;
-    const size = 14 + rnd(i + 31) * 30;
-    const delay = rnd(i + 61) * 620;
-    const dur = 900 + rnd(i + 91) * 700;
-    const drift = (rnd(i + 121) - 0.5) * 90;
-    const spin = (rnd(i + 151) - 0.5) * 70;
-    return `<span class="oky-flow-flagrise-item" style="left:${left.toFixed(2)}%;width:${size.toFixed(0)}px;animation-delay:${delay.toFixed(0)}ms;animation-duration:${dur.toFixed(0)}ms;--drift:${drift.toFixed(0)}px;--spin:${spin.toFixed(0)}deg"></span>`;
+  const COUNT = 64;
+  const flags = Array.from({ length: COUNT }, (_, i) => {
+    /* Repartidas por columnas con jitter: cubren todo el ancho sin
+       dejar huecos ni alinearse como una reja. */
+    const left = (i / COUNT) * 108 - 4 + (rnd(i + 1) - 0.5) * 12;
+    const size = 36 + rnd(i + 31) * 76;
+    const delay = rnd(i + 61) * 900;
+    const dur = 1800 + rnd(i + 91) * 1000;
+    const drift = (rnd(i + 121) - 0.5) * 140;
+    const spin = (rnd(i + 151) - 0.5) * 60;
+    const start = rnd(i + 181) * 90;
+    return `<span class="oky-flow-flagrise-item" style="left:${left.toFixed(
+      2,
+    )}%;width:${size.toFixed(0)}px;bottom:${-90 - start.toFixed(0)}px;animation-delay:${delay.toFixed(
+      0,
+    )}ms;animation-duration:${dur.toFixed(0)}ms;--drift:${drift.toFixed(0)}px;--spin:${spin.toFixed(
+      0,
+    )}deg">${renderFlag({ code: "US", size: "Large" })}</span>`;
   }).join("");
   return `<div class="oky-flow-flagrise" aria-hidden="true">${flags}</div>`;
 }
@@ -746,10 +758,7 @@ function tourOverlay(state) {
      línea. Se toca donde sea para pasar. */
   return `
     <div class="oky-flow-tour" data-action="tour-next" role="dialog" aria-modal="true" aria-label="${step.label}">
-      <span class="oky-flow-tour-panel is-top"></span>
-      <span class="oky-flow-tour-panel is-bottom"></span>
-      <span class="oky-flow-tour-panel is-left"></span>
-      <span class="oky-flow-tour-panel is-right"></span>
+      <span class="oky-flow-tour-hole" aria-hidden="true"></span>
       <div class="oky-flow-tour-call">
         <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
         <p class="oky-flow-tour-label">${step.label}</p>
@@ -3022,16 +3031,22 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       call.style.bottom = below ? "" : `${frameH - top + 16}px`;
     };
 
-    /* Lo que queda fuera de pantalla se sube antes de medir; en los dos
-       casos se coloca en el acto y se repasa en el cuadro siguiente. */
+    /* Lo que queda fuera de pantalla se sube antes de medir. */
     const box = frame.getBoundingClientRect();
     const zoom = box.height / frame.offsetHeight || 1;
     const t = target.getBoundingClientRect();
     if (scroll && (t.top < box.top || t.bottom > box.bottom - 40)) {
-      scroll.scrollTo({ top: scroll.scrollTop + (t.top - box.top) / zoom - 150, behavior: "auto" });
+      scroll.scrollTo({ top: scroll.scrollTop + (t.top - box.top) / zoom - 170, behavior: "auto" });
     }
+
+    /* El scroll dispara el colapso de la cabecera, que cambia alturas
+       después de medir: por eso se repasa en los cuadros siguientes y se
+       vuelve a medir mientras el recorrido esté abierto. */
     put();
     requestAnimationFrame(put);
+    requestAnimationFrame(() => requestAnimationFrame(put));
+    setTimeout(put, 320);
+    if (scroll) scroll.addEventListener("scroll", put, { passive: true });
   }
 
   /* Gestos: los carruseles se pasan con el dedo, no solo con las
@@ -3174,7 +3189,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.usaIntro = false;
         state.tourStep = 0;
         render();
-      }, 1500);
+      }, 3200);
     }
   }
 
