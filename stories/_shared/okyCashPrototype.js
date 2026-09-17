@@ -1907,10 +1907,10 @@ function walletEntryTab(state) {
    no, Activos, que es lo que queda por hacer. Archivados nunca se abre
    solo: ahí va lo que la persona decidió quitar de en medio. */
 function walletOpenGroups(state, section = state.walletTab) {
-  const withNews = WALLET_GROUPS.filter(
+  const withNews = WALLET_GROUPS.find(
     (g) => g.key !== "archivados" && walletGroupDeck(state, section, g.key, { filtered: false }).some((v) => v.isNew),
-  ).map((g) => g.key);
-  return withNews.length ? withNews : ["activos"];
+  );
+  return [withNews ? withNews.key : "activos"];
 }
 
 /* Los vales del wallet: primero lo que la persona compró de verdad,
@@ -3178,8 +3178,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     /* Con filtro puesto se abre lo que tiene resultados y nada más:
        desplegar una sección para enseñar que está vacía es hacer
        trabajar a la persona para no darle nada. */
+    const withHits = next && WALLET_GROUPS.find((g) => walletGroupDeck(state, state.walletTab, g.key).length);
     state.openGroups = next
-      ? WALLET_GROUPS.filter((g) => walletGroupDeck(state, state.walletTab, g.key).length).map((g) => g.key)
+      ? withHits
+        ? [withHits.key]
+        : []
       : state.openBeforeFilter || state.openGroups;
     if (!next) state.openBeforeFilter = null;
     state.sheet = null;
@@ -3817,16 +3820,20 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "toggle-section") {
-      /* Se pliega en sitio, sin re-renderizar: así la animación corre y
+      /* Solo una sección abierta a la vez: con dos abiertas hay que
+         recorrer una lista entera para llegar a la siguiente cabecera,
+         y las tres secciones son la navegación de la pestaña.
+         Se pliega en sitio, sin re-renderizar: así la animación corre y
          no se pierde el scroll. */
       const key = el.dataset.section;
       const open = state.openGroups.includes(key);
-      state.openGroups = open
-        ? state.openGroups.filter((k) => k !== key)
-        : [...state.openGroups, key];
-      el.setAttribute("aria-expanded", String(!open));
-      const panel = el.nextElementSibling;
-      if (panel) panel.classList.toggle("is-collapsed", open);
+      state.openGroups = open ? [] : [key];
+      root.querySelectorAll('[data-action="toggle-section"]').forEach((head) => {
+        const on = state.openGroups.includes(head.dataset.section);
+        head.setAttribute("aria-expanded", String(on));
+        const panel = head.nextElementSibling;
+        if (panel) panel.classList.toggle("is-collapsed", !on);
+      });
       return;
     }
 
