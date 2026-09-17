@@ -20,8 +20,8 @@ export const GUA_HOME_MARKUP = `
         <section class="mockup-block" data-pen-id="76102:40872-carrusel">
           <section aria-label="Banners">
             <div class="carousel-container oky-flow-banner-track">
-              <div class="carousel-banner"><img src="oky-banner-2.png" alt="POPS · 15% OFF" /></div>
               <div class="carousel-banner"><img src="oky-banner-1.png" alt="Promo Verano" /></div>
+              <div class="carousel-banner"><img src="oky-banner-2.png" alt="POPS · 15% OFF" /></div>
             </div>
           </section>
         </section>

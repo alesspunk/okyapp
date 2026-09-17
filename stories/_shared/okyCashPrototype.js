@@ -126,7 +126,7 @@ const CARD_DESIGNS = [
       backgroundMode: "solid",
       /* El color va debajo del arte: si por el recorte o el redondeo
          asoma un píxel, es del color de la tarjeta y no del fondo. */
-      backgroundColor: "url(oky-card-design-black.png) center/cover no-repeat #000000",
+      backgroundColor: "url(oky-card-design-black.png) center/85% no-repeat #000000",
       showBorder: false,
       pattern: null,
     },
@@ -166,9 +166,26 @@ const CARD_DESIGNS = [
   {
     key: "purple",
     label: "Morado OKY",
-    note: "El morado de siempre, el de la marca que ya conoces.",
-    art: "oky-card-coins-swirl-light.png",
-    style: { backgroundMode: "solid", backgroundColor: "#410d86", borderColor: "#410d86" },
+    /* Sin arte encima (95277:34771): el morado liso deja el saldo
+       completamente limpio, que es justo lo que la hace distinta. */
+    note: "El morado de siempre, liso, para que el saldo se lea de lejos.",
+    art: null,
+    style: { backgroundMode: "solid", backgroundColor: "#5a289b", borderColor: "#5a289b" },
+  },
+  {
+    key: "coins",
+    label: "Ola de monedas",
+    note: "Una ola de monedas cruzando el negro: lo que se va juntando.",
+    /* La cinta va en su sitio del frame (95300:3952): a media altura,
+       de lado a lado, sin tocar el saldo ni el CTA. */
+    art: "oky-card-coins-band.png",
+    artClass: "is-band",
+    style: {
+      backgroundMode: "solid",
+      backgroundColor: "#000000",
+      showBorder: false,
+      pattern: null,
+    },
   },
 ];
 
@@ -710,7 +727,6 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
 const TOUR_STEPS = [
   { target: ".header-icon-bitmap-wallet-wrap", label: "Tu wallet" },
   { target: ".oky-flow-home .tactic-strip", label: "Ofertas del día" },
-  { target: ".oky-flow-home .oky-flow-cash-strip", label: "Tu OKY Cash" },
   { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Tu actividad" },
 ];
 
@@ -3002,8 +3018,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const arrow = tour.querySelector(".oky-flow-tour-arrow");
 
     const put = () => {
-      const box = frame.getBoundingClientRect();
-      const zoom = box.height / frame.offsetHeight || 1;
+      /* Se mide contra la propia capa del recorrido, no contra el
+         frame: en desktop el frame lleva el bisel del teléfono y su
+         caja arranca 12px antes que la del contenido, que es donde
+         vive el agujero. Medir con el frame corría todo ese bisel. */
+      const box = tour.getBoundingClientRect();
+      const zoom = box.height / tour.offsetHeight || 1;
       const t = target.getBoundingClientRect();
       /* Justo lo que ocupa el elemento, con un respiro de 6px: el hueco
          tiene que leerse como ese elemento y no como una mancha. */
@@ -3020,8 +3040,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (!call) return;
       /* La llamada va debajo de lo señalado si cabe, y si no encima; la
          flecha apunta siempre hacia el elemento. */
-      const frameH = frame.offsetHeight;
-      const frameW = frame.offsetWidth;
+      const frameH = tour.offsetHeight;
+      const frameW = tour.offsetWidth;
       const below = top + h + 150 < frameH;
       call.classList.toggle("is-below", below);
       if (arrow) arrow.className = `fa-solid ${below ? "fa-arrow-up" : "fa-arrow-down"} oky-flow-tour-arrow`;
@@ -3032,8 +3052,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     };
 
     /* Lo que queda fuera de pantalla se sube antes de medir. */
-    const box = frame.getBoundingClientRect();
-    const zoom = box.height / frame.offsetHeight || 1;
+    const box = tour.getBoundingClientRect();
+    const zoom = box.height / tour.offsetHeight || 1;
     const t = target.getBoundingClientRect();
     if (scroll && (t.top < box.top || t.bottom > box.bottom - 40)) {
       scroll.scrollTo({ top: scroll.scrollTop + (t.top - box.top) / zoom - 170, behavior: "auto" });
@@ -3644,7 +3664,21 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "remove-item") {
+      /* El mercado se decide por lo que hay en el carrito, así que hay
+         que preguntarlo antes de vaciarlo. */
+      const market = orderCountry(state);
       state.cart = state.cart.filter((item) => item.productKey !== el.dataset.product);
+      state.checkoutIndex = clamp(state.checkoutIndex, 0, Math.max(state.cart.length - 1, 0));
+      if (!state.cart.length) {
+        /* Sin nada que pagar el checkout no tiene de qué hablar: se
+           cierra el carrito y se vuelve a la tienda de ese mercado. */
+        state.cartOpen = false;
+        state.okyCashEnabled = false;
+        state.okyCashApplied = 0;
+        if (state.screen === "checkout" || state.screen === "methods") {
+          return go(market === "gua" ? "homegua" : "home");
+        }
+      }
       return render();
     }
 

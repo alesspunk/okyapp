@@ -6936,6 +6936,20 @@ body {
   object-fit: cover;
 }
 
+/* La cinta de monedas del diseño "Ola de monedas" no es una foto que
+   rellena la caja del arte: ocupa su lugar exacto del frame (4/80 de
+   316x53 sobre 328x214) y va entera, sin recortes. */
+.payment-card-art.is-band {
+  left: 1.22%;
+  top: 37.38%;
+  width: 96.34%;
+  height: 24.87%;
+}
+
+.payment-card-art.is-band img {
+  object-fit: contain;
+}
+
 /* header: logo · spacer · saldo / dígitos */
 .payment-card-header {
   position: relative;
