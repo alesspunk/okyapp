@@ -362,15 +362,31 @@ const WALLET_EXTRAS = {
      secciones de un elemento cada una no le servían a nadie. */
   /* Tigo no va de muestra: aparece aquí solo cuando se compra, como
      tarjeta nueva. */
-  vales: [{ key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", bg: "#ed761c", count: 1 }],
-  servicios: [{ key: "eegsa", label: "EEGSA", art: "eggsa.webp", bg: "#ffffff", count: 1 }],
+  vales: [
+    { key: "pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp", bg: "#f5c518", count: 1, amount: 12 },
+    { key: "dominosgt", label: "Domino's", art: "dominos.png", bg: "#006aa6", count: 1, amount: 20 },
+    { key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", bg: "#ed761c", count: 1, amount: 15 },
+  ],
+  servicios: [
+    { key: "eegsa", label: "EEGSA", art: "eggsa.webp", bg: "#ffffff", count: 1, amount: 32 },
+    { key: "tigohogar", label: "Tigo Internet Residencial", art: "tigo.webp", bg: "#00377b", count: 1, amount: 45 },
+  ],
 };
 
+/* Un wallet vacío no se puede probar: el mazo arranca como el de
+   alguien que lleva meses usando la app. Dos Krispy Kreme de montos
+   distintos —se compran de a poco—, tres Lyft de viajes sueltos, y
+   una Nike que ya se archivó. Cada tarjeta lleva su propio monto:
+   dentro de una misma marca, dos vales no tienen por qué valer lo
+   mismo. */
 const WALLET_VOUCHERS = [
-  { key: "krispy", label: "Krispy Kreme", art: "oky-card-krispy.png", bg: "#ffffff", live: false },
-  { key: "underarmour", label: "Under Armour", art: "oky-card-underarmour.png", bg: "#ed1b24", live: false },
-  { key: "lyft", label: "Lyft", art: "oky-card-lyft.png", bg: "#1d0c17", live: true },
-  { key: "nike", label: "Nike", art: "oky-card-nike.png", bg: "#ef4c26", live: true },
+  { key: "krispy", label: "Krispy Kreme", art: "oky-card-krispy.png", bg: "#ffffff", live: false, amount: 25 },
+  { key: "krispy-b", label: "Krispy Kreme", art: "oky-card-krispy.png", bg: "#ffffff", live: false, amount: 10 },
+  { key: "lyft", label: "Lyft", art: "oky-card-lyft.png", bg: "#1d0c17", live: true, amount: 15 },
+  { key: "lyft-b", label: "Lyft", art: "oky-card-lyft.png", bg: "#1d0c17", live: true, amount: 25 },
+  { key: "lyft-c", label: "Lyft", art: "oky-card-lyft.png", bg: "#1d0c17", live: true, amount: 8 },
+  { key: "underarmour", label: "Under Armour", art: "oky-card-underarmour.png", bg: "#ed1b24", live: false, amount: 50 },
+  { key: "nike", label: "Nike", art: "oky-card-nike.png", bg: "#ef4c26", live: true, amount: 40 },
 ];
 
 /* Tarjetas tokenizadas. La seleccionada es la que se combina con
@@ -536,8 +552,8 @@ function createInitialState(userType) {
     /* Vales que ya se compartieron y vales archivados (por key). Los dos
        primeros arrancan compartidos para que el filtro de compartidas y
        el sello del vale se vean sin tener que compartir algo antes. */
-    sharedVouchers: ["underarmour", "pollocampero"],
-    archivedVouchers: [],
+    sharedVouchers: ["underarmour", "pollocampero", "lyft-c"],
+    archivedVouchers: ["nike"],
     /* Hoja de confirmación abierta, si hay: {type, key}. */
     sheet: null,
     /* Categoría por la que se filtra la pestaña abierta del wallet;
@@ -1722,7 +1738,10 @@ const CATEGORY_OF = {
   dominos: "comida",
   applebees: "comida",
   krispy: "comida",
+  "krispy-b": "comida",
   pollocampero: "comida",
+  pollogranjero: "comida",
+  dominosgt: "comida",
   nike: "moda",
   adidas: "moda",
   gap: "moda",
@@ -1737,7 +1756,10 @@ const CATEGORY_OF = {
   homedepot: "hogar",
   target: "hogar",
   lyft: "transporte",
+  "lyft-b": "transporte",
+  "lyft-c": "transporte",
   eegsa: "servicios",
+  tigohogar: "servicios",
   tigo: "servicios",
 };
 
@@ -2239,7 +2261,15 @@ function screenVoucher(state) {
 
   const card = PRODUCTS[purchase ? purchase.productKey : state.params.key] ||
     wallet.find((v) => v.key === state.params.key) || { key: state.params.key, label: "", art: "" };
-  const amount = purchase ? purchase.amount : state.amounts[card.key] || BRAND_DEFAULT_AMOUNT;
+  /* Cada vale del wallet lleva su monto: dos gift cards de la misma
+     marca pueden valer distinto, y la del wallet manda sobre el último
+     monto que se haya tecleado en el PDP de esa marca. */
+  const entry = wallet.find((v) => v.key === state.params.key);
+  const amount = purchase
+    ? purchase.amount
+    : entry && entry.amount != null
+      ? entry.amount
+      : state.amounts[card.key] || BRAND_DEFAULT_AMOUNT;
 
   /* Desde "Tus compras" la pantalla es el detalle de la orden; desde
      Mi wallet, el vale de la marca. */
