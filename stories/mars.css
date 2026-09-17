@@ -10920,6 +10920,17 @@ button.tactic-offer {
 /* ── Barra de categorías de Mi wallet ───────────────────── */
 /* Es un navegador: va en scroll horizontal para que quepan categorías
    nuevas sin encoger las que ya están, y cada icono es un botón. */
+/* Y es la navegación principal de la pantalla, así que se queda
+   arriba: la actividad de OKY Cash es larga y bajando se perdía de
+   vista con qué se puede cambiar de pestaña. */
+.oky-flow-wallet-nav {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  background: var(--white);
+  box-shadow: 0 1px 0 var(--border-main, #e3e3e8);
+}
+
 .oky-flow-wallet-nav .plateu-track.is-static {
   width: auto;
   flex-wrap: nowrap;

@@ -363,31 +363,37 @@ const WALLET_EXTRAS = {
   /* Tigo no va de muestra: aparece aquí solo cuando se compra, como
      tarjeta nueva. */
   vales: [
-    { key: "pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp", bg: "#f5c518", count: 1, amount: 12 },
-    { key: "dominosgt", label: "Domino's", art: "dominos.png", bg: "#006aa6", count: 1, amount: 20 },
-    { key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", bg: "#ed761c", count: 1, amount: 15 },
+    { key: "pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp", bg: "#f5c518", count: 2, amounts: [12, 20] },
+    { key: "dominosgt", label: "Domino's", art: "dominos.png", bg: "#006aa6", count: 1, amounts: [20] },
+    { key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", bg: "#ed761c", count: 1, amounts: [15] },
   ],
   servicios: [
-    { key: "eegsa", label: "EEGSA", art: "eggsa.webp", bg: "#ffffff", count: 1, amount: 32 },
-    { key: "tigohogar", label: "Tigo Internet Residencial", art: "tigo.webp", bg: "#00377b", count: 1, amount: 45 },
+    { key: "eegsa", label: "EEGSA", art: "eggsa.webp", bg: "#ffffff", count: 1, amounts: [32] },
+    { key: "tigohogar", label: "Tigo Internet Residencial", art: "tigo.webp", bg: "#00377b", count: 1, amounts: [45] },
   ],
 };
 
 /* Un wallet vacío no se puede probar: el mazo arranca como el de
-   alguien que lleva meses usando la app. Dos Krispy Kreme de montos
-   distintos —se compran de a poco—, tres Lyft de viajes sueltos, y
-   una Nike que ya se archivó. Cada tarjeta lleva su propio monto:
-   dentro de una misma marca, dos vales no tienen por qué valer lo
-   mismo. */
+   alguien que lleva meses usando la app. Los vales de una misma marca
+   no se apilan uno encima de otro —eso sería la misma card repetida—
+   sino que se acumulan en una sola con su contador; `amounts` guarda
+   lo que vale cada uno, y el detalle los recorre de a uno. */
 const WALLET_VOUCHERS = [
-  { key: "krispy", label: "Krispy Kreme", art: "oky-card-krispy.png", bg: "#ffffff", live: false, amount: 25 },
-  { key: "krispy-b", label: "Krispy Kreme", art: "oky-card-krispy.png", bg: "#ffffff", live: false, amount: 10 },
-  { key: "lyft", label: "Lyft", art: "oky-card-lyft.png", bg: "#1d0c17", live: true, amount: 15 },
-  { key: "lyft-b", label: "Lyft", art: "oky-card-lyft.png", bg: "#1d0c17", live: true, amount: 25 },
-  { key: "lyft-c", label: "Lyft", art: "oky-card-lyft.png", bg: "#1d0c17", live: true, amount: 8 },
-  { key: "underarmour", label: "Under Armour", art: "oky-card-underarmour.png", bg: "#ed1b24", live: false, amount: 50 },
-  { key: "nike", label: "Nike", art: "oky-card-nike.png", bg: "#ef4c26", live: true, amount: 40 },
+  { key: "krispy", label: "Krispy Kreme", art: "oky-card-krispy.png", bg: "#ffffff", live: false, amounts: [25, 10] },
+  { key: "lyft", label: "Lyft", art: "oky-card-lyft.png", bg: "#1d0c17", live: true, amounts: [15, 25, 8] },
+  { key: "underarmour", label: "Under Armour", art: "oky-card-underarmour.png", bg: "#ed1b24", live: false, amounts: [50] },
+  { key: "nike", label: "Nike", art: "oky-card-nike.png", bg: "#ef4c26", live: true, amounts: [40] },
 ];
+
+/* El mazo del detalle va de vale en vale, no de marca en marca: una
+   card con contador 3 esconde tres vales, y deslizando se ven los
+   tres con su propio monto. */
+function expandUnits(list) {
+  return list.flatMap((v) => {
+    const amounts = v.amounts && v.amounts.length ? v.amounts : [v.amount];
+    return amounts.map((amount, unit) => ({ ...v, amount, unit }));
+  });
+}
 
 /* Tarjetas tokenizadas. La seleccionada es la que se combina con
    OKY Cash; la otra baja como fila suelta (Figma 99105:41895). */
@@ -552,7 +558,7 @@ function createInitialState(userType) {
     /* Vales que ya se compartieron y vales archivados (por key). Los dos
        primeros arrancan compartidos para que el filtro de compartidas y
        el sello del vale se vean sin tener que compartir algo antes. */
-    sharedVouchers: ["underarmour", "pollocampero", "lyft-c"],
+    sharedVouchers: ["underarmour", "pollocampero"],
     archivedVouchers: ["nike"],
     /* Hoja de confirmación abierta, si hay: {type, key}. */
     sheet: null,
@@ -1738,7 +1744,6 @@ const CATEGORY_OF = {
   dominos: "comida",
   applebees: "comida",
   krispy: "comida",
-  "krispy-b": "comida",
   pollocampero: "comida",
   pollogranjero: "comida",
   dominosgt: "comida",
@@ -1756,8 +1761,6 @@ const CATEGORY_OF = {
   homedepot: "hogar",
   target: "hogar",
   lyft: "transporte",
-  "lyft-b": "transporte",
-  "lyft-c": "transporte",
   eegsa: "servicios",
   tigohogar: "servicios",
   tigo: "servicios",
@@ -1930,6 +1933,7 @@ function walletVouchers(state, section = "gift") {
       const found = owned.find((v) => v.key === purchase.productKey);
       if (found) {
         found.count += 1;
+        found.amounts.push(purchase.amount);
         return;
       }
 
@@ -1941,6 +1945,7 @@ function walletVouchers(state, section = "gift") {
         art: product.art,
         bg: product.bg,
         count: 1,
+        amounts: [purchase.amount],
         live: true,
         /* Recién comprado y todavía sin abrir. */
         isNew: !state.seenVouchers.includes(product.key),
@@ -1951,7 +1956,10 @@ function walletVouchers(state, section = "gift") {
      que esos vienen de WALLET_EXTRAS. */
   const demo =
     section === "gift"
-      ? WALLET_VOUCHERS.filter((v) => !owned.some((o) => o.key === v.key)).map((v) => ({ ...v, count: 1 }))
+      ? WALLET_VOUCHERS.filter((v) => !owned.some((o) => o.key === v.key)).map((v) => ({
+          ...v,
+          count: (v.amounts || []).length || 1,
+        }))
       : [];
 
   return [...owned, ...demo];
@@ -2049,9 +2057,7 @@ function screenWallet(state) {
          tarjeta y nada más, haya saldo o no. Sin estados que separar,
          tampoco hay filtro que ofrecer. */
       isCash
-        ? `<div class="oky-flow-section" style="gap:12px">
-            <div class="oky-flow-card-slot">${renderPaymentCard(okyCashCard(state))}</div>
-          </div>`
+        ? okyCashActivity(state)
         : `
       <div class="oky-flow-wallet-filter">
         <span class="oky-flow-wallet-filter-label">${walletFilterLabel(state)}</span>
@@ -2077,12 +2083,15 @@ function screenWallet(state) {
     `
     }
 
-    ${navbar("", state)}
+    ${navbar(isCash ? "okycash" : "", state)}
   `;
 }
 
-/* ── OKY Cash: destino del coin de la navbar (99135:103474) ─ */
-function screenOkyCash(state) {
+/* ── OKY Cash: la pestaña de saldo de Mi wallet (99135:103474) ─
+   Era una pantalla aparte y enseñaba la misma tarjeta que la pestaña
+   de OKY Cash del wallet, con la actividad debajo. Dos sitios para lo
+   mismo, y el bueno escondido: ahora es el cuerpo de esa pestaña. */
+function okyCashActivity(state) {
   /* Aquí ya estás en la actividad, así que el CTA no lleva a ninguna
      parte: se queda como rótulo, invitando a conocer el programa. */
   const cash = okyCashCard(state, { cta: false, label: "Conoce más" });
@@ -2210,9 +2219,6 @@ function screenOkyCash(state) {
     : `<p class="oky-flow-empty">Todavía no tienes movimientos de OKY Cash.</p>`;
 
   return `
-    ${statusBar()}
-    ${titledHeader("OKY Cash")}
-
     <div class="oky-flow-section" style="gap:16px">
       <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
 
@@ -2230,8 +2236,6 @@ function screenOkyCash(state) {
 
       <div class="oky-flow-history">${rows}</div>
     </div>
-
-    ${navbar("okycash", state)}
   `;
 }
 
@@ -2250,13 +2254,16 @@ function screenVoucher(state) {
      ahí —Krispy Kreme, Under Armour— que no son productos comprables
      y no están en PRODUCTS. */
   const section = state.params.deck || "gift";
-  const wallet = voucherCarousel(state, section, state.params.key);
+  const wallet = expandUnits(voucherCarousel(state, section, state.params.key));
+  const unit = state.params.unit || 0;
   /* Un vale de Pollo Campero no es una gift card: la card lo dice. */
   const kind = { vales: "OKY Vale", servicios: "Servicio" }[section] || "Gift Card";
   const deck = state.params.id
     ? state.lastOrder.map((p) => ({ id: p.id, key: p.productKey }))
     : wallet;
-  const at = deck.findIndex((v) => (state.params.id ? v.id === state.params.id : v.key === state.params.key));
+  const at = deck.findIndex((v) =>
+    state.params.id ? v.id === state.params.id : v.key === state.params.key && v.unit === unit,
+  );
   const many = deck.length > 1;
 
   const card = PRODUCTS[purchase ? purchase.productKey : state.params.key] ||
@@ -2264,7 +2271,7 @@ function screenVoucher(state) {
   /* Cada vale del wallet lleva su monto: dos gift cards de la misma
      marca pueden valer distinto, y la del wallet manda sobre el último
      monto que se haya tecleado en el PDP de esa marca. */
-  const entry = wallet.find((v) => v.key === state.params.key);
+  const entry = wallet.find((v) => v.key === state.params.key && v.unit === unit) || wallet[0];
   const amount = purchase
     ? purchase.amount
     : entry && entry.amount != null
@@ -2779,7 +2786,6 @@ function renderScreen(state) {
     case "cashwin": return screenPurchases(state, { cashWin: true });
     case "purchases": return screenPurchases(state);
     case "wallet": return screenWallet(state);
-    case "okycash": return screenOkyCash(state);
     case "carddesign": return screenCardDesign(state);
     case "homegua": return screenHomeGua(state);
     case "tigopdp": return screenTigoPdp(state);
@@ -3533,8 +3539,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return leavePurchase("wallet");
     }
     if (action === "nav:okycash") {
+      /* La moneda de la navbar, las píldoras de saldo de los dos homes
+         y el CTA de la tarjeta llevan al mismo sitio: la pestaña de
+         OKY Cash de Mi wallet, que es donde vive la actividad. */
       state.cashUnseen = false;
-      return leavePurchase("okycash");
+      state.walletTab = "cash";
+      state.walletFilter = "";
+      state.openBeforeFilter = null;
+      state.openGroups = [];
+      return leavePurchase("wallet");
     }
 
     if (action === "nav:carddesign") {
@@ -3960,12 +3973,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         return go("voucher", { id: next.id }, { push: false });
       }
       const section = state.params.deck || "gift";
-      const list = voucherCarousel(state, section, state.params.key);
-      const at = list.findIndex((v) => v.key === state.params.key);
+      const unit = state.params.unit || 0;
+      const list = expandUnits(voucherCarousel(state, section, state.params.key));
+      const at = list.findIndex((v) => v.key === state.params.key && v.unit === unit);
       const next = list[wrap((at < 0 ? 0 : at) + step, list.length)];
       /* Abrirlo por el carrusel también lo da por visto. */
       if (!state.seenVouchers.includes(next.key)) state.seenVouchers.push(next.key);
-      return go("voucher", { key: next.key, deck: section }, { push: false });
+      return go("voucher", { key: next.key, unit: next.unit, deck: section }, { push: false });
     }
 
     if (action === "select-card") {
