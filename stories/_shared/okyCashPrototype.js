@@ -83,9 +83,6 @@ const PRODUCTS = {
 /* Marcas del Home, con el arte de gift card que ya vive en images/.
    Todas abren el mismo PDP que Nike y Lyft —monto editable, ribbon de
    cashback y "Agregar"— arrancando en $5.00. */
-/* Cashback del bloque de Deportes & Apparel. */
-const APPAREL_RATE = 10;
-
 const BRANDS = {
   googleplay: { label: "Google Play", art: "google.webp", bg: "#ffffff", rate: 5 },
   starbucks: { label: "Starbucks", art: "starbucks.webp", bg: "#ffffff", rate: 10 },
@@ -107,11 +104,11 @@ const BRANDS = {
   /* Marcas del strip de moda. Gap y Old Navy no tienen arte de gift
      card en el repo: van con una card de texto en images/ —fácil de
      reemplazar por la buena en cuanto exista. */
-  /* Deportes & Apparel se anuncia como un solo bloque, así que las tres
-     pagan lo mismo y el ribbon vive en la cabecera de la card. */
-  adidas: { label: "Adidas", art: "adidas.png", bg: "#1c1919", rate: APPAREL_RATE },
-  gap: { label: "Gap", art: "brand-gap.svg", bg: "#0b2a4a", rate: APPAREL_RATE },
-  oldnavy: { label: "Old Navy", art: "brand-oldnavy.svg", bg: "#12284c", rate: APPAREL_RATE },
+  /* Deportes & Apparel se anuncia como bloque: cada marca conserva su
+     tasa y la card enseña la mejor de las tres. */
+  adidas: { label: "Adidas", art: "adidas.png", bg: "#1c1919", rate: 9 },
+  gap: { label: "Gap", art: "brand-gap.svg", bg: "#0b2a4a", rate: 8 },
+  oldnavy: { label: "Old Navy", art: "brand-oldnavy.svg", bg: "#12284c", rate: 10 },
 };
 
 /* Diseños de la tarjeta de OKY Cash (Figma 99135:103902). La molécula
@@ -711,40 +708,29 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
    apunta a algo que ya está en pantalla; el texto dice para qué sirve,
    no qué es. */
 const TOUR_STEPS = [
-  {
-    target: ".header-icon-bitmap-wallet-wrap",
-    title: "Tu wallet",
-    note: "Aquí guardas tus gift cards y tu saldo.",
-    place: "below",
-  },
-  {
-    target: ".oky-flow-home .tactic-strip",
-    title: "Ofertas con reloj",
-    note: "El cashback más alto, por tiempo limitado.",
-    place: "below",
-  },
-  {
-    target: ".oky-flow-home .oky-flow-cash-strip",
-    title: "Tu OKY Cash",
-    note: "Lo que ganas, listo para gastar.",
-    place: "below",
-  },
-  {
-    target: ".oky-flow-navbar .nav-item.is-dim + .nav-item, .oky-flow-navbar [data-action='nav:okycash']",
-    title: "Cuenta la historia",
-    note: "Mira cuánto ganaste y con qué marca.",
-    place: "above",
-  },
+  { target: ".header-icon-bitmap-wallet-wrap", label: "Tu wallet" },
+  { target: ".oky-flow-home .tactic-strip", label: "Ofertas del día" },
+  { target: ".oky-flow-home .oky-flow-cash-strip", label: "Tu OKY Cash" },
+  { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Tu actividad" },
 ];
 
 /* Lluvia de banderas al entrar a USA por primera vez: un guiño corto,
    que se quita solo. */
 function usaIntro() {
-  const flags = Array.from({ length: 14 }, (_, i) => {
-    const left = 4 + (i * 92) % 92;
-    const delay = (i % 7) * 90;
-    const size = 26 + ((i * 7) % 16);
-    return `<span class="oky-flow-flagrise-item" style="left:${left}%;width:${size}px;animation-delay:${delay}ms"></span>`;
+  /* Muchas, pequeñas y rápidas: la gracia está en la cantidad y en que
+     no salgan todas a la vez ni a la misma velocidad. */
+  const rnd = (seed) => {
+    const x = Math.sin(seed * 12.9898) * 43758.5453;
+    return x - Math.floor(x);
+  };
+  const flags = Array.from({ length: 52 }, (_, i) => {
+    const left = rnd(i + 1) * 100;
+    const size = 14 + rnd(i + 31) * 30;
+    const delay = rnd(i + 61) * 620;
+    const dur = 900 + rnd(i + 91) * 700;
+    const drift = (rnd(i + 121) - 0.5) * 90;
+    const spin = (rnd(i + 151) - 0.5) * 70;
+    return `<span class="oky-flow-flagrise-item" style="left:${left.toFixed(2)}%;width:${size.toFixed(0)}px;animation-delay:${delay.toFixed(0)}ms;animation-duration:${dur.toFixed(0)}ms;--drift:${drift.toFixed(0)}px;--spin:${spin.toFixed(0)}deg"></span>`;
   }).join("");
   return `<div class="oky-flow-flagrise" aria-hidden="true">${flags}</div>`;
 }
@@ -755,27 +741,19 @@ function usaIntro() {
 function tourOverlay(state) {
   const step = TOUR_STEPS[state.tourStep];
   if (!step) return "";
-  const last = state.tourStep === TOUR_STEPS.length - 1;
+  /* Cuatro paneles dejan el hueco sobre lo que se señala —el elemento
+     es el de verdad, no una copia— y encima solo va una flecha y una
+     línea. Se toca donde sea para pasar. */
   return `
-    <div class="oky-flow-tour" data-action="tour-next" role="dialog" aria-modal="true" aria-label="${step.title}">
+    <div class="oky-flow-tour" data-action="tour-next" role="dialog" aria-modal="true" aria-label="${step.label}">
       <span class="oky-flow-tour-panel is-top"></span>
       <span class="oky-flow-tour-panel is-bottom"></span>
       <span class="oky-flow-tour-panel is-left"></span>
       <span class="oky-flow-tour-panel is-right"></span>
-      <span class="oky-flow-tour-ring" aria-hidden="true"></span>
-      <div class="oky-flow-tour-bubble is-${step.place}">
-        <p class="oky-flow-tour-title">${step.title}</p>
-        <p class="oky-flow-tour-note">${step.note}</p>
-        <div class="oky-flow-tour-foot">
-          <span class="oky-flow-tour-dots" aria-hidden="true">
-            ${TOUR_STEPS.map((_, i) => `<span class="${i === state.tourStep ? "is-on" : ""}"></span>`).join("")}
-          </span>
-          <button class="oky-flow-tour-next" data-action="tour-next" type="button">
-            ${last ? "Listo" : "Siguiente"}
-          </button>
-        </div>
+      <div class="oky-flow-tour-call">
+        <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
+        <p class="oky-flow-tour-label">${step.label}</p>
       </div>
-      ${last ? "" : `<button class="oky-flow-tour-skip" data-action="tour-end" type="button">Saltar</button>`}
     </div>
   `;
 }
@@ -967,7 +945,9 @@ function screenHome(state) {
         <header class="homecard-header">
           <h3 class="token-h6 homecard-title">Deportes &amp; Apparel</h3>
           <div class="discount-ribbon discount-ribbon-wrap is-tier-base oky-flow-apparel-ribbon">
-            <span class="discount-ribbon-text token-price-percent">Gana ${APPAREL_RATE}%</span>
+            <span class="discount-ribbon-text token-price-percent">Gana hasta ${Math.max(
+              ...STYLE_CARDS.map((c) => BRANDS[c.key].rate),
+            )}%</span>
           </div>
         </header>
 
@@ -3009,12 +2989,16 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (!target || !frame) return;
 
     const scroll = root.querySelector(".oky-flow-scroll");
-    const box = frame.getBoundingClientRect();
-    const zoom = box.height / frame.offsetHeight || 1;
+    const call = tour.querySelector(".oky-flow-tour-call");
+    const arrow = tour.querySelector(".oky-flow-tour-arrow");
 
     const put = () => {
+      const box = frame.getBoundingClientRect();
+      const zoom = box.height / frame.offsetHeight || 1;
       const t = target.getBoundingClientRect();
-      const pad = 8;
+      /* Justo lo que ocupa el elemento, con un respiro de 6px: el hueco
+         tiene que leerse como ese elemento y no como una mancha. */
+      const pad = 6;
       const top = (t.top - box.top) / zoom - pad;
       const left = (t.left - box.left) / zoom - pad;
       const w = t.width / zoom + pad * 2;
@@ -3023,27 +3007,28 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       tour.style.setProperty("--hole-left", `${left}px`);
       tour.style.setProperty("--hole-w", `${w}px`);
       tour.style.setProperty("--hole-h", `${h}px`);
-      /* El globo se centra bajo el hueco y se guarda dentro del marco. */
-      const bubble = tour.querySelector(".oky-flow-tour-bubble");
-      if (bubble) {
-        const bw = bubble.offsetWidth;
-        const frameW = frame.offsetWidth;
-        const cx = left + w / 2;
-        bubble.style.left = `${clamp(cx - bw / 2, 12, frameW - bw - 12)}px`;
-        bubble.style.top = step.place === "above" ? "" : `${top + h + 14}px`;
-        bubble.style.bottom =
-          step.place === "above" ? `${frame.offsetHeight - top + 14}px` : "";
-      }
+
+      if (!call) return;
+      /* La llamada va debajo de lo señalado si cabe, y si no encima; la
+         flecha apunta siempre hacia el elemento. */
+      const frameH = frame.offsetHeight;
+      const frameW = frame.offsetWidth;
+      const below = top + h + 150 < frameH;
+      call.classList.toggle("is-below", below);
+      if (arrow) arrow.className = `fa-solid ${below ? "fa-arrow-up" : "fa-arrow-down"} oky-flow-tour-arrow`;
+      const cw = call.offsetWidth;
+      call.style.left = `${clamp(left + w / 2 - cw / 2, 12, Math.max(12, frameW - cw - 12))}px`;
+      call.style.top = below ? `${top + h + 16}px` : "";
+      call.style.bottom = below ? "" : `${frameH - top + 16}px`;
     };
 
-    /* Lo que queda fuera de pantalla se sube antes de medir; lo que ya
-       se ve, se mide donde está. En los dos casos se coloca en el acto
-       y se repasa en el cuadro siguiente, por si el scroll movió algo. */
+    /* Lo que queda fuera de pantalla se sube antes de medir; en los dos
+       casos se coloca en el acto y se repasa en el cuadro siguiente. */
+    const box = frame.getBoundingClientRect();
+    const zoom = box.height / frame.offsetHeight || 1;
     const t = target.getBoundingClientRect();
-    const fuera = t.top < box.top || t.bottom > box.bottom - 40;
-    if (scroll && fuera) {
-      const delta = (t.top - box.top) / zoom - 150;
-      scroll.scrollTo({ top: scroll.scrollTop + delta, behavior: "auto" });
+    if (scroll && (t.top < box.top || t.bottom > box.bottom - 40)) {
+      scroll.scrollTo({ top: scroll.scrollTop + (t.top - box.top) / zoom - 150, behavior: "auto" });
     }
     put();
     requestAnimationFrame(put);
