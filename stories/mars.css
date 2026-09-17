@@ -12312,3 +12312,40 @@ img.oky-flow-method-mark {
 .oky-flow-gua-pdp .pdp-page-brand-slot {
   pointer-events: none;
 }
+
+/* ── Latido del punto del carrito ───────────────────────── */
+/* El aviso de "tienes algo en el carrito" pulsa en vez de quedarse
+   quieto: un anillo del mismo rojo que se abre y se desvanece por
+   detrás del punto. Vale para las dos homes y para el header de
+   producto, en USA y en Guatemala. */
+.header-icon-bitmap-cart .header-icon-indicator-dot::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -1px;
+  border-radius: 50%;
+  background: #ff2d1f;
+  animation: oky-cart-pulse 1.8s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+
+@keyframes oky-cart-pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-icon-bitmap-cart .header-icon-indicator-dot::after {
+    animation: none;
+    opacity: 0;
+  }
+}
