@@ -1388,7 +1388,6 @@ function screenMethods(state) {
   const keep = Math.max(state.okyCashBalance - applied, 0);
 
   const selected = CARDS.find((c) => c.key === state.selectedCard) || CARDS[0];
-  const others = CARDS.filter((c) => c.key !== selected.key);
 
   const top = { ...findPaymentCard(selected.variant) };
   const cash = okyCashCard(state, { balance: keep });
@@ -1411,46 +1410,40 @@ function screenMethods(state) {
         ${hasCash ? renderPaymentCard(cash) : ""}
       </div>
 
-      <div class="oky-flow-method-group" style="width:100%;padding-top:8px">
-        <div class="oky-flow-method-row ${hasCash ? "is-selected" : "is-selected is-only"}">
-          <span class="oky-flow-radio is-on" aria-hidden="true"></span>
-          <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
-          <p class="oky-flow-method-name">${selected.label}</p>
-          <span class="oky-flow-chip is-card">${money(toCard)}</span>
-        </div>
+      <div class="oky-flow-method-list" style="width:100%">
+        ${CARDS.map((card) => {
+          const isSelected = card.key === selected.key;
+          /* La lista no se reordena al elegir: cada tarjeta se queda en
+             su sitio y lo que se mueve es el radio. La fila de OKY Cash
+             acompaña a la que esté seleccionada. */
+          const row = `
+            <div class="oky-flow-method-row${isSelected ? ` is-selected${hasCash ? "" : " is-only"}` : ""}"
+              ${isSelected ? "" : `data-action="select-card" data-card="${card.key}" role="button" tabindex="0"`}>
+              <span class="oky-flow-radio${isSelected ? " is-on" : ""}" aria-hidden="true"></span>
+              <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
+              <p class="oky-flow-method-name${isSelected ? "" : " is-regular"}">${card.label}</p>
+              ${isSelected ? `<span class="oky-flow-chip is-card">${money(toCard)}</span>` : ""}
+            </div>
+          `;
 
-        ${
-          !hasCash
-            ? ""
-            : `
-        <div class="oky-flow-method-row is-cash">
-          <div class="oky-flow-method-head">
-            <button class="oky-flow-check${state.okyCashEnabled ? " is-checked" : ""}"
-              data-action="toggle-okycash" type="button"
-              aria-pressed="${state.okyCashEnabled}" aria-label="Usar OKY Cash">
-              <i class="fa-solid fa-check" aria-hidden="true"></i>
-            </button>
-            <img class="oky-flow-coin" src="oky-cash-coin.png" alt="" style="width:24px;height:26px" />
-            <p class="oky-flow-method-label">OKY Cash</p>
-            <span class="oky-flow-chip is-cash">${money(applied)}</span>
-          </div>
-        </div>
-        `
-        }
+          const cashRow = `
+            <div class="oky-flow-method-row is-cash">
+              <div class="oky-flow-method-head">
+                <button class="oky-flow-check${state.okyCashEnabled ? " is-checked" : ""}"
+                  data-action="toggle-okycash" type="button"
+                  aria-pressed="${state.okyCashEnabled}" aria-label="Usar OKY Cash">
+                  <i class="fa-solid fa-check" aria-hidden="true"></i>
+                </button>
+                <img class="oky-flow-coin" src="oky-cash-coin.png" alt="" style="width:24px;height:26px" />
+                <p class="oky-flow-method-label">OKY Cash</p>
+                <span class="oky-flow-chip is-cash">${money(applied)}</span>
+              </div>
+            </div>
+          `;
+
+          return `<div class="oky-flow-method-group">${row}${isSelected && hasCash ? cashRow : ""}</div>`;
+        }).join("")}
       </div>
-
-      ${others
-        .map(
-          (card) => `
-        <div class="oky-flow-method-row" style="width:100%;margin-top:8px"
-          data-action="select-card" data-card="${card.key}" role="button" tabindex="0">
-          <span class="oky-flow-radio" aria-hidden="true"></span>
-          <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
-          <p class="oky-flow-method-name is-regular">${card.label}</p>
-        </div>
-      `,
-        )
-        .join("")}
     </div>
 
     <div class="oky-flow-cta-bar">
@@ -1868,7 +1861,7 @@ function screenWallet(state) {
           <i class="fa-solid ${icon}" aria-hidden="true"></i>${label}${
             /* El contador va pegado al título; el saldo de OKY Cash no,
                que ese es un importe y vive en su chip. */
-            meta && !chip ? ` (${meta})` : ""
+            meta && !chip ? ` <span class="oky-flow-section-count">(${meta})</span>` : ""
           }
         </span>
         <span class="oky-flow-section-head-meta">

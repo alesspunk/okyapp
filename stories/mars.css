@@ -7922,6 +7922,12 @@ body {
   border-top: 0;
 }
 
+/* Solo el número entre paréntesis toma el morado de marca: el rótulo
+   de la sección se queda en su gris. */
+.oky-flow-section-count {
+  color: var(--primary-main);
+}
+
 /* El aviso de novedades: un círculo rojo con el número, del alto del
    chip de OKY Cash para que los dos caigan en la misma vertical. */
 .oky-flow-section-news {
@@ -7979,6 +7985,16 @@ body {
 }
 
 /* ── Selector de métodos de pago (pantalla dedicada) ────── */
+/* Las tarjetas guardan su sitio en la lista: elegir una mueve el radio,
+   no el orden. */
+.oky-flow-method-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  box-sizing: border-box;
+}
+
 .oky-flow-method-group {
   width: 100%;
   box-sizing: border-box;
