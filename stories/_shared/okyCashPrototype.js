@@ -2512,8 +2512,10 @@ function screenHomeGua(state) {
   );
 
   return `
-    ${homeHeader(state, "State 1")}
-    <div class="oky-flow-gua">${body}</div>
+    <div class="oky-flow-guahome">
+      ${homeHeader(state, state.headerCollapsed ? "State 3" : "State 1")}
+      <div class="oky-flow-gua">${body}</div>
+    </div>
 
     <button class="oky-flow-scroll-hint" data-action="scroll-more" type="button"
       aria-label="Ver más contenido">

@@ -10053,7 +10053,10 @@ button.tactic-offer {
 
 /* El Discovery Header se queda arriba mientras se scrollea el home:
    así el folder colapsado y el buscador siguen a mano. */
-.oky-flow-frame .oky-flow-home .discovery-header-organism {
+/* El home de Guatemala se comporta igual que el de USA: mismo
+   organismo, mismo enganche al scroll. */
+.oky-flow-frame .oky-flow-home .discovery-header-organism,
+.oky-flow-frame .oky-flow-guahome .discovery-header-organism {
   position: sticky;
   top: 0;
   z-index: 40;
@@ -10064,14 +10067,16 @@ button.tactic-offer {
 
 /* El alto se interpola mientras se cambia de State: sin esto el header
    pega un tirón de 100px y el contenido de abajo con él. */
-.oky-flow-frame .oky-flow-home .discovery-header-organism.is-swapping {
+.oky-flow-frame .oky-flow-home .discovery-header-organism.is-swapping,
+.oky-flow-frame .oky-flow-guahome .discovery-header-organism.is-swapping {
   overflow: hidden;
   transition: height 240ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* Y lo que vuelve —wallet, logo y carrito— entra desde arriba en vez de
    aparecer de golpe a media animación. */
-.oky-flow-frame .oky-flow-home .discovery-header-organism.is-swapping .app-header {
+.oky-flow-frame .oky-flow-home .discovery-header-organism.is-swapping .app-header,
+.oky-flow-frame .oky-flow-guahome .discovery-header-organism.is-swapping .app-header {
   animation: oky-flow-header-in 240ms cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
@@ -10088,7 +10093,9 @@ button.tactic-offer {
 
 @media (prefers-reduced-motion: reduce) {
   .oky-flow-frame .oky-flow-home .discovery-header-organism.is-swapping,
-  .oky-flow-frame .oky-flow-home .discovery-header-organism.is-swapping .app-header {
+  .oky-flow-frame .oky-flow-home .discovery-header-organism.is-swapping .app-header,
+  .oky-flow-frame .oky-flow-guahome .discovery-header-organism.is-swapping,
+  .oky-flow-frame .oky-flow-guahome .discovery-header-organism.is-swapping .app-header {
     transition: none;
     animation: none;
   }
@@ -10096,7 +10103,8 @@ button.tactic-offer {
 
 /* Ya scrolleado el header se despega del degradado, así que se pinta
    su propio fondo para que el contenido no se le vea por detrás. */
-.oky-flow-frame.is-header-collapsed .oky-flow-home .discovery-header-organism {
+.oky-flow-frame.is-header-collapsed .oky-flow-home .discovery-header-organism,
+.oky-flow-frame.is-header-collapsed .oky-flow-guahome .discovery-header-organism {
   background: var(--white);
 }
 
@@ -17384,8 +17392,10 @@ function screenHomeGua(state) {
   );
 
   return `
-    ${homeHeader(state, "State 1")}
-    <div class="oky-flow-gua">${body}</div>
+    <div class="oky-flow-guahome">
+      ${homeHeader(state, state.headerCollapsed ? "State 3" : "State 1")}
+      <div class="oky-flow-gua">${body}</div>
+    </div>
 
     <button class="oky-flow-scroll-hint" data-action="scroll-more" type="button"
       aria-label="Ver más contenido">
