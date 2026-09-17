@@ -122,7 +122,9 @@ const CARD_DESIGNS = [
     art: null,
     style: {
       backgroundMode: "solid",
-      backgroundColor: "url(oky-card-design-black.png) center/cover no-repeat",
+      /* El color va debajo del arte: si por el recorte o el redondeo
+         asoma un píxel, es del color de la tarjeta y no del fondo. */
+      backgroundColor: "url(oky-card-design-black.png) center/cover no-repeat #000000",
       showBorder: false,
       pattern: null,
     },
@@ -137,7 +139,7 @@ const CARD_DESIGNS = [
     art: null,
     style: {
       backgroundMode: "solid",
-      backgroundColor: "url(oky-card-design-bubbles.png) center/cover no-repeat",
+      backgroundColor: "url(oky-card-design-bubbles.png) center/cover no-repeat #7034ab",
       showBorder: false,
       pattern: null,
     },
@@ -508,9 +510,6 @@ function createInitialState(userType) {
        el sello del vale se vean sin tener que compartir algo antes. */
     sharedVouchers: ["underarmour", "pollocampero"],
     archivedVouchers: [],
-    /* El modal de archivar explica a dónde va el vale; una vez visto,
-       archivar es directo y se puede deshacer desde el aviso. */
-    archiveExplained: false,
     /* Hoja de confirmación abierta, si hay: {type, key}. */
     sheet: null,
     /* Categoría por la que se filtra Mi wallet; vacío es "todas". */
@@ -2402,7 +2401,7 @@ const CONFIRM_SHEETS = {
   archive: {
     art: "oky-archive-hands.png",
     title: "¿Deseas archivarla?",
-    note: "Te sugerimos archivar. Podrás verla en tus archivados cuando quieras.",
+    note: "Te sugerimos archivar. Puedes verla nuevamente al filtrar por archivados.",
     confirm: "Archivar",
     dismiss: "Ahora no",
     action: "confirm-archive",
@@ -3535,18 +3534,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "ask-archive") {
-      const key = el.dataset.key;
-      /* La primera vez se explica a dónde va; después se archiva y se
-         ofrece deshacer, que es más rápido y igual de seguro. */
-      if (!state.archiveExplained) {
-        state.sheet = { type: "archive", key };
-        return render();
-      }
-      return archiveVoucher(key);
+      /* El aviso sale cada vez que se pulsa Archivar, sea el vale que
+         sea: archivar saca la tarjeta de su sección y conviene decir a
+         dónde va antes de hacerlo. */
+      state.sheet = { type: "archive", key: el.dataset.key };
+      return render();
     }
 
     if (action === "confirm-archive") {
-      state.archiveExplained = true;
       const key = el.dataset.key;
       state.sheet = null;
       return archiveVoucher(key);
