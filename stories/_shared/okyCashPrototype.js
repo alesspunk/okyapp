@@ -938,6 +938,9 @@ function screenHome(state) {
           <div class="homecard-content oky-flow-brand-grid">
             ${section.keys.map((key) => brandCard(key)).join("")}
           </div>
+          <footer class="homecard-footer">
+            <span class="btn btn-primary btn-small">Ver más</span>
+          </footer>
         </section>
       `,
       ).join("")}

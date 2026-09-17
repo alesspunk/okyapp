@@ -12228,18 +12228,21 @@ button.tactic-offer {
 /* ── Deportes & Apparel: Home Card With Photo ───────────── */
 /* Misma variante del sistema; lo único que cambia es el fondo, que en
    el frame va con el degradado plateado en vez de blanco plano. */
-.oky-flow-frame .oky-flow-apparel {
+/* Todas las Home Cards del prototipo van sobre el mismo degradado
+   plateado, no solo la de Deportes & Apparel. */
+.oky-flow-frame .homecard-organism {
   background: radial-gradient(50% 50% at 50% 50%, #ffffff 0%, #f1f2f5 100%);
   border: 1px solid rgba(0, 0, 0, 0.231373);
   border-radius: 12px;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  padding-bottom: 16px;
 }
 
 /* Las capas de dentro venían pintadas de blanco y tapaban el degradado. */
-.oky-flow-frame .oky-flow-apparel .homecard-content,
-.oky-flow-frame .oky-flow-apparel .homecard-content-photo,
-.oky-flow-frame .oky-flow-apparel .homecard-photo-track,
-.oky-flow-frame .oky-flow-apparel .homecard-photo-item {
+.oky-flow-frame .homecard-organism .homecard-content,
+.oky-flow-frame .homecard-organism .homecard-content-photo,
+.oky-flow-frame .homecard-organism .homecard-photo-track,
+.oky-flow-frame .homecard-organism .homecard-photo-item {
   background: transparent;
 }
 
@@ -15768,6 +15771,9 @@ function screenHome(state) {
           <div class="homecard-content oky-flow-brand-grid">
             ${section.keys.map((key) => brandCard(key)).join("")}
           </div>
+          <footer class="homecard-footer">
+            <span class="btn btn-primary btn-small">Ver más</span>
+          </footer>
         </section>
       `,
       ).join("")}
