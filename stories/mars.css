@@ -7652,6 +7652,20 @@ body {
   display: block;
 }
 
+/* Lo archivado se ve apagado dentro de su sección. El fondo del botón
+   pasa a blanco opaco antes de lavar el arte: si no, el PNG se
+   transparenta sobre el color de marca que lleva el propio botón y la
+   card archivada sale teñida en vez de apagada. */
+.oky-flow-voucher.is-archived {
+  background: var(--white) !important;
+  border-color: var(--white) !important;
+}
+
+.oky-flow-voucher.is-archived img {
+  filter: grayscale(0.7);
+  opacity: 0.55;
+}
+
 /* El borde va en una capa por encima del arte. Como inset del propio
    botón quedaba tapado —la imagen llena la card y se pinta después que
    la sombra interior— y no se veía ni uno de los dos píxeles. */
@@ -7753,24 +7767,47 @@ body {
 /* Cuando la cabecera pliega —solo en Mi wallet— es una fila entera que
    se puede tocar, con el rótulo a la izquierda y lo que resume la
    sección a la derecha, pegado al chevron. */
+/* Ahora que es la navegación por estado y no un rótulo decorado, se
+   comporta como un control: alto de pulsación cómodo (56px, por encima
+   del mínimo de 44 de las guías táctiles), borde que dibuja el área
+   que responde, y el estado abierto se distingue del cerrado sin tener
+   que mirar el chevron. */
 .oky-flow-section-head[data-action="toggle-section"] {
+  position: relative;
   width: 100%;
   box-sizing: border-box;
   justify-content: space-between;
   gap: 12px;
   height: auto;
-  min-height: 44px;
-  padding: 0 12px 0 16px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--grey-100, #f5f5f7);
-  color: rgba(0, 0, 0, 0.56);
+  min-height: 56px;
+  padding: 0 14px 0 16px;
+  border: 1px solid var(--border-main, #e3e3e8);
+  border-radius: 14px;
+  background: var(--white);
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.62);
   cursor: pointer;
-  transition: background 160ms ease-out;
+  transition:
+    background 160ms ease-out,
+    border-color 160ms ease-out;
+}
+
+.oky-flow-section-head[data-action="toggle-section"][aria-expanded="true"] {
+  border-color: #d9cdee;
+  background: var(--grey-100, #f5f5f7);
+}
+
+.oky-flow-section-head[data-action="toggle-section"]:hover {
+  border-color: #cdbfe6;
 }
 
 .oky-flow-section-head[data-action="toggle-section"]:active {
   background: #ececf1;
+}
+
+.oky-flow-section-head[data-action="toggle-section"]:focus-visible {
+  outline: 2px solid var(--primary-main);
+  outline-offset: 2px;
 }
 
 .oky-flow-section-head-label,
@@ -7949,28 +7986,41 @@ body {
   border-top: 0;
 }
 
-/* Solo el número entre paréntesis toma el morado de marca: el rótulo
-   de la sección se queda en su gris. */
+/* El contador vuelve a la derecha, justo antes del chevron: ahí es un
+   dato de la sección y no una coletilla del título. Solo el número
+   toma el morado de marca. */
 .oky-flow-section-count {
+  font-family: "Lato", sans-serif;
+  font-size: 13px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
   color: var(--primary-main);
 }
 
-/* El aviso de novedades: un círculo rojo con el número, del alto del
-   chip de OKY Cash para que los dos caigan en la misma vertical. */
+/* El aviso de novedades va montado en la esquina de la sección, como
+   el punto de una app: dice "aquí hay algo nuevo" de un vistazo, sin
+   competir con el contador de la derecha, que es otro dato. Pequeño,
+   porque el número rara vez pasa de un dígito. */
 .oky-flow-section-news {
-  flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
+  position: absolute;
+  top: -6px;
+  left: -4px;
+  z-index: 1;
+  min-width: 18px;
+  height: 18px;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  padding: 0 5px;
+  border: 2px solid var(--white);
+  border-radius: 999px;
   background: var(--error-main);
   font-family: "Lato", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.15px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
   color: var(--white);
 }
 
@@ -10894,6 +10944,13 @@ button.tactic-offer {
   cursor: pointer;
   scroll-snap-align: start;
   gap: 6px;
+}
+
+/* La pestaña abierta se marca también en el icono, no solo en el chip
+   del rótulo: el chip queda abajo y de un vistazo se mira el icono. */
+.oky-flow-wallet-nav .plateu-item.is-on .plateu-icon-wrap {
+  background: var(--primary-lightest, #f1ebf9);
+  box-shadow: inset 0 0 0 2px var(--primary-main);
 }
 
 .oky-flow-wallet-nav .plateu-item:active .plateu-icon-wrap {
