@@ -15473,8 +15473,21 @@ const WALLET_VOUCHERS = [
 function expandUnits(list) {
   return list.flatMap((v) => {
     const amounts = v.amounts && v.amounts.length ? v.amounts : [v.amount];
-    return amounts.map((amount, unit) => ({ ...v, amount, unit }));
+    const units = v.units && v.units.length ? v.units : amounts.map((_, i) => i);
+    return amounts.map((amount, i) => ({ ...v, amount, unit: units[i] }));
   });
+}
+
+/* Compartir y archivar son decisiones sobre un vale concreto, no sobre
+   la marca: tener una Nike archivada no puede mandar al archivo la
+   siguiente Nike que se compre. De ahí que el estado se guarde por
+   vale —"nike#0"— y no por marca. */
+const unitId = (key, unit = 0) => `${key}#${unit}`;
+
+function unitGroup(state, key, unit = 0) {
+  const id = unitId(key, unit);
+  if (state.archivedVouchers.includes(id)) return "archivados";
+  return state.sharedVouchers.includes(id) ? "compartidos" : "activos";
 }
 
 /* Tarjetas tokenizadas. La seleccionada es la que se combina con
@@ -15640,8 +15653,8 @@ function createInitialState(userType) {
     /* Vales que ya se compartieron y vales archivados (por key). Los dos
        primeros arrancan compartidos para que el filtro de compartidas y
        el sello del vale se vean sin tener que compartir algo antes. */
-    sharedVouchers: ["underarmour", "pollocampero"],
-    archivedVouchers: ["nike"],
+    sharedVouchers: ["underarmour#0", "pollocampero#0"],
+    archivedVouchers: ["nike#0"],
     /* Hoja de confirmación abierta, si hay: {type, key}. */
     sheet: null,
     /* Categoría por la que se filtra la pestaña abierta del wallet;
@@ -16877,17 +16890,32 @@ function walletDeck(state, section, { filtered = true } = {}) {
   return all.filter((v) => CATEGORY_OF[v.key] === mode);
 }
 
-/* El mazo de un estado concreto. Compartido y sin compartir solo
-   hablan de lo que sigue en uso: archivado gana a los dos, porque es
-   la decisión más reciente que tomó la persona. */
+/* Los vales sueltos de un estado concreto. Compartido y sin compartir
+   solo hablan de lo que sigue en uso: archivado gana a los dos, porque
+   es la decisión más reciente que tomó la persona. */
+function walletGroupUnits(state, section, group, opts) {
+  return expandUnits(walletDeck(state, section, opts)).filter(
+    (v) => unitGroup(state, v.key, v.unit) === group,
+  );
+}
+
+/* Y cómo se ven en la lista: los de una misma marca se acumulan en una
+   card con su contador. Son pilas distintas por estado —dos Nike
+   activas y una archivada son dos cards, no una— porque lo que las
+   junta es la marca *y* dónde están. */
 function walletGroupDeck(state, section, group, opts) {
-  const deck = walletDeck(state, section, opts);
-  const archived = (v) => state.archivedVouchers.includes(v.key);
-  if (group === "archivados") return deck.filter(archived);
-  const live = deck.filter((v) => !archived(v));
-  return group === "compartidos"
-    ? live.filter((v) => state.sharedVouchers.includes(v.key))
-    : live.filter((v) => !state.sharedVouchers.includes(v.key));
+  const cards = [];
+  walletGroupUnits(state, section, group, opts).forEach((v) => {
+    const found = cards.find((c) => c.key === v.key);
+    if (found) {
+      found.count += 1;
+      found.units.push(v.unit);
+      found.amounts.push(v.amount);
+      return;
+    }
+    cards.push({ ...v, count: 1, units: [v.unit], amounts: [v.amount] });
+  });
+  return cards;
 }
 
 /* Solo las categorías con marcas en la pestaña abierta, y cuántas hay
@@ -16904,32 +16932,19 @@ function walletCategories(state, section = state.walletTab) {
 /* El mazo del carrusel del vale: lo que está en uso de esa sección, en
    cualquiera de ellas. Lo archivado sale del carrusel y se abre solo
    —desde el filtro—; para volver al mazo hay que desarchivarlo. */
-function voucherCarousel(state, section, key) {
-  /* Mismo mazo que la lista de la que se entró: el carrusel recorre su
-     estado y nada más, así que deslizando no aparece una compartida
-     entre las activas ni una archivada entre las vivas. */
-  for (const group of WALLET_GROUPS) {
-    const deck = walletGroupDeck(state, section, group.key);
-    if (deck.some((v) => v.key === key)) return deck;
-  }
-  const all =
+function voucherCarousel(state, section, key, unit = 0) {
+  /* Mismo mazo que la lista de la que se entró: el carrusel recorre el
+     estado del vale abierto y nada más, así que deslizando no aparece
+     una compartida entre las activas ni una archivada entre las vivas. */
+  const group = unitGroup(state, key, unit);
+  const units = walletGroupUnits(state, section, group);
+  if (units.some((v) => v.key === key && v.unit === unit)) return units;
+  const all = expandUnits(
     section === "gift"
       ? walletVouchers(state)
-      : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]);
-  return all.filter((v) => v.key === key);
-}
-
-/* Todo lo archivado, venga de la sección que venga. */
-function archivedDeck(state) {
-  const all = [
-    ...walletVouchers(state),
-    ...walletVouchers(state, "vales"),
-    ...WALLET_EXTRAS.vales,
-    ...WALLET_EXTRAS.servicios,
-  ];
-  return state.archivedVouchers
-    .map((key) => all.find((v) => v.key === key))
-    .filter(Boolean);
+      : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]),
+  );
+  return all.filter((v) => v.key === key && v.unit === unit);
 }
 
 function sectionOfVoucher(key) {
@@ -16955,7 +16970,8 @@ function walletVoucherButton(v, deck, group = "activos") {
   return `
     <button class="oky-flow-voucher${group === "archivados" ? " is-archived" : ""}"
       style="background:${v.bg};border-color:${v.bg}"
-      data-action="open-voucher" data-key="${v.key}" data-deck="${deck}" data-group="${group}"
+      data-action="open-voucher" data-key="${v.key}" data-unit="${(v.units || [0])[0]}"
+      data-deck="${deck}" data-group="${group}"
       type="button" aria-label="${v.label}">
       <img src="${v.art}" alt="${v.label}" />
       ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
@@ -17035,16 +17051,24 @@ function walletVouchers(state, section = "gift") {
     });
 
   /* Las gift cards traen además las marcas de muestra; los vales no,
-     que esos vienen de WALLET_EXTRAS. */
-  const demo =
-    section === "gift"
-      ? WALLET_VOUCHERS.filter((v) => !owned.some((o) => o.key === v.key)).map((v) => ({
-          ...v,
-          count: (v.amounts || []).length || 1,
-        }))
-      : [];
+     que esos vienen de WALLET_EXTRAS. Si de una marca hay muestra y
+     compra, los montos de la muestra van delante: así el vale que ya
+     estaba conserva su índice —y con él su estado— cuando se compra
+     otro de la misma marca. */
+  const demo = section === "gift" ? WALLET_VOUCHERS : [];
+  const extra = [];
+  demo.forEach((v) => {
+    const amounts = (v.amounts || [v.amount]).filter((a) => a != null);
+    const found = owned.find((o) => o.key === v.key);
+    if (found) {
+      found.amounts = [...amounts, ...found.amounts];
+      found.count = found.amounts.length;
+      return;
+    }
+    extra.push({ ...v, amounts, count: amounts.length });
+  });
 
-  return [...owned, ...demo];
+  return [...owned, ...extra];
 }
 
 /* ── Mi wallet (99105:43773) ────────────────────────────── */
@@ -17339,8 +17363,8 @@ function screenVoucher(state) {
      ahí —Krispy Kreme, Under Armour— que no son productos comprables
      y no están en PRODUCTS. */
   const section = state.params.deck || "gift";
-  const wallet = expandUnits(voucherCarousel(state, section, state.params.key));
   const unit = state.params.unit || 0;
+  const wallet = voucherCarousel(state, section, state.params.key, unit);
   /* Un vale de Pollo Campero no es una gift card: la card lo dice. */
   const kind = { vales: "OKY Vale", servicios: "Servicio" }[section] || "Gift Card";
   const deck = state.params.id
@@ -17357,11 +17381,15 @@ function screenVoucher(state) {
      marca pueden valer distinto, y la del wallet manda sobre el último
      monto que se haya tecleado en el PDP de esa marca. */
   const entry = wallet.find((v) => v.key === state.params.key && v.unit === unit) || wallet[0];
-  const amount = purchase
-    ? purchase.amount
-    : entry && entry.amount != null
-      ? entry.amount
-      : state.amounts[card.key] || BRAND_DEFAULT_AMOUNT;
+  /* Desde el wallet manda el monto del vale abierto, no el de la última
+     compra de esa marca: con dos vales de Nike, el archivado seguía
+     enseñando lo que costó el recién comprado. */
+  const amount =
+    state.params.id && purchase
+      ? purchase.amount
+      : entry && entry.amount != null
+        ? entry.amount
+        : state.amounts[card.key] || BRAND_DEFAULT_AMOUNT;
 
   /* Desde "Tus compras" la pantalla es el detalle de la orden; desde
      Mi wallet, el vale de la marca. */
@@ -17370,8 +17398,8 @@ function screenVoucher(state) {
   /* Compartir y archivar son cosas del wallet: en el detalle de una
      compra recién pagada no tienen sentido todavía. */
   const fromWallet = !state.params.id;
-  const shared = fromWallet && state.sharedVouchers.includes(card.key);
-  const archived = fromWallet && state.archivedVouchers.includes(card.key);
+  const shared = fromWallet && state.sharedVouchers.includes(unitId(card.key, unit));
+  const archived = fromWallet && state.archivedVouchers.includes(unitId(card.key, unit));
   const sharedOn = new Date()
     .toLocaleDateString("es-GT", { day: "2-digit", month: "short", year: "numeric" })
     .replace(/\./g, "")
@@ -17433,19 +17461,19 @@ function screenVoucher(state) {
         archived
           ? `
         <button class="btn btn-outlined btn-large" style="width:100%" type="button"
-          data-action="unarchive" data-key="${card.key}">
+          data-action="unarchive" data-key="${card.key}" data-unit="${unit}">
           <i class="fa-solid fa-box-open" aria-hidden="true"></i>&nbsp;Desarchivar
         </button>
       `
           : shared
           ? `
         <div class="oky-flow-voucher-actions">
-          <button class="oky-flow-switch is-on" data-action="toggle-shared" data-key="${card.key}"
+          <button class="oky-flow-switch is-on" data-action="toggle-shared" data-key="${card.key}" data-unit="${unit}"
             type="button" role="switch" aria-checked="true">
             <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
             <span class="oky-flow-switch-label">Compartido</span>
           </button>
-          <button class="btn btn-outlined btn-large oky-flow-archive-btn" data-action="ask-archive" data-key="${card.key}" type="button">
+          <button class="btn btn-outlined btn-large oky-flow-archive-btn" data-action="ask-archive" data-key="${card.key}" data-unit="${unit}" type="button">
             Archivar
           </button>
         </div>
@@ -17453,7 +17481,7 @@ function screenVoucher(state) {
           : `
         <button class="btn btn-outlined btn-large" style="width:100%" type="button"
           data-action="share" data-label="${card.label}" data-amount="${amount}"
-          data-key="${fromWallet ? card.key : ""}">
+          data-key="${fromWallet ? card.key : ""}" data-unit="${unit}">
           <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>&nbsp;Compartir
         </button>
       `
@@ -17631,7 +17659,8 @@ function confirmSheet(state) {
         <img src="${sheet.art}" alt="" />
       </div>
       <div class="oky-flow-sheet-actions">
-        <button class="oky-flow-sheet-confirm" data-action="${sheet.action}" data-key="${state.sheet.key}" type="button">
+        <button class="oky-flow-sheet-confirm" data-action="${sheet.action}" data-key="${state.sheet.key}"
+          data-unit="${state.sheet.unit || 0}" type="button">
           ${sheet.confirm}
         </button>
         <button class="oky-flow-sheet-dismiss" data-action="close-sheet" type="button">${sheet.dismiss}</button>
@@ -18823,13 +18852,13 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* Quitar la marca es lo único que puede confundir —el vale ya se
          mandó— así que eso sí se pregunta. Ponerla no llega por aquí:
          la pone el compartir. */
-      state.sheet = { type: "unshare", key: el.dataset.key };
+      state.sheet = { type: "unshare", key: el.dataset.key, unit: Number(el.dataset.unit) || 0 };
       return render();
     }
 
     if (action === "confirm-unshare") {
-      const key = el.dataset.key;
-      state.sharedVouchers = state.sharedVouchers.filter((k) => k !== key);
+      const id = unitId(el.dataset.key, Number(el.dataset.unit) || 0);
+      state.sharedVouchers = state.sharedVouchers.filter((k) => k !== id);
       state.sheet = null;
       return render();
     }
@@ -18838,19 +18867,19 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* El aviso sale cada vez que se pulsa Archivar, sea el vale que
          sea: archivar saca la tarjeta de su sección y conviene decir a
          dónde va antes de hacerlo. */
-      state.sheet = { type: "archive", key: el.dataset.key };
+      state.sheet = { type: "archive", key: el.dataset.key, unit: Number(el.dataset.unit) || 0 };
       return render();
     }
 
     if (action === "confirm-archive") {
-      const key = el.dataset.key;
+      const id = unitId(el.dataset.key, Number(el.dataset.unit) || 0);
       state.sheet = null;
-      return archiveVoucher(key);
+      return archiveVoucher(id);
     }
 
     if (action === "unarchive") {
-      const key = el.dataset.key;
-      state.archivedVouchers = state.archivedVouchers.filter((k) => k !== key);
+      const id = unitId(el.dataset.key, Number(el.dataset.unit) || 0);
+      state.archivedVouchers = state.archivedVouchers.filter((k) => k !== id);
       const scroll = root.querySelector(".oky-flow-scroll");
       const y = scroll ? scroll.scrollTop : 0;
       render();
@@ -18987,9 +19016,10 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* Solo cuenta como compartido si la hoja llegó a abrirse o si el
          enlace acabó en el portapapeles. Cancelar no comparte nada. */
       const markShared = () => {
-        const key = el.dataset.key;
-        if (!key || state.sharedVouchers.includes(key)) return;
-        state.sharedVouchers.push(key);
+        if (!el.dataset.key) return;
+        const id = unitId(el.dataset.key, Number(el.dataset.unit) || 0);
+        if (state.sharedVouchers.includes(id)) return;
+        state.sharedVouchers.push(id);
         const scroll = root.querySelector(".oky-flow-scroll");
         const y = scroll ? scroll.scrollTop : 0;
         render();
@@ -19066,7 +19096,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
       const section = state.params.deck || "gift";
       const unit = state.params.unit || 0;
-      const list = expandUnits(voucherCarousel(state, section, state.params.key));
+      const list = voucherCarousel(state, section, state.params.key, unit);
       const at = list.findIndex((v) => v.key === state.params.key && v.unit === unit);
       const next = list[wrap((at < 0 ? 0 : at) + step, list.length)];
       /* Abrirlo por el carrusel también lo da por visto. */
@@ -19117,7 +19147,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "open-voucher") {
       const key = el.dataset.key;
       if (!state.seenVouchers.includes(key)) state.seenVouchers.push(key);
-      return go("voucher", { key, deck: el.dataset.deck || "gift" });
+      return go("voucher", { key, unit: Number(el.dataset.unit) || 0, deck: el.dataset.deck || "gift" });
     }
 
     if (action === "decision-self") {
