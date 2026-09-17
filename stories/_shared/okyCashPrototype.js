@@ -491,8 +491,8 @@ function createInitialState(userType) {
     /* El folder del Discovery Header se colapsa al scrollear el home. */
     headerCollapsed: false,
     /* Secciones abiertas de Mi wallet. */
-    /* OKY Cash arranca plegada: su saldo ya se lee en la cabecera. Lo
-       que trae novedades se abre solo —al comprar se añade su sección. */
+    /* Lo decide walletOpenSections al entrar; esto es solo el arranque
+       para quien abra el wallet sin pasar por su botón. */
     openSections: ["gift"],
     /* Aviso de cambio de marketplace; guarda a dónde se iba. */
     countrySheet: null,
@@ -1536,7 +1536,7 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
 
     <div class="oky-flow-cta-bar has-cash-strip">
       <button class="btn btn-outlined btn-large oky-flow-wallet-btn" data-action="nav:wallet" type="button">
-        <img src="Wallet-icon.png" alt="" />Mi Wallet
+        <img src="Wallet-icon.png" alt="" />Ver mi Wallet
       </button>
       ${cashStrip(state)}
     </div>
@@ -1784,6 +1784,23 @@ function walletVoucherButton(v, deck) {
 /* ¿Queda alguna gift card comprada que todavía no se haya abierto? */
 function hasNewVouchers(state) {
   return state.purchases.some((p) => !state.seenVouchers.includes(p.productKey));
+}
+
+/* Qué secciones encuentra abiertas quien entra a Mi wallet: las que
+   traen algo recién comprado y sin abrir —lo mismo que enciende el
+   punto del icono— y, si no hay novedades, las que guardan vales sin
+   compartir, que es lo que queda por hacer. */
+const WALLET_SECTIONS = ["gift", "vales", "servicios"];
+
+function walletOpenSections(state) {
+  const withNews = WALLET_SECTIONS.filter((section) =>
+    walletDeck(state, section, { filtered: false }).some((v) => v.isNew),
+  );
+  if (withNews.length) return withNews;
+
+  return WALLET_SECTIONS.filter((section) =>
+    walletDeck(state, section, { filtered: false }).some((v) => !state.sharedVouchers.includes(v.key)),
+  );
 }
 
 /* Los vales del wallet: primero lo que la persona compró de verdad,
@@ -3216,13 +3233,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
     });
 
-    /* Lo recién comprado se ve solo al entrar al wallet: su sección
-       queda desplegada, que para eso es la novedad. */
-    state.cart.forEach((item) => {
-      const section = PRODUCTS[item.productKey].wallet || "gift";
-      if (!state.openSections.includes(section)) state.openSections = [...state.openSections, section];
-    });
-
     state.okyCashBalance = state.okyCashBalance - used + earned;
     state.lastEarned = earned;
     state.cashUnseen = earned > 0;
@@ -3329,7 +3339,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.okyCashApplied = 0;
       return goCountry(target);
     }
-    if (action === "nav:wallet") return leavePurchase("wallet");
+    if (action === "nav:wallet") {
+      /* Cada entrada al wallet decide de nuevo qué está abierto: lo
+         que estuviera plegado o desplegado de la visita anterior ya no
+         dice nada de lo que hay ahora. */
+      state.walletFilter = "";
+      state.openBeforeFilter = null;
+      state.openSections = walletOpenSections(state);
+      return leavePurchase("wallet");
+    }
     if (action === "nav:okycash") {
       state.cashUnseen = false;
       return leavePurchase("okycash");
