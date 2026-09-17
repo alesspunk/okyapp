@@ -6950,6 +6950,19 @@ body {
   object-fit: contain;
 }
 
+/* El lazo de monedas del morado va donde lo pone el frame: pegado al
+   borde izquierdo, de 0/36 y 243x162 sobre 328x214. */
+.payment-card-art.is-loop {
+  left: 0;
+  top: 16.82%;
+  width: 74.09%;
+  height: 75.7%;
+}
+
+.payment-card-art.is-loop img {
+  object-fit: contain;
+}
+
 /* header: logo · spacer · saldo / dígitos */
 .payment-card-header {
   position: relative;
@@ -11384,54 +11397,6 @@ button.tactic-offer {
   }
 }
 
-/* ── Aviso efímero ──────────────────────────────────────── */
-/* Por encima de la navbar, no encima del contenido: se lee y se va. */
-.oky-flow-toast {
-  position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: calc(var(--oky-nav-h) + 12px);
-  z-index: 75;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 48px;
-  padding: 10px 12px 10px 16px;
-  border-radius: 14px;
-  background: #241335;
-  color: var(--white);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: 0 10px 24px rgba(16, 4, 36, 0.35);
-  animation: oky-flow-toast-in 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
-}
-
-.oky-flow-toast button {
-  flex: 0 0 auto;
-  padding: 8px 12px;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  color: var(--white);
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-@keyframes oky-flow-toast-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* ── Archivados ─────────────────────────────────────────── */
 .oky-flow-voucher-archived {
   position: relative;
@@ -11461,8 +11426,7 @@ button.tactic-offer {
 
 @media (prefers-reduced-motion: reduce) {
   .oky-flow-sheet,
-  .oky-flow-sheet-backdrop,
-  .oky-flow-toast {
+  .oky-flow-sheet-backdrop {
     animation: none;
   }
 }

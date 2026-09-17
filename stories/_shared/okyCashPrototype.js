@@ -166,10 +166,12 @@ const CARD_DESIGNS = [
   {
     key: "purple",
     label: "Morado OKY",
-    /* Sin arte encima (95277:34771): el morado liso deja el saldo
-       completamente limpio, que es justo lo que la hace distinta. */
-    note: "El morado de siempre, liso, para que el saldo se lea de lejos.",
-    art: null,
+    note: "El lazo de monedas que no se acaba: lo que ganas vuelve a ti.",
+    /* 95277:35388. El lazo va en su sitio del frame (0/36 de 243x162
+       sobre 328x214), pegado al borde izquierdo y por debajo del
+       saldo. */
+    art: "oky-card-coins-loop.png",
+    artClass: "is-loop",
     style: { backgroundMode: "solid", backgroundColor: "#5a289b", borderColor: "#5a289b" },
   },
   {
@@ -539,7 +541,6 @@ function createInitialState(userType) {
     /* Categoría por la que se filtra Mi wallet; vacío es "todas". */
     walletFilter: "",
     /* Aviso efímero al pie: {text, action, label, key}. */
-    toast: null,
 
     /* Correlativo de órdenes para el historial de OKY Cash. */
     orderSeq: 0,
@@ -2566,23 +2567,6 @@ function confirmSheet(state) {
   `;
 }
 
-/* Aviso al pie con salida: archivar es reversible, así que en vez de
-   preguntar otra vez se hace y se ofrece deshacer —el patrón de Gmail,
-   Mail y compañía—. La hoja solo aparece la primera vez, cuando todavía
-   hace falta explicar a dónde va el vale. */
-function toastBar(state) {
-  return `
-    <div class="oky-flow-toast" role="status">
-      <span>${state.toast.text}</span>
-      ${
-        state.toast.label
-          ? `<button data-action="${state.toast.action}" data-key="${state.toast.key}" type="button">${state.toast.label}</button>`
-          : ""
-      }
-    </div>
-  `;
-}
-
 /* ── Home de Guatemala ──────────────────────────────────── */
 /* El mockup "Homepage 1" tal cual, con nuestro Discovery Header encima
    para que el folder siga en el orden de siempre —USA a la izquierda,
@@ -2940,7 +2924,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.addedToast ? addedToast() : ""}
         ${state.usaIntro ? usaIntro() : ""}
         ${state.tourStep != null ? tourOverlay(state) : ""}
-        ${state.toast ? toastBar(state) : ""}
       </div>
     `;
 
@@ -3067,6 +3050,23 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     requestAnimationFrame(() => requestAnimationFrame(put));
     setTimeout(put, 320);
     if (scroll) scroll.addEventListener("scroll", put, { passive: true });
+  }
+
+  /* El último punto deja la home a media altura. Al cerrar el recorrido
+     vuelve arriba, pero acompañando: render() la devolvería al tope de
+     un salto, así que se restaura dónde quedó y se sube con scroll
+     suave, que es como se mueve la app. */
+  function closeTour() {
+    state.tourStep = null;
+    state.tourSeen = true;
+    const before = root.querySelector(".oky-flow-scroll");
+    const y = before ? before.scrollTop : 0;
+    render();
+    const after = root.querySelector(".oky-flow-scroll");
+    if (after && y > 0) {
+      after.scrollTop = y;
+      after.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
 
   /* Gestos: los carruseles se pasan con el dedo, no solo con las
@@ -3290,22 +3290,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     );
   }
 
-  let toastTimer = 0;
-
-  function showToast(toast) {
-    clearTimeout(toastTimer);
-    state.toast = toast;
-    toastTimer = setTimeout(() => {
-      state.toast = null;
-      render();
-    }, 5000);
-  }
-
   /* Archivar saca el vale del wallet y devuelve a la lista, que es
-     donde se ve el resultado. El aviso con "Deshacer" es la red. */
+     donde se ve el resultado. No hace falta avisar al pie: la hoja de
+     confirmación ya explicó a dónde va el vale, y de vuelta en el
+     wallet se ve que ya no está. Para recuperarlo está el filtro de
+     archivados, con su "Desarchivar". */
   function archiveVoucher(key) {
     if (!state.archivedVouchers.includes(key)) state.archivedVouchers.push(key);
-    showToast({ text: "Vale archivado", label: "Deshacer", action: "undo-archive", key });
     state.history = [{ screen: "home", params: {} }];
     return go("wallet", {}, { push: false });
   }
@@ -3517,20 +3508,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "tour-next") {
       const next = (state.tourStep ?? 0) + 1;
-      if (next >= TOUR_STEPS.length) {
-        state.tourStep = null;
-        state.tourSeen = true;
-        return render();
-      }
+      if (next >= TOUR_STEPS.length) return closeTour();
       state.tourStep = next;
       return render();
     }
 
-    if (action === "tour-end") {
-      state.tourStep = null;
-      state.tourSeen = true;
-      return render();
-    }
+    if (action === "tour-end") return closeTour();
 
     if (action === "country-stay") {
       state.countrySheet = null;
@@ -3764,18 +3747,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return archiveVoucher(key);
     }
 
-    if (action === "undo-archive") {
-      const key = el.dataset.key;
-      state.archivedVouchers = state.archivedVouchers.filter((k) => k !== key);
-      state.toast = null;
-      clearTimeout(toastTimer);
-      return go("voucher", { key, deck: sectionOfVoucher(key) }, { push: false });
-    }
-
     if (action === "unarchive") {
       const key = el.dataset.key;
       state.archivedVouchers = state.archivedVouchers.filter((k) => k !== key);
-      showToast({ text: "Vale devuelto a tu wallet" });
       const scroll = root.querySelector(".oky-flow-scroll");
       const y = scroll ? scroll.scrollTop : 0;
       render();
