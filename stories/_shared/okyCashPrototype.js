@@ -2105,9 +2105,12 @@ function okyCashActivity(state) {
     else groups.push({ label, items: [entry] });
   });
 
+  /* Los dos chips son la misma pareja vista al derecho y al revés:
+     flecha arriba lo que entra, flecha abajo lo que sale. El check de
+     antes decía "correcto", no "subió", y no se leía contra su opuesto. */
   const chipFor = (positive) =>
     positive
-      ? { label: "Ganado", tone: "success", icon: "fa-circle-check" }
+      ? { label: "Ganado", tone: "success", icon: "fa-circle-arrow-up" }
       : { label: "Usado", tone: "neutral", icon: "fa-circle-arrow-down" };
 
   const historyRow = ({ date, amount, order, positive }) =>
