@@ -18,19 +18,11 @@ export const GUA_HOME_MARKUP = `
 
       <section id="mockup1-content-left">
         <section class="mockup-block" data-pen-id="76102:40872-carrusel">
-          <section class="carrusel-organism" aria-label="Carrusel de banners lado izquierdo">
-            <div class="carrusel-content">
-              <div class="carrusel-viewport">
-                <div class="carrusel-track">
-                  <article class="carrusel-slide">
-                    <img src="promo-strips1.webp" alt="Promo strips 1" />
-                  </article>
-                  <article class="carrusel-slide">
-                    <img src="promo-strips4.png" alt="Promociones destacadas" />
-                  </article>
-                </div>
-              </div>
-              
+          <section aria-label="Banners">
+            <div class="carousel-container oky-flow-banner-track">
+              <div class="carousel-banner"><img src="oky-banner-2.png" alt="POPS · 15% OFF" /></div>
+              <div class="carousel-banner"><img src="oky-banner-1.png" alt="Promo Verano" /></div>
+            </div>
           </section>
         </section>
 
@@ -45,8 +37,8 @@ export const GUA_HOME_MARKUP = `
                 </div>
               </article>
               <div class="service-tile service-tile-half">
-                <div class="tile-icon tile-icon-half"><img src="navidad.webp" alt="Navidad" /></div>
-                <div class="tile-label">Navidad</div>
+                <div class="tile-icon tile-icon-half"><img src="halloween.png" alt="Halloween" /></div>
+                <div class="tile-label">Halloween</div>
               </div>
               <div class="service-tile service-tile-half">
                 <div class="tile-icon tile-icon-half"><img src="hot.webp" alt="Ofertas" /></div>
