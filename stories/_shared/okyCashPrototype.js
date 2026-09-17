@@ -503,6 +503,11 @@ function createInitialState(userType) {
     /* Lo que estaba abierto antes de filtrar, para devolverlo al
        quitar el filtro. */
     openBeforeFilter: null,
+    /* Presentación de USA: la lluvia de banderas y el recorrido guiado.
+       Se ven una sola vez, la primera que se entra al marketplace. */
+    usaIntro: false,
+    tourStep: null,
+    tourSeen: false,
     /* Cuántas cards se han pedido ya en cada sección del wallet. */
     walletShown: { gift: WALLET_PAGE, vales: WALLET_PAGE, servicios: WALLET_PAGE },
     /* Vales que ya se compartieron y vales archivados (por key). Los dos
@@ -693,6 +698,79 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
         }
         <div class="saving-bar-copy"><span>${copy(money(cashback))}</span></div>
       </div>
+    </div>
+  `;
+}
+
+/* Las cuatro paradas del recorrido de bienvenida a USA. Cada una
+   apunta a algo que ya está en pantalla; el texto dice para qué sirve,
+   no qué es. */
+const TOUR_STEPS = [
+  {
+    target: ".header-icon-bitmap-wallet-wrap",
+    title: "Tu wallet",
+    note: "Aquí guardas tus gift cards y tu saldo.",
+    place: "below",
+  },
+  {
+    target: ".oky-flow-home .tactic-strip",
+    title: "Ofertas con reloj",
+    note: "El cashback más alto, por tiempo limitado.",
+    place: "below",
+  },
+  {
+    target: ".oky-flow-home .oky-flow-cash-strip",
+    title: "Tu OKY Cash",
+    note: "Lo que ganas, listo para gastar.",
+    place: "below",
+  },
+  {
+    target: ".oky-flow-navbar .nav-item.is-dim + .nav-item, .oky-flow-navbar [data-action='nav:okycash']",
+    title: "Cuenta la historia",
+    note: "Mira cuánto ganaste y con qué marca.",
+    place: "above",
+  },
+];
+
+/* Lluvia de banderas al entrar a USA por primera vez: un guiño corto,
+   que se quita solo. */
+function usaIntro() {
+  const flags = Array.from({ length: 14 }, (_, i) => {
+    const left = 4 + (i * 92) % 92;
+    const delay = (i % 7) * 90;
+    const size = 26 + ((i * 7) % 16);
+    return `<span class="oky-flow-flagrise-item" style="left:${left}%;width:${size}px;animation-delay:${delay}ms"></span>`;
+  }).join("");
+  return `<div class="oky-flow-flagrise" aria-hidden="true">${flags}</div>`;
+}
+
+/* Recorrido guiado: el fondo se atenúa con cuatro paneles que dejan un
+   hueco sobre lo que se está señalando —así el elemento se ve tal cual,
+   sin recortes ni copias— y el globo cuenta para qué sirve. */
+function tourOverlay(state) {
+  const step = TOUR_STEPS[state.tourStep];
+  if (!step) return "";
+  const last = state.tourStep === TOUR_STEPS.length - 1;
+  return `
+    <div class="oky-flow-tour" data-action="tour-next" role="dialog" aria-modal="true" aria-label="${step.title}">
+      <span class="oky-flow-tour-panel is-top"></span>
+      <span class="oky-flow-tour-panel is-bottom"></span>
+      <span class="oky-flow-tour-panel is-left"></span>
+      <span class="oky-flow-tour-panel is-right"></span>
+      <span class="oky-flow-tour-ring" aria-hidden="true"></span>
+      <div class="oky-flow-tour-bubble is-${step.place}">
+        <p class="oky-flow-tour-title">${step.title}</p>
+        <p class="oky-flow-tour-note">${step.note}</p>
+        <div class="oky-flow-tour-foot">
+          <span class="oky-flow-tour-dots" aria-hidden="true">
+            ${TOUR_STEPS.map((_, i) => `<span class="${i === state.tourStep ? "is-on" : ""}"></span>`).join("")}
+          </span>
+          <button class="oky-flow-tour-next" data-action="tour-next" type="button">
+            ${last ? "Listo" : "Siguiente"}
+          </button>
+        </div>
+      </div>
+      ${last ? "" : `<button class="oky-flow-tour-skip" data-action="tour-end" type="button">Saltar</button>`}
     </div>
   `;
 }
@@ -2833,6 +2911,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     '<i class="fa-solid fa-rotate-left" aria-hidden="true"></i>Reiniciar prototipo';
 
   let addedTimer = null;
+  let introTimer = null;
 
   function render() {
     /* El player de Lottie deja listeners y un rAF vivos; si el overlay
@@ -2851,6 +2930,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.sheet ? (state.sheet.type === "filter" ? filterSheet(state) : confirmSheet(state)) : ""}
         ${state.countrySheet ? countrySheet(state) : ""}
         ${state.addedToast ? addedToast() : ""}
+        ${state.usaIntro ? usaIntro() : ""}
+        ${state.tourStep != null ? tourOverlay(state) : ""}
         ${state.toast ? toastBar(state) : ""}
       </div>
     `;
@@ -2908,8 +2989,61 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         .forEach((bar) => bar.remove());
     }
 
+    placeTour();
     root.appendChild(resetButton);
     fitToViewport();
+  }
+
+  /* El recorrido no dibuja una copia del elemento: recorta el fondo
+     alrededor de donde está, así lo que se señala es el de verdad. Se
+     mide después de pintar, y si hace falta se sube a la vista. */
+  function placeTour() {
+    const tour = root.querySelector(".oky-flow-tour");
+    if (!tour) return;
+    const step = TOUR_STEPS[state.tourStep];
+    const frame = root.querySelector(".oky-flow-frame");
+    const target = root.querySelector(step.target);
+    if (!target || !frame) return;
+
+    const scroll = root.querySelector(".oky-flow-scroll");
+    const box = frame.getBoundingClientRect();
+    const zoom = box.height / frame.offsetHeight || 1;
+
+    const put = () => {
+      const t = target.getBoundingClientRect();
+      const pad = 8;
+      const top = (t.top - box.top) / zoom - pad;
+      const left = (t.left - box.left) / zoom - pad;
+      const w = t.width / zoom + pad * 2;
+      const h = t.height / zoom + pad * 2;
+      tour.style.setProperty("--hole-top", `${top}px`);
+      tour.style.setProperty("--hole-left", `${left}px`);
+      tour.style.setProperty("--hole-w", `${w}px`);
+      tour.style.setProperty("--hole-h", `${h}px`);
+      /* El globo se centra bajo el hueco y se guarda dentro del marco. */
+      const bubble = tour.querySelector(".oky-flow-tour-bubble");
+      if (bubble) {
+        const bw = bubble.offsetWidth;
+        const frameW = frame.offsetWidth;
+        const cx = left + w / 2;
+        bubble.style.left = `${clamp(cx - bw / 2, 12, frameW - bw - 12)}px`;
+        bubble.style.top = step.place === "above" ? "" : `${top + h + 14}px`;
+        bubble.style.bottom =
+          step.place === "above" ? `${frame.offsetHeight - top + 14}px` : "";
+      }
+    };
+
+    /* Lo que queda fuera de pantalla se sube antes de medir; lo que ya
+       se ve, se mide donde está. En los dos casos se coloca en el acto
+       y se repasa en el cuadro siguiente, por si el scroll movió algo. */
+    const t = target.getBoundingClientRect();
+    const fuera = t.top < box.top || t.bottom > box.bottom - 40;
+    if (scroll && fuera) {
+      const delta = (t.top - box.top) / zoom - 150;
+      scroll.scrollTo({ top: scroll.scrollTop + delta, behavior: "auto" });
+    }
+    put();
+    requestAnimationFrame(put);
   }
 
   /* Gestos: los carruseles se pasan con el dedo, no solo con las
@@ -3038,10 +3172,22 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   }
 
   function goCountry(country) {
+    const firstUsa = country === "usa" && !state.tourSeen;
     if (country === "usa") state.usaSeen = true;
     state.country = country;
     markCountryInUrl(country);
-    return go(country === "usa" ? "home" : "homegua");
+    /* La primera visita a USA se presenta: banderas y, al acabar, el
+       recorrido por lo que hay que saber. */
+    if (firstUsa) state.usaIntro = true;
+    go(country === "usa" ? "home" : "homegua");
+    if (firstUsa) {
+      clearTimeout(introTimer);
+      introTimer = setTimeout(() => {
+        state.usaIntro = false;
+        state.tourStep = 0;
+        render();
+      }, 1500);
+    }
   }
 
   function bindHeaderScroll(scroll) {
@@ -3329,6 +3475,23 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         return render();
       }
       return goCountry(target);
+    }
+
+    if (action === "tour-next") {
+      const next = (state.tourStep ?? 0) + 1;
+      if (next >= TOUR_STEPS.length) {
+        state.tourStep = null;
+        state.tourSeen = true;
+        return render();
+      }
+      state.tourStep = next;
+      return render();
+    }
+
+    if (action === "tour-end") {
+      state.tourStep = null;
+      state.tourSeen = true;
+      return render();
     }
 
     if (action === "country-stay") {
