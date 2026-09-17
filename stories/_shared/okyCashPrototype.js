@@ -83,6 +83,9 @@ const PRODUCTS = {
 /* Marcas del Home, con el arte de gift card que ya vive en images/.
    Todas abren el mismo PDP que Nike y Lyft —monto editable, ribbon de
    cashback y "Agregar"— arrancando en $5.00. */
+/* Cashback del bloque de Deportes & Apparel. */
+const APPAREL_RATE = 10;
+
 const BRANDS = {
   googleplay: { label: "Google Play", art: "google.webp", bg: "#ffffff", rate: 5 },
   starbucks: { label: "Starbucks", art: "starbucks.webp", bg: "#ffffff", rate: 10 },
@@ -104,9 +107,11 @@ const BRANDS = {
   /* Marcas del strip de moda. Gap y Old Navy no tienen arte de gift
      card en el repo: van con una card de texto en images/ —fácil de
      reemplazar por la buena en cuanto exista. */
-  adidas: { label: "Adidas", art: "adidas.png", bg: "#1c1919", rate: 9 },
-  gap: { label: "Gap", art: "brand-gap.svg", bg: "#0b2a4a", rate: 8 },
-  oldnavy: { label: "Old Navy", art: "brand-oldnavy.svg", bg: "#12284c", rate: 10 },
+  /* Deportes & Apparel se anuncia como un solo bloque, así que las tres
+     pagan lo mismo y el ribbon vive en la cabecera de la card. */
+  adidas: { label: "Adidas", art: "adidas.png", bg: "#1c1919", rate: APPAREL_RATE },
+  gap: { label: "Gap", art: "brand-gap.svg", bg: "#0b2a4a", rate: APPAREL_RATE },
+  oldnavy: { label: "Old Navy", art: "brand-oldnavy.svg", bg: "#12284c", rate: APPAREL_RATE },
 };
 
 /* Diseños de la tarjeta de OKY Cash (Figma 99135:103902). La molécula
@@ -961,6 +966,9 @@ function screenHome(state) {
       <section class="homecard-organism homecard-organism-photo oky-flow-apparel">
         <header class="homecard-header">
           <h3 class="token-h6 homecard-title">Deportes &amp; Apparel</h3>
+          <div class="discount-ribbon discount-ribbon-wrap is-tier-base oky-flow-apparel-ribbon">
+            <span class="discount-ribbon-text token-price-percent">Gana ${APPAREL_RATE}%</span>
+          </div>
         </header>
 
         <div class="homecard-content homecard-content-photo">
@@ -972,11 +980,6 @@ function screenHome(state) {
                   role="button" tabindex="0" aria-label="${brand.label}">
                   <div class="homecard-photo-media-wrap">
                     <img class="homecard-photo-hero" src="${card.photo}" alt="" />
-                    <div class="homecard-photo-ribbon-wrap">
-                      <div class="discount-ribbon discount-ribbon-wrap is-tier-base">
-                        <span class="discount-ribbon-text token-price-percent">Gana ${brand.rate}%</span>
-                      </div>
-                    </div>
                   </div>
                   <div class="homecard-photo-logo-stack">
                     <div class="homecard-photo-logo-wrap" style="background:${brand.bg}">

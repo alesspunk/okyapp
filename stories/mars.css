@@ -12246,6 +12246,22 @@ button.tactic-offer {
   background: transparent;
 }
 
+/* El porcentaje es del bloque entero, así que vive en la cabecera y no
+   sobre cada foto. */
+.oky-flow-frame .oky-flow-apparel .homecard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.oky-flow-frame .oky-flow-apparel-ribbon {
+  position: relative;
+  top: 0;
+  right: 0;
+  flex: 0 0 auto;
+}
+
 /* El logo se recorta al tile y toma el color de la marca, como en las
    parrillas del home. */
 .oky-flow-frame .oky-flow-apparel .homecard-photo-logo-wrap {
