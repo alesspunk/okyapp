@@ -12238,6 +12238,13 @@ button.tactic-offer {
   padding-bottom: 16px;
 }
 
+/* El velo blanco del pie de la parrilla existía para desvanecer la
+   última fila sobre el fondo blanco; sobre el plateado se ve como una
+   mancha y ya no hace falta. */
+.oky-flow-frame .homecard-organism .homecard-content::after {
+  display: none;
+}
+
 /* Las capas de dentro venían pintadas de blanco y tapaban el degradado. */
 .oky-flow-frame .homecard-organism .homecard-content,
 .oky-flow-frame .homecard-organism .homecard-content-photo,
