@@ -570,6 +570,10 @@ function createInitialState(userType) {
     /* Pestaña abierta del wallet y secciones de estado desplegadas
        dentro de ella. Las dos las decide la entrada al wallet; esto es
        solo el arranque para quien lo abra sin pasar por su botón. */
+    /* El aviso de "Agrega más, paga menos" sale una sola vez, con el
+       primer producto de comida que entra al carrito. */
+    savingsSheet: false,
+    savingsSeen: false,
     walletTab: "gift",
     openGroups: ["activos"],
     /* Aviso de cambio de marketplace; guarda a dónde se iba. */
@@ -625,8 +629,95 @@ function createInitialState(userType) {
   };
 }
 
-const cartTotal = (state) => state.cart.reduce((sum, item) => sum + item.amount, 0);
-const cartCashback = (state) => state.cart.reduce((sum, item) => sum + item.cashback, 0);
+/* ── Comida de Guatemala ─────────────────────────────────
+   Productos de precio fijo que se compran por unidades, no gift cards
+   de monto libre: ni slider, ni cashback. Lo que sí tienen es un costo
+   por servicio que baja cuanto más se lleva, y ahí está el gancho.
+   (94757:61696, 94758:72010) */
+const FOOD_PRODUCTS = [
+  {
+    key: "mcd-pollo",
+    brand: "mcdonalds",
+    label: "Hamburguesa de Pollo",
+    art: "mcd-hamburguesa-pollo.png",
+    price: 5.69,
+    /* Precio de lista: la diferencia con el de venta es ahorro y se
+       suma al total ahorrado de la orden. */
+    was: 8.69,
+  },
+  {
+    key: "mcd-cajita",
+    brand: "mcdonalds",
+    label: "Cajita Feliz de Nuggets de Pollo",
+    art: "mcd-cajita-feliz.png",
+    price: 5.2,
+  },
+  {
+    key: "mcd-combo",
+    brand: "mcdonalds",
+    label: "4 Hamburguesas de Pollo y 4 Sodas",
+    art: "mcd-combo-4.png",
+    price: 12.69,
+  },
+  {
+    key: "mcd-cuarto",
+    brand: "mcdonalds",
+    label: "Hamburguesa Cuarto de Libra",
+    art: "mcd-cuarto-libra.png",
+    price: 6.69,
+  },
+];
+
+/* Cada producto de comida costaría $2.99 de servicio por su cuenta.
+   Llevando más, el costo se reparte: el primero sale a $0.99, dos a
+   $2.98 y de tres en adelante hay tope. Cuanto más lleva el carrito,
+   más se ahorra — que es justo lo que la promesa dice. */
+const SERVICE_FEE_UNIT = 2.99;
+const SERVICE_FEE_STEPS = [0, 0.99, 2.78];
+const serviceFeeOf = (n) =>
+  n <= 0 ? 0 : n < SERVICE_FEE_STEPS.length ? SERVICE_FEE_STEPS[n] : SERVICE_FEE_UNIT;
+const serviceFeeList = (n) => n * SERVICE_FEE_UNIT;
+
+FOOD_PRODUCTS.forEach((food) => {
+  PRODUCTS[food.key] = {
+    ...food,
+    bg: "#ffffff",
+    cardTitle: food.label,
+    country: "gua",
+    wallet: "vales",
+    /* Como Tigo: en Guatemala todavía no se gana OKY Cash, pero sí se
+       puede pagar con el que ya se tiene. */
+    noCashback: true,
+    rate: 0,
+    food: true,
+  };
+});
+
+/* Cuántas unidades de comida lleva el carrito: las recargas no pagan
+   costo por servicio ni cuentan para el tope. */
+const cartFoodCount = (state) =>
+  state.cart.reduce((n, item) => n + ((PRODUCTS[item.productKey] || {}).food ? item.qty || 1 : 0), 0);
+
+const cartServiceFee = (state) => serviceFeeOf(cartFoodCount(state));
+
+/* Lo ahorrado en esta orden: lo que se deja de pagar en costo por
+   servicio más los descuentos de precio de cada producto. */
+function cartSavings(state) {
+  const n = cartFoodCount(state);
+  const onFee = serviceFeeList(n) - serviceFeeOf(n);
+  const onPrice = state.cart.reduce((sum, item) => {
+    const product = PRODUCTS[item.productKey] || {};
+    return sum + (product.was ? (product.was - product.price) * (item.qty || 1) : 0);
+  }, 0);
+  return onFee + onPrice;
+}
+
+const cartSubtotal = (state) =>
+  state.cart.reduce((sum, item) => sum + item.amount * (item.qty || 1), 0);
+
+const cartTotal = (state) => cartSubtotal(state) + cartServiceFee(state);
+const cartCashback = (state) =>
+  state.cart.reduce((sum, item) => sum + item.cashback * (item.qty || 1), 0);
 
 /* Saldo que se va a aplicar a esta orden. */
 function appliedOkyCash(state) {
@@ -1253,20 +1344,37 @@ function cartDrawer(state) {
                       </span>`
                     : ""
                 }
-                <button class="oky-flow-cart-edit" data-action="edit-item" data-product="${item.productKey}"
-                  type="button" aria-label="Cambiar el monto de ${product.label}">
-                  <i class="fa-solid fa-pencil" aria-hidden="true"></i>
-                </button>
+                ${
+                  /* La comida no se edita con lápiz: su precio lo pone
+                     la marca y lo que se cambia es cuántas llevas. */
+                  product.food
+                    ? ""
+                    : `<button class="oky-flow-cart-edit" data-action="edit-item" data-product="${item.productKey}"
+                        type="button" aria-label="Cambiar el monto de ${product.label}">
+                        <i class="fa-solid fa-pencil" aria-hidden="true"></i>
+                      </button>`
+                }
               </div>
               <div class="oky-flow-cart-body">
                 <span class="oky-flow-cart-copy">
                   <p class="oky-flow-cart-title">${product.cardTitle}</p>
-                  <p class="oky-flow-cart-price">${money(item.amount)}</p>
+                  <p class="oky-flow-cart-price">
+                    ${money(item.amount * (item.qty || 1))}
+                    ${
+                      product.was
+                        ? `<span class="oky-flow-cart-was">${money(product.was * (item.qty || 1))}</span>`
+                        : ""
+                    }
+                  </p>
                 </span>
-                <button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
-                  type="button" aria-label="Quitar ${product.label}">
-                  <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
-                </button>
+                ${
+                  product.food
+                    ? foodQtyChip(product, item.qty || 1)
+                    : `<button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
+                        type="button" aria-label="Quitar ${product.label}">
+                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                      </button>`
+                }
               </div>
             </div>
           `;
@@ -1302,12 +1410,30 @@ function cartDrawer(state) {
       </div>
 
       <div class="oky-flow-drawer-foot${state.cart.length ? "" : " is-hidden"}">
+        ${
+          /* El ahorro se anuncia donde se decide seguir comprando: si
+             hay comida en el carrito, ahí está el gancho de llevar más. */
+          cartSavings(state) > 0
+            ? `<div class="oky-flow-savebar"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(cartSavings(state))}</div>`
+            : ""
+        }
         <div class="summary-box summary-box-compact">
           <div class="summary-card">
             <div class="summary-card-body">
+              ${
+                cartFoodCount(state)
+                  ? `<div class="summary-row oky-flow-feerow">
+                      <span>Costo por servicio</span>
+                      <span>
+                        <span class="oky-flow-fee-was">${money(serviceFeeList(cartFoodCount(state)))}</span>
+                        ${money(cartServiceFee(state))}
+                      </span>
+                    </div>`
+                  : ""
+              }
               <div class="summary-row summary-row-total">
                 <span class="summary-label-strong">(${state.cart.length}) Subtotal</span>
-                <span class="summary-label-strong">${money(total)}</span>
+                <span class="summary-label-strong">${money(cartSubtotal(state))}</span>
               </div>
             </div>
             <div class="summary-cta-row double">
@@ -1366,7 +1492,7 @@ function screenCheckout(state) {
             <div class="middle-card-center">
               <div class="middle-card-value">
                 <span class="middle-card-currency">$</span>
-                <p class="middle-card-amount">${bigAmount(item.amount)}</p>
+                <p class="middle-card-amount">${bigAmount(item.amount * (item.qty || 1))}</p>
               </div>
             </div>
           </div>
@@ -1498,13 +1624,36 @@ function screenCheckout(state) {
                          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
                        </button>
                      </span>
-                     <span class="summary-label-strong">${money(total)}</span>
+                     <span class="summary-label-strong">${money(cartSubtotal(state))}</span>
                    </div>
+                   ${
+                     cartFoodCount(state)
+                       ? `<div class="summary-row oky-flow-feerow">
+                           <span>Costo por servicio</span>
+                           <span>
+                             <span class="oky-flow-fee-was">${money(serviceFeeList(cartFoodCount(state)))}</span>
+                             ${money(cartServiceFee(state))}
+                           </span>
+                         </div>`
+                       : ""
+                   }
                    <div class="summary-row">
                      <span class="summary-value-success">OKY Cash</span>
                      <span class="summary-value-success">-${money(applied)}</span>
                    </div>`
-                : ""
+                : cartFoodCount(state)
+                  ? `<div class="summary-row">
+                       <span class="summary-label-strong">(${state.cart.length}) Subtotal</span>
+                       <span class="summary-label-strong">${money(cartSubtotal(state))}</span>
+                     </div>
+                     <div class="summary-row oky-flow-feerow">
+                       <span>Costo por servicio</span>
+                       <span>
+                         <span class="oky-flow-fee-was">${money(serviceFeeList(cartFoodCount(state)))}</span>
+                         ${money(cartServiceFee(state))}
+                       </span>
+                     </div>`
+                  : ""
             }
             <div class="summary-row summary-row-total">
               <span class="summary-label-strong">TOTAL</span>
@@ -1519,6 +1668,14 @@ function screenCheckout(state) {
     </div>
     </div>
 
+    ${
+      /* Con comida en el carrito lo que se anuncia abajo es el ahorro
+         de la orden; el cashback de OKY Cash es otra barra y en
+         Guatemala todavía no aplica. */
+      cartSavings(state) > 0
+        ? `<div class="oky-flow-savingbar"><div class="oky-flow-savebar is-bar"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(cartSavings(state))}</div></div>`
+        : ""
+    }
     ${
       cashback > 0
         ? savingBar(earned, { bar: "" }, (v) => {
@@ -2318,6 +2475,18 @@ function okyCashActivity(state) {
    —cabecera, buscador y HomeCard con la parrilla de marcas— sin el
    plateu, porque recargas no tiene subcategorías que ofrecer. */
 const CATEGORY_PAGES = {
+  comida: {
+    title: "Invitar a comer",
+    section: "Comida rápida",
+    brands: [
+      { key: "mcdonalds", label: "McDonald's", art: "mcdonalds.webp", action: "open-plp", brand: "mcdonalds" },
+      { key: "pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp" },
+      { key: "burgerking", label: "Burger King", art: "burguerking.webp" },
+      { key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp" },
+      { key: "ihop", label: "IHOP", art: "ihop.webp" },
+      { key: "dominos", label: "Domino's", art: "dominos.png" },
+    ],
+  },
   recargas: {
     title: "Recargar el Móvil",
     section: "Operadores",
@@ -2336,7 +2505,9 @@ function screenCategory(state) {
        botón; las demás están de acompañamiento, como en el resto del
        prototipo. */
     const live = brand.action
-      ? ` is-live" data-action="${brand.action}" role="button" tabindex="0`
+      ? ` is-live" data-action="${brand.action}"${
+          brand.brand ? ` data-brand="${brand.brand}"` : ""
+        } role="button" tabindex="0`
       : "";
     return `
       <article class="homecard-tile${live}">
@@ -2369,6 +2540,193 @@ function screenCategory(state) {
     </div>
 
     ${navbar("", state)}
+  `;
+}
+
+/* ── PLP de marca (94757:61696) ──────────────────────────
+   La lista de lo que vende una marca de comida. Se arma con el List /
+   PLP del sistema: foto, nombre, precio —tachado el de lista si hay
+   descuento— y el chip de cantidad, que es el mismo Quantity Input
+   que luego aparece en el carrito. */
+const FOOD_BRANDS = {
+  mcdonalds: { label: "McDonald's", art: "mcdonalds.webp", bg: "#c8102e" },
+};
+
+function foodQtyChip(product, qty) {
+  /* Add0 mientras no hay nada; en cuanto entra uno, el chip crece y
+     deja quitar: menos en cuanto hay dos, papelera cuando queda uno. */
+  if (!qty) {
+    return `
+      <button class="chip-ds chip-ds-add0 chip-ds-shadow list-plp-action" type="button"
+        data-action="food-more" data-product="${product.key}" aria-label="Agregar ${product.label}">
+        <i class="fa-regular fa-plus" aria-hidden="true"></i>
+      </button>`;
+  }
+  return `
+    <span class="chip-ds ${qty > 1 ? "chip-ds-add2" : "chip-ds-add1"} chip-ds-shadow list-plp-action">
+      <button class="chip-ds-step" type="button" data-action="food-less" data-product="${product.key}"
+        aria-label="Quitar uno de ${product.label}">
+        <i class="fa-regular ${qty > 1 ? "fa-minus" : "fa-trash"} chip-ds-pill-icon chip-ds-trash" aria-hidden="true"></i>
+      </button>
+      <span class="chip-ds-number">${qty}</span>
+      <button class="chip-ds-step" type="button" data-action="food-more" data-product="${product.key}"
+        aria-label="Agregar otro ${product.label}">
+        <i class="fa-regular fa-plus chip-ds-pill-icon" aria-hidden="true"></i>
+      </button>
+    </span>`;
+}
+
+function foodBrandHeader(state, brand, { active = "productos" } = {}) {
+  const tabs = [
+    { key: "productos", label: "Productos", icon: "plateu5.png" },
+    { key: "vales", label: "Vales", icon: "plateu-vales.png" },
+    { key: "ofertas", label: "Ofertas", icon: "plateu-ofertas.png" },
+  ];
+  return `
+    ${productHeader(state, { title: brand.label })}
+    <div class="oky-flow-foodbrand">
+      <div class="oky-flow-foodbrand-logo" style="background:${brand.bg}">
+        <img src="${brand.art}" alt="${brand.label}" />
+      </div>
+      <section class="plateu-molecule is-static is-default oky-flow-foodbrand-plateu" aria-label="Secciones de la marca">
+        <div class="plateu-track is-static">
+          ${tabs
+            .map(
+              (t) => `
+            <div class="plateu-item">
+              <div class="plateu-icon-wrap"><img class="plateu-icon" src="${t.icon}" alt="" /></div>
+              ${t.key === active ? `<span class="plateu-chip">${t.label}</span>` : `<span class="plateu-label">${t.label}</span>`}
+            </div>
+          `,
+            )
+            .join("")}
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function screenPlp(state) {
+  const key = state.params.brand || "mcdonalds";
+  const brand = FOOD_BRANDS[key] || FOOD_BRANDS.mcdonalds;
+  const items = FOOD_PRODUCTS.filter((f) => f.brand === key);
+  const qtyOf = (product) => (state.cart.find((i) => i.productKey === product.key) || {}).qty || 0;
+
+  const row = (product, last) => {
+    const off = product.was ? Math.round((1 - product.price / product.was) * 100) : 0;
+    return `
+      <div class="list-plp-row is-live" data-action="open-food" data-product="${product.key}" role="button" tabindex="0">
+        <div class="list-plp-image"><img src="${product.art}" alt="${product.label}" /></div>
+        <div class="list-plp-copy">
+          <div class="token-product-text-plp">${product.label}</div>
+          <div class="list-plp-prices">
+            <span class="token-price-tag token-price-tag-plp">${money(product.price)}</span>
+            ${product.was ? `<span class="token-price token-price-plp">${money(product.was)}</span>` : ""}
+          </div>
+          ${
+            off
+              ? `<div class="discount-ribbon discount-ribbon-list">
+                  <span class="discount-ribbon-text token-price-percent">${off}% OFF</span>
+                </div>`
+              : ""
+          }
+        </div>
+        ${foodQtyChip(product, qtyOf(product))}
+      </div>
+      ${last ? "" : `<div class="list-plp-divider"></div>`}
+    `;
+  };
+
+  return `
+    ${statusBar()}
+    ${foodBrandHeader(state, brand)}
+    <div class="oky-flow-section oky-flow-plp">
+      ${items.map((f, i) => row(f, i === items.length - 1)).join("")}
+    </div>
+    ${cartFoodCount(state) ? foodCartBar(state) : ""}
+    ${navbar("", state)}
+  `;
+}
+
+/* La barra de la PLP: mientras haya algo en el carrito, seguir viendo
+   o ir a pagar sin volver atrás. */
+function foodCartBar(state) {
+  return `
+    <div class="oky-flow-foodbar">
+      <button class="btn btn-outlined btn-large" data-action="keep-shopping" type="button">Seguir comprando</button>
+      <button class="btn btn-primary btn-large" data-action="go:decision" type="button">Ir a caja</button>
+    </div>
+  `;
+}
+
+/* ── PDP de producto de comida (94758:72010) ──────────────
+   Sin slider ni campo: el precio lo pone la marca. Solo la foto, lo
+   que incluye y el botón de agregar. */
+function screenFoodPdp(state) {
+  const product = PRODUCTS[state.params.product] || PRODUCTS[FOOD_PRODUCTS[0].key];
+  const brand = FOOD_BRANDS[product.brand] || FOOD_BRANDS.mcdonalds;
+  const qty = (state.cart.find((i) => i.productKey === product.key) || {}).qty || 0;
+
+  return `
+    ${statusBar()}
+    ${foodBrandHeader(state, brand)}
+
+    <div class="oky-flow-section oky-flow-foodpdp">
+      <section class="middle-card-shell is-pdp" aria-label="${product.label}">
+        <article class="middle-card-molecule">
+          <div class="middle-card-content">
+            <p class="middle-card-title">${product.label}</p>
+            <div class="oky-flow-foodpdp-photo"><img src="${product.art}" alt="${product.label}" /></div>
+          </div>
+          <div class="middle-card-footer">
+            <span class="middle-card-link">¿Qué Incluye?</span>
+            <span class="middle-card-link">Como Canjear</span>
+          </div>
+        </article>
+      </section>
+    </div>
+
+    <section class="pdp-page-summary-wrap oky-flow-dock" aria-label="Resumen de compra">
+      <div class="summary-box">
+        <div class="summary-rate-strip"><span>TIPO DE CAMBIO: Q 7.55</span></div>
+        <div class="summary-card">
+          <div class="summary-card-body">
+            <div class="summary-row summary-row-total">
+              <span class="summary-label-strong">Subtotal</span>
+              <span class="summary-label-strong">${money(product.price * (qty || 1))}</span>
+            </div>
+          </div>
+          <div class="summary-cta-row">
+            ${
+              qty
+                ? `<button class="btn btn-primary summary-btn" data-action="open-cart" type="button">Ver carrito</button>`
+                : `<button class="btn btn-primary summary-btn" data-action="food-more" data-product="${product.key}" type="button">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>Agregar
+                  </button>`
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    ${navbar("", state)}
+  `;
+}
+
+/* Aviso de la primera vez que entra un producto al carrito
+   (96814:14460): el ahorro no se explica solo, y es justo el momento
+   en que empieza a valer. */
+function savingsSheet() {
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-savings" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-savings" role="dialog" aria-modal="true" aria-label="Agrega más, paga menos">
+      <h2 class="oky-flow-savings-title">Agrega más,<br />paga menos</h2>
+      <p class="oky-flow-savings-note">
+        Al agregar más productos al carrito paga un máximo <strong>${money(SERVICE_FEE_UNIT)}</strong> de costo de servicio
+      </p>
+      <div class="oky-flow-savings-art"><img src="oky-cart-savings.png" alt="" /></div>
+      <button class="btn btn-primary btn-large oky-flow-savings-cta" data-action="close-savings" type="button">Entendido</button>
+    </section>
   `;
 }
 
@@ -2913,7 +3271,9 @@ const SCROLL_CLASS = {
 /* El checkout pierde la saving bar cuando nada del carrito gana
    OKY Cash —Tigo, por ejemplo—, y con ella su hueco. */
 function scrollClass(state) {
-  if (state.screen === "checkout" && cartCashback(state) <= 0) return "";
+  /* El hueco de abajo del checkout lo pide cualquiera de las dos
+     barras: la de cashback o la de ahorro de la orden. */
+  if (state.screen === "checkout" && cartCashback(state) <= 0 && cartSavings(state) <= 0) return "";
   /* Sin píldora de saldo, la barra de "Tus compras" es solo el botón. */
   if (["purchases", "success", "cashwin"].includes(state.screen) && state.lastEarned <= 0) {
     return "has-cta";
@@ -2936,6 +3296,8 @@ function renderScreen(state) {
     case "homegua": return screenHomeGua(state);
     case "tigopdp": return screenTigoPdp(state);
     case "category": return screenCategory(state);
+    case "plp": return screenPlp(state);
+    case "foodpdp": return screenFoodPdp(state);
     case "voucher": return screenVoucher(state);
     case "decision": return screenDecision();
     default: return screenHome(state);
@@ -3055,6 +3417,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.cartOpen ? cartDrawer(state) : ""}
         ${state.sheet ? (state.sheet.type === "filter" ? filterSheet(state) : confirmSheet(state)) : ""}
         ${state.countrySheet ? countrySheet(state) : ""}
+        ${state.savingsSheet ? savingsSheet() : ""}
         ${state.addedToast ? addedToast() : ""}
         ${state.usaIntro ? usaIntro() : ""}
         ${state.tourStep != null ? tourOverlay(state) : ""}
@@ -3924,6 +4287,49 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "carousel-prev" || action === "carousel-next") {
       const step = action === "carousel-next" ? 1 : -1;
       state.checkoutIndex = wrap(state.checkoutIndex + step, state.cart.length);
+      return render();
+    }
+
+    if (action === "open-plp") {
+      return go("plp", { brand: el.dataset.brand || "mcdonalds" });
+    }
+
+    if (action === "open-food") {
+      return go("foodpdp", { product: el.dataset.product });
+    }
+
+    /* El chip de cantidad manda en la PLP, en el PDP y en el carrito:
+       una sola acción para los tres, que es lo que lo hace fiable. */
+    if (action === "food-more" || action === "food-less") {
+      const key = el.dataset.product;
+      const product = PRODUCTS[key];
+      if (!product) return;
+      const step = action === "food-more" ? 1 : -1;
+      const line = state.cart.find((i) => i.productKey === key);
+      const first = !cartFoodCount(state);
+
+      if (!line) {
+        if (step < 0) return;
+        state.cart = state.cart.concat({ productKey: key, amount: product.price, cashback: 0, qty: 1 });
+      } else {
+        const next = (line.qty || 1) + step;
+        state.cart = next <= 0 ? state.cart.filter((i) => i !== line) : state.cart.map((i) => (i === line ? { ...i, qty: next } : i));
+      }
+
+      /* El saldo aplicado se recalcula: el total acaba de moverse. */
+      if (state.okyCashEnabled) state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
+
+      /* La promesa del ahorro se cuenta una vez, cuando empieza a
+         valer: al entrar el primer producto. */
+      if (first && step > 0 && !state.savingsSeen) {
+        state.savingsSeen = true;
+        state.savingsSheet = true;
+      }
+      return render();
+    }
+
+    if (action === "close-savings") {
+      state.savingsSheet = false;
       return render();
     }
 

@@ -52,7 +52,8 @@ export const GUA_HOME_MARKUP = `
                 <div class="tile-icon"><img src="remesas.webp" alt="Hacer Remesas" /></div>
                 <div class="tile-label">Hacer<br />Remesas</div>
               </div>
-              <div class="service-tile">
+              <div class="service-tile is-live" data-action="open-category" data-category="comida"
+                role="button" tabindex="0">
                 <div class="tile-icon"><img src="invitar.webp" alt="Invitar a Comer" /></div>
                 <div class="tile-label">Invitar<br />a Comer</div>
               </div>
