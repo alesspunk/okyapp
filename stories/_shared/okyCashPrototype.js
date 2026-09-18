@@ -700,12 +700,12 @@ function titledHeader(title, { trailing = "", trailingAction = "" } = {}) {
 }
 
 /* Header del PDP/Checkout: atrás + carrito con su contador. */
-function productHeader(state, { backAction = "back" } = {}) {
+function productHeader(state, { backAction = "back", title = "" } = {}) {
   const count = state.cart.length;
   return `
     <header class="oky-flow-header">
       ${backButton(backAction)}
-      <span class="oky-flow-title" aria-hidden="true"></span>
+      <span class="oky-flow-title"${title ? "" : ' aria-hidden="true"'}>${title}</span>
       <button class="header-icon header-icon-bitmap header-icon-bitmap-cart" data-action="open-cart"
         type="button" aria-label="Carrito">
         <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="Cart-3d-icon.png" alt="" />
@@ -2295,6 +2295,68 @@ function okyCashActivity(state) {
   `;
 }
 
+/* ── Category Page (Pages/Category Page) ─────────────────
+   El otro camino a Tigo. Desde el home de Guatemala, "Recargar el
+   Móvil" abre el catálogo de la categoría en vez de saltar directo al
+   producto: quien va a recargar no siempre sabe con qué operador, y
+   elegir marca es parte de la compra. Misma anatomía que el mockup
+   —cabecera, buscador y HomeCard con la parrilla de marcas— sin el
+   plateu, porque recargas no tiene subcategorías que ofrecer. */
+const CATEGORY_PAGES = {
+  recargas: {
+    title: "Recargar el Móvil",
+    section: "Operadores",
+    brands: [
+      { key: "tigo", label: "Tigo", art: "tigo.webp", action: "open-tigo" },
+      { key: "claro", label: "Claro", art: "claro.webp" },
+    ],
+  },
+};
+
+function screenCategory(state) {
+  const page = CATEGORY_PAGES[state.params.category] || CATEGORY_PAGES.recargas;
+
+  const tile = (brand) => {
+    /* Solo las marcas que llevan a alguna parte se comportan como
+       botón; las demás están de acompañamiento, como en el resto del
+       prototipo. */
+    const live = brand.action
+      ? ` is-live" data-action="${brand.action}" role="button" tabindex="0`
+      : "";
+    return `
+      <article class="homecard-tile${live}">
+        <div class="homecard-tile-logo-wrap">
+          <img class="homecard-tile-logo" src="${brand.art}" alt="${brand.label}" />
+        </div>
+        <p class="token-brand homecard-tile-name">${brand.label}</p>
+      </article>
+    `;
+  };
+
+  return `
+    ${statusBar()}
+    ${productHeader(state, { title: page.title })}
+
+    <div class="oky-flow-section oky-flow-category">
+      <div class="input-wrapper" style="width:100%">
+        <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+        <input class="input-field search-input search-input-empty" value="" placeholder="Buscar marcas" readonly />
+      </div>
+
+      <section class="homecard-organism">
+        <header class="homecard-header">
+          <h2 class="token-h6 homecard-title">${page.section}</h2>
+        </header>
+        <div class="homecard-content homecard-content-default">
+          <div class="homecard-grid">${page.brands.map(tile).join("")}</div>
+        </div>
+      </section>
+    </div>
+
+    ${navbar("", state)}
+  `;
+}
+
 /* ── Detalle de vale ──────────────────────────────────────
    Misma pantalla desde "Tus compras" (por id de compra) y desde
    Mi wallet (por marca): en ambos casos el organismo Card. */
@@ -2659,7 +2721,10 @@ function screenTigoPdp(state) {
 
   return `
     ${statusBar()}
-    ${productHeader(state, { backAction: "nav:homegua" })}
+    ${/* Ahora al PDP de Tigo se llega por dos caminos —el tile de
+          Recargas y la Category Page— así que atrás desanda el que se
+          tomó en vez de apuntar siempre al home. */ ""}
+    ${productHeader(state, { backAction: "back" })}
     <div class="oky-flow-gua-pdp has-plateu">
       
       <section class="pdp-page-section">
@@ -2852,6 +2917,7 @@ function renderScreen(state) {
     case "carddesign": return screenCardDesign(state);
     case "homegua": return screenHomeGua(state);
     case "tigopdp": return screenTigoPdp(state);
+    case "category": return screenCategory(state);
     case "voucher": return screenVoucher(state);
     case "decision": return screenDecision();
     default: return screenHome(state);
@@ -3841,6 +3907,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const step = action === "carousel-next" ? 1 : -1;
       state.checkoutIndex = wrap(state.checkoutIndex + step, state.cart.length);
       return render();
+    }
+
+    if (action === "open-category") {
+      return go("category", { category: el.dataset.category || "recargas" });
     }
 
     if (action === "open-tigo") {
