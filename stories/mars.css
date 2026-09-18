@@ -11150,6 +11150,16 @@ button.tactic-offer {
 
 /* El importe rebajado va en el aqua de OKY Cash, con el de lista
    tachado delante: mismo esquema en subtotal y en costo por servicio. */
+/* Los dos importes del par van con la misma letra y peso en todas las
+   filas del resumen: en Subtotal heredaban la Lato del rótulo y se
+   veían más gordos que los del costo por servicio. */
+.oky-flow-fee-now,
+.oky-flow-fee-was {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
 .oky-flow-fee-now {
   color: var(--secondary-dark);
 }

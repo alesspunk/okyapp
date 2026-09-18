@@ -743,6 +743,11 @@ function cartSavings(state) {
 const cartSubtotal = (state) =>
   state.cart.reduce((sum, item) => sum + item.amount * (item.qty || 1), 0);
 
+/* Cuántas cosas lleva el carrito de verdad: dos hamburguesas iguales
+   son una línea pero dos productos, y el contador del resumen habla
+   de lo que se lleva, no de cómo está agrupado. */
+const cartCount = (state) => state.cart.reduce((n, item) => n + (item.qty || 1), 0);
+
 /* Lo que sumaria el carrito a precio de lista. Si es mas que el
    subtotal real es que algo lleva descuento, y el resumen lo ensena
    igual que el costo por servicio: el de lista tachado delante. */
@@ -1482,7 +1487,7 @@ function cartDrawer(state) {
           <div class="summary-card">
             <div class="summary-card-body">
               <div class="summary-row summary-row-total">
-                <span class="summary-label-strong">(${state.cart.length}) Subtotal</span>
+                <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
                 <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
               </div>
               ${
@@ -1698,7 +1703,7 @@ function screenCheckout(state) {
                  TOTAL (Figma 99105:31768). */
               state.okyCashEnabled
                 ? `<div class="summary-row">
-                     <span class="summary-label-strong">(${state.cart.length}) Subtotal
+                     <span class="summary-label-strong">(${cartCount(state)}) Subtotal
                        <button class="oky-flow-info" data-action="open-cart" type="button"
                          aria-label="Ver el carrito">
                          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
@@ -1720,7 +1725,7 @@ function screenCheckout(state) {
                    </div>`
                 : cartFoodCount(state)
                   ? `<div class="summary-row">
-                       <span class="summary-label-strong">(${state.cart.length}) Subtotal</span>
+                       <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
                        <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                      </div>
                      <div class="summary-row oky-flow-feerow">
@@ -2735,7 +2740,7 @@ function foodCartBar(state) {
       }
       <div class="oky-flow-foodbar-ctas">
         <button class="btn btn-outlined btn-large" data-action="keep-shopping" type="button">Seguir comprando</button>
-        <button class="btn btn-primary btn-large" data-action="go:decision" type="button">Ir a pagar</button>
+        <button class="btn btn-primary btn-large" data-action="open-cart" type="button">Ver carrito</button>
       </div>
     </div>
   `;
