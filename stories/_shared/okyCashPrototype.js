@@ -2682,7 +2682,7 @@ function screenPlp(state) {
         <div class="list-plp-copy">
           <div class="token-product-text-plp">${product.label}</div>
           <div class="list-plp-prices">
-            <span class="token-price-tag token-price-tag-plp">${money(product.price)}</span>
+            <span class="token-price-tag token-price-tag-plp${product.was ? "" : " is-plain"}">${money(product.price)}</span>
             ${product.was ? `<span class="token-price token-price-plp">${money(product.was)}</span>` : ""}
           </div>
           ${
@@ -3529,7 +3529,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const scroll = frame.querySelector(".oky-flow-scroll");
     scroll
       .querySelectorAll(
-        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock, .oky-flow-cashwin, .oky-flow-scroll-hint",
+        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock, .oky-flow-foodbar, .oky-flow-cashwin, .oky-flow-scroll-hint",
       )
       .forEach((bar) => frame.appendChild(bar));
 
@@ -3540,7 +3540,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        se quita para que no quede pintada encima. */
     if (state.cartOpen) {
       frame
-        .querySelectorAll(".oky-flow-savingbar:not(.is-drawer-bar), .oky-flow-dock, .oky-flow-cta-bar")
+        .querySelectorAll(".oky-flow-savingbar:not(.is-drawer-bar), .oky-flow-dock, .oky-flow-cta-bar, .oky-flow-foodbar")
         .forEach((bar) => bar.remove());
     }
 

@@ -2863,6 +2863,12 @@ body {
   letter-spacing: 0.5px;
 }
 
+/* El aqua es la marca de que hay rebaja: sin precio tachado al lado,
+   el precio es uno normal y va en el morado de la marca. */
+.token-price-tag-plp.is-plain {
+  color: var(--primary-main);
+}
+
 .token-price-plp {
   color: var(--disable-text);
   font-family: 'Lato', sans-serif;
@@ -11169,13 +11175,21 @@ button.tactic-offer {
 }
 
 /* La barra del carrito se ancla igual que la de cashback de USA: al
-   pie del frame y por encima de la navbar. */
+   pie del frame y por encima de la navbar, y ocupa justo la banda que
+   el carrito le reserva —si no, quedaba una franja en blanco entre
+   los dos. */
 .oky-flow-drawer-bar {
   position: absolute;
   left: 0;
   right: 0;
   bottom: var(--oky-nav-h);
   z-index: 91;
+}
+
+.oky-flow-drawer-bar .oky-flow-savebar {
+  height: var(--oky-bar-h);
+  min-height: var(--oky-bar-h);
+  border-radius: 0;
 }
 
 .oky-flow-savebar.is-bar {
@@ -18086,7 +18100,7 @@ function screenPlp(state) {
         <div class="list-plp-copy">
           <div class="token-product-text-plp">${product.label}</div>
           <div class="list-plp-prices">
-            <span class="token-price-tag token-price-tag-plp">${money(product.price)}</span>
+            <span class="token-price-tag token-price-tag-plp${product.was ? "" : " is-plain"}">${money(product.price)}</span>
             ${product.was ? `<span class="token-price token-price-plp">${money(product.was)}</span>` : ""}
           </div>
           ${
@@ -18933,7 +18947,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const scroll = frame.querySelector(".oky-flow-scroll");
     scroll
       .querySelectorAll(
-        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock, .oky-flow-cashwin, .oky-flow-scroll-hint",
+        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock, .oky-flow-foodbar, .oky-flow-cashwin, .oky-flow-scroll-hint",
       )
       .forEach((bar) => frame.appendChild(bar));
 
@@ -18944,7 +18958,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        se quita para que no quede pintada encima. */
     if (state.cartOpen) {
       frame
-        .querySelectorAll(".oky-flow-savingbar:not(.is-drawer-bar), .oky-flow-dock, .oky-flow-cta-bar")
+        .querySelectorAll(".oky-flow-savingbar:not(.is-drawer-bar), .oky-flow-dock, .oky-flow-cta-bar, .oky-flow-foodbar")
         .forEach((bar) => bar.remove());
     }
 
