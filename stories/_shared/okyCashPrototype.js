@@ -2038,14 +2038,16 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
           ? `<div class="oky-flow-stack">
               ${list
                 .map(
-                  (v) => `
-                <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
+                  (v) => {
+                  const mark = stackMark(v);
+                  return `
+                <button class="oky-flow-voucher" style="background:${mark.bg};border-color:${mark.bg}"
                   data-action="open-purchase" data-id="${v.id}" type="button">
-                  <img src="${v.art}" alt="${v.label}" />
+                  <img src="${mark.art}" alt="${v.label}" />
                   <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
                 </button>
-              `,
-                )
+              `;
+                })
                 .join("")}
             </div>`
           : `<p class="oky-flow-empty">Todavía no tienes compras.</p>`
@@ -2296,13 +2298,14 @@ function countryOfSection(section) {
 
 function walletVoucherButton(v, deck, group = "activos") {
   const country = countryOfSection(deck);
+  const mark = stackMark(v);
   return `
     <button class="oky-flow-voucher${group === "archivados" ? " is-archived" : ""}"
-      style="background:${v.bg};border-color:${v.bg}"
+      style="background:${mark.bg};border-color:${mark.bg}"
       data-action="open-voucher" data-key="${v.key}" data-unit="${(v.units || [0])[0]}"
       data-deck="${deck}" data-group="${group}"
       type="button" aria-label="${v.label}">
-      <img src="${v.art}" alt="${v.label}" />
+      <img src="${mark.art}" alt="${v.label}" />
       ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
       <span class="oky-flow-voucher-badge">
         ${v.count}
@@ -2770,6 +2773,16 @@ const FOOD_BRANDS = {
   mcdonalds: { label: "McDonald's", art: "mcdonalds.webp", bg: "#c8102e" },
 };
 
+/* Lo que enseña una card dentro de un stack. Apiladas solo se ve la
+   esquina de cada una, así que lo que tiene que reconocerse es la
+   marca: los vales de comida guardan la foto del producto para su
+   ficha, pero en el mazo van con el logo, como todos los demás. */
+function stackMark(v) {
+  const product = PRODUCTS[v.key] || v;
+  const brand = product.food && FOOD_BRANDS[product.brand];
+  return brand ? { art: brand.art, bg: brand.bg } : { art: v.art || product.art, bg: v.bg || product.bg };
+}
+
 function foodQtyChip(product, qty, { vertical = false } = {}) {
   /* Add0 mientras no hay nada; en cuanto entra uno, el chip crece y
      deja quitar: menos en cuanto hay dos, papelera cuando queda uno. */
@@ -3095,7 +3108,11 @@ function screenVoucher(state) {
 
   /* Desde "Tus compras" la pantalla es el detalle de la orden; desde
      Mi wallet, el vale de la marca. */
-  const title = state.params.id ? "Detalle de la orden" : card.label;
+  /* En el header va la marca, no el producto: el nombre largo ya lo
+     dice la card de abajo y arriba solo cabía recortado. */
+  const headerBrand =
+    card.food && FOOD_BRANDS[card.brand] ? FOOD_BRANDS[card.brand].label : card.label;
+  const title = state.params.id ? "Detalle de la orden" : headerBrand;
 
   /* Compartir y archivar valen también recién comprado: es justo
      cuando se manda el regalo. El vale es el mismo que luego se ve en
