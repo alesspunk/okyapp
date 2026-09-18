@@ -8,8 +8,9 @@
    Storybook van con ./images y aquí se sirven en la raíz.
 
    De todo lo que hay dentro solo una cosa es accionable: la tile de
-   Recargas, que lleva al PDP de Tigo. El resto de marcas de esta home
-   no se tocan, que es como se pidió.
+   "Recargar el Móvil", que abre la Category Page de recargas y desde
+   ahí al PDP de Tigo. El resto de marcas de esta home no se tocan, que
+   es como se pidió.
 ───────────────────────────────────────────────────────── */
 export const GUA_HOME_MARKUP = `
       <!-- 1) Discovery Header / Right / State 1 -->
@@ -86,9 +87,9 @@ export const GUA_HOME_MARKUP = `
                 <div class="tile-icon"><img src="gas.webp" alt="Llenar el Tanque" /></div>
                 <div class="tile-label">Llenar<br />el Tanque</div>
               </div>
-              <div class="service-tile is-live" data-action="open-tigo" role="button" tabindex="0">
-                <div class="tile-icon"><img src="recargas.webp" alt="Recargas" /></div>
-                <div class="tile-label">Recargas</div>
+              <div class="service-tile">
+                <div class="tile-icon"><img src="hogar.png" alt="Equipar su Hogar" /></div>
+                <div class="tile-label">Equipar<br />su Hogar</div>
               </div>
             </div>
           </div>
