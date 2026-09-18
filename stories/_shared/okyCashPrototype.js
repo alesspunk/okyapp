@@ -1473,8 +1473,14 @@ function cartDrawer(state) {
         .map((item) => {
           const product = PRODUCTS[item.productKey];
           const tier = getTier(item.amount, product, state.promoLive);
+          /* Con chip de cantidad la fila se parte en dos columnas: a
+             la izquierda todo lo que se lee y a la derecha el chip de
+             pie, en la misma banda que ocupan el lápiz y el tacho de
+             los vales de monto. */
+          const stacked = product.food;
           return `
-            <div class="oky-flow-cart-row">
+            <div class="oky-flow-cart-row${stacked ? " is-qty" : ""}">
+              ${stacked ? `<div class="oky-flow-cart-main">` : ""}
               <div class="oky-flow-cart-head">
                 <span class="brand-item-atom is-no-label">
                   <span class="brand-item-frame">
@@ -1527,14 +1533,15 @@ function cartDrawer(state) {
                   </p>
                 </span>
                 ${
-                  product.food
-                    ? foodQtyChip(product, item.qty || 1)
+                  stacked
+                    ? ""
                     : `<button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
                         type="button" aria-label="Quitar ${product.label}">
                         <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                       </button>`
                 }
               </div>
+              ${stacked ? `</div>${foodQtyChip(product, item.qty || 1, { vertical: true })}` : ""}
             </div>
           `;
         })
@@ -2763,7 +2770,7 @@ const FOOD_BRANDS = {
   mcdonalds: { label: "McDonald's", art: "mcdonalds.webp", bg: "#c8102e" },
 };
 
-function foodQtyChip(product, qty) {
+function foodQtyChip(product, qty, { vertical = false } = {}) {
   /* Add0 mientras no hay nada; en cuanto entra uno, el chip crece y
      deja quitar: menos en cuanto hay dos, papelera cuando queda uno. */
   if (!qty) {
@@ -2773,17 +2780,23 @@ function foodQtyChip(product, qty) {
         <i class="fa-solid fa-plus" aria-hidden="true"></i>
       </button>`;
   }
+  const less = `
+    <button class="chip-ds-step" type="button" data-action="food-less" data-product="${product.key}"
+      aria-label="Quitar uno de ${product.label}">
+      <i class="fa-solid ${qty > 1 ? "fa-minus" : "fa-trash-can"} chip-ds-pill-icon${qty > 1 ? "" : " chip-ds-trash"}" aria-hidden="true"></i>
+    </button>`;
+  const more = `
+    <button class="chip-ds-step" type="button" data-action="food-more" data-product="${product.key}"
+      aria-label="Agregar otro ${product.label}">
+      <i class="fa-solid fa-plus chip-ds-pill-icon" aria-hidden="true"></i>
+    </button>`;
+  /* De pie el orden se invierte: sumar arriba y quitar abajo, que es
+     donde el tacho cae en el resto de las filas del carrito. */
   return `
-    <span class="chip-ds ${qty > 1 ? "chip-ds-add2" : "chip-ds-add1"} chip-ds-shadow list-plp-action">
-      <button class="chip-ds-step" type="button" data-action="food-less" data-product="${product.key}"
-        aria-label="Quitar uno de ${product.label}">
-        <i class="fa-solid ${qty > 1 ? "fa-minus" : "fa-trash-can"} chip-ds-pill-icon${qty > 1 ? "" : " chip-ds-trash"}" aria-hidden="true"></i>
-      </button>
+    <span class="chip-ds ${qty > 1 ? "chip-ds-add2" : "chip-ds-add1"} chip-ds-shadow list-plp-action${vertical ? " is-vertical" : ""}">
+      ${vertical ? more : less}
       <span class="chip-ds-number">${qty}</span>
-      <button class="chip-ds-step" type="button" data-action="food-more" data-product="${product.key}"
-        aria-label="Agregar otro ${product.label}">
-        <i class="fa-solid fa-plus chip-ds-pill-icon" aria-hidden="true"></i>
-      </button>
+      ${vertical ? less : more}
     </span>`;
 }
 

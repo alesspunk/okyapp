@@ -11069,6 +11069,37 @@ button.tactic-offer {
   padding: 0;
 }
 
+/* En el carrito el chip de cantidad se pone de pie y sale de la línea
+   del nombre para ocupar la fila entera, que es la banda donde los
+   vales de monto ponen el lápiz arriba y el tacho abajo. Así las dos
+   clases de fila se leen con el mismo esquema. */
+.oky-flow-cart-row.is-qty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.oky-flow-cart-row.is-qty .oky-flow-cart-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.oky-flow-cart-row .chip-ds.is-vertical {
+  flex: 0 0 40px;
+  flex-direction: column;
+  width: 40px;
+  min-width: 40px;
+  height: auto;
+  min-height: 0;
+  padding: 6px 0;
+  gap: 8px;
+}
+
+.oky-flow-cart-row .chip-ds.is-vertical .chip-ds-step {
+  width: 100%;
+  height: 26px;
+}
+
 .chip-ds-step {
   display: inline-flex;
   align-items: center;
