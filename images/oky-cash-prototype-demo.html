@@ -11110,19 +11110,45 @@ button.tactic-offer {
   object-fit: contain;
 }
 
-/* Barra de la PLP: mientras haya carrito, seguir o pagar sin volver. */
+/* Barra de la PLP: mientras haya carrito, seguir o pagar sin volver.
+   Va fija sobre la navbar y la lista de productos pasa por detrás. */
 .oky-flow-foodbar {
   position: absolute;
   left: 12px;
   right: 12px;
   bottom: calc(var(--oky-nav-h) + 10px);
   z-index: 40;
-  display: flex;
-  gap: 10px;
-  padding: 12px;
+  overflow: hidden;
   border-radius: 16px;
   background: var(--white);
   box-shadow: 0 8px 24px rgba(16, 4, 36, 0.18);
+}
+
+/* La franja del ahorro corona la barra: es el argumento para seguir
+   llenando, así que va antes que los botones. */
+.oky-flow-foodbar-save {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 7px 14px;
+  background: var(--aqua-light, #a6f7ee);
+  color: var(--secondary-dark);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.oky-flow-foodbar-ctas {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+}
+
+/* Hueco para que el último producto no quede debajo de la barra. */
+.oky-flow-plp.has-foodbar {
+  padding-bottom: 116px;
 }
 
 .oky-flow-foodbar .btn {
@@ -18147,7 +18173,7 @@ function screenPlp(state) {
   return `
     ${statusBar()}
     ${foodBrandHeader(state, brand)}
-    <div class="oky-flow-section oky-flow-plp">
+    <div class="oky-flow-section oky-flow-plp${cartFoodCount(state) ? " has-foodbar" : ""}">
       ${items.map(row).join("")}
     </div>
     ${cartFoodCount(state) ? foodCartBar(state) : ""}
@@ -18156,12 +18182,21 @@ function screenPlp(state) {
 }
 
 /* La barra de la PLP: mientras haya algo en el carrito, seguir viendo
-   o ir a pagar sin volver atrás. */
+   o ir a pagar sin volver atrás. Encima, lo que se lleva ahorrado —que
+   es el argumento para seguir llenando— (94757:61737). */
 function foodCartBar(state) {
+  const savings = cartSavings(state);
   return `
-    <div class="oky-flow-foodbar">
-      <button class="btn btn-outlined btn-large" data-action="keep-shopping" type="button">Seguir comprando</button>
-      <button class="btn btn-primary btn-large" data-action="go:decision" type="button">Ir a pagar</button>
+    <div class="oky-flow-foodbar" data-role="foodbar">
+      ${
+        savings > 0
+          ? `<div class="oky-flow-foodbar-save"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;Llena el carrito. Vas ahorrando ${money(savings)}</div>`
+          : ""
+      }
+      <div class="oky-flow-foodbar-ctas">
+        <button class="btn btn-outlined btn-large" data-action="keep-shopping" type="button">Seguir comprando</button>
+        <button class="btn btn-primary btn-large" data-action="go:decision" type="button">Ir a pagar</button>
+      </div>
     </div>
   `;
 }
@@ -19541,10 +19576,10 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   /* Ráfaga corta de confeti sobre la fila de OKY Cash al activarla.
      Se limpia sola cuando termina la animación. */
-  function burstConfetti() {
-    const row = root.querySelector(".oky-flow-payrow.is-last");
+  function burstConfetti(selector = ".oky-flow-payrow.is-last") {
+    const row = root.querySelector(selector);
     if (!row) return;
-    row.classList.add("is-checked");
+    if (row.classList.contains("oky-flow-payrow")) row.classList.add("is-checked");
 
     const colors = ["#09b4b0", "#a8faf5", "#552588", "#ffb400"];
     for (let i = 0; i < 14; i += 1) {
@@ -19880,7 +19915,11 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
 
       if (showSavings) state.savingsSheet = true;
-      return render();
+      render();
+      /* Sumar uno más sube el ahorro: la franja lo celebra, que es de
+         lo que va la promesa de llenar el carrito. */
+      if (step > 0 && cartSavings(state) > 0) burstConfetti(".oky-flow-foodbar-save");
+      return;
     }
 
     if (action === "close-savings") {

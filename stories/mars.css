@@ -11088,19 +11088,45 @@ button.tactic-offer {
   object-fit: contain;
 }
 
-/* Barra de la PLP: mientras haya carrito, seguir o pagar sin volver. */
+/* Barra de la PLP: mientras haya carrito, seguir o pagar sin volver.
+   Va fija sobre la navbar y la lista de productos pasa por detrás. */
 .oky-flow-foodbar {
   position: absolute;
   left: 12px;
   right: 12px;
   bottom: calc(var(--oky-nav-h) + 10px);
   z-index: 40;
-  display: flex;
-  gap: 10px;
-  padding: 12px;
+  overflow: hidden;
   border-radius: 16px;
   background: var(--white);
   box-shadow: 0 8px 24px rgba(16, 4, 36, 0.18);
+}
+
+/* La franja del ahorro corona la barra: es el argumento para seguir
+   llenando, así que va antes que los botones. */
+.oky-flow-foodbar-save {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 7px 14px;
+  background: var(--aqua-light, #a6f7ee);
+  color: var(--secondary-dark);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.oky-flow-foodbar-ctas {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+}
+
+/* Hueco para que el último producto no quede debajo de la barra. */
+.oky-flow-plp.has-foodbar {
+  padding-bottom: 116px;
 }
 
 .oky-flow-foodbar .btn {
