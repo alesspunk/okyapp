@@ -108,7 +108,8 @@ export const GUA_HOME_MARKUP = `
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="tigo.webp" alt="Tigo" /></div>
                   <p class="token-brand homecard-tile-name">Tigo</p>
                 </article>
-                <article class="homecard-tile">
+                <article class="homecard-tile is-live" data-action="open-plp" data-brand="mcdonalds"
+                  role="button" tabindex="0">
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="mcdonalds.webp" alt="McDonald's logo" /></div>
                   <p class="token-brand homecard-tile-name">McDonald's</p>
                 </article>

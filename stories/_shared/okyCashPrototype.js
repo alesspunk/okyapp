@@ -666,6 +666,30 @@ const FOOD_PRODUCTS = [
     art: "mcd-cuarto-libra.png",
     price: 6.69,
   },
+  /* La lista tiene que dar para hacer scroll: con cuatro filas cabía
+     entera y no se probaba el desplazamiento. */
+  {
+    key: "mcd-mcnuggets",
+    brand: "mcdonalds",
+    label: "McNuggets de 10 piezas y Papas Medianas",
+    art: "mcd-cajita-feliz.png",
+    price: 7.45,
+    was: 9.95,
+  },
+  {
+    key: "mcd-familiar",
+    brand: "mcdonalds",
+    label: "Combo Familiar de 6 Hamburguesas",
+    art: "mcd-combo-4.png",
+    price: 18.9,
+  },
+  {
+    key: "mcd-doble",
+    brand: "mcdonalds",
+    label: "Doble Cuarto de Libra con Queso",
+    art: "mcd-cuarto-libra.png",
+    price: 8.25,
+  },
 ];
 
 /* Cada producto de comida costaría $2.99 de servicio por su cuenta.
@@ -791,12 +815,12 @@ function titledHeader(title, { trailing = "", trailingAction = "" } = {}) {
 }
 
 /* Header del PDP/Checkout: atrás + carrito con su contador. */
-function productHeader(state, { backAction = "back", title = "" } = {}) {
+function productHeader(state, { backAction = "back", title = "", small = false } = {}) {
   const count = state.cart.length;
   return `
     <header class="oky-flow-header">
       ${backButton(backAction)}
-      <span class="oky-flow-title"${title ? "" : ' aria-hidden="true"'}>${title}</span>
+      <span class="oky-flow-title${small ? " is-small" : ""}"${title ? "" : ' aria-hidden="true"'}>${title}</span>
       <button class="header-icon header-icon-bitmap header-icon-bitmap-cart" data-action="open-cart"
         type="button" aria-label="Carrito">
         <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="Cart-3d-icon.png" alt="" />
@@ -1322,6 +1346,13 @@ function cartDrawer(state) {
   const total = cartTotal(state);
   const cashback = cartCashback(state);
 
+  /* La barra de abajo puede venir de dos sitios: el cashback de USA
+     —que la pinta la pantalla de debajo— o el ahorro de la orden en
+     Guatemala. En los dos casos el carrito se acorta para dejarle
+     sitio; sin ninguna, llena hasta la navbar. */
+  const savings = cartSavings(state);
+  const hasBar = cashback > 0 || savings > 0;
+
   /* Cada fila replica el list-item de Figma (275x140): arriba el
      brand item y el botón de borrar, abajo título, precio y ribbon. */
   const rows = state.cart.length
@@ -1334,7 +1365,16 @@ function cartDrawer(state) {
               <div class="oky-flow-cart-head">
                 <span class="brand-item-atom is-no-label">
                   <span class="brand-item-frame">
-                    <span class="brand-item-base"><img src="${product.art}" alt="${product.label}" /></span>
+                    <span class="brand-item-base">
+                      ${
+                        /* En el carrito manda la marca, no el producto:
+                           es lo que se reconoce de un vistazo en una
+                           lista de cosas distintas. */
+                        product.food && FOOD_BRANDS[product.brand]
+                          ? `<img src="${FOOD_BRANDS[product.brand].art}" alt="${FOOD_BRANDS[product.brand].label}" />`
+                          : `<img src="${product.art}" alt="${product.label}" />`
+                      }
+                    </span>
                   </span>
                 </span>
                 ${
@@ -1358,7 +1398,7 @@ function cartDrawer(state) {
               <div class="oky-flow-cart-body">
                 <span class="oky-flow-cart-copy">
                   <p class="oky-flow-cart-title">${product.cardTitle}</p>
-                  <p class="oky-flow-cart-price">
+                  <p class="oky-flow-cart-price${product.was ? " is-deal" : ""}">
                     ${money(item.amount * (item.qty || 1))}
                     ${
                       product.was
@@ -1383,8 +1423,15 @@ function cartDrawer(state) {
     : "";
 
   return `
-    <button class="oky-flow-drawer-backdrop${cashback > 0 ? "" : " is-no-bar"}" data-action="close-cart" type="button" aria-label="Cerrar carrito"></button>
-    <aside class="oky-flow-drawer${cashback > 0 ? "" : " is-no-bar"}" aria-label="Carrito">
+    <button class="oky-flow-drawer-backdrop${hasBar ? "" : " is-no-bar"}" data-action="close-cart" type="button" aria-label="Cerrar carrito"></button>
+    ${
+      savings > 0
+        ? `<div class="oky-flow-savingbar is-drawer-bar oky-flow-drawer-bar">
+            <div class="oky-flow-savebar is-bar"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(savings)}</div>
+          </div>`
+        : ""
+    }
+    <aside class="oky-flow-drawer${hasBar ? "" : " is-no-bar"}" aria-label="Carrito">
       <div class="oky-flow-drawer-head">
         <button class="oky-flow-header-icon" data-action="close-cart" type="button" aria-label="Ir atrás">
           <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
@@ -1410,16 +1457,13 @@ function cartDrawer(state) {
       </div>
 
       <div class="oky-flow-drawer-foot${state.cart.length ? "" : " is-hidden"}">
-        ${
-          /* El ahorro se anuncia donde se decide seguir comprando: si
-             hay comida en el carrito, ahí está el gancho de llevar más. */
-          cartSavings(state) > 0
-            ? `<div class="oky-flow-savebar"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(cartSavings(state))}</div>`
-            : ""
-        }
         <div class="summary-box summary-box-compact">
           <div class="summary-card">
             <div class="summary-card-body">
+              <div class="summary-row summary-row-total">
+                <span class="summary-label-strong">(${state.cart.length}) Subtotal</span>
+                <span class="summary-label-strong">${money(cartSubtotal(state))}</span>
+              </div>
               ${
                 cartFoodCount(state)
                   ? `<div class="summary-row oky-flow-feerow">
@@ -1428,13 +1472,13 @@ function cartDrawer(state) {
                         <span class="oky-flow-fee-was">${money(serviceFeeList(cartFoodCount(state)))}</span>
                         ${money(cartServiceFee(state))}
                       </span>
+                    </div>
+                    <div class="summary-row summary-row-total">
+                      <span class="summary-label-strong">TOTAL</span>
+                      <span class="summary-label-strong">${money(cartTotal(state))}</span>
                     </div>`
                   : ""
               }
-              <div class="summary-row summary-row-total">
-                <span class="summary-label-strong">(${state.cart.length}) Subtotal</span>
-                <span class="summary-label-strong">${money(cartSubtotal(state))}</span>
-              </div>
             </div>
             <div class="summary-cta-row double">
               <button class="btn btn-outlined btn-large" data-action="keep-shopping" type="button">Seguir comprando</button>
@@ -1490,10 +1534,17 @@ function screenCheckout(state) {
           <div class="middle-card-main">
             <p class="middle-card-title">${itemTitle}</p>
             <div class="middle-card-center">
-              <div class="middle-card-value">
-                <span class="middle-card-currency">$</span>
-                <p class="middle-card-amount">${bigAmount(item.amount * (item.qty || 1))}</p>
-              </div>
+              ${
+                /* Un producto de comida no se resume con su precio: se
+                   reconoce por la foto, que es como se eligió. Es la
+                   variante "Vale de Producto" del sistema. */
+                product.food
+                  ? `<figure class="middle-card-product-figure"><img src="${product.art}" alt="${product.label}" /></figure>`
+                  : `<div class="middle-card-value">
+                      <span class="middle-card-currency">$</span>
+                      <p class="middle-card-amount">${bigAmount(item.amount * (item.qty || 1))}</p>
+                    </div>`
+              }
             </div>
           </div>
           <div class="middle-card-footer">
@@ -1528,12 +1579,23 @@ function screenCheckout(state) {
     ${productHeader(state)}
 
     <div class="oky-flow-section">
-      <section class="brand-item-atom is-with-label oky-flow-brand-slot">
-        <p class="brand-item-label token-product-text">${first.label}</p>
-        <div class="brand-item-frame">
-          <div class="brand-item-base"><img src="${first.art}" alt="${first.label}" /></div>
-        </div>
-      </section>
+      ${
+        /* Arriba manda la marca: de un producto de comida se reconoce
+           el logo, no la foto —que ya está en la card de abajo—. */
+        (() => {
+          const brand = first.food && FOOD_BRANDS[first.brand] ? FOOD_BRANDS[first.brand] : null;
+          const label = brand ? brand.label : first.label;
+          const art = brand ? brand.art : first.art;
+          return `
+            <section class="brand-item-atom is-with-label oky-flow-brand-slot">
+              <p class="brand-item-label token-product-text">${label}</p>
+              <div class="brand-item-frame">
+                <div class="brand-item-base"><img src="${art}" alt="${label}" /></div>
+              </div>
+            </section>
+          `;
+        })()
+      }
 
       <div class="checkout-brand-carrousel-shell">
         <section class="brand-carrousel-organism checkout-brand-carrousel" aria-label="Vales">
@@ -2559,19 +2621,19 @@ function foodQtyChip(product, qty) {
     return `
       <button class="chip-ds chip-ds-add0 chip-ds-shadow list-plp-action" type="button"
         data-action="food-more" data-product="${product.key}" aria-label="Agregar ${product.label}">
-        <i class="fa-regular fa-plus" aria-hidden="true"></i>
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
       </button>`;
   }
   return `
     <span class="chip-ds ${qty > 1 ? "chip-ds-add2" : "chip-ds-add1"} chip-ds-shadow list-plp-action">
       <button class="chip-ds-step" type="button" data-action="food-less" data-product="${product.key}"
         aria-label="Quitar uno de ${product.label}">
-        <i class="fa-regular ${qty > 1 ? "fa-minus" : "fa-trash"} chip-ds-pill-icon chip-ds-trash" aria-hidden="true"></i>
+        <i class="fa-solid ${qty > 1 ? "fa-minus" : "fa-trash-can"} chip-ds-pill-icon${qty > 1 ? "" : " chip-ds-trash"}" aria-hidden="true"></i>
       </button>
       <span class="chip-ds-number">${qty}</span>
       <button class="chip-ds-step" type="button" data-action="food-more" data-product="${product.key}"
         aria-label="Agregar otro ${product.label}">
-        <i class="fa-regular fa-plus chip-ds-pill-icon" aria-hidden="true"></i>
+        <i class="fa-solid fa-plus chip-ds-pill-icon" aria-hidden="true"></i>
       </button>
     </span>`;
 }
@@ -2583,7 +2645,7 @@ function foodBrandHeader(state, brand, { active = "productos" } = {}) {
     { key: "ofertas", label: "Ofertas", icon: "plateu-ofertas.png" },
   ];
   return `
-    ${productHeader(state, { title: brand.label })}
+    ${productHeader(state, { title: brand.label, small: true })}
     <div class="oky-flow-foodbrand">
       <div class="oky-flow-foodbrand-logo" style="background:${brand.bg}">
         <img src="${brand.art}" alt="${brand.label}" />
@@ -2595,7 +2657,7 @@ function foodBrandHeader(state, brand, { active = "productos" } = {}) {
               (t) => `
             <div class="plateu-item">
               <div class="plateu-icon-wrap"><img class="plateu-icon" src="${t.icon}" alt="" /></div>
-              ${t.key === active ? `<span class="plateu-chip">${t.label}</span>` : `<span class="plateu-label">${t.label}</span>`}
+              ${t.key === active ? `<span class="plateu-chip is-outlined">${t.label}</span>` : `<span class="plateu-label">${t.label}</span>`}
             </div>
           `,
             )
@@ -2612,7 +2674,7 @@ function screenPlp(state) {
   const items = FOOD_PRODUCTS.filter((f) => f.brand === key);
   const qtyOf = (product) => (state.cart.find((i) => i.productKey === product.key) || {}).qty || 0;
 
-  const row = (product, last) => {
+  const row = (product) => {
     const off = product.was ? Math.round((1 - product.price / product.was) * 100) : 0;
     return `
       <div class="list-plp-row is-live" data-action="open-food" data-product="${product.key}" role="button" tabindex="0">
@@ -2633,7 +2695,6 @@ function screenPlp(state) {
         </div>
         ${foodQtyChip(product, qtyOf(product))}
       </div>
-      ${last ? "" : `<div class="list-plp-divider"></div>`}
     `;
   };
 
@@ -2641,7 +2702,7 @@ function screenPlp(state) {
     ${statusBar()}
     ${foodBrandHeader(state, brand)}
     <div class="oky-flow-section oky-flow-plp">
-      ${items.map((f, i) => row(f, i === items.length - 1)).join("")}
+      ${items.map(row).join("")}
     </div>
     ${cartFoodCount(state) ? foodCartBar(state) : ""}
     ${navbar("", state)}
@@ -2654,7 +2715,7 @@ function foodCartBar(state) {
   return `
     <div class="oky-flow-foodbar">
       <button class="btn btn-outlined btn-large" data-action="keep-shopping" type="button">Seguir comprando</button>
-      <button class="btn btn-primary btn-large" data-action="go:decision" type="button">Ir a caja</button>
+      <button class="btn btn-primary btn-large" data-action="go:decision" type="button">Ir a pagar</button>
     </div>
   `;
 }
@@ -2673,22 +2734,28 @@ function screenFoodPdp(state) {
 
     <div class="oky-flow-section oky-flow-foodpdp">
       <section class="middle-card-shell is-pdp" aria-label="${product.label}">
-        <article class="middle-card-molecule">
+        <article class="middle-card-molecule is-product">
           <div class="middle-card-content">
-            <p class="middle-card-title">${product.label}</p>
-            <div class="oky-flow-foodpdp-photo"><img src="${product.art}" alt="${product.label}" /></div>
-          </div>
-          <div class="middle-card-footer">
-            <span class="middle-card-link">¿Qué Incluye?</span>
-            <span class="middle-card-link">Como Canjear</span>
+            <div class="middle-card-main">
+              <p class="middle-card-title">${product.label}</p>
+              <div class="middle-card-center">
+                <figure class="middle-card-product-figure"><img src="${product.art}" alt="${product.label}" /></figure>
+              </div>
+            </div>
+            <div class="middle-card-footer">
+              <span class="middle-card-footer-start">¿Qué Incluye?</span>
+              <span class="middle-card-footer-end">Como Canjear</span>
+            </div>
           </div>
         </article>
       </section>
     </div>
 
     <section class="pdp-page-summary-wrap oky-flow-dock" aria-label="Resumen de compra">
-      <div class="summary-box">
-        <div class="summary-rate-strip"><span>TIPO DE CAMBIO: Q 7.55</span></div>
+      <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="pdp">
+        <div class="summary-type-overlay">
+          <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
+        </div>
         <div class="summary-card">
           <div class="summary-card-body">
             <div class="summary-row summary-row-total">

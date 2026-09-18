@@ -7563,6 +7563,14 @@ body {
 /* El título va centrado en la pantalla, no en el hueco que dejan los
    iconos: sale del flujo para que ni el botón de atrás ni el de la
    derecha lo muevan de sitio. */
+/* El nombre de la marca no es el título de la pantalla: va más
+   discreto, que lo que manda arriba es el logo. */
+.oky-flow-title.is-small {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
 .oky-flow-title {
   position: absolute;
   left: 50%;
@@ -7881,6 +7889,9 @@ body {
   font-size: 10px;
   line-height: 1.57;
   letter-spacing: 0.5px;
+  /* El rótulo va como se escribe, no en mayúsculas: el borde mostaza
+     ya dice cuál está activa. */
+  text-transform: none;
 }
 
 /* ── Checkbox (no existía en el sistema) ────────────────── */
@@ -10959,12 +10970,23 @@ button.tactic-offer {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* El logo entra entero: recortarlo a la caja cortaba los arcos. */
+  object-fit: contain;
 }
 
 .oky-flow-foodbrand-plateu {
   width: calc(100% - 24px);
   margin-top: 10px;
+  /* La sombra del plateu del sistema: sin ella la barra se pegaba al
+     fondo y dejaba de leerse como una tarjeta. */
+  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.17);
+}
+
+/* Los rótulos van como se escriben, igual que el chip activo. */
+.oky-flow-foodbrand-plateu .plateu-label {
+  text-transform: none;
+  font-size: 10px;
+  letter-spacing: 0.3px;
 }
 
 .oky-flow-foodbrand-plateu .plateu-track.is-static {
@@ -10989,27 +11011,65 @@ button.tactic-offer {
   cursor: default;
 }
 
+/* El chip de cantidad se alinea con los demás controles del carrito:
+   40px de alto, radio 16 y el mismo tacho rojo del botón de borrar.
+   Los tres estados comparten alto, radio y borde, para que pulsar el
+   más no dé un salto de tamaño. */
+.list-plp-action.chip-ds,
+.oky-flow-cart-body .chip-ds {
+  width: auto;
+  max-width: none;
+  height: 40px;
+  min-height: 40px;
+  padding: 0 14px;
+  gap: 14px;
+  border: 1px solid var(--border-main);
+  border-radius: 16px;
+}
+
+.list-plp-action.chip-ds-add0,
+.oky-flow-cart-body .chip-ds-add0 {
+  width: 40px;
+  padding: 0;
+}
+
 .chip-ds-step {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 20px;
+  height: 100%;
   padding: 0;
   border: 0;
   background: none;
-  color: inherit;
+  color: var(--primary-main);
   cursor: pointer;
 }
 
-.oky-flow-foodpdp-photo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 0 4px;
+/* Rojo solo el tacho, que borra la línea; el menos es una resta más
+   y va en el gris del resto de controles. */
+.chip-ds-step .chip-ds-trash {
+  color: var(--error-dark);
 }
 
-.oky-flow-foodpdp-photo img {
-  width: 132px;
-  height: 132px;
+.chip-ds-step .fa-minus {
+  color: var(--text-secondary);
+}
+
+.chip-ds .chip-ds-pill-icon {
+  font-size: 15px;
+}
+
+.chip-ds-number {
+  font-family: "Lato", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary-base);
+}
+
+.oky-flow-foodpdp .middle-card-product-figure img {
+  width: 128px;
+  height: 128px;
   object-fit: contain;
 }
 
@@ -11031,28 +11091,40 @@ button.tactic-offer {
 .oky-flow-foodbar .btn {
   flex: 1 1 0;
   min-width: 0;
+  /* "Seguir comprando" cabe en una línea: partido en dos hacía crecer
+     la barra y descolocaba el par de botones. */
+  padding-inline: 8px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 /* El costo por servicio va en aqua, con lo que costaría tachado al
    lado: la rebaja se ve sin tener que explicarla. */
+/* Mismo aqua que OKY Cash en el desglose: los dos son dinero que no
+   se paga, y dos verdes distintos se leen como dos cosas distintas. */
 .oky-flow-feerow {
-  color: var(--aqua-dark, #0c6462);
+  color: var(--secondary-dark);
   font-weight: 700;
 }
 
 .oky-flow-fee-was {
   margin-right: 6px;
-  color: var(--text-secondary, #8e8e99);
-  font-weight: 600;
+  color: var(--disable-text);
+  font-weight: 700;
   text-decoration: line-through;
 }
 
 /* El precio de lista del producto, tachado junto al de venta. */
+/* Con precio de lista al lado, el de venta pasa al aqua de siempre y
+   el tachado al gris de deshabilitado. */
+.oky-flow-cart-price.is-deal {
+  color: var(--secondary-dark);
+}
+
 .oky-flow-cart-was {
-  margin-left: 8px;
-  color: var(--text-secondary, #8e8e99);
-  font-size: 0.82em;
-  font-weight: 600;
+  margin-left: 10px;
+  color: var(--disable-text);
+  font-weight: 800;
   text-decoration: line-through;
 }
 
@@ -11074,8 +11146,14 @@ button.tactic-offer {
   font-weight: 800;
 }
 
-.oky-flow-drawer-foot .oky-flow-savebar {
-  margin-bottom: 10px;
+/* La barra del carrito se ancla igual que la de cashback de USA: al
+   pie del frame y por encima de la navbar. */
+.oky-flow-drawer-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--oky-nav-h);
+  z-index: 91;
 }
 
 .oky-flow-savebar.is-bar {
@@ -11094,8 +11172,9 @@ button.tactic-offer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 86%;
-  padding: 34px 24px 24px;
+  height: auto;
+  max-height: 88%;
+  padding: 30px 24px 22px;
   border-radius: 22px 22px 0 0;
   background: #0f6b63;
   color: var(--white);
@@ -11123,17 +11202,20 @@ button.tactic-offer {
 }
 
 .oky-flow-savings-art {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   min-height: 0;
-  padding: 10px 0;
+  /* Sin aire de sobra arriba ni abajo: la hoja se apoyaba en la
+     ilustración y quedaba altísima. */
+  margin: 14px 0 18px;
+  padding: 0;
 }
 
 .oky-flow-savings-art img {
-  max-width: 230px;
+  max-width: 190px;
   max-height: 100%;
   object-fit: contain;
 }
