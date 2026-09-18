@@ -7414,6 +7414,12 @@ body {
   padding-bottom: calc(var(--oky-nav-h) + var(--oky-bar-h) + 168px);
 }
 
+/* El mismo resumen, sin barra debajo: el PDP de Guatemala solo la
+   enseña cuando el carrito lleva algo ahorrado. */
+.oky-flow-scroll.has-dock-no-bar {
+  padding-bottom: calc(var(--oky-nav-h) + 168px);
+}
+
 /* Contenido estándar: 16px por lado y centrado. */
 .oky-flow-section {
   width: 100%;
@@ -7496,6 +7502,10 @@ body {
   padding: 16px var(--oky-gutter) 10px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 18%, #fff 100%);
   pointer-events: none;
+}
+
+.oky-flow-dock.is-no-bar {
+  bottom: var(--oky-nav-h);
 }
 
 .oky-flow-dock > * {

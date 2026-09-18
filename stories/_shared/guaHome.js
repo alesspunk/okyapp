@@ -116,19 +116,23 @@ export const GUA_HOME_MARKUP = `
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="mcdonalds.webp" alt="McDonald's logo" /></div>
                   <p class="token-brand homecard-tile-name">McDonald's</p>
                 </article>
-                <article class="homecard-tile">
+                <article class="homecard-tile is-live" data-action="open-guapdp" data-product="gua-pollocampero"
+                  role="button" tabindex="0">
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="pollo-campero.webp" alt="Pollo Campero logo" /></div>
                   <p class="token-brand homecard-tile-name">Pollo Campero</p>
                 </article>
-                <article class="homecard-tile">
+                <article class="homecard-tile is-live" data-action="open-guapdp" data-product="gua-burgerking"
+                  role="button" tabindex="0">
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="burguerking.webp" alt="Burger King logo" /></div>
                   <p class="token-brand homecard-tile-name">Burger King</p>
                 </article>
-                <article class="homecard-tile">
+                <article class="homecard-tile is-live" data-action="open-guapdp" data-product="gua-pollogranjero"
+                  role="button" tabindex="0">
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="pollo-granjero.webp" alt="Pollo Granjero logo" /></div>
                   <p class="token-brand homecard-tile-name">Pollo Granjero</p>
                 </article>
-                <article class="homecard-tile">
+                <article class="homecard-tile is-live" data-action="open-guapdp" data-product="gua-ihop"
+                  role="button" tabindex="0">
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="ihop.webp" alt="iHop logo" /></div>
                   <p class="token-brand homecard-tile-name">iHop</p>
                 </article>

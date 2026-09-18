@@ -724,20 +724,72 @@ FOOD_PRODUCTS.forEach((food) => {
     noCashback: true,
     rate: 0,
     food: true,
+    /* Paga costo por servicio, como todo lo que se entrega. */
+    service: true,
   };
 });
 
-/* Cuántas unidades de comida lleva el carrito: las recargas no pagan
-   costo por servicio ni cuentan para el tope. */
-const cartFoodCount = (state) =>
-  state.cart.reduce((n, item) => n + ((PRODUCTS[item.productKey] || {}).food ? item.qty || 1 : 0), 0);
+/* ── Marcas de Guatemala que se compran por monto ──────────
+   Un vale en quetzales que se paga en dólares: mismo PDP, mismo rango
+   y mismo costo por servicio para todas, y lo único suyo es el logo.
+   Las claves llevan prefijo porque varias de estas marcas ya existen
+   en el catálogo de USA con otra ficha. */
+const GUA_RATE = 7.55;
+const GUA_VALE_MIN = 10;
+const GUA_VALE_MAX = 1000;
+const GUA_VALE_DEFAULT = 50;
 
-const cartServiceFee = (state) => serviceFeeOf(cartFoodCount(state));
+/* Se teclea en quetzales y se cobra en dólares: el carrito y el
+   checkout hablan en dólares, así que la conversión pasa una sola vez,
+   al entrar al carrito. */
+const toUsd = (q) => Math.round(((Number(q) || 0) / GUA_RATE) * 100) / 100;
+/* Mil quetzales se leen "1,000", no "1000". */
+const bigQuetzal = (v) => (Number.isInteger(v) ? Number(v).toLocaleString("en-US") : v.toFixed(2));
+
+const GUA_BRANDS = [
+  { key: "gua-pollocampero", label: "Pollo Campero", art: "pollo-campero.webp" },
+  { key: "gua-burgerking", label: "Burger King", art: "burguerking.webp" },
+  { key: "gua-pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp" },
+  { key: "gua-ihop", label: "IHOP", art: "ihop.webp" },
+  { key: "gua-dominos", label: "Domino's", art: "dominos.png" },
+  { key: "gua-claro", label: "Claro", art: "claro.webp" },
+];
+
+GUA_BRANDS.forEach((brand) => {
+  PRODUCTS[brand.key] = {
+    ...brand,
+    /* La card enseña qué es; el carrito, de quién es. */
+    cardTitle: "OKYVale",
+    cartTitle: `OKYVale ${brand.label}`,
+    hero: brand.art,
+    bg: "#ffffff",
+    min: GUA_VALE_MIN,
+    max: GUA_VALE_MAX,
+    rate: 0,
+    /* Precio regular: no llevan descuento, así que no hay ribbon ni
+       tachado en ningún paso. Como Tigo, tampoco dan OKY Cash, pero
+       se pueden pagar con el que ya se tiene. */
+    noCashback: true,
+    country: "gua",
+    wallet: "vales",
+    quetzal: true,
+    service: true,
+    legal: false,
+  };
+});
+
+/* Cuántas unidades del carrito pagan costo por servicio: la comida y
+   los vales de monto de Guatemala. Las recargas de Tigo no, ni nada de
+   USA, así que tampoco cuentan para el tope. */
+const cartServiceCount = (state) =>
+  state.cart.reduce((n, item) => n + ((PRODUCTS[item.productKey] || {}).service ? item.qty || 1 : 0), 0);
+
+const cartServiceFee = (state) => serviceFeeOf(cartServiceCount(state));
 
 /* Lo ahorrado en esta orden: lo que se deja de pagar en costo por
    servicio más los descuentos de precio de cada producto. */
 function cartSavings(state) {
-  const n = cartFoodCount(state);
+  const n = cartServiceCount(state);
   const onFee = serviceFeeList(n) - serviceFeeOf(n);
   const onPrice = state.cart.reduce((sum, item) => {
     const product = PRODUCTS[item.productKey] || {};
@@ -1464,7 +1516,7 @@ function cartDrawer(state) {
               </div>
               <div class="oky-flow-cart-body">
                 <span class="oky-flow-cart-copy">
-                  <p class="oky-flow-cart-title">${product.cardTitle}</p>
+                  <p class="oky-flow-cart-title">${product.cartTitle || product.cardTitle}</p>
                   <p class="oky-flow-cart-price${product.was ? " is-deal" : ""}">
                     ${money(item.amount * (item.qty || 1))}
                     ${
@@ -1544,10 +1596,10 @@ function cartDrawer(state) {
                 <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
               </div>
               ${
-                cartFoodCount(state)
+                cartServiceCount(state)
                   ? `<div class="summary-row oky-flow-feerow">
                       <span>Costo por servicio</span>
-                      <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
+                      <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartServiceCount(state)))}</span>
                     </div>`
                   : ""
               }
@@ -1556,7 +1608,7 @@ function cartDrawer(state) {
               ${
                 /* El TOTAL aparece en cuanto hay algo que restar o que
                    sumar al subtotal; si no, repetiría la misma cifra. */
-                cartFoodCount(state) || appliedPromo(state) > 0 || state.okyCashEnabled
+                cartServiceCount(state) || appliedPromo(state) > 0 || state.okyCashEnabled
                   ? `<div class="summary-row summary-row-total">
                       <span class="summary-label-strong">TOTAL</span>
                       <span class="summary-label-strong">${money(orderDue(state))}</span>
@@ -1624,10 +1676,15 @@ function screenCheckout(state) {
                    variante "Vale de Producto" del sistema. */
                 product.food
                   ? `<figure class="middle-card-product-figure"><img src="${product.art}" alt="${product.label}" /></figure>`
-                  : `<div class="middle-card-value">
-                      <span class="middle-card-currency">$</span>
-                      <p class="middle-card-amount">${bigAmount(item.amount * (item.qty || 1))}</p>
-                    </div>`
+                  : product.quetzal
+                    ? `<div class="middle-card-value">
+                        <span class="middle-card-currency">Q</span>
+                        <p class="middle-card-amount">${bigQuetzal(item.quetzales || 0)}</p>
+                      </div>`
+                    : `<div class="middle-card-value">
+                        <span class="middle-card-currency">$</span>
+                        <p class="middle-card-amount">${bigAmount(item.amount * (item.qty || 1))}</p>
+                      </div>`
               }
             </div>
           </div>
@@ -1777,24 +1834,24 @@ function screenCheckout(state) {
                      <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                    </div>
                    ${
-                     cartFoodCount(state)
+                     cartServiceCount(state)
                        ? `<div class="summary-row oky-flow-feerow">
                            <span>Costo por servicio</span>
-                           <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
+                           <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartServiceCount(state)))}</span>
                          </div>`
                        : ""
                    }
                    ${cashRow(state)}`
-                : cartFoodCount(state) || appliedPromo(state) > 0
+                : cartServiceCount(state) || appliedPromo(state) > 0
                   ? `<div class="summary-row">
                        <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
                        <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                      </div>
                      ${
-                       cartFoodCount(state)
+                       cartServiceCount(state)
                          ? `<div class="summary-row oky-flow-feerow">
                              <span>Costo por servicio</span>
-                             <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
+                             <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartServiceCount(state)))}</span>
                            </div>`
                          : ""
                      }
@@ -2634,11 +2691,11 @@ const CATEGORY_PAGES = {
     section: "Comida rápida",
     brands: [
       { key: "mcdonalds", label: "McDonald's", art: "mcdonalds.webp", action: "open-plp", brand: "mcdonalds" },
-      { key: "pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp" },
-      { key: "burgerking", label: "Burger King", art: "burguerking.webp" },
-      { key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp" },
-      { key: "ihop", label: "IHOP", art: "ihop.webp" },
-      { key: "dominos", label: "Domino's", art: "dominos.png" },
+      { key: "pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp", action: "open-guapdp", product: "gua-pollogranjero" },
+      { key: "burgerking", label: "Burger King", art: "burguerking.webp", action: "open-guapdp", product: "gua-burgerking" },
+      { key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", action: "open-guapdp", product: "gua-pollocampero" },
+      { key: "ihop", label: "IHOP", art: "ihop.webp", action: "open-guapdp", product: "gua-ihop" },
+      { key: "dominos", label: "Domino's", art: "dominos.png", action: "open-guapdp", product: "gua-dominos" },
     ],
   },
   recargas: {
@@ -2646,7 +2703,7 @@ const CATEGORY_PAGES = {
     section: "Operadores",
     brands: [
       { key: "tigo", label: "Tigo", art: "tigo.webp", action: "open-tigo" },
-      { key: "claro", label: "Claro", art: "claro.webp" },
+      { key: "claro", label: "Claro", art: "claro.webp", action: "open-guapdp", product: "gua-claro" },
     ],
   },
 };
@@ -2661,7 +2718,7 @@ function screenCategory(state) {
     const live = brand.action
       ? ` is-live" data-action="${brand.action}"${
           brand.brand ? ` data-brand="${brand.brand}"` : ""
-        } role="button" tabindex="0`
+        }${brand.product ? ` data-product="${brand.product}"` : ""} role="button" tabindex="0`
       : "";
     return `
       <article class="homecard-tile${live}">
@@ -2793,10 +2850,10 @@ function screenPlp(state) {
   return `
     ${statusBar()}
     ${foodBrandHeader(state, brand)}
-    <div class="oky-flow-section oky-flow-plp${cartFoodCount(state) ? " has-foodbar" : ""}">
+    <div class="oky-flow-section oky-flow-plp${cartServiceCount(state) ? " has-foodbar" : ""}">
       ${items.map(row).join("")}
     </div>
-    ${cartFoodCount(state) ? foodCartBar(state) : ""}
+    ${cartServiceCount(state) ? foodCartBar(state) : ""}
     ${navbar("", state)}
   `;
 }
@@ -3015,6 +3072,13 @@ function screenVoucher(state) {
       : entry && entry.amount != null
         ? entry.amount
         : state.amounts[card.key] || BRAND_DEFAULT_AMOUNT;
+  /* En quetzales manda lo que se compró; si el vale es de relleno de
+     la demo, el monto de arranque. */
+  const quetzalAmount =
+    (purchase && purchase.quetzales) ||
+    (entry && entry.quetzales) ||
+    state.amounts[card.key] ||
+    GUA_VALE_DEFAULT;
 
   /* Desde "Tus compras" la pantalla es el detalle de la orden; desde
      Mi wallet, el vale de la marca. */
@@ -3048,8 +3112,10 @@ function screenVoucher(state) {
         topFooterRightLabel: "Brand Disclaimer",
         middleCardPath: "Molecule/Middle Card/Amount",
         middleTitle: kind,
-        middleCurrency: "$",
-        middleAmount: String(amount),
+        /* El vale de Guatemala se canjea en quetzales, así que es lo
+           que lleva escrito; los dólares se quedaron en el checkout. */
+        middleCurrency: card.quetzal ? "Q" : "$",
+        middleAmount: card.quetzal ? bigQuetzal(quetzalAmount) : String(amount),
         bottomVariantPath: "Molecule/Bottom Card/Gift Card",
         bottomButtonLabel: "Help",
         /* Compartido, la parte de abajo de la card deja de mostrar
@@ -3476,6 +3542,111 @@ function screenTigoPdp(state) {
   `;
 }
 
+/* ── PDP de marca de Guatemala (94839:37191) ──────────────
+   Misma anatomía que el de USA —marca, card de monto, campo y resumen
+   acoplado abajo— con cuatro diferencias: el monto se teclea en
+   quetzales, el resumen los convierte a dólares y declara el tipo de
+   cambio en su solapa, no hay ribbon porque son de precio regular, y
+   la barra de abajo cuenta el ahorro acumulado del carrito en vez del
+   cashback, que en Guatemala todavía no se gana. */
+function screenGuaPdp(state) {
+  const product = PRODUCTS[state.params.product] || PRODUCTS[GUA_BRANDS[0].key];
+  const q = state.amounts[product.key] ?? GUA_VALE_DEFAULT;
+  const cartItem = state.cart.find((item) => item.productKey === product.key);
+  /* Ya está en el carrito, pero con otro monto: hay algo que guardar. */
+  const changed = cartItem && cartItem.quetzales !== q;
+  const savings = cartSavings(state);
+
+  return `
+    ${statusBar()}
+    ${/* Se llega desde la home y desde la Category Page: atrás desanda
+          el camino que se tomó. */ ""}
+    ${productHeader(state, { backAction: "back" })}
+
+    <div class="oky-flow-stack-center">
+      <div class="oky-flow-brand-slot">
+        <section class="brand-item-atom is-with-label" aria-label="${product.label}">
+          <p class="brand-item-label token-product-text">${product.label}</p>
+          <div class="brand-item-frame">
+            <div class="brand-item-base"><img src="${product.art}" alt="${product.label}" /></div>
+          </div>
+        </section>
+      </div>
+
+      <div>
+        <section class="middle-card-shell is-pdp" aria-label="${product.cardTitle}">
+          <article class="middle-card-molecule is-amount">
+            <div class="middle-card-content">
+              <div class="middle-card-main">
+                <p class="middle-card-title">${product.cardTitle}</p>
+                <div class="middle-card-center">
+                  <div class="middle-card-value">
+                    <span class="middle-card-currency">Q</span>
+                    <p class="middle-card-amount">${bigQuetzal(q)}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="middle-card-footer">
+                <span class="middle-card-footer-start">Mostrar al cajero</span>
+                <span class="middle-card-footer-end">Como canjear</span>
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+
+      <div>
+        <div class="input-wrapper" style="width:100%">
+          <label id="oky-amount-label" class="input-label input-label-dinamic" for="oky-amount">
+            Desde ${product.min} hasta ${product.max.toLocaleString("en-US")}
+          </label>
+          <span class="input-dinamic-prefix" aria-hidden="true">Q</span>
+          <input id="oky-amount" class="input-field input-dinamic input-dinamic-hasvalue" type="text"
+            inputmode="decimal" value="${bigAmount(q)}" data-action="input-amount" data-product="${product.key}"
+            aria-labelledby="oky-amount-label" />
+        </div>
+      </div>
+    </div>
+
+    <div class="oky-flow-dock${savings > 0 ? "" : " is-no-bar"}">
+      <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="pdp">
+        <div class="summary-type-overlay">
+          <span class="token-exchange">TIPO DE CAMBIO: Q ${GUA_RATE.toFixed(2)}</span>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-body">
+            <div class="summary-row">
+              <span class="summary-label-strong">Subtotal</span>
+              <span class="summary-label-strong" data-role="pdp-subtotal">${money(toUsd(q))}</span>
+            </div>
+          </div>
+          <div class="summary-cta-row">
+            ${
+              cartItem && !changed
+                ? `<button class="btn btn-primary summary-btn" data-action="open-cart" type="button">Ver carrito</button>`
+                : `<button class="btn btn-primary summary-btn" data-action="add-to-cart" data-product="${product.key}"
+                     type="button" ${q > 0 ? "" : "disabled"}>
+                     ${changed ? "" : `<i class="fa-solid fa-plus" aria-hidden="true"></i>`}${changed ? "Actualizar" : "Agregar"}
+                   </button>`
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    ${
+      /* Mismo modelo que la barra de la PLP: lo que se lleva ahorrado
+         es el argumento para seguir llenando el carrito. */
+      savings > 0
+        ? `<div class="oky-flow-savingbar">
+            <div class="oky-flow-savebar is-bar"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;Llena el carrito. Vas ahorrando ${money(savings)}</div>
+          </div>`
+        : ""
+    }
+    ${navbar("", state)}
+  `;
+}
+
 /* ── Onboarding Contactos (99140:47037) ─────────────────── */
 function screenDecision() {
   return `
@@ -3515,6 +3686,10 @@ function scrollClass(state) {
      barras: la de cashback o la de ahorro de la orden. */
   if (state.screen === "checkout" && cartCashback(state) <= 0 && cartSavings(state) <= 0) return "";
   /* Sin píldora de saldo, la barra de "Tus compras" es solo el botón. */
+  /* El PDP de Guatemala solo tiene barra de ahorro cuando hay algo
+     ahorrado; sin ella el resumen baja a ras de la navbar y el hueco
+     de abajo es menor. */
+  if (state.screen === "guapdp") return cartSavings(state) > 0 ? "has-dock" : "has-dock-no-bar";
   if (["purchases", "success", "cashwin"].includes(state.screen) && state.lastEarned <= 0) {
     return "has-cta";
   }
@@ -3535,6 +3710,7 @@ function renderScreen(state) {
     case "carddesign": return screenCardDesign(state);
     case "homegua": return screenHomeGua(state);
     case "tigopdp": return screenTigoPdp(state);
+    case "guapdp": return screenGuaPdp(state);
     case "category": return screenCategory(state);
     case "plp": return screenPlp(state);
     case "foodpdp": return screenFoodPdp(state);
@@ -4214,6 +4390,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         id: `p-${Date.now()}-${i}`,
         productKey: item.productKey,
         amount: item.amount,
+        /* El vale de una marca de Guatemala vale quetzales: los
+           dólares son solo lo que costó pagarlo. */
+        ...(item.quetzales != null ? { quetzales: item.quetzales } : {}),
         cashback: item.cashback,
         used: i === 0 ? used : 0,
         date: stamp(0),
@@ -4473,13 +4652,25 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "add-to-cart") {
       const product = PRODUCTS[el.dataset.product];
-      const amount = state.amounts[product.key];
-      if (!amount) return;
+      const typed = state.amounts[product.key];
+      if (!typed) return;
+      /* Lo tecleado son quetzales en las marcas de Guatemala; el
+         carrito guarda dólares y se queda con el monto original para
+         poder volver a abrir el PDP donde estaba. */
+      const amount = product.quetzal ? toUsd(typed) : typed;
       const tier = getTier(amount, product, state.promoLive);
       const updating = state.cart.some((item) => item.productKey === product.key);
+      /* Con costo por servicio, la promesa del ahorro se cuenta una
+         vez: cuando entra lo primero que lo paga. */
+      const first = product.service && !cartServiceCount(state);
       state.cart = state.cart
         .filter((item) => item.productKey !== product.key)
-        .concat({ productKey: product.key, amount, cashback: amount * tier.rate });
+        .concat({
+          productKey: product.key,
+          amount,
+          cashback: amount * tier.rate,
+          ...(product.quetzal ? { quetzales: typed } : {}),
+        });
 
       /* Cambiar el monto de algo que ya estaba no es una novedad: abre
          el carrito y ya. Lo que entra por primera vez se confirma con
@@ -4489,12 +4680,20 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         return render();
       }
 
+      const showSavings = first && !state.savingsSeen;
+      if (showSavings) state.savingsSeen = true;
+
       state.addedToast = true;
       render();
       clearTimeout(addedTimer);
       addedTimer = setTimeout(() => {
         state.addedToast = false;
-        state.cartOpen = true;
+        if (showSavings) {
+          state.savingsSheet = true;
+          state.savingsFromPdp = true;
+        } else {
+          state.cartOpen = true;
+        }
         render();
       }, 1200);
       return;
@@ -4505,9 +4704,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          otra vez, esa marca se reemplaza en vez de duplicarse. */
       const key = el.dataset.product;
       const inCart = state.cart.find((item) => item.productKey === key);
-      if (inCart) state.amounts[key] = inCart.amount;
+      if (inCart) state.amounts[key] = inCart.quetzales != null ? inCart.quetzales : inCart.amount;
       /* Tigo se edita desde su slider, no desde el campo de monto. */
       if (key === "tigo") return go("tigopdp");
+      if ((PRODUCTS[key] || {}).quetzal) return go("guapdp", { product: key });
       return go("pdp", { product: key });
     }
 
@@ -4613,7 +4813,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (!product) return;
       const step = action === "food-more" ? 1 : -1;
       const line = state.cart.find((i) => i.productKey === key);
-      const first = !cartFoodCount(state);
+      const first = !cartServiceCount(state);
 
       if (!line) {
         if (step < 0) return;
@@ -4688,6 +4888,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "open-category") {
       return go("category", { category: el.dataset.category || "recargas" });
+    }
+
+    if (action === "open-guapdp") {
+      const key = el.dataset.product;
+      if (!PRODUCTS[key]) return;
+      /* La primera visita abre en el monto de arranque; después, en lo
+         último que se tecleó. */
+      if (state.amounts[key] == null) state.amounts[key] = GUA_VALE_DEFAULT;
+      return go("guapdp", { product: key });
     }
 
     if (action === "open-tigo") {
@@ -5109,7 +5318,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const cashback = amount * tier.rate;
 
       const bigEl = root.querySelector(".middle-card-amount");
-      if (bigEl) bigEl.textContent = bigAmount(amount);
+      if (bigEl) bigEl.textContent = product.quetzal ? bigQuetzal(amount) : bigAmount(amount);
 
       const ribbon = root.querySelector(".oky-flow-ribbon-slot .discount-ribbon-wrap");
       if (ribbon) {
@@ -5126,7 +5335,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
 
       const subtotal = root.querySelector("[data-role='pdp-subtotal']");
-      if (subtotal) subtotal.textContent = money(amount);
+      if (subtotal) subtotal.textContent = money(product.quetzal ? toUsd(amount) : amount);
 
       /* El CTA se reescribe solo: si el vale ya está en el carrito y el
          monto cambió, pasa de "Ver carrito" a "Actualizar". Se toca
@@ -5134,8 +5343,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const ctaRow = root.querySelector(".summary-cta-row");
       const inCartNow = state.cart.find((item) => item.productKey === product.key);
       if (ctaRow && inCartNow) {
+        /* En las marcas de Guatemala lo que se compara es lo tecleado,
+           que son quetzales; el carrito guarda su equivalente en
+           dólares. */
+        const inCartValue = product.quetzal ? inCartNow.quetzales : inCartNow.amount;
         ctaRow.innerHTML =
-          inCartNow.amount === amount
+          inCartValue === amount
             ? `<button class="btn btn-primary summary-btn" data-action="open-cart" type="button">Ver carrito</button>`
             : `<button class="btn btn-primary summary-btn" data-action="add-to-cart" data-product="${product.key}"
                  type="button" ${amount > 0 ? "" : "disabled"}>Actualizar</button>`;
