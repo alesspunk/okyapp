@@ -271,7 +271,7 @@ Object.entries(BRANDS).forEach(([key, brand]) => {
 PRODUCTS.tigo = {
   key: "tigo",
   label: "Tigo",
-  cardTitle: "Paquete de Internet",
+  cardTitle: "Recargas Tiempo Aire",
   art: "tigo.webp",
   hero: "tigo.webp",
   min: 5,
@@ -2769,11 +2769,11 @@ function screenTigoPdp(state) {
                 </div>
                 <div class="plateu-item">
                   <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu9.png" alt="INTERNET" /></div>
-                  <span class="plateu-chip">Internet</span>
+                  <span class="plateu-label">Internet</span>
                 </div>
                 <div class="plateu-item">
                   <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu10.png" alt="RECARGAS" /></div>
-                  <span class="plateu-label">Recargas</span>
+                  <span class="plateu-chip">Recargas</span>
                 </div>
                 <div class="plateu-item">
                   <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu11.png" alt="ANTENITA" /></div>
@@ -2788,7 +2788,7 @@ function screenTigoPdp(state) {
               <article class="middle-card-molecule is-amount">
                 <div class="middle-card-content">
                   <div class="middle-card-main">
-                    <p class="middle-card-title">Paquete de Internet</p>
+                    <p class="middle-card-title">Recargas Tiempo Aire</p>
                     <div class="middle-card-center">
                       <div class="middle-card-value">
                         <span class="middle-card-currency">$</span>
