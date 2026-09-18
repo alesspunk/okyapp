@@ -2764,19 +2764,19 @@ function screenTigoPdp(state) {
             <section class="plateu-molecule is-static is-default pdp-page-plateu" aria-label="Categorías telco" data-pen-id="6985:152223">
               <div class="plateu-track is-static">
                 <div class="plateu-item">
-                  <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu8.png" alt="PAQUETES" /></div>
+                  <div class="plateu-icon-wrap"><img class="plateu-icon" src="tigo-plateu-paquetes.png" alt="Paquetes" /></div>
                   <span class="plateu-label">Paquetes</span>
                 </div>
                 <div class="plateu-item">
-                  <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu9.png" alt="INTERNET" /></div>
+                  <div class="plateu-icon-wrap"><img class="plateu-icon" src="tigo-plateu-internet.png" alt="Internet" /></div>
                   <span class="plateu-label">Internet</span>
                 </div>
                 <div class="plateu-item">
-                  <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu10.png" alt="RECARGAS" /></div>
+                  <div class="plateu-icon-wrap"><img class="plateu-icon" src="tigo-plateu-recargas.png" alt="Recargas" /></div>
                   <span class="plateu-chip">Recargas</span>
                 </div>
                 <div class="plateu-item">
-                  <div class="plateu-icon-wrap"><img class="plateu-icon" src="plateu11.png" alt="ANTENITA" /></div>
+                  <div class="plateu-icon-wrap"><img class="plateu-icon" src="tigo-plateu-antenita.png" alt="Antenita" /></div>
                   <span class="plateu-label">Antenita</span>
                 </div>
               </div>
