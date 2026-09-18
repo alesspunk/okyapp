@@ -1404,11 +1404,17 @@ function cartDrawer(state) {
                   </span>
                 </span>
                 ${
-                  tier.rate
-                    ? `<span class="discount-ribbon discount-ribbon-list ${tier.ribbon}">
-                        <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(tier.rate * 100)}%</span>
+                  /* Donde USA enseña lo que gana, Guatemala enseña lo
+                     que rebaja: el mismo sitio y el mismo cintillo. */
+                  product.was
+                    ? `<span class="discount-ribbon discount-ribbon-list is-tier-base">
+                        <span class="discount-ribbon-text token-price-percent">${Math.round((1 - product.price / product.was) * 100)}% OFF</span>
                       </span>`
-                    : ""
+                    : tier.rate
+                      ? `<span class="discount-ribbon discount-ribbon-list ${tier.ribbon}">
+                          <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(tier.rate * 100)}%</span>
+                        </span>`
+                      : ""
                 }
                 ${
                   /* La comida no se edita con lápiz: su precio lo pone
@@ -1576,13 +1582,19 @@ function screenCheckout(state) {
           </div>
         </div>
         ${
-          itemTier.rate
+          product.was
             ? `<div class="middle-card-ribbon-slot">
-                <div class="discount-ribbon discount-ribbon-wrap ${itemTier.ribbon}">
-                  <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(itemTier.rate * 100)}%</span>
+                <div class="discount-ribbon discount-ribbon-wrap is-tier-base">
+                  <span class="discount-ribbon-text token-price-percent">${Math.round((1 - product.price / product.was) * 100)}% OFF</span>
                 </div>
               </div>`
-            : ""
+            : itemTier.rate
+              ? `<div class="middle-card-ribbon-slot">
+                  <div class="discount-ribbon discount-ribbon-wrap ${itemTier.ribbon}">
+                    <span class="discount-ribbon-text token-price-percent">Gana ${Math.round(itemTier.rate * 100)}%</span>
+                  </div>
+                </div>`
+              : ""
         }
       </article>
     </section>
@@ -2704,7 +2716,7 @@ function screenPlp(state) {
           </div>
           ${
             off
-              ? `<div class="discount-ribbon discount-ribbon-list">
+              ? `<div class="discount-ribbon discount-ribbon-list is-tier-base">
                   <span class="discount-ribbon-text token-price-percent">${off}% OFF</span>
                 </div>`
               : ""
