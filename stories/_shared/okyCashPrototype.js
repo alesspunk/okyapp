@@ -2664,7 +2664,7 @@ function foodBrandHeader(state, brand, { active = "productos" } = {}) {
   return `
     ${productHeader(state, { title: brand.label, small: true })}
     <div class="oky-flow-foodbrand">
-      <div class="oky-flow-foodbrand-logo" style="background:${brand.bg}">
+      <div class="oky-flow-foodbrand-logo">
         <img src="${brand.art}" alt="${brand.label}" />
       </div>
       <section class="plateu-molecule is-static is-default oky-flow-foodbrand-plateu" aria-label="Secciones de la marca">
@@ -4442,7 +4442,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          resto del prototipo: el aviso centrado y, al apagarse, el
          carrito entra desde el lado. En la lista no, que ahí se sigue
          eligiendo y abrir el carrito en cada toque estorbaría. */
-      if (state.screen === "foodpdp" && step > 0) {
+      if (state.screen === "foodpdp" && !state.cartOpen && step > 0) {
         state.addedToast = true;
         render();
         clearTimeout(addedTimer);
@@ -4460,7 +4460,16 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
 
       if (showSavings) state.savingsSheet = true;
+
+      /* Agregar desde la lista no puede devolver al principio: se está
+         eligiendo a media página y volver arriba obliga a buscar otra
+         vez dónde se estaba. */
+      const before = root.querySelector(".oky-flow-scroll");
+      const y = before ? before.scrollTop : 0;
       render();
+      const after = root.querySelector(".oky-flow-scroll");
+      if (after && y) after.scrollTop = y;
+
       /* Sumar uno más sube el ahorro: la franja lo celebra, que es de
          lo que va la promesa de llenar el carrito. */
       if (step > 0 && cartSavings(state) > 0) burstConfetti(".oky-flow-foodbar-save");
@@ -4475,7 +4484,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.savingsFromPdp = false;
         state.cartOpen = true;
       }
-      return render();
+      /* Cerrar el aviso tampoco devuelve al principio de la lista. */
+      const before = root.querySelector(".oky-flow-scroll");
+      const y = before ? before.scrollTop : 0;
+      render();
+      const after = root.querySelector(".oky-flow-scroll");
+      if (after && y) after.scrollTop = y;
+      return;
     }
 
     if (action === "open-category") {

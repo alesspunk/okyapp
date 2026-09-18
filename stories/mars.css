@@ -10965,11 +10965,16 @@ button.tactic-offer {
   margin-top: -8px;
 }
 
+/* El logo trae su propia tarjeta —con sus esquinas y su sombra— así
+   que la caja no pinta nada: pintarla del color de la marca dejaba un
+   rectángulo de fondo asomando por encima del arte, que se leía como
+   un recorte en el borde de arriba. */
 .oky-flow-foodbrand-logo {
-  width: 96px;
-  height: 62px;
-  overflow: hidden;
-  border-radius: 10px;
+  width: 100px;
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .oky-flow-foodbrand-logo img {
