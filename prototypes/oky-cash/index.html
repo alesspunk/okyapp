@@ -11035,7 +11035,13 @@ button.tactic-offer {
 }
 
 /* La fila entera abre el producto; el chip de cantidad se queda para
-   sí sus toques. */
+   sí sus toques. Sin las líneas divisorias el aire es lo único que
+   separa un producto del siguiente, así que tiene que bastar —sobre
+   todo cuando el de arriba trae cintillo de descuento. */
+.oky-flow-plp .list-plp-row {
+  padding-block: 14px;
+}
+
 .oky-flow-plp .list-plp-row.is-live {
   cursor: pointer;
 }
@@ -11172,7 +11178,17 @@ button.tactic-offer {
    se paga, y dos verdes distintos se leen como dos cosas distintas. */
 .oky-flow-feerow {
   color: var(--secondary-dark);
-  font-weight: 700;
+}
+
+/* Y el rótulo con la misma letra que el de OKY Cash —Lato 14/400—:
+   son dos líneas del mismo desglose y se leen como pareja. */
+.oky-flow-feerow > :first-child {
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: 0.15px;
+  color: var(--secondary-dark);
 }
 
 /* El importe rebajado va en el aqua de OKY Cash, con el de lista
