@@ -17732,9 +17732,10 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
     .slice()
     .reverse()
     .forEach((p) => {
-      const found = byBrand.find((b) => b.key === p.productKey);
+      const brand = brandKeyOf(p.productKey);
+      const found = byBrand.find((b) => b.brandKey === brand);
       if (found) found.count += 1;
-      else byBrand.push({ key: p.productKey, id: p.id, count: 1, ...PRODUCTS[p.productKey] });
+      else byBrand.push({ key: p.productKey, id: p.id, count: 1, ...PRODUCTS[p.productKey], brandKey: brand });
     });
 
   const list = byBrand;
@@ -17940,15 +17941,20 @@ function walletGroupUnits(state, section, group, opts) {
 function walletGroupDeck(state, section, group, opts) {
   const cards = [];
   walletGroupUnits(state, section, group, opts).forEach((v) => {
-    const found = cards.find((c) => c.key === v.key);
+    const brand = brandKeyOf(v.key);
+    const found = cards.find((c) => c.brandKey === brand);
     if (found) {
       found.count += 1;
       found.units.push(v.unit);
       found.amounts.push(v.amount);
+      /* La pila se estrena si cualquiera de los suyos está sin ver:
+         el punto habla de la card, y la card son todos. */
+      if (v.isNew && group !== "archivados") found.isNew = true;
       return;
     }
     cards.push({
       ...v,
+      brandKey: brand,
       /* Lo archivado no puede estrenarse: se guardó a propósito, y un
          punto de "nuevo" ahí pediría atención para algo que la persona
          acaba de quitar de en medio. */
@@ -18489,6 +18495,15 @@ const FOOD_BRANDS = {
    esquina de cada una, así que lo que tiene que reconocerse es la
    marca: los vales de comida guardan la foto del producto para su
    ficha, pero en el mazo van con el logo, como todos los demás. */
+/* Lo que junta dos vales en una misma card del mazo es la marca. Dos
+   productos distintos de McDonald's son dos vales pero una sola card
+   con el contador en dos; al tocarla se ven los dos. Para lo que no es
+   comida la marca ya es la clave del producto. */
+function brandKeyOf(key) {
+  const product = PRODUCTS[key] || {};
+  return product.food && product.brand ? `marca:${product.brand}` : key;
+}
+
 function stackMark(v) {
   const product = PRODUCTS[v.key] || v;
   const brand = product.food && FOOD_BRANDS[product.brand];
@@ -18822,8 +18837,9 @@ function screenVoucher(state) {
      Mi wallet, el vale de la marca. */
   /* En el header va la marca, no el producto: el nombre largo ya lo
      dice la card de abajo y arriba solo cabía recortado. */
-  const headerBrand =
-    card.food && FOOD_BRANDS[card.brand] ? FOOD_BRANDS[card.brand].label : card.label;
+  const valeBrand = card.food ? FOOD_BRANDS[card.brand] : null;
+  const productVale = !!valeBrand;
+  const headerBrand = valeBrand ? valeBrand.label : card.label;
   const title = state.params.id ? "Detalle de la orden" : headerBrand;
 
   /* Compartir y archivar valen también recién comprado: es justo
@@ -18845,21 +18861,46 @@ function screenVoucher(state) {
     <div class="oky-flow-section is-voucher">
       <div class="oky-flow-card-carousel${shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
-        topVariantPath: "Molecule/Top Card/Gift Card",
-        topFlagCode: countryOfSection(sectionOfVoucher(card.key)),
-        topBrandLabel: card.label,
-        topHeroImage: card.art,
-        topHeroAlt: card.label,
-        topFooterLeftLabel: "Terms & Conditions",
-        topFooterRightLabel: "Brand Disclaimer",
-        middleCardPath: "Molecule/Middle Card/Amount",
-        middleTitle: kind,
-        /* El vale de Guatemala se canjea en quetzales, así que es lo
-           que lleva escrito; los dólares se quedaron en el checkout. */
-        middleCurrency: card.quetzal ? "Q" : "$",
-        middleAmount: card.quetzal ? bigQuetzal(quetzalAmount) : String(amount),
-        bottomVariantPath: "Molecule/Bottom Card/Gift Card",
-        bottomButtonLabel: "Help",
+        /* Un vale de producto no es una gift card y el sistema ya
+           tiene su anatomía (82513:86915): arriba el logo de la marca
+           con "Qué incluye", en medio el producto —su nombre y su
+           foto, sin monto, porque lo que se canjea es la cosa, no un
+           saldo— y abajo un solo código con su vencimiento. */
+        ...(productVale
+          ? {
+              topVariantPath: "Molecule/Top Card/OKY Vales",
+              topShowBrandLabel: true,
+              topBrandLabel: valeBrand.label,
+              topHeroImage: valeBrand.art,
+              topHeroAlt: valeBrand.label,
+              topFlagCode: countryOfSection(sectionOfVoucher(card.key)),
+              topFooterLeftLabel: "Qué incluye",
+              middleCardPath: "Molecule/Middle Card/Vale de Producto",
+              middleTitle: card.label,
+              middleImage: card.art,
+              middleLeftLabel: "Mostrar al cajero",
+              middleRightLabel: "Como canjear",
+              bottomVariantPath: "Molecule/Bottom Card/OKY Vales",
+              bottomButtonLabel: "Ayuda",
+            }
+          : {
+              topVariantPath: "Molecule/Top Card/Gift Card",
+              topFlagCode: countryOfSection(sectionOfVoucher(card.key)),
+              topBrandLabel: card.label,
+              topHeroImage: card.art,
+              topHeroAlt: card.label,
+              topFooterLeftLabel: "Terms & Conditions",
+              topFooterRightLabel: "Brand Disclaimer",
+              middleCardPath: "Molecule/Middle Card/Amount",
+              middleTitle: kind,
+              /* El vale de Guatemala se canjea en quetzales, así que
+                 es lo que lleva escrito; los dólares se quedaron en el
+                 checkout. */
+              middleCurrency: card.quetzal ? "Q" : "$",
+              middleAmount: card.quetzal ? bigQuetzal(quetzalAmount) : String(amount),
+              bottomVariantPath: "Molecule/Bottom Card/Gift Card",
+              bottomButtonLabel: "Help",
+            }),
         /* Compartido, la parte de abajo de la card deja de mostrar
            credenciales —ya salieron de aquí— y pasa a ser el sello con
            la fecha, que es la anatomía del frame "Canjeado". */
