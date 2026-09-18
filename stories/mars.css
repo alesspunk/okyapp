@@ -11092,7 +11092,9 @@ button.tactic-offer {
   height: auto;
   min-height: 0;
   padding: 6px 0;
-  gap: 8px;
+  /* Cuatro píxeles más de aire entre los tres: de pie, el más, la
+     cantidad y el tacho necesitan respirar más que en línea. */
+  gap: 12px;
 }
 
 .oky-flow-cart-row .chip-ds.is-vertical .chip-ds-step {
