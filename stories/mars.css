@@ -10917,6 +10917,26 @@ button.tactic-offer {
   transform: scale(1.03);
 }
 
+/* El icono inactivo de Home, en contorno. Font Awesome Free no trae la
+   casita en su cara Regular —es de Pro— y caía a la sólida, así que el
+   Home se leía activo siempre. Se pinta el glifo sin relleno y con su
+   propio borde, que es a lo que se parece la cara Light. */
+.oky-flow-nav-hollow {
+  color: transparent;
+  -webkit-text-stroke: 1.4px var(--primary-base);
+}
+
+/* En la Category Page el nombre de la marca va centrado bajo su logo:
+   la parrilla se lee por columnas y un texto pegado a la izquierda
+   rompe el eje de cada tile. */
+.oky-flow-category .homecard-tile-name {
+  /* El tile es flex con los hijos alineados al inicio, así que el
+     párrafo se encoge a su texto y centrarlo no hacía nada: primero
+     hay que darle el ancho del logo. */
+  align-self: stretch;
+  text-align: center;
+}
+
 /* ── Barra de categorías de Mi wallet ───────────────────── */
 /* Es un navegador: va en scroll horizontal para que quepan categorías
    nuevas sin encoger las que ya están, y cada icono es un botón. */

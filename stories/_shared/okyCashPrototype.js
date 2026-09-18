@@ -729,7 +729,13 @@ function navbar(active, state = {}) {
               <img class="oky-flow-coin" src="oky-cash-coin.png" alt="" />
               <span class="oky-flow-coin-back" aria-hidden="true">$</span>
             </span>`
-          : `<i class="fa-${key === active ? "solid" : "light"} fa-${icon}" style="font-size:20px" aria-hidden="true"></i>`
+          : `<i class="fa-${key === active ? "solid" : "light"} fa-${icon}${
+              /* Font Awesome Free no trae la casita en contorno —es
+                 exclusiva de Pro— y caía a la sólida: el Home se veía
+                 relleno aun sin estar activo. Se dibuja el contorno
+                 del propio glifo, que es lo que haría la cara Light. */
+              key === "home" && key !== active ? " oky-flow-nav-hollow" : ""
+            }" style="font-size:20px" aria-hidden="true"></i>`
       }
       <span class="nav-label">${label}</span>
     </div>
@@ -1860,7 +1866,16 @@ function walletGroupDeck(state, section, group, opts) {
       found.amounts.push(v.amount);
       return;
     }
-    cards.push({ ...v, count: 1, units: [v.unit], amounts: [v.amount] });
+    cards.push({
+      ...v,
+      /* Lo archivado no puede estrenarse: se guardó a propósito, y un
+         punto de "nuevo" ahí pediría atención para algo que la persona
+         acaba de quitar de en medio. */
+      isNew: group === "archivados" ? false : v.isNew,
+      count: 1,
+      units: [v.unit],
+      amounts: [v.amount],
+    });
   });
   return cards;
 }
@@ -2371,7 +2386,10 @@ function screenVoucher(state) {
      El mazo del wallet lleva sus propios datos de marca: hay tarjetas
      ahí —Krispy Kreme, Under Armour— que no son productos comprables
      y no están en PRODUCTS. */
-  const section = state.params.deck || "gift";
+  /* Entrando por el detalle de una compra no hay sección de la que se
+     venga, así que la pone el producto: un paquete de internet no es
+     una gift card y la card tiene que decirlo también aquí. */
+  const section = state.params.deck || (purchase ? sectionOfVoucher(purchase.productKey) : "gift");
   const unit = state.params.unit || 0;
   const wallet = voucherCarousel(state, section, state.params.key, unit);
   /* Un vale de Pollo Campero no es una gift card: la card lo dice. */
