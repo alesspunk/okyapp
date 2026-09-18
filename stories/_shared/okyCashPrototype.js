@@ -2195,7 +2195,15 @@ function walletVoucherButton(v, deck, group = "activos") {
 
 /* ¿Queda alguna gift card comprada que todavía no se haya abierto? */
 function hasNewVouchers(state) {
-  return state.purchases.some((p) => !state.seenVouchers.includes(p.productKey));
+  /* Lo archivado ya no estrena nada: si se compró, se compartió y se
+     archivó desde el final de la compra, el icono del home no tiene
+     de qué avisar. Con varios comprados y alguno todavía sin archivar,
+     el punto se queda por esos. */
+  return state.purchases.some((p) => {
+    const id = unitId(p.productKey, unitOfPurchase(state, p));
+    if (state.archivedVouchers.includes(id)) return false;
+    return !state.seenVouchers.includes(p.productKey);
+  });
 }
 
 const WALLET_SECTIONS = ["gift", "vales", "servicios"];
