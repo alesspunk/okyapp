@@ -11020,6 +11020,19 @@ button.tactic-offer {
   padding-block: 14px;
 }
 
+/* El cintillo de descuento toma los colores del wrap ribbon de USA
+   —el aqua claro con el verde oscuro del tier base— para que un
+   descuento se vea igual en los dos marketplaces. */
+.oky-flow-plp .discount-ribbon-list {
+  --discount-ribbon-bg: var(--tier-base-bg);
+  --discount-ribbon-text: var(--tier-base-text);
+  --discount-ribbon-notch: var(--tier-base-text);
+}
+
+.oky-flow-plp .discount-ribbon-list .discount-ribbon-text {
+  color: var(--tier-base-text);
+}
+
 .oky-flow-plp .list-plp-row.is-live {
   cursor: pointer;
 }
