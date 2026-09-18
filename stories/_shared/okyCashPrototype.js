@@ -1489,8 +1489,19 @@ function cartDrawer(state) {
       </div>
 
       <div class="oky-flow-drawer-foot${state.cart.length ? "" : " is-hidden"}">
-        <div class="summary-box summary-box-compact">
-          <div class="summary-card">
+        ${
+          /* En Guatemala se compra en quetzales y se paga en dólares:
+             la solapa del tipo de cambio acompaña al resumen, como en
+             el PDP. En USA no hay conversión que explicar. */
+          orderCountry(state) === "gua"
+            ? `<div class="summary-box summary-box-compact with-overlap">
+                <div class="summary-type-overlay">
+                  <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
+                </div>
+                <div class="summary-card">`
+            : `<div class="summary-box summary-box-compact">
+                <div class="summary-card">`
+        }
             <div class="summary-card-body">
               <div class="summary-row summary-row-total">
                 <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
