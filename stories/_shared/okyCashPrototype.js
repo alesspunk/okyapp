@@ -577,6 +577,7 @@ function createInitialState(userType) {
        primer producto de comida que entra al carrito. */
     savingsSheet: false,
     savingsSeen: false,
+    savingsFromPdp: false,
     walletTab: "gift",
     openGroups: ["activos"],
     /* Aviso de cambio de marketplace; guarda a dónde se iba. */
@@ -4420,15 +4421,42 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
       /* La promesa del ahorro se cuenta una vez, cuando empieza a
          valer: al entrar el primer producto. */
-      if (first && step > 0 && !state.savingsSeen) {
-        state.savingsSeen = true;
-        state.savingsSheet = true;
+      const showSavings = first && step > 0 && !state.savingsSeen;
+      if (showSavings) state.savingsSeen = true;
+
+      /* Desde el PDP del producto, agregar se confirma como en el
+         resto del prototipo: el aviso centrado y, al apagarse, el
+         carrito entra desde el lado. En la lista no, que ahí se sigue
+         eligiendo y abrir el carrito en cada toque estorbaría. */
+      if (state.screen === "foodpdp" && step > 0) {
+        state.addedToast = true;
+        render();
+        clearTimeout(addedTimer);
+        addedTimer = setTimeout(() => {
+          state.addedToast = false;
+          if (showSavings) {
+            state.savingsSheet = true;
+            state.savingsFromPdp = true;
+          } else {
+            state.cartOpen = true;
+          }
+          render();
+        }, 1200);
+        return;
       }
+
+      if (showSavings) state.savingsSheet = true;
       return render();
     }
 
     if (action === "close-savings") {
       state.savingsSheet = false;
+      /* Si el aviso vino de agregar desde el PDP, al cerrarlo sigue lo
+         que tocaba: el carrito. */
+      if (state.savingsFromPdp) {
+        state.savingsFromPdp = false;
+        state.cartOpen = true;
+      }
       return render();
     }
 
