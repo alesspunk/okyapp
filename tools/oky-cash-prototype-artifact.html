@@ -11343,6 +11343,171 @@ button.tactic-offer {
   color: var(--primary-base);
 }
 
+/* ── Código promocional (Figma 82510:85319) ───────────────
+   La píldora del carrito, en las dos caras del componente: la
+   invitación y el código ya aplicado. La anatomía es la misma —
+   etiqueta, texto, control a la derecha—; lo que cambia es el
+   control: chevron para entrar, X para quitarlo. */
+.oky-flow-promo {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  margin: 0 0 12px;
+  /* Figma dibuja la píldora a 305px y dentro del carrito hay 300:
+     el aire de los costados y el hueco se recortan un par de píxeles
+     para que el texto siga cabiendo en una línea, que es como está
+     especificado. */
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid var(--secondary-main);
+  border-radius: 16px;
+  background: rgba(32, 243, 229, 0.08);
+  text-align: left;
+  cursor: pointer;
+}
+
+.oky-flow-promo.is-applied {
+  cursor: default;
+}
+
+/* La etiqueta viene espejada del componente de Figma: el ojal queda
+   arriba a la derecha. */
+.oky-flow-promo-art {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  transform: scaleX(-1);
+}
+
+.oky-flow-promo-copy {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--secondary-dark);
+}
+
+.oky-flow-promo-copy strong {
+  font-weight: 700;
+}
+
+.oky-flow-promo-go {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--primary-main);
+}
+
+.oky-flow-promo-clear {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--primary-main);
+  color: var(--white);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* El modal del código, con la misma geometría que la hoja de
+   "Agrega más, paga menos" pero en blanco: aquí se teclea, no se
+   celebra. */
+.oky-flow-promosheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 121;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 24px 24px 22px;
+  border-radius: 22px 22px 0 0;
+  background: var(--white);
+  animation: oky-flow-sheet-up 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.oky-flow-promosheet-title {
+  margin: 0 0 24px;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--primary-main);
+}
+
+/* El input del DS pide 328px de ancho mínimo y aquí solo hay 312. */
+.oky-flow-promosheet-field {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Sin nada tecleado el nombre del campo vive dentro, de placeholder;
+   al escribir sube al borde y se pinta morado, como el campo de
+   monto del PDP. */
+.oky-flow-promo-label {
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+
+.oky-flow-promo-label.is-floating {
+  opacity: 1;
+}
+
+/* El campo de monto reserva sitio a la izquierda para el signo de
+   dólar; el del código no tiene prefijo. */
+.oky-flow-promo-input.input-dinamic-hasvalue {
+  padding-left: 16px;
+}
+
+.oky-flow-promosheet-error {
+  margin: 8px 2px 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--error-main, #d32f2f);
+}
+
+.oky-flow-promosheet-error.is-hidden {
+  visibility: hidden;
+}
+
+/* La línea que separa el campo de la acción, a sangre como en el
+   flujo de Figma. */
+.oky-flow-promosheet-divider {
+  margin: 16px -24px 0;
+  border-top: 1px solid var(--divider);
+}
+
+.oky-flow-promosheet-cta {
+  width: 100%;
+  margin-top: 16px;
+}
+
+/* Apagado el botón no se destiñe: se pinta gris, como el resto de
+   los botones deshabilitados del sistema. */
+.oky-flow-frame .oky-flow-promosheet-cta:disabled {
+  opacity: 1;
+  background: var(--disable-main);
+  color: var(--disable-text);
+  box-shadow: none;
+}
+
 /* ── Barra de categorías de Mi wallet ───────────────────── */
 /* Es un navegador: va en scroll horizontal para que quepan categorías
    nuevas sin encoger las que ya están, y cada icono es un botón. */
@@ -16040,6 +16205,12 @@ function createInitialState(userType) {
     checkoutIndex: 0,
     okyCashEnabled: false,
     okyCashApplied: 0,
+    /* Código promocional aplicado a la orden (solo Guatemala), lo que
+       se está tecleando en el modal y si el último intento falló. */
+    promo: null,
+    promoOpen: false,
+    promoDraft: "",
+    promoError: false,
     selectedCard: "visa",
     /* Repositorio acumulado de gift cards: alimenta Mi wallet. */
     purchases: returning
@@ -16237,7 +16408,7 @@ function cartSavings(state) {
     const product = PRODUCTS[item.productKey] || {};
     return sum + (product.was ? (product.was - product.price) * (item.qty || 1) : 0);
   }, 0);
-  return onFee + onPrice;
+  return onFee + onPrice + appliedPromo(state);
 }
 
 const cartSubtotal = (state) =>
@@ -16265,7 +16436,25 @@ function dealAmount(now, was) {
     : money(now);
 }
 
-const cartTotal = (state) => cartSubtotal(state) + cartServiceFee(state);
+/* Códigos promocionales de Guatemala. Hoy solo vive uno; el objeto
+   deja sitio para más sin tocar el flujo, y el valor es lo que rebaja
+   en dólares. Se comparan en minúsculas: en el campo se teclea como
+   se quiera. */
+const PROMO_CODES = { verano26: 5 };
+const promoValue = (code) => PROMO_CODES[String(code || "").trim().toLowerCase()] || 0;
+
+/* Lo que pide el carrito antes de cualquier descuento de pago. */
+const cartGross = (state) => cartSubtotal(state) + cartServiceFee(state);
+
+/* Lo que rebaja el código. Nunca deja el total en negativo, y no
+   convive con OKY Cash: el descuento que se aplica de último apaga
+   al otro. */
+function appliedPromo(state) {
+  if (!state.promo) return 0;
+  return Math.min(promoValue(state.promo), cartGross(state));
+}
+
+const cartTotal = (state) => Math.max(cartGross(state) - appliedPromo(state), 0);
 const cartCashback = (state) =>
   state.cart.reduce((sum, item) => sum + item.cashback * (item.qty || 1), 0);
 
@@ -16972,6 +17161,7 @@ function cartDrawer(state) {
       </div>
 
       <div class="oky-flow-drawer-body">
+        ${state.cart.length ? promoPill(state) : ""}
         ${
           state.cart.length
             ? `<div class="oky-flow-cart-card">${rows}</div>`
@@ -17012,8 +17202,15 @@ function cartDrawer(state) {
                   ? `<div class="summary-row oky-flow-feerow">
                       <span>Costo por servicio</span>
                       <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
-                    </div>
-                    <div class="summary-row summary-row-total">
+                    </div>`
+                  : ""
+              }
+              ${promoRow(state)}
+              ${
+                /* El TOTAL aparece en cuanto hay algo que restar o que
+                   sumar al subtotal; si no, repetiría la misma cifra. */
+                cartFoodCount(state) || appliedPromo(state) > 0
+                  ? `<div class="summary-row summary-row-total">
                       <span class="summary-label-strong">TOTAL</span>
                       <span class="summary-label-strong">${money(cartTotal(state))}</span>
                     </div>`
@@ -17246,15 +17443,20 @@ function screenCheckout(state) {
                      <span class="summary-value-success">OKY Cash</span>
                      <span class="summary-value-success">-${money(applied)}</span>
                    </div>`
-                : cartFoodCount(state)
+                : cartFoodCount(state) || appliedPromo(state) > 0
                   ? `<div class="summary-row">
                        <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
                        <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                      </div>
-                     <div class="summary-row oky-flow-feerow">
-                       <span>Costo por servicio</span>
-                       <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
-                     </div>`
+                     ${
+                       cartFoodCount(state)
+                         ? `<div class="summary-row oky-flow-feerow">
+                             <span>Costo por servicio</span>
+                             <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
+                           </div>`
+                         : ""
+                     }
+                     ${promoRow(state)}`
                   : ""
             }
             <div class="summary-row summary-row-total">
@@ -18340,6 +18542,65 @@ function screenFoodPdp(state) {
 /* Aviso de la primera vez que entra un producto al carrito
    (96814:14460): el ahorro no se explica solo, y es justo el momento
    en que empieza a valer. */
+/* ── Código promocional (Figma 82510:85319) ───────────────
+   Solo en Guatemala. La píldora vive arriba del carrito y tiene dos
+   caras: la invitación a teclear el código y, ya aplicado, cuál es,
+   con la X para quitarlo. */
+function promoPill(state) {
+  if (orderCountry(state) !== "gua") return "";
+  const tag = `<img class="oky-flow-promo-art" src="data:image/png;base64,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" alt="" />`;
+  return state.promo
+    ? `<div class="oky-flow-promo is-applied">
+        ${tag}
+        <span class="oky-flow-promo-copy token-body1">Código Promo: <strong>${state.promo}</strong></span>
+        <button class="oky-flow-promo-clear" data-action="clear-promo" type="button"
+          aria-label="Quitar el código ${state.promo}">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>`
+    : `<button class="oky-flow-promo" data-action="open-promo" type="button">
+        ${tag}
+        <span class="oky-flow-promo-copy token-body1">Ingresa el código promocional</span>
+        <span class="oky-flow-promo-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+      </button>`;
+}
+
+/* La rebaja del código se lee igual que la de OKY Cash: en aqua y en
+   negativo, justo encima del total. */
+function promoRow(state) {
+  const off = appliedPromo(state);
+  return off > 0
+    ? `<div class="summary-row">
+        <span class="summary-value-success">Código promo</span>
+        <span class="summary-value-success">-${money(off)}</span>
+      </div>`
+    : "";
+}
+
+/* El modal del código: campo y un solo botón. "Aplicar" nace apagado
+   porque sin nada tecleado no hay nada que aplicar. */
+function promoDialog(state) {
+  const draft = state.promoDraft || "";
+  const has = draft.trim().length > 0;
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-promo" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-promosheet" role="dialog" aria-modal="true" aria-label="Ingresa tu código">
+      <h2 class="oky-flow-promosheet-title">Ingresa tu código</h2>
+      <div class="input-wrapper oky-flow-promosheet-field">
+        <label id="oky-promo-label" class="input-label input-label-dinamic oky-flow-promo-label${has ? " is-floating" : ""}"
+          for="oky-promo">Código promo</label>
+        <input id="oky-promo" class="input-field input-dinamic oky-flow-promo-input ${has ? "input-dinamic-hasvalue" : "input-dinamic-empty"}"
+          type="text" value="${draft}" placeholder="Código promo" autocomplete="off" autocapitalize="off"
+          spellcheck="false" data-action="input-promo" aria-labelledby="oky-promo-label" />
+      </div>
+      <p class="oky-flow-promosheet-error${state.promoError ? "" : " is-hidden"}">Ese código no es válido o ya venció.</p>
+      <div class="oky-flow-promosheet-divider" aria-hidden="true"></div>
+      <button class="btn btn-primary btn-large oky-flow-promosheet-cta" data-action="apply-promo" type="button"
+        ${has ? "" : "disabled"}>Aplicar</button>
+    </section>
+  `;
+}
+
 function savingsSheet() {
   return `
     <button class="oky-flow-sheet-backdrop" data-action="close-savings" type="button" aria-label="Cerrar"></button>
@@ -19044,6 +19305,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.sheet ? (state.sheet.type === "filter" ? filterSheet(state) : confirmSheet(state)) : ""}
         ${state.countrySheet ? countrySheet(state) : ""}
         ${state.savingsSheet ? savingsSheet() : ""}
+        ${state.promoOpen ? promoDialog(state) : ""}
         ${state.addedToast ? addedToast() : ""}
         ${state.usaIntro ? usaIntro() : ""}
         ${state.tourStep != null ? tourOverlay(state) : ""}
@@ -19626,6 +19888,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.cart = [];
     state.okyCashEnabled = false;
     state.okyCashApplied = 0;
+    state.promo = null;
     state.history = [];
     go("success", {}, { push: false });
   }
@@ -19734,6 +19997,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.cart = [];
       state.okyCashEnabled = false;
       state.okyCashApplied = 0;
+      state.promo = null;
       return goCountry(target);
     }
     if (action === "nav:wallet") {
@@ -19904,6 +20168,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.cartOpen = false;
         state.okyCashEnabled = false;
         state.okyCashApplied = 0;
+        state.promo = null;
         if (state.screen === "checkout" || state.screen === "methods") {
           return go(market === "gua" ? "homegua" : "home");
         }
@@ -19913,6 +20178,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "open-methods") {
       if (!state.okyCashEnabled) {
+        state.promo = null;
         state.okyCashEnabled = true;
         state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
       }
@@ -19921,11 +20187,52 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "toggle-okycash") {
       const turningOn = !state.okyCashEnabled;
+      /* Un descuento a la vez: marcar OKY Cash borra el código. */
+      if (turningOn) state.promo = null;
       state.okyCashEnabled = turningOn;
       state.okyCashApplied = turningOn ? Math.min(state.okyCashBalance, cartTotal(state)) : 0;
       render();
       if (turningOn) burstConfetti();
       return;
+    }
+
+    /* ── Código promocional ─────────────────────────────
+       Se abre desde la píldora del carrito y se quita desde su X,
+       que es el único camino que tiene el flujo. */
+    if (action === "open-promo") {
+      state.promoOpen = true;
+      state.promoDraft = "";
+      state.promoError = false;
+      return render();
+    }
+
+    if (action === "close-promo") {
+      state.promoOpen = false;
+      state.promoError = false;
+      return render();
+    }
+
+    if (action === "apply-promo") {
+      const code = String(state.promoDraft || "").trim();
+      if (!promoValue(code)) {
+        state.promoError = true;
+        return render();
+      }
+      state.promo = code.toLowerCase();
+      state.promoOpen = false;
+      state.promoDraft = "";
+      state.promoError = false;
+      /* El código desplaza al OKY Cash: no pueden convivir. */
+      state.okyCashEnabled = false;
+      state.okyCashApplied = 0;
+      render();
+      burstConfetti(".oky-flow-promo");
+      return;
+    }
+
+    if (action === "clear-promo") {
+      state.promo = null;
+      return render();
     }
 
     /* Los carruseles dan la vuelta: del último se pasa al primero. */
@@ -20376,6 +20683,24 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   /* Monto del PDP: se parchean solo los nodos afectados para no
      perder el foco del input en cada tecla. */
   root.addEventListener("input", (event) => {
+    /* El campo del código se repinta a mano: un render completo
+       recrearía el input y se perdería el foco a la primera letra. */
+    const promoInput = event.target.closest("[data-action='input-promo']");
+    if (promoInput) {
+      state.promoDraft = promoInput.value;
+      state.promoError = false;
+      const has = promoInput.value.trim().length > 0;
+      promoInput.classList.toggle("input-dinamic-hasvalue", has);
+      promoInput.classList.toggle("input-dinamic-empty", !has);
+      const label = root.querySelector("#oky-promo-label");
+      if (label) label.classList.toggle("is-floating", has);
+      const error = root.querySelector(".oky-flow-promosheet-error");
+      if (error) error.classList.add("is-hidden");
+      const cta = root.querySelector("[data-action='apply-promo']");
+      if (cta) cta.disabled = !has;
+      return;
+    }
+
     /* El slider de Tigo va por el listener de input, no por el de
        click: se arrastra. */
     const slider = event.target.closest("[data-action='tigo-amount']");

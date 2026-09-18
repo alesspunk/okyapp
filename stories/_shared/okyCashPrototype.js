@@ -540,6 +540,12 @@ function createInitialState(userType) {
     checkoutIndex: 0,
     okyCashEnabled: false,
     okyCashApplied: 0,
+    /* Código promocional aplicado a la orden (solo Guatemala), lo que
+       se está tecleando en el modal y si el último intento falló. */
+    promo: null,
+    promoOpen: false,
+    promoDraft: "",
+    promoError: false,
     selectedCard: "visa",
     /* Repositorio acumulado de gift cards: alimenta Mi wallet. */
     purchases: returning
@@ -737,7 +743,7 @@ function cartSavings(state) {
     const product = PRODUCTS[item.productKey] || {};
     return sum + (product.was ? (product.was - product.price) * (item.qty || 1) : 0);
   }, 0);
-  return onFee + onPrice;
+  return onFee + onPrice + appliedPromo(state);
 }
 
 const cartSubtotal = (state) =>
@@ -765,7 +771,25 @@ function dealAmount(now, was) {
     : money(now);
 }
 
-const cartTotal = (state) => cartSubtotal(state) + cartServiceFee(state);
+/* Códigos promocionales de Guatemala. Hoy solo vive uno; el objeto
+   deja sitio para más sin tocar el flujo, y el valor es lo que rebaja
+   en dólares. Se comparan en minúsculas: en el campo se teclea como
+   se quiera. */
+const PROMO_CODES = { verano26: 5 };
+const promoValue = (code) => PROMO_CODES[String(code || "").trim().toLowerCase()] || 0;
+
+/* Lo que pide el carrito antes de cualquier descuento de pago. */
+const cartGross = (state) => cartSubtotal(state) + cartServiceFee(state);
+
+/* Lo que rebaja el código. Nunca deja el total en negativo, y no
+   convive con OKY Cash: el descuento que se aplica de último apaga
+   al otro. */
+function appliedPromo(state) {
+  if (!state.promo) return 0;
+  return Math.min(promoValue(state.promo), cartGross(state));
+}
+
+const cartTotal = (state) => Math.max(cartGross(state) - appliedPromo(state), 0);
 const cartCashback = (state) =>
   state.cart.reduce((sum, item) => sum + item.cashback * (item.qty || 1), 0);
 
@@ -1472,6 +1496,7 @@ function cartDrawer(state) {
       </div>
 
       <div class="oky-flow-drawer-body">
+        ${state.cart.length ? promoPill(state) : ""}
         ${
           state.cart.length
             ? `<div class="oky-flow-cart-card">${rows}</div>`
@@ -1512,8 +1537,15 @@ function cartDrawer(state) {
                   ? `<div class="summary-row oky-flow-feerow">
                       <span>Costo por servicio</span>
                       <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
-                    </div>
-                    <div class="summary-row summary-row-total">
+                    </div>`
+                  : ""
+              }
+              ${promoRow(state)}
+              ${
+                /* El TOTAL aparece en cuanto hay algo que restar o que
+                   sumar al subtotal; si no, repetiría la misma cifra. */
+                cartFoodCount(state) || appliedPromo(state) > 0
+                  ? `<div class="summary-row summary-row-total">
                       <span class="summary-label-strong">TOTAL</span>
                       <span class="summary-label-strong">${money(cartTotal(state))}</span>
                     </div>`
@@ -1746,15 +1778,20 @@ function screenCheckout(state) {
                      <span class="summary-value-success">OKY Cash</span>
                      <span class="summary-value-success">-${money(applied)}</span>
                    </div>`
-                : cartFoodCount(state)
+                : cartFoodCount(state) || appliedPromo(state) > 0
                   ? `<div class="summary-row">
                        <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
                        <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                      </div>
-                     <div class="summary-row oky-flow-feerow">
-                       <span>Costo por servicio</span>
-                       <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
-                     </div>`
+                     ${
+                       cartFoodCount(state)
+                         ? `<div class="summary-row oky-flow-feerow">
+                             <span>Costo por servicio</span>
+                             <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
+                           </div>`
+                         : ""
+                     }
+                     ${promoRow(state)}`
                   : ""
             }
             <div class="summary-row summary-row-total">
@@ -2840,6 +2877,65 @@ function screenFoodPdp(state) {
 /* Aviso de la primera vez que entra un producto al carrito
    (96814:14460): el ahorro no se explica solo, y es justo el momento
    en que empieza a valer. */
+/* ── Código promocional (Figma 82510:85319) ───────────────
+   Solo en Guatemala. La píldora vive arriba del carrito y tiene dos
+   caras: la invitación a teclear el código y, ya aplicado, cuál es,
+   con la X para quitarlo. */
+function promoPill(state) {
+  if (orderCountry(state) !== "gua") return "";
+  const tag = `<img class="oky-flow-promo-art" src="oky-promo-tag.png" alt="" />`;
+  return state.promo
+    ? `<div class="oky-flow-promo is-applied">
+        ${tag}
+        <span class="oky-flow-promo-copy token-body1">Código Promo: <strong>${state.promo}</strong></span>
+        <button class="oky-flow-promo-clear" data-action="clear-promo" type="button"
+          aria-label="Quitar el código ${state.promo}">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>`
+    : `<button class="oky-flow-promo" data-action="open-promo" type="button">
+        ${tag}
+        <span class="oky-flow-promo-copy token-body1">Ingresa el código promocional</span>
+        <span class="oky-flow-promo-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+      </button>`;
+}
+
+/* La rebaja del código se lee igual que la de OKY Cash: en aqua y en
+   negativo, justo encima del total. */
+function promoRow(state) {
+  const off = appliedPromo(state);
+  return off > 0
+    ? `<div class="summary-row">
+        <span class="summary-value-success">Código promo</span>
+        <span class="summary-value-success">-${money(off)}</span>
+      </div>`
+    : "";
+}
+
+/* El modal del código: campo y un solo botón. "Aplicar" nace apagado
+   porque sin nada tecleado no hay nada que aplicar. */
+function promoDialog(state) {
+  const draft = state.promoDraft || "";
+  const has = draft.trim().length > 0;
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-promo" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-promosheet" role="dialog" aria-modal="true" aria-label="Ingresa tu código">
+      <h2 class="oky-flow-promosheet-title">Ingresa tu código</h2>
+      <div class="input-wrapper oky-flow-promosheet-field">
+        <label id="oky-promo-label" class="input-label input-label-dinamic oky-flow-promo-label${has ? " is-floating" : ""}"
+          for="oky-promo">Código promo</label>
+        <input id="oky-promo" class="input-field input-dinamic oky-flow-promo-input ${has ? "input-dinamic-hasvalue" : "input-dinamic-empty"}"
+          type="text" value="${draft}" placeholder="Código promo" autocomplete="off" autocapitalize="off"
+          spellcheck="false" data-action="input-promo" aria-labelledby="oky-promo-label" />
+      </div>
+      <p class="oky-flow-promosheet-error${state.promoError ? "" : " is-hidden"}">Ese código no es válido o ya venció.</p>
+      <div class="oky-flow-promosheet-divider" aria-hidden="true"></div>
+      <button class="btn btn-primary btn-large oky-flow-promosheet-cta" data-action="apply-promo" type="button"
+        ${has ? "" : "disabled"}>Aplicar</button>
+    </section>
+  `;
+}
+
 function savingsSheet() {
   return `
     <button class="oky-flow-sheet-backdrop" data-action="close-savings" type="button" aria-label="Cerrar"></button>
@@ -3544,6 +3640,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.sheet ? (state.sheet.type === "filter" ? filterSheet(state) : confirmSheet(state)) : ""}
         ${state.countrySheet ? countrySheet(state) : ""}
         ${state.savingsSheet ? savingsSheet() : ""}
+        ${state.promoOpen ? promoDialog(state) : ""}
         ${state.addedToast ? addedToast() : ""}
         ${state.usaIntro ? usaIntro() : ""}
         ${state.tourStep != null ? tourOverlay(state) : ""}
@@ -4126,6 +4223,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.cart = [];
     state.okyCashEnabled = false;
     state.okyCashApplied = 0;
+    state.promo = null;
     state.history = [];
     go("success", {}, { push: false });
   }
@@ -4234,6 +4332,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.cart = [];
       state.okyCashEnabled = false;
       state.okyCashApplied = 0;
+      state.promo = null;
       return goCountry(target);
     }
     if (action === "nav:wallet") {
@@ -4404,6 +4503,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.cartOpen = false;
         state.okyCashEnabled = false;
         state.okyCashApplied = 0;
+        state.promo = null;
         if (state.screen === "checkout" || state.screen === "methods") {
           return go(market === "gua" ? "homegua" : "home");
         }
@@ -4413,6 +4513,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "open-methods") {
       if (!state.okyCashEnabled) {
+        state.promo = null;
         state.okyCashEnabled = true;
         state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
       }
@@ -4421,11 +4522,52 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "toggle-okycash") {
       const turningOn = !state.okyCashEnabled;
+      /* Un descuento a la vez: marcar OKY Cash borra el código. */
+      if (turningOn) state.promo = null;
       state.okyCashEnabled = turningOn;
       state.okyCashApplied = turningOn ? Math.min(state.okyCashBalance, cartTotal(state)) : 0;
       render();
       if (turningOn) burstConfetti();
       return;
+    }
+
+    /* ── Código promocional ─────────────────────────────
+       Se abre desde la píldora del carrito y se quita desde su X,
+       que es el único camino que tiene el flujo. */
+    if (action === "open-promo") {
+      state.promoOpen = true;
+      state.promoDraft = "";
+      state.promoError = false;
+      return render();
+    }
+
+    if (action === "close-promo") {
+      state.promoOpen = false;
+      state.promoError = false;
+      return render();
+    }
+
+    if (action === "apply-promo") {
+      const code = String(state.promoDraft || "").trim();
+      if (!promoValue(code)) {
+        state.promoError = true;
+        return render();
+      }
+      state.promo = code.toLowerCase();
+      state.promoOpen = false;
+      state.promoDraft = "";
+      state.promoError = false;
+      /* El código desplaza al OKY Cash: no pueden convivir. */
+      state.okyCashEnabled = false;
+      state.okyCashApplied = 0;
+      render();
+      burstConfetti(".oky-flow-promo");
+      return;
+    }
+
+    if (action === "clear-promo") {
+      state.promo = null;
+      return render();
     }
 
     /* Los carruseles dan la vuelta: del último se pasa al primero. */
@@ -4876,6 +5018,24 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   /* Monto del PDP: se parchean solo los nodos afectados para no
      perder el foco del input en cada tecla. */
   root.addEventListener("input", (event) => {
+    /* El campo del código se repinta a mano: un render completo
+       recrearía el input y se perdería el foco a la primera letra. */
+    const promoInput = event.target.closest("[data-action='input-promo']");
+    if (promoInput) {
+      state.promoDraft = promoInput.value;
+      state.promoError = false;
+      const has = promoInput.value.trim().length > 0;
+      promoInput.classList.toggle("input-dinamic-hasvalue", has);
+      promoInput.classList.toggle("input-dinamic-empty", !has);
+      const label = root.querySelector("#oky-promo-label");
+      if (label) label.classList.toggle("is-floating", has);
+      const error = root.querySelector(".oky-flow-promosheet-error");
+      if (error) error.classList.add("is-hidden");
+      const cta = root.querySelector("[data-action='apply-promo']");
+      if (cta) cta.disabled = !has;
+      return;
+    }
+
     /* El slider de Tigo va por el listener de input, no por el de
        click: se arrastra. */
     const slider = event.target.closest("[data-action='tigo-amount']");
