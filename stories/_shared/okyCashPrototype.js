@@ -214,6 +214,9 @@ function orderCountry(state) {
   const items = state.cart.length
     ? state.cart.map((item) => item.productKey)
     : state.lastOrder.map((p) => p.productKey);
+  /* Sin nada de donde deducirlo manda dónde se está: dar por hecho
+     USA mandaba a la tienda equivocada a quien estaba en Guatemala. */
+  if (!items.length) return state.country === "gua" ? "gua" : "usa";
   return items.some((key) => (PRODUCTS[key] || {}).country === "gua") ? "gua" : "usa";
 }
 
@@ -738,6 +741,23 @@ function cartSavings(state) {
 
 const cartSubtotal = (state) =>
   state.cart.reduce((sum, item) => sum + item.amount * (item.qty || 1), 0);
+
+/* Lo que sumaria el carrito a precio de lista. Si es mas que el
+   subtotal real es que algo lleva descuento, y el resumen lo ensena
+   igual que el costo por servicio: el de lista tachado delante. */
+const cartSubtotalList = (state) =>
+  state.cart.reduce((sum, item) => {
+    const product = PRODUCTS[item.productKey] || {};
+    return sum + (product.was || item.amount) * (item.qty || 1);
+  }, 0);
+
+/* El par "antes / ahora" con el que se pintan subtotal y servicio:
+   mismo esquema en los dos, para que la rebaja se lea igual. */
+function dealAmount(now, was) {
+  return was > now + 0.001
+    ? `<span class="oky-flow-fee-was">${money(was)}</span><span class="oky-flow-fee-now">${money(now)}</span>`
+    : money(now);
+}
 
 const cartTotal = (state) => cartSubtotal(state) + cartServiceFee(state);
 const cartCashback = (state) =>
@@ -1462,16 +1482,13 @@ function cartDrawer(state) {
             <div class="summary-card-body">
               <div class="summary-row summary-row-total">
                 <span class="summary-label-strong">(${state.cart.length}) Subtotal</span>
-                <span class="summary-label-strong">${money(cartSubtotal(state))}</span>
+                <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
               </div>
               ${
                 cartFoodCount(state)
                   ? `<div class="summary-row oky-flow-feerow">
                       <span>Costo por servicio</span>
-                      <span>
-                        <span class="oky-flow-fee-was">${money(serviceFeeList(cartFoodCount(state)))}</span>
-                        ${money(cartServiceFee(state))}
-                      </span>
+                      <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
                     </div>
                     <div class="summary-row summary-row-total">
                       <span class="summary-label-strong">TOTAL</span>
@@ -1686,16 +1703,13 @@ function screenCheckout(state) {
                          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
                        </button>
                      </span>
-                     <span class="summary-label-strong">${money(cartSubtotal(state))}</span>
+                     <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                    </div>
                    ${
                      cartFoodCount(state)
                        ? `<div class="summary-row oky-flow-feerow">
                            <span>Costo por servicio</span>
-                           <span>
-                             <span class="oky-flow-fee-was">${money(serviceFeeList(cartFoodCount(state)))}</span>
-                             ${money(cartServiceFee(state))}
-                           </span>
+                           <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
                          </div>`
                        : ""
                    }
@@ -1706,14 +1720,11 @@ function screenCheckout(state) {
                 : cartFoodCount(state)
                   ? `<div class="summary-row">
                        <span class="summary-label-strong">(${state.cart.length}) Subtotal</span>
-                       <span class="summary-label-strong">${money(cartSubtotal(state))}</span>
+                       <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                      </div>
                      <div class="summary-row oky-flow-feerow">
                        <span>Costo por servicio</span>
-                       <span>
-                         <span class="oky-flow-fee-was">${money(serviceFeeList(cartFoodCount(state)))}</span>
-                         ${money(cartServiceFee(state))}
-                       </span>
+                       <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
                      </div>`
                   : ""
             }
@@ -3465,6 +3476,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   resetButton.innerHTML =
     '<i class="fa-solid fa-rotate-left" aria-hidden="true"></i>Reiniciar prototipo';
 
+  /* Si el carrito ya estaba abierto en la pasada anterior. */
+  let cartWasOpen = false;
   let addedTimer = null;
   let introTimer = null;
 
@@ -3542,7 +3555,16 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       frame
         .querySelectorAll(".oky-flow-savingbar:not(.is-drawer-bar), .oky-flow-dock, .oky-flow-cta-bar, .oky-flow-foodbar")
         .forEach((bar) => bar.remove());
+
+      /* Cambiar la cantidad repinta el carrito, y con él volvía a
+         correr la entrada desde el lado: parecía que se cerraba y se
+         abría en cada toque. La animación es solo para abrirlo. */
+      if (cartWasOpen) {
+        const drawer = frame.querySelector(".oky-flow-drawer");
+        if (drawer) drawer.style.animation = "none";
+      }
     }
+    cartWasOpen = state.cartOpen;
 
     placeTour();
     root.appendChild(resetButton);
@@ -4232,6 +4254,16 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "keep-shopping") {
       state.cartOpen = false;
       if (state.screen === "checkout" || state.screen === "methods") {
+        /* Vuelve a donde se estaba comprando: la lista de la marca si
+           se venía de una PLP, su PDP si se venía de uno. Solo cuando
+           no hay nada que desandar se sale a la tienda del mercado. */
+        const SHOPPING = ["plp", "foodpdp", "tigopdp", "pdp", "category", "home", "homegua"];
+        for (let i = state.history.length - 1; i >= 0; i -= 1) {
+          const step = state.history[i];
+          if (!SHOPPING.includes(step.screen)) continue;
+          state.history = state.history.slice(0, i);
+          return go(step.screen, step.params, { push: false });
+        }
         return go(orderCountry(state) === "gua" ? "homegua" : "home");
       }
       return render();

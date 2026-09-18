@@ -11073,6 +11073,15 @@ button.tactic-offer {
   color: var(--primary-base);
 }
 
+/* La card de producto del checkout centra su foto en el hueco que
+   queda entre el título y el pie, que si no se pegaba arriba. */
+.middle-card-molecule .middle-card-center:has(.middle-card-product-figure) {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .oky-flow-foodpdp .middle-card-product-figure img {
   width: 128px;
   height: 128px;
@@ -11111,6 +11120,12 @@ button.tactic-offer {
 .oky-flow-feerow {
   color: var(--secondary-dark);
   font-weight: 700;
+}
+
+/* El importe rebajado va en el aqua de OKY Cash, con el de lista
+   tachado delante: mismo esquema en subtotal y en costo por servicio. */
+.oky-flow-fee-now {
+  color: var(--secondary-dark);
 }
 
 .oky-flow-fee-was {
