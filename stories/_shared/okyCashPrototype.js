@@ -799,6 +799,17 @@ function appliedOkyCash(state) {
   return clamp(state.okyCashApplied, 0, Math.min(state.okyCashBalance, cartTotal(state)));
 }
 
+/* Lo que esta orden le quita al saldo de OKY Cash y lo que acaba
+   pagando la tarjeta. El carrito y el checkout enseñan el mismo
+   resumen, así que sacan la cifra del mismo sitio: si cada uno la
+   calculara por su cuenta, acabarían discrepando. */
+function orderCash(state) {
+  if (!state.okyCashEnabled) return 0;
+  return Math.min(state.okyCashApplied || state.okyCashBalance, cartTotal(state), state.okyCashBalance);
+}
+
+const orderDue = (state) => Math.max(cartTotal(state) - orderCash(state), 0);
+
 /* El cashback se gana sobre dinero real: la parte que sale del saldo de
    OKY Cash no genera más OKY Cash. Se reparte en proporción a lo que
    acaba pagando la tarjeta. */
@@ -1541,13 +1552,14 @@ function cartDrawer(state) {
                   : ""
               }
               ${promoRow(state)}
+              ${cashRow(state)}
               ${
                 /* El TOTAL aparece en cuanto hay algo que restar o que
                    sumar al subtotal; si no, repetiría la misma cifra. */
-                cartFoodCount(state) || appliedPromo(state) > 0
+                cartFoodCount(state) || appliedPromo(state) > 0 || state.okyCashEnabled
                   ? `<div class="summary-row summary-row-total">
                       <span class="summary-label-strong">TOTAL</span>
-                      <span class="summary-label-strong">${money(cartTotal(state))}</span>
+                      <span class="summary-label-strong">${money(orderDue(state))}</span>
                     </div>`
                   : ""
               }
@@ -1645,10 +1657,8 @@ function screenCheckout(state) {
   };
 
   const first = PRODUCTS[state.cart[active].productKey];
-  const applied = state.okyCashEnabled
-    ? Math.min(state.okyCashApplied || state.okyCashBalance, total, state.okyCashBalance)
-    : 0;
-  const toCard = Math.max(total - applied, 0);
+  const applied = orderCash(state);
+  const toCard = orderDue(state);
   const checkoutCard = CARDS.find((c) => c.key === state.selectedCard) || CARDS[0];
 
   return `
@@ -1774,10 +1784,7 @@ function screenCheckout(state) {
                          </div>`
                        : ""
                    }
-                   <div class="summary-row">
-                     <span class="summary-value-success">OKY Cash</span>
-                     <span class="summary-value-success">-${money(applied)}</span>
-                   </div>`
+                   ${cashRow(state)}`
                 : cartFoodCount(state) || appliedPromo(state) > 0
                   ? `<div class="summary-row">
                        <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
@@ -2908,6 +2915,18 @@ function promoRow(state) {
     ? `<div class="summary-row">
         <span class="summary-value-success">Código promo</span>
         <span class="summary-value-success">-${money(off)}</span>
+      </div>`
+    : "";
+}
+
+/* La fila del saldo: se enseña en cuanto la casilla está marcada,
+   aunque el saldo sea cero, para que marcarla siempre haga algo
+   visible. */
+function cashRow(state) {
+  return state.okyCashEnabled
+    ? `<div class="summary-row">
+        <span class="summary-value-success">OKY Cash</span>
+        <span class="summary-value-success">-${money(orderCash(state))}</span>
       </div>`
     : "";
 }
