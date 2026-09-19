@@ -1127,7 +1127,7 @@ function tourOverlay(state) {
       <span class="oky-flow-tour-hole" aria-hidden="true"></span>
       <div class="oky-flow-tour-call">
         <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
-        <p class="oky-flow-tour-label"><span class="oky-flow-tour-num">${state.tourStep + 1}.</span>${step.label}</p>
+        <p class="oky-flow-tour-label">${step.label}</p>
       </div>
     </div>
   `;
@@ -4225,16 +4225,20 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const below = top + h + 150 < frameH;
       call.classList.toggle("is-below", below);
       if (arrow) arrow.className = `fa-solid ${below ? "fa-arrow-up" : "fa-arrow-down"} oky-flow-tour-arrow`;
+      /* La llamada arranca donde arranca lo señalado, no centrada en
+         ello: así el texto cae debajo de la flecha y se lee como una
+         instrucción que empieza ahí. */
       const cw = call.offsetWidth;
-      const callLeft = clamp(left + w / 2 - cw / 2, 12, Math.max(12, frameW - cw - 12));
+      const callLeft = clamp(left, 12, Math.max(12, frameW - cw - 12));
       call.style.left = `${callLeft}px`;
       call.style.top = below ? `${top + h + 16}px` : "";
       call.style.bottom = below ? "" : `${frameH - top + 16}px`;
-      /* La flecha va sobre el agujero, no sobre el centro de la línea:
-         con una frase larga contra el borde, la línea se queda donde
-         cabe y la flecha se corre hasta lo que señala —el wallet, que
-         vive en la esquina. */
-      if (arrow) arrow.style.transform = `translateX(${left + w / 2 - (callLeft + cw / 2)}px)`;
+      /* Y la flecha se corre lo justo para quedar sobre el agujero,
+         que es lo que señala. */
+      if (arrow) {
+        const aw = arrow.offsetWidth || 34;
+        arrow.style.transform = `translateX(${left + w / 2 - (callLeft + aw / 2)}px)`;
+      }
     };
 
     /* Lo que queda fuera de pantalla se sube antes de medir. */

@@ -368,6 +368,7 @@ export function renderClaritaPet(extraClass = "") {
           <ellipse class="clarita-gloss" cx="19.8" cy="35.2" rx="4.1" ry="2.6" />
           <rect class="clarita-arm is-right" x="34" y="31.8" width="6.4" height="13.4" rx="3.2" />
           <g class="clarita-head">
+            <circle class="clarita-face" cx="24" cy="16.4" r="13.4" />
             <circle class="clarita-ring" cx="24" cy="16.4" r="13.4" />
             <path class="clarita-rim" d="M13.4 8.3 A13.4 13.4 0 0 1 31.1 5" />
             <path class="clarita-smile" d="M17.6 17.4 Q24 25.4 30.4 17.4" />

@@ -5185,6 +5185,13 @@ body {
   opacity: 0.26;
 }
 
+/* La cara va rellena de blanco: hueca, entre el aro y la sonrisa se
+   colaba lo que hubiera detrás y parecía un agujero. El relleno llega
+   hasta el centro del trazo, así que el aro tapa la junta. */
+.clarita-face {
+  fill: var(--white);
+}
+
 /* El aro de la marca, con su propia luz. */
 .clarita-ring {
   fill: none;
@@ -11037,10 +11044,15 @@ button.tactic-offer {
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid var(--border-main);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 50%;
-  background: var(--white);
+  /* Translúcida: es una sugerencia, no un control. Deja ver lo que
+     tiene detrás, que es justo lo que invita a seguir bajando. */
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   color: var(--primary-main);
+  opacity: 0.85;
   box-shadow: 0 6px 18px rgba(65, 13, 134, 0.18);
   cursor: pointer;
   opacity: 1;
@@ -13619,40 +13631,37 @@ img.oky-flow-method-mark {
   animation: oky-flow-fade 200ms ease-out both;
 }
 
+/* Sin pastilla: la pregunta se escribe sobre el fondo atenuado, en
+   blanco y grande, igual que los números de la cuenta. Tres momentos
+   seguidos con la misma voz —pregunta, cuenta y remate— y no tres
+   cajas distintas. */
 .oky-flow-ready-card {
   margin: 0;
-  padding: 16px 28px;
-  border-radius: 22px;
-  background: var(--white);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  padding: 0 24px;
   font-family: "Nunito Sans", sans-serif;
-  font-size: 24px;
+  font-size: 40px;
   font-weight: 900;
-  line-height: 1.2;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
   text-align: center;
-  white-space: nowrap;
-  color: var(--primary-main);
-  animation: oky-flow-tourflag-in 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  color: var(--white);
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: oky-flow-ready-in 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes oky-flow-tourflag-in {
+@keyframes oky-flow-ready-in {
   0% {
     opacity: 0;
-    transform: scale(0.72);
+    transform: translateY(14px) scale(0.82);
   }
   62% {
     opacity: 1;
-    transform: scale(1.05);
+    transform: translateY(0) scale(1.04);
   }
   100% {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0) scale(1);
   }
-}
-
-/* El número de la parada, delante de lo que dice. */
-.oky-flow-tour-num {
-  margin-right: 6px;
 }
 
 /* ── Recorrido: la salida ────────────────────────────────
@@ -13893,7 +13902,9 @@ img.oky-flow-method-mark {
   position: absolute;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  /* Flecha y texto alineados por la izquierda: la frase empieza justo
+     debajo de la flecha. */
+  align-items: flex-start;
   gap: 2px;
   max-width: calc(100% - 24px);
   pointer-events: none;
@@ -13913,11 +13924,13 @@ img.oky-flow-method-mark {
 
 .oky-flow-tour-label {
   margin: 0;
+  /* Alineado a la izquierda: son frases de dos líneas y centradas se
+     leían como un cartel, no como una instrucción. */
+  text-align: left;
   font-family: "Nunito Sans", sans-serif;
   font-size: 22px;
   font-weight: 800;
   line-height: 1.25;
-  text-align: center;
   text-wrap: balance;
   color: var(--white);
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
@@ -16272,6 +16285,7 @@ function renderClaritaPet(extraClass = "") {
           <ellipse class="clarita-gloss" cx="19.8" cy="35.2" rx="4.1" ry="2.6" />
           <rect class="clarita-arm is-right" x="34" y="31.8" width="6.4" height="13.4" rx="3.2" />
           <g class="clarita-head">
+            <circle class="clarita-face" cx="24" cy="16.4" r="13.4" />
             <circle class="clarita-ring" cx="24" cy="16.4" r="13.4" />
             <path class="clarita-rim" d="M13.4 8.3 A13.4 13.4 0 0 1 31.1 5" />
             <path class="clarita-smile" d="M17.6 17.4 Q24 25.4 30.4 17.4" />
@@ -17689,7 +17703,7 @@ function tourOverlay(state) {
       <span class="oky-flow-tour-hole" aria-hidden="true"></span>
       <div class="oky-flow-tour-call">
         <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
-        <p class="oky-flow-tour-label"><span class="oky-flow-tour-num">${state.tourStep + 1}.</span>${step.label}</p>
+        <p class="oky-flow-tour-label">${step.label}</p>
       </div>
     </div>
   `;
@@ -20787,16 +20801,20 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const below = top + h + 150 < frameH;
       call.classList.toggle("is-below", below);
       if (arrow) arrow.className = `fa-solid ${below ? "fa-arrow-up" : "fa-arrow-down"} oky-flow-tour-arrow`;
+      /* La llamada arranca donde arranca lo señalado, no centrada en
+         ello: así el texto cae debajo de la flecha y se lee como una
+         instrucción que empieza ahí. */
       const cw = call.offsetWidth;
-      const callLeft = clamp(left + w / 2 - cw / 2, 12, Math.max(12, frameW - cw - 12));
+      const callLeft = clamp(left, 12, Math.max(12, frameW - cw - 12));
       call.style.left = `${callLeft}px`;
       call.style.top = below ? `${top + h + 16}px` : "";
       call.style.bottom = below ? "" : `${frameH - top + 16}px`;
-      /* La flecha va sobre el agujero, no sobre el centro de la línea:
-         con una frase larga contra el borde, la línea se queda donde
-         cabe y la flecha se corre hasta lo que señala —el wallet, que
-         vive en la esquina. */
-      if (arrow) arrow.style.transform = `translateX(${left + w / 2 - (callLeft + cw / 2)}px)`;
+      /* Y la flecha se corre lo justo para quedar sobre el agujero,
+         que es lo que señala. */
+      if (arrow) {
+        const aw = arrow.offsetWidth || 34;
+        arrow.style.transform = `translateX(${left + w / 2 - (callLeft + aw / 2)}px)`;
+      }
     };
 
     /* Lo que queda fuera de pantalla se sube antes de medir. */
