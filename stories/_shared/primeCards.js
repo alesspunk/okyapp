@@ -357,7 +357,12 @@ function renderBottomMain(card) {
 function renderClarita() {
   return `
     <div class="prime-card-clarita" role="status" aria-label="Clarita: ¿Necesitas ayuda con el canje?">
-      <p class="prime-card-clarita-bubble">¿Necesitas ayuda<br />con el canje?</p>
+      <p class="prime-card-clarita-bubble">
+        ¿Necesitas ayuda<br />con el canje?
+        <button class="prime-card-clarita-close" data-action="clarita-close" type="button" aria-label="Cerrar el aviso de Clarita">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </p>
       <span class="prime-card-clarita-pet" aria-hidden="true">
         <svg viewBox="0 0 48 58" xmlns="http://www.w3.org/2000/svg" focusable="false">
           <defs>

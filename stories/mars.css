@@ -5327,6 +5327,37 @@ body {
 }
 
 /* La colita apunta a Clarita. */
+/* La X para callarla: arriba a la derecha, fuera del globo para no
+   comerle texto y por encima de la colita, que sale justo debajo. Es
+   lo único de Clarita que se puede tocar. */
+.prime-card-clarita-close {
+  position: absolute;
+  top: -7px;
+  right: -6px;
+  z-index: 2;
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--primary-main);
+  font-size: 8px;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 2px 6px rgba(48, 12, 92, 0.22);
+}
+
+/* Cerrada una vez, no vuelve a hablar en toda la sesión: ella se
+   queda, el globo no. */
+.oky-flow-frame.is-clarita-muted .prime-card-clarita-bubble {
+  display: none;
+}
+
 /* La colita nace del globo: medio cuadrado dentro y medio fuera, del
    mismo blanco y sin borde, así que los dos se leen como una pieza. Va
    a la altura de la cara —lo que dice sale de su boca, no del cuerpo. */

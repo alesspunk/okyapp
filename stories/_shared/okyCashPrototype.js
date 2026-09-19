@@ -608,6 +608,9 @@ function createInitialState(userType) {
        Se ven una sola vez, la primera que se entra al marketplace. */
     usaIntro: false,
     tourStep: null,
+    /* Clarita deja de hablar en cuanto se le cierra el globo: ella se
+       queda, pero no vuelve a ofrecerse en toda la sesión. */
+    claritaMuted: false,
     tourCount: false,
     tourFlag: false,
     tourSeen: false,
@@ -4038,7 +4041,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     root.innerHTML = `
-      <div class="oky-flow-frame">
+      <div class="oky-flow-frame${state.claritaMuted ? " is-clarita-muted" : ""}">
         <div class="oky-flow-scroll ${scrollClass(state)}">
           ${renderScreen(state)}
         </div>
@@ -4782,6 +4785,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         return render();
       }
       return goCountry(target);
+    }
+
+    if (action === "clarita-close") {
+      state.claritaMuted = true;
+      return render();
     }
 
     if (action === "tour-next") {
