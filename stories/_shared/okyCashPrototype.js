@@ -1146,11 +1146,11 @@ function tourOverlay(state) {
 function homeGuide(state) {
   return `
     <div class="oky-flow-guide${state.guideAway ? " is-away" : ""}" data-action="guide-tap"
-      role="button" tabindex="0" aria-label="Clarita: Gana OKY Cash, ¿quieres saber cómo?">
+      role="button" tabindex="0" aria-label="Clarita: Gana OKY Cash, ¿Quieres saber cómo?">
       ${
         state.guideAsk
           ? `<p class="prime-card-clarita-bubble oky-flow-guide-bubble">
-              <span class="prime-card-clarita-say is-idle">Gana OKY Cash,<br />¿quieres saber cómo?</span>
+              <span class="prime-card-clarita-say is-idle">Gana OKY Cash,<br />¿Quieres saber cómo?</span>
               <button class="prime-card-clarita-close" data-action="guide-hush" type="button"
                 aria-label="Cerrar el aviso de Clarita">
                 <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -4543,8 +4543,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
            preguntando otra vez. Esconderse es estado y no solo una
            clase, porque cualquier repintado la devolvía a la vista
            aunque siguieras abajo. Bajando basta con la clase, que es
-           la que lo anima; subiendo se rehace si volvió sin globo. */
-        const away = y > 24;
+           la que lo anima; subiendo se rehace si volvió sin globo.
+           Se va al primer empujón —no a los 24px como la pista—:
+           quedarse un momento con la home ya en movimiento la hacía
+           parecer pegada a la pantalla. */
+        const away = y > 4;
         if (state.guideOn && away !== state.guideAway) {
           state.guideAway = away;
           if (!away) state.guideAsk = true;

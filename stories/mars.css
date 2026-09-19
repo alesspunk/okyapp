@@ -13573,8 +13573,12 @@ img.oky-flow-method-mark {
     transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Bajando la home, Clarita se aparta. */
+/* Bajando la home, Clarita se aparta. La animación de entrada se
+   apaga aquí: con fill "both" se queda aplicando su último fotograma
+   —opacidad 1— y ganaba a este bloque, así que la clase se ponía y no
+   pasaba nada. Sin ella, el desvanecido lo hace la transición. */
 .oky-flow-guide.is-away {
+  animation: none;
   opacity: 0;
   transform: translateY(14px) scale(0.86);
   pointer-events: none;
