@@ -5117,13 +5117,26 @@ body {
   justify-content: center;
 }
 
+/* El botón de ayuda es el mismo en todas las cards, de Guatemala y de
+   USA (101310:7466): pastilla blanca con borde morado y el icono junto
+   al label, los dos centrados. El relleno va simétrico —antes cedía
+   aire a la izquierda para compensar el icono— y el contenido se
+   centra en los dos ejes. */
 .prime-card-bottom-help-btn {
   min-width: 0;
-  min-height: 41px;
-  padding: 8px 14px 8px 10px;
+  min-height: 44px;
+  padding: 8px 20px;
   border-radius: 32px;
-  gap: 4px;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  border-color: var(--primary-main);
+  box-shadow:
+    0 3px 1px -2px rgba(0, 0, 0, 0.2),
+    0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
+
 
 .prime-card-bottom-help-btn.is-icon-only {
   width: 44px;
@@ -15601,7 +15614,7 @@ const CARD_BOTTOM_VARIANTS = [
       { label: "Event Number", value: "09109201", copyable: true },
     ],
     expiry: "",
-    buttonLabel: "Help",
+    buttonLabel: "Ayuda",
     recommendation: "Recomendado: credenciales largas y CTA en inglés para gift cards internacionales.",
   },
   {
@@ -15626,8 +15639,7 @@ const CARD_BOTTOM_VARIANTS = [
       },
     ],
     expiry: "",
-    buttonLabel: "Help",
-    outlined: true,
+    buttonLabel: "Ayuda",
     recommendation: "Recomendado: código, URL con su CTA de pegar, y el de ayuda en outlined abajo a la derecha.",
   },
   {
@@ -15781,7 +15793,7 @@ function renderBottomMain(card) {
 function renderBottomButton(card) {
   return `
     <button
-      class="btn ${card.outlined ? "btn-outlined" : "btn-primary"} prime-card-bottom-help-btn ${card.showButtonLabel ? "has-label" : "is-icon-only"}"
+      class="btn btn-outlined prime-card-bottom-help-btn ${card.showButtonLabel ? "has-label" : "is-icon-only"}"
       type="button"
     >
       <span class="prime-card-bottom-help-icon" aria-hidden="true">
@@ -19286,16 +19298,16 @@ function screenVoucher(state) {
             /* Las gift cards de USA no vencen: la fecha sobra en las
                dos variantes. */
             bottomExpiry: "",
-            bottomButtonLabel: "Help",
+            bottomButtonLabel: "Ayuda",
           }
         : {
             bottomVariantPath: "Molecule/Bottom Card/Gift Card USA",
             bottomLines: [
               { label: "Copia el código", value: giftCode(bottomSeed, 10), copyable: true },
             ],
-            bottomButtonLabel: "Help",
+            bottomButtonLabel: "Ayuda",
           }
-      : { bottomVariantPath: "Molecule/Bottom Card/Gift Card", bottomButtonLabel: "Help" };
+      : { bottomVariantPath: "Molecule/Bottom Card/Gift Card", bottomButtonLabel: "Ayuda" };
 
   const quetzalAmount =
     (purchase && purchase.quetzales) ||

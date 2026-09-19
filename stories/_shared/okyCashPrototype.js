@@ -3241,16 +3241,16 @@ function screenVoucher(state) {
             /* Las gift cards de USA no vencen: la fecha sobra en las
                dos variantes. */
             bottomExpiry: "",
-            bottomButtonLabel: "Help",
+            bottomButtonLabel: "Ayuda",
           }
         : {
             bottomVariantPath: "Molecule/Bottom Card/Gift Card USA",
             bottomLines: [
               { label: "Copia el código", value: giftCode(bottomSeed, 10), copyable: true },
             ],
-            bottomButtonLabel: "Help",
+            bottomButtonLabel: "Ayuda",
           }
-      : { bottomVariantPath: "Molecule/Bottom Card/Gift Card", bottomButtonLabel: "Help" };
+      : { bottomVariantPath: "Molecule/Bottom Card/Gift Card", bottomButtonLabel: "Ayuda" };
 
   const quetzalAmount =
     (purchase && purchase.quetzales) ||

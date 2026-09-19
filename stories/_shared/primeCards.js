@@ -166,7 +166,7 @@ export const CARD_BOTTOM_VARIANTS = [
       { label: "Event Number", value: "09109201", copyable: true },
     ],
     expiry: "",
-    buttonLabel: "Help",
+    buttonLabel: "Ayuda",
     recommendation: "Recomendado: credenciales largas y CTA en inglés para gift cards internacionales.",
   },
   {
@@ -191,8 +191,7 @@ export const CARD_BOTTOM_VARIANTS = [
       },
     ],
     expiry: "",
-    buttonLabel: "Help",
-    outlined: true,
+    buttonLabel: "Ayuda",
     recommendation: "Recomendado: código, URL con su CTA de pegar, y el de ayuda en outlined abajo a la derecha.",
   },
   {
@@ -346,7 +345,7 @@ function renderBottomMain(card) {
 function renderBottomButton(card) {
   return `
     <button
-      class="btn ${card.outlined ? "btn-outlined" : "btn-primary"} prime-card-bottom-help-btn ${card.showButtonLabel ? "has-label" : "is-icon-only"}"
+      class="btn btn-outlined prime-card-bottom-help-btn ${card.showButtonLabel ? "has-label" : "is-icon-only"}"
       type="button"
     >
       <span class="prime-card-bottom-help-icon" aria-hidden="true">
