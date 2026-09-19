@@ -4332,6 +4332,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.promoLive = true;
     state.promoEndsAt = Date.now() + PROMO_MS;
     state.promoStarting = true;
+    /* El reloj arranca en un múltiplo de 30 y el aviso de cada medio
+       minuto se disparaba en el primer tic, justo detrás de la sacudida
+       del arranque: dos temblores seguidos. Se da por avisado ese
+       segundo, así que el siguiente llega media vuelta después. */
+    promoShakeAt = Math.round(PROMO_MS / 1000);
     setTimeout(() => {
       state.promoStarting = false;
       render();
