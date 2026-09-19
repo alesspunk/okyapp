@@ -5,6 +5,18 @@
   "outputDirectory": "storybook-static",
   "rewrites": [
     {
+      "source": "/prototypes/oky-cash-web/usa",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash-web/latam",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash-web/gua",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
       "source": "/oky-cash-prototype-demo.html",
       "destination": "/prototypes/oky-cash/index.html"
     },
@@ -51,6 +63,17 @@
     {
       "source": "/storybook/:path*",
       "destination": "/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/prototypes/oky-cash-web/assets/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
   ]
 }
