@@ -1065,8 +1065,8 @@ const TOUR_FINISH_BEAT_MS = 380;
 const TOUR_COUNT_MS = 520;
 const TOUR_COUNT_LIGHTS = { 3: "is-red", 2: "is-amber", 1: "is-green" };
 const TOUR_FLAG_MS = 1600;
-/* Lo que dura el confeti del final, ya sin cintillo en pantalla. */
-const TOUR_CONFETTI_MS = 2800;
+/* Lo que dura el estallido del final. Es un golpe, no una lluvia. */
+const TOUR_CONFETTI_MS = 1200;
 
 /* Lluvia de banderas al entrar a USA por primera vez: un guiño corto,
    que se quita solo. */
@@ -4058,7 +4058,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.tourStep != null ? tourOverlay(state) : ""}
         ${state.tourCount ? tourCountdown() : ""}
         ${state.tourFlag ? tourFlag() : ""}
-        ${state.tourConfetti ? `<div class="oky-flow-celebration-confetti is-tour" data-role="tour-confetti"></div>` : ""}
+        ${state.tourConfetti ? `<div class="oky-flow-burst" data-role="tour-confetti"></div>` : ""}
       </div>
     `;
 
@@ -4070,7 +4070,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     /* El confeti del final del recorrido cae sobre la home; no arrastra
        el temporizador del sello de la compra, que es otra cosa. */
     const tourConfettiHost = root.querySelector("[data-role='tour-confetti']");
-    if (tourConfettiHost) seedCelebration(tourConfettiHost);
+    if (tourConfettiHost) seedTourBurst(tourConfettiHost);
 
     const confettiHost = root.querySelector("[data-role='celebration-confetti']");
     if (confettiHost) {
@@ -4729,6 +4729,31 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   /* Lluvia de confeti de la compra exitosa: piezas de colores que
      caen girando, generadas en el DOM en vez de un PNG plano. */
+  /* El estallido del final del recorrido: las piezas salen del centro
+     hacia afuera en todas direcciones, no caen desde arriba. El ángulo
+     se reparte en círculo con un poco de desorden, para que no se lea
+     como una rueda dentada. */
+  function seedTourBurst(host) {
+    const colors = ["#09b4b0", "#a8faf5", "#552588", "#ffb400", "#ff6b9d", "#7cf4ef"];
+    const COUNT = 34;
+    for (let i = 0; i < COUNT; i += 1) {
+      const angle = (i / COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+      const dist = 96 + Math.random() * 130;
+      const piece = document.createElement("span");
+      piece.className = "oky-flow-burst-piece";
+      piece.style.setProperty("--piece-dx", `${Math.cos(angle) * dist}px`);
+      piece.style.setProperty("--piece-dy", `${Math.sin(angle) * dist}px`);
+      piece.style.setProperty("--piece-color", colors[i % colors.length]);
+      piece.style.setProperty("--piece-rot", `${Math.random() * 360}deg`);
+      piece.style.setProperty("--piece-spin", `${180 + Math.random() * 540}deg`);
+      piece.style.setProperty("--piece-delay", `${Math.random() * 90}ms`);
+      piece.style.setProperty("--piece-dur", `${760 + Math.random() * 320}ms`);
+      piece.style.setProperty("--piece-w", `${5 + Math.random() * 5}px`);
+      piece.style.setProperty("--piece-h", `${9 + Math.random() * 7}px`);
+      host.appendChild(piece);
+    }
+  }
+
   function seedCelebration(host) {
     const colors = ["#09b4b0", "#a8faf5", "#552588", "#ffb400", "#ff6b9d", "#7cf4ef"];
     for (let i = 0; i < 46; i += 1) {
