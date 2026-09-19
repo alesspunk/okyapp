@@ -5042,7 +5042,6 @@ body {
    de abrir la URL, que es el más ancho de todos. */
 .card-bottom-molecule.is-gift-card-usa .prime-card-bottom-side {
   justify-content: flex-end;
-  bottom: 10px;
 }
 
 /* El botón que pega la URL: mismo cuerpo que el código, para que se
@@ -5136,6 +5135,9 @@ body {
      si algo los acercara, quien tapa es ella. */
   position: relative;
   z-index: 1;
+  /* Ella sí recibe el ratón: es lo que deja que salude al pasar por
+     encima. El resto del bloque sigue dejando pasar el dedo. */
+  pointer-events: auto;
   /* A 34px no se leía que hubiera un cuerpo debajo de la cara. Con
      44 se distinguen cabeza, torso y brazos, y sigue cabiendo en el
      hueco del botón que sustituye. */
@@ -5373,6 +5375,27 @@ body {
 /* Cerrada, el globo se va de esta card; ella se queda. */
 .oky-flow-frame.is-clarita-muted .prime-card-clarita-bubble {
   display: none;
+}
+
+/* Al pasar por encima, saluda: cambia lo que dice y, si el globo
+   estaba cerrado, vuelve mientras dure el ratón. Al quitarlo se va.
+   Solo cuenta el ratón sobre ella, no sobre el globo. */
+.prime-card-clarita-say.is-hover {
+  display: none;
+}
+
+.prime-card-clarita:has(.prime-card-clarita-pet:hover) .prime-card-clarita-say.is-idle {
+  display: none;
+}
+
+.prime-card-clarita:has(.prime-card-clarita-pet:hover) .prime-card-clarita-say.is-hover {
+  display: inline;
+}
+
+.oky-flow-frame.is-clarita-muted
+  .prime-card-clarita:has(.prime-card-clarita-pet:hover)
+  .prime-card-clarita-bubble {
+  display: block;
 }
 
 /* La colita nace del globo: medio cuadrado dentro y medio fuera, del
@@ -15881,7 +15904,7 @@ const CARD_BOTTOM_VARIANTS = [
           label: "Pégalo en la URL",
           value: "https://www.giftcardmall.com/redeem",
           copyable: true,
-          buttonLabel: "Abrir desde aquí",
+          buttonLabel: "Abrir URL",
         },
       },
     ],
@@ -16053,7 +16076,8 @@ function renderClarita() {
   return `
     <div class="prime-card-clarita" role="status" aria-label="Clarita: ¿Necesitas ayuda con el canje?">
       <p class="prime-card-clarita-bubble">
-        ¿Necesitas ayuda<br />con el canje?
+        <span class="prime-card-clarita-say is-idle">¿Necesitas ayuda<br />con el canje?</span>
+        <span class="prime-card-clarita-say is-hover">Hola, ¿te ayudo?</span>
         <button class="prime-card-clarita-close" data-action="clarita-close" type="button" aria-label="Cerrar el aviso de Clarita">
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>

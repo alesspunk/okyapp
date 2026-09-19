@@ -186,7 +186,7 @@ export const CARD_BOTTOM_VARIANTS = [
           label: "Pégalo en la URL",
           value: "https://www.giftcardmall.com/redeem",
           copyable: true,
-          buttonLabel: "Abrir desde aquí",
+          buttonLabel: "Abrir URL",
         },
       },
     ],
@@ -358,7 +358,8 @@ function renderClarita() {
   return `
     <div class="prime-card-clarita" role="status" aria-label="Clarita: ¿Necesitas ayuda con el canje?">
       <p class="prime-card-clarita-bubble">
-        ¿Necesitas ayuda<br />con el canje?
+        <span class="prime-card-clarita-say is-idle">¿Necesitas ayuda<br />con el canje?</span>
+        <span class="prime-card-clarita-say is-hover">Hola, ¿te ayudo?</span>
         <button class="prime-card-clarita-close" data-action="clarita-close" type="button" aria-label="Cerrar el aviso de Clarita">
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
