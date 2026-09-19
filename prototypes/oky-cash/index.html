@@ -13155,88 +13155,78 @@ img.oky-flow-method-mark {
 }
 
 /* ── Recorrido: la meta ──────────────────────────────────
-   Ya con la home arriba, una pancarta de línea de llegada: dos bandas
-   a cuadros abrazando la bandera y el remate. No pide nada y se deja
-   atravesar con el dedo —es un festejo, no un diálogo— y se va sola. */
+   Ya con la home arriba, el remate cruza la pantalla: una banda que
+   entra por la izquierda, se planta y sale por la derecha, con el
+   damero de la línea de llegada en sus bordes. Sin atenuar el fondo
+   —la portada es justo lo que se acaba de enseñar— y sin robar el
+   toque: es un festejo, no un diálogo, y se va solo. */
 .oky-flow-tourflag {
   position: absolute;
   inset: 0;
   z-index: 140;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: rgba(16, 4, 36, 0.32);
+  overflow: hidden;
   pointer-events: none;
-  animation: oky-flow-fade 220ms ease-out both;
 }
 
 .oky-flow-tourflag-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: min(268px, calc(100% - 48px));
-  overflow: hidden;
-  border-radius: 24px;
-  background: var(--white);
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
-  text-align: center;
-  animation: oky-flow-tourflag-in 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-/* El damero se dibuja con dos diagonales cruzadas: dos filas de
-   cuadros de 13px, que es lo que hace leer "meta" y no "borde". */
-.oky-flow-tourflag-band {
+  position: relative;
   width: 100%;
-  height: 26px;
-  flex: none;
-  background-color: var(--white);
-  background-image:
-    linear-gradient(45deg, #17171b 25%, transparent 25%, transparent 75%, #17171b 75%),
-    linear-gradient(45deg, #17171b 25%, transparent 25%, transparent 75%, #17171b 75%);
-  background-size: 26px 26px;
-  background-position: 0 0, 13px 13px;
-}
-
-.oky-flow-tourflag-emoji {
-  margin-top: 20px;
-  font-size: 44px;
-  line-height: 1;
-  animation: oky-flow-tourflag-wave 900ms ease-in-out 220ms 2 both;
-}
-
-.oky-flow-tourflag-text {
-  margin: 10px 0 20px;
-  padding: 0 20px;
+  margin: 0;
+  padding: 22px 24px;
+  background: var(--primary-main);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
   font-family: "Nunito Sans", sans-serif;
   font-size: 24px;
   font-weight: 900;
   line-height: 1.2;
-  color: var(--primary-main);
+  text-align: center;
+  color: var(--white);
+  animation: oky-flow-tourflag-cross 1600ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes oky-flow-tourflag-in {
+/* El damero en los dos cantos: dos diagonales cruzadas, cuadros de
+   5px. Es lo que hace leer "meta" sin montar un marco entero. */
+.oky-flow-tourflag-card::before,
+.oky-flow-tourflag-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background-color: var(--white);
+  background-image:
+    linear-gradient(45deg, #17171b 25%, transparent 25%, transparent 75%, #17171b 75%),
+    linear-gradient(45deg, #17171b 25%, transparent 25%, transparent 75%, #17171b 75%);
+  background-size: 10px 10px;
+  background-position: 0 0, 5px 5px;
+}
+
+.oky-flow-tourflag-card::before {
+  top: 0;
+}
+
+.oky-flow-tourflag-card::after {
+  bottom: 0;
+}
+
+@keyframes oky-flow-tourflag-cross {
   0% {
     opacity: 0;
-    transform: translateY(18px) scale(0.86);
+    transform: translateX(-104%);
   }
-  64% {
+  18% {
     opacity: 1;
-    transform: translateY(0) scale(1.04);
+    transform: translateX(0);
+  }
+  76% {
+    opacity: 1;
+    transform: translateX(0);
   }
   100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* La bandera ondea: un balanceo corto, no una vuelta. */
-@keyframes oky-flow-tourflag-wave {
-  0%,
-  100% {
-    transform: rotate(-9deg);
-  }
-  50% {
-    transform: rotate(9deg);
+    opacity: 0;
+    transform: translateX(104%);
   }
 }
 
@@ -13246,8 +13236,7 @@ img.oky-flow-method-mark {
     animation: none;
   }
 
-  .oky-flow-tourflag-card,
-  .oky-flow-tourflag-emoji {
+  .oky-flow-tourflag-card {
     animation: none;
   }
 }
@@ -16901,12 +16890,7 @@ function tourOverlay(state) {
 function tourFlag() {
   return `
     <div class="oky-flow-tourflag" aria-hidden="true">
-      <div class="oky-flow-tourflag-card" role="status">
-        <span class="oky-flow-tourflag-band" aria-hidden="true"></span>
-        <span class="oky-flow-tourflag-emoji">🏁</span>
-        <p class="oky-flow-tourflag-text">¡Compra y gana!</p>
-        <span class="oky-flow-tourflag-band" aria-hidden="true"></span>
-      </div>
+      <p class="oky-flow-tourflag-card" role="status"><span>¡Compra y gana! 🏁</span></p>
     </div>
   `;
 }
