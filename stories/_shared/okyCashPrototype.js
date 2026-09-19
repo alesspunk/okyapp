@@ -1018,10 +1018,16 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
    apunta a algo que ya está en pantalla; el texto dice para qué sirve,
    no qué es. */
 const TOUR_STEPS = [
-  { target: ".header-icon-bitmap-wallet-wrap", label: "Tu wallet" },
-  { target: ".oky-flow-home .tactic-strip", label: "Ofertas del día" },
-  { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Tu actividad" },
+  { count: 3, light: "is-red", target: ".oky-flow-home .tactic-strip", label: "Compra una gift card" },
+  { count: 2, light: "is-amber", target: ".header-icon-bitmap-wallet-wrap", label: "Encuéntrala en tu Wallet" },
+  { count: 1, light: "is-green", target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Gana OKY Cash" },
+  /* La bandera a cuadros: sin nada que señalar, ocupa la pantalla un
+     segundo y se va sola, como el "GO!" de una salida. */
+  { finish: true, label: "¡Compra y gana! 🏁" },
 ];
+
+/* Lo que dura la bandera antes de subir al inicio. */
+const TOUR_FINISH_MS = 1400;
 
 /* Lluvia de banderas al entrar a USA por primera vez: un guiño corto,
    que se quita solo. */
@@ -1062,12 +1068,25 @@ function usaIntro() {
 function tourOverlay(state) {
   const step = TOUR_STEPS[state.tourStep];
   if (!step) return "";
-  /* Cuatro paneles dejan el hueco sobre lo que se señala —el elemento
-     es el de verdad, no una copia— y encima solo va una flecha y una
-     línea. Se toca donde sea para pasar. */
+
+  /* La última no señala nada: es la bandera a cuadros. */
+  if (step.finish) {
+    return `
+      <div class="oky-flow-tour is-finish" data-action="tour-next" role="dialog" aria-modal="true"
+        aria-label="${step.label}">
+        <p class="oky-flow-tour-finish">${step.label}</p>
+      </div>
+    `;
+  }
+
+  /* El hueco deja ver lo que se señala —el elemento es el de verdad, no
+     una copia—, encima van la flecha y la línea, y el número entra
+     grande en el centro y se encoge: la cuenta atrás de una salida.
+     Se toca donde sea para pasar. */
   return `
     <div class="oky-flow-tour" data-action="tour-next" role="dialog" aria-modal="true" aria-label="${step.label}">
       <span class="oky-flow-tour-hole" aria-hidden="true"></span>
+      <span class="oky-flow-tour-count ${step.light}" aria-hidden="true">${step.count}</span>
       <div class="oky-flow-tour-call">
         <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
         <p class="oky-flow-tour-label">${step.label}</p>
@@ -3888,6 +3907,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   /* Si el carrito ya estaba abierto en la pasada anterior. */
   let cartWasOpen = false;
   let addedTimer = null;
+  /* La bandera del final del recorrido se quita sola. */
+  let tourFinishTimer = null;
   let introTimer = null;
 
   function render() {
@@ -3988,6 +4009,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const tour = root.querySelector(".oky-flow-tour");
     if (!tour) return;
     const step = TOUR_STEPS[state.tourStep];
+    if (!step || step.finish) return;
     const frame = root.querySelector(".oky-flow-frame");
     const target = root.querySelector(step.target);
     if (!target || !frame) return;
@@ -4053,6 +4075,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      un salto, así que se restaura dónde quedó y se sube con scroll
      suave, que es como se mueve la app. */
   function closeTour() {
+    clearTimeout(tourFinishTimer);
     state.tourStep = null;
     state.tourSeen = true;
     const before = root.querySelector(".oky-flow-scroll");
@@ -4577,13 +4600,23 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "tour-next") {
+      /* Sobre la bandera, tocar adelanta lo que iba a pasar solo. */
+      clearTimeout(tourFinishTimer);
       const next = (state.tourStep ?? 0) + 1;
       if (next >= TOUR_STEPS.length) return closeTour();
       state.tourStep = next;
+      if (TOUR_STEPS[next].finish) {
+        render();
+        tourFinishTimer = setTimeout(closeTour, TOUR_FINISH_MS);
+        return;
+      }
       return render();
     }
 
-    if (action === "tour-end") return closeTour();
+    if (action === "tour-end") {
+      clearTimeout(tourFinishTimer);
+      return closeTour();
+    }
 
     if (action === "country-stay") {
       state.countrySheet = null;
