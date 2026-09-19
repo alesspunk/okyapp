@@ -13160,6 +13160,31 @@ img.oky-flow-method-mark {
   pointer-events: none;
 }
 
+/* La pantalla se atenúa detrás de la banda, como en el aviso de
+   "Agregado al carrito": sin eso el cintillo se confunde con el
+   contenido que cruza. Entra y sale con la banda. */
+.oky-flow-tourflag-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 16, 16, 0.45);
+  animation: oky-flow-tourflag-dim 1600ms ease-out both;
+}
+
+@keyframes oky-flow-tourflag-dim {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  76% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 .oky-flow-tourflag-card {
   position: relative;
   width: 100%;

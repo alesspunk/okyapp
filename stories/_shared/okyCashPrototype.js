@@ -1099,6 +1099,7 @@ function tourOverlay(state) {
 function tourFlag() {
   return `
     <div class="oky-flow-tourflag" aria-hidden="true">
+      <span class="oky-flow-tourflag-backdrop"></span>
       <p class="oky-flow-tourflag-card" role="status"><span>¡Compra y gana! 🏁</span></p>
     </div>
   `;
