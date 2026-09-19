@@ -10327,6 +10327,16 @@ button.header-icon {
   padding-top: 12px;
 }
 
+/* El header va pegado arriba y sin fondo propio para que el naranja
+   arranque detrás del buscador. Eso dejaba el folder translúcido: al
+   subir, el degradado y los banners se veían pasar entre las pestañas.
+   La banda del folder se pinta de blanco, como la barra de arriba, y
+   el naranja empieza donde tiene que empezar. */
+.oky-flow-home .folder-responsive-host,
+.oky-flow-guahome .folder-responsive-host {
+  background: var(--white);
+}
+
 .oky-flow-theme-band {
   /* Por encima del degradado, que va posicionado: si no, el ::before
      del home pintaría sobre los banners y los tapaba. */
@@ -18034,8 +18044,11 @@ function promoRibbon(state) {
       </div>
     `;
   }
+  const elapsed = promoStartElapsed(state);
   const cronometro = `
-    <div class="super-ribbon super-ribbon-type-por-tiempo${state.promoStarting ? " is-starting" : ""}">
+    <div class="super-ribbon super-ribbon-type-por-tiempo${elapsed >= 0 ? " is-starting" : ""}"${
+      elapsed > 0 ? ` style="animation-delay:-${elapsed}ms"` : ""
+    }>
       <span class="super-ribbon-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
       <span class="super-ribbon-text" data-role="promo-countdown">Termina en ${countdownLabel(state.promoEndsAt - Date.now())}</span>
     </div>
@@ -18045,10 +18058,10 @@ function promoRibbon(state) {
      aqua se va mientras el mostaza entra por encima. Cambiándolo de
      golpe solo se notaba la sacudida, y lo que hay que entender es que
      el 5% pasó a 20%. */
-  if (!state.promoStarting) return cronometro;
+  if (elapsed < 0 || elapsed >= PROMO_CROSS_MS) return cronometro;
   return `
     <span class="super-ribbon-swap">
-      <span class="super-ribbon super-ribbon-type-normal is-leaving" aria-hidden="true">
+      <span class="super-ribbon super-ribbon-type-normal is-leaving" aria-hidden="true" style="animation-delay:-${elapsed}ms">
         <span class="super-ribbon-icon"><i class="fa-solid fa-percent" aria-hidden="true"></i></span>
         <span class="super-ribbon-text">Super Deals</span>
       </span>
@@ -18057,9 +18070,23 @@ function promoRibbon(state) {
   `;
 }
 
+/* Milisegundos desde que arrancó la promo, o -1 si no está
+   arrancando. Se usa como desfase negativo en las animaciones del
+   cruce: un render a media transición la retoma donde iba en vez de
+   rebobinarla. */
+const PROMO_CROSS_MS = 360;
+const PROMO_BUMP_DELAY_MS = 340;
+const PROMO_BUMP_MS = 640;
+
+function promoStartElapsed(state) {
+  if (!state.promoStarting) return -1;
+  return Math.max(Date.now() - (state.promoStartedAt || 0), 0);
+}
+
 function screenHome(state) {
   /* Una oferta del strip táctico: foto, logo de marca colgado a la
      izquierda y el ribbon con el cashback (MARS 7295:52037). */
+  const promoStart = promoStartElapsed(state);
   const offer = ({ key, photo, rate, action }) => {
     const product = PRODUCTS[key];
     return `
@@ -18074,15 +18101,19 @@ function screenHome(state) {
                  instante y se disuelve: así se ve el aqua del 5% dar
                  paso al mostaza del 20%, en vez de cambiar de golpe. */ ""}
             ${
-              state.promoStarting
-                ? `<div class="discount-ribbon discount-ribbon-wrap is-tier-base is-leaving" aria-hidden="true">
+              promoStart >= 0 && promoStart < PROMO_CROSS_MS
+                ? `<div class="discount-ribbon discount-ribbon-wrap is-tier-base is-leaving" aria-hidden="true" style="animation-delay:-${promoStart}ms">
                      <span class="discount-ribbon-text token-price-percent">Gana 5%</span>
                    </div>`
                 : ""
             }
             <div class="discount-ribbon discount-ribbon-wrap ${rate >= 20 ? "is-tier-promo" : "is-tier-base"}${
-              state.promoStarting ? " is-bumped" : ""
-            }">
+              promoStart >= 0 && promoStart < PROMO_BUMP_DELAY_MS + PROMO_BUMP_MS ? " is-bumped" : ""
+            }"${
+              promoStart > 0 && promoStart < PROMO_BUMP_DELAY_MS + PROMO_BUMP_MS
+                ? ` style="animation-delay:${PROMO_BUMP_DELAY_MS - promoStart}ms"`
+                : ""
+            }>
               <span class="discount-ribbon-text token-price-percent">Gana ${rate}%</span>
             </div>
           </div>
@@ -21092,6 +21123,11 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.promoLive = true;
     state.promoEndsAt = Date.now() + PROMO_MS;
     state.promoStarting = true;
+    /* El cruce de aqua a mostaza se mide contra este sello, no contra
+       el render: durante el arranque hay más de un render (el confeti
+       se retira a mitad de camino) y sin esto la animación volvía a
+       empezar, así que se veía aqua, mostaza, aqua y mostaza. */
+    state.promoStartedAt = Date.now();
     /* El reloj arranca en un múltiplo de 30 y el aviso de cada medio
        minuto se disparaba en el primer tic, justo detrás de la sacudida
        del arranque: dos temblores seguidos. Se da por avisado ese

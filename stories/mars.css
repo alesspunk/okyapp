@@ -10312,6 +10312,16 @@ button.header-icon {
   padding-top: 12px;
 }
 
+/* El header va pegado arriba y sin fondo propio para que el naranja
+   arranque detrás del buscador. Eso dejaba el folder translúcido: al
+   subir, el degradado y los banners se veían pasar entre las pestañas.
+   La banda del folder se pinta de blanco, como la barra de arriba, y
+   el naranja empieza donde tiene que empezar. */
+.oky-flow-home .folder-responsive-host,
+.oky-flow-guahome .folder-responsive-host {
+  background: var(--white);
+}
+
 .oky-flow-theme-band {
   /* Por encima del degradado, que va posicionado: si no, el ::before
      del home pintaría sobre los banners y los tapaba. */
