@@ -9339,6 +9339,18 @@ button.header-icon {
   flex: 0 0 auto;
 }
 
+/* Tope del carrusel: 20px de aire después de la última card, para que
+   el scroll llegue hasta el final del contenido y se lea que ahí se
+   acabó. Va como elemento y no como padding del track: dentro de un
+   contenedor que scrollea, el relleno del final no siempre cuenta. */
+.oky-flow-frame .tactic-strip-end {
+  /* El hueco se cuenta desde la última card y el track ya separa 12px
+     a sus hermanos: se descuentan para que queden 20 justos. */
+  flex: 0 0 20px;
+  margin-left: -12px;
+  align-self: stretch;
+}
+
 .oky-flow-frame .tactic-offer-hero {
   border-radius: 20px;
 }

@@ -1029,7 +1029,7 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
    apunta a algo que ya está en pantalla; el texto dice para qué sirve,
    no qué es. */
 const TOUR_STEPS = [
-  { target: ".oky-flow-home .tactic-strip", label: "Compra una gift card" },
+  { target: ".oky-flow-home .tactic-strip", label: "Compra una Gift Card" },
   { target: ".header-icon-bitmap-wallet-wrap", label: "Encuéntrala en tu Wallet" },
   { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Gana OKY Cash" },
 ];
@@ -1267,6 +1267,9 @@ function screenHome(state) {
             ${offer({ key: "nike", photo: PRODUCTS.nike.hero, rate: promoRate, action: "open-pdp" })}
             ${offer({ key: "lyft", photo: PRODUCTS.lyft.hero, rate: promoRate, action: "open-pdp" })}
             ${TODAY_CARDS.map((card) => offer({ ...card, rate: promoRate, action: "open-pdp" })).join("")}
+            ${/* Un respiro al final: sin él la última card queda pegada
+                 al borde y no se sabe si el carrusel terminó. */ ""}
+            <span class="tactic-strip-end" aria-hidden="true"></span>
           </div>
         </div>
       </section>
