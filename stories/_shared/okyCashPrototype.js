@@ -608,8 +608,8 @@ function createInitialState(userType) {
        Se ven una sola vez, la primera que se entra al marketplace. */
     usaIntro: false,
     tourStep: null,
-    /* Clarita deja de hablar en cuanto se le cierra el globo: ella se
-       queda, pero no vuelve a ofrecerse en toda la sesión. */
+    /* Clarita se calla en el vale que estás mirando; al abrir otro
+       vuelve a ofrecerse. Ella no se va nunca. */
     claritaMuted: false,
     tourCount: false,
     tourFlag: false,
@@ -5500,9 +5500,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
-    if (action === "open-purchase") return go("voucher", { id: el.dataset.id });
+    if (action === "open-purchase") {
+      /* Callarla vale para el vale que estabas mirando, no para el
+         resto: en uno nuevo vuelve a ofrecerse. */
+      state.claritaMuted = false;
+      return go("voucher", { id: el.dataset.id });
+    }
     if (action === "open-voucher") {
       const key = el.dataset.key;
+      state.claritaMuted = false;
       if (!state.seenVouchers.includes(key)) state.seenVouchers.push(key);
       return go("voucher", { key, unit: Number(el.dataset.unit) || 0, deck: el.dataset.deck || "gift" });
     }

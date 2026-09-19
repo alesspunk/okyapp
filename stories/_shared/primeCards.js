@@ -183,10 +183,10 @@ export const CARD_BOTTOM_VARIANTS = [
       {
         type: "action",
         action: {
-          label: "URL",
+          label: "Pégalo en la URL",
           value: "https://www.giftcardmall.com/redeem",
           copyable: true,
-          buttonLabel: "Pégalo aquí",
+          buttonLabel: "Abrir desde aquí",
         },
       },
     ],

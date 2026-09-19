@@ -5037,9 +5037,12 @@ body {
 }
 
 /* Sin fecha arriba, la columna de la derecha deja de repartir y manda
-   el botón al fondo: la ayuda vive en la esquina inferior derecha. */
+   el botón al fondo: la ayuda vive en la esquina inferior derecha. Y
+   baja unos píxeles porque en esta variante comparte fila con el botón
+   de abrir la URL, que es el más ancho de todos. */
 .card-bottom-molecule.is-gift-card-usa .prime-card-bottom-side {
   justify-content: flex-end;
+  bottom: 10px;
 }
 
 /* El botón que pega la URL: mismo cuerpo que el código, para que se
@@ -5367,8 +5370,7 @@ body {
   box-shadow: 0 2px 6px rgba(48, 12, 92, 0.22);
 }
 
-/* Cerrada una vez, no vuelve a hablar en toda la sesión: ella se
-   queda, el globo no. */
+/* Cerrada, el globo se va de esta card; ella se queda. */
 .oky-flow-frame.is-clarita-muted .prime-card-clarita-bubble {
   display: none;
 }
@@ -15876,10 +15878,10 @@ const CARD_BOTTOM_VARIANTS = [
       {
         type: "action",
         action: {
-          label: "URL",
+          label: "Pégalo en la URL",
           value: "https://www.giftcardmall.com/redeem",
           copyable: true,
-          buttonLabel: "Pégalo aquí",
+          buttonLabel: "Abrir desde aquí",
         },
       },
     ],
@@ -16951,8 +16953,8 @@ function createInitialState(userType) {
        Se ven una sola vez, la primera que se entra al marketplace. */
     usaIntro: false,
     tourStep: null,
-    /* Clarita deja de hablar en cuanto se le cierra el globo: ella se
-       queda, pero no vuelve a ofrecerse en toda la sesión. */
+    /* Clarita se calla en el vale que estás mirando; al abrir otro
+       vuelve a ofrecerse. Ella no se va nunca. */
     claritaMuted: false,
     tourCount: false,
     tourFlag: false,
@@ -21843,9 +21845,15 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
-    if (action === "open-purchase") return go("voucher", { id: el.dataset.id });
+    if (action === "open-purchase") {
+      /* Callarla vale para el vale que estabas mirando, no para el
+         resto: en uno nuevo vuelve a ofrecerse. */
+      state.claritaMuted = false;
+      return go("voucher", { id: el.dataset.id });
+    }
     if (action === "open-voucher") {
       const key = el.dataset.key;
+      state.claritaMuted = false;
       if (!state.seenVouchers.includes(key)) state.seenVouchers.push(key);
       return go("voucher", { key, unit: Number(el.dataset.unit) || 0, deck: el.dataset.deck || "gift" });
     }
