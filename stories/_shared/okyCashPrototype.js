@@ -62,7 +62,7 @@ const PRODUCTS = {
     cardTitle: "Nike Gift Card",
     art: "oky-card-nike.png",
     bg: "#ef4c26",
-    hero: "photo-nike.png",
+    hero: "photo-nike-lossless.webp",
     min: 10,
     max: 1000,
     legal: true,
@@ -73,7 +73,7 @@ const PRODUCTS = {
     cardTitle: "Lyft Gift Card",
     art: "oky-card-lyft.png",
     bg: "#1d0c17",
-    hero: "promo-image1.png",
+    hero: "promo-image1-lossless.webp",
     min: 10,
     max: 1000,
     legal: false,
@@ -90,7 +90,11 @@ const BRANDS = {
      a 1200px y aguanta cualquier tamaño. */
   homedepot: { label: "Home Depot", art: "homedepot.png", bg: "#f68b1f", rate: 5 },
   apple: { label: "Apple", art: "apple.webp", bg: "#f2f2f5", rate: 5 },
-  macys: { label: "Macy's", art: "macys.webp", bg: "#ffffff", rate: 12 },
+  /* Macy's y Ulta Beauty comparten la dinámica de Nike y Lyft: sin
+     porcentaje propio, su cashback lo decide el monto mientras el
+     reloj de Spooky Deals siga vivo. */
+  macys: { label: "Macy's", art: "macys.webp", bg: "#ffffff", rate: 0 },
+  ulta: { label: "Ulta Beauty", art: "ulta.png", bg: "#ffffff", rate: 0 },
   target: { label: "Target", art: "target.webp", bg: "#99464a", rate: 8 },
   seveneleven: { label: "7 Eleven", art: "7eleven.png", bg: "#ea572d", rate: 6 },
   burgerking: { label: "Burger King", art: "burguerking.webp", bg: "#f6ead5", rate: 9 },
@@ -222,14 +226,15 @@ function orderCountry(state) {
 
 /* Las dos marcas que arrancan dentro de la banda del descuento
    especial, y el monto con el que abren mientras la promo vive. */
-const PROMO_PRODUCTS = ["nike", "lyft"];
+const PROMO_PRODUCTS = ["nike", "lyft", "macys", "ulta"];
 const PROMO_DEFAULT_AMOUNT = 51;
 
-/* La promo de "Spooky Deals" dura dos minutos: mientras corre, el rango
-   de $50 a $200 paga 20%; al vencer, todo vuelve al 5% base. Es a
-   propósito corta — la prueba de usabilidad quiere ver qué hace la
-   persona con el reloj encima. */
-const PROMO_MS = 2 * 60 * 1000;
+/* La promo de "Spooky Deals" dura tres minutos: mientras corre, el
+   rango de $50 a $200 paga 20%; al vencer, todo vuelve al 5% base.
+   Sigue siendo corta a propósito —la prueba de usabilidad quiere ver
+   qué hace la persona con el reloj encima— pero con dos no alcanzaba
+   a recorrer la compra antes de que venciera. */
+const PROMO_MS = 3 * 60 * 1000;
 
 /* El reloj se detiene mientras la persona está en el carrito o
    ajustando el checkout: que se le venza a media compra sería una
@@ -265,6 +270,12 @@ Object.entries(BRANDS).forEach(([key, brand]) => {
     bg: brand.bg,
     legal: true,
   };
+});
+
+/* Las marcas de la promo arrancan en 10 como Nike y Lyft: su banda de
+   descuento empieza en 50 y un mínimo de 5 no dice nada ahí. */
+["macys", "ulta"].forEach((key) => {
+  PRODUCTS[key].min = 10;
 });
 
 /* Tigo, la marca de la home de Guatemala. No da cashback —no lleva
@@ -328,8 +339,8 @@ const STYLE_CARDS = [
 ];
 
 const TODAY_CARDS = [
-  { key: "macys", photo: "promo-image2.png" },
-  { key: "starbucks", photo: "promo-image4.png" },
+  { key: "macys", photo: "promo-image2-lossless.webp" },
+  { key: "ulta", photo: "promo-image-ulta.jpg" },
 ];
 
 /* Tier del cashback. Verificado contra los dos frames de Nike:
@@ -534,12 +545,18 @@ function createInitialState(userType) {
     history: [],
     /* Arranca en 51, dentro del rango de descuento especial (20%);
        al vencer la promo vuelve a los 5 del resto de marcas. */
-    amounts: { nike: PROMO_DEFAULT_AMOUNT, lyft: PROMO_DEFAULT_AMOUNT },
+    amounts: PROMO_PRODUCTS.reduce((acc, key) => ({ ...acc, [key]: PROMO_DEFAULT_AMOUNT }), {}),
     cart: [],
     cartOpen: false,
     checkoutIndex: 0,
     okyCashEnabled: false,
     okyCashApplied: 0,
+    /* Código promocional aplicado a la orden (solo Guatemala), lo que
+       se está tecleando en el modal y si el último intento falló. */
+    promo: null,
+    promoOpen: false,
+    promoDraft: "",
+    promoError: false,
     selectedCard: "visa",
     /* Repositorio acumulado de gift cards: alimenta Mi wallet. */
     purchases: returning
@@ -591,6 +608,8 @@ function createInitialState(userType) {
        Se ven una sola vez, la primera que se entra al marketplace. */
     usaIntro: false,
     tourStep: null,
+    tourCount: false,
+    tourFlag: false,
     tourSeen: false,
     /* Cuántas cards se han pedido ya en cada pestaña y estado del
        wallet, con la clave "pestaña:estado". */
@@ -718,26 +737,78 @@ FOOD_PRODUCTS.forEach((food) => {
     noCashback: true,
     rate: 0,
     food: true,
+    /* Paga costo por servicio, como todo lo que se entrega. */
+    service: true,
   };
 });
 
-/* Cuántas unidades de comida lleva el carrito: las recargas no pagan
-   costo por servicio ni cuentan para el tope. */
-const cartFoodCount = (state) =>
-  state.cart.reduce((n, item) => n + ((PRODUCTS[item.productKey] || {}).food ? item.qty || 1 : 0), 0);
+/* ── Marcas de Guatemala que se compran por monto ──────────
+   Un vale en quetzales que se paga en dólares: mismo PDP, mismo rango
+   y mismo costo por servicio para todas, y lo único suyo es el logo.
+   Las claves llevan prefijo porque varias de estas marcas ya existen
+   en el catálogo de USA con otra ficha. */
+const GUA_RATE = 7.55;
+const GUA_VALE_MIN = 10;
+const GUA_VALE_MAX = 1000;
+const GUA_VALE_DEFAULT = 50;
 
-const cartServiceFee = (state) => serviceFeeOf(cartFoodCount(state));
+/* Se teclea en quetzales y se cobra en dólares: el carrito y el
+   checkout hablan en dólares, así que la conversión pasa una sola vez,
+   al entrar al carrito. */
+const toUsd = (q) => Math.round(((Number(q) || 0) / GUA_RATE) * 100) / 100;
+/* Mil quetzales se leen "1,000", no "1000". */
+const bigQuetzal = (v) => (Number.isInteger(v) ? Number(v).toLocaleString("en-US") : v.toFixed(2));
+
+const GUA_BRANDS = [
+  { key: "gua-pollocampero", label: "Pollo Campero", art: "pollo-campero.webp" },
+  { key: "gua-burgerking", label: "Burger King", art: "burguerking.webp" },
+  { key: "gua-pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp" },
+  { key: "gua-ihop", label: "IHOP", art: "ihop.webp" },
+  { key: "gua-dominos", label: "Domino's", art: "dominos.png" },
+  { key: "gua-claro", label: "Claro", art: "claro.webp" },
+];
+
+GUA_BRANDS.forEach((brand) => {
+  PRODUCTS[brand.key] = {
+    ...brand,
+    /* La card enseña qué es; el carrito, de quién es. */
+    cardTitle: "OKYVale",
+    cartTitle: `OKYVale ${brand.label}`,
+    hero: brand.art,
+    bg: "#ffffff",
+    min: GUA_VALE_MIN,
+    max: GUA_VALE_MAX,
+    rate: 0,
+    /* Precio regular: no llevan descuento, así que no hay ribbon ni
+       tachado en ningún paso. Como Tigo, tampoco dan OKY Cash, pero
+       se pueden pagar con el que ya se tiene. */
+    noCashback: true,
+    country: "gua",
+    wallet: "vales",
+    quetzal: true,
+    service: true,
+    legal: false,
+  };
+});
+
+/* Cuántas unidades del carrito pagan costo por servicio: la comida y
+   los vales de monto de Guatemala. Las recargas de Tigo no, ni nada de
+   USA, así que tampoco cuentan para el tope. */
+const cartServiceCount = (state) =>
+  state.cart.reduce((n, item) => n + ((PRODUCTS[item.productKey] || {}).service ? item.qty || 1 : 0), 0);
+
+const cartServiceFee = (state) => serviceFeeOf(cartServiceCount(state));
 
 /* Lo ahorrado en esta orden: lo que se deja de pagar en costo por
    servicio más los descuentos de precio de cada producto. */
 function cartSavings(state) {
-  const n = cartFoodCount(state);
+  const n = cartServiceCount(state);
   const onFee = serviceFeeList(n) - serviceFeeOf(n);
   const onPrice = state.cart.reduce((sum, item) => {
     const product = PRODUCTS[item.productKey] || {};
     return sum + (product.was ? (product.was - product.price) * (item.qty || 1) : 0);
   }, 0);
-  return onFee + onPrice;
+  return onFee + onPrice + appliedPromo(state);
 }
 
 const cartSubtotal = (state) =>
@@ -765,7 +836,25 @@ function dealAmount(now, was) {
     : money(now);
 }
 
-const cartTotal = (state) => cartSubtotal(state) + cartServiceFee(state);
+/* Códigos promocionales de Guatemala. Hoy solo vive uno; el objeto
+   deja sitio para más sin tocar el flujo, y el valor es lo que rebaja
+   en dólares. Se comparan en minúsculas: en el campo se teclea como
+   se quiera. */
+const PROMO_CODES = { verano26: 10 };
+const promoValue = (code) => PROMO_CODES[String(code || "").trim().toLowerCase()] || 0;
+
+/* Lo que pide el carrito antes de cualquier descuento de pago. */
+const cartGross = (state) => cartSubtotal(state) + cartServiceFee(state);
+
+/* Lo que rebaja el código. Nunca deja el total en negativo, y no
+   convive con OKY Cash: el descuento que se aplica de último apaga
+   al otro. */
+function appliedPromo(state) {
+  if (!state.promo) return 0;
+  return Math.min(promoValue(state.promo), cartGross(state));
+}
+
+const cartTotal = (state) => Math.max(cartGross(state) - appliedPromo(state), 0);
 const cartCashback = (state) =>
   state.cart.reduce((sum, item) => sum + item.cashback * (item.qty || 1), 0);
 
@@ -774,6 +863,17 @@ function appliedOkyCash(state) {
   if (!state.okyCashEnabled) return 0;
   return clamp(state.okyCashApplied, 0, Math.min(state.okyCashBalance, cartTotal(state)));
 }
+
+/* Lo que esta orden le quita al saldo de OKY Cash y lo que acaba
+   pagando la tarjeta. El carrito y el checkout enseñan el mismo
+   resumen, así que sacan la cifra del mismo sitio: si cada uno la
+   calculara por su cuenta, acabarían discrepando. */
+function orderCash(state) {
+  if (!state.okyCashEnabled) return 0;
+  return Math.min(state.okyCashApplied || state.okyCashBalance, cartTotal(state), state.okyCashBalance);
+}
+
+const orderDue = (state) => Math.max(cartTotal(state) - orderCash(state), 0);
 
 /* El cashback se gana sobre dinero real: la parte que sale del saldo de
    OKY Cash no genera más OKY Cash. Se reparte en proporción a lo que
@@ -931,10 +1031,19 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
    apunta a algo que ya está en pantalla; el texto dice para qué sirve,
    no qué es. */
 const TOUR_STEPS = [
-  { target: ".header-icon-bitmap-wallet-wrap", label: "Tu wallet" },
-  { target: ".oky-flow-home .tactic-strip", label: "Ofertas del día" },
-  { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Tu actividad" },
+  { target: ".oky-flow-home .tactic-strip", label: "Compra una Gift Card" },
+  { target: ".header-icon-bitmap-wallet-wrap", label: "Encuéntrala en tu Wallet" },
+  { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Gana OKY Cash" },
 ];
+
+/* Cerrado el recorrido, la home sube al inicio y ahí se celebra: la
+   bandera entra cuando ya se ve la portada, no sobre media página. */
+const TOUR_FLAG_WAIT_MS = 420;
+/* Cada número de la cuenta atrás dura lo que su animación, así que el
+   siguiente entra justo cuando el anterior acaba de irse. */
+const TOUR_COUNT_MS = 520;
+const TOUR_COUNT_LIGHTS = { 3: "is-red", 2: "is-amber", 1: "is-green" };
+const TOUR_FLAG_MS = 1600;
 
 /* Lluvia de banderas al entrar a USA por primera vez: un guiño corto,
    que se quita solo. */
@@ -975,9 +1084,10 @@ function usaIntro() {
 function tourOverlay(state) {
   const step = TOUR_STEPS[state.tourStep];
   if (!step) return "";
-  /* Cuatro paneles dejan el hueco sobre lo que se señala —el elemento
-     es el de verdad, no una copia— y encima solo va una flecha y una
-     línea. Se toca donde sea para pasar. */
+
+  /* El hueco deja ver lo que se señala —el elemento es el de verdad, no
+     una copia— y encima solo van la flecha y la línea. Se toca donde
+     sea para pasar. */
   return `
     <div class="oky-flow-tour" data-action="tour-next" role="dialog" aria-modal="true" aria-label="${step.label}">
       <span class="oky-flow-tour-hole" aria-hidden="true"></span>
@@ -985,6 +1095,35 @@ function tourOverlay(state) {
         <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
         <p class="oky-flow-tour-label">${step.label}</p>
       </div>
+    </div>
+  `;
+}
+
+/* Meta del recorrido: una pancarta de línea de llegada sobre la home
+   ya devuelta al inicio. No pide nada ni tapa nada —se deja atravesar
+   con el dedo— y se va sola. */
+function tourCountNumber(n) {
+  return `<span class="oky-flow-tourcount-num ${TOUR_COUNT_LIGHTS[n]}">${n}</span>`;
+}
+
+/* La cuenta atrás de una salida de carrera: 3 en rojo, 2 en ámbar, 1
+   en verde. La capa se pinta una sola vez y lo único que se releva es
+   el número, para que el fondo no parpadee entre uno y otro. */
+function tourCountdown() {
+  return `
+    <div class="oky-flow-tourcount" aria-hidden="true">
+      ${tourCountNumber(3)}
+    </div>
+  `;
+}
+
+function tourFlag() {
+  return `
+    <div class="oky-flow-tourflag" aria-hidden="true">
+      <span class="oky-flow-tourflag-backdrop"></span>
+      <p class="oky-flow-tourflag-card" role="status">
+        <span>¡Compra y gana! <span class="oky-flow-tourflag-wave">🏁</span></span>
+      </p>
     </div>
   `;
 }
@@ -1110,7 +1249,8 @@ function screenHome(state) {
     `;
   };
 
-  /* Nike y Lyft anuncian el tier de la promo; cuando vence, el 5% base. */
+  /* Las cuatro marcas de Spooky Deals anuncian el tier de la promo;
+     cuando vence, el 5% base. */
   const promoRate = state.promoLive ? 20 : 5;
 
   /* Card de marca del organismo Promo Strip: arte de la gift card,
@@ -1134,8 +1274,8 @@ function screenHome(state) {
 
       <div class="oky-flow-theme-band">
         <div class="carousel-container oky-flow-banner-track">
-          <div class="carousel-banner"><img src="oky-banner-spooky-1.png" alt="Spooky Deals · 20% 30% 40% OFF" /></div>
-          <div class="carousel-banner"><img src="oky-banner-spooky-2.png" alt="Spooky Deals · hasta 40% OFF en experiencias" /></div>
+          <div class="carousel-banner"><img fetchpriority="high" loading="eager" decoding="async" src="oky-banner-spooky-1-lossless.webp" alt="Spooky Deals · 20% 30% 40% OFF" /></div>
+          <div class="carousel-banner"><img src="oky-banner-spooky-2-lossless.webp" alt="Spooky Deals · hasta 40% OFF en experiencias" /></div>
         </div>
       </div>
 
@@ -1150,9 +1290,10 @@ function screenHome(state) {
           <div class="tactic-strip-carousel-track">
             ${offer({ key: "nike", photo: PRODUCTS.nike.hero, rate: promoRate, action: "open-pdp" })}
             ${offer({ key: "lyft", photo: PRODUCTS.lyft.hero, rate: promoRate, action: "open-pdp" })}
-            ${TODAY_CARDS.map((card) =>
-              offer({ ...card, rate: BRANDS[card.key].rate, action: "open-pdp" }),
-            ).join("")}
+            ${TODAY_CARDS.map((card) => offer({ ...card, rate: promoRate, action: "open-pdp" })).join("")}
+            ${/* Un respiro al final: sin él la última card queda pegada
+                 al borde y no se sabe si el carrusel terminó. */ ""}
+            <span class="tactic-strip-end" aria-hidden="true"></span>
           </div>
         </div>
       </section>
@@ -1386,8 +1527,14 @@ function cartDrawer(state) {
         .map((item) => {
           const product = PRODUCTS[item.productKey];
           const tier = getTier(item.amount, product, state.promoLive);
+          /* Con chip de cantidad la fila se parte en dos columnas: a
+             la izquierda todo lo que se lee y a la derecha el chip de
+             pie, en la misma banda que ocupan el lápiz y el tacho de
+             los vales de monto. */
+          const stacked = product.food;
           return `
-            <div class="oky-flow-cart-row">
+            <div class="oky-flow-cart-row${stacked ? " is-qty" : ""}">
+              ${stacked ? `<div class="oky-flow-cart-main">` : ""}
               <div class="oky-flow-cart-head">
                 <span class="brand-item-atom is-no-label">
                   <span class="brand-item-frame">
@@ -1429,7 +1576,7 @@ function cartDrawer(state) {
               </div>
               <div class="oky-flow-cart-body">
                 <span class="oky-flow-cart-copy">
-                  <p class="oky-flow-cart-title">${product.cardTitle}</p>
+                  <p class="oky-flow-cart-title">${product.cartTitle || product.cardTitle}</p>
                   <p class="oky-flow-cart-price${product.was ? " is-deal" : ""}">
                     ${money(item.amount * (item.qty || 1))}
                     ${
@@ -1440,14 +1587,15 @@ function cartDrawer(state) {
                   </p>
                 </span>
                 ${
-                  product.food
-                    ? foodQtyChip(product, item.qty || 1)
+                  stacked
+                    ? ""
                     : `<button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
                         type="button" aria-label="Quitar ${product.label}">
                         <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                       </button>`
                 }
               </div>
+              ${stacked ? `</div>${foodQtyChip(product, item.qty || 1, { vertical: true })}` : ""}
             </div>
           `;
         })
@@ -1472,6 +1620,7 @@ function cartDrawer(state) {
       </div>
 
       <div class="oky-flow-drawer-body">
+        ${state.cart.length ? promoPill(state) : ""}
         ${
           state.cart.length
             ? `<div class="oky-flow-cart-card">${rows}</div>`
@@ -1489,22 +1638,41 @@ function cartDrawer(state) {
       </div>
 
       <div class="oky-flow-drawer-foot${state.cart.length ? "" : " is-hidden"}">
-        <div class="summary-box summary-box-compact">
-          <div class="summary-card">
+        ${
+          /* En Guatemala se compra en quetzales y se paga en dólares:
+             la solapa del tipo de cambio acompaña al resumen, como en
+             el PDP. En USA no hay conversión que explicar. */
+          orderCountry(state) === "gua"
+            ? `<div class="summary-box summary-box-compact with-overlap">
+                <div class="summary-type-overlay">
+                  <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
+                </div>
+                <div class="summary-card">`
+            : `<div class="summary-box summary-box-compact">
+                <div class="summary-card">`
+        }
             <div class="summary-card-body">
               <div class="summary-row summary-row-total">
                 <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
                 <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
               </div>
               ${
-                cartFoodCount(state)
+                cartServiceCount(state)
                   ? `<div class="summary-row oky-flow-feerow">
                       <span>Costo por servicio</span>
-                      <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
-                    </div>
-                    <div class="summary-row summary-row-total">
+                      <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartServiceCount(state)))}</span>
+                    </div>`
+                  : ""
+              }
+              ${promoRow(state)}
+              ${cashRow(state)}
+              ${
+                /* El TOTAL aparece en cuanto hay algo que restar o que
+                   sumar al subtotal; si no, repetiría la misma cifra. */
+                cartServiceCount(state) || appliedPromo(state) > 0 || state.okyCashEnabled
+                  ? `<div class="summary-row summary-row-total">
                       <span class="summary-label-strong">TOTAL</span>
-                      <span class="summary-label-strong">${money(cartTotal(state))}</span>
+                      <span class="summary-label-strong">${money(orderDue(state))}</span>
                     </div>`
                   : ""
               }
@@ -1569,10 +1737,15 @@ function screenCheckout(state) {
                    variante "Vale de Producto" del sistema. */
                 product.food
                   ? `<figure class="middle-card-product-figure"><img src="${product.art}" alt="${product.label}" /></figure>`
-                  : `<div class="middle-card-value">
-                      <span class="middle-card-currency">$</span>
-                      <p class="middle-card-amount">${bigAmount(item.amount * (item.qty || 1))}</p>
-                    </div>`
+                  : product.quetzal
+                    ? `<div class="middle-card-value">
+                        <span class="middle-card-currency">Q</span>
+                        <p class="middle-card-amount">${bigQuetzal(item.quetzales || 0)}</p>
+                      </div>`
+                    : `<div class="middle-card-value">
+                        <span class="middle-card-currency">$</span>
+                        <p class="middle-card-amount">${bigAmount(item.amount * (item.qty || 1))}</p>
+                      </div>`
               }
             </div>
           </div>
@@ -1602,10 +1775,8 @@ function screenCheckout(state) {
   };
 
   const first = PRODUCTS[state.cart[active].productKey];
-  const applied = state.okyCashEnabled
-    ? Math.min(state.okyCashApplied || state.okyCashBalance, total, state.okyCashBalance)
-    : 0;
-  const toCard = Math.max(total - applied, 0);
+  const applied = orderCash(state);
+  const toCard = orderDue(state);
   const checkoutCard = CARDS.find((c) => c.key === state.selectedCard) || CARDS[0];
 
   return `
@@ -1724,26 +1895,28 @@ function screenCheckout(state) {
                      <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                    </div>
                    ${
-                     cartFoodCount(state)
+                     cartServiceCount(state)
                        ? `<div class="summary-row oky-flow-feerow">
                            <span>Costo por servicio</span>
-                           <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
+                           <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartServiceCount(state)))}</span>
                          </div>`
                        : ""
                    }
-                   <div class="summary-row">
-                     <span class="summary-value-success">OKY Cash</span>
-                     <span class="summary-value-success">-${money(applied)}</span>
-                   </div>`
-                : cartFoodCount(state)
+                   ${cashRow(state)}`
+                : cartServiceCount(state) || appliedPromo(state) > 0
                   ? `<div class="summary-row">
                        <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
                        <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                      </div>
-                     <div class="summary-row oky-flow-feerow">
-                       <span>Costo por servicio</span>
-                       <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartFoodCount(state)))}</span>
-                     </div>`
+                     ${
+                       cartServiceCount(state)
+                         ? `<div class="summary-row oky-flow-feerow">
+                             <span>Costo por servicio</span>
+                             <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartServiceCount(state)))}</span>
+                           </div>`
+                         : ""
+                     }
+                     ${promoRow(state)}`
                   : ""
             }
             <div class="summary-row summary-row-total">
@@ -1901,9 +2074,10 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
     .slice()
     .reverse()
     .forEach((p) => {
-      const found = byBrand.find((b) => b.key === p.productKey);
+      const brand = brandKeyOf(p.productKey);
+      const found = byBrand.find((b) => b.brandKey === brand);
       if (found) found.count += 1;
-      else byBrand.push({ key: p.productKey, id: p.id, count: 1, ...PRODUCTS[p.productKey] });
+      else byBrand.push({ key: p.productKey, id: p.id, count: 1, ...PRODUCTS[p.productKey], brandKey: brand });
     });
 
   const list = byBrand;
@@ -1919,14 +2093,16 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
           ? `<div class="oky-flow-stack">
               ${list
                 .map(
-                  (v) => `
-                <button class="oky-flow-voucher" style="background:${v.bg};border-color:${v.bg}"
+                  (v) => {
+                  const mark = stackMark(v);
+                  return `
+                <button class="oky-flow-voucher" style="background:${mark.bg};border-color:${mark.bg}"
                   data-action="open-purchase" data-id="${v.id}" type="button">
-                  <img src="${v.art}" alt="${v.label}" />
+                  <img src="${mark.art}" alt="${v.label}" />
                   <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
                 </button>
-              `,
-                )
+              `;
+                })
                 .join("")}
             </div>`
           : `<p class="oky-flow-empty">Todavía no tienes compras.</p>`
@@ -2039,6 +2215,7 @@ const CATEGORY_OF = {
   oldnavy: "moda",
   underarmour: "moda",
   macys: "moda",
+  ulta: "moda",
   apple: "tecnologia",
   xbox: "tecnologia",
   googleplay: "tecnologia",
@@ -2107,15 +2284,20 @@ function walletGroupUnits(state, section, group, opts) {
 function walletGroupDeck(state, section, group, opts) {
   const cards = [];
   walletGroupUnits(state, section, group, opts).forEach((v) => {
-    const found = cards.find((c) => c.key === v.key);
+    const brand = brandKeyOf(v.key);
+    const found = cards.find((c) => c.brandKey === brand);
     if (found) {
       found.count += 1;
       found.units.push(v.unit);
       found.amounts.push(v.amount);
+      /* La pila se estrena si cualquiera de los suyos está sin ver:
+         el punto habla de la card, y la card son todos. */
+      if (v.isNew && group !== "archivados") found.isNew = true;
       return;
     }
     cards.push({
       ...v,
+      brandKey: brand,
       /* Lo archivado no puede estrenarse: se guardó a propósito, y un
          punto de "nuevo" ahí pediría atención para algo que la persona
          acaba de quitar de en medio. */
@@ -2177,13 +2359,14 @@ function countryOfSection(section) {
 
 function walletVoucherButton(v, deck, group = "activos") {
   const country = countryOfSection(deck);
+  const mark = stackMark(v);
   return `
     <button class="oky-flow-voucher${group === "archivados" ? " is-archived" : ""}"
-      style="background:${v.bg};border-color:${v.bg}"
+      style="background:${mark.bg};border-color:${mark.bg}"
       data-action="open-voucher" data-key="${v.key}" data-unit="${(v.units || [0])[0]}"
       data-deck="${deck}" data-group="${group}"
       type="button" aria-label="${v.label}">
-      <img src="${v.art}" alt="${v.label}" />
+      <img src="${mark.art}" alt="${v.label}" />
       ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
       <span class="oky-flow-voucher-badge">
         ${v.count}
@@ -2579,11 +2762,11 @@ const CATEGORY_PAGES = {
     section: "Comida rápida",
     brands: [
       { key: "mcdonalds", label: "McDonald's", art: "mcdonalds.webp", action: "open-plp", brand: "mcdonalds" },
-      { key: "pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp" },
-      { key: "burgerking", label: "Burger King", art: "burguerking.webp" },
-      { key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp" },
-      { key: "ihop", label: "IHOP", art: "ihop.webp" },
-      { key: "dominos", label: "Domino's", art: "dominos.png" },
+      { key: "pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp", action: "open-guapdp", product: "gua-pollogranjero" },
+      { key: "burgerking", label: "Burger King", art: "burguerking.webp", action: "open-guapdp", product: "gua-burgerking" },
+      { key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", action: "open-guapdp", product: "gua-pollocampero" },
+      { key: "ihop", label: "IHOP", art: "ihop.webp", action: "open-guapdp", product: "gua-ihop" },
+      { key: "dominos", label: "Domino's", art: "dominos.png", action: "open-guapdp", product: "gua-dominos" },
     ],
   },
   recargas: {
@@ -2591,7 +2774,7 @@ const CATEGORY_PAGES = {
     section: "Operadores",
     brands: [
       { key: "tigo", label: "Tigo", art: "tigo.webp", action: "open-tigo" },
-      { key: "claro", label: "Claro", art: "claro.webp" },
+      { key: "claro", label: "Claro", art: "claro.webp", action: "open-guapdp", product: "gua-claro" },
     ],
   },
 };
@@ -2606,7 +2789,7 @@ function screenCategory(state) {
     const live = brand.action
       ? ` is-live" data-action="${brand.action}"${
           brand.brand ? ` data-brand="${brand.brand}"` : ""
-        } role="button" tabindex="0`
+        }${brand.product ? ` data-product="${brand.product}"` : ""} role="button" tabindex="0`
       : "";
     return `
       <article class="homecard-tile${live}">
@@ -2651,7 +2834,51 @@ const FOOD_BRANDS = {
   mcdonalds: { label: "McDonald's", art: "mcdonalds.webp", bg: "#c8102e" },
 };
 
-function foodQtyChip(product, qty) {
+/* Lo que enseña una card dentro de un stack. Apiladas solo se ve la
+   esquina de cada una, así que lo que tiene que reconocerse es la
+   marca: los vales de comida guardan la foto del producto para su
+   ficha, pero en el mazo van con el logo, como todos los demás. */
+/* Lo que junta dos vales en una misma card del mazo es la marca. Dos
+   productos distintos de McDonald's son dos vales pero una sola card
+   con el contador en dos; al tocarla se ven los dos. Para lo que no es
+   comida la marca ya es la clave del producto. */
+function brandKeyOf(key) {
+  const product = PRODUCTS[key] || {};
+  return product.food && product.brand ? `marca:${product.brand}` : key;
+}
+
+/* Dos de cada tres gift cards de USA se canjean con un código corto;
+   la otra llega con barcode y PIN, que es como las mandan algunas
+   marcas. Cuál le toca a cada vale no se sortea en cada pintado: sale
+   de su propia identidad, para que abrir y cerrar la ficha no le
+   cambie las credenciales. */
+function hashOf(text) {
+  let h = 0;
+  for (let i = 0; i < String(text).length; i += 1) h = (h * 31 + String(text).charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+/* Un código de 23 caracteres en grupos de cinco: así se lee y se
+   teclea sin perder la cuenta. */
+const GIFT_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
+function giftCode(seed, length = 23) {
+  let out = "";
+  let h = hashOf(seed) || 7;
+  for (let i = 0; i < length; i += 1) {
+    h = (h * 1103515245 + 12345) & 0x7fffffff;
+    out += GIFT_CODE_ALPHABET[h % GIFT_CODE_ALPHABET.length];
+    if ((i + 1) % 5 === 0 && i + 1 < length) out += " ";
+  }
+  return out;
+}
+
+function stackMark(v) {
+  const product = PRODUCTS[v.key] || v;
+  const brand = product.food && FOOD_BRANDS[product.brand];
+  return brand ? { art: brand.art, bg: brand.bg } : { art: v.art || product.art, bg: v.bg || product.bg };
+}
+
+function foodQtyChip(product, qty, { vertical = false } = {}) {
   /* Add0 mientras no hay nada; en cuanto entra uno, el chip crece y
      deja quitar: menos en cuanto hay dos, papelera cuando queda uno. */
   if (!qty) {
@@ -2661,17 +2888,23 @@ function foodQtyChip(product, qty) {
         <i class="fa-solid fa-plus" aria-hidden="true"></i>
       </button>`;
   }
+  const less = `
+    <button class="chip-ds-step" type="button" data-action="food-less" data-product="${product.key}"
+      aria-label="Quitar uno de ${product.label}">
+      <i class="fa-solid ${qty > 1 ? "fa-minus" : "fa-trash-can"} chip-ds-pill-icon${qty > 1 ? "" : " chip-ds-trash"}" aria-hidden="true"></i>
+    </button>`;
+  const more = `
+    <button class="chip-ds-step" type="button" data-action="food-more" data-product="${product.key}"
+      aria-label="Agregar otro ${product.label}">
+      <i class="fa-solid fa-plus chip-ds-pill-icon" aria-hidden="true"></i>
+    </button>`;
+  /* De pie el orden se invierte: sumar arriba y quitar abajo, que es
+     donde el tacho cae en el resto de las filas del carrito. */
   return `
-    <span class="chip-ds ${qty > 1 ? "chip-ds-add2" : "chip-ds-add1"} chip-ds-shadow list-plp-action">
-      <button class="chip-ds-step" type="button" data-action="food-less" data-product="${product.key}"
-        aria-label="Quitar uno de ${product.label}">
-        <i class="fa-solid ${qty > 1 ? "fa-minus" : "fa-trash-can"} chip-ds-pill-icon${qty > 1 ? "" : " chip-ds-trash"}" aria-hidden="true"></i>
-      </button>
+    <span class="chip-ds ${qty > 1 ? "chip-ds-add2" : "chip-ds-add1"} chip-ds-shadow list-plp-action${vertical ? " is-vertical" : ""}">
+      ${vertical ? more : less}
       <span class="chip-ds-number">${qty}</span>
-      <button class="chip-ds-step" type="button" data-action="food-more" data-product="${product.key}"
-        aria-label="Agregar otro ${product.label}">
-        <i class="fa-solid fa-plus chip-ds-pill-icon" aria-hidden="true"></i>
-      </button>
+      ${vertical ? less : more}
     </span>`;
 }
 
@@ -2738,10 +2971,10 @@ function screenPlp(state) {
   return `
     ${statusBar()}
     ${foodBrandHeader(state, brand)}
-    <div class="oky-flow-section oky-flow-plp${cartFoodCount(state) ? " has-foodbar" : ""}">
+    <div class="oky-flow-section oky-flow-plp${cartServiceCount(state) ? " has-foodbar" : ""}">
       ${items.map(row).join("")}
     </div>
-    ${cartFoodCount(state) ? foodCartBar(state) : ""}
+    ${cartServiceCount(state) ? foodCartBar(state) : ""}
     ${navbar("", state)}
   `;
 }
@@ -2759,7 +2992,8 @@ function foodCartBar(state) {
           : ""
       }
       <div class="oky-flow-foodbar-ctas">
-        <button class="btn btn-outlined btn-large" data-action="keep-shopping" type="button">Seguir comprando</button>
+        <button class="btn btn-outlined btn-large" data-action="open-category" data-category="comida"
+          type="button">Seguir comprando</button>
         <button class="btn btn-primary btn-large" data-action="open-cart" type="button">Ver carrito</button>
       </div>
     </div>
@@ -2829,6 +3063,77 @@ function screenFoodPdp(state) {
 /* Aviso de la primera vez que entra un producto al carrito
    (96814:14460): el ahorro no se explica solo, y es justo el momento
    en que empieza a valer. */
+/* ── Código promocional (Figma 82510:85319) ───────────────
+   Solo en Guatemala. La píldora vive arriba del carrito y tiene dos
+   caras: la invitación a teclear el código y, ya aplicado, cuál es,
+   con la X para quitarlo. */
+function promoPill(state) {
+  if (orderCountry(state) !== "gua") return "";
+  const tag = `<img class="oky-flow-promo-art" src="oky-promo-tag.png" alt="" />`;
+  return state.promo
+    ? `<div class="oky-flow-promo is-applied">
+        ${tag}
+        <span class="oky-flow-promo-copy token-body1">Código Promo: <strong>${state.promo}</strong></span>
+        <button class="oky-flow-promo-clear" data-action="clear-promo" type="button"
+          aria-label="Quitar el código ${state.promo}">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>`
+    : `<button class="oky-flow-promo" data-action="open-promo" type="button">
+        ${tag}
+        <span class="oky-flow-promo-copy token-body1">Ingresa el código promocional</span>
+        <span class="oky-flow-promo-go" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+      </button>`;
+}
+
+/* La rebaja del código se lee igual que la de OKY Cash: en aqua y en
+   negativo, justo encima del total. */
+function promoRow(state) {
+  const off = appliedPromo(state);
+  return off > 0
+    ? `<div class="summary-row">
+        <span class="summary-value-success">Código promo</span>
+        <span class="summary-value-success">-${money(off)}</span>
+      </div>`
+    : "";
+}
+
+/* La fila del saldo: se enseña en cuanto la casilla está marcada,
+   aunque el saldo sea cero, para que marcarla siempre haga algo
+   visible. */
+function cashRow(state) {
+  return state.okyCashEnabled
+    ? `<div class="summary-row">
+        <span class="summary-value-success">OKY Cash</span>
+        <span class="summary-value-success">-${money(orderCash(state))}</span>
+      </div>`
+    : "";
+}
+
+/* El modal del código: campo y un solo botón. "Aplicar" nace apagado
+   porque sin nada tecleado no hay nada que aplicar. */
+function promoDialog(state) {
+  const draft = state.promoDraft || "";
+  const has = draft.trim().length > 0;
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-promo" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-promosheet" role="dialog" aria-modal="true" aria-label="Ingresa tu código">
+      <h2 class="oky-flow-promosheet-title">Ingresa tu código</h2>
+      <div class="input-wrapper oky-flow-promosheet-field">
+        <label id="oky-promo-label" class="input-label input-label-dinamic oky-flow-promo-label${has ? " is-floating" : ""}"
+          for="oky-promo">Código promo</label>
+        <input id="oky-promo" class="input-field input-dinamic oky-flow-promo-input ${has ? "input-dinamic-hasvalue" : "input-dinamic-empty"}"
+          type="text" value="${draft}" placeholder="Código promo" autocomplete="off" autocapitalize="off"
+          spellcheck="false" data-action="input-promo" aria-labelledby="oky-promo-label" />
+      </div>
+      <p class="oky-flow-promosheet-error${state.promoError ? "" : " is-hidden"}">Ese código no es válido o ya venció.</p>
+      <div class="oky-flow-promosheet-divider" aria-hidden="true"></div>
+      <button class="btn btn-primary btn-large oky-flow-promosheet-cta" data-action="apply-promo" type="button"
+        ${has ? "" : "disabled"}>Aplicar</button>
+    </section>
+  `;
+}
+
 function savingsSheet() {
   return `
     <button class="oky-flow-sheet-backdrop" data-action="close-savings" type="button" aria-label="Cerrar"></button>
@@ -2888,10 +3193,49 @@ function screenVoucher(state) {
       : entry && entry.amount != null
         ? entry.amount
         : state.amounts[card.key] || BRAND_DEFAULT_AMOUNT;
+  /* En quetzales manda lo que se compró; si el vale es de relleno de
+     la demo, el monto de arranque. */
+  /* La parte de abajo de una gift card de USA: código corto en dos de
+     cada tres, y barcode con PIN en la restante. Lo demás —vales y
+     servicios de Guatemala— se queda con la de siempre. */
+  const bottomSeed = state.params.id || `${card.key}#${unit}`;
+  const bottomOfVoucher =
+    sectionOfVoucher(card.key) === "gift"
+      ? hashOf(bottomSeed) % 10 < 3
+        ? {
+            bottomVariantPath: "Molecule/Bottom Card/Code + BAR CODE + PIN",
+            bottomLines: [
+              { label: "Copia el código", value: giftCode(bottomSeed), copyable: true },
+              { label: "PIN", value: String(1000 + (hashOf(bottomSeed) % 9000)), copyable: true },
+            ],
+            /* Las gift cards de USA no vencen: la fecha sobra en las
+               dos variantes. */
+            bottomExpiry: "",
+            bottomButtonLabel: "Help",
+          }
+        : {
+            bottomVariantPath: "Molecule/Bottom Card/Gift Card USA",
+            bottomLines: [
+              { label: "Copia el código", value: giftCode(bottomSeed, 10), copyable: true },
+            ],
+            bottomButtonLabel: "Help",
+          }
+      : { bottomVariantPath: "Molecule/Bottom Card/Gift Card", bottomButtonLabel: "Help" };
+
+  const quetzalAmount =
+    (purchase && purchase.quetzales) ||
+    (entry && entry.quetzales) ||
+    state.amounts[card.key] ||
+    GUA_VALE_DEFAULT;
 
   /* Desde "Tus compras" la pantalla es el detalle de la orden; desde
      Mi wallet, el vale de la marca. */
-  const title = state.params.id ? "Detalle de la orden" : card.label;
+  /* En el header va la marca, no el producto: el nombre largo ya lo
+     dice la card de abajo y arriba solo cabía recortado. */
+  const valeBrand = card.food ? FOOD_BRANDS[card.brand] : null;
+  const productVale = !!valeBrand;
+  const headerBrand = valeBrand ? valeBrand.label : card.label;
+  const title = state.params.id ? "Detalle de la orden" : headerBrand;
 
   /* Compartir y archivar valen también recién comprado: es justo
      cuando se manda el regalo. El vale es el mismo que luego se ve en
@@ -2912,19 +3256,45 @@ function screenVoucher(state) {
     <div class="oky-flow-section is-voucher">
       <div class="oky-flow-card-carousel${shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
-        topVariantPath: "Molecule/Top Card/Gift Card",
-        topFlagCode: countryOfSection(sectionOfVoucher(card.key)),
-        topBrandLabel: card.label,
-        topHeroImage: card.art,
-        topHeroAlt: card.label,
-        topFooterLeftLabel: "Terms & Conditions",
-        topFooterRightLabel: "Brand Disclaimer",
-        middleCardPath: "Molecule/Middle Card/Amount",
-        middleTitle: kind,
-        middleCurrency: "$",
-        middleAmount: String(amount),
-        bottomVariantPath: "Molecule/Bottom Card/Gift Card",
-        bottomButtonLabel: "Help",
+        /* Un vale de producto no es una gift card y el sistema ya
+           tiene su anatomía (82513:86915): arriba el logo de la marca
+           con "Qué incluye", en medio el producto —su nombre y su
+           foto, sin monto, porque lo que se canjea es la cosa, no un
+           saldo— y abajo un solo código con su vencimiento. */
+        ...(productVale
+          ? {
+              topVariantPath: "Molecule/Top Card/OKY Vales",
+              topShowBrandLabel: true,
+              topBrandLabel: valeBrand.label,
+              topHeroImage: valeBrand.art,
+              topHeroAlt: valeBrand.label,
+              topFlagCode: countryOfSection(sectionOfVoucher(card.key)),
+              topFooterLeftLabel: "Qué incluye",
+              middleCardPath: "Molecule/Middle Card/Vale de Producto",
+              middleTitle: card.label,
+              middleImage: card.art,
+              middleLeftLabel: "Mostrar al cajero",
+              middleRightLabel: "Como canjear",
+              bottomVariantPath: "Molecule/Bottom Card/OKY Vales",
+              bottomButtonLabel: "Ayuda",
+            }
+          : {
+              topVariantPath: "Molecule/Top Card/Gift Card",
+              topFlagCode: countryOfSection(sectionOfVoucher(card.key)),
+              topBrandLabel: card.label,
+              topHeroImage: card.art,
+              topHeroAlt: card.label,
+              topFooterLeftLabel: "Terms & Conditions",
+              topFooterRightLabel: "Brand Disclaimer",
+              middleCardPath: "Molecule/Middle Card/Amount",
+              middleTitle: kind,
+              /* El vale de Guatemala se canjea en quetzales, así que
+                 es lo que lleva escrito; los dólares se quedaron en el
+                 checkout. */
+              middleCurrency: card.quetzal ? "Q" : "$",
+              middleAmount: card.quetzal ? bigQuetzal(quetzalAmount) : String(amount),
+              ...bottomOfVoucher,
+            }),
         /* Compartido, la parte de abajo de la card deja de mostrar
            credenciales —ya salieron de aquí— y pasa a ser el sello con
            la fecha, que es la anatomía del frame "Canjeado". */
@@ -3349,6 +3719,111 @@ function screenTigoPdp(state) {
   `;
 }
 
+/* ── PDP de marca de Guatemala (94839:37191) ──────────────
+   Misma anatomía que el de USA —marca, card de monto, campo y resumen
+   acoplado abajo— con cuatro diferencias: el monto se teclea en
+   quetzales, el resumen los convierte a dólares y declara el tipo de
+   cambio en su solapa, no hay ribbon porque son de precio regular, y
+   la barra de abajo cuenta el ahorro acumulado del carrito en vez del
+   cashback, que en Guatemala todavía no se gana. */
+function screenGuaPdp(state) {
+  const product = PRODUCTS[state.params.product] || PRODUCTS[GUA_BRANDS[0].key];
+  const q = state.amounts[product.key] ?? GUA_VALE_DEFAULT;
+  const cartItem = state.cart.find((item) => item.productKey === product.key);
+  /* Ya está en el carrito, pero con otro monto: hay algo que guardar. */
+  const changed = cartItem && cartItem.quetzales !== q;
+  const savings = cartSavings(state);
+
+  return `
+    ${statusBar()}
+    ${/* Se llega desde la home y desde la Category Page: atrás desanda
+          el camino que se tomó. */ ""}
+    ${productHeader(state, { backAction: "back" })}
+
+    <div class="oky-flow-stack-center">
+      <div class="oky-flow-brand-slot">
+        <section class="brand-item-atom is-with-label" aria-label="${product.label}">
+          <p class="brand-item-label token-product-text">${product.label}</p>
+          <div class="brand-item-frame">
+            <div class="brand-item-base"><img src="${product.art}" alt="${product.label}" /></div>
+          </div>
+        </section>
+      </div>
+
+      <div>
+        <section class="middle-card-shell is-pdp" aria-label="${product.cardTitle}">
+          <article class="middle-card-molecule is-amount">
+            <div class="middle-card-content">
+              <div class="middle-card-main">
+                <p class="middle-card-title">${product.cardTitle}</p>
+                <div class="middle-card-center">
+                  <div class="middle-card-value">
+                    <span class="middle-card-currency">Q</span>
+                    <p class="middle-card-amount">${bigQuetzal(q)}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="middle-card-footer">
+                <span class="middle-card-footer-start">Mostrar al cajero</span>
+                <span class="middle-card-footer-end">Como canjear</span>
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+
+      <div>
+        <div class="input-wrapper" style="width:100%">
+          <label id="oky-amount-label" class="input-label input-label-dinamic" for="oky-amount">
+            Desde ${product.min} hasta ${product.max.toLocaleString("en-US")}
+          </label>
+          <span class="input-dinamic-prefix" aria-hidden="true">Q</span>
+          <input id="oky-amount" class="input-field input-dinamic input-dinamic-hasvalue" type="text"
+            inputmode="decimal" value="${bigAmount(q)}" data-action="input-amount" data-product="${product.key}"
+            aria-labelledby="oky-amount-label" />
+        </div>
+      </div>
+    </div>
+
+    <div class="oky-flow-dock${savings > 0 ? "" : " is-no-bar"}">
+      <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="pdp">
+        <div class="summary-type-overlay">
+          <span class="token-exchange">TIPO DE CAMBIO: Q ${GUA_RATE.toFixed(2)}</span>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-body">
+            <div class="summary-row">
+              <span class="summary-label-strong">Subtotal</span>
+              <span class="summary-label-strong" data-role="pdp-subtotal">${money(toUsd(q))}</span>
+            </div>
+          </div>
+          <div class="summary-cta-row">
+            ${
+              cartItem && !changed
+                ? `<button class="btn btn-primary summary-btn" data-action="open-cart" type="button">Ver carrito</button>`
+                : `<button class="btn btn-primary summary-btn" data-action="add-to-cart" data-product="${product.key}"
+                     type="button" ${q > 0 ? "" : "disabled"}>
+                     ${changed ? "" : `<i class="fa-solid fa-plus" aria-hidden="true"></i>`}${changed ? "Actualizar" : "Agregar"}
+                   </button>`
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    ${
+      /* Mismo modelo que la barra de la PLP: lo que se lleva ahorrado
+         es el argumento para seguir llenando el carrito. */
+      savings > 0
+        ? `<div class="oky-flow-savingbar">
+            <div class="oky-flow-savebar is-bar"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;Llena el carrito. Vas ahorrando ${money(savings)}</div>
+          </div>`
+        : ""
+    }
+    ${navbar("", state)}
+  `;
+}
+
 /* ── Onboarding Contactos (99140:47037) ─────────────────── */
 function screenDecision() {
   return `
@@ -3388,6 +3863,10 @@ function scrollClass(state) {
      barras: la de cashback o la de ahorro de la orden. */
   if (state.screen === "checkout" && cartCashback(state) <= 0 && cartSavings(state) <= 0) return "";
   /* Sin píldora de saldo, la barra de "Tus compras" es solo el botón. */
+  /* El PDP de Guatemala solo tiene barra de ahorro cuando hay algo
+     ahorrado; sin ella el resumen baja a ras de la navbar y el hueco
+     de abajo es menor. */
+  if (state.screen === "guapdp") return cartSavings(state) > 0 ? "has-dock" : "has-dock-no-bar";
   if (["purchases", "success", "cashwin"].includes(state.screen) && state.lastEarned <= 0) {
     return "has-cta";
   }
@@ -3408,6 +3887,7 @@ function renderScreen(state) {
     case "carddesign": return screenCardDesign(state);
     case "homegua": return screenHomeGua(state);
     case "tigopdp": return screenTigoPdp(state);
+    case "guapdp": return screenGuaPdp(state);
     case "category": return screenCategory(state);
     case "plp": return screenPlp(state);
     case "foodpdp": return screenFoodPdp(state);
@@ -3514,6 +3994,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   /* Si el carrito ya estaba abierto en la pasada anterior. */
   let cartWasOpen = false;
   let addedTimer = null;
+  /* La bandera del final del recorrido se quita sola. */
+  let tourFlagTimer = null;
   let introTimer = null;
 
   function render() {
@@ -3533,9 +4015,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.sheet ? (state.sheet.type === "filter" ? filterSheet(state) : confirmSheet(state)) : ""}
         ${state.countrySheet ? countrySheet(state) : ""}
         ${state.savingsSheet ? savingsSheet() : ""}
+        ${state.promoOpen ? promoDialog(state) : ""}
         ${state.addedToast ? addedToast() : ""}
         ${state.usaIntro ? usaIntro() : ""}
         ${state.tourStep != null ? tourOverlay(state) : ""}
+        ${state.tourCount ? tourCountdown() : ""}
+        ${state.tourFlag ? tourFlag() : ""}
       </div>
     `;
 
@@ -3613,6 +4098,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const tour = root.querySelector(".oky-flow-tour");
     if (!tour) return;
     const step = TOUR_STEPS[state.tourStep];
+    if (!step || step.finish) return;
     const frame = root.querySelector(".oky-flow-frame");
     const target = root.querySelector(step.target);
     if (!target || !frame) return;
@@ -3650,9 +4136,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       call.classList.toggle("is-below", below);
       if (arrow) arrow.className = `fa-solid ${below ? "fa-arrow-up" : "fa-arrow-down"} oky-flow-tour-arrow`;
       const cw = call.offsetWidth;
-      call.style.left = `${clamp(left + w / 2 - cw / 2, 12, Math.max(12, frameW - cw - 12))}px`;
+      const callLeft = clamp(left + w / 2 - cw / 2, 12, Math.max(12, frameW - cw - 12));
+      call.style.left = `${callLeft}px`;
       call.style.top = below ? `${top + h + 16}px` : "";
       call.style.bottom = below ? "" : `${frameH - top + 16}px`;
+      /* La flecha va sobre el agujero, no sobre el centro de la línea:
+         con una frase larga contra el borde, la línea se queda donde
+         cabe y la flecha se corre hasta lo que señala —el wallet, que
+         vive en la esquina. */
+      if (arrow) arrow.style.transform = `translateX(${left + w / 2 - (callLeft + cw / 2)}px)`;
     };
 
     /* Lo que queda fuera de pantalla se sube antes de medir. */
@@ -3678,6 +4170,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      un salto, así que se restaura dónde quedó y se sube con scroll
      suave, que es como se mueve la app. */
   function closeTour() {
+    clearTimeout(tourFlagTimer);
     state.tourStep = null;
     state.tourSeen = true;
     const before = root.querySelector(".oky-flow-scroll");
@@ -3688,6 +4181,41 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       after.scrollTop = y;
       after.scrollTo({ top: 0, behavior: "smooth" });
     }
+
+    /* El final espera a que la home esté arriba: se celebra sobre la
+       portada, no sobre el trozo donde quedó el último punto. Si ya
+       estaba arriba no hay nada que esperar. */
+    tourFlagTimer = setTimeout(startFinish, y > 0 ? TOUR_FLAG_WAIT_MS : 160);
+  }
+
+  /* Salida de carrera: 3, 2, 1 y la banderola. La cuenta va sola —el
+     recorrido ya se avanzaba a toques y una cuenta que espera un click
+     no cuenta nada— y el número se releva dentro de la misma capa, sin
+     re-render, para que el fondo atenuado no parpadee. El de la
+     banderola arranca ya encendido y toma el relevo sin corte. */
+  function startFinish() {
+    state.tourCount = true;
+    render();
+
+    const relay = (n) => {
+      if (n > 0) {
+        const layer = root.querySelector(".oky-flow-tourcount");
+        if (layer) {
+          layer.innerHTML = tourCountNumber(n);
+        }
+        tourFlagTimer = setTimeout(() => relay(n - 1), TOUR_COUNT_MS);
+        return;
+      }
+      state.tourCount = false;
+      state.tourFlag = true;
+      render();
+      tourFlagTimer = setTimeout(() => {
+        state.tourFlag = false;
+        render();
+      }, TOUR_FLAG_MS);
+    };
+
+    tourFlagTimer = setTimeout(() => relay(2), TOUR_COUNT_MS);
   }
 
   /* Gestos: los carruseles se pasan con el dedo, no solo con las
@@ -4086,6 +4614,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         id: `p-${Date.now()}-${i}`,
         productKey: item.productKey,
         amount: item.amount,
+        /* El vale de una marca de Guatemala vale quetzales: los
+           dólares son solo lo que costó pagarlo. */
+        ...(item.quetzales != null ? { quetzales: item.quetzales } : {}),
         cashback: item.cashback,
         used: i === 0 ? used : 0,
         date: stamp(0),
@@ -4115,6 +4646,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.cart = [];
     state.okyCashEnabled = false;
     state.okyCashApplied = 0;
+    state.promo = null;
     state.history = [];
     go("success", {}, { push: false });
   }
@@ -4223,6 +4755,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.cart = [];
       state.okyCashEnabled = false;
       state.okyCashApplied = 0;
+      state.promo = null;
       return goCountry(target);
     }
     if (action === "nav:wallet") {
@@ -4343,13 +4876,25 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "add-to-cart") {
       const product = PRODUCTS[el.dataset.product];
-      const amount = state.amounts[product.key];
-      if (!amount) return;
+      const typed = state.amounts[product.key];
+      if (!typed) return;
+      /* Lo tecleado son quetzales en las marcas de Guatemala; el
+         carrito guarda dólares y se queda con el monto original para
+         poder volver a abrir el PDP donde estaba. */
+      const amount = product.quetzal ? toUsd(typed) : typed;
       const tier = getTier(amount, product, state.promoLive);
       const updating = state.cart.some((item) => item.productKey === product.key);
+      /* Con costo por servicio, la promesa del ahorro se cuenta una
+         vez: cuando entra lo primero que lo paga. */
+      const first = product.service && !cartServiceCount(state);
       state.cart = state.cart
         .filter((item) => item.productKey !== product.key)
-        .concat({ productKey: product.key, amount, cashback: amount * tier.rate });
+        .concat({
+          productKey: product.key,
+          amount,
+          cashback: amount * tier.rate,
+          ...(product.quetzal ? { quetzales: typed } : {}),
+        });
 
       /* Cambiar el monto de algo que ya estaba no es una novedad: abre
          el carrito y ya. Lo que entra por primera vez se confirma con
@@ -4359,12 +4904,20 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         return render();
       }
 
+      const showSavings = first && !state.savingsSeen;
+      if (showSavings) state.savingsSeen = true;
+
       state.addedToast = true;
       render();
       clearTimeout(addedTimer);
       addedTimer = setTimeout(() => {
         state.addedToast = false;
-        state.cartOpen = true;
+        if (showSavings) {
+          state.savingsSheet = true;
+          state.savingsFromPdp = true;
+        } else {
+          state.cartOpen = true;
+        }
         render();
       }, 1200);
       return;
@@ -4375,9 +4928,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          otra vez, esa marca se reemplaza en vez de duplicarse. */
       const key = el.dataset.product;
       const inCart = state.cart.find((item) => item.productKey === key);
-      if (inCart) state.amounts[key] = inCart.amount;
+      if (inCart) state.amounts[key] = inCart.quetzales != null ? inCart.quetzales : inCart.amount;
       /* Tigo se edita desde su slider, no desde el campo de monto. */
       if (key === "tigo") return go("tigopdp");
+      if ((PRODUCTS[key] || {}).quetzal) return go("guapdp", { product: key });
       return go("pdp", { product: key });
     }
 
@@ -4393,6 +4947,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.cartOpen = false;
         state.okyCashEnabled = false;
         state.okyCashApplied = 0;
+        state.promo = null;
         if (state.screen === "checkout" || state.screen === "methods") {
           return go(market === "gua" ? "homegua" : "home");
         }
@@ -4402,6 +4957,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "open-methods") {
       if (!state.okyCashEnabled) {
+        state.promo = null;
         state.okyCashEnabled = true;
         state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
       }
@@ -4410,11 +4966,52 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "toggle-okycash") {
       const turningOn = !state.okyCashEnabled;
+      /* Un descuento a la vez: marcar OKY Cash borra el código. */
+      if (turningOn) state.promo = null;
       state.okyCashEnabled = turningOn;
       state.okyCashApplied = turningOn ? Math.min(state.okyCashBalance, cartTotal(state)) : 0;
       render();
       if (turningOn) burstConfetti();
       return;
+    }
+
+    /* ── Código promocional ─────────────────────────────
+       Se abre desde la píldora del carrito y se quita desde su X,
+       que es el único camino que tiene el flujo. */
+    if (action === "open-promo") {
+      state.promoOpen = true;
+      state.promoDraft = "";
+      state.promoError = false;
+      return render();
+    }
+
+    if (action === "close-promo") {
+      state.promoOpen = false;
+      state.promoError = false;
+      return render();
+    }
+
+    if (action === "apply-promo") {
+      const code = String(state.promoDraft || "").trim();
+      if (!promoValue(code)) {
+        state.promoError = true;
+        return render();
+      }
+      state.promo = code.toLowerCase();
+      state.promoOpen = false;
+      state.promoDraft = "";
+      state.promoError = false;
+      /* El código desplaza al OKY Cash: no pueden convivir. */
+      state.okyCashEnabled = false;
+      state.okyCashApplied = 0;
+      render();
+      burstConfetti(".oky-flow-promo");
+      return;
+    }
+
+    if (action === "clear-promo") {
+      state.promo = null;
+      return render();
     }
 
     /* Los carruseles dan la vuelta: del último se pasa al primero. */
@@ -4440,7 +5037,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (!product) return;
       const step = action === "food-more" ? 1 : -1;
       const line = state.cart.find((i) => i.productKey === key);
-      const first = !cartFoodCount(state);
+      const first = !cartServiceCount(state);
 
       if (!line) {
         if (step < 0) return;
@@ -4515,6 +5112,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "open-category") {
       return go("category", { category: el.dataset.category || "recargas" });
+    }
+
+    if (action === "open-guapdp") {
+      const key = el.dataset.product;
+      if (!PRODUCTS[key]) return;
+      /* La primera visita abre en el monto de arranque; después, en lo
+         último que se tecleó. */
+      if (state.amounts[key] == null) state.amounts[key] = GUA_VALE_DEFAULT;
+      return go("guapdp", { product: key });
     }
 
     if (action === "open-tigo") {
@@ -4865,6 +5471,24 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   /* Monto del PDP: se parchean solo los nodos afectados para no
      perder el foco del input en cada tecla. */
   root.addEventListener("input", (event) => {
+    /* El campo del código se repinta a mano: un render completo
+       recrearía el input y se perdería el foco a la primera letra. */
+    const promoInput = event.target.closest("[data-action='input-promo']");
+    if (promoInput) {
+      state.promoDraft = promoInput.value;
+      state.promoError = false;
+      const has = promoInput.value.trim().length > 0;
+      promoInput.classList.toggle("input-dinamic-hasvalue", has);
+      promoInput.classList.toggle("input-dinamic-empty", !has);
+      const label = root.querySelector("#oky-promo-label");
+      if (label) label.classList.toggle("is-floating", has);
+      const error = root.querySelector(".oky-flow-promosheet-error");
+      if (error) error.classList.add("is-hidden");
+      const cta = root.querySelector("[data-action='apply-promo']");
+      if (cta) cta.disabled = !has;
+      return;
+    }
+
     /* El slider de Tigo va por el listener de input, no por el de
        click: se arrastra. */
     const slider = event.target.closest("[data-action='tigo-amount']");
@@ -4918,7 +5542,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const cashback = amount * tier.rate;
 
       const bigEl = root.querySelector(".middle-card-amount");
-      if (bigEl) bigEl.textContent = bigAmount(amount);
+      if (bigEl) bigEl.textContent = product.quetzal ? bigQuetzal(amount) : bigAmount(amount);
 
       const ribbon = root.querySelector(".oky-flow-ribbon-slot .discount-ribbon-wrap");
       if (ribbon) {
@@ -4935,7 +5559,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
 
       const subtotal = root.querySelector("[data-role='pdp-subtotal']");
-      if (subtotal) subtotal.textContent = money(amount);
+      if (subtotal) subtotal.textContent = money(product.quetzal ? toUsd(amount) : amount);
 
       /* El CTA se reescribe solo: si el vale ya está en el carrito y el
          monto cambió, pasa de "Ver carrito" a "Actualizar". Se toca
@@ -4943,8 +5567,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const ctaRow = root.querySelector(".summary-cta-row");
       const inCartNow = state.cart.find((item) => item.productKey === product.key);
       if (ctaRow && inCartNow) {
+        /* En las marcas de Guatemala lo que se compara es lo tecleado,
+           que son quetzales; el carrito guarda su equivalente en
+           dólares. */
+        const inCartValue = product.quetzal ? inCartNow.quetzales : inCartNow.amount;
         ctaRow.innerHTML =
-          inCartNow.amount === amount
+          inCartValue === amount
             ? `<button class="btn btn-primary summary-btn" data-action="open-cart" type="button">Ver carrito</button>`
             : `<button class="btn btn-primary summary-btn" data-action="add-to-cart" data-product="${product.key}"
                  type="button" ${amount > 0 ? "" : "disabled"}>Actualizar</button>`;

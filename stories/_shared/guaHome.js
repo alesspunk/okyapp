@@ -22,10 +22,10 @@ export const GUA_HOME_MARKUP = `
           <section aria-label="Banners">
             <div class="carousel-container oky-flow-banner-track">
               <div class="carousel-banner is-live" data-action="nav:home" role="button" tabindex="0">
-                <img src="oky-banner-usa.png" alt="Nueva sección de USA para comprar Gift Cards" />
+                <img fetchpriority="high" loading="eager" decoding="async" src="oky-banner-usa-lossless.webp" alt="Nueva sección de USA para comprar Gift Cards" />
               </div>
-              <div class="carousel-banner"><img src="oky-banner-1.png" alt="Promo Verano" /></div>
-              <div class="carousel-banner"><img src="oky-banner-2.png" alt="POPS · 15% OFF" /></div>
+              <div class="carousel-banner"><img src="oky-banner-1-lossless.webp" alt="Promo Verano" /></div>
+              <div class="carousel-banner"><img src="oky-banner-2-lossless.webp" alt="POPS · 15% OFF" /></div>
             </div>
           </section>
         </section>
@@ -116,19 +116,23 @@ export const GUA_HOME_MARKUP = `
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="mcdonalds.webp" alt="McDonald's logo" /></div>
                   <p class="token-brand homecard-tile-name">McDonald's</p>
                 </article>
-                <article class="homecard-tile">
+                <article class="homecard-tile is-live" data-action="open-guapdp" data-product="gua-pollocampero"
+                  role="button" tabindex="0">
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="pollo-campero.webp" alt="Pollo Campero logo" /></div>
                   <p class="token-brand homecard-tile-name">Pollo Campero</p>
                 </article>
-                <article class="homecard-tile">
+                <article class="homecard-tile is-live" data-action="open-guapdp" data-product="gua-burgerking"
+                  role="button" tabindex="0">
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="burguerking.webp" alt="Burger King logo" /></div>
                   <p class="token-brand homecard-tile-name">Burger King</p>
                 </article>
-                <article class="homecard-tile">
+                <article class="homecard-tile is-live" data-action="open-guapdp" data-product="gua-pollogranjero"
+                  role="button" tabindex="0">
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="pollo-granjero.webp" alt="Pollo Granjero logo" /></div>
                   <p class="token-brand homecard-tile-name">Pollo Granjero</p>
                 </article>
-                <article class="homecard-tile">
+                <article class="homecard-tile is-live" data-action="open-guapdp" data-product="gua-ihop"
+                  role="button" tabindex="0">
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="ihop.webp" alt="iHop logo" /></div>
                   <p class="token-brand homecard-tile-name">iHop</p>
                 </article>
@@ -222,7 +226,7 @@ export const GUA_HOME_MARKUP = `
               <div class="tactic-strip-carousel-track">
                 <article class="tactic-offer tactic-offer-left">
                   <div class="tactic-offer-hero-wrap">
-                    <img class="tactic-offer-hero" src="promo-image1.png" alt="Twitch" />
+                    <img class="tactic-offer-hero" src="promo-image1-lossless.webp" alt="Twitch" />
                     <div class="tactic-logo-wrap tactic-logo-wrap-left">
                       <img class="tactic-logo" src="twitch.png" alt="Twitch logo" />
                     </div>
@@ -237,7 +241,7 @@ export const GUA_HOME_MARKUP = `
 
                 <article class="tactic-offer tactic-offer-right">
                   <div class="tactic-offer-hero-wrap">
-                    <img class="tactic-offer-hero" src="promo-image2.png" alt="Amazon" />
+                    <img class="tactic-offer-hero" src="promo-image2-lossless.webp" alt="Amazon" />
                     <div class="tactic-logo-wrap tactic-logo-wrap-right">
                       <img class="tactic-logo" src="amazon.png" alt="Amazon logo" />
                     </div>

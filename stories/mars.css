@@ -4995,6 +4995,63 @@ body {
   width: 187px;
 }
 
+/* El código de 23 caracteres va en la primera línea, donde no hay
+   botón al lado: puede ocupar todo el ancho. Y se encoge lo justo
+   para caber de una sola línea —partido en dos dejaría de leerse como
+   un código—. El PIN se queda a 187 porque comparte fila con el CTA. */
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line:first-child,
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line:first-child .prime-card-bottom-line-value {
+  width: 100%;
+  max-width: 100%;
+}
+
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line:first-child .prime-card-bottom-line-value {
+  font-size: 14px;
+  letter-spacing: 0.8px;
+}
+
+/* La gift card de USA: una sola línea de código y el CTA de ayuda
+   outlined, sin fecha que reservar a la derecha (101310:7431). */
+.card-bottom-molecule.is-gift-card-usa .prime-card-bottom-line-value {
+  width: 100%;
+  max-width: 100%;
+}
+
+.card-bottom-molecule.is-gift-card-usa .prime-card-bottom-expiry {
+  display: none;
+}
+
+/* Sin fecha arriba, la columna de la derecha deja de repartir y manda
+   el botón al fondo: la ayuda vive en la esquina inferior derecha. */
+.card-bottom-molecule.is-gift-card-usa .prime-card-bottom-side {
+  justify-content: flex-end;
+}
+
+/* El botón que pega la URL: mismo cuerpo que el código, para que se
+   lea como parte de la credencial y no como un CTA más de la pantalla. */
+.prime-card-bottom-paste {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 8px 24px;
+  border-radius: 32px;
+  font-family: "Inter", sans-serif;
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 784;
+  line-height: 24px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-variation-settings: "slnt" -10;
+  font-synthesis: none;
+  white-space: nowrap;
+}
+
+/* La línea de la URL respira un poco más que la del código: debajo
+   lleva un botón, no un renglón. */
+.prime-card-bottom-line.is-action {
+  gap: 6px;
+}
+
 .card-bottom-molecule.is-with-bar-code .prime-card-bottom-media,
 .card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-media,
 .card-bottom-molecule.is-bar-code-code-pin .prime-card-bottom-media {
@@ -7414,6 +7471,12 @@ body {
   padding-bottom: calc(var(--oky-nav-h) + var(--oky-bar-h) + 168px);
 }
 
+/* El mismo resumen, sin barra debajo: el PDP de Guatemala solo la
+   enseña cuando el carrito lleva algo ahorrado. */
+.oky-flow-scroll.has-dock-no-bar {
+  padding-bottom: calc(var(--oky-nav-h) + 168px);
+}
+
 /* Contenido estándar: 16px por lado y centrado. */
 .oky-flow-section {
   width: 100%;
@@ -7496,6 +7559,10 @@ body {
   padding: 16px var(--oky-gutter) 10px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 18%, #fff 100%);
   pointer-events: none;
+}
+
+.oky-flow-dock.is-no-bar {
+  bottom: var(--oky-nav-h);
 }
 
 .oky-flow-dock > * {
@@ -8806,6 +8873,14 @@ body {
   padding: 12px;
 }
 
+/* En el carrito la solapa del tipo de cambio va un 10% más angosta
+   que en el PDP (300px → 270px): el resumen vive dentro del drawer,
+   con menos aire a los lados. */
+.oky-flow-drawer-foot .summary-type-overlay {
+  width: 270px;
+  max-width: 270px;
+}
+
 .oky-flow-cart-card {
   background: var(--white);
   border-radius: 16px;
@@ -9319,6 +9394,18 @@ button.header-icon {
 
 .oky-flow-frame .tactic-offer {
   flex: 0 0 auto;
+}
+
+/* Tope del carrusel: 20px de aire después de la última card, para que
+   el scroll llegue hasta el final del contenido y se lea que ahí se
+   acabó. Va como elemento y no como padding del track: dentro de un
+   contenedor que scrollea, el relleno del final no siempre cuenta. */
+.oky-flow-frame .tactic-strip-end {
+  /* El hueco se cuenta desde la última card y el track ya separa 12px
+     a sus hermanos: se descuentan para que queden 20 justos. */
+  flex: 0 0 20px;
+  margin-left: -12px;
+  align-self: stretch;
 }
 
 .oky-flow-frame .tactic-offer-hero {
@@ -11051,6 +11138,39 @@ button.tactic-offer {
   padding: 0;
 }
 
+/* En el carrito el chip de cantidad se pone de pie y sale de la línea
+   del nombre para ocupar la fila entera, que es la banda donde los
+   vales de monto ponen el lápiz arriba y el tacho abajo. Así las dos
+   clases de fila se leen con el mismo esquema. */
+.oky-flow-cart-row.is-qty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.oky-flow-cart-row.is-qty .oky-flow-cart-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.oky-flow-cart-row .chip-ds.is-vertical {
+  flex: 0 0 40px;
+  flex-direction: column;
+  width: 40px;
+  min-width: 40px;
+  height: auto;
+  min-height: 0;
+  padding: 6px 0;
+  /* Cuatro píxeles más de aire entre los tres: de pie, el más, la
+     cantidad y el tacho necesitan respirar más que en línea. */
+  gap: 12px;
+}
+
+.oky-flow-cart-row .chip-ds.is-vertical .chip-ds-step {
+  width: 100%;
+  height: 26px;
+}
+
 .chip-ds-step {
   display: inline-flex;
   align-items: center;
@@ -11318,6 +11438,171 @@ button.tactic-offer {
   width: 100%;
   background: var(--white);
   color: var(--primary-base);
+}
+
+/* ── Código promocional (Figma 82510:85319) ───────────────
+   La píldora del carrito, en las dos caras del componente: la
+   invitación y el código ya aplicado. La anatomía es la misma —
+   etiqueta, texto, control a la derecha—; lo que cambia es el
+   control: chevron para entrar, X para quitarlo. */
+.oky-flow-promo {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  margin: 0 0 12px;
+  /* Figma dibuja la píldora a 305px y dentro del carrito hay 300:
+     el aire de los costados y el hueco se recortan un par de píxeles
+     para que el texto siga cabiendo en una línea, que es como está
+     especificado. */
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid var(--secondary-main);
+  border-radius: 16px;
+  background: rgba(32, 243, 229, 0.08);
+  text-align: left;
+  cursor: pointer;
+}
+
+.oky-flow-promo.is-applied {
+  cursor: default;
+}
+
+/* La etiqueta viene espejada del componente de Figma: el ojal queda
+   arriba a la derecha. */
+.oky-flow-promo-art {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  transform: scaleX(-1);
+}
+
+.oky-flow-promo-copy {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--secondary-dark);
+}
+
+.oky-flow-promo-copy strong {
+  font-weight: 700;
+}
+
+.oky-flow-promo-go {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--primary-main);
+}
+
+.oky-flow-promo-clear {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--primary-main);
+  color: var(--white);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* El modal del código, con la misma geometría que la hoja de
+   "Agrega más, paga menos" pero en blanco: aquí se teclea, no se
+   celebra. */
+.oky-flow-promosheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 121;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 24px 24px 22px;
+  border-radius: 22px 22px 0 0;
+  background: var(--white);
+  animation: oky-flow-sheet-up 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.oky-flow-promosheet-title {
+  margin: 0 0 24px;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--primary-main);
+}
+
+/* El input del DS pide 328px de ancho mínimo y aquí solo hay 312. */
+.oky-flow-promosheet-field {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Sin nada tecleado el nombre del campo vive dentro, de placeholder;
+   al escribir sube al borde y se pinta morado, como el campo de
+   monto del PDP. */
+.oky-flow-promo-label {
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+
+.oky-flow-promo-label.is-floating {
+  opacity: 1;
+}
+
+/* El campo de monto reserva sitio a la izquierda para el signo de
+   dólar; el del código no tiene prefijo. */
+.oky-flow-promo-input.input-dinamic-hasvalue {
+  padding-left: 16px;
+}
+
+.oky-flow-promosheet-error {
+  margin: 8px 2px 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--error-main, #d32f2f);
+}
+
+.oky-flow-promosheet-error.is-hidden {
+  visibility: hidden;
+}
+
+/* La línea que separa el campo de la acción, a sangre como en el
+   flujo de Figma. */
+.oky-flow-promosheet-divider {
+  margin: 16px -24px 0;
+  border-top: 1px solid var(--divider);
+}
+
+.oky-flow-promosheet-cta {
+  width: 100%;
+  margin-top: 16px;
+}
+
+/* Apagado el botón no se destiñe: se pinta gris, como el resto de
+   los botones deshabilitados del sistema. */
+.oky-flow-frame .oky-flow-promosheet-cta:disabled {
+  opacity: 1;
+  background: var(--disable-main);
+  color: var(--disable-text);
+  box-shadow: none;
 }
 
 /* ── Barra de categorías de Mi wallet ───────────────────── */
@@ -12916,9 +13201,196 @@ img.oky-flow-method-mark {
   pointer-events: none;
 }
 
+/* ── Recorrido: la salida ────────────────────────────────
+   Antes de la banderola, la cuenta de una carrera: el número entra al
+   doble de tamaño, se planta y se va encogiendo mientras llega el
+   siguiente. El fondo atenuado es el mismo que hereda la banderola,
+   así que de la cuenta al cintillo no hay corte. */
+.oky-flow-tourcount {
+  position: absolute;
+  inset: 0;
+  z-index: 140;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 16, 16, 0.45);
+  pointer-events: none;
+  animation: oky-flow-fade 200ms ease-out both;
+}
+
+.oky-flow-tourcount-num {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 150px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -4px;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: oky-flow-tourcount-pop 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.oky-flow-tourcount-num.is-red {
+  color: #ff453a;
+}
+
+.oky-flow-tourcount-num.is-amber {
+  color: #ffc400;
+}
+
+.oky-flow-tourcount-num.is-green {
+  color: #3ddc84;
+}
+
+@keyframes oky-flow-tourcount-pop {
+  0% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+  22% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.12;
+    transform: scale(0.76);
+  }
+}
+
+/* ── Recorrido: la meta ──────────────────────────────────
+   Ya con la home arriba, el remate cruza la pantalla: una banda que
+   entra por la izquierda, se planta y sale por la derecha, con el
+   damero de la línea de llegada en sus bordes. Sin atenuar el fondo
+   —la portada es justo lo que se acaba de enseñar— y sin robar el
+   toque: es un festejo, no un diálogo, y se va solo. */
+.oky-flow-tourflag {
+  position: absolute;
+  inset: 0;
+  z-index: 140;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* La pantalla se atenúa detrás de la banda, como en el aviso de
+   "Agregado al carrito": sin eso el cintillo se confunde con el
+   contenido que cruza. Entra y sale con la banda. */
+.oky-flow-tourflag-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 16, 16, 0.45);
+  animation: oky-flow-tourflag-dim 1600ms ease-out both;
+}
+
+@keyframes oky-flow-tourflag-dim {
+  0%,
+  76% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.oky-flow-tourflag-card {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 22px 24px;
+  background: var(--primary-main);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--white);
+  animation: oky-flow-tourflag-cross 1600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* El damero en los dos cantos: dos diagonales cruzadas, cuadros de
+   5px. Es lo que hace leer "meta" sin montar un marco entero. */
+.oky-flow-tourflag-card::before,
+.oky-flow-tourflag-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background-color: var(--white);
+  background-image:
+    linear-gradient(45deg, #17171b 25%, transparent 25%, transparent 75%, #17171b 75%),
+    linear-gradient(45deg, #17171b 25%, transparent 25%, transparent 75%, #17171b 75%);
+  background-size: 10px 10px;
+  background-position: 0 0, 5px 5px;
+}
+
+.oky-flow-tourflag-card::before {
+  top: 0;
+}
+
+.oky-flow-tourflag-card::after {
+  bottom: 0;
+}
+
+/* La bandera a cuadros se agita mientras el cintillo está quieto. */
+.oky-flow-tourflag-wave {
+  display: inline-block;
+  transform-origin: 10% 90%;
+  animation: oky-flow-tourflag-wave 440ms ease-in-out 300ms 3 both;
+}
+
+/* Cada vuelta empieza y acaba derecha, así la bandera no se queda
+   torcida cuando deja de agitarse. */
+@keyframes oky-flow-tourflag-wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-13deg);
+  }
+  75% {
+    transform: rotate(13deg);
+  }
+}
+
+@keyframes oky-flow-tourflag-cross {
+  0% {
+    opacity: 0;
+    transform: translateX(-104%);
+  }
+  18% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  76% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(104%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .oky-flow-tour,
   .oky-flow-tour-call {
+    animation: none;
+  }
+
+  .oky-flow-tourcount-num,
+  .oky-flow-tourflag-wave {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .oky-flow-tourflag-card {
     animation: none;
   }
 }
