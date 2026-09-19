@@ -349,17 +349,29 @@ function renderBottomMain(card) {
    canjeando—, así que no roba el toque ni entra en el orden de
    tabulación.
 
-   La cara es la marca de OKY: el círculo con la sonrisa, dibujado en
-   vez de importado, para que herede el color y no pese. */
+   Es un personaje, no un icono: la cabeza es la marca de OKY —el aro
+   con la sonrisa— sobre un cuerpecito con brazos y pies, dibujado en
+   SVG para que herede el color, escale sin pesar y se pueda animar por
+   partes. Saluda con la mano al aparecer y después se queda
+   balanceándose. */
 function renderClarita() {
   return `
     <div class="prime-card-clarita" role="status" aria-label="Clarita: ¿Necesitas ayuda con el canje?">
       <p class="prime-card-clarita-bubble">¿Necesitas ayuda con el canje?</p>
-      <span class="prime-card-clarita-face" aria-hidden="true">
-        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" focusable="false">
-          <circle cx="20" cy="20" r="16.4" fill="none" stroke="currentColor" stroke-width="3.4" />
-          <path d="M12.6 17.4 Q20 26.6 27.4 17.4" fill="none" stroke="currentColor"
-            stroke-width="3.4" stroke-linecap="round" />
+      <span class="prime-card-clarita-pet" aria-hidden="true">
+        <svg viewBox="0 0 48 58" xmlns="http://www.w3.org/2000/svg" focusable="false">
+          <ellipse class="clarita-shadow" cx="24" cy="55.4" rx="10.5" ry="2.2" />
+          <g class="clarita-body">
+            <rect class="clarita-leg" x="17.4" y="45" width="5" height="8" rx="2.5" />
+            <rect class="clarita-leg" x="25.6" y="45" width="5" height="8" rx="2.5" />
+            <rect class="clarita-torso" x="14" y="31.5" width="20" height="16.5" rx="7" />
+            <rect class="clarita-arm is-left" x="9.2" y="33.5" width="4.6" height="11" rx="2.3" />
+            <rect class="clarita-arm is-right" x="34.2" y="33.5" width="4.6" height="11" rx="2.3" />
+            <g class="clarita-head">
+              <circle class="clarita-ring" cx="24" cy="17.5" r="12.6" />
+              <path class="clarita-smile" d="M17.8 15.2 Q24 23 30.2 15.2" />
+            </g>
+          </g>
         </svg>
       </span>
     </div>
