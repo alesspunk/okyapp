@@ -17641,6 +17641,9 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
 const TOUR_STEPS = [
   { target: ".header-icon-bitmap-wallet-wrap", label: "Compra Gift Cards y encuéntralas aquí" },
   { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Mira cuánto OKY Cash ganas" },
+  /* La última señala la promo con reloj: es el empujón que cierra el
+     recorrido y da pie a la salida. */
+  { target: ".oky-flow-home .tactic-strip", label: "¡Aprovecha que se acaban!" },
 ];
 
 /* Cerrado el recorrido, la home sube al inicio y ahí se celebra: la
