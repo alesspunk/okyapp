@@ -357,19 +357,33 @@ function renderBottomMain(card) {
 function renderClarita() {
   return `
     <div class="prime-card-clarita" role="status" aria-label="Clarita: ¿Necesitas ayuda con el canje?">
-      <p class="prime-card-clarita-bubble">¿Necesitas ayuda con el canje?</p>
+      <p class="prime-card-clarita-bubble">¿Necesitas ayuda<br />con el canje?</p>
       <span class="prime-card-clarita-pet" aria-hidden="true">
         <svg viewBox="0 0 48 58" xmlns="http://www.w3.org/2000/svg" focusable="false">
-          <ellipse class="clarita-shadow" cx="24" cy="55.4" rx="10.5" ry="2.2" />
+          <defs>
+            <linearGradient id="oky-clarita-vol" x1="0.18" y1="0" x2="0.72" y2="1">
+              <stop offset="0" stop-color="#7a45bd" />
+              <stop offset="0.52" stop-color="#552588" />
+              <stop offset="1" stop-color="#330063" />
+            </linearGradient>
+            <linearGradient id="oky-clarita-ring" x1="0.15" y1="0.05" x2="0.8" y2="1">
+              <stop offset="0" stop-color="#8b57cc" />
+              <stop offset="0.5" stop-color="#552588" />
+              <stop offset="1" stop-color="#3a1168" />
+            </linearGradient>
+          </defs>
+          <ellipse class="clarita-shadow" cx="24" cy="55.6" rx="10.6" ry="2.2" />
           <g class="clarita-body">
-            <rect class="clarita-leg" x="17.4" y="45" width="5" height="8" rx="2.5" />
-            <rect class="clarita-leg" x="25.6" y="45" width="5" height="8" rx="2.5" />
-            <rect class="clarita-torso" x="14" y="31.5" width="20" height="16.5" rx="7" />
-            <rect class="clarita-arm is-left" x="9.2" y="33.5" width="4.6" height="11" rx="2.3" />
-            <rect class="clarita-arm is-right" x="34.2" y="33.5" width="4.6" height="11" rx="2.3" />
+            <rect class="clarita-arm is-left clarita-back" x="9" y="33.2" width="5" height="11.4" rx="2.5" />
+            <rect class="clarita-leg clarita-back" x="17.2" y="44.6" width="5.4" height="8.6" rx="2.7" />
+            <rect class="clarita-leg" x="25.4" y="44.6" width="5.4" height="8.6" rx="2.7" />
+            <rect class="clarita-torso" x="13.8" y="31.2" width="20.4" height="17" rx="7.4" />
+            <ellipse class="clarita-gloss" cx="19.6" cy="35.6" rx="3.9" ry="2.5" />
+            <rect class="clarita-arm is-right" x="34" y="33.2" width="5" height="11.4" rx="2.5" />
             <g class="clarita-head">
-              <circle class="clarita-ring" cx="24" cy="17.5" r="12.6" />
-              <path class="clarita-smile" d="M17.8 15.2 Q24 23 30.2 15.2" />
+              <circle class="clarita-ring" cx="24" cy="17.4" r="12.6" />
+              <path class="clarita-rim" d="M14.1 9.7 A12.6 12.6 0 0 1 30.6 6.6" />
+              <path class="clarita-smile" d="M18.2 18.4 Q24 25.6 29.8 18.4" />
             </g>
           </g>
         </svg>

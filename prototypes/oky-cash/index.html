@@ -5120,7 +5120,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  /* Casi pegado: la colita tiene que tocar a Clarita para que el globo
+     sea suyo y no un cartel que pasaba por ahí. */
+  gap: 1px;
   pointer-events: none;
 }
 
@@ -5130,11 +5132,15 @@ body {
    de una pieza parece un sticker, no alguien. */
 .prime-card-clarita-pet {
   flex: none;
-  width: 46px;
-  height: 56px;
+  /* Del tamaño del botón que sustituye: la card no tiene sitio para un
+     muñeco grande y la ayuda no manda sobre el código. */
+  width: 34px;
+  height: 42px;
   display: block;
   color: var(--primary-main);
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.16));
+  filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.16));
+  /* Primero llega ella. */
+  animation: oky-clarita-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) 200ms both;
 }
 
 .prime-card-clarita-pet svg {
@@ -5144,22 +5150,53 @@ body {
   overflow: visible;
 }
 
+/* El volumen sale de tonos, no de filtros: un degradado del morado
+   claro al oscuro recorre el cuerpo y el aro en la misma diagonal, así
+   que la luz viene siempre de arriba a la izquierda. Lo que queda
+   detrás —el brazo y la pierna del fondo— se oscurece para separarse
+   del frente, y un brillo pequeño arriba redondea el torso. */
 .clarita-torso,
 .clarita-leg,
 .clarita-arm {
-  fill: currentColor;
+  fill: url(#oky-clarita-vol);
 }
 
-.clarita-ring,
+/* Detrás: más oscuro y sin brillo, que es lo que da la profundidad. */
+.clarita-back {
+  fill: #3a1168;
+}
+
+.clarita-gloss {
+  fill: #ffffff;
+  opacity: 0.26;
+}
+
+/* El aro de la marca, con su propia luz. */
+.clarita-ring {
+  fill: none;
+  stroke: url(#oky-clarita-ring);
+  stroke-width: 3.4;
+}
+
+/* Filo claro en el borde de arriba: el reflejo que redondea el aro. */
+.clarita-rim {
+  fill: none;
+  stroke: #a37ad6;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0.75;
+}
+
+/* La sonrisa va donde la tiene la marca, en la mitad de abajo. */
 .clarita-smile {
   fill: none;
-  stroke: currentColor;
+  stroke: #4a1c7d;
   stroke-width: 3.2;
   stroke-linecap: round;
 }
 
 .clarita-shadow {
-  fill: rgba(0, 0, 0, 0.14);
+  fill: rgba(0, 0, 0, 0.16);
 }
 
 /* Todas las partes giran sobre sí mismas, no sobre el lienzo. */
@@ -5168,6 +5205,11 @@ body {
 .clarita-arm,
 .clarita-shadow {
   transform-box: fill-box;
+}
+
+/* Un pelín más grande para que el volumen se lea a 34px. */
+.prime-card-clarita-pet svg {
+  overflow: visible;
 }
 
 .clarita-body {
@@ -5183,13 +5225,13 @@ body {
 
 .clarita-head {
   transform-origin: 50% 100%;
-  animation: oky-clarita-tilt 1500ms ease-in-out 700ms 3 both;
+  animation: oky-clarita-tilt 1500ms ease-in-out 900ms 3 both;
 }
 
 /* Saluda tres veces al llegar y luego baja el brazo. */
 .clarita-arm.is-right {
   transform-origin: 50% 12%;
-  animation: oky-clarita-wave 500ms ease-in-out 700ms 3 both;
+  animation: oky-clarita-wave 500ms ease-in-out 900ms 3 both;
 }
 
 @keyframes oky-clarita-bob {
@@ -5199,6 +5241,21 @@ body {
   }
   50% {
     transform: translateY(-3px) scaleY(1.015);
+  }
+}
+
+@keyframes oky-clarita-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.72);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(0) scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -5240,36 +5297,49 @@ body {
 .prime-card-clarita-bubble {
   position: relative;
   margin: 0;
-  max-width: 168px;
-  padding: 8px 12px;
-  border-radius: 14px;
+  /* Se ciñe a su texto. Con un ancho máximo el globo se quedaba con
+     todo el ancho y el sobrante caía a la izquierda, en blanco; el
+     corte del texto va escrito, así que max-content mide la línea más
+     larga y no la frase entera. */
+  width: max-content;
+  /* Sin tope: el globo va dentro de una columna que se dimensiona por
+     su contenido, así que un max-width en porcentaje lo estrangulaba y
+     el texto se salía por la derecha en vez de ceñirse. */
+  flex: none;
+  padding: 6px 10px;
+  border-radius: 12px;
   /* Globo blanco y no morado: justo encima vive el botón de pegar la
      URL, y dos piezas moradas pegadas se leían como una sola mancha.
      En blanco se lee lo que es, alguien hablando. */
   background: var(--white);
-  border: 1px solid rgba(85, 37, 136, 0.16);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  /* Sin borde: la colita es un cuadrado girado que se mete por debajo
+     del globo, y con borde se veía la costura donde los dos se cruzan.
+     El blanco se separa del fondo con la sombra, que no tiene junta
+     que delatar. */
+  box-shadow: 0 5px 16px rgba(48, 12, 92, 0.16);
   color: var(--primary-main);
   font-family: "Nunito Sans", sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.32;
   text-align: left;
-  animation: oky-clarita-say 460ms cubic-bezier(0.22, 1, 0.36, 1) 900ms both;
+  /* Habla cuando ya la has visto llegar y saludar: primero el
+     personaje, la frase después. */
+  animation: oky-clarita-say 460ms cubic-bezier(0.22, 1, 0.36, 1) 2400ms both;
 }
 
 /* La colita apunta a Clarita. */
+/* La colita nace del globo: medio cuadrado dentro y medio fuera, del
+   mismo blanco y sin borde, así que los dos se leen como una pieza. */
 .prime-card-clarita-bubble::after {
   content: "";
   position: absolute;
-  right: -5px;
-  bottom: 13px;
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
+  right: -3px;
+  bottom: 12px;
+  width: 9px;
+  height: 9px;
+  border-radius: 1.5px;
   background: var(--white);
-  border-right: 1px solid rgba(85, 37, 136, 0.16);
-  border-top: 1px solid rgba(85, 37, 136, 0.16);
   transform: rotate(45deg);
 }
 
@@ -5284,22 +5354,15 @@ body {
   }
 }
 
-@keyframes oky-clarita-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
+  .prime-card-clarita-pet,
   .clarita-body,
   .clarita-shadow,
   .clarita-head,
   .clarita-arm.is-right {
     animation: none;
+    opacity: 1;
+    transform: none;
   }
 
   .prime-card-clarita-bubble {
@@ -15944,19 +16007,33 @@ function renderBottomMain(card) {
 function renderClarita() {
   return `
     <div class="prime-card-clarita" role="status" aria-label="Clarita: ¿Necesitas ayuda con el canje?">
-      <p class="prime-card-clarita-bubble">¿Necesitas ayuda con el canje?</p>
+      <p class="prime-card-clarita-bubble">¿Necesitas ayuda<br />con el canje?</p>
       <span class="prime-card-clarita-pet" aria-hidden="true">
         <svg viewBox="0 0 48 58" xmlns="http://www.w3.org/2000/svg" focusable="false">
-          <ellipse class="clarita-shadow" cx="24" cy="55.4" rx="10.5" ry="2.2" />
+          <defs>
+            <linearGradient id="oky-clarita-vol" x1="0.18" y1="0" x2="0.72" y2="1">
+              <stop offset="0" stop-color="#7a45bd" />
+              <stop offset="0.52" stop-color="#552588" />
+              <stop offset="1" stop-color="#330063" />
+            </linearGradient>
+            <linearGradient id="oky-clarita-ring" x1="0.15" y1="0.05" x2="0.8" y2="1">
+              <stop offset="0" stop-color="#8b57cc" />
+              <stop offset="0.5" stop-color="#552588" />
+              <stop offset="1" stop-color="#3a1168" />
+            </linearGradient>
+          </defs>
+          <ellipse class="clarita-shadow" cx="24" cy="55.6" rx="10.6" ry="2.2" />
           <g class="clarita-body">
-            <rect class="clarita-leg" x="17.4" y="45" width="5" height="8" rx="2.5" />
-            <rect class="clarita-leg" x="25.6" y="45" width="5" height="8" rx="2.5" />
-            <rect class="clarita-torso" x="14" y="31.5" width="20" height="16.5" rx="7" />
-            <rect class="clarita-arm is-left" x="9.2" y="33.5" width="4.6" height="11" rx="2.3" />
-            <rect class="clarita-arm is-right" x="34.2" y="33.5" width="4.6" height="11" rx="2.3" />
+            <rect class="clarita-arm is-left clarita-back" x="9" y="33.2" width="5" height="11.4" rx="2.5" />
+            <rect class="clarita-leg clarita-back" x="17.2" y="44.6" width="5.4" height="8.6" rx="2.7" />
+            <rect class="clarita-leg" x="25.4" y="44.6" width="5.4" height="8.6" rx="2.7" />
+            <rect class="clarita-torso" x="13.8" y="31.2" width="20.4" height="17" rx="7.4" />
+            <ellipse class="clarita-gloss" cx="19.6" cy="35.6" rx="3.9" ry="2.5" />
+            <rect class="clarita-arm is-right" x="34" y="33.2" width="5" height="11.4" rx="2.5" />
             <g class="clarita-head">
-              <circle class="clarita-ring" cx="24" cy="17.5" r="12.6" />
-              <path class="clarita-smile" d="M17.8 15.2 Q24 23 30.2 15.2" />
+              <circle class="clarita-ring" cx="24" cy="17.4" r="12.6" />
+              <path class="clarita-rim" d="M14.1 9.7 A12.6 12.6 0 0 1 30.6 6.6" />
+              <path class="clarita-smile" d="M18.2 18.4 Q24 25.6 29.8 18.4" />
             </g>
           </g>
         </svg>
