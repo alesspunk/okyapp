@@ -5017,6 +5017,32 @@ body {
   width: 187px;
 }
 
+/* El código de 23 caracteres va en la primera línea, donde no hay
+   botón al lado: puede ocupar todo el ancho. Y se encoge lo justo
+   para caber de una sola línea —partido en dos dejaría de leerse como
+   un código—. El PIN se queda a 187 porque comparte fila con el CTA. */
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line:first-child,
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line:first-child .prime-card-bottom-line-value {
+  width: 100%;
+  max-width: 100%;
+}
+
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line:first-child .prime-card-bottom-line-value {
+  font-size: 14px;
+  letter-spacing: 0.8px;
+}
+
+/* La gift card de USA: una sola línea de código y el CTA de ayuda
+   outlined, sin fecha que reservar a la derecha (101310:7431). */
+.card-bottom-molecule.is-gift-card-usa .prime-card-bottom-line-value {
+  width: 100%;
+  max-width: 100%;
+}
+
+.card-bottom-molecule.is-gift-card-usa .prime-card-bottom-expiry {
+  display: none;
+}
+
 .card-bottom-molecule.is-with-bar-code .prime-card-bottom-media,
 .card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-media,
 .card-bottom-molecule.is-bar-code-code-pin .prime-card-bottom-media {
@@ -15548,6 +15574,20 @@ const CARD_BOTTOM_VARIANTS = [
     recommendation: "Recomendado: credenciales largas y CTA en inglés para gift cards internacionales.",
   },
   {
+    /* Las gift cards de USA no reparten tres credenciales: se copia un
+       código y se va a canjear a la tienda de la marca, así que la
+       parte de abajo es una sola línea y el CTA de ayuda va outlined
+       para no competir con ella. */
+    path: "Molecule/Bottom Card/Gift Card USA",
+    key: "gift-card-usa",
+    id: "101310:7431",
+    lines: [{ label: "Copia el código", value: "X232 35DF RA", copyable: true }],
+    expiry: "",
+    buttonLabel: "Help",
+    outlined: true,
+    recommendation: "Recomendado: una sola línea de código y el CTA de ayuda en outlined.",
+  },
+  {
     path: "Molecule/Bottom Card/Telco",
     key: "telco",
     id: "7390:140806",
@@ -15678,7 +15718,7 @@ function renderBottomMain(card) {
 function renderBottomButton(card) {
   return `
     <button
-      class="btn btn-primary prime-card-bottom-help-btn ${card.showButtonLabel ? "has-label" : "is-icon-only"}"
+      class="btn ${card.outlined ? "btn-outlined" : "btn-primary"} prime-card-bottom-help-btn ${card.showButtonLabel ? "has-label" : "is-icon-only"}"
       type="button"
     >
       <span class="prime-card-bottom-help-icon" aria-hidden="true">
@@ -15712,6 +15752,18 @@ function resolveCardTop(args = {}) {
   };
 }
 
+function replaceContentLines(content, lines) {
+  let next = 0;
+  return content
+    .map((item) => {
+      if (item?.type === "media") return item;
+      const line = lines[next];
+      next += 1;
+      return line ? { type: "line", line } : null;
+    })
+    .filter(Boolean);
+}
+
 function resolveCardBottom(args = {}) {
   const base = findCardBottom(args.variantPath);
   const overrideLines = Array.isArray(args.lines) ? args.lines : null;
@@ -15721,7 +15773,15 @@ function resolveCardBottom(args = {}) {
     /* Una lista vacía es una respuesta válida: el vale compartido
        cambia sus códigos por el sello. */
     lines: overrideLines ?? base.lines,
-    content: overrideLines ? null : base.content,
+    /* Cambiar los códigos de una variante que intercala barcode no
+       puede tirarlo: las líneas nuevas entran donde iban las viejas y
+       el media se queda en su sitio. Con la lista vacía —el vale
+       compartido— no queda orden que respetar. */
+    content: overrideLines
+      ? base.content && overrideLines.length
+        ? replaceContentLines(base.content, overrideLines)
+        : null
+      : base.content,
     media: args.media || base.media,
     expiry: typeof args.expiry === "string" ? args.expiry.trim() : base.expiry,
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,
@@ -18767,6 +18827,31 @@ function brandKeyOf(key) {
   return product.food && product.brand ? `marca:${product.brand}` : key;
 }
 
+/* Dos de cada tres gift cards de USA se canjean con un código corto;
+   la otra llega con barcode y PIN, que es como las mandan algunas
+   marcas. Cuál le toca a cada vale no se sortea en cada pintado: sale
+   de su propia identidad, para que abrir y cerrar la ficha no le
+   cambie las credenciales. */
+function hashOf(text) {
+  let h = 0;
+  for (let i = 0; i < String(text).length; i += 1) h = (h * 31 + String(text).charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+/* Un código de 23 caracteres en grupos de cinco: así se lee y se
+   teclea sin perder la cuenta. */
+const GIFT_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
+function giftCode(seed, length = 23) {
+  let out = "";
+  let h = hashOf(seed) || 7;
+  for (let i = 0; i < length; i += 1) {
+    h = (h * 1103515245 + 12345) & 0x7fffffff;
+    out += GIFT_CODE_ALPHABET[h % GIFT_CODE_ALPHABET.length];
+    if ((i + 1) % 5 === 0 && i + 1 < length) out += " ";
+  }
+  return out;
+}
+
 function stackMark(v) {
   const product = PRODUCTS[v.key] || v;
   const brand = product.food && FOOD_BRANDS[product.brand];
@@ -19090,6 +19175,30 @@ function screenVoucher(state) {
         : state.amounts[card.key] || BRAND_DEFAULT_AMOUNT;
   /* En quetzales manda lo que se compró; si el vale es de relleno de
      la demo, el monto de arranque. */
+  /* La parte de abajo de una gift card de USA: código corto en dos de
+     cada tres, y barcode con PIN en la restante. Lo demás —vales y
+     servicios de Guatemala— se queda con la de siempre. */
+  const bottomSeed = state.params.id || `${card.key}#${unit}`;
+  const bottomOfVoucher =
+    sectionOfVoucher(card.key) === "gift"
+      ? hashOf(bottomSeed) % 10 < 3
+        ? {
+            bottomVariantPath: "Molecule/Bottom Card/Code + BAR CODE + PIN",
+            bottomLines: [
+              { label: "Copia el código", value: giftCode(bottomSeed), copyable: true },
+              { label: "PIN", value: String(1000 + (hashOf(bottomSeed) % 9000)), copyable: true },
+            ],
+            bottomButtonLabel: "Help",
+          }
+        : {
+            bottomVariantPath: "Molecule/Bottom Card/Gift Card USA",
+            bottomLines: [
+              { label: "Copia el código", value: giftCode(bottomSeed, 10), copyable: true },
+            ],
+            bottomButtonLabel: "Help",
+          }
+      : { bottomVariantPath: "Molecule/Bottom Card/Gift Card", bottomButtonLabel: "Help" };
+
   const quetzalAmount =
     (purchase && purchase.quetzales) ||
     (entry && entry.quetzales) ||
@@ -19161,8 +19270,7 @@ function screenVoucher(state) {
                  checkout. */
               middleCurrency: card.quetzal ? "Q" : "$",
               middleAmount: card.quetzal ? bigQuetzal(quetzalAmount) : String(amount),
-              bottomVariantPath: "Molecule/Bottom Card/Gift Card",
-              bottomButtonLabel: "Help",
+              ...bottomOfVoucher,
             }),
         /* Compartido, la parte de abajo de la card deja de mostrar
            credenciales —ya salieron de aquí— y pasa a ser el sello con

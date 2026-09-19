@@ -4995,6 +4995,32 @@ body {
   width: 187px;
 }
 
+/* El código de 23 caracteres va en la primera línea, donde no hay
+   botón al lado: puede ocupar todo el ancho. Y se encoge lo justo
+   para caber de una sola línea —partido en dos dejaría de leerse como
+   un código—. El PIN se queda a 187 porque comparte fila con el CTA. */
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line:first-child,
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line:first-child .prime-card-bottom-line-value {
+  width: 100%;
+  max-width: 100%;
+}
+
+.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-line:first-child .prime-card-bottom-line-value {
+  font-size: 14px;
+  letter-spacing: 0.8px;
+}
+
+/* La gift card de USA: una sola línea de código y el CTA de ayuda
+   outlined, sin fecha que reservar a la derecha (101310:7431). */
+.card-bottom-molecule.is-gift-card-usa .prime-card-bottom-line-value {
+  width: 100%;
+  max-width: 100%;
+}
+
+.card-bottom-molecule.is-gift-card-usa .prime-card-bottom-expiry {
+  display: none;
+}
+
 .card-bottom-molecule.is-with-bar-code .prime-card-bottom-media,
 .card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-media,
 .card-bottom-molecule.is-bar-code-code-pin .prime-card-bottom-media {

@@ -170,6 +170,20 @@ export const CARD_BOTTOM_VARIANTS = [
     recommendation: "Recomendado: credenciales largas y CTA en inglés para gift cards internacionales.",
   },
   {
+    /* Las gift cards de USA no reparten tres credenciales: se copia un
+       código y se va a canjear a la tienda de la marca, así que la
+       parte de abajo es una sola línea y el CTA de ayuda va outlined
+       para no competir con ella. */
+    path: "Molecule/Bottom Card/Gift Card USA",
+    key: "gift-card-usa",
+    id: "101310:7431",
+    lines: [{ label: "Copia el código", value: "X232 35DF RA", copyable: true }],
+    expiry: "",
+    buttonLabel: "Help",
+    outlined: true,
+    recommendation: "Recomendado: una sola línea de código y el CTA de ayuda en outlined.",
+  },
+  {
     path: "Molecule/Bottom Card/Telco",
     key: "telco",
     id: "7390:140806",
@@ -300,7 +314,7 @@ function renderBottomMain(card) {
 function renderBottomButton(card) {
   return `
     <button
-      class="btn btn-primary prime-card-bottom-help-btn ${card.showButtonLabel ? "has-label" : "is-icon-only"}"
+      class="btn ${card.outlined ? "btn-outlined" : "btn-primary"} prime-card-bottom-help-btn ${card.showButtonLabel ? "has-label" : "is-icon-only"}"
       type="button"
     >
       <span class="prime-card-bottom-help-icon" aria-hidden="true">
@@ -334,6 +348,18 @@ export function resolveCardTop(args = {}) {
   };
 }
 
+function replaceContentLines(content, lines) {
+  let next = 0;
+  return content
+    .map((item) => {
+      if (item?.type === "media") return item;
+      const line = lines[next];
+      next += 1;
+      return line ? { type: "line", line } : null;
+    })
+    .filter(Boolean);
+}
+
 export function resolveCardBottom(args = {}) {
   const base = findCardBottom(args.variantPath);
   const overrideLines = Array.isArray(args.lines) ? args.lines : null;
@@ -343,7 +369,15 @@ export function resolveCardBottom(args = {}) {
     /* Una lista vacía es una respuesta válida: el vale compartido
        cambia sus códigos por el sello. */
     lines: overrideLines ?? base.lines,
-    content: overrideLines ? null : base.content,
+    /* Cambiar los códigos de una variante que intercala barcode no
+       puede tirarlo: las líneas nuevas entran donde iban las viejas y
+       el media se queda en su sitio. Con la lista vacía —el vale
+       compartido— no queda orden que respetar. */
+    content: overrideLines
+      ? base.content && overrideLines.length
+        ? replaceContentLines(base.content, overrideLines)
+        : null
+      : base.content,
     media: args.media || base.media,
     expiry: typeof args.expiry === "string" ? args.expiry.trim() : base.expiry,
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,

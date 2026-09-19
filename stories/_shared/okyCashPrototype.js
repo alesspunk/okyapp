@@ -2847,6 +2847,31 @@ function brandKeyOf(key) {
   return product.food && product.brand ? `marca:${product.brand}` : key;
 }
 
+/* Dos de cada tres gift cards de USA se canjean con un código corto;
+   la otra llega con barcode y PIN, que es como las mandan algunas
+   marcas. Cuál le toca a cada vale no se sortea en cada pintado: sale
+   de su propia identidad, para que abrir y cerrar la ficha no le
+   cambie las credenciales. */
+function hashOf(text) {
+  let h = 0;
+  for (let i = 0; i < String(text).length; i += 1) h = (h * 31 + String(text).charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+/* Un código de 23 caracteres en grupos de cinco: así se lee y se
+   teclea sin perder la cuenta. */
+const GIFT_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
+function giftCode(seed, length = 23) {
+  let out = "";
+  let h = hashOf(seed) || 7;
+  for (let i = 0; i < length; i += 1) {
+    h = (h * 1103515245 + 12345) & 0x7fffffff;
+    out += GIFT_CODE_ALPHABET[h % GIFT_CODE_ALPHABET.length];
+    if ((i + 1) % 5 === 0 && i + 1 < length) out += " ";
+  }
+  return out;
+}
+
 function stackMark(v) {
   const product = PRODUCTS[v.key] || v;
   const brand = product.food && FOOD_BRANDS[product.brand];
@@ -3170,6 +3195,30 @@ function screenVoucher(state) {
         : state.amounts[card.key] || BRAND_DEFAULT_AMOUNT;
   /* En quetzales manda lo que se compró; si el vale es de relleno de
      la demo, el monto de arranque. */
+  /* La parte de abajo de una gift card de USA: código corto en dos de
+     cada tres, y barcode con PIN en la restante. Lo demás —vales y
+     servicios de Guatemala— se queda con la de siempre. */
+  const bottomSeed = state.params.id || `${card.key}#${unit}`;
+  const bottomOfVoucher =
+    sectionOfVoucher(card.key) === "gift"
+      ? hashOf(bottomSeed) % 10 < 3
+        ? {
+            bottomVariantPath: "Molecule/Bottom Card/Code + BAR CODE + PIN",
+            bottomLines: [
+              { label: "Copia el código", value: giftCode(bottomSeed), copyable: true },
+              { label: "PIN", value: String(1000 + (hashOf(bottomSeed) % 9000)), copyable: true },
+            ],
+            bottomButtonLabel: "Help",
+          }
+        : {
+            bottomVariantPath: "Molecule/Bottom Card/Gift Card USA",
+            bottomLines: [
+              { label: "Copia el código", value: giftCode(bottomSeed, 10), copyable: true },
+            ],
+            bottomButtonLabel: "Help",
+          }
+      : { bottomVariantPath: "Molecule/Bottom Card/Gift Card", bottomButtonLabel: "Help" };
+
   const quetzalAmount =
     (purchase && purchase.quetzales) ||
     (entry && entry.quetzales) ||
@@ -3241,8 +3290,7 @@ function screenVoucher(state) {
                  checkout. */
               middleCurrency: card.quetzal ? "Q" : "$",
               middleAmount: card.quetzal ? bigQuetzal(quetzalAmount) : String(amount),
-              bottomVariantPath: "Molecule/Bottom Card/Gift Card",
-              bottomButtonLabel: "Help",
+              ...bottomOfVoucher,
             }),
         /* Compartido, la parte de abajo de la card deja de mostrar
            credenciales —ya salieron de aquí— y pasa a ser el sello con
