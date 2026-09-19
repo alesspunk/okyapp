@@ -16920,6 +16920,15 @@ function orderCash(state) {
 
 const orderDue = (state) => Math.max(cartTotal(state) - orderCash(state), 0);
 
+/* Lo que se anuncia como ahorro de la orden. Lo que el carrito rebaja
+   por sí solo —costo por servicio repartido, productos con descuento y
+   el código promocional— más lo que el saldo quita de la cuenta:
+   marcar OKY Cash también es pagar menos, y la barra de abajo tiene que
+   decirlo. Las barras de "Llena el carrito" se quedan con cartSavings:
+   ahí todavía no hay saldo elegido y lo que se anuncia es lo que se
+   gana llenando. */
+const orderSavings = (state) => cartSavings(state) + orderCash(state);
+
 /* El cashback se gana sobre dinero real: la parte que sale del saldo de
    OKY Cash no genera más OKY Cash. Se reparte en proporción a lo que
    acaba pagando la tarjeta. */
@@ -17569,7 +17578,7 @@ function cartDrawer(state) {
      —que la pinta la pantalla de debajo— o el ahorro de la orden en
      Guatemala. En los dos casos el carrito se acorta para dejarle
      sitio; sin ninguna, llena hasta la navbar. */
-  const savings = cartSavings(state);
+  const savings = orderSavings(state);
   const hasBar = cashback > 0 || savings > 0;
 
   /* Cada fila replica el list-item de Figma (275x140): arriba el
@@ -17988,8 +17997,8 @@ function screenCheckout(state) {
       /* Con comida en el carrito lo que se anuncia abajo es el ahorro
          de la orden; el cashback de OKY Cash es otra barra y en
          Guatemala todavía no aplica. */
-      cartSavings(state) > 0
-        ? `<div class="oky-flow-savingbar"><div class="oky-flow-savebar is-bar"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(cartSavings(state))}</div></div>`
+      orderSavings(state) > 0
+        ? `<div class="oky-flow-savingbar"><div class="oky-flow-savebar is-bar"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(orderSavings(state))}</div></div>`
         : ""
     }
     ${
@@ -19927,7 +19936,7 @@ const SCROLL_CLASS = {
 function scrollClass(state) {
   /* El hueco de abajo del checkout lo pide cualquiera de las dos
      barras: la de cashback o la de ahorro de la orden. */
-  if (state.screen === "checkout" && cartCashback(state) <= 0 && cartSavings(state) <= 0) return "";
+  if (state.screen === "checkout" && cartCashback(state) <= 0 && orderSavings(state) <= 0) return "";
   /* Sin píldora de saldo, la barra de "Tus compras" es solo el botón. */
   /* El PDP de Guatemala solo tiene barra de ahorro cuando hay algo
      ahorrado; sin ella el resumen baja a ras de la navbar y el hueco
