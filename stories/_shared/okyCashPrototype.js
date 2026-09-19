@@ -1047,14 +1047,15 @@ const TOUR_STEPS = [
 
 /* Cerrado el recorrido, la home sube al inicio y ahí se celebra: la
    bandera entra cuando ya se ve la portada, no sobre media página. */
-/* La cuenta atrás espera a que la home termine de subir. El scroll
-   suave desde donde deja el último punto tarda algo más de medio
-   segundo; el resto es el silencio que separa un momento del otro, que
-   es lo que hacía falta: arrancando antes, los números salían encima
-   de la página todavía en movimiento. Sin nada que subir basta un
-   respiro corto. */
-const TOUR_FLAG_WAIT_MS = 1000;
-const TOUR_FLAG_WAIT_TOP_MS = 420;
+/* La vuelta al inicio se anima a mano. El scroll suave del navegador
+   no sirve aquí: pedido en el mismo cuadro en el que se restaura la
+   posición sale de golpe, y diferido tardaba más de un segundo en
+   recorrer 475px. Con duración propia la subida se ve igual en
+   escritorio y en móvil, y la cuenta atrás puede encadenarse a su
+   final exacto en vez de a un número adivinado. */
+const TOUR_SCROLL_MS = 420;
+/* El silencio entre que la home se posa arriba y entra el "3". */
+const TOUR_FINISH_BEAT_MS = 380;
 /* Cada número de la cuenta atrás dura lo que su animación, así que el
    siguiente entra justo cuando el anterior acaba de irse. */
 const TOUR_COUNT_MS = 520;
@@ -4207,15 +4208,39 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const y = before ? before.scrollTop : 0;
     render();
     const after = root.querySelector(".oky-flow-scroll");
-    if (after && y > 0) {
-      after.scrollTop = y;
-      after.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    if (after && y > 0) after.scrollTop = y;
 
     /* El final espera a que la home esté arriba: se celebra sobre la
-       portada, no sobre el trozo donde quedó el último punto. Si ya
-       estaba arriba no hay nada que esperar. */
-    tourFlagTimer = setTimeout(startFinish, y > 0 ? TOUR_FLAG_WAIT_MS : TOUR_FLAG_WAIT_TOP_MS);
+       portada, no sobre el trozo donde quedó el último punto. */
+    scrollToTop(after, () => {
+      tourFlagTimer = setTimeout(startFinish, TOUR_FINISH_BEAT_MS);
+    });
+  }
+
+  /* Sube al inicio en el tiempo que decimos y avisa al terminar. El
+     avance se calcula con el reloj y no contando cuadros, así que un
+     tirón no alarga la subida; y se mueve con setTimeout en vez de
+     requestAnimationFrame porque este prototipo también corre en
+     paneles que dejan de pedir cuadros cuando no se ven, y ahí la
+     secuencia no puede quedarse a medias. */
+  function scrollToTop(el, done) {
+    if (!el || el.scrollTop <= 0) return done();
+    const from = el.scrollTop;
+    const started = Date.now();
+    const step = () => {
+      if (!el.isConnected) return done();
+      const t = Math.min((Date.now() - started) / TOUR_SCROLL_MS, 1);
+      /* Ease-out cúbico contado hacia el tope: arranca rápido y se
+         posa. Lo que queda por recorrer es (1-t)³ de la distancia. */
+      el.scrollTop = from * (1 - t) ** 3;
+      if (t < 1) {
+        tourFlagTimer = setTimeout(step, 16);
+        return;
+      }
+      el.scrollTop = 0;
+      done();
+    };
+    tourFlagTimer = setTimeout(step, 16);
   }
 
   /* Salida de carrera: 3, 2, 1 y la banderola. La cuenta va sola —el
