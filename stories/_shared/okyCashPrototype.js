@@ -90,7 +90,11 @@ const BRANDS = {
      a 1200px y aguanta cualquier tamaño. */
   homedepot: { label: "Home Depot", art: "homedepot.png", bg: "#f68b1f", rate: 5 },
   apple: { label: "Apple", art: "apple.webp", bg: "#f2f2f5", rate: 5 },
-  macys: { label: "Macy's", art: "macys.webp", bg: "#ffffff", rate: 12 },
+  /* Macy's y Ulta Beauty comparten la dinámica de Nike y Lyft: sin
+     porcentaje propio, su cashback lo decide el monto mientras el
+     reloj de Spooky Deals siga vivo. */
+  macys: { label: "Macy's", art: "macys.webp", bg: "#ffffff", rate: 0 },
+  ulta: { label: "Ulta Beauty", art: "ulta.png", bg: "#ffffff", rate: 0 },
   target: { label: "Target", art: "target.webp", bg: "#99464a", rate: 8 },
   seveneleven: { label: "7 Eleven", art: "7eleven.png", bg: "#ea572d", rate: 6 },
   burgerking: { label: "Burger King", art: "burguerking.webp", bg: "#f6ead5", rate: 9 },
@@ -222,7 +226,7 @@ function orderCountry(state) {
 
 /* Las dos marcas que arrancan dentro de la banda del descuento
    especial, y el monto con el que abren mientras la promo vive. */
-const PROMO_PRODUCTS = ["nike", "lyft"];
+const PROMO_PRODUCTS = ["nike", "lyft", "macys", "ulta"];
 const PROMO_DEFAULT_AMOUNT = 51;
 
 /* La promo de "Spooky Deals" dura dos minutos: mientras corre, el rango
@@ -265,6 +269,12 @@ Object.entries(BRANDS).forEach(([key, brand]) => {
     bg: brand.bg,
     legal: true,
   };
+});
+
+/* Las marcas de la promo arrancan en 10 como Nike y Lyft: su banda de
+   descuento empieza en 50 y un mínimo de 5 no dice nada ahí. */
+["macys", "ulta"].forEach((key) => {
+  PRODUCTS[key].min = 10;
 });
 
 /* Tigo, la marca de la home de Guatemala. No da cashback —no lleva
@@ -329,7 +339,7 @@ const STYLE_CARDS = [
 
 const TODAY_CARDS = [
   { key: "macys", photo: "promo-image2.png" },
-  { key: "starbucks", photo: "promo-image4.png" },
+  { key: "ulta", photo: "promo-image-ulta.jpg" },
 ];
 
 /* Tier del cashback. Verificado contra los dos frames de Nike:
@@ -534,7 +544,7 @@ function createInitialState(userType) {
     history: [],
     /* Arranca en 51, dentro del rango de descuento especial (20%);
        al vencer la promo vuelve a los 5 del resto de marcas. */
-    amounts: { nike: PROMO_DEFAULT_AMOUNT, lyft: PROMO_DEFAULT_AMOUNT },
+    amounts: PROMO_PRODUCTS.reduce((acc, key) => ({ ...acc, [key]: PROMO_DEFAULT_AMOUNT }), {}),
     cart: [],
     cartOpen: false,
     checkoutIndex: 0,
@@ -1215,7 +1225,8 @@ function screenHome(state) {
     `;
   };
 
-  /* Nike y Lyft anuncian el tier de la promo; cuando vence, el 5% base. */
+  /* Las cuatro marcas de Spooky Deals anuncian el tier de la promo;
+     cuando vence, el 5% base. */
   const promoRate = state.promoLive ? 20 : 5;
 
   /* Card de marca del organismo Promo Strip: arte de la gift card,
@@ -1255,9 +1266,7 @@ function screenHome(state) {
           <div class="tactic-strip-carousel-track">
             ${offer({ key: "nike", photo: PRODUCTS.nike.hero, rate: promoRate, action: "open-pdp" })}
             ${offer({ key: "lyft", photo: PRODUCTS.lyft.hero, rate: promoRate, action: "open-pdp" })}
-            ${TODAY_CARDS.map((card) =>
-              offer({ ...card, rate: BRANDS[card.key].rate, action: "open-pdp" }),
-            ).join("")}
+            ${TODAY_CARDS.map((card) => offer({ ...card, rate: promoRate, action: "open-pdp" })).join("")}
           </div>
         </div>
       </section>
@@ -2179,6 +2188,7 @@ const CATEGORY_OF = {
   oldnavy: "moda",
   underarmour: "moda",
   macys: "moda",
+  ulta: "moda",
   apple: "tecnologia",
   xbox: "tecnologia",
   googleplay: "tecnologia",
