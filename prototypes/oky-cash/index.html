@@ -11291,6 +11291,50 @@ button.tactic-offer {
   animation: oky-flow-promo-settle 420ms cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
+/* El arranque del cronómetro: entra desvanecido y creciendo, y se
+   sacude para que se vea que acaba de empezar a correr. Es el aviso
+   de que el reloj se puso en marcha, así que se hace notar una vez y
+   no vuelve. */
+.super-ribbon.is-starting {
+  animation: oky-flow-promo-start 1100ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes oky-flow-promo-start {
+  0% {
+    opacity: 0;
+    transform: scale(0.82) rotate(0deg);
+  }
+  22% {
+    opacity: 1;
+    transform: scale(1.08) rotate(0deg);
+  }
+  36% {
+    transform: scale(1) rotate(-3deg);
+  }
+  48% {
+    transform: scale(1) rotate(3deg);
+  }
+  60% {
+    transform: scale(1) rotate(-2.2deg);
+  }
+  72% {
+    transform: scale(1) rotate(2.2deg);
+  }
+  84% {
+    transform: scale(1) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .super-ribbon.is-starting {
+    animation: none;
+  }
+}
+
 @keyframes oky-flow-promo-settle {
   from {
     opacity: 0;
@@ -17258,9 +17302,14 @@ function createInitialState(userType) {
     /* Diseño de la tarjeta de OKY Cash y el que se está hojeando. */
     cardDesign: "black",
     cardDesignIndex: 0,
-    /* Fin de la promo; se fija al montar el prototipo. */
+    /* La promo no arranca con el prototipo: empieza cuando termina la
+       presentación de USA, para que se vea el momento en que el reloj
+       se pone en marcha. Hasta entonces el strip es un Super Deals
+       normal al 5%. */
     promoEndsAt: Date.now() + PROMO_MS,
-    promoLive: true,
+    promoLive: false,
+    /* Ventana corta para animar el arranque del cronómetro. */
+    promoStarting: false,
     /* Ventana corta tras el vencimiento, para el aviso del strip. */
     promoEnded: false,
     promoSettling: false,
@@ -17888,14 +17937,14 @@ function promoRibbon(state) {
 
   if (!state.promoLive) {
     return `
-      <div class="super-ribbon super-ribbon-type-normal is-settling">
+      <div class="super-ribbon super-ribbon-type-normal${state.promoSettling ? " is-settling" : ""}">
         <span class="super-ribbon-icon"><i class="fa-solid fa-percent" aria-hidden="true"></i></span>
         <span class="super-ribbon-text">Super Deals</span>
       </div>
     `;
   }
   return `
-    <div class="super-ribbon super-ribbon-type-por-tiempo">
+    <div class="super-ribbon super-ribbon-type-por-tiempo${state.promoStarting ? " is-starting" : ""}">
       <span class="super-ribbon-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
       <span class="super-ribbon-text" data-role="promo-countdown">Termina en ${countdownLabel(state.promoEndsAt - Date.now())}</span>
     </div>
@@ -20918,6 +20967,19 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      vuelve arriba, pero acompañando: render() la devolvería al tope de
      un salto, así que se restaura dónde quedó y se sube con scroll
      suave, que es como se mueve la app. */
+  /* Pone el reloj en marcha: se fija el vencimiento en ese momento
+     —no al cargar— y el ribbon entra animado una sola vez. */
+  function startPromo() {
+    if (state.promoLive) return;
+    state.promoLive = true;
+    state.promoEndsAt = Date.now() + PROMO_MS;
+    state.promoStarting = true;
+    setTimeout(() => {
+      state.promoStarting = false;
+      render();
+    }, 1400);
+  }
+
   function closeTour() {
     clearTimeout(tourFlagTimer);
     state.tourConfetti = false;
@@ -20998,6 +21060,10 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
            la compra. */
         state.tourFlag = false;
         state.tourConfetti = true;
+        /* Con el confeti arranca el reloj: el strip pasa de aqua al 5%
+           a mostaza con cuenta atrás, y ese cambio a la vista explica
+           solo lo que una parada del recorrido tendría que contar. */
+        startPromo();
         render();
         tourFlagTimer = setTimeout(() => {
           state.tourConfetti = false;
@@ -22594,6 +22660,12 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }, 600);
     }, 2400);
   }, 1000);
+
+  /* Quien entra por el enlace directo de USA no pasa por la
+     presentación, así que nadie pondría el reloj en marcha: se arranca
+     al montar. Entrando por el folder manda la presentación, que lo
+     arranca al final. */
+  if (state.screen === "home") startPromo();
 
   render();
 }

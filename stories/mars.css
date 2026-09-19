@@ -11269,6 +11269,50 @@ button.tactic-offer {
   animation: oky-flow-promo-settle 420ms cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
+/* El arranque del cronómetro: entra desvanecido y creciendo, y se
+   sacude para que se vea que acaba de empezar a correr. Es el aviso
+   de que el reloj se puso en marcha, así que se hace notar una vez y
+   no vuelve. */
+.super-ribbon.is-starting {
+  animation: oky-flow-promo-start 1100ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes oky-flow-promo-start {
+  0% {
+    opacity: 0;
+    transform: scale(0.82) rotate(0deg);
+  }
+  22% {
+    opacity: 1;
+    transform: scale(1.08) rotate(0deg);
+  }
+  36% {
+    transform: scale(1) rotate(-3deg);
+  }
+  48% {
+    transform: scale(1) rotate(3deg);
+  }
+  60% {
+    transform: scale(1) rotate(-2.2deg);
+  }
+  72% {
+    transform: scale(1) rotate(2.2deg);
+  }
+  84% {
+    transform: scale(1) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .super-ribbon.is-starting {
+    animation: none;
+  }
+}
+
 @keyframes oky-flow-promo-settle {
   from {
     opacity: 0;
