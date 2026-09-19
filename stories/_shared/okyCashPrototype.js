@@ -4251,12 +4251,18 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
     };
 
-    /* Lo que queda fuera de pantalla se sube antes de medir. */
+    /* Lo que queda fuera de pantalla se sube antes de medir, y lo que
+       vive en el contenido se acerca a una altura cómoda aunque ya se
+       vea: así la parada queda a la vista y, al cerrar, hay camino de
+       vuelta que recorrer. Lo que no scrollea —la navbar, que va fija—
+       se deja donde está. */
     const box = tour.getBoundingClientRect();
     const zoom = box.height / tour.offsetHeight || 1;
     const t = target.getBoundingClientRect();
-    if (scroll && (t.top < box.top || t.bottom > box.bottom - 40)) {
-      scroll.scrollTo({ top: scroll.scrollTop + (t.top - box.top) / zoom - 170, behavior: "auto" });
+    const inFlow = scroll ? scroll.contains(target) : false;
+    const fromTop = (t.top - box.top) / zoom;
+    if (inFlow && (t.top < box.top || t.bottom > box.bottom - 40 || fromTop > 200)) {
+      scroll.scrollTo({ top: scroll.scrollTop + fromTop - 170, behavior: "auto" });
     }
 
     /* El scroll dispara el colapso de la cabecera, que cambia alturas
@@ -4280,19 +4286,18 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.tourSeen = true;
     state.guideOn = false;
     state.guideAsk = false;
-    /* La pregunta se queda en el centro mientras la home vuelve
-       arriba: es lo que enlaza el recorrido con la salida. */
-    state.tourReady = true;
+    state.tourReady = false;
     const before = root.querySelector(".oky-flow-scroll");
     const y = before ? before.scrollTop : 0;
     render();
     const after = root.querySelector(".oky-flow-scroll");
     if (after && y > 0) after.scrollTop = y;
 
-    /* El final espera a que la home esté arriba: se celebra sobre la
-       portada, no sobre el trozo donde quedó el último punto. Y por el
-       camino pregunta, que es lo que da pie a la cuenta atrás. */
+    /* Primero la home vuelve arriba —que se vea el camino— y ya en la
+       portada pregunta, que es lo que da pie a la cuenta atrás. */
     scrollToTop(after, () => {
+      state.tourReady = true;
+      render();
       tourFlagTimer = setTimeout(() => {
         state.tourReady = false;
         render();

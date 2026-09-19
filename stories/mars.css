@@ -10902,8 +10902,7 @@ button.tactic-offer {
 }
 
 @keyframes oky-flow-coin-spin {
-  0%,
-  100% {
+  0% {
     transform: perspective(340px) rotateY(0) translateY(0) scale(1);
   }
   0.12% {
@@ -10924,7 +10923,13 @@ button.tactic-offer {
   0.74% {
     transform: perspective(340px) rotateY(720deg) translateY(0) scale(1.05, 0.95);
   }
-  0.83% {
+  0.83%,
+  100% {
+    /* Se queda de cara hasta el siguiente giro. Sin este fotograma, el
+       resto del ciclo —casi cuatro minutos— lo pasaba desandando los
+       720 grados: la moneda giraba a cámara lenta y se quedaba
+       enseñando el reverso, que es el "trabado" que se veía. Como 720
+       y 0 son la misma cara, el salto del bucle no se nota. */
     transform: perspective(340px) rotateY(720deg) translateY(0) scale(1);
   }
 }
