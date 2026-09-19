@@ -5133,10 +5133,11 @@ body {
      si algo los acercara, quien tapa es ella. */
   position: relative;
   z-index: 1;
-  /* Del tamaño del botón que sustituye: la card no tiene sitio para un
-     muñeco grande y la ayuda no manda sobre el código. */
-  width: 34px;
-  height: 42px;
+  /* A 34px no se leía que hubiera un cuerpo debajo de la cara. Con
+     44 se distinguen cabeza, torso y brazos, y sigue cabiendo en el
+     hueco del botón que sustituye. */
+  width: 44px;
+  height: 53px;
   display: block;
   color: var(--primary-main);
   filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.16));
@@ -5230,8 +5231,17 @@ body {
 }
 
 /* Saluda tres veces al llegar y luego baja el brazo. */
+/* Los brazos cuelgan del hombro, no del centro: el eje va en la
+   esquina de arriba pegada al torso, así que al abrirse se proyectan
+   en diagonal desde ahí en vez de desplazarse enteros. */
+.clarita-arm.is-left {
+  transform-origin: 100% 12%;
+  transform: rotate(24deg);
+}
+
 .clarita-arm.is-right {
-  transform-origin: 50% 12%;
+  transform-origin: 0% 12%;
+  transform: rotate(-24deg);
   animation: oky-clarita-wave 500ms ease-in-out 900ms 3 both;
 }
 
@@ -5275,13 +5285,13 @@ body {
 @keyframes oky-clarita-wave {
   0%,
   100% {
-    transform: rotate(0deg);
+    transform: rotate(-24deg);
   }
   35% {
-    transform: rotate(-58deg);
+    transform: rotate(-74deg);
   }
   70% {
-    transform: rotate(-30deg);
+    transform: rotate(-46deg);
   }
 }
 
@@ -16024,18 +16034,18 @@ function renderClarita() {
               <stop offset="1" stop-color="#3a1168" />
             </linearGradient>
           </defs>
-          <ellipse class="clarita-shadow" cx="24" cy="55.6" rx="10.6" ry="2.2" />
+          <ellipse class="clarita-shadow" cx="24" cy="55.8" rx="11.4" ry="2.3" />
           <g class="clarita-body">
-            <rect class="clarita-arm is-left clarita-back" x="9" y="33.2" width="5" height="11.4" rx="2.5" />
-            <rect class="clarita-leg clarita-back" x="17.2" y="44.6" width="5.4" height="8.6" rx="2.7" />
-            <rect class="clarita-leg" x="25.4" y="44.6" width="5.4" height="8.6" rx="2.7" />
-            <rect class="clarita-torso" x="13.8" y="31.2" width="20.4" height="17" rx="7.4" />
-            <ellipse class="clarita-gloss" cx="19.6" cy="35.6" rx="3.9" ry="2.5" />
-            <rect class="clarita-arm is-right" x="34" y="33.2" width="5" height="11.4" rx="2.5" />
+            <rect class="clarita-arm is-left clarita-back" x="7.6" y="31.8" width="6.4" height="13.4" rx="3.2" />
+            <rect class="clarita-leg clarita-back" x="16.2" y="45.4" width="6.2" height="8.4" rx="3.1" />
+            <rect class="clarita-leg" x="25.6" y="45.4" width="6.2" height="8.4" rx="3.1" />
+            <rect class="clarita-torso" x="14.2" y="30.6" width="19.6" height="17.2" rx="7.6" />
+            <ellipse class="clarita-gloss" cx="19.8" cy="35.2" rx="4.1" ry="2.6" />
+            <rect class="clarita-arm is-right" x="34" y="31.8" width="6.4" height="13.4" rx="3.2" />
             <g class="clarita-head">
-              <circle class="clarita-ring" cx="24" cy="17.4" r="12.6" />
-              <path class="clarita-rim" d="M14.1 9.7 A12.6 12.6 0 0 1 30.6 6.6" />
-              <path class="clarita-smile" d="M18.2 18.4 Q24 25.6 29.8 18.4" />
+              <circle class="clarita-ring" cx="24" cy="16.4" r="13.4" />
+              <path class="clarita-rim" d="M13.4 8.3 A13.4 13.4 0 0 1 31.1 5" />
+              <path class="clarita-smile" d="M17.6 17.4 Q24 25.4 30.4 17.4" />
             </g>
           </g>
         </svg>

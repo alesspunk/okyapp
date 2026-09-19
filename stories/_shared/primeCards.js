@@ -372,18 +372,18 @@ function renderClarita() {
               <stop offset="1" stop-color="#3a1168" />
             </linearGradient>
           </defs>
-          <ellipse class="clarita-shadow" cx="24" cy="55.6" rx="10.6" ry="2.2" />
+          <ellipse class="clarita-shadow" cx="24" cy="55.8" rx="11.4" ry="2.3" />
           <g class="clarita-body">
-            <rect class="clarita-arm is-left clarita-back" x="9" y="33.2" width="5" height="11.4" rx="2.5" />
-            <rect class="clarita-leg clarita-back" x="17.2" y="44.6" width="5.4" height="8.6" rx="2.7" />
-            <rect class="clarita-leg" x="25.4" y="44.6" width="5.4" height="8.6" rx="2.7" />
-            <rect class="clarita-torso" x="13.8" y="31.2" width="20.4" height="17" rx="7.4" />
-            <ellipse class="clarita-gloss" cx="19.6" cy="35.6" rx="3.9" ry="2.5" />
-            <rect class="clarita-arm is-right" x="34" y="33.2" width="5" height="11.4" rx="2.5" />
+            <rect class="clarita-arm is-left clarita-back" x="7.6" y="31.8" width="6.4" height="13.4" rx="3.2" />
+            <rect class="clarita-leg clarita-back" x="16.2" y="45.4" width="6.2" height="8.4" rx="3.1" />
+            <rect class="clarita-leg" x="25.6" y="45.4" width="6.2" height="8.4" rx="3.1" />
+            <rect class="clarita-torso" x="14.2" y="30.6" width="19.6" height="17.2" rx="7.6" />
+            <ellipse class="clarita-gloss" cx="19.8" cy="35.2" rx="4.1" ry="2.6" />
+            <rect class="clarita-arm is-right" x="34" y="31.8" width="6.4" height="13.4" rx="3.2" />
             <g class="clarita-head">
-              <circle class="clarita-ring" cx="24" cy="17.4" r="12.6" />
-              <path class="clarita-rim" d="M14.1 9.7 A12.6 12.6 0 0 1 30.6 6.6" />
-              <path class="clarita-smile" d="M18.2 18.4 Q24 25.6 29.8 18.4" />
+              <circle class="clarita-ring" cx="24" cy="16.4" r="13.4" />
+              <path class="clarita-rim" d="M13.4 8.3 A13.4 13.4 0 0 1 31.1 5" />
+              <path class="clarita-smile" d="M17.6 17.4 Q24 25.4 30.4 17.4" />
             </g>
           </g>
         </svg>
