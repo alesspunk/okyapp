@@ -13147,45 +13147,89 @@ img.oky-flow-method-mark {
   pointer-events: none;
 }
 
-/* ── Recorrido: la bandera del final ─────────────────────
-   No señala nada: atenúa la pantalla entera y se va sola al segundo
-   y medio. */
-.oky-flow-tour.is-finish {
-  background: rgba(16, 16, 16, 0.72);
+/* ── Recorrido: la meta ──────────────────────────────────
+   Ya con la home arriba, una pancarta de línea de llegada: dos bandas
+   a cuadros abrazando la bandera y el remate. No pide nada y se deja
+   atravesar con el dedo —es un festejo, no un diálogo— y se va sola. */
+.oky-flow-tourflag {
+  position: absolute;
+  inset: 0;
+  z-index: 140;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 4, 36, 0.32);
+  pointer-events: none;
+  animation: oky-flow-fade 220ms ease-out both;
 }
 
-.oky-flow-tour-finish {
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  margin: 0;
-  padding: 18px 28px;
-  border-radius: 22px;
+.oky-flow-tourflag-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(268px, calc(100% - 48px));
+  overflow: hidden;
+  border-radius: 24px;
   background: var(--white);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+  text-align: center;
+  animation: oky-flow-tourflag-in 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* El damero se dibuja con dos diagonales cruzadas: dos filas de
+   cuadros de 13px, que es lo que hace leer "meta" y no "borde". */
+.oky-flow-tourflag-band {
+  width: 100%;
+  height: 26px;
+  flex: none;
+  background-color: var(--white);
+  background-image:
+    linear-gradient(45deg, #17171b 25%, transparent 25%, transparent 75%, #17171b 75%),
+    linear-gradient(45deg, #17171b 25%, transparent 25%, transparent 75%, #17171b 75%);
+  background-size: 26px 26px;
+  background-position: 0 0, 13px 13px;
+}
+
+.oky-flow-tourflag-emoji {
+  margin-top: 20px;
+  font-size: 44px;
+  line-height: 1;
+  animation: oky-flow-tourflag-wave 900ms ease-in-out 220ms 2 both;
+}
+
+.oky-flow-tourflag-text {
+  margin: 10px 0 20px;
+  padding: 0 20px;
   font-family: "Nunito Sans", sans-serif;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 900;
   line-height: 1.2;
-  text-align: center;
-  white-space: nowrap;
   color: var(--primary-main);
-  pointer-events: none;
-  animation: oky-flow-tour-go 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes oky-flow-tour-go {
+@keyframes oky-flow-tourflag-in {
   0% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.6);
+    transform: translateY(18px) scale(0.86);
   }
-  62% {
+  64% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1.06);
+    transform: translateY(0) scale(1.04);
   }
   100% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* La bandera ondea: un balanceo corto, no una vuelta. */
+@keyframes oky-flow-tourflag-wave {
+  0%,
+  100% {
+    transform: rotate(-9deg);
+  }
+  50% {
+    transform: rotate(9deg);
   }
 }
 
@@ -13195,10 +13239,9 @@ img.oky-flow-method-mark {
     animation: none;
   }
 
-  .oky-flow-tour-finish {
+  .oky-flow-tourflag-card,
+  .oky-flow-tourflag-emoji {
     animation: none;
-    opacity: 1;
-    transform: translate(-50%, -50%);
   }
 }
 
@@ -16357,6 +16400,7 @@ function createInitialState(userType) {
        Se ven una sola vez, la primera que se entra al marketplace. */
     usaIntro: false,
     tourStep: null,
+    tourFlag: false,
     tourSeen: false,
     /* Cuántas cards se han pedido ya en cada pestaña y estado del
        wallet, con la clave "pestaña:estado". */
@@ -16781,13 +16825,12 @@ const TOUR_STEPS = [
   { target: ".oky-flow-home .tactic-strip", label: "Compra una gift card" },
   { target: ".header-icon-bitmap-wallet-wrap", label: "Encuéntrala en tu Wallet" },
   { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Gana OKY Cash" },
-  /* La bandera a cuadros: sin nada que señalar, ocupa la pantalla un
-     segundo y se va sola, como el "GO!" de una salida. */
-  { finish: true, label: "¡Compra y gana! 🏁" },
 ];
 
-/* Lo que dura la bandera antes de subir al inicio. */
-const TOUR_FINISH_MS = 1400;
+/* Cerrado el recorrido, la home sube al inicio y ahí se celebra: la
+   bandera entra cuando ya se ve la portada, no sobre media página. */
+const TOUR_FLAG_WAIT_MS = 620;
+const TOUR_FLAG_MS = 1600;
 
 /* Lluvia de banderas al entrar a USA por primera vez: un guiño corto,
    que se quita solo. */
@@ -16829,16 +16872,6 @@ function tourOverlay(state) {
   const step = TOUR_STEPS[state.tourStep];
   if (!step) return "";
 
-  /* La última no señala nada: es la bandera a cuadros. */
-  if (step.finish) {
-    return `
-      <div class="oky-flow-tour is-finish" data-action="tour-next" role="dialog" aria-modal="true"
-        aria-label="${step.label}">
-        <p class="oky-flow-tour-finish">${step.label}</p>
-      </div>
-    `;
-  }
-
   /* El hueco deja ver lo que se señala —el elemento es el de verdad, no
      una copia— y encima solo van la flecha y la línea. Se toca donde
      sea para pasar. */
@@ -16848,6 +16881,22 @@ function tourOverlay(state) {
       <div class="oky-flow-tour-call">
         <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
         <p class="oky-flow-tour-label">${step.label}</p>
+      </div>
+    </div>
+  `;
+}
+
+/* Meta del recorrido: una pancarta de línea de llegada sobre la home
+   ya devuelta al inicio. No pide nada ni tapa nada —se deja atravesar
+   con el dedo— y se va sola. */
+function tourFlag() {
+  return `
+    <div class="oky-flow-tourflag" aria-hidden="true">
+      <div class="oky-flow-tourflag-card" role="status">
+        <span class="oky-flow-tourflag-band" aria-hidden="true"></span>
+        <span class="oky-flow-tourflag-emoji">🏁</span>
+        <p class="oky-flow-tourflag-text">¡Compra y gana!</p>
+        <span class="oky-flow-tourflag-band" aria-hidden="true"></span>
       </div>
     </div>
   `;
@@ -19666,7 +19715,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   let cartWasOpen = false;
   let addedTimer = null;
   /* La bandera del final del recorrido se quita sola. */
-  let tourFinishTimer = null;
+  let tourFlagTimer = null;
   let introTimer = null;
 
   function render() {
@@ -19690,6 +19739,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.addedToast ? addedToast() : ""}
         ${state.usaIntro ? usaIntro() : ""}
         ${state.tourStep != null ? tourOverlay(state) : ""}
+        ${state.tourFlag ? tourFlag() : ""}
       </div>
     `;
 
@@ -19839,7 +19889,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      un salto, así que se restaura dónde quedó y se sube con scroll
      suave, que es como se mueve la app. */
   function closeTour() {
-    clearTimeout(tourFinishTimer);
+    clearTimeout(tourFlagTimer);
     state.tourStep = null;
     state.tourSeen = true;
     const before = root.querySelector(".oky-flow-scroll");
@@ -19850,6 +19900,21 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       after.scrollTop = y;
       after.scrollTo({ top: 0, behavior: "smooth" });
     }
+
+    /* La bandera espera a que la home esté arriba: se celebra sobre la
+       portada, no sobre el trozo donde quedó el último punto. Si ya
+       estaba arriba no hay nada que esperar. */
+    tourFlagTimer = setTimeout(
+      () => {
+        state.tourFlag = true;
+        render();
+        tourFlagTimer = setTimeout(() => {
+          state.tourFlag = false;
+          render();
+        }, TOUR_FLAG_MS);
+      },
+      y > 0 ? TOUR_FLAG_WAIT_MS : 160,
+    );
   }
 
   /* Gestos: los carruseles se pasan con el dedo, no solo con las
@@ -20364,23 +20429,13 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "tour-next") {
-      /* Sobre la bandera, tocar adelanta lo que iba a pasar solo. */
-      clearTimeout(tourFinishTimer);
       const next = (state.tourStep ?? 0) + 1;
       if (next >= TOUR_STEPS.length) return closeTour();
       state.tourStep = next;
-      if (TOUR_STEPS[next].finish) {
-        render();
-        tourFinishTimer = setTimeout(closeTour, TOUR_FINISH_MS);
-        return;
-      }
       return render();
     }
 
-    if (action === "tour-end") {
-      clearTimeout(tourFinishTimer);
-      return closeTour();
-    }
+    if (action === "tour-end") return closeTour();
 
     if (action === "country-stay") {
       state.countrySheet = null;

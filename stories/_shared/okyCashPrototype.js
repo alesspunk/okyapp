@@ -597,6 +597,7 @@ function createInitialState(userType) {
        Se ven una sola vez, la primera que se entra al marketplace. */
     usaIntro: false,
     tourStep: null,
+    tourFlag: false,
     tourSeen: false,
     /* Cuántas cards se han pedido ya en cada pestaña y estado del
        wallet, con la clave "pestaña:estado". */
@@ -1021,13 +1022,12 @@ const TOUR_STEPS = [
   { target: ".oky-flow-home .tactic-strip", label: "Compra una gift card" },
   { target: ".header-icon-bitmap-wallet-wrap", label: "Encuéntrala en tu Wallet" },
   { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Gana OKY Cash" },
-  /* La bandera a cuadros: sin nada que señalar, ocupa la pantalla un
-     segundo y se va sola, como el "GO!" de una salida. */
-  { finish: true, label: "¡Compra y gana! 🏁" },
 ];
 
-/* Lo que dura la bandera antes de subir al inicio. */
-const TOUR_FINISH_MS = 1400;
+/* Cerrado el recorrido, la home sube al inicio y ahí se celebra: la
+   bandera entra cuando ya se ve la portada, no sobre media página. */
+const TOUR_FLAG_WAIT_MS = 620;
+const TOUR_FLAG_MS = 1600;
 
 /* Lluvia de banderas al entrar a USA por primera vez: un guiño corto,
    que se quita solo. */
@@ -1069,16 +1069,6 @@ function tourOverlay(state) {
   const step = TOUR_STEPS[state.tourStep];
   if (!step) return "";
 
-  /* La última no señala nada: es la bandera a cuadros. */
-  if (step.finish) {
-    return `
-      <div class="oky-flow-tour is-finish" data-action="tour-next" role="dialog" aria-modal="true"
-        aria-label="${step.label}">
-        <p class="oky-flow-tour-finish">${step.label}</p>
-      </div>
-    `;
-  }
-
   /* El hueco deja ver lo que se señala —el elemento es el de verdad, no
      una copia— y encima solo van la flecha y la línea. Se toca donde
      sea para pasar. */
@@ -1088,6 +1078,22 @@ function tourOverlay(state) {
       <div class="oky-flow-tour-call">
         <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
         <p class="oky-flow-tour-label">${step.label}</p>
+      </div>
+    </div>
+  `;
+}
+
+/* Meta del recorrido: una pancarta de línea de llegada sobre la home
+   ya devuelta al inicio. No pide nada ni tapa nada —se deja atravesar
+   con el dedo— y se va sola. */
+function tourFlag() {
+  return `
+    <div class="oky-flow-tourflag" aria-hidden="true">
+      <div class="oky-flow-tourflag-card" role="status">
+        <span class="oky-flow-tourflag-band" aria-hidden="true"></span>
+        <span class="oky-flow-tourflag-emoji">🏁</span>
+        <p class="oky-flow-tourflag-text">¡Compra y gana!</p>
+        <span class="oky-flow-tourflag-band" aria-hidden="true"></span>
       </div>
     </div>
   `;
@@ -3906,7 +3912,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   let cartWasOpen = false;
   let addedTimer = null;
   /* La bandera del final del recorrido se quita sola. */
-  let tourFinishTimer = null;
+  let tourFlagTimer = null;
   let introTimer = null;
 
   function render() {
@@ -3930,6 +3936,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.addedToast ? addedToast() : ""}
         ${state.usaIntro ? usaIntro() : ""}
         ${state.tourStep != null ? tourOverlay(state) : ""}
+        ${state.tourFlag ? tourFlag() : ""}
       </div>
     `;
 
@@ -4079,7 +4086,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      un salto, así que se restaura dónde quedó y se sube con scroll
      suave, que es como se mueve la app. */
   function closeTour() {
-    clearTimeout(tourFinishTimer);
+    clearTimeout(tourFlagTimer);
     state.tourStep = null;
     state.tourSeen = true;
     const before = root.querySelector(".oky-flow-scroll");
@@ -4090,6 +4097,21 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       after.scrollTop = y;
       after.scrollTo({ top: 0, behavior: "smooth" });
     }
+
+    /* La bandera espera a que la home esté arriba: se celebra sobre la
+       portada, no sobre el trozo donde quedó el último punto. Si ya
+       estaba arriba no hay nada que esperar. */
+    tourFlagTimer = setTimeout(
+      () => {
+        state.tourFlag = true;
+        render();
+        tourFlagTimer = setTimeout(() => {
+          state.tourFlag = false;
+          render();
+        }, TOUR_FLAG_MS);
+      },
+      y > 0 ? TOUR_FLAG_WAIT_MS : 160,
+    );
   }
 
   /* Gestos: los carruseles se pasan con el dedo, no solo con las
@@ -4604,23 +4626,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "tour-next") {
-      /* Sobre la bandera, tocar adelanta lo que iba a pasar solo. */
-      clearTimeout(tourFinishTimer);
       const next = (state.tourStep ?? 0) + 1;
       if (next >= TOUR_STEPS.length) return closeTour();
       state.tourStep = next;
-      if (TOUR_STEPS[next].finish) {
-        render();
-        tourFinishTimer = setTimeout(closeTour, TOUR_FINISH_MS);
-        return;
-      }
       return render();
     }
 
-    if (action === "tour-end") {
-      clearTimeout(tourFinishTimer);
-      return closeTour();
-    }
+    if (action === "tour-end") return closeTour();
 
     if (action === "country-stay") {
       state.countrySheet = null;
