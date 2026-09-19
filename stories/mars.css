@@ -9595,6 +9595,12 @@ button.header-icon {
   pointer-events: none;
 }
 
+/* El confeti del recorrido va por encima de la home, que sigue viva
+   debajo: no tapa nada ni recibe toques. */
+.oky-flow-celebration-confetti.is-tour {
+  z-index: 140;
+}
+
 .oky-flow-celebration-piece {
   position: absolute;
   top: -24px;

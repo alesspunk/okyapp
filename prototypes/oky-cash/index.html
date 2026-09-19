@@ -9617,6 +9617,12 @@ button.header-icon {
   pointer-events: none;
 }
 
+/* El confeti del recorrido va por encima de la home, que sigue viva
+   debajo: no tapa nada ni recibe toques. */
+.oky-flow-celebration-confetti.is-tour {
+  z-index: 140;
+}
+
 .oky-flow-celebration-piece {
   position: absolute;
   top: -24px;
@@ -17028,6 +17034,7 @@ function createInitialState(userType) {
     claritaMuted: false,
     tourCount: false,
     tourFlag: false,
+    tourConfetti: false,
     tourSeen: false,
     /* Cuántas cards se han pedido ya en cada pestaña y estado del
        wallet, con la clave "pestaña:estado". */
@@ -17479,6 +17486,8 @@ const TOUR_FINISH_BEAT_MS = 380;
 const TOUR_COUNT_MS = 520;
 const TOUR_COUNT_LIGHTS = { 3: "is-red", 2: "is-amber", 1: "is-green" };
 const TOUR_FLAG_MS = 1600;
+/* Lo que dura el confeti del final, ya sin cintillo en pantalla. */
+const TOUR_CONFETTI_MS = 2800;
 
 /* Lluvia de banderas al entrar a USA por primera vez: un guiño corto,
    que se quita solo. */
@@ -20470,6 +20479,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.tourStep != null ? tourOverlay(state) : ""}
         ${state.tourCount ? tourCountdown() : ""}
         ${state.tourFlag ? tourFlag() : ""}
+        ${state.tourConfetti ? `<div class="oky-flow-celebration-confetti is-tour" data-role="tour-confetti"></div>` : ""}
       </div>
     `;
 
@@ -20478,6 +20488,11 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        ahí dentro un position:absolute se ancla al box que scrollea y
        las barras se movían con el contenido. Se re-parentan al frame,
        que es el contenedor fijo real. */
+    /* El confeti del final del recorrido cae sobre la home; no arrastra
+       el temporizador del sello de la compra, que es otra cosa. */
+    const tourConfettiHost = root.querySelector("[data-role='tour-confetti']");
+    if (tourConfettiHost) seedCelebration(tourConfettiHost);
+
     const confettiHost = root.querySelector("[data-role='celebration-confetti']");
     if (confettiHost) {
       seedCelebration(confettiHost);
@@ -20620,6 +20635,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      suave, que es como se mueve la app. */
   function closeTour() {
     clearTimeout(tourFlagTimer);
+    state.tourConfetti = false;
     state.tourStep = null;
     state.tourSeen = true;
     const before = root.querySelector(".oky-flow-scroll");
@@ -20682,12 +20698,17 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.tourCount = false;
       state.tourFlag = true;
       render();
-      /* El confeti espera a que el cintillo termine de cruzar: cae
-         sobre algo que ya está quieto, no sobre algo que entra. */
-      setTimeout(() => burstConfetti(".oky-flow-tourflag"), 330);
       tourFlagTimer = setTimeout(() => {
+        /* El confeti entra cuando la bandera ya ondeó y el cintillo se
+           fue: cae sobre la home entera, fuera del morado, como el de
+           la compra. */
         state.tourFlag = false;
+        state.tourConfetti = true;
         render();
+        tourFlagTimer = setTimeout(() => {
+          state.tourConfetti = false;
+          render();
+        }, TOUR_CONFETTI_MS);
       }, TOUR_FLAG_MS);
     };
 
