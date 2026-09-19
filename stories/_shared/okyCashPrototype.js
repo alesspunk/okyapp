@@ -531,10 +531,11 @@ function markCountryInUrl(country) {
 
 function createInitialState(userType) {
   const returning = userType === "returning";
+  const startingCash = returning ? 56 : 5;
 
   return {
     userType,
-    okyCashBalance: returning ? 56 : 5,
+    okyCashBalance: startingCash,
     /* El prototipo abre en Guatemala; USA se descubre por el folder. La
        prueba puede empezar en cualquiera de las dos con un enlace. */
     screen: initialScreen(),
@@ -642,9 +643,12 @@ function createInitialState(userType) {
     orderSeq: 0,
     /* Marcas cuyo vale ya se abrió: las demás llevan el punto rojo. */
     seenVouchers: [],
-    /* Cashback recién ganado que aún no se ha mirado: hace saltar la
-       moneda de la navbar. */
-    cashUnseen: false,
+    /* Cashback que aún no se ha mirado: hace saltar la moneda de la
+       navbar. El saldo con el que se arranca cuenta igual que el
+       recién ganado —nadie lo ha visto todavía—, así que la moneda
+       avisa desde el primer momento en los dos mercados y se calla al
+       entrar, con las mismas reglas que después de una compra. */
+    cashUnseen: startingCash > 0,
     /* Órdenes con el desglose abierto en la actividad. */
     openOrders: [],
     /* Diseño de la tarjeta de OKY Cash y el que se está hojeando. */
