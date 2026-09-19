@@ -13551,6 +13551,43 @@ img.oky-flow-method-mark {
   }
 }
 
+/* El cronómetro de la promo se sacude cada medio minuto. Corto y
+   seco: es un recordatorio, no una alarma. */
+.super-ribbon.is-shaking {
+  animation: oky-promo-shake 680ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes oky-promo-shake {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  12% {
+    transform: translateX(-3px) rotate(-1.6deg);
+  }
+  26% {
+    transform: translateX(3px) rotate(1.6deg);
+  }
+  40% {
+    transform: translateX(-2.4px) rotate(-1.2deg);
+  }
+  54% {
+    transform: translateX(2.4px) rotate(1.2deg);
+  }
+  68% {
+    transform: translateX(-1.4px) rotate(-0.6deg);
+  }
+  82% {
+    transform: translateX(1.4px) rotate(0.6deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .super-ribbon.is-shaking {
+    animation: none;
+  }
+}
+
 /* ── Recorrido: la meta ──────────────────────────────────
    Ya con la home arriba, el remate cruza la pantalla: una banda que
    entra por la izquierda, se planta y sale por la derecha, con el

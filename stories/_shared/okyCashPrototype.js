@@ -4267,6 +4267,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.tourCount = false;
       state.tourFlag = true;
       render();
+      /* El confeti espera a que el cintillo termine de cruzar: cae
+         sobre algo que ya está quieto, no sobre algo que entra. */
+      setTimeout(() => burstConfetti(".oky-flow-tourflag"), 330);
       tourFlagTimer = setTimeout(() => {
         state.tourFlag = false;
         render();
@@ -5659,6 +5662,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      y al llegar a cero se hace un render completo para que ribbons,
      saving bars y el carrito recalculen con el 5%. */
   let promoTick = Date.now();
+  /* El último segundo en el que se sacudió, para no repetirlo si el
+     intervalo cae dos veces dentro del mismo segundo. */
+  let promoShakeAt = null;
   setInterval(() => {
     const now = Date.now();
     const elapsed = now - promoTick;
@@ -5677,11 +5683,26 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (left > 0) {
       /* El reloj ya no está solo en el home: el PDP lleva su versión
          mínima. Cada uno declara cómo quiere el texto. */
+      /* Cada medio minuto el reloj se sacude: bajando en silencio no
+         se hace notar, y la prueba quiere ver qué hace la persona con
+         el tiempo encima. El aviso se salta el último tramo, que ya va
+         a vencer de todas formas. */
+      const secs = Math.ceil(left / 1000);
+      const shake = secs > 0 && secs % 30 === 0 && secs !== promoShakeAt;
+      if (shake) promoShakeAt = secs;
+
       root.querySelectorAll("[data-role='promo-countdown']").forEach((label) => {
         label.textContent =
           label.dataset.format === "short"
             ? countdownLabel(left)
             : `Termina en ${countdownLabel(left)}`;
+        if (!shake) return;
+        const ribbon = label.closest(".super-ribbon") || label;
+        ribbon.classList.remove("is-shaking");
+        /* Releer el layout reinicia la animación si ya estaba puesta. */
+        void ribbon.offsetWidth;
+        ribbon.classList.add("is-shaking");
+        setTimeout(() => ribbon.classList.remove("is-shaking"), 720);
       });
       return;
     }
