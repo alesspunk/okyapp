@@ -2480,15 +2480,22 @@ function screenWallet(state) {
   /* Cuántas hay en cada estado de la pestaña abierta, y cuántas de
      ellas están sin abrir. La lista dibuja una card por marca, pero la
      cabecera cuenta vales: dos Krispy y tres Lyft son cinco cosas
-     guardadas, no dos. De ahí que el contador y el aviso de novedades
-     salgan de las unidades y no del mazo ya agrupado. */
+     guardadas, no dos. De ahí que el total salga de las unidades y no
+     del mazo ya agrupado.
+
+     El aviso de novedades sigue contando pilas a propósito: "visto" se
+     guarda por marca —seenVouchers lleva claves de producto, no de
+     unidad—, así que todos los vales de una marca comparten el mismo
+     isNew y contarlos uno a uno diría que se estrenaron tres Lyft
+     cuando solo entró la tercera. Para contar novedades por vale hace
+     falta antes un estado de lectura por unidad. */
   const decks = Object.fromEntries(
     WALLET_GROUPS.map((g) => [g.key, isCash ? [] : walletGroupDeck(state, tab, g.key)]),
   );
   const units = Object.fromEntries(
     WALLET_GROUPS.map((g) => [g.key, isCash ? [] : walletGroupUnits(state, tab, g.key)]),
   );
-  const newsIn = (group) => units[group].filter((v) => v.isNew).length;
+  const newsIn = (deck) => deck.filter((v) => v.isNew).length;
   const totalIn = (group) => units[group].length;
 
   /* Cabecera de sección: pliega, dice cuántas guarda —a la derecha,
@@ -2589,7 +2596,7 @@ function screenWallet(state) {
       <div class="oky-flow-section" style="gap:12px">
         ${WALLET_GROUPS.map(
           (g) => `
-          ${sectionHead(g, totalIn(g.key), newsIn(g.key))}
+          ${sectionHead(g, totalIn(g.key), newsIn(decks[g.key]))}
           ${body(g.key, stack(decks[g.key], g.key, g.empty))}
         `,
         ).join("")}
