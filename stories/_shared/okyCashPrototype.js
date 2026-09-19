@@ -1143,21 +1143,23 @@ function tourOverlay(state) {
    primer toque devuelve la pregunta y el segundo abre el recorrido:
    así no se entra sin querer. Se esconde al bajar y vuelve al llegar
    arriba, callada. */
+function guideBubble() {
+  return `
+    <p class="prime-card-clarita-bubble oky-flow-guide-bubble">
+      <span class="prime-card-clarita-say is-idle">Gana OKY Cash,<br />¿Quieres saber cómo?</span>
+      <button class="prime-card-clarita-close" data-action="guide-hush" type="button"
+        aria-label="Cerrar el aviso de Clarita">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </p>
+  `;
+}
+
 function homeGuide(state) {
   return `
     <div class="oky-flow-guide${state.guideAway ? " is-away" : ""}" data-action="guide-tap"
       role="button" tabindex="0" aria-label="Clarita: Gana OKY Cash, ¿Quieres saber cómo?">
-      ${
-        state.guideAsk
-          ? `<p class="prime-card-clarita-bubble oky-flow-guide-bubble">
-              <span class="prime-card-clarita-say is-idle">Gana OKY Cash,<br />¿Quieres saber cómo?</span>
-              <button class="prime-card-clarita-close" data-action="guide-hush" type="button"
-                aria-label="Cerrar el aviso de Clarita">
-                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-              </button>
-            </p>`
-          : ""
-      }
+      ${state.guideAsk ? guideBubble() : ""}
       ${renderClaritaPet("oky-flow-guide-pet")}
     </div>
   `;
@@ -4515,7 +4517,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.guideAsk = true;
         const frame = root.querySelector(".oky-flow-frame");
         if (!frame) return render();
+        /* Se inserta escondida y se destapa al cuadro siguiente: sin
+           ese paso no hay dos valores que interpolar y entraría de
+           golpe. */
+        state.guideAway = true;
         frame.insertAdjacentHTML("beforeend", homeGuide(state));
+        state.guideAway = false;
+        const guide = root.querySelector(".oky-flow-guide");
+        if (guide) setTimeout(() => guide.classList.remove("is-away"), 24);
         introTimer = setTimeout(() => {
           const wall = root.querySelector(".oky-flow-flagrise");
           if (wall) wall.remove();
@@ -4553,10 +4562,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           if (!away) state.guideAsk = true;
           const guide = root.querySelector(".oky-flow-guide");
           if (guide) {
-            guide.classList.toggle("is-away", away);
+            /* Vuelve el globo antes de destaparla, y sin rehacer al
+               personaje: reemplazar el nodo entero mataría la
+               transición de vuelta. */
             if (!away && !guide.querySelector(".oky-flow-guide-bubble")) {
-              guide.outerHTML = homeGuide(state);
+              guide.insertAdjacentHTML("afterbegin", guideBubble());
             }
+            guide.classList.toggle("is-away", away);
           }
         }
 

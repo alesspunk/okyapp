@@ -13567,20 +13567,20 @@ img.oky-flow-method-mark {
   justify-content: flex-end;
   gap: 1px;
   cursor: pointer;
-  animation: oky-clarita-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* Entra y sale con la misma transición, no con una animación: así
+     los dos sentidos se ven y ninguno gana en la cascada al otro. */
+  opacity: 1;
+  transform: translateY(0) scale(1);
   transition:
-    opacity 220ms ease-out,
-    transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 260ms ease-out,
+    transform 340ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Bajando la home, Clarita se aparta. La animación de entrada se
-   apaga aquí: con fill "both" se queda aplicando su último fotograma
-   —opacidad 1— y ganaba a este bloque, así que la clase se ponía y no
-   pasaba nada. Sin ella, el desvanecido lo hace la transición. */
+/* Bajando la home, Clarita se aparta hacia abajo y encogiendo; al
+   volver hace el camino contrario. */
 .oky-flow-guide.is-away {
-  animation: none;
   opacity: 0;
-  transform: translateY(14px) scale(0.86);
+  transform: translateY(18px) scale(0.82);
   pointer-events: none;
 }
 
