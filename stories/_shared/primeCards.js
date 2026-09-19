@@ -178,10 +178,22 @@ export const CARD_BOTTOM_VARIANTS = [
     key: "gift-card-usa",
     id: "101310:7431",
     lines: [{ label: "Copia el código", value: "X232 35DF RA", copyable: true }],
+    content: [
+      { type: "line", line: { label: "Copia el código", value: "X232 35DF RA", copyable: true } },
+      {
+        type: "action",
+        action: {
+          label: "URL",
+          value: "https://www.giftcardmall.com/redeem",
+          copyable: true,
+          buttonLabel: "Pégalo aquí",
+        },
+      },
+    ],
     expiry: "",
     buttonLabel: "Help",
     outlined: true,
-    recommendation: "Recomendado: una sola línea de código y el CTA de ayuda en outlined.",
+    recommendation: "Recomendado: código, URL con su CTA de pegar, y el de ayuda en outlined abajo a la derecha.",
   },
   {
     path: "Molecule/Bottom Card/Telco",
@@ -292,9 +304,29 @@ function renderBottomMedia(media) {
   `;
 }
 
+/* La línea de la URL no enseña la dirección: enseña el botón que la
+   pega donde toca. La etiqueta y el icono de copiar son los mismos que
+   los de un código. */
+function renderBottomAction(action) {
+  if (!action) return "";
+  return `
+    <div class="prime-card-bottom-line is-action">
+      <div class="prime-card-bottom-line-header">
+        <span class="prime-card-bottom-line-label">${action.label}</span>
+        ${action.copyable ? renderCopyIcon(action.value) : ""}
+      </div>
+      <button class="btn btn-primary prime-card-bottom-paste" type="button">${action.buttonLabel}</button>
+    </div>
+  `;
+}
+
 function renderBottomItem(item) {
   if (item?.type === "media") {
     return renderBottomMedia(item.media);
+  }
+
+  if (item?.type === "action") {
+    return renderBottomAction(item.action);
   }
 
   return renderBottomLine(item?.line ?? item);
@@ -352,7 +384,9 @@ function replaceContentLines(content, lines) {
   let next = 0;
   return content
     .map((item) => {
-      if (item?.type === "media") return item;
+      /* Solo se relevan los códigos: el barcode y el botón de la URL
+         no son una línea que se pueda sustituir. */
+      if (item?.type === "media" || item?.type === "action") return item;
       const line = lines[next];
       next += 1;
       return line ? { type: "line", line } : null;

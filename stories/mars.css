@@ -5021,6 +5021,37 @@ body {
   display: none;
 }
 
+/* Sin fecha arriba, la columna de la derecha deja de repartir y manda
+   el botón al fondo: la ayuda vive en la esquina inferior derecha. */
+.card-bottom-molecule.is-gift-card-usa .prime-card-bottom-side {
+  justify-content: flex-end;
+}
+
+/* El botón que pega la URL: mismo cuerpo que el código, para que se
+   lea como parte de la credencial y no como un CTA más de la pantalla. */
+.prime-card-bottom-paste {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 8px 24px;
+  border-radius: 32px;
+  font-family: "Inter", sans-serif;
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 784;
+  line-height: 24px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-variation-settings: "slnt" -10;
+  font-synthesis: none;
+  white-space: nowrap;
+}
+
+/* La línea de la URL respira un poco más que la del código: debajo
+   lleva un botón, no un renglón. */
+.prime-card-bottom-line.is-action {
+  gap: 6px;
+}
+
 .card-bottom-molecule.is-with-bar-code .prime-card-bottom-media,
 .card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-media,
 .card-bottom-molecule.is-bar-code-code-pin .prime-card-bottom-media {

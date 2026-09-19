@@ -3208,6 +3208,9 @@ function screenVoucher(state) {
               { label: "Copia el código", value: giftCode(bottomSeed), copyable: true },
               { label: "PIN", value: String(1000 + (hashOf(bottomSeed) % 9000)), copyable: true },
             ],
+            /* Las gift cards de USA no vencen: la fecha sobra en las
+               dos variantes. */
+            bottomExpiry: "",
             bottomButtonLabel: "Help",
           }
         : {
