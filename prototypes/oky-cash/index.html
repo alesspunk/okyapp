@@ -21125,10 +21125,24 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      vuelve arriba, pero acompañando: render() la devolvería al tope de
      un salto, así que se restaura dónde quedó y se sube con scroll
      suave, que es como se mueve la app. */
+  /* Si nadie toca a Clarita, el reloj arranca solo a los 7 segundos:
+     da tiempo a mirar la home antes de que el cintillo cambie, y así
+     el cambio de aqua a mostaza cae cuando ya se está mirando. Tocarla
+     lo cancela, porque entonces manda el recorrido y el reloj arranca
+     con el confeti del final. */
+  const PROMO_IDLE_MS = 7000;
+  let promoIdleTimer = null;
+
+  function cancelPromoIdle() {
+    clearTimeout(promoIdleTimer);
+    promoIdleTimer = null;
+  }
+
   /* Pone el reloj en marcha: se fija el vencimiento en ese momento
      —no al cargar— y el ribbon entra animado una sola vez. */
   function startPromo() {
     if (state.promoLive) return;
+    cancelPromoIdle();
     state.promoLive = true;
     state.promoEndsAt = Date.now() + PROMO_MS;
     state.promoStarting = true;
@@ -21142,6 +21156,10 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        del arranque: dos temblores seguidos. Se da por avisado ese
        segundo, así que el siguiente llega media vuelta después. */
     promoShakeAt = Math.round(PROMO_MS / 1000);
+    /* Pinta ya: arrancando por el temporizador no hay nadie más que
+       vuelva a dibujar, y el cruce se quedaba sin verse —el aqua se
+       estaba 1400ms quieto y luego saltaba al mostaza de golpe. */
+    render();
     setTimeout(() => {
       state.promoStarting = false;
       render();
@@ -21396,6 +21414,12 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.usaIntro = false;
         state.guideOn = true;
         state.guideAsk = true;
+        /* Clarita ya está ofreciendo el recorrido. Si nadie la toca, a
+           los 7 segundos el reloj arranca solo: antes se quedaba en
+           Super Deals para siempre, porque el único que lo ponía en
+           marcha era el final del recorrido. Tocarla lo cancela. */
+        cancelPromoIdle();
+        promoIdleTimer = setTimeout(startPromo, PROMO_IDLE_MS);
         const frame = root.querySelector(".oky-flow-frame");
         if (!frame) return render();
         /* Se inserta escondida y se destapa al cuadro siguiente: sin
@@ -21868,6 +21892,11 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.guideAsk = false;
       state.guideOn = false;
       state.tourStep = 0;
+      /* Abierto el recorrido, el arranque solo sobra: el reloj tiene
+         que empezar con el confeti del final, no a media explicación.
+         Si ya arrancó, el recorrido termina sin transición, que es lo
+         correcto: no se puede empezar dos veces. */
+      cancelPromoIdle();
       render();
       placeTour();
       return;
@@ -22831,9 +22860,11 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   /* Quien entra por el enlace directo de USA no pasa por la
      presentación, así que nadie pondría el reloj en marcha: se arranca
-     al montar. Entrando por el folder manda la presentación, que lo
-     arranca al final. */
-  if (state.screen === "home") startPromo();
+     al rato de montar. Entrando por el folder manda la presentación,
+     que lo arranca al final. */
+  if (state.screen === "home") {
+    promoIdleTimer = setTimeout(startPromo, PROMO_IDLE_MS);
+  }
 
   render();
 }
