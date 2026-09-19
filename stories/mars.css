@@ -9614,7 +9614,10 @@ button.header-icon {
   inset: 0;
   z-index: 140;
   overflow: hidden;
-  pointer-events: none;
+  /* Tapa lo de abajo mientras dura: con la capa transparente al
+     toque, un dedo sobre el confeti del final abría lo que hubiera
+     detrás y sacaba de la presentación sin querer. */
+  pointer-events: auto;
 }
 
 .oky-flow-burst-piece {
@@ -13536,7 +13539,10 @@ img.oky-flow-method-mark {
   inset: 0;
   z-index: 125;
   overflow: hidden;
-  pointer-events: none;
+  /* Tapa lo de abajo mientras dura: con la capa transparente al
+     toque, un dedo sobre la pared de banderas abría lo que hubiera
+     detrás y sacaba de la presentación sin querer. */
+  pointer-events: auto;
 }
 
 .oky-flow-flagrise-item {
@@ -13671,7 +13677,10 @@ img.oky-flow-method-mark {
   align-items: center;
   justify-content: center;
   background: rgba(16, 16, 16, 0.45);
-  pointer-events: none;
+  /* Tapa lo de abajo mientras dura: con la capa transparente al
+     toque, un dedo sobre la pregunta del final abría lo que hubiera
+     detrás y sacaba de la presentación sin querer. */
+  pointer-events: auto;
   animation: oky-flow-fade 200ms ease-out both;
 }
 
@@ -13721,7 +13730,10 @@ img.oky-flow-method-mark {
   align-items: center;
   justify-content: center;
   background: rgba(16, 16, 16, 0.45);
-  pointer-events: none;
+  /* Tapa lo de abajo mientras dura: con la capa transparente al
+     toque, un dedo sobre la cuenta atrás abría lo que hubiera
+     detrás y sacaba de la presentación sin querer. */
+  pointer-events: auto;
   animation: oky-flow-fade 200ms ease-out both;
 }
 
@@ -13816,7 +13828,10 @@ img.oky-flow-method-mark {
   display: flex;
   align-items: center;
   overflow: hidden;
-  pointer-events: none;
+  /* Tapa lo de abajo mientras dura: con la capa transparente al
+     toque, un dedo sobre el cintillo de la meta abría lo que hubiera
+     detrás y sacaba de la presentación sin querer. */
+  pointer-events: auto;
 }
 
 /* La pantalla se atenúa detrás de la banda, como en el aviso de
