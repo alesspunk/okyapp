@@ -1301,11 +1301,26 @@ function promoRibbon(state) {
       </div>
     `;
   }
-  return `
+  const cronometro = `
     <div class="super-ribbon super-ribbon-type-por-tiempo${state.promoStarting ? " is-starting" : ""}">
       <span class="super-ribbon-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
       <span class="super-ribbon-text" data-role="promo-countdown">Termina en ${countdownLabel(state.promoEndsAt - Date.now())}</span>
     </div>
+  `;
+
+  /* Al arrancar, los dos ribbons conviven un instante y se cruzan: el
+     aqua se va mientras el mostaza entra por encima. Cambiándolo de
+     golpe solo se notaba la sacudida, y lo que hay que entender es que
+     el 5% pasó a 20%. */
+  if (!state.promoStarting) return cronometro;
+  return `
+    <span class="super-ribbon-swap">
+      <span class="super-ribbon super-ribbon-type-normal is-leaving" aria-hidden="true">
+        <span class="super-ribbon-icon"><i class="fa-solid fa-percent" aria-hidden="true"></i></span>
+        <span class="super-ribbon-text">Super Deals</span>
+      </span>
+      ${cronometro}
+    </span>
   `;
 }
 
@@ -1322,7 +1337,19 @@ function screenHome(state) {
             <img class="tactic-logo" src="${product.art}" alt="${product.label}" />
           </div>
           <div class="tactic-discount-wrap tactic-discount-wrap-left">
-            <div class="discount-ribbon discount-ribbon-wrap ${rate >= 20 ? "is-tier-promo" : "is-tier-base"}">
+            ${/* Al arrancar la promo, el ribbon viejo se queda encima un
+                 instante y se disuelve: así se ve el aqua del 5% dar
+                 paso al mostaza del 20%, en vez de cambiar de golpe. */ ""}
+            ${
+              state.promoStarting
+                ? `<div class="discount-ribbon discount-ribbon-wrap is-tier-base is-leaving" aria-hidden="true">
+                     <span class="discount-ribbon-text token-price-percent">Gana 5%</span>
+                   </div>`
+                : ""
+            }
+            <div class="discount-ribbon discount-ribbon-wrap ${rate >= 20 ? "is-tier-promo" : "is-tier-base"}${
+              state.promoStarting ? " is-bumped" : ""
+            }">
               <span class="discount-ribbon-text token-price-percent">Gana ${rate}%</span>
             </div>
           </div>
