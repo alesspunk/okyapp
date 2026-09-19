@@ -5,6 +5,18 @@
   "outputDirectory": "storybook-static",
   "rewrites": [
     {
+      "source": "/oky-cash-prototype-demo.html",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/images/oky-cash-prototype-demo.html",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/images/:path*",
+      "destination": "/:path*"
+    },
+    {
       "source": "/prototypes/oky-cash/usa",
       "destination": "/prototypes/oky-cash/index.html"
     },
@@ -23,6 +35,18 @@
     {
       "source": "/storybook",
       "destination": "/index.html"
+    },
+    {
+      "source": "/storybook/oky-cash-prototype-demo.html",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/storybook/images/oky-cash-prototype-demo.html",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/storybook/images/:path*",
+      "destination": "/:path*"
     },
     {
       "source": "/storybook/:path*",

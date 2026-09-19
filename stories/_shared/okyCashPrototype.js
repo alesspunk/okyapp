@@ -62,7 +62,7 @@ const PRODUCTS = {
     cardTitle: "Nike Gift Card",
     art: "oky-card-nike.png",
     bg: "#ef4c26",
-    hero: "photo-nike.png",
+    hero: "photo-nike-lossless.webp",
     min: 10,
     max: 1000,
     legal: true,
@@ -73,7 +73,7 @@ const PRODUCTS = {
     cardTitle: "Lyft Gift Card",
     art: "oky-card-lyft.png",
     bg: "#1d0c17",
-    hero: "promo-image1.png",
+    hero: "promo-image1-lossless.webp",
     min: 10,
     max: 1000,
     legal: false,
@@ -339,7 +339,7 @@ const STYLE_CARDS = [
 ];
 
 const TODAY_CARDS = [
-  { key: "macys", photo: "promo-image2.png" },
+  { key: "macys", photo: "promo-image2-lossless.webp" },
   { key: "ulta", photo: "promo-image-ulta.jpg" },
 ];
 
@@ -1274,8 +1274,8 @@ function screenHome(state) {
 
       <div class="oky-flow-theme-band">
         <div class="carousel-container oky-flow-banner-track">
-          <div class="carousel-banner"><img src="oky-banner-spooky-1.png" alt="Spooky Deals · 20% 30% 40% OFF" /></div>
-          <div class="carousel-banner"><img src="oky-banner-spooky-2.png" alt="Spooky Deals · hasta 40% OFF en experiencias" /></div>
+          <div class="carousel-banner"><img fetchpriority="high" loading="eager" decoding="async" src="oky-banner-spooky-1-lossless.webp" alt="Spooky Deals · 20% 30% 40% OFF" /></div>
+          <div class="carousel-banner"><img src="oky-banner-spooky-2-lossless.webp" alt="Spooky Deals · hasta 40% OFF en experiencias" /></div>
         </div>
       </div>
 
