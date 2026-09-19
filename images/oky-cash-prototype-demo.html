@@ -5118,7 +5118,11 @@ body {
    No se puede pulsar a propósito; no roba el toque de la card. */
 .prime-card-clarita {
   display: flex;
-  align-items: center;
+  /* En fila y sin encogerse nunca: el globo a la izquierda, ella a la
+     derecha, y alineados por arriba para que lo que dice salga a la
+     altura de la cara y no del ombligo. */
+  flex-wrap: nowrap;
+  align-items: flex-start;
   justify-content: flex-end;
   /* Casi pegado: la colita tiene que tocar a Clarita para que el globo
      sea suyo y no un cartel que pasaba por ahí. */
@@ -5132,6 +5136,10 @@ body {
    de una pieza parece un sticker, no alguien. */
 .prime-card-clarita-pet {
   flex: none;
+  /* Delante del globo pase lo que pase: son hermanos en la fila, pero
+     si algo los acercara, quien tapa es ella. */
+  position: relative;
+  z-index: 1;
   /* Del tamaño del botón que sustituye: la card no tiene sitio para un
      muñeco grande y la ayuda no manda sobre el código. */
   width: 34px;
@@ -5322,7 +5330,9 @@ body {
   font-size: 11px;
   font-weight: 700;
   line-height: 1.32;
-  text-align: left;
+  /* Las dos líneas centradas entre sí: en bandera, la corta dejaba un
+     escalón a la derecha que se leía como un hueco. */
+  text-align: center;
   /* Habla cuando ya la has visto llegar y saludar: primero el
      personaje, la frase después. */
   animation: oky-clarita-say 460ms cubic-bezier(0.22, 1, 0.36, 1) 2400ms both;
@@ -5330,12 +5340,13 @@ body {
 
 /* La colita apunta a Clarita. */
 /* La colita nace del globo: medio cuadrado dentro y medio fuera, del
-   mismo blanco y sin borde, así que los dos se leen como una pieza. */
+   mismo blanco y sin borde, así que los dos se leen como una pieza. Va
+   a la altura de la cara —lo que dice sale de su boca, no del cuerpo. */
 .prime-card-clarita-bubble::after {
   content: "";
   position: absolute;
   right: -3px;
-  bottom: 12px;
+  top: 8px;
   width: 9px;
   height: 9px;
   border-radius: 1.5px;
