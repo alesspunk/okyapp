@@ -16140,11 +16140,12 @@ function orderCountry(state) {
 const PROMO_PRODUCTS = ["nike", "lyft", "macys", "ulta"];
 const PROMO_DEFAULT_AMOUNT = 51;
 
-/* La promo de "Spooky Deals" dura dos minutos: mientras corre, el rango
-   de $50 a $200 paga 20%; al vencer, todo vuelve al 5% base. Es a
-   propósito corta — la prueba de usabilidad quiere ver qué hace la
-   persona con el reloj encima. */
-const PROMO_MS = 2 * 60 * 1000;
+/* La promo de "Spooky Deals" dura tres minutos: mientras corre, el
+   rango de $50 a $200 paga 20%; al vencer, todo vuelve al 5% base.
+   Sigue siendo corta a propósito —la prueba de usabilidad quiere ver
+   qué hace la persona con el reloj encima— pero con dos no alcanzaba
+   a recorrer la compra antes de que venciera. */
+const PROMO_MS = 3 * 60 * 1000;
 
 /* El reloj se detiene mientras la persona está en el carrito o
    ajustando el checkout: que se le venza a media compra sería una
