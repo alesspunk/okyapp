@@ -607,6 +607,7 @@ function createInitialState(userType) {
        Se ven una sola vez, la primera que se entra al marketplace. */
     usaIntro: false,
     tourStep: null,
+    tourCount: false,
     tourFlag: false,
     tourSeen: false,
     /* Cuántas cards se han pedido ya en cada pestaña y estado del
@@ -1036,7 +1037,11 @@ const TOUR_STEPS = [
 
 /* Cerrado el recorrido, la home sube al inicio y ahí se celebra: la
    bandera entra cuando ya se ve la portada, no sobre media página. */
-const TOUR_FLAG_WAIT_MS = 620;
+const TOUR_FLAG_WAIT_MS = 420;
+/* Cada número de la cuenta atrás dura lo que su animación, así que el
+   siguiente entra justo cuando el anterior acaba de irse. */
+const TOUR_COUNT_MS = 520;
+const TOUR_COUNT_LIGHTS = { 3: "is-red", 2: "is-amber", 1: "is-green" };
 const TOUR_FLAG_MS = 1600;
 
 /* Lluvia de banderas al entrar a USA por primera vez: un guiño corto,
@@ -1096,11 +1101,28 @@ function tourOverlay(state) {
 /* Meta del recorrido: una pancarta de línea de llegada sobre la home
    ya devuelta al inicio. No pide nada ni tapa nada —se deja atravesar
    con el dedo— y se va sola. */
+function tourCountNumber(n) {
+  return `<span class="oky-flow-tourcount-num ${TOUR_COUNT_LIGHTS[n]}">${n}</span>`;
+}
+
+/* La cuenta atrás de una salida de carrera: 3 en rojo, 2 en ámbar, 1
+   en verde. La capa se pinta una sola vez y lo único que se releva es
+   el número, para que el fondo no parpadee entre uno y otro. */
+function tourCountdown() {
+  return `
+    <div class="oky-flow-tourcount" aria-hidden="true">
+      ${tourCountNumber(3)}
+    </div>
+  `;
+}
+
 function tourFlag() {
   return `
     <div class="oky-flow-tourflag" aria-hidden="true">
       <span class="oky-flow-tourflag-backdrop"></span>
-      <p class="oky-flow-tourflag-card" role="status"><span>¡Compra y gana! 🏁</span></p>
+      <p class="oky-flow-tourflag-card" role="status">
+        <span>¡Compra y gana! <span class="oky-flow-tourflag-wave">🏁</span></span>
+      </p>
     </div>
   `;
 }
@@ -3945,6 +3967,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.addedToast ? addedToast() : ""}
         ${state.usaIntro ? usaIntro() : ""}
         ${state.tourStep != null ? tourOverlay(state) : ""}
+        ${state.tourCount ? tourCountdown() : ""}
         ${state.tourFlag ? tourFlag() : ""}
       </div>
     `;
@@ -4107,20 +4130,40 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       after.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    /* La bandera espera a que la home esté arriba: se celebra sobre la
+    /* El final espera a que la home esté arriba: se celebra sobre la
        portada, no sobre el trozo donde quedó el último punto. Si ya
        estaba arriba no hay nada que esperar. */
-    tourFlagTimer = setTimeout(
-      () => {
-        state.tourFlag = true;
+    tourFlagTimer = setTimeout(startFinish, y > 0 ? TOUR_FLAG_WAIT_MS : 160);
+  }
+
+  /* Salida de carrera: 3, 2, 1 y la banderola. La cuenta va sola —el
+     recorrido ya se avanzaba a toques y una cuenta que espera un click
+     no cuenta nada— y el número se releva dentro de la misma capa, sin
+     re-render, para que el fondo atenuado no parpadee. El de la
+     banderola arranca ya encendido y toma el relevo sin corte. */
+  function startFinish() {
+    state.tourCount = true;
+    render();
+
+    const relay = (n) => {
+      if (n > 0) {
+        const layer = root.querySelector(".oky-flow-tourcount");
+        if (layer) {
+          layer.innerHTML = tourCountNumber(n);
+        }
+        tourFlagTimer = setTimeout(() => relay(n - 1), TOUR_COUNT_MS);
+        return;
+      }
+      state.tourCount = false;
+      state.tourFlag = true;
+      render();
+      tourFlagTimer = setTimeout(() => {
+        state.tourFlag = false;
         render();
-        tourFlagTimer = setTimeout(() => {
-          state.tourFlag = false;
-          render();
-        }, TOUR_FLAG_MS);
-      },
-      y > 0 ? TOUR_FLAG_WAIT_MS : 160,
-    );
+      }, TOUR_FLAG_MS);
+    };
+
+    tourFlagTimer = setTimeout(() => relay(2), TOUR_COUNT_MS);
   }
 
   /* Gestos: los carruseles se pasan con el dedo, no solo con las

@@ -13144,6 +13144,64 @@ img.oky-flow-method-mark {
   pointer-events: none;
 }
 
+/* ── Recorrido: la salida ────────────────────────────────
+   Antes de la banderola, la cuenta de una carrera: el número entra al
+   doble de tamaño, se planta y se va encogiendo mientras llega el
+   siguiente. El fondo atenuado es el mismo que hereda la banderola,
+   así que de la cuenta al cintillo no hay corte. */
+.oky-flow-tourcount {
+  position: absolute;
+  inset: 0;
+  z-index: 140;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 16, 16, 0.45);
+  pointer-events: none;
+  animation: oky-flow-fade 200ms ease-out both;
+}
+
+.oky-flow-tourcount-num {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 150px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -4px;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: oky-flow-tourcount-pop 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.oky-flow-tourcount-num.is-red {
+  color: #ff453a;
+}
+
+.oky-flow-tourcount-num.is-amber {
+  color: #ffc400;
+}
+
+.oky-flow-tourcount-num.is-green {
+  color: #3ddc84;
+}
+
+@keyframes oky-flow-tourcount-pop {
+  0% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+  22% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.12;
+    transform: scale(0.76);
+  }
+}
+
 /* ── Recorrido: la meta ──────────────────────────────────
    Ya con la home arriba, el remate cruza la pantalla: una banda que
    entra por la izquierda, se planta y sale por la derecha, con el
@@ -13171,12 +13229,7 @@ img.oky-flow-method-mark {
 }
 
 @keyframes oky-flow-tourflag-dim {
-  0% {
-    opacity: 0;
-  }
-  18% {
-    opacity: 1;
-  }
+  0%,
   76% {
     opacity: 1;
   }
@@ -13226,6 +13279,28 @@ img.oky-flow-method-mark {
   bottom: 0;
 }
 
+/* La bandera a cuadros se agita mientras el cintillo está quieto. */
+.oky-flow-tourflag-wave {
+  display: inline-block;
+  transform-origin: 10% 90%;
+  animation: oky-flow-tourflag-wave 440ms ease-in-out 300ms 3 both;
+}
+
+/* Cada vuelta empieza y acaba derecha, así la bandera no se queda
+   torcida cuando deja de agitarse. */
+@keyframes oky-flow-tourflag-wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-13deg);
+  }
+  75% {
+    transform: rotate(13deg);
+  }
+}
+
 @keyframes oky-flow-tourflag-cross {
   0% {
     opacity: 0;
@@ -13249,6 +13324,13 @@ img.oky-flow-method-mark {
   .oky-flow-tour,
   .oky-flow-tour-call {
     animation: none;
+  }
+
+  .oky-flow-tourcount-num,
+  .oky-flow-tourflag-wave {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 
   .oky-flow-tourflag-card {
