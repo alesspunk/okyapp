@@ -5097,6 +5097,10 @@ body {
    cuando ya miraste el código y puede que no sepas qué hacer con él.
    No se puede pulsar a propósito; no roba el toque de la card. */
 .prime-card-clarita {
+  /* El subir para no quedarse bajo el pliegue lo escribe el JS en el
+     transform; la transición hace que acompañe al scroll en vez de dar
+     tirones. */
+  transition: transform 180ms ease-out;
   display: flex;
   /* En fila y sin encogerse nunca: el globo a la izquierda, ella a la
      derecha, y alineados por arriba para que lo que dice salga a la

@@ -578,13 +578,18 @@ function createInitialState(userType) {
       { date: stamp(24), group: monthGroup(24), amount: "+ $2.10", order: "Orden #01112441", kind: "credit", label: "Target", value: 2.1 },
       { date: stamp(33), group: monthGroup(33), amount: "+ $1.50", order: "Orden #01112439", kind: "credit", label: "Apple", value: 1.5 },
       { date: stamp(33), group: monthGroup(33), amount: "+ $0.95", order: "Orden #01112439", kind: "credit", label: "CVS", value: 0.95 },
-      { date: stamp(33), group: monthGroup(33), amount: "- $8.00", order: "Orden #01112439", kind: "debit", label: "Pagado con OKY Cash", value: -8 },
+      { date: stamp(33), group: monthGroup(33), amount: "- $8.00", order: "Orden #01112439", kind: "debit", label: "Pagado con OKY Cash", value: -8,
+        detail: [
+          { label: "Apple", amount: "- $5.00" },
+          { label: "CVS", amount: "- $3.00" },
+        ] },
       { date: stamp(41), group: monthGroup(41), amount: "+ $2.24", order: "Orden #01112438", kind: "credit", label: "Google Play", value: 2.24 },
       /* Julio */
       { date: stamp(48), group: monthGroup(48), amount: "+ $1.35", order: "Orden #01112434", kind: "credit", label: "Burger King", value: 1.35 },
       { date: stamp(48), group: monthGroup(48), amount: "+ $0.90", order: "Orden #01112434", kind: "credit", label: "McDonald's", value: 0.9 },
       { date: stamp(52), group: monthGroup(52), amount: "+ $1.85", order: "Orden #01112430", kind: "credit", label: "eBay", value: 1.85 },
-      { date: stamp(60), group: monthGroup(60), amount: "- $12.00", order: "Orden #01112427", kind: "debit", label: "Pagado con OKY Cash", value: -12 },
+      { date: stamp(60), group: monthGroup(60), amount: "- $12.00", order: "Orden #01112427", kind: "debit", label: "Pagado con OKY Cash", value: -12,
+        detail: [{ label: "eBay", amount: "- $12.00" }] },
     ],
     decisionSeen: false,
     /* El folder del Discovery Header se colapsa al scrollear el home. */
@@ -2744,7 +2749,14 @@ function okyCashActivity(state) {
     const spent = debits.reduce((sum, i) => sum + (i.value || 0), 0);
     const earned = credits.reduce((sum, i) => sum + (i.value || 0), 0);
 
-    const debitCard = debits.length
+    /* Lo usado también se abre: saber cuánto bajó el saldo sirve de
+       poco si no se ve en qué marcas se fue. Mismo panel que el de lo
+       ganado, con su propia clave para que los dos no se abran a la
+       vez. */
+    const usedDetail = debits.flatMap((i) => i.detail || []);
+    const debitId = `${order.id}#usado`;
+    const debitOpen = state.openOrders.includes(debitId);
+    const debitRow = debits.length
       ? historyRow({
           date: order.date,
           amount: `- ${money(Math.abs(spent))}`,
@@ -2752,6 +2764,37 @@ function okyCashActivity(state) {
           positive: false,
         })
       : "";
+    const debitCard =
+      debits.length && usedDetail.length
+        ? `
+        <div class="oky-flow-order has-panel ${debitOpen ? "is-open" : ""}" data-action="toggle-order"
+          data-order="${debitId}" role="button" tabindex="0" aria-expanded="${debitOpen}">
+          ${debitRow}
+          <div class="oky-flow-order-panel">
+            <span class="oky-flow-order-toggle">
+              ${usedDetail.length} marca${usedDetail.length > 1 ? "s" : ""}
+              <i class="fa-solid fa-chevron-${debitOpen ? "up" : "down"}" aria-hidden="true"></i>
+            </span>
+            ${
+              debitOpen
+                ? `<ul class="oky-flow-order-detail">
+                    ${usedDetail
+                      .map(
+                        (i) => `
+                      <li class="oky-flow-order-line">
+                        <span>${i.label}</span>
+                        <span class="is-debit">${i.amount}</span>
+                      </li>
+                    `,
+                      )
+                      .join("")}
+                  </ul>`
+                : ""
+            }
+          </div>
+        </div>
+      `
+        : debitRow;
 
     if (!credits.length) return debitCard;
 
@@ -4164,6 +4207,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       .forEach((bar) => frame.appendChild(bar));
 
     bindHeaderScroll(scroll);
+    bindClaritaInView(scroll);
     bindSwipes();
 
     /* El drawer trae su propia saving bar; la de la pantalla de abajo
@@ -4538,6 +4582,36 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
   }
 
+  /* En pantallas cortas la ficha del vale no cabe entera y Clarita se
+     quedaba debajo del pliegue, medio tapada por la navbar. Aquí sube
+     lo justo para seguir viéndose en la esquina; nunca baja de donde
+     vive, así que en pantallas altas no se mueve nada. */
+  function bindClaritaInView(scroll) {
+    const clarita = root.querySelector(".prime-card-clarita");
+    if (!clarita || !scroll) return;
+
+    const place = () => {
+      /* Se mide sin el desplazamiento anterior, o cada pasada lo
+         arrastraría. */
+      clarita.style.transform = "";
+      const bar = root.querySelector(".oky-flow-navbar");
+      const limit = (bar ? bar.getBoundingClientRect().top : scroll.getBoundingClientRect().bottom) - 10;
+      const over = clarita.getBoundingClientRect().bottom - limit;
+      if (over > 0) clarita.style.transform = `translateY(${-Math.round(over)}px)`;
+    };
+
+    /* Se repasa varias veces: el arte de la card llega por imagen y
+       cada una que entra mueve el alto, así que medir una sola vez
+       daba una posición que dejaba de valer al instante siguiente. */
+    place();
+    [60, 300, 800, 1600].forEach((ms) => setTimeout(place, ms));
+    root.querySelectorAll(".card-organism img").forEach((img) => {
+      if (!img.complete) img.addEventListener("load", place, { once: true });
+    });
+    scroll.addEventListener("scroll", place, { passive: true });
+    window.addEventListener("resize", place, { passive: true });
+  }
+
   function bindHeaderScroll(scroll) {
     /* Las dos homes llevan el mismo Discovery Header, así que las dos
        colapsan al bajar y las dos esconden la pista de scroll. */
@@ -4778,6 +4852,21 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     /* Lo que se pagó con saldo también es un movimiento: sin esta
        línea el saldo bajaba y el historial no lo explicaba. */
     if (used > 0) {
+      /* El saldo se aplica a la orden entera, pero quien lo mira quiere
+         saber en qué se fue: se reparte a prorrata de lo que costó cada
+         marca y el redondeo sobrante va a la última, para que el
+         desglose sume exactamente lo que bajó del saldo. */
+      const base = cartSubtotal(state) || 1;
+      let repartido = 0;
+      const detail = state.cart.map((item, i) => {
+        const last = i === state.cart.length - 1;
+        const parte = last
+          ? used - repartido
+          : Math.round(((item.amount * (item.qty || 1)) / base) * used * 100) / 100;
+        repartido += parte;
+        return { label: (PRODUCTS[item.productKey] || {}).label || "", amount: `- ${money(parte)}` };
+      });
+
       state.activity.unshift({
         date: stamp(0),
         group: monthGroup(0),
@@ -4786,6 +4875,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         kind: "debit",
         label: "Pagado con OKY Cash",
         value: -used,
+        detail,
       });
     }
 
