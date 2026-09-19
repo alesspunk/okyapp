@@ -48,6 +48,7 @@ import { findPaymentCard, renderPaymentCard } from "./paymentCards";
 import { renderHistoryCard } from "./historyCards";
 import { renderDiscoveryHeader } from "./discoveryHeader";
 import { renderCardOrganism } from "./cardOrganism";
+import { renderClaritaPet } from "./primeCards";
 import { GUA_HOME_MARKUP } from "./guaHome";
 import { renderFlag } from "./flag";
 import { lottie } from "./lottieLight";
@@ -611,7 +612,13 @@ function createInitialState(userType) {
     /* Clarita se calla en el vale que estás mirando; al abrir otro
        vuelve a ofrecerse. Ella no se va nunca. */
     claritaMuted: false,
+    /* Clarita en la home de USA: se asoma al acabar las banderas y
+       ofrece el recorrido. guideAsk dice si está preguntando; sin él
+       sigue ahí, callada. */
+    guideOn: false,
+    guideAsk: false,
     tourCount: false,
+    tourReady: false,
     tourFlag: false,
     tourConfetti: false,
     tourSeen: false,
@@ -1043,10 +1050,12 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
 /* Las cuatro paradas del recorrido de bienvenida a USA. Cada una
    apunta a algo que ya está en pantalla; el texto dice para qué sirve,
    no qué es. */
+/* Dos paradas y numeradas: el recorrido ya no lo abre un punto suelto
+   sino Clarita, así que aquí solo queda contar la historia —dónde
+   aparece lo que compras y dónde ver lo que ganas. */
 const TOUR_STEPS = [
-  { target: ".oky-flow-home .tactic-strip", label: "Compra una Gift Card" },
-  { target: ".header-icon-bitmap-wallet-wrap", label: "Encuéntrala en tu Wallet" },
-  { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Gana OKY Cash" },
+  { target: ".header-icon-bitmap-wallet-wrap", label: "Compra Gift Cards y encuéntralas aquí" },
+  { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Mira cuánto OKY Cash ganaste" },
 ];
 
 /* Cerrado el recorrido, la home sube al inicio y ahí se celebra: la
@@ -1060,6 +1069,8 @@ const TOUR_STEPS = [
 const TOUR_SCROLL_MS = 420;
 /* El silencio entre que la home se posa arriba y entra el "3". */
 const TOUR_FINISH_BEAT_MS = 380;
+/* Lo que se queda "¿Estás listo?" después de llegar arriba. */
+const TOUR_READY_MS = 900;
 /* Cada número de la cuenta atrás dura lo que su animación, así que el
    siguiente entra justo cuando el anterior acaba de irse. */
 const TOUR_COUNT_MS = 520;
@@ -1116,8 +1127,42 @@ function tourOverlay(state) {
       <span class="oky-flow-tour-hole" aria-hidden="true"></span>
       <div class="oky-flow-tour-call">
         <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
-        <p class="oky-flow-tour-label">${step.label}</p>
+        <p class="oky-flow-tour-label"><span class="oky-flow-tour-num">${state.tourStep + 1}.</span>${step.label}</p>
       </div>
+    </div>
+  `;
+}
+
+/* Clarita en la home de USA. Vive donde vivía la pista de scroll y
+   ofrece el recorrido; tocarla lo abre. Si ya no está preguntando, el
+   primer toque devuelve la pregunta y el segundo abre el recorrido:
+   así no se entra sin querer. Se esconde al bajar y vuelve al llegar
+   arriba, callada. */
+function homeGuide(state) {
+  return `
+    <div class="oky-flow-guide" data-action="guide-tap" role="button" tabindex="0"
+      aria-label="Clarita: Gana OKY Cash, ¿quieres saber cómo?">
+      ${
+        state.guideAsk
+          ? `<p class="prime-card-clarita-bubble oky-flow-guide-bubble">
+              <span class="prime-card-clarita-say is-idle">Gana OKY Cash,<br />¿quieres saber cómo?</span>
+              <button class="prime-card-clarita-close" data-action="guide-hush" type="button"
+                aria-label="Cerrar el aviso de Clarita">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </button>
+            </p>`
+          : ""
+      }
+      ${renderClaritaPet("oky-flow-guide-pet")}
+    </div>
+  `;
+}
+
+/* "¿Estás listo?" cierra el recorrido y abre la salida de carrera. */
+function tourReady() {
+  return `
+    <div class="oky-flow-ready" aria-hidden="true">
+      <p class="oky-flow-ready-card" role="status">¿Estás listo?</p>
     </div>
   `;
 }
@@ -4055,7 +4100,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.promoOpen ? promoDialog(state) : ""}
         ${state.addedToast ? addedToast() : ""}
         ${state.usaIntro ? usaIntro() : ""}
+        ${state.guideOn && state.screen === "home" && state.tourStep == null && !state.tourSeen ? homeGuide(state) : ""}
         ${state.tourStep != null ? tourOverlay(state) : ""}
+        ${state.tourReady ? tourReady() : ""}
         ${state.tourCount ? tourCountdown() : ""}
         ${state.tourFlag ? tourFlag() : ""}
         ${state.tourConfetti ? `<div class="oky-flow-burst" data-role="tour-confetti"></div>` : ""}
@@ -4217,6 +4264,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.tourConfetti = false;
     state.tourStep = null;
     state.tourSeen = true;
+    state.guideOn = false;
+    state.guideAsk = false;
+    /* La pregunta se queda en el centro mientras la home vuelve
+       arriba: es lo que enlaza el recorrido con la salida. */
+    state.tourReady = true;
     const before = root.querySelector(".oky-flow-scroll");
     const y = before ? before.scrollTop : 0;
     render();
@@ -4224,9 +4276,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (after && y > 0) after.scrollTop = y;
 
     /* El final espera a que la home esté arriba: se celebra sobre la
-       portada, no sobre el trozo donde quedó el último punto. */
+       portada, no sobre el trozo donde quedó el último punto. Y por el
+       camino pregunta, que es lo que da pie a la cuenta atrás. */
     scrollToTop(after, () => {
-      tourFlagTimer = setTimeout(startFinish, TOUR_FINISH_BEAT_MS);
+      tourFlagTimer = setTimeout(() => {
+        state.tourReady = false;
+        render();
+        tourFlagTimer = setTimeout(startFinish, TOUR_FINISH_BEAT_MS);
+      }, TOUR_READY_MS);
     });
   }
 
@@ -4445,11 +4502,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          solas al final. */
       introTimer = setTimeout(() => {
         state.usaIntro = false;
-        state.tourStep = 0;
+        state.guideOn = true;
+        state.guideAsk = true;
         const frame = root.querySelector(".oky-flow-frame");
         if (!frame) return render();
-        frame.insertAdjacentHTML("beforeend", tourOverlay(state));
-        placeTour();
+        frame.insertAdjacentHTML("beforeend", homeGuide(state));
         introTimer = setTimeout(() => {
           const wall = root.querySelector(".oky-flow-flagrise");
           if (wall) wall.remove();
@@ -4472,6 +4529,21 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
            se mueve; no hay razón para seguir insistiendo. */
         const hint = root.querySelector(".oky-flow-scroll-hint");
         if (hint) hint.classList.toggle("is-hidden", y > 24);
+
+        /* Clarita vive arriba: bajando se va, y al volver se asoma sin
+           preguntar. Repetir la pregunta sola sería insistir; si la
+           quieres, la tocas. Se saca el globo por DOM para no repintar
+           la home en mitad de un scroll. */
+        const guide = root.querySelector(".oky-flow-guide");
+        if (guide) {
+          const away = y > 24;
+          guide.classList.toggle("is-away", away);
+          if (away && state.guideAsk) {
+            state.guideAsk = false;
+            const bubble = guide.querySelector(".oky-flow-guide-bubble");
+            if (bubble) bubble.remove();
+          }
+        }
 
         const next = state.headerCollapsed ? y > 40 : y > 96;
         if (next === state.headerCollapsed) return;
@@ -4828,6 +4900,25 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         return render();
       }
       return goCountry(target);
+    }
+
+    if (action === "guide-tap") {
+      /* Preguntando, el toque acepta y abre el recorrido. Callada, lo
+         primero que hace es volver a preguntar. */
+      if (!state.guideAsk) {
+        state.guideAsk = true;
+        return render();
+      }
+      state.guideAsk = false;
+      state.tourStep = 0;
+      render();
+      placeTour();
+      return;
+    }
+
+    if (action === "guide-hush") {
+      state.guideAsk = false;
+      return render();
     }
 
     if (action === "clarita-close") {

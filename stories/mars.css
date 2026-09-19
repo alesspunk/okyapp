@@ -11001,9 +11001,10 @@ button.tactic-offer {
    abajo una y otra vez, despacio, sin llegar a mover la píldora. */
 .oky-flow-scroll-hint {
   position: absolute;
-  /* A la derecha y no centrada: en el centro caía justo sobre la
-     moneda de la navbar y parecía estar señalando OKY Cash. */
-  right: var(--oky-gutter);
+  /* A la izquierda: ni centrada —caía sobre la moneda de la navbar y
+     parecía señalar OKY Cash— ni a la derecha, que es donde ahora se
+     asoma Clarita. */
+  left: var(--oky-gutter);
   /* Pegada a la navbar: así se lee como chrome y no como algo que
      aterrizó en medio del contenido. */
   bottom: calc(var(--oky-nav-h) + 8px);
@@ -13539,6 +13540,97 @@ img.oky-flow-method-mark {
   border-radius: 14px;
   box-shadow: 0 0 0 9999px rgba(16, 16, 16, 0.72);
   pointer-events: none;
+}
+
+/* ── Clarita en la home ──────────────────────────────────
+   Ocupa la esquina que dejó la pista de scroll, pegada a la navbar.
+   Es la puerta del recorrido, así que sí recibe el toque entero. */
+.oky-flow-guide {
+  position: absolute;
+  right: var(--oky-gutter);
+  bottom: calc(var(--oky-nav-h) + 8px);
+  z-index: 80;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 1px;
+  cursor: pointer;
+  animation: oky-clarita-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition:
+    opacity 220ms ease-out,
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Bajando la home, Clarita se aparta. */
+.oky-flow-guide.is-away {
+  opacity: 0;
+  transform: translateY(14px) scale(0.86);
+  pointer-events: none;
+}
+
+/* Dentro de la home el muñeco no pinta sombra propia de card ni
+   necesita el z-index de la fila. */
+.oky-flow-guide .prime-card-clarita-pet {
+  animation: none;
+}
+
+/* En la card Clarita se deja ver antes de hablar porque llegas tú a
+   ella; aquí llega ella a ti, después de las banderas, así que
+   pregunta enseguida. */
+.oky-flow-guide-bubble {
+  align-self: center;
+  animation-delay: 520ms;
+}
+
+/* ── El "¿Estás listo?" que cierra el recorrido ───────────
+   Mismo cuerpo que la banderola, en el centro y sin tapar: la home ya
+   está volviendo arriba por detrás. */
+.oky-flow-ready {
+  position: absolute;
+  inset: 0;
+  z-index: 140;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 16, 16, 0.45);
+  pointer-events: none;
+  animation: oky-flow-fade 200ms ease-out both;
+}
+
+.oky-flow-ready-card {
+  margin: 0;
+  padding: 16px 28px;
+  border-radius: 22px;
+  background: var(--white);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--primary-main);
+  animation: oky-flow-tourflag-in 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes oky-flow-tourflag-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  62% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* El número de la parada, delante de lo que dice. */
+.oky-flow-tour-num {
+  margin-right: 6px;
 }
 
 /* ── Recorrido: la salida ────────────────────────────────

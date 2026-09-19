@@ -11023,9 +11023,10 @@ button.tactic-offer {
    abajo una y otra vez, despacio, sin llegar a mover la píldora. */
 .oky-flow-scroll-hint {
   position: absolute;
-  /* A la derecha y no centrada: en el centro caía justo sobre la
-     moneda de la navbar y parecía estar señalando OKY Cash. */
-  right: var(--oky-gutter);
+  /* A la izquierda: ni centrada —caía sobre la moneda de la navbar y
+     parecía señalar OKY Cash— ni a la derecha, que es donde ahora se
+     asoma Clarita. */
+  left: var(--oky-gutter);
   /* Pegada a la navbar: así se lee como chrome y no como algo que
      aterrizó en medio del contenido. */
   bottom: calc(var(--oky-nav-h) + 8px);
@@ -13561,6 +13562,97 @@ img.oky-flow-method-mark {
   border-radius: 14px;
   box-shadow: 0 0 0 9999px rgba(16, 16, 16, 0.72);
   pointer-events: none;
+}
+
+/* ── Clarita en la home ──────────────────────────────────
+   Ocupa la esquina que dejó la pista de scroll, pegada a la navbar.
+   Es la puerta del recorrido, así que sí recibe el toque entero. */
+.oky-flow-guide {
+  position: absolute;
+  right: var(--oky-gutter);
+  bottom: calc(var(--oky-nav-h) + 8px);
+  z-index: 80;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 1px;
+  cursor: pointer;
+  animation: oky-clarita-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition:
+    opacity 220ms ease-out,
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Bajando la home, Clarita se aparta. */
+.oky-flow-guide.is-away {
+  opacity: 0;
+  transform: translateY(14px) scale(0.86);
+  pointer-events: none;
+}
+
+/* Dentro de la home el muñeco no pinta sombra propia de card ni
+   necesita el z-index de la fila. */
+.oky-flow-guide .prime-card-clarita-pet {
+  animation: none;
+}
+
+/* En la card Clarita se deja ver antes de hablar porque llegas tú a
+   ella; aquí llega ella a ti, después de las banderas, así que
+   pregunta enseguida. */
+.oky-flow-guide-bubble {
+  align-self: center;
+  animation-delay: 520ms;
+}
+
+/* ── El "¿Estás listo?" que cierra el recorrido ───────────
+   Mismo cuerpo que la banderola, en el centro y sin tapar: la home ya
+   está volviendo arriba por detrás. */
+.oky-flow-ready {
+  position: absolute;
+  inset: 0;
+  z-index: 140;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 16, 16, 0.45);
+  pointer-events: none;
+  animation: oky-flow-fade 200ms ease-out both;
+}
+
+.oky-flow-ready-card {
+  margin: 0;
+  padding: 16px 28px;
+  border-radius: 22px;
+  background: var(--white);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--primary-main);
+  animation: oky-flow-tourflag-in 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes oky-flow-tourflag-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  62% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* El número de la parada, delante de lo que dice. */
+.oky-flow-tour-num {
+  margin-right: 6px;
 }
 
 /* ── Recorrido: la salida ────────────────────────────────
@@ -16154,6 +16246,42 @@ function renderBottomMain(card) {
   `;
 }
 
+/* El muñeco, sin globo: lo comparten la card y la home. */
+function renderClaritaPet(extraClass = "") {
+  return `
+    <span class="prime-card-clarita-pet${extraClass ? " " + extraClass : ""}" aria-hidden="true">
+      <svg viewBox="0 0 48 58" xmlns="http://www.w3.org/2000/svg" focusable="false">
+        <defs>
+          <linearGradient id="oky-clarita-vol" x1="0.18" y1="0" x2="0.72" y2="1">
+            <stop offset="0" stop-color="#7a45bd" />
+            <stop offset="0.52" stop-color="#552588" />
+            <stop offset="1" stop-color="#330063" />
+          </linearGradient>
+          <linearGradient id="oky-clarita-ring" x1="0.15" y1="0.05" x2="0.8" y2="1">
+            <stop offset="0" stop-color="#8b57cc" />
+            <stop offset="0.5" stop-color="#552588" />
+            <stop offset="1" stop-color="#3a1168" />
+          </linearGradient>
+        </defs>
+        <ellipse class="clarita-shadow" cx="24" cy="55.8" rx="11.4" ry="2.3" />
+        <g class="clarita-body">
+          <rect class="clarita-arm is-left clarita-back" x="7.6" y="31.8" width="6.4" height="13.4" rx="3.2" />
+          <rect class="clarita-leg clarita-back" x="16.2" y="45.4" width="6.2" height="8.4" rx="3.1" />
+          <rect class="clarita-leg" x="25.6" y="45.4" width="6.2" height="8.4" rx="3.1" />
+          <rect class="clarita-torso" x="14.2" y="30.6" width="19.6" height="17.2" rx="7.6" />
+          <ellipse class="clarita-gloss" cx="19.8" cy="35.2" rx="4.1" ry="2.6" />
+          <rect class="clarita-arm is-right" x="34" y="31.8" width="6.4" height="13.4" rx="3.2" />
+          <g class="clarita-head">
+            <circle class="clarita-ring" cx="24" cy="16.4" r="13.4" />
+            <path class="clarita-rim" d="M13.4 8.3 A13.4 13.4 0 0 1 31.1 5" />
+            <path class="clarita-smile" d="M17.6 17.4 Q24 25.4 30.4 17.4" />
+          </g>
+        </g>
+      </svg>
+    </span>
+  `;
+}
+
 /* Clarita, la asistente de la card. Ocupa el sitio y la altura que
    tenía el botón de ayuda, pero no es un botón: se asoma sola y ofrece
    lo que sabe hacer, al estilo de Clippy. No hay nada que pulsar —lo
@@ -16176,36 +16304,7 @@ function renderClarita() {
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
       </p>
-      <span class="prime-card-clarita-pet" aria-hidden="true">
-        <svg viewBox="0 0 48 58" xmlns="http://www.w3.org/2000/svg" focusable="false">
-          <defs>
-            <linearGradient id="oky-clarita-vol" x1="0.18" y1="0" x2="0.72" y2="1">
-              <stop offset="0" stop-color="#7a45bd" />
-              <stop offset="0.52" stop-color="#552588" />
-              <stop offset="1" stop-color="#330063" />
-            </linearGradient>
-            <linearGradient id="oky-clarita-ring" x1="0.15" y1="0.05" x2="0.8" y2="1">
-              <stop offset="0" stop-color="#8b57cc" />
-              <stop offset="0.5" stop-color="#552588" />
-              <stop offset="1" stop-color="#3a1168" />
-            </linearGradient>
-          </defs>
-          <ellipse class="clarita-shadow" cx="24" cy="55.8" rx="11.4" ry="2.3" />
-          <g class="clarita-body">
-            <rect class="clarita-arm is-left clarita-back" x="7.6" y="31.8" width="6.4" height="13.4" rx="3.2" />
-            <rect class="clarita-leg clarita-back" x="16.2" y="45.4" width="6.2" height="8.4" rx="3.1" />
-            <rect class="clarita-leg" x="25.6" y="45.4" width="6.2" height="8.4" rx="3.1" />
-            <rect class="clarita-torso" x="14.2" y="30.6" width="19.6" height="17.2" rx="7.6" />
-            <ellipse class="clarita-gloss" cx="19.8" cy="35.2" rx="4.1" ry="2.6" />
-            <rect class="clarita-arm is-right" x="34" y="31.8" width="6.4" height="13.4" rx="3.2" />
-            <g class="clarita-head">
-              <circle class="clarita-ring" cx="24" cy="16.4" r="13.4" />
-              <path class="clarita-rim" d="M13.4 8.3 A13.4 13.4 0 0 1 31.1 5" />
-              <path class="clarita-smile" d="M17.6 17.4 Q24 25.4 30.4 17.4" />
-            </g>
-          </g>
-        </svg>
-      </span>
+      ${renderClaritaPet()}
     </div>
   `;
 }
@@ -16314,7 +16413,7 @@ function renderCardBottom(card) {
   `;
 }
 
-  return { CARD_TOP_VARIANTS, CARD_BOTTOM_VARIANTS, CARD_TOP_PATHS, CARD_BOTTOM_PATHS, findCardTop, findCardBottom, resolveCardTop, resolveCardBottom, renderCardTop, renderCardBottom };
+  return { CARD_TOP_VARIANTS, CARD_BOTTOM_VARIANTS, CARD_TOP_PATHS, CARD_BOTTOM_PATHS, renderClaritaPet, findCardTop, findCardBottom, resolveCardTop, resolveCardBottom, renderCardTop, renderCardBottom };
 })();
 
 __mods["cardOrganism"] = (function () {
@@ -16465,6 +16564,7 @@ __mods["okyCashPrototype"] = (function () {
   var { renderHistoryCard } = __mods["historyCards"];
   var { renderDiscoveryHeader } = __mods["discoveryHeader"];
   var { renderCardOrganism } = __mods["cardOrganism"];
+  var { renderClaritaPet } = __mods["primeCards"];
   var { GUA_HOME_MARKUP } = __mods["guaHome"];
   var { renderFlag } = __mods["flag"];
   var { lottie } = __mods["lottieLight"];
@@ -17074,7 +17174,13 @@ function createInitialState(userType) {
     /* Clarita se calla en el vale que estás mirando; al abrir otro
        vuelve a ofrecerse. Ella no se va nunca. */
     claritaMuted: false,
+    /* Clarita en la home de USA: se asoma al acabar las banderas y
+       ofrece el recorrido. guideAsk dice si está preguntando; sin él
+       sigue ahí, callada. */
+    guideOn: false,
+    guideAsk: false,
     tourCount: false,
+    tourReady: false,
     tourFlag: false,
     tourConfetti: false,
     tourSeen: false,
@@ -17506,10 +17612,12 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
 /* Las cuatro paradas del recorrido de bienvenida a USA. Cada una
    apunta a algo que ya está en pantalla; el texto dice para qué sirve,
    no qué es. */
+/* Dos paradas y numeradas: el recorrido ya no lo abre un punto suelto
+   sino Clarita, así que aquí solo queda contar la historia —dónde
+   aparece lo que compras y dónde ver lo que ganas. */
 const TOUR_STEPS = [
-  { target: ".oky-flow-home .tactic-strip", label: "Compra una Gift Card" },
-  { target: ".header-icon-bitmap-wallet-wrap", label: "Encuéntrala en tu Wallet" },
-  { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Gana OKY Cash" },
+  { target: ".header-icon-bitmap-wallet-wrap", label: "Compra Gift Cards y encuéntralas aquí" },
+  { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Mira cuánto OKY Cash ganaste" },
 ];
 
 /* Cerrado el recorrido, la home sube al inicio y ahí se celebra: la
@@ -17523,6 +17631,8 @@ const TOUR_STEPS = [
 const TOUR_SCROLL_MS = 420;
 /* El silencio entre que la home se posa arriba y entra el "3". */
 const TOUR_FINISH_BEAT_MS = 380;
+/* Lo que se queda "¿Estás listo?" después de llegar arriba. */
+const TOUR_READY_MS = 900;
 /* Cada número de la cuenta atrás dura lo que su animación, así que el
    siguiente entra justo cuando el anterior acaba de irse. */
 const TOUR_COUNT_MS = 520;
@@ -17579,8 +17689,42 @@ function tourOverlay(state) {
       <span class="oky-flow-tour-hole" aria-hidden="true"></span>
       <div class="oky-flow-tour-call">
         <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
-        <p class="oky-flow-tour-label">${step.label}</p>
+        <p class="oky-flow-tour-label"><span class="oky-flow-tour-num">${state.tourStep + 1}.</span>${step.label}</p>
       </div>
+    </div>
+  `;
+}
+
+/* Clarita en la home de USA. Vive donde vivía la pista de scroll y
+   ofrece el recorrido; tocarla lo abre. Si ya no está preguntando, el
+   primer toque devuelve la pregunta y el segundo abre el recorrido:
+   así no se entra sin querer. Se esconde al bajar y vuelve al llegar
+   arriba, callada. */
+function homeGuide(state) {
+  return `
+    <div class="oky-flow-guide" data-action="guide-tap" role="button" tabindex="0"
+      aria-label="Clarita: Gana OKY Cash, ¿quieres saber cómo?">
+      ${
+        state.guideAsk
+          ? `<p class="prime-card-clarita-bubble oky-flow-guide-bubble">
+              <span class="prime-card-clarita-say is-idle">Gana OKY Cash,<br />¿quieres saber cómo?</span>
+              <button class="prime-card-clarita-close" data-action="guide-hush" type="button"
+                aria-label="Cerrar el aviso de Clarita">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </button>
+            </p>`
+          : ""
+      }
+      ${renderClaritaPet("oky-flow-guide-pet")}
+    </div>
+  `;
+}
+
+/* "¿Estás listo?" cierra el recorrido y abre la salida de carrera. */
+function tourReady() {
+  return `
+    <div class="oky-flow-ready" aria-hidden="true">
+      <p class="oky-flow-ready-card" role="status">¿Estás listo?</p>
     </div>
   `;
 }
@@ -20518,7 +20662,9 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.promoOpen ? promoDialog(state) : ""}
         ${state.addedToast ? addedToast() : ""}
         ${state.usaIntro ? usaIntro() : ""}
+        ${state.guideOn && state.screen === "home" && state.tourStep == null && !state.tourSeen ? homeGuide(state) : ""}
         ${state.tourStep != null ? tourOverlay(state) : ""}
+        ${state.tourReady ? tourReady() : ""}
         ${state.tourCount ? tourCountdown() : ""}
         ${state.tourFlag ? tourFlag() : ""}
         ${state.tourConfetti ? `<div class="oky-flow-burst" data-role="tour-confetti"></div>` : ""}
@@ -20680,6 +20826,11 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.tourConfetti = false;
     state.tourStep = null;
     state.tourSeen = true;
+    state.guideOn = false;
+    state.guideAsk = false;
+    /* La pregunta se queda en el centro mientras la home vuelve
+       arriba: es lo que enlaza el recorrido con la salida. */
+    state.tourReady = true;
     const before = root.querySelector(".oky-flow-scroll");
     const y = before ? before.scrollTop : 0;
     render();
@@ -20687,9 +20838,14 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (after && y > 0) after.scrollTop = y;
 
     /* El final espera a que la home esté arriba: se celebra sobre la
-       portada, no sobre el trozo donde quedó el último punto. */
+       portada, no sobre el trozo donde quedó el último punto. Y por el
+       camino pregunta, que es lo que da pie a la cuenta atrás. */
     scrollToTop(after, () => {
-      tourFlagTimer = setTimeout(startFinish, TOUR_FINISH_BEAT_MS);
+      tourFlagTimer = setTimeout(() => {
+        state.tourReady = false;
+        render();
+        tourFlagTimer = setTimeout(startFinish, TOUR_FINISH_BEAT_MS);
+      }, TOUR_READY_MS);
     });
   }
 
@@ -20908,11 +21064,11 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          solas al final. */
       introTimer = setTimeout(() => {
         state.usaIntro = false;
-        state.tourStep = 0;
+        state.guideOn = true;
+        state.guideAsk = true;
         const frame = root.querySelector(".oky-flow-frame");
         if (!frame) return render();
-        frame.insertAdjacentHTML("beforeend", tourOverlay(state));
-        placeTour();
+        frame.insertAdjacentHTML("beforeend", homeGuide(state));
         introTimer = setTimeout(() => {
           const wall = root.querySelector(".oky-flow-flagrise");
           if (wall) wall.remove();
@@ -20935,6 +21091,21 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
            se mueve; no hay razón para seguir insistiendo. */
         const hint = root.querySelector(".oky-flow-scroll-hint");
         if (hint) hint.classList.toggle("is-hidden", y > 24);
+
+        /* Clarita vive arriba: bajando se va, y al volver se asoma sin
+           preguntar. Repetir la pregunta sola sería insistir; si la
+           quieres, la tocas. Se saca el globo por DOM para no repintar
+           la home en mitad de un scroll. */
+        const guide = root.querySelector(".oky-flow-guide");
+        if (guide) {
+          const away = y > 24;
+          guide.classList.toggle("is-away", away);
+          if (away && state.guideAsk) {
+            state.guideAsk = false;
+            const bubble = guide.querySelector(".oky-flow-guide-bubble");
+            if (bubble) bubble.remove();
+          }
+        }
 
         const next = state.headerCollapsed ? y > 40 : y > 96;
         if (next === state.headerCollapsed) return;
@@ -21291,6 +21462,25 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         return render();
       }
       return goCountry(target);
+    }
+
+    if (action === "guide-tap") {
+      /* Preguntando, el toque acepta y abre el recorrido. Callada, lo
+         primero que hace es volver a preguntar. */
+      if (!state.guideAsk) {
+        state.guideAsk = true;
+        return render();
+      }
+      state.guideAsk = false;
+      state.tourStep = 0;
+      render();
+      placeTour();
+      return;
+    }
+
+    if (action === "guide-hush") {
+      state.guideAsk = false;
+      return render();
     }
 
     if (action === "clarita-close") {

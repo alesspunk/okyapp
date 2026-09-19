@@ -342,6 +342,42 @@ function renderBottomMain(card) {
   `;
 }
 
+/* El muñeco, sin globo: lo comparten la card y la home. */
+export function renderClaritaPet(extraClass = "") {
+  return `
+    <span class="prime-card-clarita-pet${extraClass ? " " + extraClass : ""}" aria-hidden="true">
+      <svg viewBox="0 0 48 58" xmlns="http://www.w3.org/2000/svg" focusable="false">
+        <defs>
+          <linearGradient id="oky-clarita-vol" x1="0.18" y1="0" x2="0.72" y2="1">
+            <stop offset="0" stop-color="#7a45bd" />
+            <stop offset="0.52" stop-color="#552588" />
+            <stop offset="1" stop-color="#330063" />
+          </linearGradient>
+          <linearGradient id="oky-clarita-ring" x1="0.15" y1="0.05" x2="0.8" y2="1">
+            <stop offset="0" stop-color="#8b57cc" />
+            <stop offset="0.5" stop-color="#552588" />
+            <stop offset="1" stop-color="#3a1168" />
+          </linearGradient>
+        </defs>
+        <ellipse class="clarita-shadow" cx="24" cy="55.8" rx="11.4" ry="2.3" />
+        <g class="clarita-body">
+          <rect class="clarita-arm is-left clarita-back" x="7.6" y="31.8" width="6.4" height="13.4" rx="3.2" />
+          <rect class="clarita-leg clarita-back" x="16.2" y="45.4" width="6.2" height="8.4" rx="3.1" />
+          <rect class="clarita-leg" x="25.6" y="45.4" width="6.2" height="8.4" rx="3.1" />
+          <rect class="clarita-torso" x="14.2" y="30.6" width="19.6" height="17.2" rx="7.6" />
+          <ellipse class="clarita-gloss" cx="19.8" cy="35.2" rx="4.1" ry="2.6" />
+          <rect class="clarita-arm is-right" x="34" y="31.8" width="6.4" height="13.4" rx="3.2" />
+          <g class="clarita-head">
+            <circle class="clarita-ring" cx="24" cy="16.4" r="13.4" />
+            <path class="clarita-rim" d="M13.4 8.3 A13.4 13.4 0 0 1 31.1 5" />
+            <path class="clarita-smile" d="M17.6 17.4 Q24 25.4 30.4 17.4" />
+          </g>
+        </g>
+      </svg>
+    </span>
+  `;
+}
+
 /* Clarita, la asistente de la card. Ocupa el sitio y la altura que
    tenía el botón de ayuda, pero no es un botón: se asoma sola y ofrece
    lo que sabe hacer, al estilo de Clippy. No hay nada que pulsar —lo
@@ -364,36 +400,7 @@ function renderClarita() {
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
       </p>
-      <span class="prime-card-clarita-pet" aria-hidden="true">
-        <svg viewBox="0 0 48 58" xmlns="http://www.w3.org/2000/svg" focusable="false">
-          <defs>
-            <linearGradient id="oky-clarita-vol" x1="0.18" y1="0" x2="0.72" y2="1">
-              <stop offset="0" stop-color="#7a45bd" />
-              <stop offset="0.52" stop-color="#552588" />
-              <stop offset="1" stop-color="#330063" />
-            </linearGradient>
-            <linearGradient id="oky-clarita-ring" x1="0.15" y1="0.05" x2="0.8" y2="1">
-              <stop offset="0" stop-color="#8b57cc" />
-              <stop offset="0.5" stop-color="#552588" />
-              <stop offset="1" stop-color="#3a1168" />
-            </linearGradient>
-          </defs>
-          <ellipse class="clarita-shadow" cx="24" cy="55.8" rx="11.4" ry="2.3" />
-          <g class="clarita-body">
-            <rect class="clarita-arm is-left clarita-back" x="7.6" y="31.8" width="6.4" height="13.4" rx="3.2" />
-            <rect class="clarita-leg clarita-back" x="16.2" y="45.4" width="6.2" height="8.4" rx="3.1" />
-            <rect class="clarita-leg" x="25.6" y="45.4" width="6.2" height="8.4" rx="3.1" />
-            <rect class="clarita-torso" x="14.2" y="30.6" width="19.6" height="17.2" rx="7.6" />
-            <ellipse class="clarita-gloss" cx="19.8" cy="35.2" rx="4.1" ry="2.6" />
-            <rect class="clarita-arm is-right" x="34" y="31.8" width="6.4" height="13.4" rx="3.2" />
-            <g class="clarita-head">
-              <circle class="clarita-ring" cx="24" cy="16.4" r="13.4" />
-              <path class="clarita-rim" d="M13.4 8.3 A13.4 13.4 0 0 1 31.1 5" />
-              <path class="clarita-smile" d="M17.6 17.4 Q24 25.4 30.4 17.4" />
-            </g>
-          </g>
-        </svg>
-      </span>
+      ${renderClaritaPet()}
     </div>
   `;
 }
