@@ -17074,7 +17074,14 @@ const TOUR_STEPS = [
 
 /* Cerrado el recorrido, la home sube al inicio y ahí se celebra: la
    bandera entra cuando ya se ve la portada, no sobre media página. */
-const TOUR_FLAG_WAIT_MS = 420;
+/* La cuenta atrás espera a que la home termine de subir. El scroll
+   suave desde donde deja el último punto tarda algo más de medio
+   segundo; el resto es el silencio que separa un momento del otro, que
+   es lo que hacía falta: arrancando antes, los números salían encima
+   de la página todavía en movimiento. Sin nada que subir basta un
+   respiro corto. */
+const TOUR_FLAG_WAIT_MS = 1000;
+const TOUR_FLAG_WAIT_TOP_MS = 420;
 /* Cada número de la cuenta atrás dura lo que su animación, así que el
    siguiente entra justo cuando el anterior acaba de irse. */
 const TOUR_COUNT_MS = 520;
@@ -20235,7 +20242,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     /* El final espera a que la home esté arriba: se celebra sobre la
        portada, no sobre el trozo donde quedó el último punto. Si ya
        estaba arriba no hay nada que esperar. */
-    tourFlagTimer = setTimeout(startFinish, y > 0 ? TOUR_FLAG_WAIT_MS : 160);
+    tourFlagTimer = setTimeout(startFinish, y > 0 ? TOUR_FLAG_WAIT_MS : TOUR_FLAG_WAIT_TOP_MS);
   }
 
   /* Salida de carrera: 3, 2, 1 y la banderola. La cuenta va sola —el
