@@ -1018,9 +1018,9 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
    apunta a algo que ya está en pantalla; el texto dice para qué sirve,
    no qué es. */
 const TOUR_STEPS = [
-  { count: 3, light: "is-red", target: ".oky-flow-home .tactic-strip", label: "Compra una gift card" },
-  { count: 2, light: "is-amber", target: ".header-icon-bitmap-wallet-wrap", label: "Encuéntrala en tu Wallet" },
-  { count: 1, light: "is-green", target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Gana OKY Cash" },
+  { target: ".oky-flow-home .tactic-strip", label: "Compra una gift card" },
+  { target: ".header-icon-bitmap-wallet-wrap", label: "Encuéntrala en tu Wallet" },
+  { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Gana OKY Cash" },
   /* La bandera a cuadros: sin nada que señalar, ocupa la pantalla un
      segundo y se va sola, como el "GO!" de una salida. */
   { finish: true, label: "¡Compra y gana! 🏁" },
@@ -1080,13 +1080,11 @@ function tourOverlay(state) {
   }
 
   /* El hueco deja ver lo que se señala —el elemento es el de verdad, no
-     una copia—, encima van la flecha y la línea, y el número entra
-     grande en el centro y se encoge: la cuenta atrás de una salida.
-     Se toca donde sea para pasar. */
+     una copia— y encima solo van la flecha y la línea. Se toca donde
+     sea para pasar. */
   return `
     <div class="oky-flow-tour" data-action="tour-next" role="dialog" aria-modal="true" aria-label="${step.label}">
       <span class="oky-flow-tour-hole" aria-hidden="true"></span>
-      <span class="oky-flow-tour-count ${step.light}" aria-hidden="true">${step.count}</span>
       <div class="oky-flow-tour-call">
         <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
         <p class="oky-flow-tour-label">${step.label}</p>
@@ -4047,9 +4045,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       call.classList.toggle("is-below", below);
       if (arrow) arrow.className = `fa-solid ${below ? "fa-arrow-up" : "fa-arrow-down"} oky-flow-tour-arrow`;
       const cw = call.offsetWidth;
-      call.style.left = `${clamp(left + w / 2 - cw / 2, 12, Math.max(12, frameW - cw - 12))}px`;
+      const callLeft = clamp(left + w / 2 - cw / 2, 12, Math.max(12, frameW - cw - 12));
+      call.style.left = `${callLeft}px`;
       call.style.top = below ? `${top + h + 16}px` : "";
       call.style.bottom = below ? "" : `${frameH - top + 16}px`;
+      /* La flecha va sobre el agujero, no sobre el centro de la línea:
+         con una frase larga contra el borde, la línea se queda donde
+         cabe y la flecha se corre hasta lo que señala —el wallet, que
+         vive en la esquina. */
+      if (arrow) arrow.style.transform = `translateX(${left + w / 2 - (callLeft + cw / 2)}px)`;
     };
 
     /* Lo que queda fuera de pantalla se sube antes de medir. */
