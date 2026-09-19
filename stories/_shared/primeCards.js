@@ -342,17 +342,27 @@ function renderBottomMain(card) {
   `;
 }
 
-function renderBottomButton(card) {
+/* Clarita, la asistente de la card. Ocupa el sitio y la altura que
+   tenía el botón de ayuda, pero no es un botón: se asoma sola y ofrece
+   lo que sabe hacer, al estilo de Clippy. No hay nada que pulsar —lo
+   que importa aquí es que alguien se ofrezca antes de que te pierdas
+   canjeando—, así que no roba el toque ni entra en el orden de
+   tabulación.
+
+   La cara es la marca de OKY: el círculo con la sonrisa, dibujado en
+   vez de importado, para que herede el color y no pese. */
+function renderClarita() {
   return `
-    <button
-      class="btn btn-outlined prime-card-bottom-help-btn ${card.showButtonLabel ? "has-label" : "is-icon-only"}"
-      type="button"
-    >
-      <span class="prime-card-bottom-help-icon" aria-hidden="true">
-        <img src="${card.whatsappImage}" alt="" />
+    <div class="prime-card-clarita" role="status" aria-label="Clarita: ¿Necesitas ayuda con el canje?">
+      <p class="prime-card-clarita-bubble">¿Necesitas ayuda con el canje?</p>
+      <span class="prime-card-clarita-face" aria-hidden="true">
+        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" focusable="false">
+          <circle cx="20" cy="20" r="16.4" fill="none" stroke="currentColor" stroke-width="3.4" />
+          <path d="M12.6 17.4 Q20 26.6 27.4 17.4" fill="none" stroke="currentColor"
+            stroke-width="3.4" stroke-linecap="round" />
+        </svg>
       </span>
-      ${card.showButtonLabel ? `<span class="prime-card-bottom-help-label">${card.buttonLabel}</span>` : ""}
-    </button>
+    </div>
   `;
 }
 
@@ -449,7 +459,7 @@ export function renderCardBottom(card) {
             <div class="prime-card-bottom-side">
               <div class="prime-card-bottom-expiry">${card.expiry || "&nbsp;"}</div>
               <div class="prime-card-bottom-button-slot">
-                ${renderBottomButton(card)}
+                ${renderClarita()}
               </div>
             </div>
           `

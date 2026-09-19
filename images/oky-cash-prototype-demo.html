@@ -5053,15 +5053,17 @@ body {
    lea como parte de la credencial y no como un CTA más de la pantalla. */
 .prime-card-bottom-paste {
   align-self: flex-start;
-  min-height: 44px;
-  padding: 8px 24px;
+  /* Más chico que el código: es la acción, no la credencial, y a
+     tamaño de código competía con ella. */
+  min-height: 34px;
+  padding: 6px 18px;
   border-radius: 32px;
   font-family: "Inter", sans-serif;
   font-style: italic;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 784;
-  line-height: 24px;
-  letter-spacing: 1px;
+  line-height: 20px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
   font-variation-settings: "slnt" -10;
   font-synthesis: none;
@@ -5109,67 +5111,113 @@ body {
   aspect-ratio: 1 / 1;
 }
 
-.card-bottom-molecule.is-with-bar-code .prime-card-bottom-help-btn.has-label,
-.card-bottom-molecule.is-with-qr-code .prime-card-bottom-help-btn.has-label,
-.card-bottom-molecule.is-code-bar-code-pin .prime-card-bottom-help-btn.has-label,
-.card-bottom-molecule.is-bar-code-code-pin .prime-card-bottom-help-btn.has-label {
-  min-width: 102px;
-  justify-content: center;
+/* Clarita: la ayuda de la card ya no es un botón, es alguien que se
+   asoma. Vive donde vivía el botón —misma esquina, misma altura— y
+   habla sola: la burbuja entra al segundo de abrirse la card, que es
+   cuando ya miraste el código y puede que no sepas qué hacer con él.
+   No se puede pulsar a propósito; no roba el toque de la card. */
+.prime-card-clarita {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  pointer-events: none;
 }
 
-/* El botón de ayuda es el mismo en todas las cards, de Guatemala y de
-   USA (101310:7466): pastilla blanca con borde morado y el icono junto
-   al label, los dos centrados. El relleno va simétrico —antes cedía
-   aire a la izquierda para compensar el icono— y el contenido se
-   centra en los dos ejes. */
-.prime-card-bottom-help-btn {
-  min-width: 0;
-  min-height: 44px;
-  padding: 8px 20px;
-  border-radius: 32px;
-  gap: 8px;
+.prime-card-clarita-face {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  border-color: var(--primary-main);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--primary-main);
   box-shadow:
     0 3px 1px -2px rgba(0, 0, 0, 0.2),
     0 2px 2px 0 rgba(0, 0, 0, 0.14),
     0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  /* Respira: un balanceo lento para que se lea como alguien y no como
+     un icono pegado. */
+  animation: oky-clarita-bob 3200ms ease-in-out 1400ms infinite both;
 }
 
-
-.prime-card-bottom-help-btn.is-icon-only {
-  width: 44px;
-  min-width: 44px;
-  padding: 0;
-  justify-content: center;
-}
-
-.prime-card-bottom-help-icon {
-  width: 20px;
-  height: 24px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-}
-
-.prime-card-bottom-help-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+.prime-card-clarita-face svg {
   display: block;
+  width: 26px;
+  height: 26px;
 }
 
-.prime-card-bottom-help-label {
-  font-family: "Lato", sans-serif;
-  font-size: 13px;
+.prime-card-clarita-bubble {
+  position: relative;
+  margin: 0;
+  max-width: 168px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  /* Globo blanco y no morado: justo encima vive el botón de pegar la
+     URL, y dos piezas moradas pegadas se leían como una sola mancha.
+     En blanco se lee lo que es, alguien hablando. */
+  background: var(--white);
+  border: 1px solid rgba(85, 37, 136, 0.16);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  color: var(--primary-main);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 12px;
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0.25px;
-  text-transform: uppercase;
-  white-space: nowrap;
+  line-height: 1.3;
+  text-align: left;
+  animation: oky-clarita-say 460ms cubic-bezier(0.22, 1, 0.36, 1) 900ms both;
 }
+
+/* La colita apunta a Clarita. */
+.prime-card-clarita-bubble::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  bottom: 13px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--white);
+  border-right: 1px solid rgba(85, 37, 136, 0.16);
+  border-top: 1px solid rgba(85, 37, 136, 0.16);
+  transform: rotate(45deg);
+}
+
+@keyframes oky-clarita-say {
+  0% {
+    opacity: 0;
+    transform: translateX(10px) scale(0.86);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes oky-clarita-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prime-card-clarita-face {
+    animation: none;
+  }
+
+  .prime-card-clarita-bubble {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 
 .prime-card-grid {
   display: grid;
@@ -15790,17 +15838,27 @@ function renderBottomMain(card) {
   `;
 }
 
-function renderBottomButton(card) {
+/* Clarita, la asistente de la card. Ocupa el sitio y la altura que
+   tenía el botón de ayuda, pero no es un botón: se asoma sola y ofrece
+   lo que sabe hacer, al estilo de Clippy. No hay nada que pulsar —lo
+   que importa aquí es que alguien se ofrezca antes de que te pierdas
+   canjeando—, así que no roba el toque ni entra en el orden de
+   tabulación.
+
+   La cara es la marca de OKY: el círculo con la sonrisa, dibujado en
+   vez de importado, para que herede el color y no pese. */
+function renderClarita() {
   return `
-    <button
-      class="btn btn-outlined prime-card-bottom-help-btn ${card.showButtonLabel ? "has-label" : "is-icon-only"}"
-      type="button"
-    >
-      <span class="prime-card-bottom-help-icon" aria-hidden="true">
-        <img src="${card.whatsappImage}" alt="" />
+    <div class="prime-card-clarita" role="status" aria-label="Clarita: ¿Necesitas ayuda con el canje?">
+      <p class="prime-card-clarita-bubble">¿Necesitas ayuda con el canje?</p>
+      <span class="prime-card-clarita-face" aria-hidden="true">
+        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" focusable="false">
+          <circle cx="20" cy="20" r="16.4" fill="none" stroke="currentColor" stroke-width="3.4" />
+          <path d="M12.6 17.4 Q20 26.6 27.4 17.4" fill="none" stroke="currentColor"
+            stroke-width="3.4" stroke-linecap="round" />
+        </svg>
       </span>
-      ${card.showButtonLabel ? `<span class="prime-card-bottom-help-label">${card.buttonLabel}</span>` : ""}
-    </button>
+    </div>
   `;
 }
 
@@ -15897,7 +15955,7 @@ function renderCardBottom(card) {
             <div class="prime-card-bottom-side">
               <div class="prime-card-bottom-expiry">${card.expiry || "&nbsp;"}</div>
               <div class="prime-card-bottom-button-slot">
-                ${renderBottomButton(card)}
+                ${renderClarita()}
               </div>
             </div>
           `
