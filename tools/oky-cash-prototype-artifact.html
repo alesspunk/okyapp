@@ -17185,6 +17185,7 @@ function createInitialState(userType) {
        sigue ahí, callada. */
     guideOn: false,
     guideAsk: false,
+    guideAway: false,
     tourCount: false,
     tourReady: false,
     tourFlag: false,
@@ -17711,8 +17712,8 @@ function tourOverlay(state) {
    arriba, callada. */
 function homeGuide(state) {
   return `
-    <div class="oky-flow-guide" data-action="guide-tap" role="button" tabindex="0"
-      aria-label="Clarita: Gana OKY Cash, ¿quieres saber cómo?">
+    <div class="oky-flow-guide${state.guideAway ? " is-away" : ""}" data-action="guide-tap"
+      role="button" tabindex="0" aria-label="Clarita: Gana OKY Cash, ¿quieres saber cómo?">
       ${
         state.guideAsk
           ? `<p class="prime-card-clarita-bubble oky-flow-guide-bubble">
@@ -21105,18 +21106,21 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         const hint = root.querySelector(".oky-flow-scroll-hint");
         if (hint) hint.classList.toggle("is-hidden", y > 24);
 
-        /* Clarita vive arriba: bajando se va, y al volver se asoma sin
-           preguntar. Repetir la pregunta sola sería insistir; si la
-           quieres, la tocas. Se saca el globo por DOM para no repintar
-           la home en mitad de un scroll. */
-        const guide = root.querySelector(".oky-flow-guide");
-        if (guide) {
-          const away = y > 24;
-          guide.classList.toggle("is-away", away);
-          if (away && state.guideAsk) {
-            state.guideAsk = false;
-            const bubble = guide.querySelector(".oky-flow-guide-bubble");
-            if (bubble) bubble.remove();
+        /* Clarita vive arriba: bajando se va y al volver se asoma
+           preguntando otra vez. Esconderse es estado y no solo una
+           clase, porque cualquier repintado la devolvía a la vista
+           aunque siguieras abajo. Bajando basta con la clase, que es
+           la que lo anima; subiendo se rehace si volvió sin globo. */
+        const away = y > 24;
+        if (state.guideOn && away !== state.guideAway) {
+          state.guideAway = away;
+          if (!away) state.guideAsk = true;
+          const guide = root.querySelector(".oky-flow-guide");
+          if (guide) {
+            guide.classList.toggle("is-away", away);
+            if (!away && !guide.querySelector(".oky-flow-guide-bubble")) {
+              guide.outerHTML = homeGuide(state);
+            }
           }
         }
 
@@ -21484,7 +21488,10 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.guideAsk = true;
         return render();
       }
+      /* Enseñado el recorrido, Clarita se retira: ya hizo su trabajo y
+         volver a ofrecerlo sería insistir. */
       state.guideAsk = false;
+      state.guideOn = false;
       state.tourStep = 0;
       render();
       placeTour();
