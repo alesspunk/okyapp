@@ -21122,6 +21122,9 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      lo cancela, porque entonces manda el recorrido y el reloj arranca
      con el confeti del final. */
   const PROMO_IDLE_MS = 7000;
+  /* Y cuando arranca al final del recorrido, la espera se cuenta desde
+     que el confeti termina de caer. */
+  const PROMO_AFTER_CONFETTI_MS = 2000;
   let promoIdleTimer = null;
 
   function cancelPromoIdle() {
@@ -21237,10 +21240,13 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
            la compra. */
         state.tourFlag = false;
         state.tourConfetti = true;
-        /* Con el confeti arranca el reloj: el strip pasa de aqua al 5%
-           a mostaza con cuenta atrás, y ese cambio a la vista explica
-           solo lo que una parada del recorrido tendría que contar. */
-        startPromo();
+        /* El reloj no arranca con el confeti: espera a que caiga y deja
+           un par de segundos de calma. Así da tiempo a leer el 5% en
+           aqua y después se ve convertirse en el 20% con la cuenta
+           atrás, que es lo que hay que entender. Los dos a la vez se
+           pisaban y el cambio pasaba desapercibido. */
+        cancelPromoIdle();
+        promoIdleTimer = setTimeout(startPromo, TOUR_CONFETTI_MS + PROMO_AFTER_CONFETTI_MS);
         render();
         tourFlagTimer = setTimeout(() => {
           state.tourConfetti = false;
