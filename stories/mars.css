@@ -14120,3 +14120,130 @@ img.oky-flow-method-mark {
 .oky-flow-tour-call:not(.is-below) {
   flex-direction: column-reverse;
 }
+
+
+/* ── Selector de marketplace ──────────────────────────────
+   Se abre desde la doble flecha de la pestaña que está delante. Es una
+   hoja corta y blanca: no cambia de marketplace ni vacía el carrito,
+   solo elige país dentro del lado que ya se estaba mirando, así que no
+   necesita el morado ni la advertencia de la hoja de país. */
+.oky-flow-market {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 121;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 72%;
+  padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-radius: 24px 24px 0 0;
+  background: var(--white);
+  box-shadow: 0 -8px 32px rgba(16, 4, 36, 0.18);
+  animation: oky-flow-sheet-up 360ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.oky-flow-market-grip {
+  width: 44px;
+  height: 4px;
+  margin: 0 auto 10px;
+  border-radius: 2px;
+  background: var(--divider);
+}
+
+.oky-flow-market-head {
+  padding: 0 4px 6px;
+}
+
+.oky-flow-market-title {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary-main);
+}
+
+.oky-flow-market-note {
+  margin: 2px 0 0;
+  font-family: "Lato", sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.oky-flow-market-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.oky-flow-market-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 8px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.oky-flow-market-item + .oky-flow-market-item,
+.oky-flow-market-list li + li .oky-flow-market-item {
+  box-shadow: inset 0 1px 0 var(--divider);
+  border-radius: 0;
+}
+
+.oky-flow-market-item:active {
+  background: rgba(65, 0, 136, 0.06);
+}
+
+.oky-flow-market-flag {
+  display: flex;
+  flex: none;
+}
+
+.oky-flow-market-label {
+  flex: 1 1 auto;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary-main);
+}
+
+.oky-flow-market-code {
+  flex: none;
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--disable-text);
+}
+
+/* La marca de lo ya elegido solo se enseña en su fila: un check en
+   todas no diría nada. */
+.oky-flow-market-check {
+  flex: none;
+  width: 20px;
+  text-align: center;
+  color: var(--secondary-dark);
+  opacity: 0;
+}
+
+.oky-flow-market-item.is-current .oky-flow-market-check {
+  opacity: 1;
+}
+
+/* La doble flecha solo se ofrece como botón desde la pestaña de
+   delante; en la de atrás sigue dibujada pero el toque es de la
+   pestaña. */
+.folder-chevron-stack.is-enabled {
+  cursor: pointer;
+}

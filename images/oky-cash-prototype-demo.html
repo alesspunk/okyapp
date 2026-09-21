@@ -14143,6 +14143,133 @@ img.oky-flow-method-mark {
   flex-direction: column-reverse;
 }
 
+
+/* ── Selector de marketplace ──────────────────────────────
+   Se abre desde la doble flecha de la pestaña que está delante. Es una
+   hoja corta y blanca: no cambia de marketplace ni vacía el carrito,
+   solo elige país dentro del lado que ya se estaba mirando, así que no
+   necesita el morado ni la advertencia de la hoja de país. */
+.oky-flow-market {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 121;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 72%;
+  padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-radius: 24px 24px 0 0;
+  background: var(--white);
+  box-shadow: 0 -8px 32px rgba(16, 4, 36, 0.18);
+  animation: oky-flow-sheet-up 360ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.oky-flow-market-grip {
+  width: 44px;
+  height: 4px;
+  margin: 0 auto 10px;
+  border-radius: 2px;
+  background: var(--divider);
+}
+
+.oky-flow-market-head {
+  padding: 0 4px 6px;
+}
+
+.oky-flow-market-title {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary-main);
+}
+
+.oky-flow-market-note {
+  margin: 2px 0 0;
+  font-family: "Lato", sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.oky-flow-market-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.oky-flow-market-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 8px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.oky-flow-market-item + .oky-flow-market-item,
+.oky-flow-market-list li + li .oky-flow-market-item {
+  box-shadow: inset 0 1px 0 var(--divider);
+  border-radius: 0;
+}
+
+.oky-flow-market-item:active {
+  background: rgba(65, 0, 136, 0.06);
+}
+
+.oky-flow-market-flag {
+  display: flex;
+  flex: none;
+}
+
+.oky-flow-market-label {
+  flex: 1 1 auto;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary-main);
+}
+
+.oky-flow-market-code {
+  flex: none;
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--disable-text);
+}
+
+/* La marca de lo ya elegido solo se enseña en su fila: un check en
+   todas no diría nada. */
+.oky-flow-market-check {
+  flex: none;
+  width: 20px;
+  text-align: center;
+  color: var(--secondary-dark);
+  opacity: 0;
+}
+
+.oky-flow-market-item.is-current .oky-flow-market-check {
+  opacity: 1;
+}
+
+/* La doble flecha solo se ofrece como botón desde la pestaña de
+   delante; en la de atrás sigue dibujada pero el toque es de la
+   pestaña. */
+.folder-chevron-stack.is-enabled {
+  cursor: pointer;
+}
+
 @font-face {
   font-family: "FA Free Solid Fallback";
   font-style: normal;
@@ -14307,7 +14434,7 @@ function renderFlag(args = {}) {
   const borderClass = args.hasBorder === false ? " is-borderless" : "";
   const missingClass = country.isMissing ? " is-missing" : "";
   const title = `${country.name} · ${country.alpha3 || country.alpha2}`;
-  var __FLAGS = {"us": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMTUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IHgxPSI1MCUiIHkxPSIwJSIgeDI9IjUwJSIgeTI9IjEwMCUiIGlkPSJhIj48c3RvcCBzdG9wLWNvbG9yPSIjRkZGIiBvZmZzZXQ9IjAlIi8+PHN0b3Agc3RvcC1jb2xvcj0iI0YwRjBGMCIgb2Zmc2V0PSIxMDAlIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSIgaWQ9ImIiPjxzdG9wIHN0b3AtY29sb3I9IiNEMDJGNDQiIG9mZnNldD0iMCUiLz48c3RvcCBzdG9wLWNvbG9yPSIjQjEyNTM3IiBvZmZzZXQ9IjEwMCUiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCB4MT0iNTAlIiB5MT0iMCUiIHgyPSI1MCUiIHkyPSIxMDAlIiBpZD0iYyI+PHN0b3Agc3RvcC1jb2xvcj0iIzQ2NDY3RiIgb2Zmc2V0PSIwJSIvPjxzdG9wIHN0b3AtY29sb3I9IiMzQzNDNkQiIG9mZnNldD0iMTAwJSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxnIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTAgMGgyMXYxNUgweiIvPjxwYXRoIGQ9Ik0wIDBoMjF2MUgwVjB6bTAgMmgyMXYxSDBWMnptMCAyaDIxdjFIMFY0em0wIDJoMjF2MUgwVjZ6bTAgMmgyMXYxSDBWOHptMCAyaDIxdjFIMHYtMXptMCAyaDIxdjFIMHYtMXptMCAyaDIxdjFIMHYtMXoiIGZpbGw9InVybCgjYikiLz48cGF0aCBmaWxsPSJ1cmwoI2MpIiBkPSJNMCAwaDl2N0gweiIvPjxwYXRoIGQ9Ik0xLjUgMmEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptMiAwYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxem0yIDBhLjUuNSAwIDEgMSAwLTEgLjUuNSAwIDAgMSAwIDF6bTIgMGEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptLTUgMWEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptMiAwYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxem0yIDBhLjUuNSAwIDEgMSAwLTEgLjUuNSAwIDAgMSAwIDF6bTEgMWEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptLTIgMGEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptLTIgMGEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptLTIgMGEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptMSAxYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxem0yIDBhLjUuNSAwIDEgMSAwLTEgLjUuNSAwIDAgMSAwIDF6bTIgMGEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptMSAxYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxem0tMiAwYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxem0tMiAwYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxem0tMiAwYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxeiIgZmlsbD0idXJsKCNhKSIvPjwvZz48L3N2Zz4=", "gt": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMTUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IHgxPSI1MCUiIHkxPSIwJSIgeDI9IjUwJSIgeTI9IjEwMCUiIGlkPSJhIj48c3RvcCBzdG9wLWNvbG9yPSIjRkZGIiBvZmZzZXQ9IjAlIi8+PHN0b3Agc3RvcC1jb2xvcj0iI0YwRjBGMCIgb2Zmc2V0PSIxMDAlIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSIgaWQ9ImIiPjxzdG9wIHN0b3AtY29sb3I9IiM2M0FFRTMiIG9mZnNldD0iMCUiLz48c3RvcCBzdG9wLWNvbG9yPSIjNDk5OEQwIiBvZmZzZXQ9IjEwMCUiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9InVybCgjYSkiIGQ9Ik0wIDBoMjF2MTVIMHoiLz48cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMTAgMGgxMXYxNUgxMHpNMCAwaDd2MTVIMHoiLz48cGF0aCBmaWxsPSJ1cmwoI2EpIiBkPSJNNyAwaDd2MTVIN3oiLz48cGF0aCBkPSJNOCA3YTIuNSAyLjUgMCAwIDAgMS4yNDcgMi4xNjQuNS41IDAgMCAwIC41MDItLjg2NUExLjQ5OSAxLjQ5OSAwIDAgMSA5IDdhLjUuNSAwIDAgMC0xIDB6bTMuODQ2IDIuMTA3QTIuNDk4IDIuNDk4IDAgMCAwIDEzIDdhLjUuNSAwIDEgMC0xIDAgMS41IDEuNSAwIDAgMS0uNjkzIDEuMjY1LjUuNSAwIDEgMCAuNTM5Ljg0MnoiIGZpbGw9IiM2MjhBNDAiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxjaXJjbGUgZmlsbD0iI0RDQzI2RCIgY3g9IjEwLjUiIGN5PSI3IiByPSIxIi8+PC9nPjwvc3ZnPg=="};
+  var __FLAGS = {"ca": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMTUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IHgxPSI1MCUiIHkxPSIwJSIgeDI9IjUwJSIgeTI9IjEwMCUiIGlkPSJ3Ij48c3RvcCBzdG9wLWNvbG9yPSIjRkZGIiBvZmZzZXQ9IjAlIi8+PHN0b3Agc3RvcC1jb2xvcj0iI0YwRjBGMCIgb2Zmc2V0PSIxMDAlIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSIgaWQ9InIiPjxzdG9wIHN0b3AtY29sb3I9IiNFODQzNEEiIG9mZnNldD0iMCUiLz48c3RvcCBzdG9wLWNvbG9yPSIjRDAyRjM2IiBvZmZzZXQ9IjEwMCUiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9InVybCgjdykiIGQ9Ik0wIDBoMjF2MTVIMHoiLz48cGF0aCBmaWxsPSJ1cmwoI3IpIiBkPSJNMCAwaDUuMjV2MTVIMHpNMTUuNzUgMEgyMXYxNWgtNS4yNXoiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMC41IDcuNSkgc2NhbGUoLjAwOTgzKSB0cmFuc2xhdGUoLTUxMiAtNTMyKSI+PHBhdGggZD0iTTUxMiA3NCBsLTcwIDEzMSBjLTggMTQtMjIgMTMtMzYgNmwtNTEtMjYgMzggMjAyYzggMzctMTggMzctMzAgMjFsLTg5LTk5LTE0IDUxYy0yIDYtOSAxMy0yMCAxMWwtMTEzLTI0IDMwIDEwOGM2IDI0IDExIDM0LTcgNDFsLTM4IDE4IDE4NCAxNDljNyA2IDExIDE2IDggMjZsLTE2IDUzIDE3NC0yMWM1IDAgMTQgMSAxNCA4bC04IDE5N2g1MWwtNS0xOTZjMC03IDgtOSAxNC05bDE3MyAyMS0xNi01M2MtMy0xMCAxLTIwIDgtMjZsMTg0LTE0OS0zOC0xOGMtMTgtNy0xMy0xNy03LTQxbDMwLTEwOC0xMTMgMjRjLTExIDItMTgtNS0yMC0xMWwtMTQtNTEtODkgOTljLTEyIDE2LTM4IDE2LTMwLTIxbDM4LTIwMi01MSAyNmMtMTQgNy0yOCA4LTM2LTZ6IiBmaWxsPSJ1cmwoI3IpIi8+PC9nPjwvZz48L3N2Zz4=", "cr": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMTUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IHgxPSI1MCUiIHkxPSIwJSIgeDI9IjUwJSIgeTI9IjEwMCUiIGlkPSJ3Ij48c3RvcCBzdG9wLWNvbG9yPSIjRkZGIiBvZmZzZXQ9IjAlIi8+PHN0b3Agc3RvcC1jb2xvcj0iI0YwRjBGMCIgb2Zmc2V0PSIxMDAlIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSIgaWQ9ImIiPjxzdG9wIHN0b3AtY29sb3I9IiMxQjRFQTgiIG9mZnNldD0iMCUiLz48c3RvcCBzdG9wLWNvbG9yPSIjMTQzQzg2IiBvZmZzZXQ9IjEwMCUiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCB4MT0iNTAlIiB5MT0iMCUiIHgyPSI1MCUiIHkyPSIxMDAlIiBpZD0iciI+PHN0b3Agc3RvcC1jb2xvcj0iI0U4NDM0QSIgb2Zmc2V0PSIwJSIvPjxzdG9wIHN0b3AtY29sb3I9IiNEMDJGMzYiIG9mZnNldD0iMTAwJSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxnIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+PHBhdGggZmlsbD0idXJsKCN3KSIgZD0iTTAgMGgyMXYxNUgweiIvPjxwYXRoIGZpbGw9InVybCgjYikiIGQ9Ik0wIDBoMjF2Mi41SDB6TTAgMTIuNWgyMVYxNUgweiIvPjxwYXRoIGZpbGw9InVybCgjcikiIGQ9Ik0wIDVoMjF2NUgweiIvPjwvZz48L3N2Zz4=", "gt": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMTUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IHgxPSI1MCUiIHkxPSIwJSIgeDI9IjUwJSIgeTI9IjEwMCUiIGlkPSJhIj48c3RvcCBzdG9wLWNvbG9yPSIjRkZGIiBvZmZzZXQ9IjAlIi8+PHN0b3Agc3RvcC1jb2xvcj0iI0YwRjBGMCIgb2Zmc2V0PSIxMDAlIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSIgaWQ9ImIiPjxzdG9wIHN0b3AtY29sb3I9IiM2M0FFRTMiIG9mZnNldD0iMCUiLz48c3RvcCBzdG9wLWNvbG9yPSIjNDk5OEQwIiBvZmZzZXQ9IjEwMCUiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9InVybCgjYSkiIGQ9Ik0wIDBoMjF2MTVIMHoiLz48cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMTAgMGgxMXYxNUgxMHpNMCAwaDd2MTVIMHoiLz48cGF0aCBmaWxsPSJ1cmwoI2EpIiBkPSJNNyAwaDd2MTVIN3oiLz48cGF0aCBkPSJNOCA3YTIuNSAyLjUgMCAwIDAgMS4yNDcgMi4xNjQuNS41IDAgMCAwIC41MDItLjg2NUExLjQ5OSAxLjQ5OSAwIDAgMSA5IDdhLjUuNSAwIDAgMC0xIDB6bTMuODQ2IDIuMTA3QTIuNDk4IDIuNDk4IDAgMCAwIDEzIDdhLjUuNSAwIDEgMC0xIDAgMS41IDEuNSAwIDAgMS0uNjkzIDEuMjY1LjUuNSAwIDEgMCAuNTM5Ljg0MnoiIGZpbGw9IiM2MjhBNDAiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxjaXJjbGUgZmlsbD0iI0RDQzI2RCIgY3g9IjEwLjUiIGN5PSI3IiByPSIxIi8+PC9nPjwvc3ZnPg==", "hn": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMTUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IHgxPSI1MCUiIHkxPSIwJSIgeDI9IjUwJSIgeTI9IjEwMCUiIGlkPSJ3Ij48c3RvcCBzdG9wLWNvbG9yPSIjRkZGIiBvZmZzZXQ9IjAlIi8+PHN0b3Agc3RvcC1jb2xvcj0iI0YwRjBGMCIgb2Zmc2V0PSIxMDAlIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSIgaWQ9ImIiPjxzdG9wIHN0b3AtY29sb3I9IiMzRDlERTgiIG9mZnNldD0iMCUiLz48c3RvcCBzdG9wLWNvbG9yPSIjMkQ4NUNDIiBvZmZzZXQ9IjEwMCUiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9InVybCgjdykiIGQ9Ik0wIDBoMjF2MTVIMHoiLz48cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMCAwaDIxdjVIMHpNMCAxMGgyMXY1SDB6Ii8+PGNpcmNsZSBjeD0iMTAuNTAiIGN5PSI3LjUwIiByPSIuODUiIGZpbGw9IiMyRDg1Q0MiLz48Y2lyY2xlIGN4PSI4LjQwIiBjeT0iNi4yMCIgcj0iLjg1IiBmaWxsPSIjMkQ4NUNDIi8+PGNpcmNsZSBjeD0iMTIuNjAiIGN5PSI2LjIwIiByPSIuODUiIGZpbGw9IiMyRDg1Q0MiLz48Y2lyY2xlIGN4PSI4LjQwIiBjeT0iOC44MCIgcj0iLjg1IiBmaWxsPSIjMkQ4NUNDIi8+PGNpcmNsZSBjeD0iMTIuNjAiIGN5PSI4LjgwIiByPSIuODUiIGZpbGw9IiMyRDg1Q0MiLz48L2c+PC9zdmc+", "ni": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMTUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IHgxPSI1MCUiIHkxPSIwJSIgeDI9IjUwJSIgeTI9IjEwMCUiIGlkPSJ3Ij48c3RvcCBzdG9wLWNvbG9yPSIjRkZGIiBvZmZzZXQ9IjAlIi8+PHN0b3Agc3RvcC1jb2xvcj0iI0YwRjBGMCIgb2Zmc2V0PSIxMDAlIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSIgaWQ9ImIiPjxzdG9wIHN0b3AtY29sb3I9IiMzRThGRDQiIG9mZnNldD0iMCUiLz48c3RvcCBzdG9wLWNvbG9yPSIjMkY3OUJDIiBvZmZzZXQ9IjEwMCUiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9InVybCgjdykiIGQ9Ik0wIDBoMjF2MTVIMHoiLz48cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMCAwaDIxdjVIMHpNMCAxMGgyMXY1SDB6Ii8+PHBhdGggZD0iTTEwLjUgNS44IDEyLjYgOS4ySDguNHoiIGZpbGw9IiNGMkM5NEMiIHN0cm9rZT0iIzJGNzlCQyIgc3Ryb2tlLXdpZHRoPSIuMyIvPjwvZz48L3N2Zz4=", "pa": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMTUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IHgxPSI1MCUiIHkxPSIwJSIgeDI9IjUwJSIgeTI9IjEwMCUiIGlkPSJ3Ij48c3RvcCBzdG9wLWNvbG9yPSIjRkZGIiBvZmZzZXQ9IjAlIi8+PHN0b3Agc3RvcC1jb2xvcj0iI0YwRjBGMCIgb2Zmc2V0PSIxMDAlIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSIgaWQ9ImIiPjxzdG9wIHN0b3AtY29sb3I9IiMxQjRFQTgiIG9mZnNldD0iMCUiLz48c3RvcCBzdG9wLWNvbG9yPSIjMTQzQzg2IiBvZmZzZXQ9IjEwMCUiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCB4MT0iNTAlIiB5MT0iMCUiIHgyPSI1MCUiIHkyPSIxMDAlIiBpZD0iciI+PHN0b3Agc3RvcC1jb2xvcj0iI0U4NDM0QSIgb2Zmc2V0PSIwJSIvPjxzdG9wIHN0b3AtY29sb3I9IiNEMDJGMzYiIG9mZnNldD0iMTAwJSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxnIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+PHBhdGggZmlsbD0idXJsKCN3KSIgZD0iTTAgMGgyMXYxNUgweiIvPjxwYXRoIGZpbGw9InVybCgjcikiIGQ9Ik0xMC41IDBIMjF2Ny41SDEwLjV6Ii8+PHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTAgNy41aDEwLjVWMTVIMHoiLz48Y2lyY2xlIGN4PSI1LjI1IiBjeT0iMy43NSIgcj0iMS41IiBmaWxsPSIjMTQzQzg2Ii8+PGNpcmNsZSBjeD0iMTUuNzUiIGN5PSIxMS4yNSIgcj0iMS41IiBmaWxsPSIjRDAyRjM2Ii8+PC9nPjwvc3ZnPg==", "sv": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMTUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IHgxPSI1MCUiIHkxPSIwJSIgeDI9IjUwJSIgeTI9IjEwMCUiIGlkPSJ3Ij48c3RvcCBzdG9wLWNvbG9yPSIjRkZGIiBvZmZzZXQ9IjAlIi8+PHN0b3Agc3RvcC1jb2xvcj0iI0YwRjBGMCIgb2Zmc2V0PSIxMDAlIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSIgaWQ9ImIiPjxzdG9wIHN0b3AtY29sb3I9IiMwRjVGRDYiIG9mZnNldD0iMCUiLz48c3RvcCBzdG9wLWNvbG9yPSIjMEI0Q0IwIiBvZmZzZXQ9IjEwMCUiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9InVybCgjdykiIGQ9Ik0wIDBoMjF2MTVIMHoiLz48cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMCAwaDIxdjVIMHpNMCAxMGgyMXY1SDB6Ii8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTAuNSA3LjUpIj48Y2lyY2xlIHI9IjIuMSIgZmlsbD0iI0Y5RDI0QSIvPjxwYXRoIGQ9Ik0wLTEuNiAxLjUgMUgtMS41eiIgZmlsbD0iIzBCNENCMCIvPjxjaXJjbGUgcj0iMi4xIiBmaWxsPSJub25lIiBzdHJva2U9IiMwQjRDQjAiIHN0cm9rZS13aWR0aD0iLjM1Ii8+PC9nPjwvZz48L3N2Zz4=", "us": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMTUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IHgxPSI1MCUiIHkxPSIwJSIgeDI9IjUwJSIgeTI9IjEwMCUiIGlkPSJhIj48c3RvcCBzdG9wLWNvbG9yPSIjRkZGIiBvZmZzZXQ9IjAlIi8+PHN0b3Agc3RvcC1jb2xvcj0iI0YwRjBGMCIgb2Zmc2V0PSIxMDAlIi8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSIgaWQ9ImIiPjxzdG9wIHN0b3AtY29sb3I9IiNEMDJGNDQiIG9mZnNldD0iMCUiLz48c3RvcCBzdG9wLWNvbG9yPSIjQjEyNTM3IiBvZmZzZXQ9IjEwMCUiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCB4MT0iNTAlIiB5MT0iMCUiIHgyPSI1MCUiIHkyPSIxMDAlIiBpZD0iYyI+PHN0b3Agc3RvcC1jb2xvcj0iIzQ2NDY3RiIgb2Zmc2V0PSIwJSIvPjxzdG9wIHN0b3AtY29sb3I9IiMzQzNDNkQiIG9mZnNldD0iMTAwJSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxnIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+PHBhdGggZmlsbD0idXJsKCNhKSIgZD0iTTAgMGgyMXYxNUgweiIvPjxwYXRoIGQ9Ik0wIDBoMjF2MUgwVjB6bTAgMmgyMXYxSDBWMnptMCAyaDIxdjFIMFY0em0wIDJoMjF2MUgwVjZ6bTAgMmgyMXYxSDBWOHptMCAyaDIxdjFIMHYtMXptMCAyaDIxdjFIMHYtMXptMCAyaDIxdjFIMHYtMXoiIGZpbGw9InVybCgjYikiLz48cGF0aCBmaWxsPSJ1cmwoI2MpIiBkPSJNMCAwaDl2N0gweiIvPjxwYXRoIGQ9Ik0xLjUgMmEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptMiAwYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxem0yIDBhLjUuNSAwIDEgMSAwLTEgLjUuNSAwIDAgMSAwIDF6bTIgMGEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptLTUgMWEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptMiAwYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxem0yIDBhLjUuNSAwIDEgMSAwLTEgLjUuNSAwIDAgMSAwIDF6bTEgMWEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptLTIgMGEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptLTIgMGEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptLTIgMGEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptMSAxYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxem0yIDBhLjUuNSAwIDEgMSAwLTEgLjUuNSAwIDAgMSAwIDF6bTIgMGEuNS41IDAgMSAxIDAtMSAuNS41IDAgMCAxIDAgMXptMSAxYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxem0tMiAwYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxem0tMiAwYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxem0tMiAwYS41LjUgMCAxIDEgMC0xIC41LjUgMCAwIDEgMCAxeiIgZmlsbD0idXJsKCNhKSIvPjwvZz48L3N2Zz4="};
   const src = __FLAGS[country.alpha2.toLowerCase()] || `/flagpack/4x3/${country.alpha2.toLowerCase()}.svg`;
 
   return `
@@ -15404,8 +15531,15 @@ function renderFolderOption({
       }
       <span class="folder-code"${style ? ` style="${style}"` : ""}>${code}</span>
       ${
+        /* La doble flecha abre el selector de marketplace, y solo desde
+           la pestaña que está delante: en la de atrás no tiene acción
+           propia y el toque se lo queda la pestaña, que es lo que se
+           esperaba tocar. */
         showChevronForOption
-          ? `<span class="folder-chevron-stack" aria-hidden="true"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCAxMiAxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTUuNjg1NTUgMC4zMjQyMTlDNS44NDk2MSAwLjE0NjQ4NCA2LjEzNjcyIDAuMTQ2NDg0IDYuMzAwNzggMC4zMjQyMTlMOC45MjU3OCAyLjk0OTIyQzkuMTAzNTIgMy4xMTMyOCA5LjEwMzUyIDMuNDAwMzkgOC45MjU3OCAzLjU2NDQ1QzguNzYxNzIgMy43NDIxOSA4LjQ3NDYxIDMuNzQyMTkgOC4zMTA1NSAzLjU2NDQ1TDYgMS4yNTM5MUwzLjY3NTc4IDMuNTY0NDVDMy41MTE3MiAzLjc0MjE5IDMuMjI0NjEgMy43NDIxOSAzLjA2MDU1IDMuNTY0NDVDMi44ODI4MSAzLjQwMDM5IDIuODgyODEgMy4xMTMyOCAzLjA2MDU1IDIuOTQ5MjJMNS42ODU1NSAwLjMyNDIxOVoiIGZpbGw9IiMwOTA5MDkiIGZpbGwtb3BhY2l0eT0iMC44Ii8+CjxwYXRoIGQ9Ik01LjY4NTU1IDkuNDM5NDVMMy4wNjA1NSA2LjgxNDQ1QzIuODgyODEgNi42NTAzOSAyLjg4MjgxIDYuMzYzMjggMy4wNjA1NSA2LjE5OTIyQzMuMjI0NjEgNi4wMjE0OCAzLjUxMTcyIDYuMDIxNDggMy42NzU3OCA2LjE5OTIyTDYgOC41MDk3N0w4LjMxMDU1IDYuMTk5MjJDOC40NzQ2MSA2LjAyMTQ4IDguNzYxNzIgNi4wMjE0OCA4LjkyNTc4IDYuMTk5MjJDOS4xMDM1MiA2LjM2MzI4IDkuMTAzNTIgNi42NTAzOSA4LjkyNTc4IDYuODE0NDVMNi4zMDA3OCA5LjQzOTQ1QzYuMTM2NzIgOS42MTcxOSA1Ljg0OTYxIDkuNjE3MTkgNS42ODU1NSA5LjQzOTQ1WiIgZmlsbD0iIzA5MDkwOSIgZmlsbC1vcGFjaXR5PSIwLjgiLz4KPC9zdmc+Cg==" alt=""></span>`
+          ? isActive
+            ? `<span class="folder-chevron-stack is-enabled" role="button" tabindex="0"
+                data-action="open-market" data-side="${side}" aria-label="Cambiar de país"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCAxMiAxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTUuNjg1NTUgMC4zMjQyMTlDNS44NDk2MSAwLjE0NjQ4NCA2LjEzNjcyIDAuMTQ2NDg0IDYuMzAwNzggMC4zMjQyMTlMOC45MjU3OCAyLjk0OTIyQzkuMTAzNTIgMy4xMTMyOCA5LjEwMzUyIDMuNDAwMzkgOC45MjU3OCAzLjU2NDQ1QzguNzYxNzIgMy43NDIxOSA4LjQ3NDYxIDMuNzQyMTkgOC4zMTA1NSAzLjU2NDQ1TDYgMS4yNTM5MUwzLjY3NTc4IDMuNTY0NDVDMy41MTE3MiAzLjc0MjE5IDMuMjI0NjEgMy43NDIxOSAzLjA2MDU1IDMuNTY0NDVDMi44ODI4MSAzLjQwMDM5IDIuODgyODEgMy4xMTMyOCAzLjA2MDU1IDIuOTQ5MjJMNS42ODU1NSAwLjMyNDIxOVoiIGZpbGw9IiMwOTA5MDkiIGZpbGwtb3BhY2l0eT0iMC44Ii8+CjxwYXRoIGQ9Ik01LjY4NTU1IDkuNDM5NDVMMy4wNjA1NSA2LjgxNDQ1QzIuODgyODEgNi42NTAzOSAyLjg4MjgxIDYuMzYzMjggMy4wNjA1NSA2LjE5OTIyQzMuMjI0NjEgNi4wMjE0OCAzLjUxMTcyIDYuMDIxNDggMy42NzU3OCA2LjE5OTIyTDYgOC41MDk3N0w4LjMxMDU1IDYuMTk5MjJDOC40NzQ2MSA2LjAyMTQ4IDguNzYxNzIgNi4wMjE0OCA4LjkyNTc4IDYuMTk5MjJDOS4xMDM1MiA2LjM2MzI4IDkuMTAzNTIgNi42NTAzOSA4LjkyNTc4IDYuODE0NDVMNi4zMDA3OCA5LjQzOTQ1QzYuMTM2NzIgOS42MTcxOSA1Ljg0OTYxIDkuNjE3MTkgNS42ODU1NSA5LjQzOTQ1WiIgZmlsbD0iIzA5MDkwOSIgZmlsbC1vcGFjaXR5PSIwLjgiLz4KPC9zdmc+Cg==" alt=""></span>`
+            : `<span class="folder-chevron-stack" aria-hidden="true"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCAxMiAxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTUuNjg1NTUgMC4zMjQyMTlDNS44NDk2MSAwLjE0NjQ4NCA2LjEzNjcyIDAuMTQ2NDg0IDYuMzAwNzggMC4zMjQyMTlMOC45MjU3OCAyLjk0OTIyQzkuMTAzNTIgMy4xMTMyOCA5LjEwMzUyIDMuNDAwMzkgOC45MjU3OCAzLjU2NDQ1QzguNzYxNzIgMy43NDIxOSA4LjQ3NDYxIDMuNzQyMTkgOC4zMTA1NSAzLjU2NDQ1TDYgMS4yNTM5MUwzLjY3NTc4IDMuNTY0NDVDMy41MTE3MiAzLjc0MjE5IDMuMjI0NjEgMy43NDIxOSAzLjA2MDU1IDMuNTY0NDVDMi44ODI4MSAzLjQwMDM5IDIuODgyODEgMy4xMTMyOCAzLjA2MDU1IDIuOTQ5MjJMNS42ODU1NSAwLjMyNDIxOVoiIGZpbGw9IiMwOTA5MDkiIGZpbGwtb3BhY2l0eT0iMC44Ii8+CjxwYXRoIGQ9Ik01LjY4NTU1IDkuNDM5NDVMMy4wNjA1NSA2LjgxNDQ1QzIuODgyODEgNi42NTAzOSAyLjg4MjgxIDYuMzYzMjggMy4wNjA1NSA2LjE5OTIyQzMuMjI0NjEgNi4wMjE0OCAzLjUxMTcyIDYuMDIxNDggMy42NzU3OCA2LjE5OTIyTDYgOC41MDk3N0w4LjMxMDU1IDYuMTk5MjJDOC40NzQ2MSA2LjAyMTQ4IDguNzYxNzIgNi4wMjE0OCA4LjkyNTc4IDYuMTk5MjJDOS4xMDM1MiA2LjM2MzI4IDkuMTAzNTIgNi42NTAzOSA4LjkyNTc4IDYuODE0NDVMNi4zMDA3OCA5LjQzOTQ1QzYuMTM2NzIgOS42MTcxOSA1Ljg0OTYxIDkuNjE3MTkgNS42ODU1NSA5LjQzOTQ1WiIgZmlsbD0iIzA5MDkwOSIgZmlsbC1vcGFjaXR5PSIwLjgiLz4KPC9zdmc+Cg==" alt=""></span>`
           : ""
       }
       ${isActive ? `<span class="folder-selection-line" aria-hidden="true"></span>` : ""}
@@ -15413,7 +15547,11 @@ function renderFolderOption({
   `;
 }
 
-function renderFolder(property1, { showNewItemChip = true, showChevrons = true, newItemSide = "right" } = {}) {
+function renderFolder(property1, { showNewItemChip = true, showChevrons = true, newItemSide = "right", markets } = {}) {
+  /* Cada lado enseña el país elegido en él; sin elección, el de
+     siempre. La izquierda sigue siendo el marketplace de USA y la
+     derecha el de Guatemala: lo que cambia es la bandera. */
+  const country = (side) => ({ ...COUNTRY_BASE[side], ...((markets || {})[side] || {}) });
   const isCollapsed = property1.startsWith("Collapsed");
   const isLeft = property1 === "Left" || property1 === "Collapsed Left";
 
@@ -15434,9 +15572,9 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
                 x: TAB_CENTER.left,
                 side: "left",
                 selectedSide,
-                code: COUNTRY_BASE.left.code,
-                flagCode: COUNTRY_BASE.left.iso,
-                alt: COUNTRY_BASE.left.alt,
+                code: country("left").code,
+                flagCode: country("left").iso,
+                alt: country("left").alt,
                 showChevrons,
                 withFlag: true,
                 flagVariant: "rect",
@@ -15445,9 +15583,9 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
                 x: TAB_CENTER.right,
                 side: "right",
                 selectedSide,
-                code: COUNTRY_BASE.right.code,
-                flagCode: COUNTRY_BASE.right.iso,
-                alt: COUNTRY_BASE.right.alt,
+                code: country("right").code,
+                flagCode: country("right").iso,
+                alt: country("right").alt,
                 showChevrons,
                 withFlag: true,
                 flagVariant: "rect",
@@ -15476,18 +15614,18 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
               x: TAB_CENTER.left,
               side: "left",
               selectedSide,
-              code: COUNTRY_BASE.left.code,
-              flagCode: COUNTRY_BASE.left.iso,
-              alt: COUNTRY_BASE.left.alt,
+              code: country("left").code,
+              flagCode: country("left").iso,
+              alt: country("left").alt,
               showChevrons,
             })}
             ${renderFolderOption({
               x: TAB_CENTER.right,
               side: "right",
               selectedSide,
-              code: COUNTRY_BASE.right.code,
-              flagCode: COUNTRY_BASE.right.iso,
-              alt: COUNTRY_BASE.right.alt,
+              code: country("right").code,
+              flagCode: country("right").iso,
+              alt: country("right").alt,
               showChevrons,
             })}
           </div>
@@ -15537,6 +15675,7 @@ function renderDiscoveryHeader({
   cartIndicated,
   walletIndicated = false,
   showPlateu = true,
+  markets,
 }) {
   const safeSide = SIDE_OPTIONS.includes(side) ? side : "Left";
   const safeState = STATE_OPTIONS.includes(state) ? state : "State 1";
@@ -15546,7 +15685,7 @@ function renderDiscoveryHeader({
     <section class="discovery-header-organism" data-side="${safeSide}" data-state="${safeState}" data-pen-id="${config.penId}">
       ${renderStatusBar()}
       ${renderAppHeader(config.header, { walletAction, cartAction, cartIndicated, walletIndicated })}
-      ${renderFolder(config.folder, { showNewItemChip, newItemSide })}
+      ${renderFolder(config.folder, { showNewItemChip, newItemSide, markets })}
       ${renderSearchInput({ compact: config.searchCompact })}
       ${config.plateu && showPlateu ? renderPlateuHome() : ""}
     </section>
@@ -17393,6 +17532,12 @@ function createInitialState(userType) {
     openGroups: ["activos"],
     /* Aviso de cambio de marketplace; guarda a dónde se iba. */
     countrySheet: null,
+    /* Qué país enseña cada lado del folder. Cambia la bandera y el
+       código de la pestaña; el catálogo es el del lado, compartido
+       entre los países de esa región. */
+    market: { left: "US", right: "GT" },
+    /* Qué lado abrió la hoja de marketplaces, o null si está cerrada. */
+    marketSheet: null,
     /* Aviso de "agregado al carrito", que se apaga solo. */
     addedToast: false,
     /* Lo que estaba abierto antes de filtrar, para devolverlo al
@@ -18041,6 +18186,68 @@ function countrySheet(state) {
   `;
 }
 
+/* Los marketplaces que ofrece cada lado del folder. La izquierda es
+   Norteamérica y la derecha Centroamérica: son dos catálogos, dos
+   monedas y dos carritos, así que un país no puede salir en los dos.
+   El código de tres letras es el que cabe en la pestaña. */
+const MARKETS = {
+  left: [
+    { iso: "US", code: "USA", label: "Estados Unidos", alt: "USA flag" },
+    { iso: "CA", code: "CAN", label: "Canadá", alt: "Canada flag" },
+  ],
+  right: [
+    { iso: "GT", code: "GUA", label: "Guatemala", alt: "Guatemala flag" },
+    { iso: "SV", code: "ESA", label: "El Salvador", alt: "El Salvador flag" },
+    { iso: "HN", code: "HON", label: "Honduras", alt: "Honduras flag" },
+    { iso: "NI", code: "NIC", label: "Nicaragua", alt: "Nicaragua flag" },
+    { iso: "CR", code: "CRC", label: "Costa Rica", alt: "Costa Rica flag" },
+    { iso: "PA", code: "PAN", label: "Panamá", alt: "Panamá flag" },
+  ],
+};
+
+const SIDE_LABEL = { left: "Norteamérica", right: "Centroamérica" };
+
+function marketOf(state, side) {
+  const iso = (state.market || {})[side];
+  return MARKETS[side].find((m) => m.iso === iso) || MARKETS[side][0];
+}
+
+/* La hoja de elegir marketplace. Sale solo desde la doble flecha de la
+   pestaña que está delante, así que lo que ofrece es siempre el lado
+   que se está mirando: nunca se puede saltar de Guatemala a Canadá sin
+   pasar por la pestaña de USA. */
+function marketSheet(state) {
+  const side = state.marketSheet;
+  const current = marketOf(state, side);
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-market" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-market" role="dialog" aria-modal="true" aria-labelledby="oky-market-title">
+      <span class="oky-flow-market-grip" aria-hidden="true"></span>
+      <header class="oky-flow-market-head">
+        <h2 class="oky-flow-market-title" id="oky-market-title">Elige tu marketplace</h2>
+        <p class="oky-flow-market-note">${SIDE_LABEL[side]}</p>
+      </header>
+      <ul class="oky-flow-market-list">
+        ${MARKETS[side]
+          .map(
+            (m) => `
+          <li>
+            <button class="oky-flow-market-item${m.iso === current.iso ? " is-current" : ""}"
+              data-action="pick-market" data-side="${side}" data-iso="${m.iso}" type="button">
+              <span class="oky-flow-market-flag">${renderFlag({ code: m.iso, size: "Large" })}</span>
+              <span class="oky-flow-market-label">${m.label}</span>
+              <span class="oky-flow-market-code">${m.code}</span>
+              <span class="oky-flow-market-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+            </button>
+          </li>
+        `,
+          )
+          .join("")}
+      </ul>
+    </section>
+  `;
+}
+
 /* ── Home (99105:31149) ─────────────────────────────────── */
 /* El Discovery Header del home, en el estado que toque: State 1 con el
    folder desplegado y State 2 con el folder colapsado, que es el que
@@ -18063,6 +18270,7 @@ function homeHeader(state, headerState) {
     /* El State 3 del organismo trae el carrusel de categorías; aquí no
        se usa, y el punto de colapsar es justamente ganar alto. */
     showPlateu: false,
+    markets: { left: marketOf(state, "left"), right: marketOf(state, "right") },
   });
 }
 
@@ -19281,14 +19489,29 @@ function sectionOfVoucher(key) {
    el resto entra por tandas con "Ver más". */
 const WALLET_PAGE = 5;
 
-/* La bandera dice de qué marketplace salió la tarjeta: los vales y los
-   servicios son de Guatemala; las gift cards, del catálogo de USA. */
+/* La bandera dice de qué marketplace salió la tarjeta. Por defecto, el
+   de su sección: las gift cards vienen del catálogo de Norteamérica y
+   los vales y servicios del de Centroamérica. */
 function countryOfSection(section) {
   return section === "gift" ? "US" : "GT";
 }
 
+/* Pero cada marca es de donde es: el folder ofrece la región entera y
+   el wallet lo enseña —un vale de Pollo Granjero salvadoreño, uno de
+   Domino's hondureño, una gift card canadiense—. Lo que no está aquí
+   se queda con el país de su sección. */
+const VOUCHER_COUNTRY = {
+  pollogranjero: "SV",
+  dominosgt: "HN",
+  underarmour: "CA",
+};
+
+function countryOfVoucher(key, section) {
+  return VOUCHER_COUNTRY[brandKeyOf(key)] || countryOfSection(section);
+}
+
 function walletVoucherButton(v, deck, group = "activos") {
-  const country = countryOfSection(deck);
+  const country = countryOfVoucher(v.key, deck);
   const mark = stackMark(v);
   return `
     <button class="oky-flow-voucher${group === "archivados" ? " is-archived" : ""}"
@@ -20312,7 +20535,7 @@ function screenVoucher(state) {
               topBrandLabel: valeBrand.label,
               topHeroImage: valeBrand.art,
               topHeroAlt: valeBrand.label,
-              topFlagCode: countryOfSection(sectionOfVoucher(card.key)),
+              topFlagCode: countryOfVoucher(card.key, sectionOfVoucher(card.key)),
               topFooterLeftLabel: "Qué incluye",
               middleCardPath: "Molecule/Middle Card/Vale de Producto",
               middleTitle: card.label,
@@ -20324,7 +20547,7 @@ function screenVoucher(state) {
             }
           : {
               topVariantPath: "Molecule/Top Card/Gift Card",
-              topFlagCode: countryOfSection(sectionOfVoucher(card.key)),
+              topFlagCode: countryOfVoucher(card.key, sectionOfVoucher(card.key)),
               topBrandLabel: card.label,
               topHeroImage: card.art,
               topHeroAlt: card.label,
@@ -21073,6 +21296,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.cartOpen ? cartDrawer(state) : ""}
         ${state.sheet ? (state.sheet.type === "filter" ? filterSheet(state) : confirmSheet(state)) : ""}
         ${state.countrySheet ? countrySheet(state) : ""}
+        ${state.marketSheet ? marketSheet(state) : ""}
         ${state.savingsSheet ? savingsSheet() : ""}
         ${state.promoOpen ? promoDialog(state) : ""}
         ${state.addedToast ? addedToast() : ""}
@@ -22056,6 +22280,23 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "tour-end") return closeTour();
+
+    if (action === "open-market") {
+      state.marketSheet = el.dataset.side === "left" ? "left" : "right";
+      return render();
+    }
+
+    if (action === "close-market") {
+      state.marketSheet = null;
+      return render();
+    }
+
+    if (action === "pick-market") {
+      const side = el.dataset.side === "left" ? "left" : "right";
+      state.market = { ...state.market, [side]: el.dataset.iso };
+      state.marketSheet = null;
+      return render();
+    }
 
     if (action === "country-stay") {
       state.countrySheet = null;

@@ -609,6 +609,12 @@ function createInitialState(userType) {
     openGroups: ["activos"],
     /* Aviso de cambio de marketplace; guarda a dónde se iba. */
     countrySheet: null,
+    /* Qué país enseña cada lado del folder. Cambia la bandera y el
+       código de la pestaña; el catálogo es el del lado, compartido
+       entre los países de esa región. */
+    market: { left: "US", right: "GT" },
+    /* Qué lado abrió la hoja de marketplaces, o null si está cerrada. */
+    marketSheet: null,
     /* Aviso de "agregado al carrito", que se apaga solo. */
     addedToast: false,
     /* Lo que estaba abierto antes de filtrar, para devolverlo al
@@ -1257,6 +1263,68 @@ function countrySheet(state) {
   `;
 }
 
+/* Los marketplaces que ofrece cada lado del folder. La izquierda es
+   Norteamérica y la derecha Centroamérica: son dos catálogos, dos
+   monedas y dos carritos, así que un país no puede salir en los dos.
+   El código de tres letras es el que cabe en la pestaña. */
+const MARKETS = {
+  left: [
+    { iso: "US", code: "USA", label: "Estados Unidos", alt: "USA flag" },
+    { iso: "CA", code: "CAN", label: "Canadá", alt: "Canada flag" },
+  ],
+  right: [
+    { iso: "GT", code: "GUA", label: "Guatemala", alt: "Guatemala flag" },
+    { iso: "SV", code: "ESA", label: "El Salvador", alt: "El Salvador flag" },
+    { iso: "HN", code: "HON", label: "Honduras", alt: "Honduras flag" },
+    { iso: "NI", code: "NIC", label: "Nicaragua", alt: "Nicaragua flag" },
+    { iso: "CR", code: "CRC", label: "Costa Rica", alt: "Costa Rica flag" },
+    { iso: "PA", code: "PAN", label: "Panamá", alt: "Panamá flag" },
+  ],
+};
+
+const SIDE_LABEL = { left: "Norteamérica", right: "Centroamérica" };
+
+function marketOf(state, side) {
+  const iso = (state.market || {})[side];
+  return MARKETS[side].find((m) => m.iso === iso) || MARKETS[side][0];
+}
+
+/* La hoja de elegir marketplace. Sale solo desde la doble flecha de la
+   pestaña que está delante, así que lo que ofrece es siempre el lado
+   que se está mirando: nunca se puede saltar de Guatemala a Canadá sin
+   pasar por la pestaña de USA. */
+function marketSheet(state) {
+  const side = state.marketSheet;
+  const current = marketOf(state, side);
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-market" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-market" role="dialog" aria-modal="true" aria-labelledby="oky-market-title">
+      <span class="oky-flow-market-grip" aria-hidden="true"></span>
+      <header class="oky-flow-market-head">
+        <h2 class="oky-flow-market-title" id="oky-market-title">Elige tu marketplace</h2>
+        <p class="oky-flow-market-note">${SIDE_LABEL[side]}</p>
+      </header>
+      <ul class="oky-flow-market-list">
+        ${MARKETS[side]
+          .map(
+            (m) => `
+          <li>
+            <button class="oky-flow-market-item${m.iso === current.iso ? " is-current" : ""}"
+              data-action="pick-market" data-side="${side}" data-iso="${m.iso}" type="button">
+              <span class="oky-flow-market-flag">${renderFlag({ code: m.iso, size: "Large" })}</span>
+              <span class="oky-flow-market-label">${m.label}</span>
+              <span class="oky-flow-market-code">${m.code}</span>
+              <span class="oky-flow-market-check" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+            </button>
+          </li>
+        `,
+          )
+          .join("")}
+      </ul>
+    </section>
+  `;
+}
+
 /* ── Home (99105:31149) ─────────────────────────────────── */
 /* El Discovery Header del home, en el estado que toque: State 1 con el
    folder desplegado y State 2 con el folder colapsado, que es el que
@@ -1279,6 +1347,7 @@ function homeHeader(state, headerState) {
     /* El State 3 del organismo trae el carrusel de categorías; aquí no
        se usa, y el punto de colapsar es justamente ganar alto. */
     showPlateu: false,
+    markets: { left: marketOf(state, "left"), right: marketOf(state, "right") },
   });
 }
 
@@ -2497,14 +2566,29 @@ function sectionOfVoucher(key) {
    el resto entra por tandas con "Ver más". */
 const WALLET_PAGE = 5;
 
-/* La bandera dice de qué marketplace salió la tarjeta: los vales y los
-   servicios son de Guatemala; las gift cards, del catálogo de USA. */
+/* La bandera dice de qué marketplace salió la tarjeta. Por defecto, el
+   de su sección: las gift cards vienen del catálogo de Norteamérica y
+   los vales y servicios del de Centroamérica. */
 function countryOfSection(section) {
   return section === "gift" ? "US" : "GT";
 }
 
+/* Pero cada marca es de donde es: el folder ofrece la región entera y
+   el wallet lo enseña —un vale de Pollo Granjero salvadoreño, uno de
+   Domino's hondureño, una gift card canadiense—. Lo que no está aquí
+   se queda con el país de su sección. */
+const VOUCHER_COUNTRY = {
+  pollogranjero: "SV",
+  dominosgt: "HN",
+  underarmour: "CA",
+};
+
+function countryOfVoucher(key, section) {
+  return VOUCHER_COUNTRY[brandKeyOf(key)] || countryOfSection(section);
+}
+
 function walletVoucherButton(v, deck, group = "activos") {
-  const country = countryOfSection(deck);
+  const country = countryOfVoucher(v.key, deck);
   const mark = stackMark(v);
   return `
     <button class="oky-flow-voucher${group === "archivados" ? " is-archived" : ""}"
@@ -3528,7 +3612,7 @@ function screenVoucher(state) {
               topBrandLabel: valeBrand.label,
               topHeroImage: valeBrand.art,
               topHeroAlt: valeBrand.label,
-              topFlagCode: countryOfSection(sectionOfVoucher(card.key)),
+              topFlagCode: countryOfVoucher(card.key, sectionOfVoucher(card.key)),
               topFooterLeftLabel: "Qué incluye",
               middleCardPath: "Molecule/Middle Card/Vale de Producto",
               middleTitle: card.label,
@@ -3540,7 +3624,7 @@ function screenVoucher(state) {
             }
           : {
               topVariantPath: "Molecule/Top Card/Gift Card",
-              topFlagCode: countryOfSection(sectionOfVoucher(card.key)),
+              topFlagCode: countryOfVoucher(card.key, sectionOfVoucher(card.key)),
               topBrandLabel: card.label,
               topHeroImage: card.art,
               topHeroAlt: card.label,
@@ -4289,6 +4373,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.cartOpen ? cartDrawer(state) : ""}
         ${state.sheet ? (state.sheet.type === "filter" ? filterSheet(state) : confirmSheet(state)) : ""}
         ${state.countrySheet ? countrySheet(state) : ""}
+        ${state.marketSheet ? marketSheet(state) : ""}
         ${state.savingsSheet ? savingsSheet() : ""}
         ${state.promoOpen ? promoDialog(state) : ""}
         ${state.addedToast ? addedToast() : ""}
@@ -5272,6 +5357,23 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "tour-end") return closeTour();
+
+    if (action === "open-market") {
+      state.marketSheet = el.dataset.side === "left" ? "left" : "right";
+      return render();
+    }
+
+    if (action === "close-market") {
+      state.marketSheet = null;
+      return render();
+    }
+
+    if (action === "pick-market") {
+      const side = el.dataset.side === "left" ? "left" : "right";
+      state.market = { ...state.market, [side]: el.dataset.iso };
+      state.marketSheet = null;
+      return render();
+    }
 
     if (action === "country-stay") {
       state.countrySheet = null;

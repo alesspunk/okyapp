@@ -243,8 +243,15 @@ function renderFolderOption({
       }
       <span class="folder-code"${style ? ` style="${style}"` : ""}>${code}</span>
       ${
+        /* La doble flecha abre el selector de marketplace, y solo desde
+           la pestaña que está delante: en la de atrás no tiene acción
+           propia y el toque se lo queda la pestaña, que es lo que se
+           esperaba tocar. */
         showChevronForOption
-          ? `<span class="folder-chevron-stack" aria-hidden="true"><img src="chevron.svg" alt=""></span>`
+          ? isActive
+            ? `<span class="folder-chevron-stack is-enabled" role="button" tabindex="0"
+                data-action="open-market" data-side="${side}" aria-label="Cambiar de país"><img src="chevron.svg" alt=""></span>`
+            : `<span class="folder-chevron-stack" aria-hidden="true"><img src="chevron.svg" alt=""></span>`
           : ""
       }
       ${isActive ? `<span class="folder-selection-line" aria-hidden="true"></span>` : ""}
@@ -252,7 +259,11 @@ function renderFolderOption({
   `;
 }
 
-function renderFolder(property1, { showNewItemChip = true, showChevrons = true, newItemSide = "right" } = {}) {
+function renderFolder(property1, { showNewItemChip = true, showChevrons = true, newItemSide = "right", markets } = {}) {
+  /* Cada lado enseña el país elegido en él; sin elección, el de
+     siempre. La izquierda sigue siendo el marketplace de USA y la
+     derecha el de Guatemala: lo que cambia es la bandera. */
+  const country = (side) => ({ ...COUNTRY_BASE[side], ...((markets || {})[side] || {}) });
   const isCollapsed = property1.startsWith("Collapsed");
   const isLeft = property1 === "Left" || property1 === "Collapsed Left";
 
@@ -273,9 +284,9 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
                 x: TAB_CENTER.left,
                 side: "left",
                 selectedSide,
-                code: COUNTRY_BASE.left.code,
-                flagCode: COUNTRY_BASE.left.iso,
-                alt: COUNTRY_BASE.left.alt,
+                code: country("left").code,
+                flagCode: country("left").iso,
+                alt: country("left").alt,
                 showChevrons,
                 withFlag: true,
                 flagVariant: "rect",
@@ -284,9 +295,9 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
                 x: TAB_CENTER.right,
                 side: "right",
                 selectedSide,
-                code: COUNTRY_BASE.right.code,
-                flagCode: COUNTRY_BASE.right.iso,
-                alt: COUNTRY_BASE.right.alt,
+                code: country("right").code,
+                flagCode: country("right").iso,
+                alt: country("right").alt,
                 showChevrons,
                 withFlag: true,
                 flagVariant: "rect",
@@ -315,18 +326,18 @@ function renderFolder(property1, { showNewItemChip = true, showChevrons = true, 
               x: TAB_CENTER.left,
               side: "left",
               selectedSide,
-              code: COUNTRY_BASE.left.code,
-              flagCode: COUNTRY_BASE.left.iso,
-              alt: COUNTRY_BASE.left.alt,
+              code: country("left").code,
+              flagCode: country("left").iso,
+              alt: country("left").alt,
               showChevrons,
             })}
             ${renderFolderOption({
               x: TAB_CENTER.right,
               side: "right",
               selectedSide,
-              code: COUNTRY_BASE.right.code,
-              flagCode: COUNTRY_BASE.right.iso,
-              alt: COUNTRY_BASE.right.alt,
+              code: country("right").code,
+              flagCode: country("right").iso,
+              alt: country("right").alt,
               showChevrons,
             })}
           </div>
@@ -376,6 +387,7 @@ export function renderDiscoveryHeader({
   cartIndicated,
   walletIndicated = false,
   showPlateu = true,
+  markets,
 }) {
   const safeSide = SIDE_OPTIONS.includes(side) ? side : "Left";
   const safeState = STATE_OPTIONS.includes(state) ? state : "State 1";
@@ -385,7 +397,7 @@ export function renderDiscoveryHeader({
     <section class="discovery-header-organism" data-side="${safeSide}" data-state="${safeState}" data-pen-id="${config.penId}">
       ${renderStatusBar()}
       ${renderAppHeader(config.header, { walletAction, cartAction, cartIndicated, walletIndicated })}
-      ${renderFolder(config.folder, { showNewItemChip, newItemSide })}
+      ${renderFolder(config.folder, { showNewItemChip, newItemSide, markets })}
       ${renderSearchInput({ compact: config.searchCompact })}
       ${config.plateu && showPlateu ? renderPlateuHome() : ""}
     </section>
