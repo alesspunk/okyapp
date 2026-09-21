@@ -4599,6 +4599,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     promoIdleTimer = null;
   }
 
+  /* Arranca la cuenta si hace falta. No la reinicia si ya está en
+     marcha —ir y volver de pestaña la alargaría sin fin— ni la pone si
+     la promo ya corrió. */
+  function armPromoIdle(delay = PROMO_IDLE_MS) {
+    if (state.promoLive || state.promoSpent || promoIdleTimer) return;
+    promoIdleTimer = setTimeout(startPromo, delay);
+  }
+
   /* Pone el reloj en marcha: se fija el vencimiento en ese momento
      —no al cargar— y el ribbon entra animado una sola vez. */
   function startPromo() {
@@ -4724,7 +4732,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
            lo lleva el arranque del reloj, que es lo que celebra. */
         state.tourFlag = false;
         cancelPromoIdle();
-        promoIdleTimer = setTimeout(startPromo, PROMO_AFTER_FLAG_MS);
+        armPromoIdle(PROMO_AFTER_FLAG_MS);
         render();
       }, TOUR_FLAG_MS);
     };
@@ -4863,13 +4871,22 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   }
 
   function goCountry(country) {
-    const firstUsa = country === "usa" && !state.tourSeen;
+    /* La pared de banderas es de la primera vez que se enseña USA. Se
+       miraba tourSeen, que solo se marca al terminar el recorrido, así
+       que quien no lo hacía volvía a ver las banderas cada vez que
+       tocaba la pestaña. Clarita no depende de esto: vive en guideOn y
+       sigue ahí al ir y volver. */
+    const firstUsa = country === "usa" && !state.usaSeen;
     if (country === "usa") state.usaSeen = true;
     state.country = country;
     markCountryInUrl(country);
     /* La primera visita a USA se presenta: banderas y, al acabar, el
        recorrido por lo que hay que saber. */
     if (firstUsa) state.usaIntro = true;
+    /* Sin presentación no hay quien ponga el reloj en marcha, así que
+       lo hace la visita: quien pasó por USA antes de los 7 segundos y
+       se fue, al volver sigue teniendo su promo. */
+    if (country === "usa") armPromoIdle();
     go(country === "usa" ? "home" : "homegua", {}, { market: false });
     if (firstUsa) {
       clearTimeout(introTimer);
@@ -4889,8 +4906,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
            los 7 segundos el reloj arranca solo: antes se quedaba en
            Super Deals para siempre, porque el único que lo ponía en
            marcha era el final del recorrido. Tocarla lo cancela. */
-        cancelPromoIdle();
-        promoIdleTimer = setTimeout(startPromo, PROMO_IDLE_MS);
+        armPromoIdle();
         const frame = root.querySelector(".oky-flow-frame");
         if (!frame) return render();
         /* Se inserta escondida y se destapa al cuadro siguiente: sin
@@ -5338,7 +5354,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          rearmarlo, "Reiniciar" dejaba el prototipo sin reloj para
          siempre. */
       cancelPromoIdle();
-      if (state.screen === "home") promoIdleTimer = setTimeout(startPromo, PROMO_IDLE_MS);
+      if (state.screen === "home") {
+        state.usaSeen = true;
+        armPromoIdle();
+      }
       return render();
     }
 
@@ -6377,7 +6396,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      al rato de montar. Entrando por el folder manda la presentación,
      que lo arranca al final. */
   if (state.screen === "home") {
-    promoIdleTimer = setTimeout(startPromo, PROMO_IDLE_MS);
+    /* Abriendo directamente en USA, USA ya se enseñó: volver por el
+       folder no vuelve a presentarla. */
+    state.usaSeen = true;
+    armPromoIdle();
   }
 
   render();
