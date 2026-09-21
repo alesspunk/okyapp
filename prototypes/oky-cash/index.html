@@ -12434,18 +12434,26 @@ button.tactic-offer {
    no puede cambiar de alto al compartirse, o el pie —interruptor y
    archivar— daría un salto. El bloque se estira y la imagen se encoge
    dentro de él. */
-.prime-card-bottom-media.is-stamp {
+/* El sello manda sobre el tamaño que la variante le daría al hueco de
+   medios. Las variantes con código de barras lo fijan en 224x40 y la de
+   QR en 100x100, con un selector de tres clases: sin ganarles, el sello
+   se quedaba en esa caja y salía corrido a la izquierda dentro de la
+   card. Por eso van prefijados —misma cuenta de clases, pero después—. */
+.card-bottom-molecule .prime-card-bottom-media.is-stamp {
   position: relative;
   flex: 1 1 auto;
-  min-height: 0;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2px;
   width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: auto;
 }
 
-.prime-card-bottom-media.is-stamp img {
+.card-bottom-molecule .prime-card-bottom-media.is-stamp img {
   flex: 0 1 auto;
   min-height: 0;
   width: auto;
@@ -12491,7 +12499,7 @@ button.tactic-offer {
 }
 
 /* El sello dibujado ocupa lo mismo que el de imagen. */
-.prime-card-bottom-media.is-stamp .prime-card-bottom-media-art {
+.card-bottom-molecule .prime-card-bottom-media.is-stamp .prime-card-bottom-media-art {
   display: flex;
   flex: 0 1 auto;
   min-height: 0;
@@ -12499,7 +12507,7 @@ button.tactic-offer {
   max-width: 140px;
 }
 
-.prime-card-bottom-media.is-stamp .prime-card-bottom-media-art svg {
+.card-bottom-molecule .prime-card-bottom-media.is-stamp .prime-card-bottom-media-art svg {
   display: block;
   width: auto;
   height: 100%;
