@@ -683,6 +683,9 @@ function createInitialState(userType) {
     promoStarting: false,
     /* Ventana corta tras el vencimiento, para el aviso del strip. */
     promoEnded: false,
+    /* La promo es de una sola vez: una vez vencida no vuelve, aunque se
+       repita la presentación de USA. */
+    promoSpent: false,
     promoSettling: false,
     /* El chip "Nuevo" sobre USA es solo aviso: en cuanto se entra una
        vez, no vuelve a aparecer. */
@@ -4587,7 +4590,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   /* Pone el reloj en marcha: se fija el vencimiento en ese momento
      —no al cargar— y el ribbon entra animado una sola vez. */
   function startPromo() {
-    if (state.promoLive) return;
+    /* Una sola vez. Vencida la promo se queda vencida: volver a la home
+       de USA rearma la cuenta de los 7 segundos —la presentación se
+       repite mientras nadie haga el recorrido— y el reloj arrancaba de
+       nuevo. Quedaba el cintillo en mostaza al 20% con los montos ya
+       devueltos a $5, así que la PDP abría en aqua al 5% y se
+       contradecían. Y el sentido del reloj es justamente que se acaba:
+       devolverlo sería quitarle lo único que dice. No sirve promoEnded,
+       que es el aviso de "Promo terminada" y dura dos segundos. */
+    if (state.promoLive || state.promoSpent) return;
     cancelPromoIdle();
     state.promoLive = true;
     state.promoEndsAt = Date.now() + PROMO_MS;
@@ -5310,6 +5321,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          de la promo, que arranca de nuevo con sus dos minutos. */
       clearTimeout(celebrationTimer);
       state = createInitialState(userType);
+      /* El estado nuevo dice que la promo no ha empezado, pero el
+         temporizador que la arranca ya se gastó al montar. Sin
+         rearmarlo, "Reiniciar" dejaba el prototipo sin reloj para
+         siempre. */
+      cancelPromoIdle();
+      if (state.screen === "home") promoIdleTimer = setTimeout(startPromo, PROMO_IDLE_MS);
       return render();
     }
 
@@ -6325,7 +6342,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }));
 
     /* El aviso dura lo que tarda en leerse; después el strip se asienta
-       en su ribbon normal. */
+       en su ribbon normal. promoEnded es solo ese aviso y se apaga con
+       él; que la promo ya se gastó lo recuerda promoSpent, que no se
+       apaga nunca. */
+    state.promoSpent = true;
     state.promoEnded = true;
     render();
     setTimeout(() => {
