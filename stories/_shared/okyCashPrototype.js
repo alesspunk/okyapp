@@ -428,10 +428,13 @@ function unitOfPurchase(state, purchase) {
   const section = (PRODUCTS[key] || {}).wallet || "gift";
   const demo =
     section === "gift" ? ((WALLET_VOUCHERS.find((v) => v.key === key) || {}).amounts || []).length : 0;
-  const mine = state.purchases
-    .slice()
-    .reverse()
-    .filter((p) => p.productKey === key);
+  /* Por orden de compra, no al revés: las compras solo se añaden al
+     final, así que contando desde la primera el índice de un vale ya
+     comprado no se mueve cuando se compra otro de la misma marca.
+     Contando desde la última se corrían todos, y con ellos lo
+     compartido, lo archivado y lo visto, que se guardan por ese
+     índice. */
+  const mine = state.purchases.filter((p) => p.productKey === key);
   const at = mine.findIndex((p) => p.id === purchase.id);
   return demo + Math.max(at, 0);
 }
@@ -2405,9 +2408,15 @@ function walletDeck(state, section, { filtered = true } = {}) {
    solo hablan de lo que sigue en uso: archivado gana a los dos, porque
    es la decisión más reciente que tomó la persona. */
 function walletGroupUnits(state, section, group, opts) {
-  return expandUnits(walletDeck(state, section, opts)).filter(
-    (v) => unitGroup(state, v.key, v.unit) === group,
-  );
+  return expandUnits(walletDeck(state, section, opts))
+    .filter((v) => unitGroup(state, v.key, v.unit) === group)
+    .map((v) => ({
+      /* Lo archivado no puede estrenarse: se guardó a propósito, y un
+         punto de "nuevo" ahí pediría atención para algo que la persona
+         acaba de quitar de en medio. */
+      ...v,
+      isNew: group === "archivados" ? false : unitIsNew(state, v.key, v.unit),
+    }));
 }
 
 /* Y cómo se ven en la lista: los de una misma marca se acumulan en una
@@ -2425,16 +2434,20 @@ function walletGroupDeck(state, section, group, opts) {
       found.amounts.push(v.amount);
       /* La pila se estrena si cualquiera de los suyos está sin ver:
          el punto habla de la card, y la card son todos. */
-      if (v.isNew && group !== "archivados") found.isNew = true;
+      if (v.isNew && group !== "archivados") {
+        found.isNew = true;
+        if (found.openUnit == null) found.openUnit = v.unit;
+      }
       return;
     }
     cards.push({
       ...v,
       brandKey: brand,
-      /* Lo archivado no puede estrenarse: se guardó a propósito, y un
-         punto de "nuevo" ahí pediría atención para algo que la persona
-         acaba de quitar de en medio. */
-      isNew: group === "archivados" ? false : v.isNew,
+      isNew: v.isNew,
+      /* Tocar la pila abre el primero sin abrir, no el de más abajo:
+         el punto dice que ahí dentro hay algo nuevo, y llevarte a un
+         vale ya visto dejaría el punto encendido sin explicación. */
+      openUnit: v.isNew ? v.unit : null,
       count: 1,
       units: [v.unit],
       amounts: [v.amount],
@@ -2496,7 +2509,7 @@ function walletVoucherButton(v, deck, group = "activos") {
   return `
     <button class="oky-flow-voucher${group === "archivados" ? " is-archived" : ""}"
       style="background:${mark.bg};border-color:${mark.bg}"
-      data-action="open-voucher" data-key="${v.key}" data-unit="${(v.units || [0])[0]}"
+      data-action="open-voucher" data-key="${v.key}" data-unit="${v.openUnit ?? (v.units || [0])[0]}"
       data-deck="${deck}" data-group="${group}"
       type="button" aria-label="${v.label}">
       <img src="${mark.art}" alt="${v.label}" />
@@ -2509,6 +2522,61 @@ function walletVoucherButton(v, deck, group = "activos") {
   `;
 }
 
+/* El sello de archivado. La familia de sellos del sistema es la misma
+   —medallón festoneado, icono dentro y banda con la palabra—, pero este
+   no existe como asset, así que se dibuja aquí para poder darle los
+   grises: archivado no es un logro, es algo guardado. */
+function archivedSeal() {
+  return `
+    <svg class="oky-flow-seal-archived" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="#9EA4AD">
+        <circle cx="100.00" cy="18.00" r="12.50"/>
+        <circle cx="125.31" cy="22.46" r="12.50"/>
+        <circle cx="147.57" cy="35.31" r="12.50"/>
+        <circle cx="164.09" cy="55.00" r="12.50"/>
+        <circle cx="172.88" cy="79.15" r="12.50"/>
+        <circle cx="172.88" cy="104.85" r="12.50"/>
+        <circle cx="164.09" cy="129.00" r="12.50"/>
+        <circle cx="147.57" cy="148.69" r="12.50"/>
+        <circle cx="125.31" cy="161.54" r="12.50"/>
+        <circle cx="100.00" cy="166.00" r="12.50"/>
+        <circle cx="74.69" cy="161.54" r="12.50"/>
+        <circle cx="52.43" cy="148.69" r="12.50"/>
+        <circle cx="35.91" cy="129.00" r="12.50"/>
+        <circle cx="27.12" cy="104.85" r="12.50"/>
+        <circle cx="27.12" cy="79.15" r="12.50"/>
+        <circle cx="35.91" cy="55.00" r="12.50"/>
+        <circle cx="52.43" cy="35.31" r="12.50"/>
+        <circle cx="74.69" cy="22.46" r="12.50"/>
+        <circle cx="100" cy="92" r="74"/>
+      </g>
+      <circle cx="100" cy="92" r="62" fill="#8A9099"/>
+      <circle cx="100" cy="92" r="55" fill="#FFFFFF"/>
+      <g fill="#9EA4AD">
+        <rect x="65" y="52" width="70" height="19" rx="6"/>
+        <path d="M72 77h56a3.5 3.5 0 0 1 3.5 3.7l-3.7 44a7 7 0 0 1-7 6.3H79.2a7 7 0 0 1-7-6.3l-3.7-44A3.5 3.5 0 0 1 72 77Z"/>
+      </g>
+      <rect x="87" y="90" width="26" height="8" rx="4" fill="#FFFFFF"/>
+      <rect x="26" y="150" width="148" height="40" rx="8" fill="#8A9099"/>
+      <text x="100" y="179" text-anchor="middle" fill="#FFFFFF"
+        font-family="Nunito Sans, Lato, sans-serif" font-size="25" font-weight="700">Archivado</text>
+    </svg>
+  `;
+}
+
+/* ¿Este vale suelto está sin abrir? Lo está si se compró y todavía no
+   se ha abierto. Se pregunta por las compras y no por el índice porque
+   cada sección coloca sus muestras distinto —las gift cards las ponen
+   delante y los vales las quitan cuando ya compraste esa marca—, y lo
+   que se estrena es lo comprado, nunca una muestra. */
+function unitIsNew(state, key, unit = 0) {
+  const id = unitId(key, unit);
+  if (state.seenVouchers.includes(id)) return false;
+  return state.purchases.some(
+    (p) => p.productKey === key && unitId(p.productKey, unitOfPurchase(state, p)) === id,
+  );
+}
+
 /* ¿Queda alguna gift card comprada que todavía no se haya abierto? */
 function hasNewVouchers(state) {
   /* Lo archivado ya no estrena nada: si se compró, se compartió y se
@@ -2518,7 +2586,7 @@ function hasNewVouchers(state) {
   return state.purchases.some((p) => {
     const id = unitId(p.productKey, unitOfPurchase(state, p));
     if (state.archivedVouchers.includes(id)) return false;
-    return !state.seenVouchers.includes(p.productKey);
+    return !state.seenVouchers.includes(id);
   });
 }
 
@@ -2566,6 +2634,7 @@ function walletVouchers(state, section = "gift") {
       if (found) {
         found.count += 1;
         found.amounts.push(purchase.amount);
+        found.units.push(unitOfPurchase(state, purchase));
         return;
       }
 
@@ -2578,9 +2647,12 @@ function walletVouchers(state, section = "gift") {
         bg: product.bg,
         count: 1,
         amounts: [purchase.amount],
+        /* La pila se dibuja con la compra más reciente delante, pero el
+           índice de cada unidad es el suyo de siempre: sin esta lista
+           el índice salía de la posición en la pila y se movía cada vez
+           que se compraba otro igual. */
+        units: [unitOfPurchase(state, purchase)],
         live: true,
-        /* Recién comprado y todavía sin abrir. */
-        isNew: !state.seenVouchers.includes(product.key),
       });
     });
 
@@ -2596,13 +2668,19 @@ function walletVouchers(state, section = "gift") {
     const found = owned.find((o) => o.key === v.key);
     if (found) {
       found.amounts = [...amounts, ...found.amounts];
+      found.units = [...amounts.map((_, i) => i), ...found.units];
       found.count = found.amounts.length;
       return;
     }
-    extra.push({ ...v, amounts, count: amounts.length });
+    extra.push({ ...v, amounts, units: amounts.map((_, i) => i), count: amounts.length });
   });
 
-  return [...owned, ...extra];
+  /* La pila se estrena si cualquiera de los suyos está sin abrir: el
+     punto habla de la card, y la card son todos. */
+  return [...owned, ...extra].map((v) => ({
+    ...v,
+    isNew: (v.units || []).some((u) => unitIsNew(state, v.key, u)),
+  }));
 }
 
 /* ── Mi wallet (99105:43773) ────────────────────────────── */
@@ -2616,19 +2694,16 @@ function screenWallet(state) {
      guardadas, no dos. De ahí que el total salga de las unidades y no
      del mazo ya agrupado.
 
-     El aviso de novedades sigue contando pilas a propósito: "visto" se
-     guarda por marca —seenVouchers lleva claves de producto, no de
-     unidad—, así que todos los vales de una marca comparten el mismo
-     isNew y contarlos uno a uno diría que se estrenaron tres Lyft
-     cuando solo entró la tercera. Para contar novedades por vale hace
-     falta antes un estado de lectura por unidad. */
+     El aviso de novedades cuenta igual: "visto" se guarda por vale
+     —seenVouchers lleva claves de unidad—, así que tres Lyft comprados
+     y sin abrir avisan tres, y abrir uno deja dos. */
   const decks = Object.fromEntries(
     WALLET_GROUPS.map((g) => [g.key, isCash ? [] : walletGroupDeck(state, tab, g.key)]),
   );
   const units = Object.fromEntries(
     WALLET_GROUPS.map((g) => [g.key, isCash ? [] : walletGroupUnits(state, tab, g.key)]),
   );
-  const newsIn = (deck) => deck.filter((v) => v.isNew).length;
+  const newsIn = (group) => units[group].filter((v) => v.isNew).length;
   const totalIn = (group) => units[group].length;
 
   /* Cabecera de sección: pliega, dice cuántas guarda —a la derecha,
@@ -2729,7 +2804,7 @@ function screenWallet(state) {
       <div class="oky-flow-section" style="gap:12px">
         ${WALLET_GROUPS.map(
           (g) => `
-          ${sectionHead(g, totalIn(g.key), newsIn(decks[g.key]))}
+          ${sectionHead(g, totalIn(g.key), newsIn(g.key))}
           ${body(g.key, stack(decks[g.key], g.key, g.empty))}
         `,
         ).join("")}
@@ -3439,7 +3514,7 @@ function screenVoucher(state) {
     ${statusBar()}
     ${titledHeader(title)}
     <div class="oky-flow-section is-voucher">
-      <div class="oky-flow-card-carousel${shared ? " is-redeemed" : ""}">
+      <div class="oky-flow-card-carousel${archived ? " is-redeemed is-archived" : shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
         /* Un vale de producto no es una gift card y el sistema ya
            tiene su anatomía (82513:86915): arriba el logo de la marca
@@ -3483,18 +3558,33 @@ function screenVoucher(state) {
         /* Compartido, la parte de abajo de la card deja de mostrar
            credenciales —ya salieron de aquí— y pasa a ser el sello con
            la fecha, que es la anatomía del frame "Canjeado". */
-        ...(shared
+        /* Archivado se lee igual que compartido —el vale ya no está en
+           uso— pero en gris y con su propio sello: compartido es algo
+           que se dio, archivado es algo que se guardó. Archivado manda
+           sobre compartido, que es la decisión más reciente. */
+        ...(archived
           ? {
               bottomLines: [],
               bottomShowButton: false,
               bottomMedia: {
                 type: "stamp",
-                src: "oky-seal-shared.png",
-                alt: "Compartido",
+                svg: archivedSeal(),
+                alt: "Archivado",
                 caption: sharedOn,
               },
             }
-          : {}),
+          : shared
+            ? {
+                bottomLines: [],
+                bottomShowButton: false,
+                bottomMedia: {
+                  type: "stamp",
+                  src: "oky-seal-shared.png",
+                  alt: "Compartido",
+                  caption: sharedOn,
+                },
+              }
+            : {}),
       })}
       ${
         many
@@ -4808,6 +4898,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     );
   }
 
+  /* Abrir un vale lo da por visto a él solo. Antes se guardaba la
+     marca, así que comprar un segundo Nike llegaba ya visto —sin punto
+     y sin contar— por haber abierto el primero. */
+  function seeVoucher(key, unit = 0) {
+    const id = unitId(key, unit);
+    if (!state.seenVouchers.includes(id)) state.seenVouchers.push(id);
+  }
+
   /* Archivar saca el vale del wallet y devuelve a la lista, que es
      donde se ve el resultado. No hace falta avisar al pie: la hoja de
      confirmación ya explicó a dónde va el vale, y de vuelta en el
@@ -5831,7 +5929,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const at = list.findIndex((v) => v.key === state.params.key && v.unit === unit);
       const next = list[wrap((at < 0 ? 0 : at) + step, list.length)];
       /* Abrirlo por el carrusel también lo da por visto. */
-      if (!state.seenVouchers.includes(next.key)) state.seenVouchers.push(next.key);
+      seeVoucher(next.key, next.unit);
       return go("voucher", { key: next.key, unit: next.unit, deck: section }, { push: false });
     }
 
@@ -5882,9 +5980,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
     if (action === "open-voucher") {
       const key = el.dataset.key;
+      const unit = Number(el.dataset.unit) || 0;
       state.claritaMuted = false;
-      if (!state.seenVouchers.includes(key)) state.seenVouchers.push(key);
-      return go("voucher", { key, unit: Number(el.dataset.unit) || 0, deck: el.dataset.deck || "gift" });
+      seeVoucher(key, unit);
+      return go("voucher", { key, unit, deck: el.dataset.deck || "gift" });
     }
 
     if (action === "decision-self") {

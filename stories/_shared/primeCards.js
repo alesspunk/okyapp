@@ -291,13 +291,20 @@ function renderBottomLine(line) {
 }
 
 function renderBottomMedia(media) {
-  if (!media?.src) {
+  if (!media?.src && !media?.svg) {
     return "";
   }
 
+  /* El sello puede venir como imagen o dibujado aquí mismo: el de
+     archivado no existe como asset y se pinta en SVG para poder darle
+     los grises del estado. */
+  const art = media.svg
+    ? `<span class="prime-card-bottom-media-art" role="img" aria-label="${media.alt || ""}">${media.svg}</span>`
+    : `<img src="${media.src}" alt="${media.alt || ""}" />`;
+
   return `
     <div class="prime-card-bottom-media is-${media.type}">
-      <img src="${media.src}" alt="${media.alt || ""}" />
+      ${art}
       ${media.caption ? `<p class="prime-card-bottom-media-caption">${media.caption}</p>` : ""}
     </div>
   `;
