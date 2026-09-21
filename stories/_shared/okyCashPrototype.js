@@ -4379,9 +4379,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      lo cancela, porque entonces manda el recorrido y el reloj arranca
      con el confeti del final. */
   const PROMO_IDLE_MS = 7000;
-  /* Y cuando arranca al final del recorrido, la espera se cuenta desde
-     que el confeti termina de caer. */
-  const PROMO_AFTER_CONFETTI_MS = 2000;
+  /* Y cuando arranca al final del recorrido, se espera a que el
+     cintillo de la bandera se vaya y se deja un respiro para leer el
+     5% antes de que cambie. */
+  const PROMO_AFTER_FLAG_MS = 2000;
   let promoIdleTimer = null;
 
   function cancelPromoIdle() {
@@ -4407,6 +4408,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        del arranque: dos temblores seguidos. Se da por avisado ese
        segundo, así que el siguiente llega media vuelta después. */
     promoShakeAt = Math.round(PROMO_MS / 1000);
+    /* El confeti cae justo aquí, con el cambio de color: lo que hay
+       que celebrar es que empezó la cuenta atrás, no la bandera a
+       cuadros que ya pasó. Saliendo antes se llevaba la atención y el
+       cintillo cambiaba sin que nadie lo mirara. */
+    state.tourConfetti = true;
+    setTimeout(() => {
+      state.tourConfetti = false;
+      render();
+    }, TOUR_CONFETTI_MS);
     /* Pinta ya: arrancando por el temporizador no hay nadie más que
        vuelva a dibujar, y el cruce se quedaba sin verse —el aqua se
        estaba 1400ms quieto y luego saltaba al mostaza de golpe. */
@@ -4492,23 +4502,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.tourFlag = true;
       render();
       tourFlagTimer = setTimeout(() => {
-        /* El confeti entra cuando la bandera ya ondeó y el cintillo se
-           fue: cae sobre la home entera, fuera del morado, como el de
-           la compra. */
+        /* El cintillo se va y la home queda a la vista un par de
+           segundos con el 5% en aqua. El confeti ya no sale aquí: se
+           lo lleva el arranque del reloj, que es lo que celebra. */
         state.tourFlag = false;
-        state.tourConfetti = true;
-        /* El reloj no arranca con el confeti: espera a que caiga y deja
-           un par de segundos de calma. Así da tiempo a leer el 5% en
-           aqua y después se ve convertirse en el 20% con la cuenta
-           atrás, que es lo que hay que entender. Los dos a la vez se
-           pisaban y el cambio pasaba desapercibido. */
         cancelPromoIdle();
-        promoIdleTimer = setTimeout(startPromo, TOUR_CONFETTI_MS + PROMO_AFTER_CONFETTI_MS);
+        promoIdleTimer = setTimeout(startPromo, PROMO_AFTER_FLAG_MS);
         render();
-        tourFlagTimer = setTimeout(() => {
-          state.tourConfetti = false;
-          render();
-        }, TOUR_CONFETTI_MS);
       }, TOUR_FLAG_MS);
     };
 
