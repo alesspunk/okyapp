@@ -12368,6 +12368,37 @@ button.tactic-offer {
 
 /* Al vencer, la barra cambia de estado y el reloj se va con ella: ya no
    queda nada que contar. */
+/* La (i) de la barra de la PDP: espejo del reloj en la esquina
+   contraria. No se toca —no abre nada—, así que es un span y no un
+   botón; está para decir que el número tiene condiciones detrás. Toma
+   el color del texto de su tier, aqua o mostaza, como el resto. */
+.saving-bar-info {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--tier-base-text);
+  pointer-events: none;
+}
+
+.saving-bar.is-tier-promo .saving-bar-info {
+  color: var(--tier-promo-text);
+}
+
+.saving-bar.is-ending .saving-bar-info {
+  display: none;
+}
+
+/* El reloj se oculta con [hidden] al parchear el tier; display:flex
+   del propio chip le ganaba. */
+.saving-bar-timer[hidden] {
+  display: none;
+}
+
 .saving-bar.is-ending .saving-bar-timer,
 .saving-bar.is-settled .saving-bar-timer {
   display: none;

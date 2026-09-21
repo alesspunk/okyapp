@@ -381,6 +381,10 @@ const WALLET_EXTRAS = {
     { key: "pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp", bg: "#f5c518", count: 2, amounts: [12, 20] },
     { key: "dominosgt", label: "Domino's", art: "dominos.png", bg: "#006aa6", count: 1, amounts: [20] },
     { key: "pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", bg: "#ed761c", count: 1, amounts: [15] },
+    /* Clave propia: "burgerking" ya es la gift card de USA, y son dos
+       cosas distintas —un vale salvadoreño y una gift card
+       estadounidense de la misma marca—. */
+    { key: "burgerkingsv", label: "Burger King", art: "burguerking.webp", bg: "#f6ead5", count: 1, amounts: [18] },
   ],
   servicios: [
     { key: "eegsa", label: "EEGSA", art: "eggsa.webp", bg: "#ffffff", count: 1, amounts: [32] },
@@ -1041,7 +1045,7 @@ function navbar(active, state = {}) {
 
 /* `ending` pinta el aviso de promo vencida: la barra se pone en rojo y
    lo dice, y al momento vuelve a su color de siempre. */
-function savingBar(cashback, tier, copy, { ending = false, settled = false, timer = null } = {}) {
+function savingBar(cashback, tier, copy, { ending = false, settled = false, timer = null, info = false } = {}) {
   if (ending) {
     return `
       <div class="oky-flow-savingbar">
@@ -1057,6 +1061,13 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
   return `
     <div class="oky-flow-savingbar">
       <div class="saving-bar is-oky-cash ${tier.bar} ${settled ? "is-settled" : ""}">
+        ${
+          /* La (i) va enfrente del reloj, en la esquina contraria, y
+             toma el color del tier igual que el texto: no se toca, solo
+             dice que el número de la barra tiene letra pequeña detrás.
+             La explicación está a un paso, en el checkout. */
+          info ? `<span class="saving-bar-info" aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span>` : ""
+        }
         ${
           timer
             ? `<span class="saving-bar-timer">
@@ -1708,6 +1719,10 @@ function screenPdp(state) {
         state.promoLive && tier.bar === "is-tier-promo"
           ? countdownLabel(state.promoEndsAt - Date.now())
           : null,
+      /* Solo aquí: en Guatemala la barra de la PDP es la del ahorro del
+         carrito, otra cosa, y en el checkout la (i) ya está donde tiene
+         que estar, junto al subtotal. */
+      info: true,
     })}
     ${navbar("", state)}
   `;
@@ -2406,6 +2421,7 @@ const CATEGORY_OF = {
   starbucks: "comida",
   seveneleven: "comida",
   burgerking: "comida",
+  burgerkingsv: "comida",
   ihop: "comida",
   mcdonalds: "comida",
   dominos: "comida",
@@ -2578,7 +2594,10 @@ function countryOfSection(section) {
    Domino's hondureño, una gift card canadiense—. Lo que no está aquí
    se queda con el país de su sección. */
 const VOUCHER_COUNTRY = {
-  pollogranjero: "SV",
+  /* Pollo Granjero y Pollo Campero son de Guatemala y de ahí no salen,
+     así que las otras banderas van a marcas que sí operan en esos
+     países. */
+  burgerkingsv: "SV",
   dominosgt: "HN",
   underarmour: "CA",
 };
@@ -6197,9 +6216,17 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
       const bar = root.querySelector(".saving-bar");
       if (bar) {
-        bar.classList.toggle("is-tier-promo", tier.bar === "is-tier-promo");
+        const promoTier = tier.bar === "is-tier-promo";
+        bar.classList.toggle("is-tier-promo", promoTier);
         bar.querySelector(".saving-bar-copy span").innerHTML =
           `Gana <strong>${money(cashback)}</strong> de <strong>OKY Cash</strong>`;
+        /* El reloj solo vale para el 20%, que es el tier que se cae
+           cuando se acaba el tiempo. Tecleando por encima del tramo la
+           barra volvía al aqua pero el reloj se quedaba puesto: aquí no
+           se vuelve a dibujar la pantalla, se parchea, y a nadie le
+           tocaba quitarlo. */
+        const chip = bar.querySelector(".saving-bar-timer");
+        if (chip) chip.hidden = !promoTier;
       }
 
       const subtotal = root.querySelector("[data-role='pdp-subtotal']");
