@@ -1915,7 +1915,9 @@ function cartDrawer(state) {
         ? `<div class="oky-flow-savingbar is-drawer-bar">
             <div class="saving-bar is-oky-cash">
               <div class="saving-bar-copy">
-                <span>Compra y gana <strong>${money(cashback)}+</strong> en <strong>OKY Cash</strong></span>
+                ${/* Sin el "+": lo que se gana es esa cantidad y nada
+                      más, y el signo prometía un extra que no existe. */ ""}
+                <span>Compra y gana <strong>${money(cashback)}</strong> en <strong>OKY Cash</strong></span>
               </div>
             </div>
           </div>`
@@ -2166,7 +2168,9 @@ function screenCheckout(state) {
     ${
       cashback > 0
         ? savingBar(earned, { bar: "" }, (v) => {
-            if (used <= 0) return `Compra y gana <strong>${v}+</strong> en <strong>OKY Cash</strong>`;
+            /* Sin el "+", igual que en el carrito: la cifra es la que
+               es y el signo prometía un extra que no existe. */
+            if (used <= 0) return `Compra y gana <strong>${v}</strong> en <strong>OKY Cash</strong>`;
             if (earned <= 0) return `No acumulas <strong>OKY Cash</strong> en esta compra`;
             return `Ganas <strong>${v}</strong> por lo que pagas con tarjeta`;
           })
@@ -2187,7 +2191,7 @@ function screenMethods(state) {
   const selected = CARDS.find((c) => c.key === state.selectedCard) || CARDS[0];
 
   const top = { ...findPaymentCard(selected.variant) };
-  const cash = okyCashCard(state, { balance: keep });
+  const cash = okyCashCard(state, { balance: keep, edit: false });
   /* Sin saldo no hay nada que casar con la tarjeta: fuera la card de
      OKY Cash y fuera su fila, y la del método queda sola y redondeada
      por sus cuatro esquinas. */
@@ -2387,7 +2391,7 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
    Las tres pantallas que la pintan pasan por aquí. */
 /* cta: acción del botón. null lo quita; false lo deja sin enlace, solo
    como rótulo. label pisa el texto por defecto. */
-function okyCashCard(state, { balance, cta, label } = {}) {
+function okyCashCard(state, { balance, cta, label, edit = true } = {}) {
   const card = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
   card.balance = { ...card.balance, value: (balance ?? state.okyCashBalance).toFixed(2) };
 
@@ -2402,8 +2406,16 @@ function okyCashCard(state, { balance, cta, label } = {}) {
           label: label || (amount > 0 ? card.cta.label : "Conoce más"),
           action: cta === false ? "" : cta || "nav:okycash",
         };
-  /* El lápiz abre el selector de diseño. */
-  card.editAction = "nav:carddesign";
+  /* El lápiz abre el selector de diseño, y solo vive en la pestaña de
+     OKY Cash del wallet. En métodos de pago se está eligiendo con qué
+     pagar, no cambiando el aspecto de la tarjeta; el lápiz ahí era una
+     salida a otra cosa en mitad de la compra. */
+  if (edit) {
+    card.editAction = "nav:carddesign";
+  } else {
+    card.editIcon = null;
+    card.editAction = null;
+  }
   const design = findCardDesign(state.cardDesign);
   return { ...card, ...design.style, art: design.art, artClass: design.artClass };
 }
