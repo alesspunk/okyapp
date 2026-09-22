@@ -3836,8 +3836,8 @@ const CONFIRM_SHEETS = {
   unshare: {
     art: "oky-share-hands.png",
     title: "¿No llegaste a compartirlo?",
-    note: "Lo devolvemos a pendiente. El vale y su código siguen intactos.",
-    confirm: "Sí, no lo compartí",
+    note: "Lo devolveremos a la sección de activos. El vale y su código siguen intactos.",
+    confirm: "Activarla nuevamente",
     dismiss: "Cancelar",
     action: "confirm-unshare",
   },

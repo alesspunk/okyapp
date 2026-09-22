@@ -12616,7 +12616,10 @@ button.tactic-offer {
 }
 
 .oky-flow-sheet-title {
-  margin: 4px 12px 0;
+  /* Los 40px dejan pasar la X de la esquina: con 12 el título largo
+     —"¿No llegaste a compartirlo?"— se le metía debajo y la
+     interrogación quedaba cruzada por el aspa. */
+  margin: 4px 40px 0;
   font-family: "Lato", sans-serif;
   font-size: 24px;
   font-weight: 900;
