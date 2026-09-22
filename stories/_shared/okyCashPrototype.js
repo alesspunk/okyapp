@@ -5169,6 +5169,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     setTimeout(put, 300);
     setTimeout(put, 900);
     scroll.addEventListener("scroll", put, { passive: true });
+
+    /* Y en un teléfono el lienzo se ajusta al alto de la pantalla
+       después de dibujar: midiendo solo al principio se medía contra
+       los 800px de diseño, salía que cabía, y el cintillo solo aparecía
+       al scrollear. El observador lo vuelve a medir en cuanto el marco
+       cambia de tamaño; se va con el nodo en el siguiente dibujo. */
+    if (typeof ResizeObserver !== "undefined") new ResizeObserver(put).observe(frame);
   }
 
   /* En pantallas cortas la ficha del vale no cabe entera y Clarita se
