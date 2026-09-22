@@ -10155,13 +10155,9 @@ button.header-icon {
    "Ganaste OKY Cash" y píldora de saldo al pie de la compra.
 ───────────────────────────────────────────────────────── */
 
-/* Comprando uno solo, el acuse enseña el vale abierto en vez de la
-   pila, y encima de la navbar siguen el botón de wallet y la píldora.
-   Esa barra tapa el final del contenido, así que se le reserva su
-   hueco: el "Compartir" de la card tiene que poder subir por encima. */
-.oky-flow-section.is-voucher.is-purchase {
-  padding-bottom: 152px;
-}
+/* El hueco para la barra de "Ver mi Wallet" y la píldora ya lo reserva
+   el scroll de esta pantalla; añadirle otro al contenido dejaba 157px
+   de blanco al final del scroll. */
 
 /* Barra de CTA que además lleva la píldora de saldo debajo del
    botón: el orden visual queda Mi Wallet → píldora → navbar. */
