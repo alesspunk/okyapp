@@ -3928,44 +3928,28 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
       </div>
 
       ${
-        /* Archivado, lo único que queda por hacer es sacarlo del
-           archivo: ni compartir ni volver a archivar tienen sentido. */
-        archived
-          ? `
-        <button class="btn btn-outlined btn-large" style="width:100%" type="button"
-          data-action="unarchive" data-key="${card.key}" data-unit="${slot}">
-          <i class="fa-solid fa-box-open" aria-hidden="true"></i>&nbsp;Desarchivar
-        </button>
-      `
-          : `
-        ${
-          /* El vale en uso tiene siempre las dos cosas a mano: el
-             interruptor de compartido —que al encenderse abre la hoja
-             de compartir y al apagarse pregunta— y archivar, que ya no
-             pide haberlo compartido antes. Es la misma fila esté
-             compartido o no; lo único que cambia es el interruptor. */ ""
-        }
-        <div class="oky-flow-voucher-actions">
-          <button class="oky-flow-switch${shared ? " is-on" : ""}" data-action="toggle-shared"
-            data-key="${card.key}" data-unit="${slot}" data-label="${card.label}" data-amount="${amount}"
-            type="button" role="switch" aria-checked="${shared}">
-            <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
-            ${/* Apagado el rótulo es la acción —"Compartir"— y encendido
-                 el estado —"Compartido"—: apagado hay algo que hacer y
-                 encendido hay algo que ya pasó. El icono es el mismo en
-                 los dos y va detrás: quien dice si está hecho es el
-                 interruptor, y un check al lado lo repetía. */ ""}
-            <span class="oky-flow-switch-label">
-              ${shared ? "Compartido" : "Compartir"}
-              <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
-            </span>
-          </button>
-          <button class="btn btn-outlined btn-large oky-flow-archive-btn" data-action="ask-archive" data-key="${card.key}" data-unit="${slot}" type="button">
-            Archivar
-          </button>
-        </div>
-      `
+        /* La misma fila en los tres estados: el interruptor dice si está
+           guardado —apagado "Archivar", encendido "Archivado"— y al lado
+           el botón de compartir. Archivar ya no pide haberlo compartido
+           antes, y desarchivar es apagar el interruptor en vez de un
+           botón que solo aparecía ahí. */ ""
       }
+      <div class="oky-flow-voucher-actions">
+        <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
+          data-key="${card.key}" data-unit="${slot}"
+          type="button" role="switch" aria-checked="${archived}">
+          <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
+          <span class="oky-flow-switch-label">${archived ? "Archivado" : "Archivar"}</span>
+        </button>
+        ${/* Compartido, el botón dice el estado y tocarlo pregunta si no
+             se llegó a mandar; guardado no se comparte, primero hay que
+             sacarlo del archivo. */ ""}
+        <button class="btn btn-outlined btn-large oky-flow-voucher-btn" data-action="toggle-shared"
+          data-key="${card.key}" data-unit="${slot}" data-label="${card.label}" data-amount="${amount}"
+          type="button" ${archived ? "disabled" : ""}>
+          ${shared ? "Compartido" : "Compartir"}<i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
+        </button>
+      </div>
     </div>
     ${asPurchase ? purchaseFoot(state) : ""}
     ${navbar("", state)}
@@ -6254,6 +6238,24 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.sharedVouchers = state.sharedVouchers.filter((k) => k !== id);
       state.sheet = null;
       return render();
+    }
+
+    if (action === "toggle-archived") {
+      /* Encenderlo es archivar, y eso se pregunta: saca la tarjeta de su
+         sección y conviene decir a dónde va. Apagarlo la devuelve sin
+         preguntar, que es deshacer y no decidir. */
+      const id = unitId(el.dataset.key, Number(el.dataset.unit) || 0);
+      if (!state.archivedVouchers.includes(id)) {
+        state.sheet = { type: "archive", key: el.dataset.key, unit: Number(el.dataset.unit) || 0 };
+        return render();
+      }
+      state.archivedVouchers = state.archivedVouchers.filter((k) => k !== id);
+      const scroll = root.querySelector(".oky-flow-scroll");
+      const y = scroll ? scroll.scrollTop : 0;
+      render();
+      const fresh = root.querySelector(".oky-flow-scroll");
+      if (fresh) fresh.scrollTop = y;
+      return;
     }
 
     if (action === "ask-archive") {

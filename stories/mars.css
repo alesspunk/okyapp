@@ -12733,15 +12733,14 @@ button.tactic-offer {
   color: var(--primary-base);
 }
 
-/* El rótulo lleva el icono de compartir detrás, en una línea con él. */
+/* El interruptor dice si está guardado y no lleva icono: lo que informa
+   es él. El icono vive en el botón de compartir, detrás del rótulo. */
 .oky-flow-switch-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   white-space: nowrap;
 }
 
-.oky-flow-switch-label i {
+.oky-flow-voucher-btn i {
+  margin-left: 8px;
   font-size: 14px;
 }
 
@@ -12777,7 +12776,7 @@ button.tactic-offer {
 /* El ancho del frame (137px) sobre el tamaño large del sistema, que ya
    trae su alto y su radio de píldora: en OKY no hay botones de esquina
    viva. */
-.oky-flow-archive-btn {
+.oky-flow-voucher-btn {
   min-width: 137px;
   flex: 0 0 auto;
 }
