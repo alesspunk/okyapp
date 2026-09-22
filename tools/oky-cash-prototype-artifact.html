@@ -18264,6 +18264,26 @@ const TOUR_STEPS = [
    la otra se muestra en caja con su PIN—, y señalar algo que esa card
    no tiene sería mandar a buscar lo que no está. */
 const VOUCHER_TOURS = {
+  /* Un vale de marca se canjea en el local: primero cómo, después qué
+     enseñar y al final el código que te van a pedir. */
+  vale: [
+    { target: ".middle-card-footer-end", label: "Mira cómo se canjea" },
+    { target: ".middle-card-footer-start", label: "Enséñalo en caja" },
+    { target: ".prime-card-bottom-line", nth: 0, label: "Y dicta este código" },
+  ],
+  /* La recarga ya se aplicó: no hay nada que canjear, hay que enseñar
+     cuánto se fue y a qué número. */
+  tigo: [
+    { target: ".middle-card-amount", label: "Esto fue lo que recargaste" },
+    { target: ".prime-card-bottom-line", nth: 0, label: "Y este es el número que lo recibió" },
+  ],
+  /* Un servicio pagado tampoco se canjea: lo que queda son los dos
+     números con los que se reclama si algo sale mal. */
+  servicio: [
+    { target: ".middle-card-amount", label: "Tu pago ya está aplicado" },
+    { target: ".middle-card-footer-single", label: "Este es el número de la orden" },
+    { target: ".prime-card-bottom-line", nth: 0, label: "Y este el ID que pide la boleta" },
+  ],
   url: [
     { target: ".middle-card-footer-single", label: "Mira cómo funciona" },
     { target: ".prime-card-bottom-line", nth: 0, label: "Copia el código" },
@@ -20945,6 +20965,7 @@ function screenVoucher(state) {
                  variante, el mismo en todas las cards. */
               bottomLines: [{ label: "Copia el código", value: giftCode(bottomSeed, 10), copyable: true }],
               bottomButtonLabel: "Ayuda",
+              bottomClaritaAction: "card-tour",
             }
           : {
               topVariantPath: "Molecule/Top Card/Gift Card",
@@ -20965,8 +20986,9 @@ function screenVoucher(state) {
                  primera parada del recorrido de Clarita—, un servicio
                  pagado deja su correlativo, y el vale de marca sí se
                  enseña en caja y se canjea ahí. */
+              bottomClaritaAction: "card-tour",
               ...(section0 === "gift"
-                ? { middleSingleLabel: "Redemption Instructions", bottomClaritaAction: "card-tour" }
+                ? { middleSingleLabel: "Redemption Instructions" }
                 : section0 === "servicios"
                   ? { middleSingleLabel: `#${digitsOf(`${bottomSeed}-orden`, 12)}` }
                   : {}),
@@ -22745,11 +22767,33 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "card-tour") {
-      /* Qué variante se está mirando lo dice la card dibujada: la que
-         lleva URL y la de código de barras con PIN no se canjean igual.
-         Se puede pedir las veces que haga falta. */
+      /* Callada, lo primero que hace es volver a ofrecerse: el
+         recorrido sale del blurb, no del muñeco a secas. Es el mismo
+         trato que en la home. */
+      if (state.claritaMuted) {
+        state.claritaMuted = false;
+        return render();
+      }
+
+      /* Qué se está mirando decide qué se explica. Dentro de las gift
+         cards de USA lo dice además la variante dibujada: la que lleva
+         URL y la de código de barras con PIN no se canjean igual. Se
+         puede pedir las veces que haga falta. */
+      const shown = state.params.id
+        ? (state.purchases.find((p) => p.id === state.params.id) || {}).productKey
+        : state.params.key;
+      const sec = sectionOfVoucher(shown);
       const bottom = root.querySelector(".card-bottom-molecule");
-      state.tourDeck = bottom && bottom.classList.contains("is-gift-card-usa") ? "url" : "pin";
+      state.tourDeck =
+        sec === "gift"
+          ? bottom && bottom.classList.contains("is-gift-card-usa")
+            ? "url"
+            : "pin"
+          : sec === "servicios"
+            ? "servicio"
+            : shown === "tigo"
+              ? "tigo"
+              : "vale";
       state.tourStep = 0;
       render();
       placeTour();
