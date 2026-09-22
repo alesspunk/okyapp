@@ -19664,13 +19664,7 @@ function purchaseOverlays(state, { celebrate = false, cashWin = false } = {}) {
 function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
   /* Comprando uno solo no hay pila que abrir: se enseña el vale ya
      abierto, que es a lo que se venía. La pila es para elegir entre
-     varios, y con uno era un paso de más. */
-  if (state.lastOrder.length === 1) {
-    return screenVoucher(
-      { ...state, params: { id: state.lastOrder[0].id } },
-      { asPurchase: true, celebrate, cashWin },
-    );
-  }
+     varios, y con una sola era un paso de más. */
   /* Esta pantalla es el acuse de la compra que se acaba de hacer, no
      un histórico: sale de state.lastOrder. Lo que acumula todas las
      gift cards es Mi wallet, que lee state.purchases. */
@@ -19684,6 +19678,18 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
       if (found) found.count += 1;
       else byBrand.push({ key: p.productKey, id: p.id, count: 1, ...PRODUCTS[p.productKey], brandKey: brand });
     });
+
+  /* La pila es para elegir entre varias, así que empieza en dos. Con
+     una sola card se enseña el vale, lleve las unidades que lleve: tres
+     hamburguesas de la misma marca son una card en la pila, y tocarla
+     abría lo único que había. Desde el vale se pasan las tres con el
+     carrusel. */
+  if (byBrand.length === 1) {
+    return screenVoucher(
+      { ...state, params: { id: byBrand[0].id } },
+      { asPurchase: true, celebrate, cashWin },
+    );
+  }
 
   const list = byBrand;
   const earnedHere = state.lastEarned > 0;
@@ -21165,8 +21171,10 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
         <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
           data-key="${card.key}" data-unit="${slot}"
           type="button" role="switch" aria-checked="${archived}">
-          <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
+          ${/* El rótulo delante: se lee la palabra y después se ve en
+               qué estado está, que es el orden en que se mira. */ ""}
           <span class="oky-flow-switch-label">${archived ? "Archivado" : "Archivar"}</span>
+          <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
         </button>
         ${/* Compartir es el mismo trato que archivar, así que es el
              mismo control: apagado se comparte y encendido se pregunta
@@ -21175,8 +21183,8 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
         <button class="oky-flow-switch${shared ? " is-on" : ""}" data-action="toggle-shared"
           data-key="${card.key}" data-unit="${slot}" data-label="${card.label}" data-amount="${amount}"
           type="button" role="switch" aria-checked="${shared}" ${archived ? "disabled" : ""}>
-          <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
           <span class="oky-flow-switch-label">${shared ? "Compartido" : "Compartir"}</span>
+          <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
         </button>
       </div>
     </div>
@@ -22464,6 +22472,20 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     });
     scroll.addEventListener("scroll", place, { passive: true });
     window.addEventListener("resize", place, { passive: true });
+
+    /* Las barras de abajo también crecen tarde: la píldora del saldo del
+       acuse de compra trae su moneda por imagen y, al entrar, la barra
+       sube y se come el sitio que Clarita creía tener. Se vuelve a medir
+       en cuanto cambian de alto; el observador se va con los nodos en el
+       siguiente dibujo. */
+    if (typeof ResizeObserver !== "undefined") {
+      const watch = new ResizeObserver(place);
+      root
+        .querySelectorAll(
+          ".oky-flow-navbar, .oky-flow-cta-bar, .oky-flow-savingbar, .oky-flow-section, .card-organism",
+        )
+        .forEach((box) => watch.observe(box));
+    }
   }
 
   function bindHeaderScroll(scroll) {
