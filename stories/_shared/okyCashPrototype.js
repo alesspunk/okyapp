@@ -2166,7 +2166,7 @@ function screenCheckout(state) {
         }
       </div>
 
-      <div class="summary-box summary-box-compact oky-flow-push oky-flow-checkoutdock" style="width:100%">
+      <div class="summary-box summary-box-compact oky-flow-push" style="width:100%">
         <div class="summary-card">
           <div class="summary-card-body">
             ${
@@ -2241,6 +2241,18 @@ function screenCheckout(state) {
           })
         : ""
     }
+    ${/* El resumen entero se queda donde está y scrollea; lo que se
+         ancla es este cintillo con el total y el botón. En pantallas
+         donde el de verdad se ve, no se dibuja. */ ""}
+    <div class="oky-flow-checkoutdock">
+      <div class="oky-flow-checkoutdock-card">
+        <div class="summary-row summary-row-total">
+          <span class="summary-label-strong">TOTAL</span>
+          <span class="summary-label-strong">${money(toCard)}</span>
+        </div>
+        <button class="btn btn-primary summary-btn" data-action="pay" type="button">Comprar</button>
+      </div>
+    </div>
     ${navbar("", state)}
   `;
 }
@@ -4632,7 +4644,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const scroll = frame.querySelector(".oky-flow-scroll");
     scroll
       .querySelectorAll(
-        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-dock, .oky-flow-foodbar, .oky-flow-cashwin, .oky-flow-scroll-hint",
+        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-checkoutdock, .oky-flow-dock, .oky-flow-foodbar, .oky-flow-cashwin, .oky-flow-scroll-hint",
       )
       .forEach((bar) => frame.appendChild(bar));
 
@@ -5124,12 +5136,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const frame = root.querySelector(".oky-flow-frame");
     if (!frame) return;
 
+    /* El botón de verdad, el que vive dentro del resumen. */
+    const real = scroll.querySelector(".summary-cta-row .summary-btn");
+    if (!real) return;
+
     const put = () => {
-      if (box.classList.contains("is-docked")) return;
-      /* Lo que importa no es si sobra contenido —el hueco reservado para
-         la navbar ya hace que sobre— sino si el botón cabe a la vista.
-         El límite es el borde del teléfono menos lo que se le pinta
-         encima: la navbar y la barra de abajo, si la hay. */
       /* Las barras se pisan entre ellas —el ahorro y el cashback ocupan
          la misma franja—, así que sumar altos contaría de más: el borde
          útil es donde empieza la de más arriba. */
@@ -5138,23 +5149,26 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         frame.getBoundingClientRect().bottom,
         ...bars.map((b) => b.getBoundingClientRect().top),
       );
-      /* Anclado ya está arriba por sí solo, así que para saber dónde
-         caería hay que soltarlo un instante. */
-      box.style.position = "static";
-      const natural = box.getBoundingClientRect().bottom;
-      box.style.position = "";
       /* Con doce píxeles de margen: rozar la barra de abajo por cuatro
-         no se ve, y plegar el desglose por eso sería cobrar caro un
+         no se ve, y sacar un cintillo por eso sería cobrar caro un
          problema que no existe. */
-      if (natural > limit + 12) box.classList.add("is-docked");
+      const fuera = real.getBoundingClientRect().bottom > limit + 12;
+      box.classList.toggle("is-on", fuera);
+      /* Con el cintillo puesto, el final del contenido tiene que poder
+         subir por encima de él. */
+      scroll.style.paddingBottom = fuera
+        ? `calc(var(--oky-nav-h) + ${Math.round(box.getBoundingClientRect().height)}px)`
+        : "";
     };
 
     put();
-    /* Las imágenes de las cards llegan tarde y cambian el alto: se
-       repasa un par de veces mientras se asienta. */
+    /* Las imágenes de las cards llegan tarde y cambian el alto, y al
+       scrollear el botón de verdad entra y sale de la pantalla: el
+       cintillo se enciende y se apaga con él. */
     setTimeout(put, 60);
     setTimeout(put, 300);
     setTimeout(put, 900);
+    scroll.addEventListener("scroll", put, { passive: true });
   }
 
   /* En pantallas cortas la ficha del vale no cabe entera y Clarita se
