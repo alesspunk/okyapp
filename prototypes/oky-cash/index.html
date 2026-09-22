@@ -22381,20 +22381,33 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     state.cart.forEach((item, i) => {
-      const purchase = {
-        id: `p-${Date.now()}-${i}`,
-        productKey: item.productKey,
-        amount: item.amount,
-        /* El vale de una marca de Guatemala vale quetzales: los
-           dólares son solo lo que costó pagarlo. */
-        ...(item.quetzales != null ? { quetzales: item.quetzales } : {}),
-        cashback: item.cashback,
-        used: i === 0 ? used : 0,
-        date: stamp(0),
-      };
-      state.purchases.push(purchase);
-      state.lastOrder.push(purchase);
+      /* Una línea con tres hamburguesas son tres vales, no uno: cada
+         unidad lleva su propio código y se canjea por su cuenta. Se
+         guardaba una sola por línea, así que al final de la compra
+         aparecía un vale donde tenían que estar los tres. */
+      const units = Math.max(item.qty || 1, 1);
+      for (let u = 0; u < units; u += 1) {
+        const purchase = {
+          id: `p-${Date.now()}-${i}-${u}`,
+          productKey: item.productKey,
+          /* El monto de la línea es el de una: lo que se multiplica
+             para enseñar el total del carrito, aquí se reparte. */
+          amount: item.amount,
+          /* El vale de una marca de Guatemala vale quetzales: los
+             dólares son solo lo que costó pagarlo. */
+          ...(item.quetzales != null ? { quetzales: item.quetzales } : {}),
+          cashback: item.cashback / units,
+          /* El saldo se aplicó a la orden entera; cuelga de un vale
+             solo para no contarlo tantas veces como vales haya. */
+          used: i === 0 && u === 0 ? used : 0,
+          date: stamp(0),
+        };
+        state.purchases.push(purchase);
+        state.lastOrder.push(purchase);
+      }
 
+      /* El movimiento del historial sigue siendo uno por marca y orden:
+         lo que se ganó con las tres hamburguesas es una sola línea. */
       const itemEarned = item.cashback * byCardShare;
       earned += itemEarned;
       if (itemEarned > 0) {
