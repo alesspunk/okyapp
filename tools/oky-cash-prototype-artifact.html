@@ -20344,21 +20344,20 @@ function stackMark(v) {
    sola a los pocos segundos: la caja abierta es un estado de paso, no
    algo que haya que recoger. */
 function cartQty(product, qty, open) {
-  /* Abierta: más, cuántos y menos, con el número en medio. El más va
-     delante porque es lo que la caja vino a ofrecer —se abre para
-     seguir sumando— y el menos queda al otro lado. Cerrada es un botón
-     y ya. Bajando a uno no hay nada que pasar, así que vuelve al "+". */
+  /* Abierta es el paso de siempre: menos, cuántos y más, con el número
+     en medio. Cerrada es un botón y ya. Bajando a uno no hay nada que
+     pasar, así que vuelve al "+". */
   if (open && qty > 1) {
     return `
       <span class="oky-flow-cart-qty is-open" data-role="cart-qty">
-        <button class="oky-flow-cart-qty-btn is-more" data-action="food-more" data-product="${product.key}"
-          type="button" aria-label="Agregar otro ${product.label}">
-          <i class="fa-solid fa-plus" aria-hidden="true"></i>
-        </button>
-        <span class="oky-flow-cart-qty-btn is-count is-plain">${qty}</span>
         <button class="oky-flow-cart-qty-btn is-less" data-action="food-less" data-product="${product.key}"
           type="button" aria-label="Quitar uno de ${product.label}">
           <i class="fa-solid fa-minus" aria-hidden="true"></i>
+        </button>
+        <span class="oky-flow-cart-qty-btn is-count is-plain">${qty}</span>
+        <button class="oky-flow-cart-qty-btn is-more" data-action="food-more" data-product="${product.key}"
+          type="button" aria-label="Agregar otro ${product.label}">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
         </button>
       </span>`;
   }
