@@ -2371,8 +2371,79 @@ function screenProcessing(state) {
   `;
 }
 
+/* El pie del acuse: volver al wallet y, si la compra dejó algo, la
+   píldora con el saldo nuevo. Va fijo abajo en las dos versiones de la
+   pantalla —la pila y la card suelta—. */
+function purchaseFoot(state) {
+  const earnedHere = state.lastEarned > 0;
+  return `
+    <div class="oky-flow-cta-bar${earnedHere ? " has-cash-strip" : ""}">
+      <button class="btn btn-outlined btn-large oky-flow-wallet-btn" data-action="nav:wallet" type="button">
+        <img src="Wallet-icon.png" alt="" />Ver mi Wallet
+      </button>
+      ${
+        /* La píldora celebra lo que esta compra dejó; si no dejó nada
+           —Tigo no da cashback— no hay nada que celebrar y el botón se
+           queda solo sobre la navbar. */
+        earnedHere ? cashStrip(state) : ""
+      }
+    </div>
+  `;
+}
+
+/* El sello de compra exitosa y la animación del cashback, que se pintan
+   encima de lo que haya debajo. */
+function purchaseOverlays(state, { celebrate = false, cashWin = false } = {}) {
+  return `
+    ${
+      celebrate
+        ? `<div class="oky-flow-celebration" data-action="dismiss-celebration" role="button" tabindex="0">
+            <div class="oky-flow-celebration-confetti" data-role="celebration-confetti"></div>
+            <div class="oky-flow-stamp-group">
+              <img class="oky-flow-stamp" src="oky-stamp-exitosa.png" alt="" />
+              <p class="oky-flow-stamp-label">Compra exitosa</p>
+              ${
+                /* Microinteracción: el sello no solo confirma el pago,
+                   también adelanta que esa compra generó OKY Cash. */
+                state.lastEarned
+                  ? `<span class="oky-flow-stamp-earned">
+                      <img src="oky-cash-coin.png" alt="" />
+                      <span>+${money(state.lastEarned)} en OKY Cash</span>
+                    </span>`
+                  : ""
+              }
+            </div>
+          </div>`
+        : ""
+    }
+
+    ${
+      cashWin
+        ? `<div class="oky-flow-cashwin" data-action="dismiss-cashwin" role="button" tabindex="0">
+            <div class="oky-flow-cashwin-stage" data-role="cashwin-lottie"></div>
+            <div class="oky-flow-cashwin-copy">
+              <p class="oky-flow-cashwin-kicker">Ganaste</p>
+              <p class="oky-flow-cashwin-amount"><span>$</span>${state.lastEarned.toFixed(2)}</p>
+              <p class="oky-flow-cashwin-label">en OKY Cash</p>
+              <span class="oky-flow-cashwin-hint">Toca para continuar</span>
+            </div>
+          </div>`
+        : ""
+    }
+  `;
+}
+
 /* ── Tus compras (99140:56031) + Success (99140:56018) ─── */
 function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
+  /* Comprando uno solo no hay pila que abrir: se enseña el vale ya
+     abierto, que es a lo que se venía. La pila es para elegir entre
+     varios, y con uno era un paso de más. */
+  if (state.lastOrder.length === 1) {
+    return screenVoucher(
+      { ...state, params: { id: state.lastOrder[0].id } },
+      { asPurchase: true, celebrate, cashWin },
+    );
+  }
   /* Esta pantalla es el acuse de la compra que se acaba de hacer, no
      un histórico: sale de state.lastOrder. Lo que acumula todas las
      gift cards es Mi wallet, que lee state.purchases. */
@@ -2416,54 +2487,9 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
       }
     </div>
 
-    <div class="oky-flow-cta-bar${earnedHere ? " has-cash-strip" : ""}">
-      <button class="btn btn-outlined btn-large oky-flow-wallet-btn" data-action="nav:wallet" type="button">
-        <img src="Wallet-icon.png" alt="" />Ver mi Wallet
-      </button>
-      ${
-        /* La píldora celebra lo que esta compra dejó; si no dejó nada
-           —Tigo no da cashback— no hay nada que celebrar y el botón se
-           queda solo sobre la navbar. */
-        earnedHere ? cashStrip(state) : ""
-      }
-    </div>
+    ${purchaseFoot(state)}
     ${navbar("", state)}
-
-    ${
-      celebrate
-        ? `<div class="oky-flow-celebration" data-action="dismiss-celebration" role="button" tabindex="0">
-            <div class="oky-flow-celebration-confetti" data-role="celebration-confetti"></div>
-            <div class="oky-flow-stamp-group">
-              <img class="oky-flow-stamp" src="oky-stamp-exitosa.png" alt="" />
-              <p class="oky-flow-stamp-label">Compra exitosa</p>
-              ${
-                /* Microinteracción: el sello no solo confirma el pago,
-                   también adelanta que esa compra generó OKY Cash. */
-                state.lastEarned
-                  ? `<span class="oky-flow-stamp-earned">
-                      <img src="oky-cash-coin.png" alt="" />
-                      <span>+${money(state.lastEarned)} en OKY Cash</span>
-                    </span>`
-                  : ""
-              }
-            </div>
-          </div>`
-        : ""
-    }
-
-    ${
-      cashWin
-        ? `<div class="oky-flow-cashwin" data-action="dismiss-cashwin" role="button" tabindex="0">
-            <div class="oky-flow-cashwin-stage" data-role="cashwin-lottie"></div>
-            <div class="oky-flow-cashwin-copy">
-              <p class="oky-flow-cashwin-kicker">Ganaste</p>
-              <p class="oky-flow-cashwin-amount"><span>$</span>${state.lastEarned.toFixed(2)}</p>
-              <p class="oky-flow-cashwin-label">en OKY Cash</p>
-              <span class="oky-flow-cashwin-hint">Toca para continuar</span>
-            </div>
-          </div>`
-        : ""
-    }
+    ${purchaseOverlays(state, { celebrate, cashWin })}
   `;
 }
 
@@ -3659,7 +3685,7 @@ function savingsSheet() {
 /* ── Detalle de vale ──────────────────────────────────────
    Misma pantalla desde "Tus compras" (por id de compra) y desde
    Mi wallet (por marca): en ambos casos el organismo Card. */
-function screenVoucher(state) {
+function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin = false } = {}) {
   const purchase = state.params.id
     ? state.purchases.find((p) => p.id === state.params.id)
     : state.purchases.filter((p) => p.productKey === state.params.key).slice(-1)[0];
@@ -3780,7 +3806,10 @@ function screenVoucher(state) {
   const valeBrand = card.food ? FOOD_BRANDS[card.brand] : null;
   const productVale = !!valeBrand;
   const headerBrand = valeBrand ? valeBrand.label : card.label;
-  const title = state.params.id ? "Detalle de la orden" : headerBrand;
+  /* De acuse de compra la pantalla sigue siendo "Tus compras": es el
+     mismo sitio al que se llega al pagar, solo que con el vale abierto
+     en vez de la pila. */
+  const title = asPurchase ? "Tus compras" : state.params.id ? "Detalle de la orden" : headerBrand;
 
   const sharedOn = new Date()
     .toLocaleDateString("es-GT", { day: "2-digit", month: "short", year: "numeric" })
@@ -3790,8 +3819,8 @@ function screenVoucher(state) {
 
   return `
     ${statusBar()}
-    ${titledHeader(title)}
-    <div class="oky-flow-section is-voucher">
+    ${titledHeader(title, asPurchase ? { trailing: "fa-receipt" } : {})}
+    <div class="oky-flow-section is-voucher${asPurchase ? " is-purchase" : ""}">
       <div class="oky-flow-card-carousel${archived ? " is-redeemed is-archived" : shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
         /* Un vale de producto no es una gift card y el sistema ya
@@ -3930,7 +3959,9 @@ function screenVoucher(state) {
       `
       }
     </div>
+    ${asPurchase ? purchaseFoot(state) : ""}
     ${navbar("", state)}
+    ${asPurchase ? purchaseOverlays(state, { celebrate, cashWin }) : ""}
   `;
 }
 
@@ -5190,8 +5221,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* Se mide sin el desplazamiento anterior, o cada pasada lo
          arrastraría. */
       clarita.style.transform = "";
-      const bar = root.querySelector(".oky-flow-navbar");
-      const limit = (bar ? bar.getBoundingClientRect().top : scroll.getBoundingClientRect().bottom) - 10;
+      /* El tope no es solo la navbar: en el acuse de compra encima van
+         el botón de wallet y la píldora del saldo, y contra la navbar
+         Clarita se les metía debajo. Manda la barra de más arriba. */
+      const bars = [...root.querySelectorAll(".oky-flow-navbar, .oky-flow-cta-bar, .oky-flow-savingbar")];
+      const limit =
+        (bars.length
+          ? Math.min(...bars.map((b) => b.getBoundingClientRect().top))
+          : scroll.getBoundingClientRect().bottom) - 10;
       const over = clarita.getBoundingClientRect().bottom - limit;
       if (over > 0) clarita.style.transform = `translateY(${-Math.round(over)}px)`;
     };
