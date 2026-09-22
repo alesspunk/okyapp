@@ -3281,8 +3281,11 @@ function cartQty(product, qty, open) {
   const label = qty > 1 ? String(qty) : `<i class="fa-solid fa-plus" aria-hidden="true"></i>`;
   return `
     <span class="oky-flow-cart-qty" data-role="cart-qty">
+      ${/* El primer "+" deja la caja abierta: la segunda unidad casi
+            nunca es la última, y así el paso queda a mano sin tener que
+            tocar el número para pedirlo. */ ""}
       <button class="oky-flow-cart-qty-btn is-count" data-action="${qty > 1 ? "open-qty" : "food-more"}"
-        data-product="${product.key}" type="button"
+        data-product="${product.key}" type="button" ${qty > 1 ? "" : 'data-open="1"'}
         aria-label="${qty > 1 ? `Cambiar la cantidad de ${product.label}` : `Agregar ${product.label}`}">
         ${label}
       </button>
@@ -5798,10 +5801,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "food-more" || action === "food-less") {
       const key = el.dataset.product;
       /* Sumando desde la caja abierta se queda abierta —se suele
-         añadir de varias en varias— y se le da cuerda otra vez. Desde
-         el botón cerrado no se abre: lo que hay que ver es el número
-         nuevo. */
-      if (state.qtyOpen === key) armQtyClose();
+         añadir de varias en varias— y se le da cuerda otra vez. El "+"
+         del carrito con uno solo la abre: pasar a dos es justo cuando
+         empieza a haber cantidad que ajustar. */
+      if (state.qtyOpen === key || el.dataset.open) {
+        state.qtyOpen = key;
+        armQtyClose();
+      }
       const product = PRODUCTS[key];
       if (!product) return;
       const step = action === "food-more" ? 1 : -1;

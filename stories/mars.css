@@ -11680,8 +11680,12 @@ button.tactic-offer {
   z-index: 1;
 }
 
+/* Los 94px son los que caben dejando aire con el cintillo: a la
+   derecha de "35% OFF" quedan 107 y doce se van en la separación. Los
+   pasos se quedan con casi todo y el número con lo justo, que solo
+   tiene que caber. */
 .oky-flow-cart-head .oky-flow-cart-qty.is-open {
-  width: 116px;
+  width: 94px;
   animation: oky-qty-open 220ms cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
@@ -11694,13 +11698,13 @@ button.tactic-offer {
     width: 40px;
   }
   to {
-    width: 116px;
+    width: 94px;
   }
 }
 
 @keyframes oky-qty-close {
   from {
-    width: 116px;
+    width: 94px;
   }
   to {
     width: 40px;
@@ -11727,9 +11731,17 @@ button.tactic-offer {
 }
 
 /* El número de la caja abierta es rótulo, no botón: lo que se toca son
-   los dos pasos de los lados. */
+   los dos pasos de los lados, y por eso se llevan el ancho. */
 .oky-flow-cart-qty-btn.is-plain {
+  width: 22px;
   cursor: default;
+}
+
+.oky-flow-cart-qty.is-open .oky-flow-cart-qty-btn.is-more,
+.oky-flow-cart-qty.is-open .oky-flow-cart-qty-btn.is-less,
+.oky-flow-cart-qty.is-closing .oky-flow-cart-qty-btn.is-more,
+.oky-flow-cart-qty.is-closing .oky-flow-cart-qty-btn.is-less {
+  width: 35px;
 }
 
 /* El menos borra una y el tacho borra la línea: distinto peso, distinto

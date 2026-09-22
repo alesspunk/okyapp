@@ -11702,8 +11702,12 @@ button.tactic-offer {
   z-index: 1;
 }
 
+/* Los 94px son los que caben dejando aire con el cintillo: a la
+   derecha de "35% OFF" quedan 107 y doce se van en la separación. Los
+   pasos se quedan con casi todo y el número con lo justo, que solo
+   tiene que caber. */
 .oky-flow-cart-head .oky-flow-cart-qty.is-open {
-  width: 116px;
+  width: 94px;
   animation: oky-qty-open 220ms cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
@@ -11716,13 +11720,13 @@ button.tactic-offer {
     width: 40px;
   }
   to {
-    width: 116px;
+    width: 94px;
   }
 }
 
 @keyframes oky-qty-close {
   from {
-    width: 116px;
+    width: 94px;
   }
   to {
     width: 40px;
@@ -11749,9 +11753,17 @@ button.tactic-offer {
 }
 
 /* El número de la caja abierta es rótulo, no botón: lo que se toca son
-   los dos pasos de los lados. */
+   los dos pasos de los lados, y por eso se llevan el ancho. */
 .oky-flow-cart-qty-btn.is-plain {
+  width: 22px;
   cursor: default;
+}
+
+.oky-flow-cart-qty.is-open .oky-flow-cart-qty-btn.is-more,
+.oky-flow-cart-qty.is-open .oky-flow-cart-qty-btn.is-less,
+.oky-flow-cart-qty.is-closing .oky-flow-cart-qty-btn.is-more,
+.oky-flow-cart-qty.is-closing .oky-flow-cart-qty-btn.is-less {
+  width: 35px;
 }
 
 /* El menos borra una y el tacho borra la línea: distinto peso, distinto
@@ -20363,8 +20375,11 @@ function cartQty(product, qty, open) {
   const label = qty > 1 ? String(qty) : `<i class="fa-solid fa-plus" aria-hidden="true"></i>`;
   return `
     <span class="oky-flow-cart-qty" data-role="cart-qty">
+      ${/* El primer "+" deja la caja abierta: la segunda unidad casi
+            nunca es la última, y así el paso queda a mano sin tener que
+            tocar el número para pedirlo. */ ""}
       <button class="oky-flow-cart-qty-btn is-count" data-action="${qty > 1 ? "open-qty" : "food-more"}"
-        data-product="${product.key}" type="button"
+        data-product="${product.key}" type="button" ${qty > 1 ? "" : 'data-open="1"'}
         aria-label="${qty > 1 ? `Cambiar la cantidad de ${product.label}` : `Agregar ${product.label}`}">
         ${label}
       </button>
@@ -22880,10 +22895,13 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "food-more" || action === "food-less") {
       const key = el.dataset.product;
       /* Sumando desde la caja abierta se queda abierta —se suele
-         añadir de varias en varias— y se le da cuerda otra vez. Desde
-         el botón cerrado no se abre: lo que hay que ver es el número
-         nuevo. */
-      if (state.qtyOpen === key) armQtyClose();
+         añadir de varias en varias— y se le da cuerda otra vez. El "+"
+         del carrito con uno solo la abre: pasar a dos es justo cuando
+         empieza a haber cantidad que ajustar. */
+      if (state.qtyOpen === key || el.dataset.open) {
+        state.qtyOpen = key;
+        armQtyClose();
+      }
       const product = PRODUCTS[key];
       if (!product) return;
       const step = action === "food-more" ? 1 : -1;
