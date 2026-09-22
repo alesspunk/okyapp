@@ -3255,21 +3255,32 @@ function stackMark(v) {
 /* La cantidad en el carrito, en la misma banda donde los vales de monto
    ponen el lápiz: un botón redondo de 40 igual que aquéllos. Con uno
    dice "+"; a partir de dos dice el número, y tocar el número abre la
-   caja hacia la izquierda para dejar el "+" a mano. Se cierra sola a
-   los pocos segundos: la caja abierta es un estado de paso, no algo que
-   haya que recoger. */
+   caja hacia la izquierda con los dos pasos, quitar y poner. Se cierra
+   sola a los pocos segundos: la caja abierta es un estado de paso, no
+   algo que haya que recoger. */
 function cartQty(product, qty, open) {
+  /* Abierta: más, cuántos y menos, con el número en medio. El más va
+     delante porque es lo que la caja vino a ofrecer —se abre para
+     seguir sumando— y el menos queda al otro lado. Cerrada es un botón
+     y ya. Bajando a uno no hay nada que pasar, así que vuelve al "+". */
+  if (open && qty > 1) {
+    return `
+      <span class="oky-flow-cart-qty is-open" data-role="cart-qty">
+        <button class="oky-flow-cart-qty-btn is-more" data-action="food-more" data-product="${product.key}"
+          type="button" aria-label="Agregar otro ${product.label}">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        </button>
+        <span class="oky-flow-cart-qty-btn is-count is-plain">${qty}</span>
+        <button class="oky-flow-cart-qty-btn is-less" data-action="food-less" data-product="${product.key}"
+          type="button" aria-label="Quitar uno de ${product.label}">
+          <i class="fa-solid fa-minus" aria-hidden="true"></i>
+        </button>
+      </span>`;
+  }
+
   const label = qty > 1 ? String(qty) : `<i class="fa-solid fa-plus" aria-hidden="true"></i>`;
   return `
-    <span class="oky-flow-cart-qty${open ? " is-open" : ""}" data-role="cart-qty">
-      ${
-        open
-          ? `<button class="oky-flow-cart-qty-btn is-more" data-action="food-more" data-product="${product.key}"
-              type="button" aria-label="Agregar otro ${product.label}">
-              <i class="fa-solid fa-plus" aria-hidden="true"></i>
-            </button>`
-          : ""
-      }
+    <span class="oky-flow-cart-qty" data-role="cart-qty">
       <button class="oky-flow-cart-qty-btn is-count" data-action="${qty > 1 ? "open-qty" : "food-more"}"
         data-product="${product.key}" type="button"
         aria-label="${qty > 1 ? `Cambiar la cantidad de ${product.label}` : `Agregar ${product.label}`}">
@@ -5803,6 +5814,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       } else {
         const next = (line.qty || 1) + step;
         state.cart = next <= 0 ? state.cart.filter((i) => i !== line) : state.cart.map((i) => (i === line ? { ...i, qty: next } : i));
+        /* Con uno solo la caja no tiene pasos que ofrecer y vuelve a
+           ser el "+"; dejarla abierta enseñaría un menos que borraría
+           la línea sin decirlo, que es lo que hace el tacho. */
+        if (next <= 1 && state.qtyOpen === key) state.qtyOpen = null;
       }
 
       /* El saldo aplicado se recalcula: el total acaba de moverse. */

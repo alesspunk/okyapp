@@ -11661,11 +11661,27 @@ button.tactic-offer {
   overflow: hidden;
 }
 
-/* Abierta crece hacia la izquierda: el número no se mueve de donde
-   estaba y el "+" aparece a su lado. Va con animación y no con
-   transición porque el nodo se vuelve a dibujar al abrir. */
+/* Abierta crece hacia la izquierda: el borde derecho no se mueve y el
+   paso aparece ocupando ese hueco. Sale del flujo mientras dura —con
+   sus 116px la línea del logo y el cintillo se quedaba corta y la caja
+   se salía por la derecha— y se ancla al mismo borde donde cae el
+   tacho de la línea de abajo. Va con animación y no con transición
+   porque el nodo se vuelve a dibujar al abrir. */
+.oky-flow-cart-head {
+  position: relative;
+}
+
+.oky-flow-cart-head .oky-flow-cart-qty.is-open,
+.oky-flow-cart-head .oky-flow-cart-qty.is-closing {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
 .oky-flow-cart-head .oky-flow-cart-qty.is-open {
-  width: 78px;
+  width: 116px;
   animation: oky-qty-open 220ms cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
@@ -11678,13 +11694,13 @@ button.tactic-offer {
     width: 40px;
   }
   to {
-    width: 78px;
+    width: 116px;
   }
 }
 
 @keyframes oky-qty-close {
   from {
-    width: 78px;
+    width: 116px;
   }
   to {
     width: 40px;
@@ -11710,14 +11726,28 @@ button.tactic-offer {
   cursor: pointer;
 }
 
-/* El "+" de la caja abierta entra con ella y se va al cerrarse: si
-   apareciera de golpe parecería otro botón en vez de la misma caja
+/* El número de la caja abierta es rótulo, no botón: lo que se toca son
+   los dos pasos de los lados. */
+.oky-flow-cart-qty-btn.is-plain {
+  cursor: default;
+}
+
+/* El menos borra una y el tacho borra la línea: distinto peso, distinto
+   color. El menos va en el gris del resto de controles. */
+.oky-flow-cart-qty-btn.is-less {
+  color: var(--text-secondary);
+}
+
+/* Los pasos entran con la caja y se van al cerrarse: si aparecieran de
+   golpe parecerían otros botones en vez de la misma caja
    ensanchándose. */
-.oky-flow-cart-qty-btn.is-more {
+.oky-flow-cart-qty-btn.is-more,
+.oky-flow-cart-qty-btn.is-less {
   animation: oky-qty-more-in 220ms ease-out both;
 }
 
-.oky-flow-cart-qty.is-closing .oky-flow-cart-qty-btn.is-more {
+.oky-flow-cart-qty.is-closing .oky-flow-cart-qty-btn.is-more,
+.oky-flow-cart-qty.is-closing .oky-flow-cart-qty-btn.is-less {
   animation: oky-qty-more-out 160ms ease-in both;
 }
 
@@ -11745,7 +11775,9 @@ button.tactic-offer {
   .oky-flow-cart-head .oky-flow-cart-qty.is-open,
   .oky-flow-cart-head .oky-flow-cart-qty.is-closing,
   .oky-flow-cart-qty-btn.is-more,
-  .oky-flow-cart-qty.is-closing .oky-flow-cart-qty-btn.is-more {
+  .oky-flow-cart-qty-btn.is-less,
+  .oky-flow-cart-qty.is-closing .oky-flow-cart-qty-btn.is-more,
+  .oky-flow-cart-qty.is-closing .oky-flow-cart-qty-btn.is-less {
     animation: none;
   }
 }
