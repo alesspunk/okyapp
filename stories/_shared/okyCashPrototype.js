@@ -613,6 +613,8 @@ function createInitialState(userType) {
     openGroups: ["activos"],
     /* Aviso de cambio de marketplace; guarda a dónde se iba. */
     countrySheet: null,
+    /* Qué línea del carrito tiene la caja de cantidad abierta. */
+    qtyOpen: null,
     /* Qué país enseña cada lado del folder. Cambia la bandera y el
        código de la pestaña; el catálogo es el del lado, compartido
        entre los países de esa región. */
@@ -1754,10 +1756,8 @@ function cartDrawer(state) {
              la izquierda todo lo que se lee y a la derecha el chip de
              pie, en la misma banda que ocupan el lápiz y el tacho de
              los vales de monto. */
-          const stacked = product.food;
           return `
-            <div class="oky-flow-cart-row${stacked ? " is-qty" : ""}">
-              ${stacked ? `<div class="oky-flow-cart-main">` : ""}
+            <div class="oky-flow-cart-row">
               <div class="oky-flow-cart-head">
                 <span class="brand-item-atom is-no-label">
                   <span class="brand-item-frame">
@@ -1788,9 +1788,10 @@ function cartDrawer(state) {
                 }
                 ${
                   /* La comida no se edita con lápiz: su precio lo pone
-                     la marca y lo que se cambia es cuántas llevas. */
+                     la marca y lo que se cambia es cuántas llevas. En su
+                     sitio va la cantidad, del mismo tamaño. */
                   product.food
-                    ? ""
+                    ? cartQty(product, item.qty || 1, state.qtyOpen === item.productKey)
                     : `<button class="oky-flow-cart-edit" data-action="edit-item" data-product="${item.productKey}"
                         type="button" aria-label="Cambiar el monto de ${product.label}">
                         <i class="fa-solid fa-pencil" aria-hidden="true"></i>
@@ -1809,16 +1810,11 @@ function cartDrawer(state) {
                     }
                   </p>
                 </span>
-                ${
-                  stacked
-                    ? ""
-                    : `<button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
-                        type="button" aria-label="Quitar ${product.label}">
-                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
-                      </button>`
-                }
+                <button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
+                  type="button" aria-label="Quitar ${product.label}">
+                  <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                </button>
               </div>
-              ${stacked ? `</div>${foodQtyChip(product, item.qty || 1, { vertical: true })}` : ""}
             </div>
           `;
         })
@@ -3256,7 +3252,33 @@ function stackMark(v) {
   return brand ? { art: brand.art, bg: brand.bg } : { art: v.art || product.art, bg: v.bg || product.bg };
 }
 
-function foodQtyChip(product, qty, { vertical = false } = {}) {
+/* La cantidad en el carrito, en la misma banda donde los vales de monto
+   ponen el lápiz: un botón redondo de 40 igual que aquéllos. Con uno
+   dice "+"; a partir de dos dice el número, y tocar el número abre la
+   caja hacia la izquierda para dejar el "+" a mano. Se cierra sola a
+   los pocos segundos: la caja abierta es un estado de paso, no algo que
+   haya que recoger. */
+function cartQty(product, qty, open) {
+  const label = qty > 1 ? String(qty) : `<i class="fa-solid fa-plus" aria-hidden="true"></i>`;
+  return `
+    <span class="oky-flow-cart-qty${open ? " is-open" : ""}" data-role="cart-qty">
+      ${
+        open
+          ? `<button class="oky-flow-cart-qty-btn is-more" data-action="food-more" data-product="${product.key}"
+              type="button" aria-label="Agregar otro ${product.label}">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            </button>`
+          : ""
+      }
+      <button class="oky-flow-cart-qty-btn is-count" data-action="${qty > 1 ? "open-qty" : "food-more"}"
+        data-product="${product.key}" type="button"
+        aria-label="${qty > 1 ? `Cambiar la cantidad de ${product.label}` : `Agregar ${product.label}`}">
+        ${label}
+      </button>
+    </span>`;
+}
+
+function foodQtyChip(product, qty) {
   /* Add0 mientras no hay nada; en cuanto entra uno, el chip crece y
      deja quitar: menos en cuanto hay dos, papelera cuando queda uno. */
   if (!qty) {
@@ -3276,13 +3298,11 @@ function foodQtyChip(product, qty, { vertical = false } = {}) {
       aria-label="Agregar otro ${product.label}">
       <i class="fa-solid fa-plus chip-ds-pill-icon" aria-hidden="true"></i>
     </button>`;
-  /* De pie el orden se invierte: sumar arriba y quitar abajo, que es
-     donde el tacho cae en el resto de las filas del carrito. */
   return `
-    <span class="chip-ds ${qty > 1 ? "chip-ds-add2" : "chip-ds-add1"} chip-ds-shadow list-plp-action${vertical ? " is-vertical" : ""}">
-      ${vertical ? more : less}
+    <span class="chip-ds ${qty > 1 ? "chip-ds-add2" : "chip-ds-add1"} chip-ds-shadow list-plp-action">
+      ${less}
       <span class="chip-ds-number">${qty}</span>
-      ${vertical ? less : more}
+      ${more}
     </span>`;
 }
 
@@ -5041,6 +5061,29 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     );
   }
 
+  /* La caja de cantidad se recoge sola. Se cierra por el DOM y no por
+     render para que la animación de cierre llegue a verse: un render
+     cambiaría el nodo de golpe y la caja desaparecería sin encogerse. */
+  const QTY_OPEN_MS = 2600;
+  const QTY_CLOSE_MS = 200;
+  let qtyTimer = null;
+
+  function armQtyClose() {
+    clearTimeout(qtyTimer);
+    qtyTimer = setTimeout(() => {
+      const box = root.querySelector(".oky-flow-cart-qty.is-open");
+      if (!box) {
+        state.qtyOpen = null;
+        return render();
+      }
+      box.classList.add("is-closing");
+      qtyTimer = setTimeout(() => {
+        state.qtyOpen = null;
+        render();
+      }, QTY_CLOSE_MS);
+    }, QTY_OPEN_MS);
+  }
+
   /* Abrir un vale lo da por visto a él solo. Antes se guardaba la
      marca, así que comprar un segundo Nike llegaba ya visto —sin punto
      y sin contar— por haber abierto el primero. */
@@ -5735,8 +5778,19 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     /* El chip de cantidad manda en la PLP, en el PDP y en el carrito:
        una sola acción para los tres, que es lo que lo hace fiable. */
+    if (action === "open-qty") {
+      state.qtyOpen = el.dataset.product;
+      armQtyClose();
+      return render();
+    }
+
     if (action === "food-more" || action === "food-less") {
       const key = el.dataset.product;
+      /* Sumando desde la caja abierta se queda abierta —se suele
+         añadir de varias en varias— y se le da cuerda otra vez. Desde
+         el botón cerrado no se abre: lo que hay que ver es el número
+         nuevo. */
+      if (state.qtyOpen === key) armQtyClose();
       const product = PRODUCTS[key];
       if (!product) return;
       const step = action === "food-more" ? 1 : -1;
