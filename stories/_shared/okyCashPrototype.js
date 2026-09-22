@@ -3951,11 +3951,27 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
         </div>
       `
           : `
-        <button class="btn btn-outlined btn-large" style="width:100%" type="button"
-          data-action="share" data-label="${card.label}" data-amount="${amount}"
-          data-key="${card.key}" data-unit="${slot}">
-          <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>&nbsp;Compartir
-        </button>
+        ${
+          /* Activo se puede hacer las dos cosas sin pasar por
+             compartido: darlo o guardarlo. Cuál manda depende del
+             mercado —una gift card de USA se compra para uno y se
+             archiva cuando ya se usó; un vale de Latinoamérica se
+             compra para mandarlo—, así que el primario cambia de lado
+             y el otro queda en outline. */ ""
+        }
+        <div class="oky-flow-voucher-actions is-pair">
+          ${[
+            `<button class="btn ${section0 === "gift" ? "btn-outlined" : "btn-primary"} btn-large" type="button"
+              data-action="share" data-label="${card.label}" data-amount="${amount}"
+              data-key="${card.key}" data-unit="${slot}">
+              <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>&nbsp;Compartir
+            </button>`,
+            `<button class="btn ${section0 === "gift" ? "btn-primary" : "btn-outlined"} btn-large" type="button"
+              data-action="ask-archive" data-key="${card.key}" data-unit="${slot}">
+              <i class="fa-solid fa-box-archive" aria-hidden="true"></i>&nbsp;Archivar
+            </button>`,
+          ].join("")}
+        </div>
       `
       }
     </div>

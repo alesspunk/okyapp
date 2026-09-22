@@ -12716,6 +12716,15 @@ button.tactic-offer {
   width: 100%;
 }
 
+/* Dos acciones del mismo peso se reparten el ancho: ninguna es "la
+   otra cosa que también se puede hacer". El color dice cuál manda. */
+.oky-flow-voucher-actions.is-pair > .btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
 /* Interruptor propio: el de la librería no acepta rótulo al lado ni el
    verde del estado. */
 .oky-flow-switch {
