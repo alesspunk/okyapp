@@ -3949,10 +3949,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           data-key="${card.key}" data-unit="${slot}" data-label="${card.label}" data-amount="${amount}"
           type="button" role="switch" aria-checked="${shared}" ${archived ? "disabled" : ""}>
           <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
-          <span class="oky-flow-switch-label">
-            ${shared ? "Compartido" : "Compartir"}
-            <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
-          </span>
+          <span class="oky-flow-switch-label">${shared ? "Compartido" : "Compartir"}</span>
         </button>
       </div>
     </div>
