@@ -3937,40 +3937,24 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           <i class="fa-solid fa-box-open" aria-hidden="true"></i>&nbsp;Desarchivar
         </button>
       `
-          : shared
-          ? `
+          : `
+        ${
+          /* El vale en uso tiene siempre las dos cosas a mano: el
+             interruptor de compartido —que al encenderse abre la hoja
+             de compartir y al apagarse pregunta— y archivar, que ya no
+             pide haberlo compartido antes. Es la misma fila esté
+             compartido o no; lo único que cambia es el interruptor. */ ""
+        }
         <div class="oky-flow-voucher-actions">
-          <button class="oky-flow-switch is-on" data-action="toggle-shared" data-key="${card.key}" data-unit="${slot}"
-            type="button" role="switch" aria-checked="true">
+          <button class="oky-flow-switch${shared ? " is-on" : ""}" data-action="toggle-shared"
+            data-key="${card.key}" data-unit="${slot}" data-label="${card.label}" data-amount="${amount}"
+            type="button" role="switch" aria-checked="${shared}">
             <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
             <span class="oky-flow-switch-label">Compartido</span>
           </button>
           <button class="btn btn-outlined btn-large oky-flow-archive-btn" data-action="ask-archive" data-key="${card.key}" data-unit="${slot}" type="button">
             Archivar
           </button>
-        </div>
-      `
-          : `
-        ${
-          /* Activo se puede hacer las dos cosas sin pasar por
-             compartido: darlo o guardarlo. Cuál manda depende del
-             mercado —una gift card de USA se compra para uno y se
-             archiva cuando ya se usó; un vale de Latinoamérica se
-             compra para mandarlo—, así que el primario cambia de lado
-             y el otro queda en outline. */ ""
-        }
-        <div class="oky-flow-voucher-actions is-pair">
-          ${[
-            `<button class="btn ${section0 === "gift" ? "btn-outlined" : "btn-primary"} btn-large" type="button"
-              data-action="share" data-label="${card.label}" data-amount="${amount}"
-              data-key="${card.key}" data-unit="${slot}">
-              <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>&nbsp;Compartir
-            </button>`,
-            `<button class="btn ${section0 === "gift" ? "btn-primary" : "btn-outlined"} btn-large" type="button"
-              data-action="ask-archive" data-key="${card.key}" data-unit="${slot}">
-              <i class="fa-solid fa-box-archive" aria-hidden="true"></i>&nbsp;Archivar
-            </button>`,
-          ].join("")}
         </div>
       `
       }
@@ -6248,8 +6232,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "toggle-shared") {
       /* Quitar la marca es lo único que puede confundir —el vale ya se
-         mandó— así que eso sí se pregunta. Ponerla no llega por aquí:
-         la pone el compartir. */
+         mandó— así que eso sí se pregunta. Ponerla es compartirlo: se
+         abre la hoja del sistema y la marca la pone el envío, no el
+         interruptor, porque cancelar no comparte nada. */
+      const id = unitId(el.dataset.key, Number(el.dataset.unit) || 0);
+      if (!state.sharedVouchers.includes(id)) return shareFrom(el);
       state.sheet = { type: "unshare", key: el.dataset.key, unit: Number(el.dataset.unit) || 0 };
       return render();
     }
@@ -6399,10 +6386,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
-    if (action === "share") {
-      /* Hoja de compartir nativa: en iOS y Android abre la del sistema
-         —WhatsApp, Mensajes, AirDrop— que es lo que la prueba necesita
-         ver. */
+    if (action === "share") return shareFrom(el);
+
+    /* Compartir: lo piden el interruptor de la card y cualquier botón
+       de compartir. Hoja nativa: en iOS y Android abre la del sistema
+       —WhatsApp, Mensajes, AirDrop— que es lo que la prueba necesita
+       ver. */
+    function shareFrom(el) {
       const label = el.dataset.label || "Gift Card";
       const amount = Number(el.dataset.amount) || 0;
       const payload = {
@@ -6425,7 +6415,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         if (fresh) fresh.scrollTop = y;
       };
 
+      /* El aviso se escribe dentro del botón, así que en el
+         interruptor no cabe: ahí el propio interruptor encendiéndose
+         ya dice que se compartió. */
       const say = (text, icon = "fa-circle-check") => {
+        if (el.classList.contains("oky-flow-switch")) return;
         const before = el.innerHTML;
         el.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i>&nbsp;${text}`;
         setTimeout(() => {
