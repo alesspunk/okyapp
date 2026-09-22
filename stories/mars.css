@@ -9414,6 +9414,25 @@ body {
   margin-top: auto;
 }
 
+/* El resumen del checkout se queda pegado al fondo cuando la pantalla
+   no da para enseñarlo entero: pagar no puede depender de scrollear. */
+.oky-flow-checkoutdock {
+  position: sticky;
+  bottom: 0;
+  z-index: 6;
+}
+
+/* Anclado enseña lo justo —TOTAL y el botón— y se levanta del
+   contenido con una sombra, que es lo que dice que está flotando por
+   encima y no al final de la lista. El desglose sigue ahí, scrolleando. */
+.oky-flow-checkoutdock.is-docked .summary-card {
+  box-shadow: 0 -6px 20px rgba(16, 4, 36, 0.14);
+}
+
+.oky-flow-checkoutdock.is-docked .summary-card-body > .summary-row:not(.summary-row-total) {
+  display: none;
+}
+
 /* El brand se mete dentro del header en vez de dejar el hueco
    (mockup: .pdp-page-brand-slot { margin-top: -55px }). */
 .oky-flow-brand-slot {

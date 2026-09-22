@@ -2166,7 +2166,7 @@ function screenCheckout(state) {
         }
       </div>
 
-      <div class="summary-box summary-box-compact oky-flow-push" style="width:100%">
+      <div class="summary-box summary-box-compact oky-flow-push oky-flow-checkoutdock" style="width:100%">
         <div class="summary-card">
           <div class="summary-card-body">
             ${
@@ -4638,6 +4638,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     bindHeaderScroll(scroll);
     bindClaritaInView(scroll);
+    bindCheckoutDock(scroll);
     bindSwipes();
 
     /* El drawer trae su propia saving bar; la de la pantalla de abajo
@@ -5105,6 +5106,55 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         }, 1170);
       }, 1035);
     }
+  }
+
+  /* En un teléfono bajo el resumen del checkout se queda debajo del
+     pliegue y "Comprar" hay que ir a buscarlo. Si no cabe, el resumen
+     se ancla al fondo y deja solo el TOTAL y el botón: el desglose se
+     puede leer scrolleando, pero pagar tiene que estar siempre a un
+     toque.
+
+     Se mide una vez por dibujo y no se vuelve a mirar: plegar las
+     líneas achica el contenido, así que volver a medir diría que ya
+     cabe y se pondría a parpadear entre los dos estados. */
+  function bindCheckoutDock(scroll) {
+    const box = root.querySelector(".oky-flow-checkoutdock");
+    if (!box || !scroll) return;
+
+    const frame = root.querySelector(".oky-flow-frame");
+    if (!frame) return;
+
+    const put = () => {
+      if (box.classList.contains("is-docked")) return;
+      /* Lo que importa no es si sobra contenido —el hueco reservado para
+         la navbar ya hace que sobre— sino si el botón cabe a la vista.
+         El límite es el borde del teléfono menos lo que se le pinta
+         encima: la navbar y la barra de abajo, si la hay. */
+      /* Las barras se pisan entre ellas —el ahorro y el cashback ocupan
+         la misma franja—, así que sumar altos contaría de más: el borde
+         útil es donde empieza la de más arriba. */
+      const bars = [...frame.querySelectorAll(".oky-flow-navbar, .oky-flow-savingbar")];
+      const limit = Math.min(
+        frame.getBoundingClientRect().bottom,
+        ...bars.map((b) => b.getBoundingClientRect().top),
+      );
+      /* Anclado ya está arriba por sí solo, así que para saber dónde
+         caería hay que soltarlo un instante. */
+      box.style.position = "static";
+      const natural = box.getBoundingClientRect().bottom;
+      box.style.position = "";
+      /* Con doce píxeles de margen: rozar la barra de abajo por cuatro
+         no se ve, y plegar el desglose por eso sería cobrar caro un
+         problema que no existe. */
+      if (natural > limit + 12) box.classList.add("is-docked");
+    };
+
+    put();
+    /* Las imágenes de las cards llegan tarde y cambian el alto: se
+       repasa un par de veces mientras se asienta. */
+    setTimeout(put, 60);
+    setTimeout(put, 300);
+    setTimeout(put, 900);
   }
 
   /* En pantallas cortas la ficha del vale no cabe entera y Clarita se
