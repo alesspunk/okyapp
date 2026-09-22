@@ -3255,6 +3255,19 @@ function hashOf(text) {
 /* Un código de 23 caracteres en grupos de cinco: así se lee y se
    teclea sin perder la cuenta. */
 const GIFT_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
+/* Identificador solo de dígitos, para los servicios: el ID de pago que
+   pide la boleta de la luz o del internet no es un código de canje, es
+   un número largo que se teclea. */
+function digitsOf(seed, length = 15) {
+  let out = "";
+  let h = hashOf(seed) || 7;
+  for (let i = 0; i < length; i += 1) {
+    h = (h * 1103515245 + 12345) & 0x7fffffff;
+    out += String(h % 10);
+  }
+  return out;
+}
+
 function giftCode(seed, length = 23) {
   let out = "";
   let h = hashOf(seed) || 7;
@@ -3626,12 +3639,24 @@ function screenVoucher(state) {
         : state.amounts[card.key] || BRAND_DEFAULT_AMOUNT;
   /* En quetzales manda lo que se compró; si el vale es de relleno de
      la demo, el monto de arranque. */
+  /* Compartir y archivar valen también recién comprado: es justo
+     cuando se manda el regalo. El vale es el mismo que luego se ve en
+     el wallet, así que marcarlo aquí o allá da igual. */
+  const slot = state.params.id && purchase ? unitOfPurchase(state, purchase) : unit;
+  const id = unitId(card.key, slot);
+  const shared = state.sharedVouchers.includes(id);
+  const archived = state.archivedVouchers.includes(id);
+
   /* La parte de abajo de una gift card de USA: código corto en dos de
-     cada tres, y barcode con PIN en la restante. Lo demás —vales y
-     servicios de Guatemala— se queda con la de siempre. */
-  const bottomSeed = state.params.id || `${card.key}#${unit}`;
+     cada tres, y barcode con PIN en la restante.
+
+     La semilla es la unidad y no la orden: el mismo vale se abre desde
+     "Tus compras" y desde el wallet, y con dos semillas enseñaba dos
+     códigos distintos para la misma cosa. */
+  const bottomSeed = id;
+  const section0 = sectionOfVoucher(card.key);
   const bottomOfVoucher =
-    sectionOfVoucher(card.key) === "gift"
+    section0 === "gift"
       ? hashOf(bottomSeed) % 10 < 3
         ? {
             bottomVariantPath: "Molecule/Bottom Card/Code + BAR CODE + PIN",
@@ -3651,7 +3676,32 @@ function screenVoucher(state) {
             ],
             bottomButtonLabel: "Ayuda",
           }
-      : { bottomVariantPath: "Molecule/Bottom Card/Gift Card", bottomButtonLabel: "Ayuda" };
+      : /* Un servicio no reparte un código de canje: lo que queda del
+           pago es el identificador que sale en la boleta. */
+        section0 === "servicios"
+        ? {
+            bottomVariantPath: "Molecule/Bottom Card/OKY Vales",
+            bottomLines: [{ label: "ID de pago", value: digitsOf(bottomSeed, 15), copyable: true }],
+            bottomExpiry: "",
+            bottomButtonLabel: "Ayuda",
+          }
+        : /* Una recarga tampoco: se fue al teléfono de alguien, y lo
+             que hay que poder mirar después es a quién. */
+          card.key === "tigo"
+          ? {
+              bottomVariantPath: "Molecule/Bottom Card/Telco",
+              bottomLines: [{ label: "Quien recibe", value: GUA_RECIPIENT.phone, copyable: false }],
+              bottomExpiry: "",
+              bottomButtonLabel: "Ayuda",
+            }
+          : /* Y el vale de una marca sí lleva código, pero uno solo: las
+               tres credenciales eran las de una gift card
+               internacional. */
+            {
+              bottomVariantPath: "Molecule/Bottom Card/OKY Vales",
+              bottomLines: [{ label: "Copia el código", value: giftCode(bottomSeed, 10), copyable: true }],
+              bottomButtonLabel: "Ayuda",
+            };
 
   const quetzalAmount =
     (purchase && purchase.quetzales) ||
@@ -3668,13 +3718,6 @@ function screenVoucher(state) {
   const headerBrand = valeBrand ? valeBrand.label : card.label;
   const title = state.params.id ? "Detalle de la orden" : headerBrand;
 
-  /* Compartir y archivar valen también recién comprado: es justo
-     cuando se manda el regalo. El vale es el mismo que luego se ve en
-     el wallet, así que marcarlo aquí o allá da igual. */
-  const slot = state.params.id && purchase ? unitOfPurchase(state, purchase) : unit;
-  const id = unitId(card.key, slot);
-  const shared = state.sharedVouchers.includes(id);
-  const archived = state.archivedVouchers.includes(id);
   const sharedOn = new Date()
     .toLocaleDateString("es-GT", { day: "2-digit", month: "short", year: "numeric" })
     .replace(/\./g, "")
@@ -3707,6 +3750,9 @@ function screenVoucher(state) {
               middleLeftLabel: "Mostrar al cajero",
               middleRightLabel: "Como canjear",
               bottomVariantPath: "Molecule/Bottom Card/OKY Vales",
+              /* Sin esto todas enseñaban el código de muestra de la
+                 variante, el mismo en todas las cards. */
+              bottomLines: [{ label: "Copia el código", value: giftCode(bottomSeed, 10), copyable: true }],
               bottomButtonLabel: "Ayuda",
             }
           : {
