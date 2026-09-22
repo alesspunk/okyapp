@@ -1280,8 +1280,9 @@ function countrySheet(state) {
 }
 
 /* Los marketplaces que ofrece cada lado del folder. La izquierda es
-   Norteamérica y la derecha Centroamérica: son dos catálogos, dos
+   Norteamérica y la derecha Latinoamérica: son dos catálogos, dos
    monedas y dos carritos, así que un país no puede salir en los dos.
+   La lista va de norte a sur, que es como se busca un país en un mapa.
    El código de tres letras es el que cabe en la pestaña. */
 const MARKETS = {
   left: [
@@ -1289,20 +1290,33 @@ const MARKETS = {
     { iso: "CA", code: "CAN", label: "Canadá", alt: "Canada flag" },
   ],
   right: [
+    { iso: "MX", code: "MEX", label: "México", alt: "México flag" },
     { iso: "GT", code: "GUA", label: "Guatemala", alt: "Guatemala flag" },
     { iso: "SV", code: "ESA", label: "El Salvador", alt: "El Salvador flag" },
     { iso: "HN", code: "HON", label: "Honduras", alt: "Honduras flag" },
     { iso: "NI", code: "NIC", label: "Nicaragua", alt: "Nicaragua flag" },
     { iso: "CR", code: "CRC", label: "Costa Rica", alt: "Costa Rica flag" },
     { iso: "PA", code: "PAN", label: "Panamá", alt: "Panamá flag" },
+    { iso: "CO", code: "COL", label: "Colombia", alt: "Colombia flag" },
+    { iso: "EC", code: "ECU", label: "Ecuador", alt: "Ecuador flag" },
+    { iso: "PE", code: "PER", label: "Perú", alt: "Perú flag" },
+    { iso: "AR", code: "ARG", label: "Argentina", alt: "Argentina flag" },
   ],
 };
 
-const SIDE_LABEL = { left: "Norteamérica", right: "Centroamérica" };
+const SIDE_LABEL = { left: "Norteamérica", right: "Latinoamérica" };
+
+/* El de arranque de cada lado, que ya no es el primero de la lista:
+   la lista va por mapa y el marketplace en pie es Guatemala. */
+const MARKET_HOME = { left: "US", right: "GT" };
 
 function marketOf(state, side) {
   const iso = (state.market || {})[side];
-  return MARKETS[side].find((m) => m.iso === iso) || MARKETS[side][0];
+  return (
+    MARKETS[side].find((m) => m.iso === iso) ||
+    MARKETS[side].find((m) => m.iso === MARKET_HOME[side]) ||
+    MARKETS[side][0]
+  );
 }
 
 /* La hoja de elegir marketplace. Sale solo desde la doble flecha de la
@@ -2180,7 +2194,10 @@ function screenCheckout(state) {
 function screenMethods(state) {
   const total = cartTotal(state);
   const max = Math.min(state.okyCashBalance, total);
-  const applied = clamp(state.okyCashApplied, 0, max);
+  /* Sin marcar no hay nada aplicado, y el saldo entero sigue ahí. Es lo
+     mismo que enseña el checkout: marcado, lo que se va en esta compra;
+     sin marcar, lo que hay disponible. */
+  const applied = state.okyCashEnabled ? clamp(state.okyCashApplied, 0, max) : 0;
   const toCard = Math.max(total - applied, 0);
   const keep = Math.max(state.okyCashBalance - applied, 0);
 
@@ -2233,7 +2250,7 @@ function screenMethods(state) {
                 </button>
                 <img class="oky-flow-coin" src="oky-cash-coin.png" alt="" style="width:24px;height:26px" />
                 <p class="oky-flow-method-label">OKY Cash</p>
-                <span class="oky-flow-chip is-cash">${money(applied)}</span>
+                <span class="oky-flow-chip is-cash">${money(state.okyCashEnabled ? applied : state.okyCashBalance)}</span>
               </div>
             </div>
           `;
@@ -5729,11 +5746,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "open-methods") {
-      if (!state.okyCashEnabled) {
-        state.promo = null;
-        state.okyCashEnabled = true;
-        state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
-      }
+      /* Abrir los métodos de pago era gastar el saldo: entraba con OKY
+         Cash ya marcado y de paso borraba el código promocional. Mirar
+         no es elegir, y al volver al checkout la persona se encontraba
+         con una decisión que no había tomado. */
       return go("methods");
     }
 
