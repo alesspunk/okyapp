@@ -1887,10 +1887,16 @@ function cartDrawer(state) {
                 <img class="oky-flow-cart-empty-art" src="Cart-3d-icon.png" alt="" />
                 <h3 class="oky-flow-cart-empty-title">Tu carrito está vacío</h3>
                 <p class="oky-flow-cart-empty-note">
-                  ${/* Cada marketplace vende lo suyo: en USA, gift cards;
-                       en Latinoamérica, OKY Vales. Ofrecer lo que no hay
-                       manda a buscar algo que no existe en esa tienda. */ ""}
-                  Agrega ${state.country === "gua" ? "un OKY Vale" : "una gift card"} y empieza a ganar OKY Cash en cada compra.
+                  ${/* Cada marketplace vende lo suyo y promete lo suyo: en
+                       USA las gift cards devuelven OKY Cash, y en
+                       Latinoamérica los vales no —todos van con
+                       noCashback—, así que lo que se ofrece ahí es el
+                       descuento, que es lo que de verdad dan. */ ""}
+                  ${
+                    state.country === "gua"
+                      ? "Agrega un OKY Vale y empieza a ahorrar en tus marcas favoritas."
+                      : "Agrega una gift card y empieza a ganar OKY Cash en cada compra."
+                  }
                 </p>
                 <button class="btn btn-primary btn-large" data-action="nav:country-home" type="button">
                   Explorar marcas
