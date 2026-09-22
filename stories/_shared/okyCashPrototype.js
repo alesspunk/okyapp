@@ -3941,13 +3941,18 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
           <span class="oky-flow-switch-label">${archived ? "Archivado" : "Archivar"}</span>
         </button>
-        ${/* Compartido, el botón dice el estado y tocarlo pregunta si no
-             se llegó a mandar; guardado no se comparte, primero hay que
-             sacarlo del archivo. */ ""}
-        <button class="btn btn-outlined btn-large oky-flow-voucher-btn" data-action="toggle-shared"
+        ${/* Compartir es el mismo trato que archivar, así que es el
+             mismo control: apagado se comparte y encendido se pregunta
+             si no llegó a mandarse. Guardado no se comparte —primero
+             hay que sacarlo del archivo— y el interruptor se apaga. */ ""}
+        <button class="oky-flow-switch${shared ? " is-on" : ""}" data-action="toggle-shared"
           data-key="${card.key}" data-unit="${slot}" data-label="${card.label}" data-amount="${amount}"
-          type="button" ${archived ? "disabled" : ""}>
-          ${shared ? "Compartido" : "Compartir"}<i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
+          type="button" role="switch" aria-checked="${shared}" ${archived ? "disabled" : ""}>
+          <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
+          <span class="oky-flow-switch-label">
+            ${shared ? "Compartido" : "Compartir"}
+            <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
+          </span>
         </button>
       </div>
     </div>

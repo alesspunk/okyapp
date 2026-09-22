@@ -12733,15 +12733,25 @@ button.tactic-offer {
   color: var(--primary-base);
 }
 
-/* El interruptor dice si está guardado y no lleva icono: lo que informa
-   es él. El icono vive en el botón de compartir, detrás del rótulo. */
+/* Los dos controles son interruptores: el de archivado va sin icono
+   —lo que informa es él— y el de compartir lleva el suyo detrás del
+   rótulo, que es lo que se hace al encenderlo. */
 .oky-flow-switch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   white-space: nowrap;
 }
 
-.oky-flow-voucher-btn i {
-  margin-left: 8px;
+.oky-flow-switch-label i {
   font-size: 14px;
+}
+
+/* Sobre un vale guardado no hay nada que compartir, y el interruptor
+   lo dice apagándose. */
+.oky-flow-switch:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .oky-flow-switch-track {

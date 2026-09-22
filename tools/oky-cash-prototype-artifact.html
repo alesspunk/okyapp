@@ -12748,15 +12748,25 @@ button.tactic-offer {
   color: var(--primary-base);
 }
 
-/* El interruptor dice si está guardado y no lleva icono: lo que informa
-   es él. El icono vive en el botón de compartir, detrás del rótulo. */
+/* Los dos controles son interruptores: el de archivado va sin icono
+   —lo que informa es él— y el de compartir lleva el suyo detrás del
+   rótulo, que es lo que se hace al encenderlo. */
 .oky-flow-switch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   white-space: nowrap;
 }
 
-.oky-flow-voucher-btn i {
-  margin-left: 8px;
+.oky-flow-switch-label i {
   font-size: 14px;
+}
+
+/* Sobre un vale guardado no hay nada que compartir, y el interruptor
+   lo dice apagándose. */
+.oky-flow-switch:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .oky-flow-switch-track {
@@ -21157,13 +21167,18 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
           <span class="oky-flow-switch-label">${archived ? "Archivado" : "Archivar"}</span>
         </button>
-        ${/* Compartido, el botón dice el estado y tocarlo pregunta si no
-             se llegó a mandar; guardado no se comparte, primero hay que
-             sacarlo del archivo. */ ""}
-        <button class="btn btn-outlined btn-large oky-flow-voucher-btn" data-action="toggle-shared"
+        ${/* Compartir es el mismo trato que archivar, así que es el
+             mismo control: apagado se comparte y encendido se pregunta
+             si no llegó a mandarse. Guardado no se comparte —primero
+             hay que sacarlo del archivo— y el interruptor se apaga. */ ""}
+        <button class="oky-flow-switch${shared ? " is-on" : ""}" data-action="toggle-shared"
           data-key="${card.key}" data-unit="${slot}" data-label="${card.label}" data-amount="${amount}"
-          type="button" ${archived ? "disabled" : ""}>
-          ${shared ? "Compartido" : "Compartir"}<i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
+          type="button" role="switch" aria-checked="${shared}" ${archived ? "disabled" : ""}>
+          <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
+          <span class="oky-flow-switch-label">
+            ${shared ? "Compartido" : "Compartir"}
+            <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
+          </span>
         </button>
       </div>
     </div>
