@@ -5219,10 +5219,17 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const clarita = root.querySelector(".prime-card-clarita");
     if (!clarita || !scroll) return;
 
+    const frame = root.querySelector(".oky-flow-frame");
+    /* De dónde salió, para devolverla cuando su sitio vuelva a verse. */
+    const home = clarita.parentElement;
+
     const place = () => {
-      /* Se mide sin el desplazamiento anterior, o cada pasada lo
-         arrastraría. */
-      clarita.style.transform = "";
+      /* Se mide en su sitio de siempre, sin lo que se le hizo la pasada
+         anterior: si no, cada pasada arrastraría a la siguiente. */
+      if (clarita.parentElement !== home) home.appendChild(clarita);
+      clarita.classList.remove("is-pinned");
+      clarita.style.bottom = "";
+
       /* El tope no es solo la navbar: en el acuse de compra encima van
          el botón de wallet y la píldora del saldo, y contra la navbar
          Clarita se les metía debajo. Manda la barra de más arriba. */
@@ -5231,8 +5238,19 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         (bars.length
           ? Math.min(...bars.map((b) => b.getBoundingClientRect().top))
           : scroll.getBoundingClientRect().bottom) - 10;
-      const over = clarita.getBoundingClientRect().bottom - limit;
-      if (over > 0) clarita.style.transform = `translateY(${-Math.round(over)}px)`;
+
+      if (clarita.getBoundingClientRect().bottom <= limit) return;
+
+      /* No cabe donde vive. Subirla a empujones dentro de la card solo
+         servía mientras la card se viera: en un teléfono de verdad la
+         parte de abajo se queda bajo el pliegue y no hay empujón que
+         alcance. Así que se cuelga del teléfono, justo encima de las
+         barras, y vuelve a su sitio en cuanto su sitio se ve. */
+      const box = frame.getBoundingClientRect();
+      const zoom = box.height / frame.offsetHeight || 1;
+      frame.appendChild(clarita);
+      clarita.classList.add("is-pinned");
+      clarita.style.bottom = `${Math.round((box.bottom - limit) / zoom)}px`;
     };
 
     /* Se repasa varias veces: el arte de la card llega por imagen y

@@ -5135,10 +5135,17 @@ body {
    habla sola: la burbuja entra al segundo de abrirse la card, que es
    cuando ya miraste el código y puede que no sepas qué hacer con él.
    No se puede pulsar a propósito; no roba el toque de la card. */
+/* Cuando su sitio en la card se queda bajo el pliegue, Clarita se
+   cuelga del teléfono encima de las barras: es la única forma de que
+   asome cuando la parte de abajo de la card ni se ve. El JS escribe a
+   qué altura. */
+.prime-card-clarita.is-pinned {
+  position: absolute;
+  right: 12px;
+  z-index: 85;
+}
+
 .prime-card-clarita {
-  /* El subir para no quedarse bajo el pliegue lo escribe el JS en el
-     transform; la transición hace que acompañe al scroll en vez de dar
-     tirones. */
   transition: transform 180ms ease-out;
   display: flex;
   /* En fila y sin encogerse nunca: el globo a la izquierda, ella a la
