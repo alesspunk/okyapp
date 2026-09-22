@@ -122,7 +122,11 @@ function renderFooter(card) {
            gift card de USA, donde lo único que hay que abrir son las
            instrucciones de canje. */
         card.singleLabel
-          ? `<span class="middle-card-footer-single">${card.singleLabel}</span>`
+          ? `<span class="middle-card-footer-single${
+              /* Un correlativo se dicta, así que va con el token del
+                 código; un enlace no. */
+              /^#\d/.test(card.singleLabel) ? " is-code" : ""
+            }">${card.singleLabel}</span>`
           : `<span class="middle-card-footer-start">${card.leftLabel}</span>
              <span class="middle-card-footer-end">${card.rightLabel}</span>`
       }

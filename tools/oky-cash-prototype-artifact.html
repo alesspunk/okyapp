@@ -4711,6 +4711,20 @@ body {
   white-space: nowrap;
 }
 
+/* El correlativo del servicio es un número que se dicta, no un rótulo:
+   va con el token del código —Inter, cero tachado— pero al tamaño del
+   pie, que es donde vive. */
+.middle-card-footer-single.is-code {
+  font-family: "Inter", sans-serif;
+  font-style: italic;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  font-feature-settings: "zero" on;
+  font-variant-numeric: lining-nums slashed-zero;
+  font-synthesis: none;
+}
+
 .middle-card-footer-end {
   flex: 1.2 1 0;
   text-align: right;
@@ -16354,7 +16368,11 @@ function renderFooter(card) {
            gift card de USA, donde lo único que hay que abrir son las
            instrucciones de canje. */
         card.singleLabel
-          ? `<span class="middle-card-footer-single">${card.singleLabel}</span>`
+          ? `<span class="middle-card-footer-single${
+              /* Un correlativo se dicta, así que va con el token del
+                 código; un enlace no. */
+              /^#\d/.test(card.singleLabel) ? " is-code" : ""
+            }">${card.singleLabel}</span>`
           : `<span class="middle-card-footer-start">${card.leftLabel}</span>
              <span class="middle-card-footer-end">${card.rightLabel}</span>`
       }
