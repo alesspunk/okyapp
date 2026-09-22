@@ -1722,7 +1722,7 @@ function screenPdp(state) {
 
       ${
         product.legal
-          ? `<div><p class="oky-flow-legal"><strong>Disponibilidad limitada</strong> Las gift cards con descuento especial estarán disponibles por tiempo limitado o hasta que se agote el inventario.</p></div>`
+          ? `<div><p class="oky-flow-legal"><strong>Disponibilidad limitada</strong> Las Gift Cards con descuento especial estarán disponibles por tiempo limitado o hasta que se agote el inventario.</p></div>`
           : ""
       }
     </div>
@@ -1895,7 +1895,7 @@ function cartDrawer(state) {
                   ${
                     state.country === "gua"
                       ? "Agrega un OKY Vale y empieza a ahorrar en tus marcas favoritas."
-                      : "Agrega una gift card y empieza a ganar OKY Cash en cada compra."
+                      : "Agrega una Gift Card y empieza a ganar OKY Cash en cada compra."
                   }
                 </p>
                 <button class="btn btn-primary btn-large" data-action="nav:country-home" type="button">
@@ -2519,7 +2519,7 @@ const CATEGORY_OF = {
    puede estar un vale. Un vale cae en uno solo, nunca en dos. */
 const WALLET_TABS = [
   { key: "cash", label: "OKY Cash", title: "OKY Cash", icon: "oky-cash-coin.png" },
-  { key: "gift", label: "Gift cards", title: "Gift Cards", icon: "plateu-giftcards.png" },
+  { key: "gift", label: "Gift Cards", title: "Gift Cards", icon: "plateu-giftcards.png" },
   { key: "vales", label: "OKY Vales", title: "OKY Vales", icon: "plateu-vales.png" },
   { key: "servicios", label: "Servicios", title: "Servicios", icon: "plateu-servicios.png" },
 ];
@@ -6235,11 +6235,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* Hoja de compartir nativa: en iOS y Android abre la del sistema
          —WhatsApp, Mensajes, AirDrop— que es lo que la prueba necesita
          ver. */
-      const label = el.dataset.label || "gift card";
+      const label = el.dataset.label || "Gift Card";
       const amount = Number(el.dataset.amount) || 0;
       const payload = {
         title: `Gift Card de ${label}`,
-        text: `Te comparto una gift card de ${label} por ${money(amount)} — OKY`,
+        text: `Te comparto una Gift Card de ${label} por ${money(amount)} — OKY`,
         url: location.href,
       };
 
