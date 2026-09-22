@@ -1861,7 +1861,10 @@ function cartDrawer(state) {
                 <img class="oky-flow-cart-empty-art" src="Cart-3d-icon.png" alt="" />
                 <h3 class="oky-flow-cart-empty-title">Tu carrito está vacío</h3>
                 <p class="oky-flow-cart-empty-note">
-                  Agrega una gift card y empieza a ganar OKY Cash en cada compra.
+                  ${/* Cada marketplace vende lo suyo: en USA, gift cards;
+                       en Latinoamérica, OKY Vales. Ofrecer lo que no hay
+                       manda a buscar algo que no existe en esa tienda. */ ""}
+                  Agrega ${state.country === "gua" ? "un OKY Vale" : "una gift card"} y empieza a ganar OKY Cash en cada compra.
                 </p>
                 <button class="btn btn-primary btn-large" data-action="nav:country-home" type="button">
                   Explorar marcas
