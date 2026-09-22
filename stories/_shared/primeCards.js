@@ -437,7 +437,8 @@ export function resolveCardTop(args = {}) {
     heroAlt: args.heroAlt?.trim() || base.heroAlt,
     flagCode: args.flagCode?.trim() || base.flagCode,
     footerLeftLabel: args.footerLeftLabel?.trim() || base.footerLeftLabel,
-    footerRightLabel: args.footerRightLabel?.trim() || base.footerRightLabel,
+    footerRightLabel:
+      typeof args.footerRightLabel === "string" ? args.footerRightLabel.trim() : base.footerRightLabel,
   };
 }
 

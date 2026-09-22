@@ -3770,6 +3770,7 @@ function screenVoucher(state) {
               topHeroAlt: valeBrand.label,
               topFlagCode: countryOfVoucher(card.key, sectionOfVoucher(card.key)),
               topFooterLeftLabel: "Qué incluye",
+              topFooterRightLabel: "",
               middleCardPath: "Molecule/Middle Card/Vale de Producto",
               middleTitle: card.label,
               middleImage: card.art,
@@ -3788,16 +3789,23 @@ function screenVoucher(state) {
               topHeroImage: card.art,
               topHeroAlt: card.label,
               topFooterLeftLabel: "Terms & Conditions",
-              topFooterRightLabel: "Brand Disclaimer",
+              /* El brand disclaimer es de la gift card de marca
+                 estadounidense; el vale de Latinoamérica lleva un solo
+                 enlace arriba y va centrado. */
+              topFooterRightLabel: section0 === "gift" ? "Brand Disclaimer" : "",
               middleCardPath: "Molecule/Middle Card/Amount",
               middleTitle: kind,
-              /* La gift card de USA no se muestra en caja: lo único que
-                 hay que abrir son las instrucciones de canje, así que
-                 el pie deja un solo enlace y va centrado. Es además la
-                 primera parada del recorrido de Clarita. */
+              /* Y el pie del medio dice lo que toca en cada uno: la gift
+                 card de USA no se muestra en caja —lo único que hay que
+                 abrir son las instrucciones de canje, que es además la
+                 primera parada del recorrido de Clarita—, un servicio
+                 pagado deja su correlativo, y el vale de marca sí se
+                 enseña en caja y se canjea ahí. */
               ...(section0 === "gift"
                 ? { middleSingleLabel: "Redemption Instructions", bottomClaritaAction: "card-tour" }
-                : {}),
+                : section0 === "servicios"
+                  ? { middleSingleLabel: `#${digitsOf(`${bottomSeed}-orden`, 12)}` }
+                  : {}),
               /* El vale de Guatemala se canjea en quetzales, así que
                  es lo que lleva escrito; los dólares se quedaron en el
                  checkout. */

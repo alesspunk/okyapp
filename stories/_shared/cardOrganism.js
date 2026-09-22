@@ -41,7 +41,12 @@ export function resolveCardOrganismArgs(args = {}) {
       flagImage: args.topFlagImage?.trim() || topBase.flagImage,
       flagAlt: args.topFlagAlt?.trim() || topBase.flagAlt,
       footerLeftLabel: args.topFooterLeftLabel?.trim() || topBase.footerLeftLabel,
-      footerRightLabel: args.topFooterRightLabel?.trim() || topBase.footerRightLabel,
+      /* Vacío es una respuesta: el vale lleva un solo enlace arriba y
+         el pie se centra. Con `||` se colaba el de la variante. */
+      footerRightLabel:
+        typeof args.topFooterRightLabel === "string"
+          ? args.topFooterRightLabel.trim()
+          : topBase.footerRightLabel,
     }),
     middle: resolveMiddleCard({
       variantPath: MIDDLE_CARD_PATHS.includes(args.middleCardPath) ? args.middleCardPath : middleBase.path,

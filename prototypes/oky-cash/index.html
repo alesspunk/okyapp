@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>OKY Cash — Prototipo</title>
-<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,700&family=Inter:wght@100..900&family=Nunito+Sans:wght@300..900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,700&family=Inter:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:wght@300..900&display=swap" rel="stylesheet" />
 <style>
 /*!
  * Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com
@@ -16902,7 +16902,8 @@ function resolveCardTop(args = {}) {
     heroAlt: args.heroAlt?.trim() || base.heroAlt,
     flagCode: args.flagCode?.trim() || base.flagCode,
     footerLeftLabel: args.footerLeftLabel?.trim() || base.footerLeftLabel,
-    footerRightLabel: args.footerRightLabel?.trim() || base.footerRightLabel,
+    footerRightLabel:
+      typeof args.footerRightLabel === "string" ? args.footerRightLabel.trim() : base.footerRightLabel,
   };
 }
 
@@ -17021,7 +17022,12 @@ function resolveCardOrganismArgs(args = {}) {
       flagImage: args.topFlagImage?.trim() || topBase.flagImage,
       flagAlt: args.topFlagAlt?.trim() || topBase.flagAlt,
       footerLeftLabel: args.topFooterLeftLabel?.trim() || topBase.footerLeftLabel,
-      footerRightLabel: args.topFooterRightLabel?.trim() || topBase.footerRightLabel,
+      /* Vacío es una respuesta: el vale lleva un solo enlace arriba y
+         el pie se centra. Con `||` se colaba el de la variante. */
+      footerRightLabel:
+        typeof args.topFooterRightLabel === "string"
+          ? args.topFooterRightLabel.trim()
+          : topBase.footerRightLabel,
     }),
     middle: resolveMiddleCard({
       variantPath: MIDDLE_CARD_PATHS.includes(args.middleCardPath) ? args.middleCardPath : middleBase.path,
@@ -20913,6 +20919,7 @@ function screenVoucher(state) {
               topHeroAlt: valeBrand.label,
               topFlagCode: countryOfVoucher(card.key, sectionOfVoucher(card.key)),
               topFooterLeftLabel: "Qué incluye",
+              topFooterRightLabel: "",
               middleCardPath: "Molecule/Middle Card/Vale de Producto",
               middleTitle: card.label,
               middleImage: card.art,
@@ -20931,16 +20938,23 @@ function screenVoucher(state) {
               topHeroImage: card.art,
               topHeroAlt: card.label,
               topFooterLeftLabel: "Terms & Conditions",
-              topFooterRightLabel: "Brand Disclaimer",
+              /* El brand disclaimer es de la gift card de marca
+                 estadounidense; el vale de Latinoamérica lleva un solo
+                 enlace arriba y va centrado. */
+              topFooterRightLabel: section0 === "gift" ? "Brand Disclaimer" : "",
               middleCardPath: "Molecule/Middle Card/Amount",
               middleTitle: kind,
-              /* La gift card de USA no se muestra en caja: lo único que
-                 hay que abrir son las instrucciones de canje, así que
-                 el pie deja un solo enlace y va centrado. Es además la
-                 primera parada del recorrido de Clarita. */
+              /* Y el pie del medio dice lo que toca en cada uno: la gift
+                 card de USA no se muestra en caja —lo único que hay que
+                 abrir son las instrucciones de canje, que es además la
+                 primera parada del recorrido de Clarita—, un servicio
+                 pagado deja su correlativo, y el vale de marca sí se
+                 enseña en caja y se canjea ahí. */
               ...(section0 === "gift"
                 ? { middleSingleLabel: "Redemption Instructions", bottomClaritaAction: "card-tour" }
-                : {}),
+                : section0 === "servicios"
+                  ? { middleSingleLabel: `#${digitsOf(`${bottomSeed}-orden`, 12)}` }
+                  : {}),
               /* El vale de Guatemala se canjea en quetzales, así que
                  es lo que lleva escrito; los dólares se quedaron en el
                  checkout. */

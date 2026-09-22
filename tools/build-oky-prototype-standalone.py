@@ -206,7 +206,7 @@ html = f"""<!doctype html>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>OKY Cash — Prototipo</title>
-<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,700&family=Inter:wght@100..900&family=Nunito+Sans:wght@300..900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,700&family=Inter:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:wght@300..900&display=swap" rel="stylesheet" />
 <style>
 {chr(10).join(fa_css)}
 </style>
@@ -240,7 +240,7 @@ print(f"wrote {out}  ({len(html)/1024/1024:.1f} MB), {len(names)} images, {len(f
 # Variante para publicar como Artifact: el host aporta doctype/head/
 # body, así que aquí va solo el contenido.
 artifact = f"""<title>OKY Cash Prototype</title>
-<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,700&family=Inter:wght@100..900&family=Nunito+Sans:wght@300..900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,700&family=Inter:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:wght@300..900&display=swap" rel="stylesheet" />
 <style>
 {chr(10).join(fa_css)}
 </style>
