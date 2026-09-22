@@ -630,6 +630,8 @@ function createInitialState(userType) {
        Se ven una sola vez, la primera que se entra al marketplace. */
     usaIntro: false,
     tourStep: null,
+    /* Qué recorrido está abierto: el de la home o el de la card. */
+    tourDeck: null,
     /* Clarita se calla en el vale que estás mirando; al abrir otro
        vuelve a ofrecerse. Ella no se va nunca. */
     claritaMuted: false,
@@ -1098,6 +1100,30 @@ const TOUR_STEPS = [
   { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Mira cuánto OKY Cash ganas" },
 ];
 
+/* El recorrido de la gift card de USA: lo abre Clarita desde la propia
+   card y enseña en qué orden se usa lo que hay ahí. Cada variante tiene
+   el suyo porque cada una se canjea distinto —una se pega en una URL y
+   la otra se muestra en caja con su PIN—, y señalar algo que esa card
+   no tiene sería mandar a buscar lo que no está. */
+const VOUCHER_TOURS = {
+  url: [
+    { target: ".middle-card-footer-single", label: "Mira cómo funciona" },
+    { target: ".prime-card-bottom-line", nth: 0, label: "Copia el código" },
+    { target: ".prime-card-bottom-line.is-action", label: "Pégalo aquí" },
+  ],
+  pin: [
+    { target: ".middle-card-footer-single", label: "Mira cómo funciona" },
+    { target: ".prime-card-bottom-line", nth: 0, label: "Copia el código" },
+    { target: ".prime-card-bottom-line", nth: 1, label: "Y el PIN, si te lo piden" },
+  ],
+};
+
+const TOUR_DECKS = { home: TOUR_STEPS, ...VOUCHER_TOURS };
+
+function tourStepsOf(state) {
+  return TOUR_DECKS[state.tourDeck] || TOUR_STEPS;
+}
+
 /* Cerrado el recorrido, la home sube al inicio y ahí se celebra: la
    bandera entra cuando ya se ve la portada, no sobre media página. */
 /* La vuelta al inicio se anima a mano. El scroll suave del navegador
@@ -1156,7 +1182,7 @@ function usaIntro() {
    hueco sobre lo que se está señalando —así el elemento se ve tal cual,
    sin recortes ni copias— y el globo cuenta para qué sirve. */
 function tourOverlay(state) {
-  const step = TOUR_STEPS[state.tourStep];
+  const step = tourStepsOf(state)[state.tourStep];
   if (!step) return "";
 
   /* El hueco deja ver lo que se señala —el elemento es el de verdad, no
@@ -3765,6 +3791,13 @@ function screenVoucher(state) {
               topFooterRightLabel: "Brand Disclaimer",
               middleCardPath: "Molecule/Middle Card/Amount",
               middleTitle: kind,
+              /* La gift card de USA no se muestra en caja: lo único que
+                 hay que abrir son las instrucciones de canje, así que
+                 el pie deja un solo enlace y va centrado. Es además la
+                 primera parada del recorrido de Clarita. */
+              ...(section0 === "gift"
+                ? { middleSingleLabel: "Redemption Instructions", bottomClaritaAction: "card-tour" }
+                : {}),
               /* El vale de Guatemala se canjea en quetzales, así que
                  es lo que lleva escrito; los dólares se quedaron en el
                  checkout. */
@@ -4599,10 +4632,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   function placeTour() {
     const tour = root.querySelector(".oky-flow-tour");
     if (!tour) return;
-    const step = TOUR_STEPS[state.tourStep];
+    const step = tourStepsOf(state)[state.tourStep];
     if (!step || step.finish) return;
     const frame = root.querySelector(".oky-flow-frame");
-    const target = root.querySelector(step.target);
+    /* Con nth se señala uno de varios iguales —el código y el PIN son
+       la misma clase de línea— sin inventarles un selector propio. */
+    const target =
+      step.nth == null
+        ? root.querySelector(step.target)
+        : root.querySelectorAll(step.target)[step.nth];
     if (!target || !frame) return;
 
     const scroll = root.querySelector(".oky-flow-scroll");
@@ -4752,6 +4790,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   }
 
   function closeTour() {
+    /* El de la card se cierra y ya: la bandera a cuadros y el confeti
+       son el final de la presentación de USA, no de una explicación de
+       cómo se canjea un vale. */
+    if (state.tourDeck && state.tourDeck !== "home") {
+      state.tourStep = null;
+      state.tourDeck = null;
+      return render();
+    }
+
     clearTimeout(tourFlagTimer);
     state.tourConfetti = false;
     state.tourStep = null;
@@ -5525,6 +5572,18 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return goCountry(target);
     }
 
+    if (action === "card-tour") {
+      /* Qué variante se está mirando lo dice la card dibujada: la que
+         lleva URL y la de código de barras con PIN no se canjean igual.
+         Se puede pedir las veces que haga falta. */
+      const bottom = root.querySelector(".card-bottom-molecule");
+      state.tourDeck = bottom && bottom.classList.contains("is-gift-card-usa") ? "url" : "pin";
+      state.tourStep = 0;
+      render();
+      placeTour();
+      return;
+    }
+
     if (action === "guide-tap") {
       /* Preguntando, el toque acepta y abre el recorrido. Callada, lo
          primero que hace es volver a preguntar. */
@@ -5536,6 +5595,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          volver a ofrecerlo sería insistir. */
       state.guideAsk = false;
       state.guideOn = false;
+      state.tourDeck = "home";
       state.tourStep = 0;
       /* Abierto el recorrido, el arranque solo sobra: el reloj tiene
          que empezar con el confeti del final, no a media explicación.
@@ -5559,7 +5619,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "tour-next") {
       const next = (state.tourStep ?? 0) + 1;
-      if (next >= TOUR_STEPS.length) return closeTour();
+      if (next >= tourStepsOf(state).length) return closeTour();
       state.tourStep = next;
       return render();
     }

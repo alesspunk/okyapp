@@ -116,9 +116,16 @@ function renderFooter(card) {
   }
 
   return `
-    <div class="middle-card-footer">
-      <span class="middle-card-footer-start">${card.leftLabel}</span>
-      <span class="middle-card-footer-end">${card.rightLabel}</span>
+    <div class="middle-card-footer${card.singleLabel ? " is-single" : ""}">
+      ${
+        /* Un solo enlace va centrado y sin pareja: es lo que hace la
+           gift card de USA, donde lo único que hay que abrir son las
+           instrucciones de canje. */
+        card.singleLabel
+          ? `<span class="middle-card-footer-single">${card.singleLabel}</span>`
+          : `<span class="middle-card-footer-start">${card.leftLabel}</span>
+             <span class="middle-card-footer-end">${card.rightLabel}</span>`
+      }
     </div>
   `;
 }
@@ -186,6 +193,8 @@ export function resolveMiddleCard(args = {}) {
     amount: args.amount?.trim() || base.amount,
     leftLabel: args.leftLabel?.trim() || base.leftLabel,
     rightLabel: args.rightLabel?.trim() || base.rightLabel,
+    /* Con un solo enlace el pie se centra y deja de ser un par. */
+    singleLabel: args.singleLabel?.trim() || base.singleLabel || "",
     image: args.image?.trim() || base.image,
     showDiscountRibbon: args.showDiscountRibbon === true,
     discountRibbonType: DISCOUNT_RIBBON_TYPES.includes(args.discountRibbonType) ? args.discountRibbonType : "Normal",

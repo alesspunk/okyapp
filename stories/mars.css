@@ -4676,6 +4676,26 @@ body {
   text-overflow: ellipsis;
 }
 
+/* Clarita abre el recorrido donde lo hay; donde no, sigue siendo un
+   aviso que no lleva a ninguna parte. */
+.prime-card-clarita.is-tappable {
+  cursor: pointer;
+}
+
+/* Un solo enlace no tiene con quién repartirse el pie: se centra. */
+.middle-card-footer.is-single {
+  justify-content: center;
+}
+
+.middle-card-footer-single {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #552588;
+  white-space: nowrap;
+}
+
 .middle-card-footer-end {
   flex: 1.2 1 0;
   text-align: right;

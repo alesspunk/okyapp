@@ -4691,6 +4691,26 @@ body {
   text-overflow: ellipsis;
 }
 
+/* Clarita abre el recorrido donde lo hay; donde no, sigue siendo un
+   aviso que no lleva a ninguna parte. */
+.prime-card-clarita.is-tappable {
+  cursor: pointer;
+}
+
+/* Un solo enlace no tiene con quién repartirse el pie: se centra. */
+.middle-card-footer.is-single {
+  justify-content: center;
+}
+
+.middle-card-footer-single {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #552588;
+  white-space: nowrap;
+}
+
 .middle-card-footer-end {
   flex: 1.2 1 0;
   text-align: right;
@@ -16328,9 +16348,16 @@ function renderFooter(card) {
   }
 
   return `
-    <div class="middle-card-footer">
-      <span class="middle-card-footer-start">${card.leftLabel}</span>
-      <span class="middle-card-footer-end">${card.rightLabel}</span>
+    <div class="middle-card-footer${card.singleLabel ? " is-single" : ""}">
+      ${
+        /* Un solo enlace va centrado y sin pareja: es lo que hace la
+           gift card de USA, donde lo único que hay que abrir son las
+           instrucciones de canje. */
+        card.singleLabel
+          ? `<span class="middle-card-footer-single">${card.singleLabel}</span>`
+          : `<span class="middle-card-footer-start">${card.leftLabel}</span>
+             <span class="middle-card-footer-end">${card.rightLabel}</span>`
+      }
     </div>
   `;
 }
@@ -16398,6 +16425,8 @@ function resolveMiddleCard(args = {}) {
     amount: args.amount?.trim() || base.amount,
     leftLabel: args.leftLabel?.trim() || base.leftLabel,
     rightLabel: args.rightLabel?.trim() || base.rightLabel,
+    /* Con un solo enlace el pie se centra y deja de ser un par. */
+    singleLabel: args.singleLabel?.trim() || base.singleLabel || "",
     image: args.image?.trim() || base.image,
     showDiscountRibbon: args.showDiscountRibbon === true,
     discountRibbonType: DISCOUNT_RIBBON_TYPES.includes(args.discountRibbonType) ? args.discountRibbonType : "Normal",
@@ -16825,9 +16854,14 @@ function renderClaritaPet(extraClass = "") {
    SVG para que herede el color, escale sin pesar y se pueda animar por
    partes. Saluda con la mano al aparecer y después se queda
    balanceándose. */
-function renderClarita() {
+function renderClarita(action = "") {
+  /* Con acción se puede tocar y abre el recorrido de la card; sin ella
+     se queda como estaba, ofreciendo ayuda sin llevar a ninguna parte.
+     La X sigue siendo suya: cerrar el aviso no es pedir el recorrido. */
   return `
-    <div class="prime-card-clarita" role="status" aria-label="Clarita: ¿Necesitas ayuda con el canje?">
+    <div class="prime-card-clarita${action ? " is-tappable" : ""}"
+      ${action ? `data-action="${action}" role="button" tabindex="0"` : 'role="status"'}
+      aria-label="Clarita: ¿Necesitas ayuda con el canje?">
       <p class="prime-card-clarita-bubble">
         <span class="prime-card-clarita-say is-idle">¿Necesitas ayuda<br />con el canje?</span>
         <span class="prime-card-clarita-say is-hover">Hola, ¿te ayudo?</span>
@@ -16900,6 +16934,8 @@ function resolveCardBottom(args = {}) {
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,
     showButtonLabel: typeof args.showButtonLabel === "boolean" ? args.showButtonLabel : true,
     showButton: typeof args.showButton === "boolean" ? args.showButton : true,
+    /* Clarita abre el recorrido de la card donde lo haya. */
+    claritaAction: args.claritaAction || "",
     whatsappImage: args.whatsappImage?.trim() || "data:image/png;base64,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",
   };
 }
@@ -16933,7 +16969,7 @@ function renderCardBottom(card) {
             <div class="prime-card-bottom-side">
               <div class="prime-card-bottom-expiry">${card.expiry || "&nbsp;"}</div>
               <div class="prime-card-bottom-button-slot">
-                ${renderClarita()}
+                ${renderClarita(card.claritaAction)}
               </div>
             </div>
           `
@@ -16986,6 +17022,8 @@ function resolveCardOrganismArgs(args = {}) {
       amount: args.middleAmount?.trim() || middleBase.amount,
       leftLabel: args.middleLeftLabel?.trim() || middleBase.leftLabel,
       rightLabel: args.middleRightLabel?.trim() || middleBase.rightLabel,
+      /* Con un solo enlace el pie deja de ser un par y se centra. */
+      singleLabel: args.middleSingleLabel?.trim() || "",
       image: args.middleImage?.trim() || middleBase.image,
       showDiscountRibbon: args.middleShowDiscountRibbon === true,
       discountRibbonType: DISCOUNT_RIBBON_TYPES.includes(args.middleDiscountRibbonType)
@@ -17003,6 +17041,9 @@ function resolveCardOrganismArgs(args = {}) {
       lines: Array.isArray(args.bottomLines) ? args.bottomLines : undefined,
       media: args.bottomMedia,
       showButton: args.bottomShowButton,
+      /* Clarita puede ser solo un aviso o el que abre el recorrido de
+         la card; quien dibuja la pantalla decide cuál. */
+      claritaAction: args.bottomClaritaAction || "",
       buttonLabel: args.bottomButtonLabel?.trim() || bottomBase.buttonLabel,
       showButtonLabel:
         typeof args.bottomShowButtonLabel === "boolean" ? args.bottomShowButtonLabel : true,
@@ -17723,6 +17764,8 @@ function createInitialState(userType) {
        Se ven una sola vez, la primera que se entra al marketplace. */
     usaIntro: false,
     tourStep: null,
+    /* Qué recorrido está abierto: el de la home o el de la card. */
+    tourDeck: null,
     /* Clarita se calla en el vale que estás mirando; al abrir otro
        vuelve a ofrecerse. Ella no se va nunca. */
     claritaMuted: false,
@@ -18191,6 +18234,30 @@ const TOUR_STEPS = [
   { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Mira cuánto OKY Cash ganas" },
 ];
 
+/* El recorrido de la gift card de USA: lo abre Clarita desde la propia
+   card y enseña en qué orden se usa lo que hay ahí. Cada variante tiene
+   el suyo porque cada una se canjea distinto —una se pega en una URL y
+   la otra se muestra en caja con su PIN—, y señalar algo que esa card
+   no tiene sería mandar a buscar lo que no está. */
+const VOUCHER_TOURS = {
+  url: [
+    { target: ".middle-card-footer-single", label: "Mira cómo funciona" },
+    { target: ".prime-card-bottom-line", nth: 0, label: "Copia el código" },
+    { target: ".prime-card-bottom-line.is-action", label: "Pégalo aquí" },
+  ],
+  pin: [
+    { target: ".middle-card-footer-single", label: "Mira cómo funciona" },
+    { target: ".prime-card-bottom-line", nth: 0, label: "Copia el código" },
+    { target: ".prime-card-bottom-line", nth: 1, label: "Y el PIN, si te lo piden" },
+  ],
+};
+
+const TOUR_DECKS = { home: TOUR_STEPS, ...VOUCHER_TOURS };
+
+function tourStepsOf(state) {
+  return TOUR_DECKS[state.tourDeck] || TOUR_STEPS;
+}
+
 /* Cerrado el recorrido, la home sube al inicio y ahí se celebra: la
    bandera entra cuando ya se ve la portada, no sobre media página. */
 /* La vuelta al inicio se anima a mano. El scroll suave del navegador
@@ -18249,7 +18316,7 @@ function usaIntro() {
    hueco sobre lo que se está señalando —así el elemento se ve tal cual,
    sin recortes ni copias— y el globo cuenta para qué sirve. */
 function tourOverlay(state) {
-  const step = TOUR_STEPS[state.tourStep];
+  const step = tourStepsOf(state)[state.tourStep];
   if (!step) return "";
 
   /* El hueco deja ver lo que se señala —el elemento es el de verdad, no
@@ -20858,6 +20925,13 @@ function screenVoucher(state) {
               topFooterRightLabel: "Brand Disclaimer",
               middleCardPath: "Molecule/Middle Card/Amount",
               middleTitle: kind,
+              /* La gift card de USA no se muestra en caja: lo único que
+                 hay que abrir son las instrucciones de canje, así que
+                 el pie deja un solo enlace y va centrado. Es además la
+                 primera parada del recorrido de Clarita. */
+              ...(section0 === "gift"
+                ? { middleSingleLabel: "Redemption Instructions", bottomClaritaAction: "card-tour" }
+                : {}),
               /* El vale de Guatemala se canjea en quetzales, así que
                  es lo que lleva escrito; los dólares se quedaron en el
                  checkout. */
@@ -21692,10 +21766,15 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   function placeTour() {
     const tour = root.querySelector(".oky-flow-tour");
     if (!tour) return;
-    const step = TOUR_STEPS[state.tourStep];
+    const step = tourStepsOf(state)[state.tourStep];
     if (!step || step.finish) return;
     const frame = root.querySelector(".oky-flow-frame");
-    const target = root.querySelector(step.target);
+    /* Con nth se señala uno de varios iguales —el código y el PIN son
+       la misma clase de línea— sin inventarles un selector propio. */
+    const target =
+      step.nth == null
+        ? root.querySelector(step.target)
+        : root.querySelectorAll(step.target)[step.nth];
     if (!target || !frame) return;
 
     const scroll = root.querySelector(".oky-flow-scroll");
@@ -21845,6 +21924,15 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   }
 
   function closeTour() {
+    /* El de la card se cierra y ya: la bandera a cuadros y el confeti
+       son el final de la presentación de USA, no de una explicación de
+       cómo se canjea un vale. */
+    if (state.tourDeck && state.tourDeck !== "home") {
+      state.tourStep = null;
+      state.tourDeck = null;
+      return render();
+    }
+
     clearTimeout(tourFlagTimer);
     state.tourConfetti = false;
     state.tourStep = null;
@@ -22618,6 +22706,18 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return goCountry(target);
     }
 
+    if (action === "card-tour") {
+      /* Qué variante se está mirando lo dice la card dibujada: la que
+         lleva URL y la de código de barras con PIN no se canjean igual.
+         Se puede pedir las veces que haga falta. */
+      const bottom = root.querySelector(".card-bottom-molecule");
+      state.tourDeck = bottom && bottom.classList.contains("is-gift-card-usa") ? "url" : "pin";
+      state.tourStep = 0;
+      render();
+      placeTour();
+      return;
+    }
+
     if (action === "guide-tap") {
       /* Preguntando, el toque acepta y abre el recorrido. Callada, lo
          primero que hace es volver a preguntar. */
@@ -22629,6 +22729,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          volver a ofrecerlo sería insistir. */
       state.guideAsk = false;
       state.guideOn = false;
+      state.tourDeck = "home";
       state.tourStep = 0;
       /* Abierto el recorrido, el arranque solo sobra: el reloj tiene
          que empezar con el confeti del final, no a media explicación.
@@ -22652,7 +22753,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "tour-next") {
       const next = (state.tourStep ?? 0) + 1;
-      if (next >= TOUR_STEPS.length) return closeTour();
+      if (next >= tourStepsOf(state).length) return closeTour();
       state.tourStep = next;
       return render();
     }

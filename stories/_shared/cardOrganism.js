@@ -51,6 +51,8 @@ export function resolveCardOrganismArgs(args = {}) {
       amount: args.middleAmount?.trim() || middleBase.amount,
       leftLabel: args.middleLeftLabel?.trim() || middleBase.leftLabel,
       rightLabel: args.middleRightLabel?.trim() || middleBase.rightLabel,
+      /* Con un solo enlace el pie deja de ser un par y se centra. */
+      singleLabel: args.middleSingleLabel?.trim() || "",
       image: args.middleImage?.trim() || middleBase.image,
       showDiscountRibbon: args.middleShowDiscountRibbon === true,
       discountRibbonType: DISCOUNT_RIBBON_TYPES.includes(args.middleDiscountRibbonType)
@@ -68,6 +70,9 @@ export function resolveCardOrganismArgs(args = {}) {
       lines: Array.isArray(args.bottomLines) ? args.bottomLines : undefined,
       media: args.bottomMedia,
       showButton: args.bottomShowButton,
+      /* Clarita puede ser solo un aviso o el que abre el recorrido de
+         la card; quien dibuja la pantalla decide cuál. */
+      claritaAction: args.bottomClaritaAction || "",
       buttonLabel: args.bottomButtonLabel?.trim() || bottomBase.buttonLabel,
       showButtonLabel:
         typeof args.bottomShowButtonLabel === "boolean" ? args.bottomShowButtonLabel : true,

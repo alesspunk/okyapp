@@ -398,9 +398,14 @@ export function renderClaritaPet(extraClass = "") {
    SVG para que herede el color, escale sin pesar y se pueda animar por
    partes. Saluda con la mano al aparecer y después se queda
    balanceándose. */
-function renderClarita() {
+function renderClarita(action = "") {
+  /* Con acción se puede tocar y abre el recorrido de la card; sin ella
+     se queda como estaba, ofreciendo ayuda sin llevar a ninguna parte.
+     La X sigue siendo suya: cerrar el aviso no es pedir el recorrido. */
   return `
-    <div class="prime-card-clarita" role="status" aria-label="Clarita: ¿Necesitas ayuda con el canje?">
+    <div class="prime-card-clarita${action ? " is-tappable" : ""}"
+      ${action ? `data-action="${action}" role="button" tabindex="0"` : 'role="status"'}
+      aria-label="Clarita: ¿Necesitas ayuda con el canje?">
       <p class="prime-card-clarita-bubble">
         <span class="prime-card-clarita-say is-idle">¿Necesitas ayuda<br />con el canje?</span>
         <span class="prime-card-clarita-say is-hover">Hola, ¿te ayudo?</span>
@@ -473,6 +478,8 @@ export function resolveCardBottom(args = {}) {
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,
     showButtonLabel: typeof args.showButtonLabel === "boolean" ? args.showButtonLabel : true,
     showButton: typeof args.showButton === "boolean" ? args.showButton : true,
+    /* Clarita abre el recorrido de la card donde lo haya. */
+    claritaAction: args.claritaAction || "",
     whatsappImage: args.whatsappImage?.trim() || "whatsapp-icon-card-bottom.png",
   };
 }
@@ -506,7 +513,7 @@ export function renderCardBottom(card) {
             <div class="prime-card-bottom-side">
               <div class="prime-card-bottom-expiry">${card.expiry || "&nbsp;"}</div>
               <div class="prime-card-bottom-button-slot">
-                ${renderClarita()}
+                ${renderClarita(card.claritaAction)}
               </div>
             </div>
           `
