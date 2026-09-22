@@ -233,7 +233,18 @@ function renderFolderOption({
 
   return `
     <span class="folder-option ${isActive ? "is-active" : "is-inactive"}" style="${optionStyle.join(";")}"
-      ${side === "left" ? `data-action="nav:home"` : `data-action="nav:homegua"`} role="button" tabindex="0">
+      ${
+        /* En la pestaña de delante toda la pastilla —bandera, código y
+           flecha— abre el selector de país: la flecha sola era un
+           blanco de 10px para un dedo. En la de atrás toda ella cambia
+           de marketplace, que es lo que se espera al tocarla. */
+        isActive
+          ? `data-action="open-market" data-side="${side}"`
+          : side === "left"
+            ? `data-action="nav:home"`
+            : `data-action="nav:homegua"`
+      } role="button" tabindex="0"
+      aria-label="${isActive ? "Cambiar de país" : `Ir a ${code}`}">
       ${
         /* La bandera es el átomo Flag (flagpack), no un bitmap suelto:
            mismo 4:3, borde y radio que el resto del sistema. */
@@ -243,15 +254,10 @@ function renderFolderOption({
       }
       <span class="folder-code"${style ? ` style="${style}"` : ""}>${code}</span>
       ${
-        /* La doble flecha abre el selector de marketplace, y solo desde
-           la pestaña que está delante: en la de atrás no tiene acción
-           propia y el toque se lo queda la pestaña, que es lo que se
-           esperaba tocar. */
+        /* La flecha ya no lleva la acción: la lleva la pastilla entera,
+           así que aquí solo se dibuja. */
         showChevronForOption
-          ? isActive
-            ? `<span class="folder-chevron-stack is-enabled" role="button" tabindex="0"
-                data-action="open-market" data-side="${side}" aria-label="Cambiar de país"><img src="chevron.svg" alt=""></span>`
-            : `<span class="folder-chevron-stack" aria-hidden="true"><img src="chevron.svg" alt=""></span>`
+          ? `<span class="folder-chevron-stack${isActive ? " is-enabled" : ""}" aria-hidden="true"><img src="chevron.svg" alt=""></span>`
           : ""
       }
       ${isActive ? `<span class="folder-selection-line" aria-hidden="true"></span>` : ""}

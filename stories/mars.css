@@ -14280,9 +14280,13 @@ img.oky-flow-method-mark {
   opacity: 1;
 }
 
-/* La doble flecha solo se ofrece como botón desde la pestaña de
-   delante; en la de atrás sigue dibujada pero el toque es de la
-   pestaña. */
-.folder-chevron-stack.is-enabled {
+/* La pastilla entera es el blanco: en la de delante abre el selector de
+   país, en la de atrás cambia de marketplace. La flecha ya no es un
+   botón aparte —era un blanco de 10px— y solo se dibuja. */
+.folder-option {
   cursor: pointer;
+}
+
+.folder-chevron-stack {
+  pointer-events: none;
 }

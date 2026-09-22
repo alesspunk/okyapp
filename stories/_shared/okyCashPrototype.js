@@ -3844,7 +3844,7 @@ const CONFIRM_SHEETS = {
   archive: {
     art: "oky-archive-hands.png",
     title: "¿Deseas archivarla?",
-    note: "Te sugerimos archivar. Puedes verla nuevamente al filtrar por archivados.",
+    note: "Te sugerimos archivar. Puedes verlas nuevamente al tocar la sección de archivados.",
     confirm: "Archivar",
     dismiss: "Ahora no",
     action: "confirm-archive",
