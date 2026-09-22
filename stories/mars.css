@@ -12733,8 +12733,7 @@ button.tactic-offer {
   color: var(--primary-base);
 }
 
-/* El rótulo lleva icono y va en una línea con él: apagado el de
-   compartir, encendido el de hecho. */
+/* El rótulo lleva el icono de compartir detrás, en una línea con él. */
 .oky-flow-switch-label {
   display: inline-flex;
   align-items: center;
@@ -12744,10 +12743,6 @@ button.tactic-offer {
 
 .oky-flow-switch-label i {
   font-size: 14px;
-}
-
-.oky-flow-switch.is-on .oky-flow-switch-label i {
-  color: var(--success-dark);
 }
 
 .oky-flow-switch-track {

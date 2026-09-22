@@ -3952,15 +3952,12 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
             <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
             ${/* Apagado el rótulo es la acción —"Compartir"— y encendido
                  el estado —"Compartido"—: apagado hay algo que hacer y
-                 encendido hay algo que ya pasó. El icono acompaña como
-                 acompaña en un botón: delante del estado y detrás de la
-                 acción, que es donde empuja. */ ""}
+                 encendido hay algo que ya pasó. El icono es el mismo en
+                 los dos y va detrás: quien dice si está hecho es el
+                 interruptor, y un check al lado lo repetía. */ ""}
             <span class="oky-flow-switch-label">
-              ${
-                shared
-                  ? `<i class="fa-solid fa-circle-check" aria-hidden="true"></i>Compartido`
-                  : `Compartir<i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>`
-              }
+              ${shared ? "Compartido" : "Compartir"}
+              <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
             </span>
           </button>
           <button class="btn btn-outlined btn-large oky-flow-archive-btn" data-action="ask-archive" data-key="${card.key}" data-unit="${slot}" type="button">
