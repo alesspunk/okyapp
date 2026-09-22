@@ -8495,6 +8495,8 @@ body {
 
 /* fila OKY Cash expandida con el slider (Figma 328x104, #f3fffe) */
 .oky-flow-method-row.is-cash {
+  position: relative;
+  overflow: hidden;
   flex-direction: column;
   align-items: stretch;
   gap: 4px;
@@ -8504,8 +8506,14 @@ body {
   border: 2px solid var(--primary-base);
   border-top: 0;
   border-radius: 0 0 8px 8px;
-  background: #f3fffe;
+  /* Blanca mientras no se marca, como en el checkout: el aqua dice que
+     el saldo está puesto, no que la fila exista. */
+  background: var(--white);
   cursor: default;
+}
+
+.oky-flow-method-row.is-cash.is-checked {
+  background: #f3fffe;
 }
 
 .oky-flow-method-head {

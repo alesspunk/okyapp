@@ -2095,7 +2095,7 @@ function screenCheckout(state) {
           !hasCash
             ? ""
             : `
-        <div class="oky-flow-payrow is-last">
+        <div class="oky-flow-payrow is-last${state.okyCashEnabled ? " is-checked" : ""}">
           <button class="oky-flow-check${state.okyCashEnabled ? " is-checked" : ""}"
             data-action="toggle-okycash" type="button"
             aria-pressed="${state.okyCashEnabled}" aria-label="Usar OKY Cash">
@@ -2241,7 +2241,7 @@ function screenMethods(state) {
           `;
 
           const cashRow = `
-            <div class="oky-flow-method-row is-cash">
+            <div class="oky-flow-method-row is-cash${state.okyCashEnabled ? " is-checked" : ""}">
               <div class="oky-flow-method-head">
                 <button class="oky-flow-check${state.okyCashEnabled ? " is-checked" : ""}"
                   data-action="toggle-okycash" type="button"
@@ -5405,10 +5405,16 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   /* Ráfaga corta de confeti sobre la fila de OKY Cash al activarla.
      Se limpia sola cuando termina la animación. */
-  function burstConfetti(selector = ".oky-flow-payrow.is-last") {
-    const row = root.querySelector(selector);
+  /* El confeti cae dentro de la fila de OKY Cash, la haya dibujado el
+     checkout o la pantalla de métodos de pago: es la misma casilla en
+     dos sitios y marcarla se celebra igual en los dos. El aqua ya no se
+     pega aquí —lo pone el estado al dibujar— para que no se pierda en
+     el siguiente render. */
+  function burstConfetti(selector) {
+    const row = selector
+      ? root.querySelector(selector)
+      : root.querySelector(".oky-flow-payrow.is-last") || root.querySelector(".oky-flow-method-row.is-cash");
     if (!row) return;
-    if (row.classList.contains("oky-flow-payrow")) row.classList.add("is-checked");
 
     const colors = ["#09b4b0", "#a8faf5", "#552588", "#ffb400"];
     for (let i = 0; i < 14; i += 1) {
