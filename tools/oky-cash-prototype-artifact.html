@@ -8042,6 +8042,9 @@ body {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  /* Fuera del flujo y encima de los iconos: un título largo llegaba a
+     tapar la flecha. Es un rótulo, no se toca. */
+  pointer-events: none;
   max-width: calc(100% - 120px);
   margin: 0;
   font-family: "Lato", sans-serif;
@@ -9514,6 +9517,11 @@ body {
   position: relative;
   z-index: 2;
   margin-top: -46px;
+  /* Sube 46px para montarse sobre el header, y ahí tapaba la flecha de
+     atrás: ancho completo, por encima y vacío a los lados, se comía el
+     toque. No lleva nada que se pueda tocar, así que deja pasar el
+     dedo. */
+  pointer-events: none;
 }
 
 /* El checkbox es el mismo control tanto en <span> como en <button>. */
@@ -10816,18 +10824,77 @@ button.tactic-offer {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
-/* La flecha de atrás mide 32px y el glifo no llena ni eso, así que
-   había clicks que se perdían. Un área transparente la lleva a los
-   44px de destino táctil sin mover nada de sitio. */
-.oky-flow-header-icon::before,
-.oky-flow-frame .header-icon::before {
-  content: "";
-  position: absolute;
-  inset: -6px;
+/* ── Destino táctil ──────────────────────────────────────
+   Media docena de controles del prototipo son iconos de 32px o menos y
+   el glifo no llena ni eso: los toques que caían al lado se perdían y
+   se leían como falsos clicks. Cada uno lleva debajo un área
+   transparente de 45px —lo que ocupa un dedo— puesta con un
+   pseudo-elemento, así que el blanco crece sin que nada cambie de
+   sitio ni empuje al vecino.
+
+   Los que ya están posicionados no se tocan: ponerles position
+   relative los movería de donde los dejó su absolute. */
+.oky-flow-frame :is(
+    .oky-flow-header-icon,
+    .header-icon,
+    .prime-card-copy,
+    .oky-flow-filter-btn,
+    .oky-flow-promo-clear,
+    .oky-flow-cart-qty-btn,
+    .chip-ds-step
+  ) {
+  position: relative;
 }
 
-.oky-flow-frame .header-icon {
-  position: relative;
+.oky-flow-frame :is(
+    .oky-flow-header-icon,
+    .header-icon,
+    .oky-flow-carousel-nav,
+    .oky-flow-sheet-close,
+    .prime-card-copy,
+    .oky-flow-filter-btn,
+    .oky-flow-promo-clear
+  )::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 45px);
+  height: max(100%, 45px);
+  transform: translate(-50%, -50%);
+}
+
+/* El menos y el más van pegados con el número en medio, y la X de
+   Clarita encima de su propio globo: a lo ancho un blanco de 45px se
+   comería el toque del vecino, así que ahí solo se crece hacia
+   arriba y abajo, que es donde sobra sitio. */
+.oky-flow-frame :is(.oky-flow-cart-qty-btn, .chip-ds-step)::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 45px;
+  transform: translateY(-50%);
+}
+
+/* Y la X que calla a Clarita crece lo justo: pasarse la pondría sobre
+   el globo, y entonces el toque que buscaba abrir el recorrido la
+   cerraría. */
+.oky-flow-frame .prime-card-clarita-close::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -50%);
+}
+
+/* Y el toque cuenta cuando se da: sin esto el navegador se guarda
+   300ms por si llega un segundo toque y el botón parecía no responder. */
+.oky-flow-frame [data-action] {
+  touch-action: manipulation;
 }
 
 /* Botón de reinicio del prototipo: va bajo el teléfono, fuera del
