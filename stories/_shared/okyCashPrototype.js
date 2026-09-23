@@ -641,6 +641,9 @@ function createInitialState(userType) {
     guideOn: false,
     guideAsk: false,
     guideAway: false,
+    /* Terminado el recorrido, Clarita se retira; veinte segundos
+       después vuelve de acompañante y ya no se va. */
+    helpOn: false,
     tourCount: false,
     tourReady: false,
     tourFlag: false,
@@ -1244,6 +1247,22 @@ function homeGuide(state) {
     <div class="oky-flow-guide${state.guideAway ? " is-away" : ""}" data-action="guide-tap"
       role="button" tabindex="0" aria-label="Clarita: Gana OKY Cash, ¿Quieres saber cómo?">
       ${state.guideAsk ? guideBubble() : ""}
+      ${renderClaritaPet("oky-flow-guide-pet")}
+    </div>
+  `;
+}
+
+/* Y la de después: terminado el recorrido, Clarita se retira, pero a
+   los veinte segundos vuelve para quedarse. Ocupa la misma esquina y
+   acompaña todo el scroll —no se aparta como la otra, que estorbaba
+   porque llevaba a algún sitio—, y por ahora solo pregunta: no abre
+   nada, así que tampoco se deja tocar. */
+function homeHelp(hidden = false) {
+  return `
+    <div class="oky-flow-guide oky-flow-help${hidden ? " is-away" : ""}" role="status">
+      <p class="prime-card-clarita-bubble oky-flow-guide-bubble">
+        <span class="prime-card-clarita-say is-idle">¿Necesitas ayuda?</span>
+      </p>
       ${renderClaritaPet("oky-flow-guide-pet")}
     </div>
   `;
@@ -4637,6 +4656,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   /* La bandera del final del recorrido se quita sola. */
   let tourFlagTimer = null;
   let introTimer = null;
+  let helpTimer = null;
 
   function render() {
     /* El player de Lottie deja listeners y un rAF vivos; si el overlay
@@ -4660,6 +4680,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.addedToast ? addedToast() : ""}
         ${state.usaIntro ? usaIntro() : ""}
         ${state.guideOn && state.screen === "home" && state.tourStep == null && !state.tourSeen ? homeGuide(state) : ""}
+        ${state.helpOn && (state.screen === "home" || state.screen === "homegua") && state.tourStep == null ? homeHelp() : ""}
         ${state.tourStep != null ? tourOverlay(state) : ""}
         ${state.tourReady ? tourReady() : ""}
         ${state.tourCount ? tourCountdown() : ""}
@@ -4958,6 +4979,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const after = root.querySelector(".oky-flow-scroll");
     if (after && y > 0) after.scrollTop = y;
 
+    armHelp();
+
     /* Primero la home vuelve arriba —que se vea el camino— y ya en la
        portada pregunta, que es lo que da pie a la cuenta atrás. */
     scrollToTop(after, () => {
@@ -4969,6 +4992,29 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         tourFlagTimer = setTimeout(startFinish, TOUR_FINISH_BEAT_MS);
       }, TOUR_READY_MS);
     });
+  }
+
+  /* Veinte segundos después de que Clarita se retire vuelve, esta vez
+     de acompañante. Se cuelga del DOM en vez de repintar: a los veinte
+     segundos la persona está a media home, y un render la devolvería
+     arriba de golpe. El estado queda dicho para que los repintados que
+     vengan después la sigan poniendo. */
+  const HELP_BACK_MS = 20000;
+
+  function armHelp() {
+    clearTimeout(helpTimer);
+    helpTimer = setTimeout(() => {
+      if (state.helpOn) return;
+      state.helpOn = true;
+      if (state.screen !== "home" && state.screen !== "homegua") return;
+      const frame = root.querySelector(".oky-flow-frame");
+      if (!frame || frame.querySelector(".oky-flow-help")) return;
+      /* Escondida primero y destapada al cuadro siguiente: sin dos
+         valores que interpolar entraría de golpe. */
+      frame.insertAdjacentHTML("beforeend", homeHelp(true));
+      const help = frame.querySelector(".oky-flow-help");
+      if (help) setTimeout(() => help.classList.remove("is-away"), 24);
+    }, HELP_BACK_MS);
   }
 
   /* Sube al inicio en el tiempo que decimos y avisa al terminar. El
@@ -5391,7 +5437,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         if (state.guideOn && away !== state.guideAway) {
           state.guideAway = away;
           if (!away) state.guideAsk = true;
-          const guide = root.querySelector(".oky-flow-guide");
+          const guide = root.querySelector(".oky-flow-guide:not(.oky-flow-help)");
           if (guide) {
             /* Vuelve el globo antes de destaparla, y sin rehacer al
                personaje: reemplazar el nodo entero mataría la
@@ -5799,6 +5845,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* Vuelve a cero: saldo, carrito, compras, historial y el reloj
          de la promo, que arranca de nuevo con sus dos minutos. */
       clearTimeout(celebrationTimer);
+      clearTimeout(helpTimer);
       state = createInitialState(userType);
       /* El estado nuevo dice que la promo no ha empezado, pero el
          temporizador que la arranca ya se gastó al montar. Sin
@@ -5994,26 +6041,16 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.cartOpen = false;
       return render();
     }
-    /* "Seguir comprando" devuelve a donde estaba comprando, que casi
-       siempre es el PDP del que acabo de agregar: cerrar el carrito ya
-       lo deja ahí. Solo desde el checkout —donde ya no hay tienda
-       detrás— hace falta llevar a la home de ese mercado. */
+    /* El "Seguir comprando" del carrito sale a la home del mercado.
+       Antes cerraba el carrito y dejaba a la persona donde estaba
+       —normalmente el PDP del que acababa de agregar—, que no es
+       seguir comprando sino volver a lo mismo. En la home está todo.
+
+       El de la barra de comida es otro botón y sigue devolviendo a su
+       categoría: ahí sí hay una lista a la que volver. */
     if (action === "keep-shopping") {
       state.cartOpen = false;
-      if (state.screen === "checkout" || state.screen === "methods") {
-        /* Vuelve a donde se estaba comprando: la lista de la marca si
-           se venía de una PLP, su PDP si se venía de uno. Solo cuando
-           no hay nada que desandar se sale a la tienda del mercado. */
-        const SHOPPING = ["plp", "foodpdp", "tigopdp", "pdp", "category", "home", "homegua"];
-        for (let i = state.history.length - 1; i >= 0; i -= 1) {
-          const step = state.history[i];
-          if (!SHOPPING.includes(step.screen)) continue;
-          state.history = state.history.slice(0, i);
-          return go(step.screen, step.params, { push: false });
-        }
-        return go(orderCountry(state) === "gua" ? "homegua" : "home");
-      }
-      return render();
+      return go(orderCountry(state) === "gua" ? "homegua" : "home");
     }
     if (action === "go:checkout") {
       state.checkoutIndex = 0;

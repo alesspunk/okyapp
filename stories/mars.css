@@ -14074,6 +14074,14 @@ img.oky-flow-method-mark {
   animation: none;
 }
 
+/* La Clarita de después del recorrido acompaña y nada más: se queda en
+   la esquina todo el scroll y todavía no lleva a ningún sitio, así que
+   ni se toca ni tapa lo que hay debajo. */
+.oky-flow-help {
+  cursor: default;
+  pointer-events: none;
+}
+
 /* En la card Clarita se deja ver antes de hablar porque llegas tú a
    ella; aquí llega ella a ti, después de las banderas, así que
    pregunta enseguida. Y aquí el globo va en morado: compite con una
