@@ -5307,6 +5307,17 @@ body {
   animation: oky-clarita-wave 500ms ease-in-out 900ms 3 both;
 }
 
+/* Ya presentada: se queda quieta y solo respira. La entrada, el
+   ladeo de cabeza, el saludo y la frase son de cuando llega; repetirlos
+   en cada repintado la hacía parpadear. El balanceo y su sombra siguen,
+   que son los que la mantienen viva. */
+.is-settled .prime-card-clarita-pet,
+.is-settled .clarita-head,
+.is-settled .clarita-arm.is-right,
+.is-settled .prime-card-clarita-bubble {
+  animation: none;
+}
+
 @keyframes oky-clarita-bob {
   0%,
   100% {
@@ -12744,12 +12755,17 @@ button.tactic-offer {
   opacity: 0.72;
 }
 
+/* Los dos interruptores se reparten la fila con el mismo aire a los
+   lados y en medio: pegados a los bordes se leían como dos cosas
+   sueltas en vez de una pareja. */
 .oky-flow-voucher-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: space-evenly;
+  gap: 16px;
   width: 100%;
+  padding: 2px 4px;
+  box-sizing: border-box;
 }
 
 
@@ -21211,14 +21227,6 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
            botón que solo aparecía ahí. */ ""
       }
       <div class="oky-flow-voucher-actions">
-        <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
-          data-key="${card.key}" data-unit="${slot}"
-          type="button" role="switch" aria-checked="${archived}">
-          ${/* El rótulo delante: se lee la palabra y después se ve en
-               qué estado está, que es el orden en que se mira. */ ""}
-          <span class="oky-flow-switch-label">${archived ? "Archivado" : "Archivar"}</span>
-          <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
-        </button>
         ${/* Compartir es el mismo trato que archivar, así que es el
              mismo control: apagado se comparte y encendido se pregunta
              si no llegó a mandarse. Guardado no se comparte —primero
@@ -21227,6 +21235,14 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           data-key="${card.key}" data-unit="${slot}" data-label="${card.label}" data-amount="${amount}"
           type="button" role="switch" aria-checked="${shared}" ${archived ? "disabled" : ""}>
           <span class="oky-flow-switch-label">${shared ? "Compartido" : "Compartir"}</span>
+          <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
+        </button>
+        <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
+          data-key="${card.key}" data-unit="${slot}"
+          type="button" role="switch" aria-checked="${archived}">
+          ${/* El rótulo delante: se lee la palabra y después se ve en
+               qué estado está, que es el orden en que se mira. */ ""}
+          <span class="oky-flow-switch-label">${archived ? "Archivado" : "Archivar"}</span>
           <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
         </button>
       </div>
@@ -21869,6 +21885,8 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   /* Si el carrito ya estaba abierto en la pasada anterior. */
   let cartWasOpen = false;
+  /* Si Clarita ya estaba en el dibujo anterior no vuelve a presentarse. */
+  let claritaWasThere = false;
   let addedTimer = null;
   /* La bandera del final del recorrido se quita sola. */
   let tourFlagTimer = null;
@@ -21951,6 +21969,15 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       )
       .forEach((bar) => frame.appendChild(bar));
 
+    /* Clarita saluda al llegar, no en cada repintado. Cualquier toque
+       —cambiar una cantidad, abrir una sección— vuelve a dibujar la
+       pantalla, y con ella volvían a correr la entrada, el saludo y la
+       frase: se la veía aparecer una y otra vez. Si ya estaba en el
+       dibujo anterior, se queda quieta y solo respira. */
+    const clarita = root.querySelector(".prime-card-clarita, .oky-flow-guide");
+    if (clarita && claritaWasThere) clarita.classList.add("is-settled");
+    claritaWasThere = !!clarita;
+
     bindHeaderScroll(scroll);
     bindClaritaInView(scroll);
     bindCheckoutDock(scroll);
@@ -21963,12 +21990,16 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         .querySelectorAll(".oky-flow-savingbar:not(.is-drawer-bar), .oky-flow-dock, .oky-flow-cta-bar, .oky-flow-foodbar")
         .forEach((bar) => bar.remove());
 
-      /* Cambiar la cantidad repinta el carrito, y con él volvía a
-         correr la entrada desde el lado: parecía que se cerraba y se
-         abría en cada toque. La animación es solo para abrirlo. */
+      /* Cambiar la cantidad repinta el carrito, y con él volvían a
+         correr la entrada desde el lado y el fundido del fondo: parecía
+         que se cerraba y se abría en cada toque. Las dos animaciones son
+         para abrirlo, no para cada cambio de dentro. */
       if (cartWasOpen) {
-        const drawer = frame.querySelector(".oky-flow-drawer");
-        if (drawer) drawer.style.animation = "none";
+        frame
+          .querySelectorAll(".oky-flow-drawer, .oky-flow-drawer-backdrop")
+          .forEach((el) => {
+            el.style.animation = "none";
+          });
       }
     }
     cartWasOpen = state.cartOpen;
@@ -22493,12 +22524,32 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     /* De dónde salió, para devolverla cuando su sitio vuelva a verse. */
     const home = clarita.parentElement;
 
+    /* Mover el nodo de padre reinicia sus animaciones, así que se hace
+       solo cuando de verdad cambia de sitio: colgándola y descolgándola
+       en cada medida —y se mide en cada scroll— volvía a entrar una y
+       otra vez, que es el parpadeo que se veía. */
+    const hang = (pinned, bottom) => {
+      if (pinned) {
+        if (clarita.parentElement !== frame) {
+          frame.appendChild(clarita);
+          clarita.classList.add("is-pinned");
+        }
+        if (clarita.style.bottom !== bottom) clarita.style.bottom = bottom;
+        return;
+      }
+      if (clarita.parentElement !== home) {
+        home.appendChild(clarita);
+        clarita.classList.remove("is-pinned");
+        clarita.style.bottom = "";
+      }
+    };
+
     const place = () => {
-      /* Se mide en su sitio de siempre, sin lo que se le hizo la pasada
-         anterior: si no, cada pasada arrastraría a la siguiente. */
-      if (clarita.parentElement !== home) home.appendChild(clarita);
-      clarita.classList.remove("is-pinned");
-      clarita.style.bottom = "";
+      const box = frame.getBoundingClientRect();
+      /* En un teléfono el lienzo va escalado, así que lo medido y lo
+         que se escribe en píxeles no son la misma unidad. */
+      const zoom = box.height / frame.offsetHeight || 1;
+      const tall = clarita.offsetHeight * zoom;
 
       /* El tope no es solo la navbar: en el acuse de compra encima van
          el botón de wallet y la píldora del saldo, y contra la navbar
@@ -22509,18 +22560,19 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           ? Math.min(...bars.map((b) => b.getBoundingClientRect().top))
           : scroll.getBoundingClientRect().bottom) - 10;
 
-      if (clarita.getBoundingClientRect().bottom <= limit) return;
+      /* Dónde caería si estuviera en su sitio. Se pregunta al hueco de
+         la card y no a ella: el hueco sigue ahí aunque esté colgada, y
+         así no hace falta devolverla para medir —devolverla y volver a
+         colgarla en cada scroll es lo que la hacía parpadear—. */
+      const wouldBottom = home.getBoundingClientRect().top + tall;
 
       /* No cabe donde vive. Subirla a empujones dentro de la card solo
          servía mientras la card se viera: en un teléfono de verdad la
          parte de abajo se queda bajo el pliegue y no hay empujón que
          alcance. Así que se cuelga del teléfono, justo encima de las
          barras, y vuelve a su sitio en cuanto su sitio se ve. */
-      const box = frame.getBoundingClientRect();
-      const zoom = box.height / frame.offsetHeight || 1;
-      frame.appendChild(clarita);
-      clarita.classList.add("is-pinned");
-      clarita.style.bottom = `${Math.round((box.bottom - limit) / zoom)}px`;
+      if (wouldBottom <= limit) hang(false);
+      else hang(true, `${Math.round((box.bottom - limit) / zoom)}px`);
     };
 
     /* Se repasa varias veces: el arte de la card llega por imagen y
@@ -23141,7 +23193,11 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          acabas de comprar, que es lo que vienes a ver. Lo que estuviera
          plegado o desplegado de la visita anterior ya no dice nada de
          lo que hay ahora. */
-      const fromPurchase = POST_PURCHASE.includes(state.screen);
+      /* Y si hay algo sin abrir, manda eso: el punto rojo del icono
+         promete llevarte a lo nuevo, así que abre la pestaña y la
+         sección donde de verdad está. Antes te dejaba en la de siempre
+         y había que ir a buscarlo. */
+      const fromPurchase = POST_PURCHASE.includes(state.screen) || hasNewVouchers(state);
       state.walletFilter = "";
       state.openBeforeFilter = null;
       state.walletTab = fromPurchase ? walletEntryTab(state) : state.country === "gua" ? "vales" : "gift";

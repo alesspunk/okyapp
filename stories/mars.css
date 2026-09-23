@@ -5292,6 +5292,17 @@ body {
   animation: oky-clarita-wave 500ms ease-in-out 900ms 3 both;
 }
 
+/* Ya presentada: se queda quieta y solo respira. La entrada, el
+   ladeo de cabeza, el saludo y la frase son de cuando llega; repetirlos
+   en cada repintado la hacía parpadear. El balanceo y su sombra siguen,
+   que son los que la mantienen viva. */
+.is-settled .prime-card-clarita-pet,
+.is-settled .clarita-head,
+.is-settled .clarita-arm.is-right,
+.is-settled .prime-card-clarita-bubble {
+  animation: none;
+}
+
 @keyframes oky-clarita-bob {
   0%,
   100% {
@@ -12729,12 +12740,17 @@ button.tactic-offer {
   opacity: 0.72;
 }
 
+/* Los dos interruptores se reparten la fila con el mismo aire a los
+   lados y en medio: pegados a los bordes se leían como dos cosas
+   sueltas en vez de una pareja. */
 .oky-flow-voucher-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: space-evenly;
+  gap: 16px;
   width: 100%;
+  padding: 2px 4px;
+  box-sizing: border-box;
 }
 
 
