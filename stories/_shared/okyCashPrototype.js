@@ -3064,6 +3064,30 @@ function okyCashActivity(state) {
     else groups.push({ label, items: [entry] });
   });
 
+  /* El arte de la actividad: una pila de monedas para lo que entra y una
+     sola para lo que sale. Va dibujado y no por clase de Font Awesome
+     porque fa-coin suelto es de la versión Pro —en el archivo suelto
+     cargan las caras Free y salía como caja—, y porque dibujado hereda
+     el morado del círculo y escala sin pesar. */
+  /* Cada moneda es su cara de arriba y el canto debajo. Van perfiladas
+     con el color del círculo: apiladas y todas del mismo morado se
+     fundían en una mancha, y el perfil es lo que las separa. */
+  const coin = (cx, cy, rx, ry, th) =>
+    `<path d="M${cx - rx} ${cy}L${cx - rx} ${cy + th}A${rx} ${ry} 0 0 0 ${cx + rx} ${cy + th}L${cx + rx} ${cy}Z"/>` +
+    `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`;
+
+  const coinArt = (inner) =>
+    `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+      style="fill:currentColor;stroke:var(--icon-avatar-bg);stroke-width:1.1;paint-order:stroke fill">${inner}</svg>`;
+
+  const COIN_ART = {
+    /* Tres monedas: una detrás a la derecha y dos apiladas delante, que
+       es como se lee "se juntó". */
+    earned: coinArt(coin(15.4, 7.6, 5.4, 2.4, 2.2) + coin(9, 15.2, 6.6, 2.9, 2.3) + coin(9, 11.4, 6.6, 2.9, 2.3)),
+    /* Una sola: lo que sale se va de a una. */
+    used: coinArt(coin(12, 11.8, 7, 3.1, 3)),
+  };
+
   /* Los dos chips son la misma pareja vista al derecho y al revés:
      flecha arriba lo que entra, flecha abajo lo que sale. El check de
      antes decía "correcto", no "subió", y no se leía contra su opuesto. */
@@ -3077,12 +3101,7 @@ function okyCashActivity(state) {
       key: "oky-cash",
       id: "99135:104411",
       layout: "row",
-      /* Montón de monedas lo que entra, una sola lo que sale. El
-         fa-coin suelto es exclusivo de Font Awesome Pro y el archivo
-         standalone carga las caras Free —saldría como caja—, así que
-         para el débito va el signo de dólar dentro del círculo, que a
-         este tamaño se lee como una moneda. */
-      icon: { glyph: positive ? "fa-coins" : "fa-dollar-sign", weight: "fa-solid" },
+      icon: { svg: positive ? COIN_ART.earned : COIN_ART.used },
       date,
       amount,
       /* El signo manda el color: verde oscuro lo que entra, rojo lo que

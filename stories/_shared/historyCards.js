@@ -176,6 +176,18 @@ function renderAvatar(card) {
     `;
   }
 
+  /* El glifo puede venir dibujado en vez de por clase de Font Awesome:
+     el de la actividad de OKY Cash es arte del sistema, no un icono de
+     la librería. Hereda el color, así que sigue siendo el mismo círculo
+     con lo que lleve dentro. */
+  if (card.icon.svg) {
+    return `
+      <span class="icon-avatar${muted}">
+        <span class="icon-avatar-art" aria-hidden="true">${card.icon.svg}</span>
+      </span>
+    `;
+  }
+
   return `
     <span class="icon-avatar${muted}">
       <i class="${card.icon.weight} ${card.icon.glyph}" aria-hidden="true"></i>

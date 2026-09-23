@@ -6859,6 +6859,20 @@ body {
 
 /* ── Icon Avatar (Atom) ─────────────────────────────────── */
 /* Figma "Iniciales de tienda". History Card 41px · Modal 32px. */
+/* El glifo dibujado ocupa lo mismo que el de la librería y hereda el
+   color del círculo. */
+.icon-avatar-art {
+  display: flex;
+  width: var(--icon-avatar-glyph);
+  height: var(--icon-avatar-glyph);
+}
+
+.icon-avatar-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .icon-avatar {
   /* sin token ni en el DS ni en Figma */
   --icon-avatar-bg: #e9d4ff;
