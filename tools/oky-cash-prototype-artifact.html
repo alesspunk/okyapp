@@ -5160,6 +5160,16 @@ body {
   z-index: 85;
 }
 
+/* Salvo mientras se celebra la compra: ese momento es del sello y del
+   contador de OKY Cash, y colgada del teléfono Clarita quedaba encima
+   repartiendo la atención justo cuando hay una sola cosa que mirar.
+   Dentro de la card ya se queda detrás del scrim; colgada hay que
+   bajarla a mano. */
+.oky-flow-frame:has(.oky-flow-celebration) .prime-card-clarita.is-pinned,
+.oky-flow-frame:has(.oky-flow-cashwin) .prime-card-clarita.is-pinned {
+  z-index: 20;
+}
+
 .prime-card-clarita {
   transition: transform 180ms ease-out;
   display: flex;
