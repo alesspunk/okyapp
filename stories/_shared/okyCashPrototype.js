@@ -3064,29 +3064,12 @@ function okyCashActivity(state) {
     else groups.push({ label, items: [entry] });
   });
 
-  /* El arte de la actividad: una pila de monedas para lo que entra y una
-     sola para lo que sale. Va dibujado y no por clase de Font Awesome
-     porque fa-coin suelto es de la versión Pro —en el archivo suelto
-     cargan las caras Free y salía como caja—, y porque dibujado hereda
-     el morado del círculo y escala sin pesar. */
-  /* Cada moneda es su cara de arriba y el canto debajo. Van perfiladas
-     con el color del círculo: apiladas y todas del mismo morado se
-     fundían en una mancha, y el perfil es lo que las separa. */
-  const coin = (cx, cy, rx, ry, th) =>
-    `<path d="M${cx - rx} ${cy}L${cx - rx} ${cy + th}A${rx} ${ry} 0 0 0 ${cx + rx} ${cy + th}L${cx + rx} ${cy}Z"/>` +
-    `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`;
-
-  const coinArt = (inner) =>
-    `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
-      style="fill:currentColor;stroke:var(--icon-avatar-bg);stroke-width:1.1;paint-order:stroke fill">${inner}</svg>`;
-
-  const COIN_ART = {
-    /* Tres monedas: una detrás a la derecha y dos apiladas delante, que
-       es como se lee "se juntó". */
-    earned: coinArt(coin(15.4, 7.6, 5.4, 2.4, 2.2) + coin(9, 15.2, 6.6, 2.9, 2.3) + coin(9, 11.4, 6.6, 2.9, 2.3)),
-    /* Una sola: lo que sale se va de a una. */
-    used: coinArt(coin(12, 11.8, 7, 3.1, 3)),
-  };
+  /* El arte de la actividad viene del sistema de diseño: las monedas
+     con la sonrisa de OKY para lo que entra y el dólar para lo que sale.
+     Antes eran glifos de Font Awesome —fa-coin suelto es de la versión
+     Pro y en el archivo standalone salía como caja, de ahí el signo de
+     dólar de relleno—; ahora es el arte de verdad, con su círculo. */
+  const COIN_ART = { earned: "oky-activity-earned.png", used: "oky-activity-used.png" };
 
   /* Los dos chips son la misma pareja vista al derecho y al revés:
      flecha arriba lo que entra, flecha abajo lo que sale. El check de
@@ -3101,7 +3084,7 @@ function okyCashActivity(state) {
       key: "oky-cash",
       id: "99135:104411",
       layout: "row",
-      icon: { svg: positive ? COIN_ART.earned : COIN_ART.used },
+      icon: { src: positive ? COIN_ART.earned : COIN_ART.used },
       date,
       amount,
       /* El signo manda el color: verde oscuro lo que entra, rojo lo que

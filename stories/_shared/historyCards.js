@@ -176,14 +176,13 @@ function renderAvatar(card) {
     `;
   }
 
-  /* El glifo puede venir dibujado en vez de por clase de Font Awesome:
-     el de la actividad de OKY Cash es arte del sistema, no un icono de
-     la librería. Hereda el color, así que sigue siendo el mismo círculo
-     con lo que lleve dentro. */
-  if (card.icon.svg) {
+  /* El avatar puede ser arte del sistema en vez de un icono de la
+     librería: el de la actividad de OKY Cash trae su propio círculo, así
+     que la imagen ocupa el hueco entero. */
+  if (card.icon.src) {
     return `
-      <span class="icon-avatar${muted}">
-        <span class="icon-avatar-art" aria-hidden="true">${card.icon.svg}</span>
+      <span class="icon-avatar is-art${muted}">
+        <img src="${card.icon.src}" alt="" />
       </span>
     `;
   }
