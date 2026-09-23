@@ -3310,7 +3310,10 @@ const CATEGORY_PAGES = {
      sueltos —eso es de Guatemala— sino su gift card, así que cada teja
      va derecha a su PDP de monto. */
   comidausa: {
-    title: "Invitar a comer",
+    /* Se llama como la teja que la abre. "Invitar a comer" es de
+       Guatemala, donde lo que se compra es la comida misma; aquí se
+       compra la gift card de la marca. */
+    title: "Comida",
     section: "Comida rápida",
     brands: USA_FOOD_KEYS.map((key) => ({
       key,
