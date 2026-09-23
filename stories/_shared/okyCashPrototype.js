@@ -305,9 +305,19 @@ PRODUCTS.tigo = {
 const HOME_SECTIONS = [
   { title: "Novedades", keys: ["googleplay", "starbucks", "homedepot", "apple", "macys", "target"] },
   {
+    key: "comida",
     title: "Comida Rápida",
     keys: ["seveneleven", "burgerking", "ihop", "mcdonalds", "dominos", "applebees"],
   },
+];
+
+/* Las marcas de la categoría "Comida" del home de USA. La taxonomía ya
+   está dicha en la sección de arriba, así que se lee de ahí en vez de
+   copiarla; Starbucks se suma a mano porque el home la anuncia entre
+   las novedades pero es comida igual. */
+const USA_FOOD_KEYS = [
+  ...HOME_SECTIONS.find((section) => section.key === "comida").keys,
+  "starbucks",
 ];
 
 /* Fila de marcas con su chip de cashback, bajo un título con CTA. */
@@ -319,7 +329,7 @@ const GEEKY_DEALS = [
 
 /* Accesos por categoría (Molecules/Tiles · Macro/Tile). */
 const HOME_CATEGORIES = [
-  { label: "Comida", icon: "tile-comida.png" },
+  { label: "Comida", icon: "tile-comida.png", category: "comidausa" },
   { label: "Diversión", icon: "tile-diversion.png" },
   { label: "Experiencias", icon: "tile-experiencias.png" },
   { label: "Hogar", icon: "tile-hogar.png" },
@@ -460,7 +470,6 @@ const money = (v) => `$${(Number(v) || 0).toFixed(2)}`;
 /* El monto grande de la card va sin decimales cuando es redondo
    ("$ 200"), como en Figma, y con dos cuando no ("$ 12.50"). */
 const bigAmount = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(2));
-const moneyField = (v) => (Number(v) || 0).toFixed(2);
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 /* Índice circular para los carruseles. */
 const wrap = (i, n) => (n <= 0 ? 0 : ((i % n) + n) % n);
@@ -1663,14 +1672,19 @@ function screenHome(state) {
       </section>
 
       <div class="oky-flow-tile-grid">
-        ${HOME_CATEGORIES.map(
-          (cat) => `
-          <div class="service-tile is-label-top">
+        ${HOME_CATEGORIES.map((cat) => {
+          /* Solo las tejas que llevan a alguna parte se comportan como
+             botón; las demás acompañan, como en el resto del prototipo. */
+          const open = cat.category
+            ? `data-action="open-category" data-category="${cat.category}" role="button" tabindex="0"`
+            : "";
+          return `
+          <div class="service-tile is-label-top${cat.category ? " is-live" : ""}" ${open}>
             <div class="tile-label">${cat.label}</div>
             <div class="tile-icon"><img src="${cat.icon}" alt="" /></div>
           </div>
-        `,
-        ).join("")}
+        `;
+        }).join("")}
       </div>
 
       ${HOME_SECTIONS.map(
@@ -1766,7 +1780,7 @@ function screenPdp(state) {
           </label>
           <span class="input-dinamic-prefix" aria-hidden="true">$</span>
           <input id="oky-amount" class="input-field input-dinamic input-dinamic-hasvalue" type="text"
-            inputmode="decimal" value="${moneyField(amount)}" data-action="input-amount" data-product="${product.key}"
+            inputmode="decimal" value="${bigAmount(amount)}" data-action="input-amount" data-product="${product.key}"
             aria-labelledby="oky-amount-label" />
         </div>
       </div>
@@ -3291,6 +3305,20 @@ const CATEGORY_PAGES = {
       { key: "ihop", label: "IHOP", art: "ihop.webp", action: "open-guapdp", product: "gua-ihop" },
       { key: "dominos", label: "Domino's", art: "dominos.png", action: "open-guapdp", product: "gua-dominos" },
     ],
+  },
+  /* La misma página para USA. Ahí la marca de comida no vende platos
+     sueltos —eso es de Guatemala— sino su gift card, así que cada teja
+     va derecha a su PDP de monto. */
+  comidausa: {
+    title: "Invitar a comer",
+    section: "Comida rápida",
+    brands: USA_FOOD_KEYS.map((key) => ({
+      key,
+      label: BRANDS[key].label,
+      art: BRANDS[key].art,
+      action: "open-pdp",
+      product: key,
+    })),
   },
   recargas: {
     title: "Recargar el Móvil",
