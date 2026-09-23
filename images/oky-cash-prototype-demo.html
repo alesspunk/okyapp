@@ -17948,6 +17948,9 @@ function createInitialState(userType) {
     /* Terminado el recorrido, Clarita se retira; veinte segundos
        después vuelve de acompañante y ya no se va. */
     helpOn: false,
+    /* La cuenta se cumplió fuera de la home: el reloj arranca al
+       volver, no a espaldas de nadie. */
+    promoPending: false,
     tourCount: false,
     tourReady: false,
     tourFlag: false,
@@ -21960,13 +21963,29 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   let introTimer = null;
   let helpTimer = null;
 
-  function render() {
+  /* Repintar reconstruye el contenedor que scrollea, así que la página
+     se va al tope. Navegando es lo correcto —una pantalla nueva empieza
+     arriba—, pero cuando lo que cambia le pasa a la página que ya se
+     está leyendo (el reloj que arranca, el que vence) mandarla al
+     principio es arrancarle la lectura de las manos. Esos repintados
+     piden keepScroll y se quedan donde estaban. */
+  function render({ keepScroll = false } = {}) {
     /* El player de Lottie deja listeners y un rAF vivos; si el overlay
        desaparece del DOM sin destruirlo, se acumulan por compra. */
     if (winAnimation) {
       winAnimation.destroy();
       winAnimation = null;
     }
+
+    /* La promo que se quedó esperando fuera de la home arranca en
+       cuanto se vuelve, con el mismo respiro que tras la presentación:
+       el confeti y el cruce de color son para verlos. */
+    if (state.promoPending && state.screen === "home") {
+      state.promoPending = false;
+      armPromoIdle(PROMO_AFTER_FLAG_MS);
+    }
+
+    const keptScroll = keepScroll ? (root.querySelector(".oky-flow-scroll") || {}).scrollTop || 0 : 0;
 
     root.innerHTML = `
       <div class="oky-flow-frame${state.claritaMuted ? " is-clarita-muted" : ""}">
@@ -21990,6 +22009,11 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.tourConfetti ? `<div class="oky-flow-burst" data-role="tour-confetti"></div>` : ""}
       </div>
     `;
+
+    if (keptScroll > 0) {
+      const kept = root.querySelector(".oky-flow-scroll");
+      if (kept) kept.scrollTop = keptScroll;
+    }
 
     /* Las barras se escriben dentro de la plantilla de cada pantalla
        por comodidad, pero .oky-flow-scroll está posicionado, así que
@@ -22225,6 +22249,17 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        devolverlo sería quitarle lo único que dice. No sirve promoEnded,
        que es el aviso de "Promo terminada" y dura dos segundos. */
     if (state.promoLive || state.promoSpent) return;
+    /* Y solo arranca en la home. El confeti y el cruce de aqua a
+       mostaza son para que se vean: disparándose mientras se mira una
+       PDP o el wallet caía confeti sobre otra cosa y el cintillo
+       cambiaba a espaldas de la persona, que volvía a la home con el
+       20% ya puesto sin haber visto el salto. Fuera de la home la
+       cuenta se queda esperando y arranca al volver. */
+    if (state.screen !== "home") {
+      cancelPromoIdle();
+      state.promoPending = true;
+      return;
+    }
     cancelPromoIdle();
     state.promoLive = true;
     state.promoEndsAt = Date.now() + PROMO_MS;
@@ -22246,15 +22281,15 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.tourConfetti = true;
     setTimeout(() => {
       state.tourConfetti = false;
-      render();
+      render({ keepScroll: true });
     }, TOUR_CONFETTI_MS);
     /* Pinta ya: arrancando por el temporizador no hay nadie más que
        vuelva a dibujar, y el cruce se quedaba sin verse —el aqua se
        estaba 1400ms quieto y luego saltaba al mostaza de golpe. */
-    render();
+    render({ keepScroll: true });
     setTimeout(() => {
       state.promoStarting = false;
-      render();
+      render({ keepScroll: true });
     }, 1400);
   }
 
@@ -24237,13 +24272,13 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        apaga nunca. */
     state.promoSpent = true;
     state.promoEnded = true;
-    render();
+    render({ keepScroll: true });
     setTimeout(() => {
       state.promoEnded = false;
       /* Marca la pasada en la que el aqua entra desde el rojo; se apaga
          enseguida para que un render posterior no repita la animación. */
       state.promoSettling = true;
-      render();
+      render({ keepScroll: true });
       setTimeout(() => {
         state.promoSettling = false;
       }, 600);
