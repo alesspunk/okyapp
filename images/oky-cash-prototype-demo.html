@@ -14067,7 +14067,12 @@ img.oky-flow-method-mark {
   position: absolute;
   right: var(--oky-gutter);
   bottom: calc(var(--oky-nav-h) + 8px);
-  z-index: 80;
+  /* Por debajo de las barras de abajo: comparte banda con el saving bar
+     y, empatados, ganaba ella por ir después en el DOM —se le montaba
+     encima al "Compra y gana" y, con el carrito abierto, asomaba sobre
+     la barra del carrito—. Ella es un acompañante; la barra dice
+     cuánto se gana. */
+  z-index: 75;
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
