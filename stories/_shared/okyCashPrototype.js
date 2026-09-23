@@ -1409,6 +1409,7 @@ function marketSheet(state) {
    folder desplegado y State 2 con el folder colapsado, que es el que
    el organismo trae para cuando la página ya está scrolleada. */
 function homeHeader(state, headerState) {
+  const collapsed = headerState === "State 3";
   return renderDiscoveryHeader({
     /* El átomo Folder tiene dos variantes y la que manda es qué país
        está delante: Left con USA al frente, Right con GUA. Es el mismo
@@ -1426,6 +1427,13 @@ function homeHeader(state, headerState) {
     /* El State 3 del organismo trae el carrusel de categorías; aquí no
        se usa, y el punto de colapsar es justamente ganar alto. */
     showPlateu: false,
+    /* Bajando se queda el header con el wallet y el carrito, y debajo
+       el folder minimizado. Antes se quedaban el folder y el buscador,
+       y lo que se perdía de vista era justo dónde están los vales
+       comprados —con su punto rojo— y qué hay en el carrito. Buscar se
+       hace desde arriba: para eso se vuelve al inicio. */
+    keepAppHeader: true,
+    showSearch: !collapsed,
     markets: { left: marketOf(state, "left"), right: marketOf(state, "right") },
   });
 }

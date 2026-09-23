@@ -393,18 +393,30 @@ export function renderDiscoveryHeader({
   cartIndicated,
   walletIndicated = false,
   showPlateu = true,
+  showSearch = true,
+  keepAppHeader = false,
   markets,
 }) {
   const safeSide = SIDE_OPTIONS.includes(side) ? side : "Left";
   const safeState = STATE_OPTIONS.includes(state) ? state : "State 1";
   const config = DISCOVERY_CONFIG[safeSide][safeState];
 
+  /* Colapsado, el organismo se queda sin cabecera de app. Quien lo usa
+     puede pedir que se quede: el header es el que lleva el wallet y el
+     carrito, y hay pantallas donde no pueden desaparecer al bajar. Se
+     toma el del State 1 de ese mismo lado —no se inventa una cabecera
+     que el sistema no tenga. */
+  const headerKind =
+    keepAppHeader && config.header === "none"
+      ? DISCOVERY_CONFIG[safeSide]["State 1"].header
+      : config.header;
+
   return `
     <section class="discovery-header-organism" data-side="${safeSide}" data-state="${safeState}" data-pen-id="${config.penId}">
       ${renderStatusBar()}
-      ${renderAppHeader(config.header, { walletAction, cartAction, cartIndicated, walletIndicated })}
+      ${renderAppHeader(headerKind, { walletAction, cartAction, cartIndicated, walletIndicated })}
       ${renderFolder(config.folder, { showNewItemChip, newItemSide, markets })}
-      ${renderSearchInput({ compact: config.searchCompact })}
+      ${showSearch ? renderSearchInput({ compact: config.searchCompact }) : ""}
       ${config.plateu && showPlateu ? renderPlateuHome() : ""}
     </section>
   `;
