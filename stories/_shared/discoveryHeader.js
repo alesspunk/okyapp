@@ -393,7 +393,6 @@ export function renderDiscoveryHeader({
   cartIndicated,
   walletIndicated = false,
   showPlateu = true,
-  showSearch = true,
   keepAppHeader = false,
   markets,
 }) {
@@ -416,7 +415,7 @@ export function renderDiscoveryHeader({
       ${renderStatusBar()}
       ${renderAppHeader(headerKind, { walletAction, cartAction, cartIndicated, walletIndicated })}
       ${renderFolder(config.folder, { showNewItemChip, newItemSide, markets })}
-      ${showSearch ? renderSearchInput({ compact: config.searchCompact }) : ""}
+      ${renderSearchInput({ compact: config.searchCompact })}
       ${config.plateu && showPlateu ? renderPlateuHome() : ""}
     </section>
   `;
