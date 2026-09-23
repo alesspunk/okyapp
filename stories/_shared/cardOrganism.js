@@ -78,6 +78,7 @@ export function resolveCardOrganismArgs(args = {}) {
       /* Clarita puede ser solo un aviso o el que abre el recorrido de
          la card; quien dibuja la pantalla decide cuál. */
       claritaAction: args.bottomClaritaAction || "",
+      claritaDeck: args.bottomClaritaDeck || "",
       buttonLabel: args.bottomButtonLabel?.trim() || bottomBase.buttonLabel,
       showButtonLabel:
         typeof args.bottomShowButtonLabel === "boolean" ? args.bottomShowButtonLabel : true,

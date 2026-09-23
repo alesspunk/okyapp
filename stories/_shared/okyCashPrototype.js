@@ -1104,13 +1104,16 @@ const TOUR_STEPS = [
    card y enseña en qué orden se usa lo que hay ahí. Cada variante tiene
    el suyo porque cada una se canjea distinto —una se pega en una URL y
    la otra se muestra en caja con su PIN—, y señalar algo que esa card
-   no tiene sería mandar a buscar lo que no está. */
+   no tiene sería mandar a buscar lo que no está.
+
+   Solo se señala lo que se puede tocar: "Mostrar al cajero" es una
+   etiqueta, no un enlace, y pararse ahí prometía una pantalla que no
+   existe. */
 const VOUCHER_TOURS = {
   /* Un vale de marca se canjea en el local: primero cómo, después qué
      enseñar y al final el código que te van a pedir. */
   vale: [
     { target: ".middle-card-footer-end", label: "Mira cómo se canjea" },
-    { target: ".middle-card-footer-start", label: "Enséñalo en caja" },
     { target: ".prime-card-bottom-line", nth: 0, label: "Y dicta este código" },
   ],
   /* La recarga ya se aplicó: no hay nada que canjear, hay que enseñar
@@ -3753,6 +3756,23 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
      códigos distintos para la misma cosa. */
   const bottomSeed = id;
   const section0 = sectionOfVoucher(card.key);
+  /* Qué explica Clarita se decide aquí, junto con la variante que se
+     dibuja, y viaja escrito en ella. Deducirlo después desde los
+     params fallaba en el acuse de compra —ahí la card se pinta con un
+     estado prestado y los params siguen vacíos—, y un vale de producto
+     terminaba con el recorrido de la gift card de USA: sus paradas no
+     existen en esa card, así que el globo se quedaba varado arriba a
+     la izquierda apuntando fuera de la pantalla. */
+  const voucherDeck =
+    section0 === "gift"
+      ? hashOf(bottomSeed) % 10 < 3
+        ? "pin"
+        : "url"
+      : section0 === "servicios"
+        ? "servicio"
+        : card.key === "tigo"
+          ? "tigo"
+          : "vale";
   const bottomOfVoucher =
     section0 === "gift"
       ? hashOf(bottomSeed) % 10 < 3
@@ -3857,6 +3877,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               bottomLines: [{ label: "Copia el código", value: giftCode(bottomSeed, 10), copyable: true }],
               bottomButtonLabel: "Ayuda",
               bottomClaritaAction: "card-tour",
+              bottomClaritaDeck: voucherDeck,
             }
           : {
               topVariantPath: "Molecule/Top Card/Gift Card",
@@ -3878,6 +3899,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
                  pagado deja su correlativo, y el vale de marca sí se
                  enseña en caja y se canjea ahí. */
               bottomClaritaAction: "card-tour",
+              bottomClaritaDeck: voucherDeck,
               ...(section0 === "gift"
                 ? { middleSingleLabel: "Redemption Instructions" }
                 : section0 === "servicios"
@@ -4731,16 +4753,33 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   function placeTour() {
     const tour = root.querySelector(".oky-flow-tour");
     if (!tour) return;
-    const step = tourStepsOf(state)[state.tourStep];
-    if (!step || step.finish) return;
     const frame = root.querySelector(".oky-flow-frame");
+    if (!frame) return;
+    const steps = tourStepsOf(state);
     /* Con nth se señala uno de varios iguales —el código y el PIN son
        la misma clase de línea— sin inventarles un selector propio. */
-    const target =
-      step.nth == null
-        ? root.querySelector(step.target)
-        : root.querySelectorAll(step.target)[step.nth];
-    if (!target || !frame) return;
+    const hunt = (s) =>
+      !s || !s.target
+        ? null
+        : s.nth == null
+          ? root.querySelector(s.target)
+          : root.querySelectorAll(s.target)[s.nth];
+
+    /* Si la parada no está en esta card se pasa a la siguiente: el
+       globo varado en la esquina, apuntando a nada, era peor que no
+       enseñar ese paso. */
+    let at = state.tourStep ?? 0;
+    while (steps[at] && !steps[at].finish && !hunt(steps[at])) at += 1;
+    if (at !== (state.tourStep ?? 0)) {
+      if (!steps[at]) return closeTour();
+      state.tourStep = at;
+      return render();
+    }
+
+    const step = steps[at];
+    if (!step || step.finish) return;
+    const target = hunt(step);
+    if (!target) return;
 
     const scroll = root.querySelector(".oky-flow-scroll");
     const call = tour.querySelector(".oky-flow-tour-call");
@@ -5797,25 +5836,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         return render();
       }
 
-      /* Qué se está mirando decide qué se explica. Dentro de las gift
-         cards de USA lo dice además la variante dibujada: la que lleva
-         URL y la de código de barras con PIN no se canjean igual. Se
-         puede pedir las veces que haga falta. */
-      const shown = state.params.id
-        ? (state.purchases.find((p) => p.id === state.params.id) || {}).productKey
-        : state.params.key;
-      const sec = sectionOfVoucher(shown);
-      const bottom = root.querySelector(".card-bottom-molecule");
-      state.tourDeck =
-        sec === "gift"
-          ? bottom && bottom.classList.contains("is-gift-card-usa")
-            ? "url"
-            : "pin"
-          : sec === "servicios"
-            ? "servicio"
-            : shown === "tigo"
-              ? "tigo"
-              : "vale";
+      /* Qué se está mirando decide qué se explica, y lo dice la card
+         que se dibujó: el recorrido viene escrito en la propia Clarita.
+         Se puede pedir las veces que haga falta. */
+      state.tourDeck = el.dataset.deck || "vale";
       state.tourStep = 0;
       render();
       placeTour();

@@ -398,13 +398,13 @@ export function renderClaritaPet(extraClass = "") {
    SVG para que herede el color, escale sin pesar y se pueda animar por
    partes. Saluda con la mano al aparecer y después se queda
    balanceándose. */
-function renderClarita(action = "") {
+function renderClarita(action = "", deck = "") {
   /* Con acción se puede tocar y abre el recorrido de la card; sin ella
      se queda como estaba, ofreciendo ayuda sin llevar a ninguna parte.
      La X sigue siendo suya: cerrar el aviso no es pedir el recorrido. */
   return `
     <div class="prime-card-clarita${action ? " is-tappable" : ""}"
-      ${action ? `data-action="${action}" role="button" tabindex="0"` : 'role="status"'}
+      ${action ? `data-action="${action}"${deck ? ` data-deck="${deck}"` : ""} role="button" tabindex="0"` : 'role="status"'}
       aria-label="Clarita: ¿Necesitas ayuda con el canje?">
       <p class="prime-card-clarita-bubble">
         <span class="prime-card-clarita-say is-idle">¿Necesitas ayuda<br />con el canje?</span>
@@ -479,8 +479,12 @@ export function resolveCardBottom(args = {}) {
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,
     showButtonLabel: typeof args.showButtonLabel === "boolean" ? args.showButtonLabel : true,
     showButton: typeof args.showButton === "boolean" ? args.showButton : true,
-    /* Clarita abre el recorrido de la card donde lo haya. */
+    /* Clarita abre el recorrido de la card donde lo haya, y cuál es lo
+       dice quien dibuja la pantalla: desde el acuse de compra la card no
+       vive en los params, así que adivinarlo desde el estado sacaba el
+       recorrido de otra clase de vale. */
     claritaAction: args.claritaAction || "",
+    claritaDeck: args.claritaDeck || "",
     whatsappImage: args.whatsappImage?.trim() || "whatsapp-icon-card-bottom.png",
   };
 }
@@ -514,7 +518,7 @@ export function renderCardBottom(card) {
             <div class="prime-card-bottom-side">
               <div class="prime-card-bottom-expiry">${card.expiry || "&nbsp;"}</div>
               <div class="prime-card-bottom-button-slot">
-                ${renderClarita(card.claritaAction)}
+                ${renderClarita(card.claritaAction, card.claritaDeck)}
               </div>
             </div>
           `
