@@ -13088,6 +13088,18 @@ button.tactic-offer {
   background: rgba(255, 255, 255, 0.08);
 }
 
+/* En la del destinatario los anillos se encogen: su explicación ocupa
+   dos líneas largas y el aro de fuera le quedaba al ras. */
+.oky-flow-sheet.is-decision .oky-flow-sheet-art::after {
+  width: 176px;
+  height: 176px;
+}
+
+.oky-flow-sheet.is-decision .oky-flow-sheet-art::before {
+  width: 136px;
+  height: 136px;
+}
+
 .oky-flow-sheet-actions {
   flex: 0 0 auto;
   display: flex;
@@ -13120,12 +13132,14 @@ button.tactic-offer {
   cursor: pointer;
 }
 
-/* El segundo botón de la hoja, cuando todavía no lleva a ningún sitio:
-   se pinta apagado en vez de desteñirse, como el resto de los
-   deshabilitados del sistema. */
+/* El segundo botón de la hoja, cuando todavía no lleva a ningún sitio.
+   Va en blanco como el resto del texto de la hoja: el gris de
+   deshabilitado del sistema es para fondos claros y sobre el morado se
+   leía a duras penas. Que no responde ya lo dice el propio botón, que
+   sigue desactivado. */
 .oky-flow-sheet-dismiss:disabled {
   opacity: 1;
-  color: var(--disable-text);
+  color: var(--white);
   cursor: default;
 }
 

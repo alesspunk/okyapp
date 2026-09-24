@@ -4351,7 +4351,7 @@ function confirmSheet(state) {
   if (!sheet) return "";
   return `
     <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
-    <section class="oky-flow-sheet" role="dialog" aria-modal="true" aria-label="${sheet.title}">
+    <section class="oky-flow-sheet is-${state.sheet.type}" role="dialog" aria-modal="true" aria-label="${sheet.title}">
       <button class="oky-flow-sheet-close" data-action="close-sheet" type="button" aria-label="Cerrar">
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
