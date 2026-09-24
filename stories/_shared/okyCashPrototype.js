@@ -622,6 +622,9 @@ function createInitialState(userType) {
     headerCollapsed: false,
     /* El menú de la hamburguesa, que tapa la pantalla mientras está. */
     menuOpen: false,
+    /* Cuál de los dos avisos del header dio la última novedad. Solo
+       late uno: dos puntos parpadeando a la vez no dicen a cuál mirar. */
+    beacon: null,
     /* Pestaña abierta del wallet y secciones de estado desplegadas
        dentro de ella. Las dos las decide la entrada al wallet; esto es
        solo el arranque para quien lo abra sin pasar por su botón. */
@@ -1001,6 +1004,18 @@ function cashStrip(state) {
   `;
 }
 
+/* Cuál de los dos puntos del header late. Late el que trae la novedad
+   más reciente; si el otro también tiene punto, se queda encendido pero
+   quieto. Con uno solo encendido no hay competencia y late ese. */
+function beaconOf(state) {
+  const cart = state.cart.length > 0;
+  const wallet = hasNewVouchers(state);
+  if (cart && wallet) return state.beacon === "wallet" ? "wallet" : "cart";
+  if (cart) return "cart";
+  if (wallet) return "wallet";
+  return null;
+}
+
 /* Un solo botón de atrás para todas las pantallas. Por defecto
    deshace el historial; el PDP lo apunta directo al home. */
 function backButton(action = "back") {
@@ -1036,7 +1051,7 @@ function productHeader(state, { backAction = "back", title = "", small = false }
       <button class="header-icon header-icon-bitmap header-icon-bitmap-cart" data-action="open-cart"
         type="button" aria-label="Carrito">
         <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="Cart-3d-icon.png" alt="" />
-        ${count ? `<span class="header-icon-indicator-dot"></span>` : ""}
+        ${count ? `<span class="header-icon-indicator-dot${beaconOf(state) === "cart" ? " is-pulsing" : ""}"></span>` : ""}
       </button>
     </header>
   `;
@@ -1521,6 +1536,8 @@ function homeHeader(state, headerState) {
     cartIndicated: state.cart.length > 0,
     /* Mismo indicador que el carrito: hay vales comprados sin abrir. */
     walletIndicated: hasNewVouchers(state),
+    /* Y de los dos, late solo el que trae lo más reciente. */
+    beacon: beaconOf(state),
     /* El State 3 del organismo trae el carrusel de categorías; aquí no
        se usa, y el punto de colapsar es justamente ganar alto. */
     showPlateu: false,
@@ -5830,6 +5847,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   const nextAfterStamp = () => (state.lastEarned > 0 ? "cashwin" : "purchases");
 
   function completePurchase() {
+    /* Recién comprado, la novedad es la del wallet: el carrito se
+       vacía aquí mismo, así que el latido se muda solo, pero queda
+       dicho para cuando vuelva a entrar algo al carrito. */
+    state.beacon = "wallet";
     const total = cartTotal(state);
     const used = appliedOkyCash(state);
     /* Solo lo pagado con tarjeta genera cashback. */
@@ -6286,6 +6307,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* Con costo por servicio, la promesa del ahorro se cuenta una
          vez: cuando entra lo primero que lo paga. */
       const first = product.service && !cartServiceCount(state);
+      /* Lo último que pasó manda sobre el latido. */
+      state.beacon = "cart";
       state.cart = state.cart
         .filter((item) => item.productKey !== product.key)
         .concat({
@@ -6453,6 +6476,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
       if (!line) {
         if (step < 0) return;
+        state.beacon = "cart";
         state.cart = state.cart.concat({ productKey: key, amount: product.price, cashback: 0, qty: 1 });
       } else {
         const next = (line.qty || 1) + step;

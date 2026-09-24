@@ -155,44 +155,44 @@ function renderStatusBar() {
   `;
 }
 
-function renderWalletBitmap({ indicated = false, shiftLeft = false, action = "" } = {}) {
+function renderWalletBitmap({ indicated = false, shiftLeft = false, action = "", pulse = false } = {}) {
   const tag = action
     ? `<button type="button" data-action="${action}" aria-label="Mi wallet"`
     : `<div aria-hidden="true"`;
   return `
     ${tag} class="header-icon header-icon-bitmap header-icon-bitmap-wallet-wrap${indicated ? " header-icon-bitmap-wallet-indicated" : ""}${shiftLeft ? " header-icon-bitmap-wallet-indicated-left" : ""}">
       <img class="header-icon-bitmap-image header-icon-bitmap-wallet" src="Wallet-icon.png" alt="">
-      ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
+      ${indicated ? `<span class="header-icon-indicator-dot${pulse ? " is-pulsing" : ""}"></span>` : ""}
     ${action ? "</button>" : "</div>"}
   `;
 }
 
-function renderCartBitmap({ indicated = false, action = "" } = {}) {
+function renderCartBitmap({ indicated = false, action = "", pulse = false } = {}) {
   const tag = action
     ? `<button type="button" data-action="${action}" aria-label="Carrito"`
     : `<div aria-hidden="true"`;
   return `
     ${tag} class="header-icon header-icon-bitmap header-icon-bitmap-cart">
       <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="Cart-3d-icon.png" alt="">
-      ${indicated ? '<span class="header-icon-indicator-dot"></span>' : ""}
+      ${indicated ? `<span class="header-icon-indicator-dot${pulse ? " is-pulsing" : ""}"></span>` : ""}
     ${action ? "</button>" : "</div>"}
   `;
 }
 
 function renderAppHeader(
   kind,
-  { walletAction = "", cartAction = "", cartIndicated, walletIndicated = false } = {},
+  { walletAction = "", cartAction = "", cartIndicated, walletIndicated = false, beacon = null } = {},
 ) {
   if (kind === "none") return "";
 
   const dot = cartIndicated === undefined ? kind === "logged-cart" : cartIndicated;
-  const right = renderCartBitmap({ indicated: dot, action: cartAction });
+  const right = renderCartBitmap({ indicated: dot, action: cartAction, pulse: beacon === "cart" });
 
   return `
     <section data-pen-id="${kind === "logged-cart" ? "ArMsV" : "WO8oM"}">
       <div class="app-header">
         <div class="header-left-group">
-          ${renderWalletBitmap({ action: walletAction, indicated: walletIndicated })}
+          ${renderWalletBitmap({ action: walletAction, indicated: walletIndicated, pulse: beacon === "wallet" })}
         </div>
         <img class="header-logo" src="logo-oky.svg" alt="OKY" data-action="nav:country-home" role="button" tabindex="0" />
         ${right}
@@ -392,6 +392,10 @@ export function renderDiscoveryHeader({
   cartAction = "",
   cartIndicated,
   walletIndicated = false,
+  /* Cuál de los dos puntos late: "cart", "wallet" o ninguno. Late uno
+     solo —dos parpadeando a la vez no dicen a cuál mirar— y lo decide
+     quien dibuja, que es quien sabe cuál trae lo más reciente. */
+  beacon = null,
   showPlateu = true,
   keepAppHeader = false,
   markets,
@@ -413,7 +417,7 @@ export function renderDiscoveryHeader({
   return `
     <section class="discovery-header-organism" data-side="${safeSide}" data-state="${safeState}" data-pen-id="${config.penId}">
       ${renderStatusBar()}
-      ${renderAppHeader(headerKind, { walletAction, cartAction, cartIndicated, walletIndicated })}
+      ${renderAppHeader(headerKind, { walletAction, cartAction, cartIndicated, walletIndicated, beacon })}
       ${renderFolder(config.folder, { showNewItemChip, newItemSide, markets })}
       ${renderSearchInput({ compact: config.searchCompact })}
       ${config.plateu && showPlateu ? renderPlateuHome() : ""}

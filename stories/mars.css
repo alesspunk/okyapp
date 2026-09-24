@@ -10274,8 +10274,11 @@ button.header-icon {
 }
 
 /* CTA + píldora ocupan ~143px por encima de la navbar. */
+/* El hueco es exactamente lo que mide la barra: 92px desde que el
+   wallet y la píldora van en fila. Con los 148 de cuando iban apilados
+   quedaba medio dedo de blanco entre los interruptores y la barra. */
 .oky-flow-scroll.has-cta-strip {
-  padding-bottom: calc(var(--oky-nav-h) + 148px);
+  padding-bottom: calc(var(--oky-nav-h) + 92px);
 }
 
 /* Microinteracción del sello: la píldora del cashback ganado entra
@@ -14197,14 +14200,18 @@ img.oky-flow-method-mark {
   pointer-events: none;
 }
 
-/* ── Latido del punto del carrito ───────────────────────── */
-/* El aviso de "tienes algo en el carrito" pulsa en vez de quedarse
-   quieto: un anillo del mismo rojo que se abre y se desvanece, más el
-   propio punto latiendo un poco. Va con box-shadow y no con una capa
-   detrás: una capa en z-index negativo la tapaba el fondo blanco del
-   header. Vale para las dos homes y para el header de producto, en USA
-   y en Guatemala. */
-.header-icon-bitmap-cart .header-icon-indicator-dot {
+/* ── Latido de los puntos del header ────────────────────── */
+/* El aviso pulsa en vez de quedarse quieto: un anillo del mismo rojo
+   que se abre y se desvanece, más el propio punto latiendo un poco. Va
+   con box-shadow y no con una capa detrás: una capa en z-index
+   negativo la tapaba el fondo blanco del header. Vale para las dos
+   homes y para el header de producto, en USA y en Guatemala.
+
+   Lo llevan tanto el carrito como el wallet, pero solo uno a la vez:
+   con los dos parpadeando no se sabe a cuál mirar. Late el que trae la
+   novedad más reciente y el otro se queda encendido y quieto; quién es
+   lo decide el estado, no el CSS. */
+.header-icon-indicator-dot.is-pulsing {
   animation: oky-cart-pulse 1.6s ease-out infinite;
 }
 
@@ -14224,7 +14231,7 @@ img.oky-flow-method-mark {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .header-icon-bitmap-cart .header-icon-indicator-dot {
+  .header-icon-indicator-dot.is-pulsing {
     animation: none;
   }
 }
