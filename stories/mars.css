@@ -13120,6 +13120,15 @@ button.tactic-offer {
   cursor: pointer;
 }
 
+/* El segundo botón de la hoja, cuando todavía no lleva a ningún sitio:
+   se pinta apagado en vez de desteñirse, como el resto de los
+   deshabilitados del sistema. */
+.oky-flow-sheet-dismiss:disabled {
+  opacity: 1;
+  color: var(--disable-text);
+  cursor: default;
+}
+
 @keyframes oky-flow-sheet-up {
   from {
     transform: translateY(100%);

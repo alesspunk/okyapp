@@ -4259,6 +4259,19 @@ function screenCardDesign(state) {
      pero en móvil es un blanco de 24px arriba del todo: el par de
      botones deja las dos decisiones al alcance del pulgar. */
 const CONFIRM_SHEETS = {
+  /* La pregunta del destinatario. Era una pantalla morada completa y en
+     el teléfono el toque en "Para mí" no llegaba nunca; como hoja usa
+     la misma máquina que archivar y devolver, que ahí sí responde.
+     "Para alguien más" sigue apagado: no hay a dónde llevar todavía. */
+  decision: {
+    art: "oky-returning-illustration.png",
+    title: "¿Es para ti o para alguien más?",
+    note: "",
+    confirm: "Para mí",
+    dismiss: "Para alguien más",
+    dismissOff: true,
+    action: "decision-self",
+  },
   unshare: {
     art: "oky-share-hands.png",
     title: "¿No llegaste a compartirlo?",
@@ -4343,7 +4356,7 @@ function confirmSheet(state) {
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
       <h2 class="oky-flow-sheet-title">${sheet.title}</h2>
-      <p class="oky-flow-sheet-note">${sheet.note}</p>
+      ${sheet.note ? `<p class="oky-flow-sheet-note">${sheet.note}</p>` : ""}
       <div class="oky-flow-sheet-art">
         <img src="${sheet.art}" alt="" />
       </div>
@@ -4352,7 +4365,7 @@ function confirmSheet(state) {
           data-unit="${state.sheet.unit || 0}" type="button">
           ${sheet.confirm}
         </button>
-        <button class="oky-flow-sheet-dismiss" data-action="close-sheet" type="button">${sheet.dismiss}</button>
+        <button class="oky-flow-sheet-dismiss" ${sheet.dismissOff ? "disabled" : 'data-action="close-sheet"'} type="button">${sheet.dismiss}</button>
       </div>
     </section>
   `;
@@ -6291,13 +6304,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.checkoutIndex = 0;
         return go("checkout");
       }
-      /* En USA se pregunta siempre y en cualquier pantalla. Del teléfono
-         se había quitado porque el toque en "Para mí" no llegaba y
-         dejaba la prueba sin manera de llegar al pago; el problema era
-         que la pantalla quedaba por debajo de las barras, no la
-         pregunta. Y se pregunta cada vez: a quién se le regala es
+      /* En USA se pregunta siempre, y se pregunta en una hoja: como
+         pantalla entera el toque en "Para mí" no llegaba en el
+         teléfono, y así usa la misma máquina que archivar y devolver,
+         que ahí sí responde. Cada vez, además: a quién se le regala es
          decisión de esta compra, no de la primera que se hizo. */
-      return go("decision");
+      state.sheet = { type: "decision" };
+      return render();
     }
 
     if (action === "open-pdp") {
@@ -6935,6 +6948,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "decision-self") {
+      state.sheet = null;
       state.recipient = "Para mí";
       /* push:false deja el modal fuera del historial: "atrás" desde el
          checkout vuelve al PDP, no al modal. */
