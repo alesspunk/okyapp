@@ -10199,13 +10199,59 @@ button.header-icon {
    el scroll de esta pantalla; añadirle otro al contenido dejaba 157px
    de blanco al final del scroll. */
 
-/* Barra de CTA que además lleva la píldora de saldo debajo del
-   botón: el orden visual queda Mi Wallet → píldora → navbar. */
+/* Barra de CTA que además lleva la píldora de saldo. Van en fila y no
+   apilados: uno debajo de otro se comían el alto justo donde hace
+   falta —lo que hay que ver es el código y su botón de canje—, así que
+   toda la barra ocupa lo que ocupaba la píldora sola. Un cuarto para
+   el wallet y tres cuartos para la píldora, que es la que lleva cifra
+   y CTA. */
 .oky-flow-cta-bar.has-cash-strip {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: stretch;
   gap: 10px;
   padding: 11px var(--oky-gutter) 12px;
+}
+
+.oky-flow-cta-bar.has-cash-strip .oky-flow-wallet-mini {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.oky-flow-cta-bar.has-cash-strip .oky-flow-cash-strip {
+  flex: 3 1 0;
+  min-width: 0;
+}
+
+/* El wallet encogido: el icono manda y el nombre va debajo, que a lo
+   ancho no cabía al lado. Misma píldora outlined de siempre. */
+.oky-flow-wallet-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  box-sizing: border-box;
+  padding: 6px 4px;
+  border: 1px solid var(--primary-main);
+  border-radius: 16px;
+  background: var(--white);
+  color: var(--primary-main);
+  cursor: pointer;
+}
+
+.oky-flow-wallet-mini img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.oky-flow-wallet-mini span {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 /* Dentro de la barra la píldora ocupa el ancho útil; la sombra se

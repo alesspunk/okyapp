@@ -1017,7 +1017,7 @@ function titledHeader(title, { trailing = "", trailingAction = "" } = {}) {
     <header class="oky-flow-header">
       ${backButton()}
       <h1 class="oky-flow-title">${title}</h1>
-      <span ${attrs}>${trailing ? `<i class="fa-solid ${trailing}"></i>` : ""}</span>
+      <span ${attrs}>${trailing ? `<i class="${trailing}"></i>` : ""}</span>
     </header>
   `;
 }
@@ -2484,17 +2484,32 @@ function screenProcessing(state) {
    pantalla —la pila y la card suelta—. */
 function purchaseFoot(state) {
   const earnedHere = state.lastEarned > 0;
+
+  /* Ganando OKY Cash el pie lleva dos cosas y, una debajo de otra, se
+     comían el alto justo donde hace falta: lo que hay que ver es el
+     código y su botón de canje. En fila ocupan lo que ocupaba la
+     píldora sola —un cuarto para el wallet, que se queda con el icono
+     y su nombre debajo, y tres cuartos para la píldora—.
+
+     Sin OKY Cash que celebrar no hay competencia por el alto, así que
+     el botón se queda entero y solo sobre la navbar. */
+  if (!earnedHere) {
+    return `
+      <div class="oky-flow-cta-bar">
+        <button class="btn btn-outlined btn-large oky-flow-wallet-btn" data-action="nav:wallet" type="button">
+          <img src="Wallet-icon.png" alt="" />Ver mi Wallet
+        </button>
+      </div>
+    `;
+  }
+
   return `
-    <div class="oky-flow-cta-bar${earnedHere ? " has-cash-strip" : ""}">
-      <button class="btn btn-outlined btn-large oky-flow-wallet-btn" data-action="nav:wallet" type="button">
-        <img src="Wallet-icon.png" alt="" />Ver mi Wallet
+    <div class="oky-flow-cta-bar has-cash-strip">
+      <button class="oky-flow-wallet-mini" data-action="nav:wallet" type="button">
+        <img src="Wallet-icon.png" alt="" />
+        <span>Mi Wallet</span>
       </button>
-      ${
-        /* La píldora celebra lo que esta compra dejó; si no dejó nada
-           —Tigo no da cashback— no hay nada que celebrar y el botón se
-           queda solo sobre la navbar. */
-        earnedHere ? cashStrip(state) : ""
-      }
+      ${cashStrip(state)}
     </div>
   `;
 }
@@ -2577,7 +2592,10 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
 
   return `
     ${statusBar()}
-    ${titledHeader("Tus compras", { trailing: "fa-receipt" })}
+    ${/* El icono del acuse va en contorno y no sólido: acompaña, no
+         manda. Font Awesome Free no trae el recibo en regular, así que
+         va el documento, que dice lo mismo. */ ""}
+    ${titledHeader("Tus compras", { trailing: "fa-regular fa-file-lines" })}
 
     <div class="oky-flow-section">
       ${
@@ -3982,7 +4000,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
 
   return `
     ${statusBar()}
-    ${titledHeader(title, asPurchase ? { trailing: "fa-receipt" } : {})}
+    ${titledHeader(title, asPurchase ? { trailing: "fa-regular fa-file-lines" } : {})}
     <div class="oky-flow-section is-voucher${asPurchase ? " is-purchase" : ""}">
       <div class="oky-flow-card-carousel${archived ? " is-redeemed is-archived" : shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
