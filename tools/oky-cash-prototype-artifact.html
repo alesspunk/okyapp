@@ -4513,6 +4513,15 @@ body {
   right: -13px;
 }
 
+/* En la ficha del producto baja por lo mismo: ahí el nombre se escribe
+   entero —"McNuggets de 10 piezas y Papas Medianas" ocupa dos líneas—
+   y arriba se le montaba encima. A esta altura cae junto a la foto,
+   que es lo que lleva el descuento. */
+.middle-card-shell.is-pdp .middle-card-molecule.is-product .middle-card-ribbon-slot {
+  top: 76px;
+  right: -13px;
+}
+
 .middle-card-content {
   min-height: 186px;
   width: 100%;
@@ -20998,6 +21007,19 @@ function screenFoodPdp(state) {
               <span class="middle-card-footer-end">Como Canjear</span>
             </div>
           </div>
+          ${
+            /* El descuento del producto ya se anunciaba en la lista y
+               volvía a salir en el checkout, pero justo en la ficha
+               —donde se decide— la card no decía nada. Es el mismo
+               wrap ribbon del checkout. */
+            product.was
+              ? `<div class="middle-card-ribbon-slot">
+                  <div class="discount-ribbon discount-ribbon-wrap is-tier-base">
+                    <span class="discount-ribbon-text token-price-percent">${Math.round((1 - product.price / product.was) * 100)}% OFF</span>
+                  </div>
+                </div>`
+              : ""
+          }
         </article>
       </section>
     </div>

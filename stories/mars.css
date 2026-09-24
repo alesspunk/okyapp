@@ -4498,6 +4498,15 @@ body {
   right: -13px;
 }
 
+/* En la ficha del producto baja por lo mismo: ahí el nombre se escribe
+   entero —"McNuggets de 10 piezas y Papas Medianas" ocupa dos líneas—
+   y arriba se le montaba encima. A esta altura cae junto a la foto,
+   que es lo que lleva el descuento. */
+.middle-card-shell.is-pdp .middle-card-molecule.is-product .middle-card-ribbon-slot {
+  top: 76px;
+  right: -13px;
+}
+
 .middle-card-content {
   min-height: 186px;
   width: 100%;

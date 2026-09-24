@@ -3631,6 +3631,19 @@ function screenFoodPdp(state) {
               <span class="middle-card-footer-end">Como Canjear</span>
             </div>
           </div>
+          ${
+            /* El descuento del producto ya se anunciaba en la lista y
+               volvía a salir en el checkout, pero justo en la ficha
+               —donde se decide— la card no decía nada. Es el mismo
+               wrap ribbon del checkout. */
+            product.was
+              ? `<div class="middle-card-ribbon-slot">
+                  <div class="discount-ribbon discount-ribbon-wrap is-tier-base">
+                    <span class="discount-ribbon-text token-price-percent">${Math.round((1 - product.price / product.was) * 100)}% OFF</span>
+                  </div>
+                </div>`
+              : ""
+          }
         </article>
       </section>
     </div>
