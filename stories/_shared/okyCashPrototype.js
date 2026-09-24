@@ -2138,12 +2138,13 @@ function screenCheckout(state) {
      sale de la agenda, y el número es el del contacto elegido: lo que
      se lee aquí y lo que se lee en la agenda no pueden discrepar. */
   const recipient =
-    orderCountry(state) === "gua"
+    contactByName(state.recipient) ||
+    (orderCountry(state) === "gua"
       ? GUA_RECIPIENT
-      : contactByName(state.recipient) || {
+      : {
           name: state.recipient || USA_RECIPIENT.name,
           phone: state.recipientPhone || USA_RECIPIENT.phone,
-        };
+        });
   /* Cada vale lleva su propio porcentaje en el wrap ribbon, igual que
      en el PDP: con el reloj en pausa aquí dentro, el 20% de Nike no se
      convierte en 5% mientras se ajusta el pago. */
@@ -2262,28 +2263,26 @@ function screenCheckout(state) {
 
       <article class="dual-molecule is-default" style="width:100%">
         <span class="dual-floating-label">¿Para quién es?</span>
-        ${
-          /* Tocando el contacto se abre la agenda y se cambia, pero solo
-             en USA: en Guatemala el destinatario lo pone la propia orden
-             y no hay nada que elegir. */
-          orderCountry(state) === "gua"
-            ? `<div class="dual-card">
-                <span class="dual-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
-                <div class="dual-copy">
-                  <p class="dual-title">${recipient.name}</p>
-                  <p class="dual-subtitle">${recipient.phone}</p>
-                </div>
-                <span class="dual-action" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
-              </div>`
-            : `<div class="dual-card is-live" data-action="open-contacts" role="button" tabindex="0">
-                <span class="dual-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
-                <div class="dual-copy">
-                  <p class="dual-title">${recipient.name}</p>
-                  <p class="dual-subtitle">${recipient.phone}</p>
-                </div>
-                <span class="dual-action" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
-              </div>`
-        }
+        ${/* Tocando el contacto se abre la agenda y se cambia. En
+             Guatemala también, pero allá la agenda no ofrece "Para mí":
+             la compra va a alguien, que es la misma regla por la que no
+             se pregunta al entrar al pago. */ ""}
+        <div class="dual-card is-live" data-action="open-contacts" role="button" tabindex="0">
+          ${
+            /* Yendo a otra persona, el avatar es el suyo: el mismo
+               círculo rosado con sus iniciales que la agenda, para que
+               se reconozca a quién va sin volver a leer el nombre.
+               Para uno mismo se queda el muñeco. */
+            recipient.initials
+              ? `<span class="dual-avatar is-contact" aria-hidden="true">${recipient.initials}</span>`
+              : `<span class="dual-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></span>`
+          }
+          <div class="dual-copy">
+            <p class="dual-title">${recipient.name}</p>
+            <p class="dual-subtitle">${recipient.phone}</p>
+          </div>
+          <span class="dual-action" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
+        </div>
       </article>
 
       <div class="payment-method-input oky-flow-paygroup" style="width:100%">
@@ -4409,6 +4408,13 @@ const CONTACTS = [
   { key: "adre", name: "Adre", phone: "+502 5634-1213", initials: "A13" },
   { key: "aracely", name: "Aracely", phone: "+502 6814-9122", initials: "A13" },
   { key: "lizzard", name: "Lizzard", phone: "+502 6812-9521", initials: "L21" },
+  /* Cinco más para que la lista tenga de dónde scrollear: la agenda de
+     verdad no cabe en pantalla y probarla con cuatro no enseña nada. */
+  { key: "marisol", name: "Marisol Xoy", phone: "+502 5521-3380", initials: "MX" },
+  { key: "byron", name: "Byron Chacón", phone: "+502 4419-7264", initials: "BC" },
+  { key: "gaby", name: "Gaby Ixchel", phone: "+502 3087-6155", initials: "GI" },
+  { key: "erick", name: "Erick Morataya", phone: "+502 5764-2093", initials: "EM" },
+  { key: "wendy", name: "Wendy Saquic", phone: "+502 4238-8617", initials: "WS" },
 ];
 
 /* Las tres pestañas de la agenda. Solo Contactos tiene lista; las otras
@@ -4493,7 +4499,10 @@ function screenContacts(state) {
       </div>
     </div>
 
-    <div class="oky-flow-cta-bar">
+    ${/* La agenda no lleva navbar, así que su barra se apoya en el
+         suelo del teléfono y no 56px más arriba, que es donde la deja
+         el hueco que las demás pantallas guardan para la navbar. */ ""}
+    <div class="oky-flow-cta-bar is-floor">
       <button class="btn btn-primary btn-large" data-action="confirm-contact" type="button">Siguiente</button>
     </div>
   `;
@@ -4805,7 +4814,7 @@ function screenDecision() {
 /* Hueco inferior por pantalla. La navbar (56px) ya está contada
    en .oky-flow-scroll, aquí solo se suma lo que va encima. */
 const SCROLL_CLASS = {
-  contacts: "has-cta",
+  contacts: "has-cta-floor",
   pdp: "has-dock",
   tigopdp: "has-tigo-dock",
   checkout: "has-bar",
