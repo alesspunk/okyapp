@@ -293,15 +293,19 @@ PRODUCTS.tigo = {
   key: "tigo",
   label: "Claro",
   cardTitle: "Recargas Tiempo Aire",
-  art: "claro.webp",
-  hero: "claro.webp",
+  art: "claro.png",
+  hero: "claro.png",
   min: 5,
   max: 100,
   rate: 0,
   /* Sin descuento: ni ribbon ni saving bar, y no suma OKY Cash. */
   noCashback: true,
   country: "gua",
-  /* El arte de Claro ya trae su fondo blanco, como el resto de vales. */
+  /* El arte de Claro ya trae su fondo blanco, como el resto de vales.
+     Es png y no webp porque el original traía pintada una rayita gris a
+     la izquierda del logo —resto de la maqueta de tarjeta— y se quitó
+     repintando esas dos columnas; en esta máquina no hay con qué volver
+     a escribir un webp. */
   bg: "#ffffff",
   legal: false,
   /* Comprado, se guarda con los vales y no con las gift cards. */
@@ -3408,7 +3412,7 @@ const CATEGORY_PAGES = {
     title: "Recargar el Móvil",
     section: "Operadores",
     brands: [
-      { key: "claro", label: "Claro", art: "claro.webp", action: "open-tigo" },
+      { key: "claro", label: "Claro", art: "claro.png", action: "open-tigo" },
       { key: "tigo", label: "Tigo", art: "tigo.webp", action: "open-guapdp", product: "gua-claro" },
     ],
   },
@@ -4378,7 +4382,7 @@ function screenTigoPdp(state) {
               <p class="brand-item-label token-product-text">Claro</p>
               <div class="brand-item-frame">
                 <div class="brand-item-base">
-                  <img src="claro.webp" alt="Claro" />
+                  <img src="claro.png" alt="Claro" />
                 </div>
               </div>
             </section>

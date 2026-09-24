@@ -27,7 +27,7 @@ export const HISTORY_CARD_VARIANTS = [
     amount: "$20.00",
     meta: {
       type: "brand",
-      logo: "claro.webp",
+      logo: "claro.png",
       logoAlt: "Claro",
       brand: "Claro Residencial",
       secondaryAmount: "Q144",
