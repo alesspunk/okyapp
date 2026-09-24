@@ -628,6 +628,9 @@ function createInitialState(userType) {
     /* Cuál de los dos avisos del header dio la última novedad. Solo
        late uno: dos puntos parpadeando a la vez no dicen a cuál mirar. */
     beacon: null,
+    /* Cuál de los vales de la orden enseña el acuse cuando todos son
+       de la misma marca. */
+    orderIndex: 0,
     /* A quién apunta el radio de la agenda mientras está abierta; al
        tocar "Siguiente" pasa a ser el destinatario de la orden. */
     contactPick: null,
@@ -2636,8 +2639,15 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
      abría lo único que había. Desde el vale se pasan las tres con el
      carrusel. */
   if (byBrand.length === 1) {
+    /* Cuál de los de la orden se está mirando lo lleva el estado y no
+       este render: la pantalla sigue siendo "Tus compras", así que los
+       params están vacíos y las flechas no tenían de dónde saber en
+       cuál están. Con un índice, el carrusel las recorre sin salirse
+       del acuse. */
+    const order = state.lastOrder;
+    const at = clamp(state.orderIndex || 0, 0, Math.max(order.length - 1, 0));
     return screenVoucher(
-      { ...state, params: { id: byBrand[0].id } },
+      { ...state, params: { id: (order[at] || byBrand[0]).id } },
       { asPurchase: true, celebrate, cashWin },
     );
   }
@@ -2829,7 +2839,16 @@ function walletGroupDeck(state, section, group, opts) {
          el punto habla de la card, y la card son todos. */
       if (v.isNew && group !== "archivados") {
         found.isNew = true;
-        if (found.openUnit == null) found.openUnit = v.unit;
+        /* La unidad no basta: en una pila de comida cada vale es un
+           producto distinto —tres de McDonald's son tres claves—, y
+           guardando solo el número se abría un par clave+unidad que no
+           existe. Sin ese par el carrusel no se reconocía dentro de su
+           propio mazo y la pantalla abría un vale suelto, sin flechas
+           para recorrer el resto. */
+        if (found.openUnit == null) {
+          found.openUnit = v.unit;
+          found.openKey = v.key;
+        }
       }
       return;
     }
@@ -2841,6 +2860,7 @@ function walletGroupDeck(state, section, group, opts) {
          el punto dice que ahí dentro hay algo nuevo, y llevarte a un
          vale ya visto dejaría el punto encendido sin explicación. */
       openUnit: v.isNew ? v.unit : null,
+      openKey: v.isNew ? v.key : null,
       count: 1,
       units: [v.unit],
       amounts: [v.amount],
@@ -2920,7 +2940,7 @@ function walletVoucherButton(v, deck, group = "activos") {
   return `
     <button class="oky-flow-voucher${group === "archivados" ? " is-archived" : ""}"
       style="background:${mark.bg};border-color:${mark.bg}"
-      data-action="open-voucher" data-key="${v.key}" data-unit="${v.openUnit ?? (v.units || [0])[0]}"
+      data-action="open-voucher" data-key="${v.openKey ?? v.key}" data-unit="${v.openUnit ?? (v.units || [0])[0]}"
       data-deck="${deck}" data-group="${group}"
       type="button" aria-label="${v.label}">
       <img src="${mark.art}" alt="${v.label}" />
@@ -6038,6 +6058,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        vacía aquí mismo, así que el latido se muda solo, pero queda
        dicho para cuando vuelva a entrar algo al carrito. */
     state.beacon = "wallet";
+    /* El acuse abre por el primero de la orden. */
+    state.orderIndex = 0;
     const total = cartTotal(state);
     const used = appliedOkyCash(state);
     /* Solo lo pagado con tarjeta genera cashback. */
@@ -7063,6 +7085,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "voucher-prev" || action === "voucher-next") {
       const step = action === "voucher-next" ? 1 : -1;
+      /* En el acuse la pantalla no cambia —se sigue en "Tus compras"—,
+         así que lo que se mueve es el índice de la orden. */
+      if (state.screen === "purchases") {
+        const order = state.lastOrder;
+        const at = clamp(state.orderIndex || 0, 0, Math.max(order.length - 1, 0));
+        state.orderIndex = wrap(at + step, order.length);
+        return render({ keepScroll: true });
+      }
       /* Mismo mazo que pinta la pantalla: la orden si se entró por id,
          el wallet entero si se entró por marca. */
       if (state.params.id) {
