@@ -18597,12 +18597,14 @@ function navbar(active, state = {}) {
    filas están ahí para reconocer el sitio, no para entrar: solo la X
    cierra. */
 const MENU_ITEMS = [
+  /* Las dos que llevan a algún sitio van arriba: el wallet es a donde
+     se viene a ver lo comprado, y los métodos de pago son pantalla
+     propia desde que se pueden mirar sin estar pagando. */
+  { label: "Mi Wallet", icon: "wallet", action: "menu:wallet" },
+  { label: "Métodos de Pago", icon: "credit-card", action: "menu:methods" },
   { label: "Notificaciones", icon: "bell" },
   { label: "Historial", icon: "clock-rotate-left" },
-  { label: "Puntos de Venta", icon: "money-bill-1" },
-  { label: "Métodos de Pago", icon: "credit-card" },
   { label: "Contactos", icon: "address-book" },
-  { label: "Promociones", icon: "tag" },
   { label: "Perfil", icon: "user" },
   { label: "Ayuda", icon: "circle-question" },
   { label: "Términos y Condiciones", icon: "file-lines" },
@@ -23261,6 +23263,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.screen = screen;
     state.params = params;
     state.cartOpen = false;
+    state.menuOpen = false;
     state.headerCollapsed = false;
     render();
   }
@@ -23278,6 +23281,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.screen = prev.screen;
     state.params = prev.params;
     state.cartOpen = false;
+    state.menuOpen = false;
     state.headerCollapsed = false;
     render();
   }
@@ -23601,6 +23605,22 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "open-menu") {
       state.menuOpen = true;
       return render({ keepScroll: true });
+    }
+
+    if (action === "menu:wallet") {
+      /* Manda lo que esté sin abrir: gift cards primero, después vales
+         y servicios. Sin novedades abre en gift cards, que es lo que
+         más se guarda. A diferencia del icono del header, aquí no
+         decide el país: el menú no es de ninguna tienda. */
+      state.walletFilter = "";
+      state.openBeforeFilter = null;
+      state.walletTab = walletEntryTab(state);
+      state.openGroups = walletOpenGroups(state);
+      return leavePurchase("wallet");
+    }
+
+    if (action === "menu:methods") {
+      return go("methods");
     }
 
     if (action === "close-menu") {
