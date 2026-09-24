@@ -2140,14 +2140,7 @@ function screenCheckout(state) {
   /* En Guatemala el destinatario lo pone la orden y no se toca. En USA
      sale de la agenda, y el número es el del contacto elegido: lo que
      se lee aquí y lo que se lee en la agenda no pueden discrepar. */
-  const recipient =
-    contactByName(state.recipient) ||
-    (orderCountry(state) === "gua"
-      ? GUA_RECIPIENT
-      : {
-          name: state.recipient || USA_RECIPIENT.name,
-          phone: state.recipientPhone || USA_RECIPIENT.phone,
-        });
+  const recipient = recipientOf(state);
   /* Cada vale lleva su propio porcentaje en el wrap ribbon, igual que
      en el PDP: con el reloj en pausa aquí dentro, el 20% de Nike no se
      convierte en 5% mientras se ajusta el pago. */
@@ -4434,16 +4427,38 @@ const CONTACT_TABS = [
    ofrece, que es la misma regla por la que allá no se pregunta— y en
    USA sí se puede elegir uno mismo. */
 function contactsOf(state) {
-  return orderCountry(state) === "gua" ? CONTACTS.filter((c) => !c.self) : CONTACTS;
+  const gua = orderCountry(state) === "gua";
+  /* Por orden alfabético, que es como se busca a alguien en una agenda.
+     "Para mí" no entra en el orden: es la vCard de uno y va arriba del
+     todo, separada del resto. */
+  const rest = CONTACTS.filter((c) => !c.self).sort((a, b) => a.name.localeCompare(b.name, "es"));
+  return gua ? rest : [CONTACTS.find((c) => c.self), ...rest];
 }
 
 function contactByName(name) {
   return CONTACTS.find((c) => c.name === name);
 }
 
+/* Quién recibe cuando no se ha elegido —o cuando lo elegido no vale
+   aquí—. En Guatemala la compra va siempre a alguien: si el estado
+   traía "Para mí" de una compra de USA, en el pago de Guatemala se
+   ignora y manda Daniel Paz, que es el destinatario de salida. */
+function recipientOf(state) {
+  const picked = contactByName(state.recipient);
+  if (orderCountry(state) === "gua") return picked && !picked.self ? picked : GUA_RECIPIENT;
+  return (
+    picked || {
+      name: state.recipient || USA_RECIPIENT.name,
+      phone: state.recipientPhone || USA_RECIPIENT.phone,
+    }
+  );
+}
+
 function screenContacts(state) {
   const list = contactsOf(state);
-  const chosen = state.contactPick || (contactByName(state.recipient) || list[0]).key;
+  const chosen = list.some((c) => c.key === state.contactPick)
+    ? state.contactPick
+    : (list.find((c) => c.name === recipientOf(state).name) || list[0]).key;
 
   const row = (c) => `
     <div class="oky-flow-contact${c.self ? " is-self" : ""}${c.key === chosen ? " is-picked" : ""}"
@@ -6331,7 +6346,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* La agenda abre con el radio puesto en quien ya es destinatario,
          para que se vea de dónde se parte. */
       state.sheet = null;
-      state.contactPick = (contactByName(state.recipient) || contactsOf(state)[0]).key;
+      const lista = contactsOf(state);
+      state.contactPick = (lista.find((c) => c.name === recipientOf(state).name) || lista[0]).key;
       return go("contacts");
     }
 

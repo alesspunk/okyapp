@@ -13382,11 +13382,14 @@ button.tactic-offer {
 }
 
 /* El rótulo de cada pestaña, al tamaño del frame y no al del átomo:
-   a 8px se leían como una sola mancha gris. */
+   a 8px se leían como una sola mancha gris. Y en caja de frase, que es
+   como los escribe el diseño: en versales gritaban más que el nombre de
+   la pantalla. */
 .oky-flow-agenda-nav .plateu-chip,
 .oky-flow-agenda-nav .plateu-label {
   font-size: 10px;
   letter-spacing: 0.5px;
+  text-transform: none;
 }
 
 .oky-flow-agenda-nav .plateu-icon-wrap {
