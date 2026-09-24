@@ -609,6 +609,8 @@ function createInitialState(userType) {
     ],
     /* El folder del Discovery Header se colapsa al scrollear el home. */
     headerCollapsed: false,
+    /* El menú de la hamburguesa, que tapa la pantalla mientras está. */
+    menuOpen: false,
     /* Pestaña abierta del wallet y secciones de estado desplegadas
        dentro de ella. Las dos las decide la entrada al wallet; esto es
        solo el arranque para quien lo abra sin pasar por su botón. */
@@ -1058,9 +1060,56 @@ function navbar(active, state = {}) {
         ${item("notif", "Notificaciones", "bell", null)}
         ${item("okycash", "OKY Cash", null, "nav:okycash")}
         ${item("ayuda", "Ayuda", "messages", null)}
-        ${item("menu", "Menú", "bars", null)}
+        ${item("menu", "Menú", "bars", "open-menu")}
       </div>
     </nav>
+  `;
+}
+
+/* ── Menú (la hamburguesa de la navbar) ──────────────────
+   El mismo menú de la app: morado a pantalla casi completa, la X y la
+   campana con su contador arriba, y debajo la lista con icono, nombre
+   y chevron. Los destinos no existen en el prototipo, así que las
+   filas están ahí para reconocer el sitio, no para entrar: solo la X
+   cierra. */
+const MENU_ITEMS = [
+  { label: "Notificaciones", icon: "bell" },
+  { label: "Historial", icon: "clock-rotate-left" },
+  { label: "Puntos de Venta", icon: "money-bill-1" },
+  { label: "Métodos de Pago", icon: "credit-card" },
+  { label: "Contactos", icon: "address-book" },
+  { label: "Promociones", icon: "tag" },
+  { label: "Perfil", icon: "user" },
+  { label: "Ayuda", icon: "circle-question" },
+  { label: "Términos y Condiciones", icon: "file-lines" },
+  { label: "Salir", icon: "right-from-bracket" },
+];
+
+function menuSheet() {
+  const row = (it) => `
+    <div class="oky-flow-menu-row${it.action ? " is-live" : ""}"
+      ${it.action ? `data-action="${it.action}" role="button" tabindex="0"` : ""}>
+      <i class="fa-regular fa-${it.icon} oky-flow-menu-icon" aria-hidden="true"></i>
+      <span class="oky-flow-menu-label">${it.label}</span>
+      <i class="fa-solid fa-chevron-right oky-flow-menu-go" aria-hidden="true"></i>
+    </div>
+  `;
+
+  return `
+    <div class="oky-flow-menu" role="dialog" aria-modal="true" aria-label="Menú">
+      <header class="oky-flow-menu-head">
+        <button class="oky-flow-menu-close" data-action="close-menu" type="button" aria-label="Cerrar el menú">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <span class="oky-flow-menu-bell" aria-hidden="true">
+          <i class="fa-regular fa-bell"></i>
+          <span class="oky-flow-menu-badge">2</span>
+        </span>
+      </header>
+      <div class="oky-flow-menu-list">
+        ${MENU_ITEMS.map(row).join("")}
+      </div>
+    </div>
   `;
 }
 
@@ -4746,6 +4795,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.tourCount ? tourCountdown() : ""}
         ${state.tourFlag ? tourFlag() : ""}
         ${state.tourConfetti ? `<div class="oky-flow-burst" data-role="tour-confetti"></div>` : ""}
+        ${state.menuOpen ? menuSheet() : ""}
       </div>
     `;
 
@@ -6022,6 +6072,16 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "open-market") {
       state.marketSheet = el.dataset.side === "left" ? "left" : "right";
       return render();
+    }
+
+    if (action === "open-menu") {
+      state.menuOpen = true;
+      return render({ keepScroll: true });
+    }
+
+    if (action === "close-menu") {
+      state.menuOpen = false;
+      return render({ keepScroll: true });
     }
 
     if (action === "close-market") {

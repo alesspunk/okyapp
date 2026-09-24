@@ -13097,6 +13097,146 @@ button.tactic-offer {
   }
 }
 
+/* ── Menú de la hamburguesa ──────────────────────────────
+   Morado a pantalla casi completa, con el arranque de la app asomando
+   arriba para que se lea como una hoja y no como otra pantalla. Va por
+   encima de todo, navbar incluida: mientras está no hay nada más que
+   tocar. */
+.oky-flow-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 96px;
+  bottom: 0;
+  z-index: 150;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 20px 24px;
+  border-radius: 28px 28px 0 0;
+  background: var(--primary-base);
+  animation: oky-flow-sheet-up 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.oky-flow-menu-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 4px 18px;
+}
+
+.oky-flow-menu-close {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--white);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* El mismo destino táctil de 45px que el resto de los iconos. */
+.oky-flow-menu-close::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 45px;
+  height: 45px;
+  transform: translate(-50%, -50%);
+}
+
+.oky-flow-menu-bell {
+  position: relative;
+  color: var(--white);
+  font-size: 24px;
+}
+
+/* El contador de la campana: rojo, encima y fuera de la esquina, como
+   el punto del carrito pero con número. */
+.oky-flow-menu-badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  min-width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--error-main);
+  color: var(--white);
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.oky-flow-menu-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.oky-flow-menu-list::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
+/* Cada fila: el icono manda a la izquierda, el nombre al lado y el
+   chevron pegado al borde. Se separan con una línea tenue, que es lo
+   que las lee como lista y no como bloque. */
+.oky-flow-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--white);
+}
+
+.oky-flow-menu-row:last-child {
+  border-bottom: 0;
+}
+
+.oky-flow-menu-row.is-live {
+  cursor: pointer;
+}
+
+.oky-flow-menu-row.is-live:active {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+}
+
+.oky-flow-menu-icon {
+  flex: 0 0 26px;
+  font-size: 22px;
+  text-align: center;
+}
+
+.oky-flow-menu-label {
+  flex: 1 1 auto;
+  font-family: "Lato", sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.oky-flow-menu-go {
+  flex: 0 0 auto;
+  font-size: 18px;
+  opacity: 0.9;
+}
+
 /* ── Archivados ─────────────────────────────────────────── */
 .oky-flow-voucher-archived {
   position: relative;
@@ -18002,6 +18142,8 @@ function createInitialState(userType) {
     ],
     /* El folder del Discovery Header se colapsa al scrollear el home. */
     headerCollapsed: false,
+    /* El menú de la hamburguesa, que tapa la pantalla mientras está. */
+    menuOpen: false,
     /* Pestaña abierta del wallet y secciones de estado desplegadas
        dentro de ella. Las dos las decide la entrada al wallet; esto es
        solo el arranque para quien lo abra sin pasar por su botón. */
@@ -18451,9 +18593,56 @@ function navbar(active, state = {}) {
         ${item("notif", "Notificaciones", "bell", null)}
         ${item("okycash", "OKY Cash", null, "nav:okycash")}
         ${item("ayuda", "Ayuda", "messages", null)}
-        ${item("menu", "Menú", "bars", null)}
+        ${item("menu", "Menú", "bars", "open-menu")}
       </div>
     </nav>
+  `;
+}
+
+/* ── Menú (la hamburguesa de la navbar) ──────────────────
+   El mismo menú de la app: morado a pantalla casi completa, la X y la
+   campana con su contador arriba, y debajo la lista con icono, nombre
+   y chevron. Los destinos no existen en el prototipo, así que las
+   filas están ahí para reconocer el sitio, no para entrar: solo la X
+   cierra. */
+const MENU_ITEMS = [
+  { label: "Notificaciones", icon: "bell" },
+  { label: "Historial", icon: "clock-rotate-left" },
+  { label: "Puntos de Venta", icon: "money-bill-1" },
+  { label: "Métodos de Pago", icon: "credit-card" },
+  { label: "Contactos", icon: "address-book" },
+  { label: "Promociones", icon: "tag" },
+  { label: "Perfil", icon: "user" },
+  { label: "Ayuda", icon: "circle-question" },
+  { label: "Términos y Condiciones", icon: "file-lines" },
+  { label: "Salir", icon: "right-from-bracket" },
+];
+
+function menuSheet() {
+  const row = (it) => `
+    <div class="oky-flow-menu-row${it.action ? " is-live" : ""}"
+      ${it.action ? `data-action="${it.action}" role="button" tabindex="0"` : ""}>
+      <i class="fa-regular fa-${it.icon} oky-flow-menu-icon" aria-hidden="true"></i>
+      <span class="oky-flow-menu-label">${it.label}</span>
+      <i class="fa-solid fa-chevron-right oky-flow-menu-go" aria-hidden="true"></i>
+    </div>
+  `;
+
+  return `
+    <div class="oky-flow-menu" role="dialog" aria-modal="true" aria-label="Menú">
+      <header class="oky-flow-menu-head">
+        <button class="oky-flow-menu-close" data-action="close-menu" type="button" aria-label="Cerrar el menú">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <span class="oky-flow-menu-bell" aria-hidden="true">
+          <i class="fa-regular fa-bell"></i>
+          <span class="oky-flow-menu-badge">2</span>
+        </span>
+      </header>
+      <div class="oky-flow-menu-list">
+        ${MENU_ITEMS.map(row).join("")}
+      </div>
+    </div>
   `;
 }
 
@@ -22139,6 +22328,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.tourCount ? tourCountdown() : ""}
         ${state.tourFlag ? tourFlag() : ""}
         ${state.tourConfetti ? `<div class="oky-flow-burst" data-role="tour-confetti"></div>` : ""}
+        ${state.menuOpen ? menuSheet() : ""}
       </div>
     `;
 
@@ -23415,6 +23605,16 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "open-market") {
       state.marketSheet = el.dataset.side === "left" ? "left" : "right";
       return render();
+    }
+
+    if (action === "open-menu") {
+      state.menuOpen = true;
+      return render({ keepScroll: true });
+    }
+
+    if (action === "close-menu") {
+      state.menuOpen = false;
+      return render({ keepScroll: true });
     }
 
     if (action === "close-market") {

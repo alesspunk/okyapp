@@ -13075,6 +13075,146 @@ button.tactic-offer {
   }
 }
 
+/* ── Menú de la hamburguesa ──────────────────────────────
+   Morado a pantalla casi completa, con el arranque de la app asomando
+   arriba para que se lea como una hoja y no como otra pantalla. Va por
+   encima de todo, navbar incluida: mientras está no hay nada más que
+   tocar. */
+.oky-flow-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 96px;
+  bottom: 0;
+  z-index: 150;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 20px 24px;
+  border-radius: 28px 28px 0 0;
+  background: var(--primary-base);
+  animation: oky-flow-sheet-up 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.oky-flow-menu-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 4px 18px;
+}
+
+.oky-flow-menu-close {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--white);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* El mismo destino táctil de 45px que el resto de los iconos. */
+.oky-flow-menu-close::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 45px;
+  height: 45px;
+  transform: translate(-50%, -50%);
+}
+
+.oky-flow-menu-bell {
+  position: relative;
+  color: var(--white);
+  font-size: 24px;
+}
+
+/* El contador de la campana: rojo, encima y fuera de la esquina, como
+   el punto del carrito pero con número. */
+.oky-flow-menu-badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  min-width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--error-main);
+  color: var(--white);
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.oky-flow-menu-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.oky-flow-menu-list::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
+/* Cada fila: el icono manda a la izquierda, el nombre al lado y el
+   chevron pegado al borde. Se separan con una línea tenue, que es lo
+   que las lee como lista y no como bloque. */
+.oky-flow-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--white);
+}
+
+.oky-flow-menu-row:last-child {
+  border-bottom: 0;
+}
+
+.oky-flow-menu-row.is-live {
+  cursor: pointer;
+}
+
+.oky-flow-menu-row.is-live:active {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+}
+
+.oky-flow-menu-icon {
+  flex: 0 0 26px;
+  font-size: 22px;
+  text-align: center;
+}
+
+.oky-flow-menu-label {
+  flex: 1 1 auto;
+  font-family: "Lato", sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.oky-flow-menu-go {
+  flex: 0 0 auto;
+  font-size: 18px;
+  opacity: 0.9;
+}
+
 /* ── Archivados ─────────────────────────────────────────── */
 .oky-flow-voucher-archived {
   position: relative;
