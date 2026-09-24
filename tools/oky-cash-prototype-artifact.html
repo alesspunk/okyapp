@@ -18050,7 +18050,10 @@ const TIGO_DEFAULT_AMOUNT = 50;
 
 /* En el flujo de Guatemala la compra va a un contacto ya conocido, así
    que el checkout no pregunta para quién es: lo dice. */
-const GUA_RECIPIENT = { name: "Daniel Paz", phone: "+502 6578-8744" };
+/* Daniel Paz lleva sus iniciales aquí y no solo en la agenda: en
+   Guatemala es el destinatario de salida, y sin ellas el pago abría con
+   el muñeco genérico hasta que se pasara por la agenda. */
+const GUA_RECIPIENT = { name: "Daniel Paz", phone: "+502 6578-8744", initials: "DP" };
 const USA_RECIPIENT = { name: "Para mí", phone: "+1 407 287-8787" };
 
 /* Quién recibe lo sale del carrito, no del país en el que se esté: una
@@ -22245,7 +22248,7 @@ function confirmSheet(state) {
    pueden discrepar. */
 const CONTACTS = [
   { key: "self", name: USA_RECIPIENT.name, phone: USA_RECIPIENT.phone, self: true },
-  { key: "danielpaz", name: GUA_RECIPIENT.name, phone: GUA_RECIPIENT.phone, initials: "DP" },
+  { key: "danielpaz", ...GUA_RECIPIENT },
   { key: "adre", name: "Adre", phone: "+502 5634-1213", initials: "A13" },
   { key: "aracely", name: "Aracely", phone: "+502 6814-9122", initials: "A13" },
   { key: "lizzard", name: "Lizzard", phone: "+502 6812-9521", initials: "L21" },
