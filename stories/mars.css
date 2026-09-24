@@ -13355,29 +13355,51 @@ button.tactic-offer {
   align-items: center;
 }
 
-/* El plateu de la agenda es el mismo del wallet: solo cambia que
-   ninguna de las tres pestañas se puede tocar todavía. */
-.oky-flow-agenda-nav {
-  margin: 8px 0 0;
+/* El plateu de la agenda sí es una tarjeta: 340px, blanca y con su
+   sombra. Dentro de un frame blanco, sin sombra y encogida a lo que
+   ocupaban los iconos, no se leía como panel y las tres pestañas se
+   apiñaban en el centro. */
+/* Con el frame delante: la regla que deja sin sombra los plateus del
+   wallet y de la PLP lleva ese prefijo y, con una clase más, ganaba. */
+.oky-flow-frame .oky-flow-agenda-nav {
+  width: 340px;
+  max-width: calc(100% - 20px);
+  margin: 16px 0 0;
+  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.17);
 }
 
-/* Las tres se reparten el ancho de la tarjeta en vez de apiñarse en el
-   centro: cada una toma su tercio y se centra dentro. */
+/* Y cada pestaña toma su tercio de la tarjeta y se centra dentro. */
 .oky-flow-agenda-nav .plateu-track.is-static {
   gap: 0;
-  padding: 8px 12px 16px;
+  padding: 12px 8px 14px;
   justify-content: space-between;
 }
 
 .oky-flow-agenda-nav .plateu-item {
   flex: 1 1 0;
   min-width: 0;
+  gap: 8px;
 }
 
+/* El rótulo de cada pestaña, al tamaño del frame y no al del átomo:
+   a 8px se leían como una sola mancha gris. */
+.oky-flow-agenda-nav .plateu-chip,
+.oky-flow-agenda-nav .plateu-label {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+
+.oky-flow-agenda-nav .plateu-icon-wrap {
+  width: 48px;
+  height: 48px;
+}
+
+/* El buscador respira lo mismo por arriba que por abajo: entre la
+   tarjeta y él, y entre él y la primera fila, el mismo aire. */
 .oky-flow-agenda-search {
   box-sizing: border-box;
   width: 100%;
-  padding: 16px 12px;
+  padding: 24px 12px;
 }
 
 .oky-flow-contact-list {
@@ -13457,6 +13479,15 @@ button.tactic-offer {
   display: flex;
   flex-direction: column;
   margin-left: 8px;
+}
+
+/* Nombre y teléfono en una línea cada uno: partidos en dos, la fila
+   crece de alto y la lista pierde su ritmo. */
+.oky-flow-contact-name,
+.oky-flow-contact-phone {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .oky-flow-contact-name {

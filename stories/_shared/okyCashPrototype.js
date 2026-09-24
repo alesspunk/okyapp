@@ -4413,11 +4413,13 @@ const CONTACTS = [
   { key: "lizzard", name: "Lizzard", phone: "+502 6812-9521", initials: "L21" },
   /* Cinco más para que la lista tenga de dónde scrollear: la agenda de
      verdad no cabe en pantalla y probarla con cuatro no enseña nada. */
-  { key: "marisol", name: "Marisol Xoy", phone: "+502 5521-3380", initials: "MX" },
-  { key: "byron", name: "Byron Chacón", phone: "+502 4419-7264", initials: "BC" },
-  { key: "gaby", name: "Gaby Ixchel", phone: "+502 3087-6155", initials: "GI" },
-  { key: "erick", name: "Erick Morataya", phone: "+502 5764-2093", initials: "EM" },
-  { key: "wendy", name: "Wendy Saquic", phone: "+502 4238-8617", initials: "WS" },
+  /* Solo el nombre: con apellido el renglón saltaba a dos líneas y la
+     fila crecía de alto. */
+  { key: "marisol", name: "Marisol", phone: "+502 5521-3380", initials: "MA" },
+  { key: "byron", name: "Byron", phone: "+502 4419-7264", initials: "BY" },
+  { key: "gaby", name: "Gaby", phone: "+502 3087-6155", initials: "GA" },
+  { key: "erick", name: "Erick", phone: "+502 5764-2093", initials: "ER" },
+  { key: "wendy", name: "Wendy", phone: "+502 4238-8617", initials: "WE" },
 ];
 
 /* Las tres pestañas de la agenda. Solo Contactos tiene lista; las otras
