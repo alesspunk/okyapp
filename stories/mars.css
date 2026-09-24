@@ -9738,10 +9738,24 @@ button.header-icon {
   gap: 10px;
 }
 
-.oky-flow-wallet-btn img {
+.oky-flow-wallet-btn .oky-flow-wallet-ping img {
   width: 28px;
   height: 28px;
   object-fit: contain;
+}
+
+/* El icono del wallet del acuse lleva su propio punto, como el del
+   header: lo recién comprado está sin abrir y desde aquí se va a
+   verlo. El envoltorio solo existe para colgarlo de la esquina. */
+.oky-flow-wallet-ping {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.oky-flow-wallet-ping .header-icon-indicator-dot {
+  top: -2px;
+  right: -4px;
 }
 
 /* Confeti real de la compra exitosa. */
@@ -10240,7 +10254,7 @@ button.header-icon {
   cursor: pointer;
 }
 
-.oky-flow-wallet-mini img {
+.oky-flow-wallet-mini .oky-flow-wallet-ping img {
   width: 26px;
   height: 26px;
   object-fit: contain;

@@ -2514,11 +2514,26 @@ function purchaseFoot(state) {
 
      Sin OKY Cash que celebrar no hay competencia por el alto, así que
      el botón se queda entero y solo sobre la navbar. */
+  /* El mismo aviso que lleva el icono del header: lo recién comprado
+     está sin abrir y el punto lo dice también aquí, que es donde se
+     está mirando. Late por lo mismo que allá —recién pagado el carrito
+     va vacío, así que el latido es suyo—. */
+  const ping = `
+    <span class="oky-flow-wallet-ping">
+      <img src="Wallet-icon.png" alt="" />
+      ${
+        hasNewVouchers(state)
+          ? `<span class="header-icon-indicator-dot${beaconOf(state) === "wallet" ? " is-pulsing" : ""}"></span>`
+          : ""
+      }
+    </span>
+  `;
+
   if (!earnedHere) {
     return `
       <div class="oky-flow-cta-bar">
         <button class="btn btn-outlined btn-large oky-flow-wallet-btn" data-action="nav:wallet" type="button">
-          <img src="Wallet-icon.png" alt="" />Ver mi Wallet
+          ${ping}Ver mi Wallet
         </button>
       </div>
     `;
@@ -2527,7 +2542,7 @@ function purchaseFoot(state) {
   return `
     <div class="oky-flow-cta-bar has-cash-strip">
       <button class="oky-flow-wallet-mini" data-action="nav:wallet" type="button">
-        <img src="Wallet-icon.png" alt="" />
+        ${ping}
         <span>Mi Wallet</span>
       </button>
       ${cashStrip(state)}
