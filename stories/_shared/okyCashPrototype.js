@@ -4266,7 +4266,7 @@ const CONFIRM_SHEETS = {
   decision: {
     art: "oky-returning-illustration.png",
     title: "¿Es para ti o para alguien más?",
-    note: "",
+    note: "Si es para ti, lo guardamos en tu wallet apenas termines de pagar.",
     confirm: "Para mí",
     dismiss: "Para alguien más",
     dismissOff: true,
