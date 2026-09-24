@@ -8901,10 +8901,13 @@ body {
 }
 
 /* ── Onboarding Contactos: pantalla morada completa ─────── */
+/* Cubre el teléfono entero y va por encima de todo: es una pregunta que
+   hay que contestar antes de seguir, y en el móvil el toque en "Para
+   mí" no llegaba porque algo se le ponía delante. */
 .oky-flow-decision {
   position: absolute;
   inset: 0;
-  z-index: 30;
+  z-index: 200;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -8962,9 +8965,11 @@ body {
 }
 
 /* botones invertidos sobre morado (no existen en el sistema) */
+/* 48px de alto: son los dos únicos controles de la pantalla y se tocan
+   con el dedo, no con el ratón. */
 .oky-flow-btn-inverted {
   width: 100%;
-  height: 40px;
+  height: 48px;
   border: 0;
   border-radius: 44px;
   background: var(--white);
@@ -8981,7 +8986,7 @@ body {
 
 .oky-flow-btn-ghost {
   width: 100%;
-  height: 36px;
+  height: 48px;
   border: 1px solid var(--white);
   border-radius: 32px;
   background: transparent;
@@ -17986,7 +17991,6 @@ function createInitialState(userType) {
       { date: stamp(60), group: monthGroup(60), amount: "- $12.00", order: "Orden #01112427", kind: "debit", label: "Pagado con OKY Cash", value: -12,
         detail: [{ label: "eBay", amount: "- $12.00" }] },
     ],
-    decisionSeen: false,
     /* El folder del Discovery Header se colapsa al scrollear el home. */
     headerCollapsed: false,
     /* Pestaña abierta del wallet y secciones de estado desplegadas
@@ -23513,27 +23517,19 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return go("checkout");
     }
     if (action === "go:decision") {
-      /* Solo se pregunta la primera vez: una vez elegido, "Ir a pagar"
-         va derecho al checkout.
-
-         En móvil no se pregunta nunca: el modal se quedaba trabado en
-         el teléfono —el toque en "Para mi" no llegaba— y dejaba la
-         prueba sin manera de llegar al pago. Se asume "Para mí", que es
-         lo que la pantalla proponía por defecto. En escritorio sigue
-         igual. */
-      /* En Guatemala el destinatario ya viene puesto, así que no hay
-         nada que preguntar. En USA sigue igual que siempre. */
-      if (state.decisionSeen || phone.matches || orderCountry(state) === "gua") {
-        /* Lo de Guatemala no pregunta ni deja rastro: el destinatario lo
-           pone la propia orden, así que state.recipient sigue siendo lo
-           que la persona eligió para sus compras de USA. */
-        if (orderCountry(state) !== "gua") {
-          state.decisionSeen = true;
-          state.recipient = USA_RECIPIENT.name;
-        }
+      /* En Guatemala el destinatario lo pone la propia orden, así que
+         no hay nada que preguntar: se va derecho al pago y state.recipient
+         sigue siendo lo que la persona eligió para sus compras de USA. */
+      if (orderCountry(state) === "gua") {
         state.checkoutIndex = 0;
         return go("checkout");
       }
+      /* En USA se pregunta siempre y en cualquier pantalla. Del teléfono
+         se había quitado porque el toque en "Para mí" no llegaba y
+         dejaba la prueba sin manera de llegar al pago; el problema era
+         que la pantalla quedaba por debajo de las barras, no la
+         pregunta. Y se pregunta cada vez: a quién se le regala es
+         decisión de esta compra, no de la primera que se hizo. */
       return go("decision");
     }
 
@@ -24169,7 +24165,6 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "decision-self") {
-      state.decisionSeen = true;
       state.recipient = "Para mí";
       /* push:false deja el modal fuera del historial: "atrás" desde el
          checkout vuelve al PDP, no al modal. */

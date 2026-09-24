@@ -8886,10 +8886,13 @@ body {
 }
 
 /* ── Onboarding Contactos: pantalla morada completa ─────── */
+/* Cubre el teléfono entero y va por encima de todo: es una pregunta que
+   hay que contestar antes de seguir, y en el móvil el toque en "Para
+   mí" no llegaba porque algo se le ponía delante. */
 .oky-flow-decision {
   position: absolute;
   inset: 0;
-  z-index: 30;
+  z-index: 200;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -8947,9 +8950,11 @@ body {
 }
 
 /* botones invertidos sobre morado (no existen en el sistema) */
+/* 48px de alto: son los dos únicos controles de la pantalla y se tocan
+   con el dedo, no con el ratón. */
 .oky-flow-btn-inverted {
   width: 100%;
-  height: 40px;
+  height: 48px;
   border: 0;
   border-radius: 44px;
   background: var(--white);
@@ -8966,7 +8971,7 @@ body {
 
 .oky-flow-btn-ghost {
   width: 100%;
-  height: 36px;
+  height: 48px;
   border: 1px solid var(--white);
   border-radius: 32px;
   background: transparent;
