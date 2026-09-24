@@ -13084,13 +13084,17 @@ button.tactic-offer {
   position: absolute;
   left: 0;
   right: 0;
-  top: 96px;
   bottom: 0;
+  /* Mide lo que mide su lista y se pega al borde de abajo. Estirada
+     hasta arriba dejaba un palmo de morado vacío bajo "Salir" que no
+     decía nada; el tope es solo para que nunca tape el arranque de la
+     app, y si algún día no cupiera, la lista scrollea. */
+  max-height: calc(100% - 96px);
   z-index: 150;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  padding: 20px 20px 24px;
+  padding: 20px 20px 12px;
   border-radius: 28px 28px 0 0;
   background: var(--primary-base);
   animation: oky-flow-sheet-up 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
@@ -13159,7 +13163,7 @@ button.tactic-offer {
 }
 
 .oky-flow-menu-list {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: none;

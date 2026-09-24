@@ -279,23 +279,30 @@ Object.entries(BRANDS).forEach(([key, brand]) => {
   PRODUCTS[key].min = 10;
 });
 
-/* Tigo, la marca de la home de Guatemala. No da cashback —no lleva
-   ribbon ni saving bar en ningún paso—, pero sí se puede pagar con el
-   OKY Cash acumulado. Su PDP es la página propia, con slider y costo
-   por servicio. */
+/* Claro, la marca de recargas de la home de Guatemala. No da cashback
+   —no lleva ribbon ni saving bar en ningún paso—, pero sí se puede
+   pagar con el OKY Cash acumulado. Su PDP es la página propia, con
+   slider y costo por servicio.
+
+   La clave sigue diciendo "tigo" de cuando esta página era la de Tigo:
+   las dos marcas se cambiaron de sitio porque las denominaciones de
+   tiempo aire son las que vende Tigo, y esas viven en el PDP de monto.
+   Renombrar la clave tocaba media docena de sitios sin que se viera
+   nada distinto en pantalla. */
 PRODUCTS.tigo = {
   key: "tigo",
-  label: "Tigo",
+  label: "Claro",
   cardTitle: "Recargas Tiempo Aire",
-  art: "tigo.webp",
-  hero: "tigo.webp",
+  art: "claro.webp",
+  hero: "claro.webp",
   min: 5,
   max: 100,
   rate: 0,
   /* Sin descuento: ni ribbon ni saving bar, y no suma OKY Cash. */
   noCashback: true,
   country: "gua",
-  bg: "#00377b",
+  /* El arte de Claro ya trae su fondo blanco, como el resto de vales. */
+  bg: "#ffffff",
   legal: false,
   /* Comprado, se guarda con los vales y no con las gift cards. */
   wallet: "vales",
@@ -827,7 +834,9 @@ const GUA_BRANDS = [
   { key: "gua-pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp" },
   { key: "gua-ihop", label: "IHOP", art: "ihop.webp" },
   { key: "gua-dominos", label: "Domino's", art: "dominos.png" },
-  { key: "gua-claro", label: "Claro", art: "claro.webp" },
+  /* La clave sigue diciendo "claro" de cuando este vale era de Claro;
+     se cambiaron de sitio las dos marcas. */
+  { key: "gua-claro", label: "Tigo", art: "tigo.webp", bg: "#00377b" },
 ];
 
 GUA_BRANDS.forEach((brand) => {
@@ -837,7 +846,9 @@ GUA_BRANDS.forEach((brand) => {
     cardTitle: "OKYVale",
     cartTitle: `OKYVale ${brand.label}`,
     hero: brand.art,
-    bg: "#ffffff",
+    /* Blanco salvo que la marca traiga el suyo: el arte de Tigo es su
+       logo en blanco sobre azul y encima de blanco se perdía el canto. */
+    bg: brand.bg || "#ffffff",
     min: GUA_VALE_MIN,
     max: GUA_VALE_MAX,
     rate: 0,
@@ -1077,6 +1088,9 @@ const MENU_ITEMS = [
      se viene a ver lo comprado, y los métodos de pago son pantalla
      propia desde que se pueden mirar sin estar pagando. */
   { label: "Mi Wallet", icon: "wallet", action: "menu:wallet" },
+  /* La moneda va en sólido: Font Awesome Free no la trae en contorno y
+     en Light caía a otro glifo. */
+  { label: "OKY Cash", icon: "coins", style: "solid", action: "nav:okycash" },
   { label: "Métodos de Pago", icon: "credit-card", action: "menu:methods" },
   { label: "Notificaciones", icon: "bell" },
   { label: "Historial", icon: "clock-rotate-left" },
@@ -1091,7 +1105,7 @@ function menuSheet() {
   const row = (it) => `
     <div class="oky-flow-menu-row${it.action ? " is-live" : ""}"
       ${it.action ? `data-action="${it.action}" role="button" tabindex="0"` : ""}>
-      <i class="fa-regular fa-${it.icon} oky-flow-menu-icon" aria-hidden="true"></i>
+      <i class="fa-${it.style || "regular"} fa-${it.icon} oky-flow-menu-icon" aria-hidden="true"></i>
       <span class="oky-flow-menu-label">${it.label}</span>
       <i class="fa-solid fa-chevron-right oky-flow-menu-go" aria-hidden="true"></i>
     </div>
@@ -1105,7 +1119,6 @@ function menuSheet() {
         </button>
         <span class="oky-flow-menu-bell" aria-hidden="true">
           <i class="fa-regular fa-bell"></i>
-          <span class="oky-flow-menu-badge">2</span>
         </span>
       </header>
       <div class="oky-flow-menu-list">
@@ -3337,7 +3350,7 @@ function okyCashActivity(state) {
 }
 
 /* ── Category Page (Pages/Category Page) ─────────────────
-   El otro camino a Tigo. Desde el home de Guatemala, "Recargar el
+   El otro camino a la recarga. Desde el home de Guatemala, "Recargar el
    Móvil" abre el catálogo de la categoría en vez de saltar directo al
    producto: quien va a recargar no siempre sabe con qué operador, y
    elegir marca es parte de la compra. Misma anatomía que el mockup
@@ -3377,8 +3390,8 @@ const CATEGORY_PAGES = {
     title: "Recargar el Móvil",
     section: "Operadores",
     brands: [
-      { key: "tigo", label: "Tigo", art: "tigo.webp", action: "open-tigo" },
-      { key: "claro", label: "Claro", art: "claro.webp", action: "open-guapdp", product: "gua-claro" },
+      { key: "claro", label: "Claro", art: "claro.webp", action: "open-tigo" },
+      { key: "tigo", label: "Tigo", art: "tigo.webp", action: "open-guapdp", product: "gua-claro" },
     ],
   },
 };
@@ -4332,7 +4345,7 @@ function screenTigoPdp(state) {
 
   return `
     ${statusBar()}
-    ${/* Ahora al PDP de Tigo se llega por dos caminos —el tile de
+    ${/* Ahora al PDP de la recarga se llega por dos caminos —el tile de
           Recargas y la Category Page— así que atrás desanda el que se
           tomó en vez de apuntar siempre al home. */ ""}
     ${productHeader(state, { backAction: "back" })}
@@ -4344,10 +4357,10 @@ function screenTigoPdp(state) {
         <div class="pdp-page-stack">
           <div class="pdp-page-brand-slot">
             <section class="brand-item-atom is-with-label" aria-label="Marca seleccionada">
-              <p class="brand-item-label token-product-text">Tigo</p>
+              <p class="brand-item-label token-product-text">Claro</p>
               <div class="brand-item-frame">
                 <div class="brand-item-base">
-                  <img src="tigo.webp" alt="Tigo" />
+                  <img src="claro.webp" alt="Claro" />
                 </div>
               </div>
             </section>

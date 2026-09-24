@@ -9,7 +9,7 @@
 
    De todo lo que hay dentro solo una cosa es accionable: la tile de
    "Recargar el Móvil", que abre la Category Page de recargas y desde
-   ahí al PDP de Tigo. El resto de marcas de esta home no se tocan, que
+   ahí al PDP de la recarga. El resto de marcas de esta home no se tocan, que
    es como se pidió.
 ───────────────────────────────────────────────────────── */
 export const GUA_HOME_MARKUP = `
@@ -108,8 +108,8 @@ export const GUA_HOME_MARKUP = `
             <div class="homecard-content homecard-content-default">
               <div class="homecard-grid">
                 <article class="homecard-tile is-live" data-action="open-tigo" role="button" tabindex="0">
-                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="tigo.webp" alt="Tigo" /></div>
-                  <p class="token-brand homecard-tile-name">Tigo</p>
+                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="claro.webp" alt="Claro" /></div>
+                  <p class="token-brand homecard-tile-name">Claro</p>
                 </article>
                 <article class="homecard-tile is-live" data-action="open-plp" data-brand="mcdonalds"
                   role="button" tabindex="0">
