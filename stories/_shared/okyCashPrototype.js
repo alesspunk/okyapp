@@ -625,6 +625,10 @@ function createInitialState(userType) {
     /* Cuál de los dos avisos del header dio la última novedad. Solo
        late uno: dos puntos parpadeando a la vez no dicen a cuál mirar. */
     beacon: null,
+    /* A quién apunta el radio de la agenda mientras está abierta; al
+       tocar "Siguiente" pasa a ser el destinatario de la orden. */
+    contactPick: null,
+    recipientPhone: "",
     /* Pestaña abierta del wallet y secciones de estado desplegadas
        dentro de ella. Las dos las decide la entrada al wallet; esto es
        solo el arranque para quien lo abra sin pasar por su botón. */
@@ -1113,7 +1117,7 @@ const MENU_ITEMS = [
   { label: "Métodos de Pago", icon: "credit-card", action: "menu:methods" },
   { label: "Notificaciones", icon: "bell" },
   { label: "Historial", icon: "clock-rotate-left" },
-  { label: "Contactos", icon: "address-book" },
+  { label: "Contactos", icon: "address-book", action: "open-contacts" },
   { label: "Perfil", icon: "user" },
   { label: "Ayuda", icon: "circle-question" },
   { label: "Términos y Condiciones", icon: "file-lines" },
@@ -2130,10 +2134,16 @@ function screenCheckout(state) {
   const active = clamp(state.checkoutIndex, 0, Math.max(state.cart.length - 1, 0));
   /* Con el saldo en cero la mitad de OKY Cash no pinta nada. */
   const hasCash = state.okyCashBalance > 0;
+  /* En Guatemala el destinatario lo pone la orden y no se toca. En USA
+     sale de la agenda, y el número es el del contacto elegido: lo que
+     se lee aquí y lo que se lee en la agenda no pueden discrepar. */
   const recipient =
     orderCountry(state) === "gua"
       ? GUA_RECIPIENT
-      : { name: state.recipient || USA_RECIPIENT.name, phone: USA_RECIPIENT.phone };
+      : contactByName(state.recipient) || {
+          name: state.recipient || USA_RECIPIENT.name,
+          phone: state.recipientPhone || USA_RECIPIENT.phone,
+        };
   /* Cada vale lleva su propio porcentaje en el wrap ribbon, igual que
      en el PDP: con el reloj en pausa aquí dentro, el 20% de Nike no se
      convierte en 5% mientras se ajusta el pago. */
@@ -2252,14 +2262,28 @@ function screenCheckout(state) {
 
       <article class="dual-molecule is-default" style="width:100%">
         <span class="dual-floating-label">¿Para quién es?</span>
-        <div class="dual-card">
-          <span class="dual-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
-          <div class="dual-copy">
-            <p class="dual-title">${recipient.name}</p>
-            <p class="dual-subtitle">${recipient.phone}</p>
-          </div>
-          <span class="dual-action" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
-        </div>
+        ${
+          /* Tocando el contacto se abre la agenda y se cambia, pero solo
+             en USA: en Guatemala el destinatario lo pone la propia orden
+             y no hay nada que elegir. */
+          orderCountry(state) === "gua"
+            ? `<div class="dual-card">
+                <span class="dual-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+                <div class="dual-copy">
+                  <p class="dual-title">${recipient.name}</p>
+                  <p class="dual-subtitle">${recipient.phone}</p>
+                </div>
+                <span class="dual-action" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
+              </div>`
+            : `<div class="dual-card is-live" data-action="open-contacts" role="button" tabindex="0">
+                <span class="dual-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+                <div class="dual-copy">
+                  <p class="dual-title">${recipient.name}</p>
+                  <p class="dual-subtitle">${recipient.phone}</p>
+                </div>
+                <span class="dual-action" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
+              </div>`
+        }
       </article>
 
       <div class="payment-method-input oky-flow-paygroup" style="width:100%">
@@ -4269,7 +4293,7 @@ const CONFIRM_SHEETS = {
     note: "Si es para ti, lo guardamos en tu wallet apenas termines de pagar.",
     confirm: "Para mí",
     dismiss: "Para alguien más",
-    dismissOff: true,
+    dismissAction: "open-contacts",
     action: "decision-self",
   },
   unshare: {
@@ -4365,9 +4389,113 @@ function confirmSheet(state) {
           data-unit="${state.sheet.unit || 0}" type="button">
           ${sheet.confirm}
         </button>
-        <button class="oky-flow-sheet-dismiss" ${sheet.dismissOff ? "disabled" : 'data-action="close-sheet"'} type="button">${sheet.dismiss}</button>
+        <button class="oky-flow-sheet-dismiss" data-action="${sheet.dismissAction || "close-sheet"}" type="button">${sheet.dismiss}</button>
       </div>
     </section>
+  `;
+}
+
+/* ── Agenda de contactos (99140:46744) ───────────────────
+   A quién va la compra. "Para mí" es la vCard de uno y encabeza la
+   lista con su fondo gris y su lápiz; el resto son contactos, con la
+   estrella de favorito y el menú de tres puntos —de adorno los dos, que
+   no llevan a ningún lado—. Daniel Paz es el mismo de siempre: el
+   número que enseña el vale de Guatemala en "Quien recibe" sale de
+   aquí, así que lo que se lee en la agenda y lo que se lee al pagar no
+   pueden discrepar. */
+const CONTACTS = [
+  { key: "self", name: USA_RECIPIENT.name, phone: USA_RECIPIENT.phone, self: true },
+  { key: "danielpaz", name: GUA_RECIPIENT.name, phone: GUA_RECIPIENT.phone, initials: "DP" },
+  { key: "adre", name: "Adre", phone: "+502 5634-1213", initials: "A13" },
+  { key: "aracely", name: "Aracely", phone: "+502 6814-9122", initials: "A13" },
+  { key: "lizzard", name: "Lizzard", phone: "+502 6812-9521", initials: "L21" },
+];
+
+/* Las tres pestañas de la agenda. Solo Contactos tiene lista; las otras
+   dos están en el diseño y se dibujan, pero no se abren. */
+const CONTACT_TABS = [
+  { key: "contactos", label: "Contactos", icon: "contactos-plateu-contactos.png" },
+  { key: "recientes", label: "Recientes", icon: "contactos-plateu-recientes.png" },
+  { key: "favoritos", label: "Favoritos", icon: "contactos-plateu-favoritos.png" },
+];
+
+/* En Guatemala la compra siempre va a un contacto —"Para mí" no se
+   ofrece, que es la misma regla por la que allá no se pregunta— y en
+   USA sí se puede elegir uno mismo. */
+function contactsOf(state) {
+  return orderCountry(state) === "gua" ? CONTACTS.filter((c) => !c.self) : CONTACTS;
+}
+
+function contactByName(name) {
+  return CONTACTS.find((c) => c.name === name);
+}
+
+function screenContacts(state) {
+  const list = contactsOf(state);
+  const chosen = state.contactPick || (contactByName(state.recipient) || list[0]).key;
+
+  const row = (c) => `
+    <div class="oky-flow-contact${c.self ? " is-self" : ""}${c.key === chosen ? " is-picked" : ""}"
+      data-action="pick-contact" data-contact="${c.key}" role="radio" tabindex="0"
+      aria-checked="${c.key === chosen}">
+      <span class="oky-flow-contact-radio" aria-hidden="true"></span>
+      <span class="oky-flow-contact-avatar">
+        ${c.self ? `<i class="fa-solid fa-user" aria-hidden="true"></i>` : `<span>${c.initials}</span>`}
+      </span>
+      <span class="oky-flow-contact-copy">
+        <span class="oky-flow-contact-name">${c.name}</span>
+        <span class="oky-flow-contact-phone">${c.phone}</span>
+      </span>
+      ${
+        c.self
+          ? `<i class="fa-regular fa-pen-to-square oky-flow-contact-edit" aria-hidden="true"></i>`
+          : `<i class="fa-regular fa-star oky-flow-contact-star" aria-hidden="true"></i>
+             <i class="fa-solid fa-ellipsis-vertical oky-flow-contact-more" aria-hidden="true"></i>`
+      }
+    </div>
+  `;
+
+  return `
+    ${statusBar()}
+    <header class="oky-flow-header is-agenda">
+      ${backButton()}
+      <h1 class="oky-flow-agenda-title">¿Para quién es?</h1>
+      <span class="oky-flow-header-icon" aria-hidden="true"><i class="fa-solid fa-user-plus"></i></span>
+    </header>
+
+    <div class="oky-flow-agenda">
+      <section class="plateu-molecule is-static is-default oky-flow-agenda-nav" role="tablist" aria-label="Agenda">
+        <div class="plateu-track is-static">
+          ${CONTACT_TABS.map(
+            (t, i) => `
+            <div class="plateu-item${i === 0 ? " is-on" : ""}" role="tab" aria-selected="${i === 0}">
+              <div class="plateu-icon-wrap"><img class="plateu-icon" src="${t.icon}" alt="" /></div>
+              ${
+                i === 0
+                  ? `<span class="plateu-chip is-outlined">${t.label}</span>`
+                  : `<span class="plateu-label">${t.label}</span>`
+              }
+            </div>
+          `,
+          ).join("")}
+        </div>
+      </section>
+
+      <div class="oky-flow-agenda-search">
+        <div class="input-wrapper" style="width:100%">
+          <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+          <input class="input-field search-input search-input-empty" value="" placeholder="Buscar" readonly />
+        </div>
+      </div>
+
+      <div class="oky-flow-contact-list" role="radiogroup" aria-label="Contactos">
+        ${list.map(row).join("")}
+      </div>
+    </div>
+
+    <div class="oky-flow-cta-bar">
+      <button class="btn btn-primary btn-large" data-action="confirm-contact" type="button">Siguiente</button>
+    </div>
   `;
 }
 
@@ -4677,6 +4805,7 @@ function screenDecision() {
 /* Hueco inferior por pantalla. La navbar (56px) ya está contada
    en .oky-flow-scroll, aquí solo se suma lo que va encima. */
 const SCROLL_CLASS = {
+  contacts: "has-cta",
   pdp: "has-dock",
   tigopdp: "has-tigo-dock",
   checkout: "has-bar",
@@ -4719,6 +4848,7 @@ function renderScreen(state) {
     case "carddesign": return screenCardDesign(state);
     case "homegua": return screenHomeGua(state);
     case "tigopdp": return screenTigoPdp(state);
+    case "contacts": return screenContacts(state);
     case "guapdp": return screenGuaPdp(state);
     case "category": return screenCategory(state);
     case "plp": return screenPlp(state);
@@ -6181,6 +6311,33 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "menu:methods") {
       return go("methods");
+    }
+
+    if (action === "open-contacts") {
+      /* La agenda abre con el radio puesto en quien ya es destinatario,
+         para que se vea de dónde se parte. */
+      state.sheet = null;
+      state.contactPick = (contactByName(state.recipient) || contactsOf(state)[0]).key;
+      return go("contacts");
+    }
+
+    if (action === "pick-contact") {
+      state.contactPick = el.dataset.contact;
+      return render({ keepScroll: true });
+    }
+
+    if (action === "confirm-contact") {
+      const picked = CONTACTS.find((c) => c.key === state.contactPick) || contactsOf(state)[0];
+      state.recipient = picked.name;
+      state.recipientPhone = picked.phone;
+      /* Elegido, se sigue al pago: la agenda es un paso de la compra,
+         no un sitio donde quedarse. Desde el menú no hay compra que
+         seguir, así que se vuelve por donde se vino. */
+      if (state.cart.length) {
+        state.checkoutIndex = 0;
+        return go("checkout", {}, { push: false });
+      }
+      return goBack();
     }
 
     if (action === "close-menu") {

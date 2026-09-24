@@ -13305,6 +13305,181 @@ button.tactic-offer {
   opacity: 0.9;
 }
 
+/* ── Agenda de contactos (99140:46744) ───────────────────
+   El título va pegado a la flecha, no centrado: aquí la cabecera es un
+   "menu-branded" —icono y rótulo juntos a la izquierda— y a la derecha
+   el de añadir contacto. */
+.oky-flow-header.is-agenda {
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.oky-flow-agenda-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-family: "Lato", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: -0.5px;
+  color: var(--primary-base);
+}
+
+.oky-flow-agenda {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* El plateu de la agenda es el mismo del wallet: solo cambia que
+   ninguna de las tres pestañas se puede tocar todavía. */
+.oky-flow-agenda-nav {
+  margin: 8px 0 0;
+}
+
+.oky-flow-agenda-nav .plateu-track.is-static {
+  gap: 20px;
+  padding: 8px 16px 16px;
+}
+
+.oky-flow-agenda-search {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 16px 12px;
+}
+
+.oky-flow-contact-list {
+  width: 100%;
+}
+
+/* Cada contacto: el radio a la izquierda, el avatar, el nombre con su
+   teléfono debajo y, al final, la estrella y los tres puntos. */
+.oky-flow-contact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 72px;
+  padding: 8px 8px 8px 16px;
+  background: var(--white);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+/* "Para mí" es la vCard de uno: fondo gris y línea arriba y abajo, que
+   es lo que la separa de la agenda de verdad. */
+.oky-flow-contact.is-self {
+  background: #f5f5f5;
+  border-top: 1px solid rgba(0, 0, 0, 0.23);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.23);
+}
+
+.oky-flow-contact-radio {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0 9px;
+  box-sizing: border-box;
+  border: 2px solid rgba(0, 0, 0, 0.54);
+  border-radius: 50%;
+}
+
+/* Elegido, el aro se pinta de marca y se le mete el punto dentro. */
+.oky-flow-contact.is-picked .oky-flow-contact-radio {
+  border-color: var(--primary-main);
+  box-shadow: inset 0 0 0 4px var(--white), inset 0 0 0 20px var(--primary-main);
+}
+
+/* El avatar: círculo de marca con las iniciales en blanco. Los
+   contactos lo llevan atenuado y el de uno mismo a plena tinta, con el
+   muñeco en aqua, que es como lo distingue el diseño. */
+.oky-flow-contact-avatar {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--primary-text-dark, #6a0bd0);
+  color: var(--white);
+  font-family: "Lato", sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+}
+
+.oky-flow-contact:not(.is-self) .oky-flow-contact-avatar {
+  opacity: 0.2;
+}
+
+.oky-flow-contact.is-self .oky-flow-contact-avatar {
+  color: #a8faf5;
+  font-size: 24px;
+}
+
+.oky-flow-contact-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  margin-left: 8px;
+}
+
+.oky-flow-contact-name {
+  font-family: "Lato", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: 0.15px;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.oky-flow-contact-phone {
+  font-family: "Lato", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.15px;
+  color: rgba(0, 0, 0, 0.38);
+}
+
+.oky-flow-contact.is-self .oky-flow-contact-phone {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+/* La estrella, los tres puntos y el lápiz acompañan: dicen qué se podrá
+   hacer con un contacto, pero aquí no abren nada. */
+.oky-flow-contact-star,
+.oky-flow-contact-more,
+.oky-flow-contact-edit {
+  flex: none;
+  width: 32px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.38);
+}
+
+.oky-flow-contact-star {
+  font-size: 16px;
+}
+
+.oky-flow-contact-more {
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.oky-flow-contact-edit {
+  font-size: 20px;
+  color: var(--primary-base);
+}
+
+/* El contacto del checkout se puede tocar para cambiarlo. */
+.dual-card.is-live {
+  cursor: pointer;
+}
+
 /* ── Archivados ─────────────────────────────────────────── */
 .oky-flow-voucher-archived {
   position: relative;
