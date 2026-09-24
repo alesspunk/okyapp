@@ -2525,50 +2525,55 @@ function screenProcessing(state) {
 /* El pie del acuse: volver al wallet y, si la compra dejó algo, la
    píldora con el saldo nuevo. Va fijo abajo en las dos versiones de la
    pantalla —la pila y la card suelta—. */
-function purchaseFoot(state) {
-  const earnedHere = state.lastEarned > 0;
+/* Ya no hay pie en el acuse: lo que llevaba —el wallet y la píldora—
+   se subió a la cabecera, que es donde no le quita sitio al código ni
+   a su botón de canje. Se deja la función devolviendo nada para no
+   tocar las dos pantallas que la llaman. */
+function purchaseFoot() {
+  return "";
+}
 
-  /* Ganando OKY Cash el pie lleva dos cosas y, una debajo de otra, se
-     comían el alto justo donde hace falta: lo que hay que ver es el
-     código y su botón de canje. En fila ocupan lo que ocupaba la
-     píldora sola —un cuarto para el wallet, que se queda con el icono
-     y su nombre debajo, y tres cuartos para la píldora—.
+/* ── Cabecera del acuse ──────────────────────────────────
+   Recién pagado no hay a dónde volver atrás —la compra ya está hecha—,
+   así que la flecha deja su sitio a lo que sí se hace desde aquí: ir al
+   wallet a ver lo comprado, mirar lo que dejó la compra, o salir a la
+   tienda. Las tres cosas caben en la cabecera y liberan el pie, que es
+   donde estorbaban: lo que hay que ver es el código y su botón.
 
-     Sin OKY Cash que celebrar no hay competencia por el alto, así que
-     el botón se queda entero y solo sobre la navbar. */
-  /* El mismo aviso que lleva el icono del header: lo recién comprado
-     está sin abrir y el punto lo dice también aquí, que es donde se
-     está mirando. Late por lo mismo que allá —recién pagado el carrito
-     va vacío, así que el latido es suyo—. */
-  const ping = `
-    <span class="oky-flow-wallet-ping">
-      <img src="Wallet-icon.png" alt="" />
-      ${
-        hasNewVouchers(state)
-          ? `<span class="header-icon-indicator-dot${beaconOf(state) === "wallet" ? " is-pulsing" : ""}"></span>`
-          : ""
-      }
-    </span>
-  `;
-
-  if (!earnedHere) {
-    return `
-      <div class="oky-flow-cta-bar">
-        <button class="btn btn-outlined btn-large oky-flow-wallet-btn" data-action="nav:wallet" type="button">
-          ${ping}Ver mi Wallet
-        </button>
-      </div>
-    `;
-  }
-
+   En medio va lo que esta compra dejó. Ganando OKY Cash, la píldora
+   aqua con la cifra, que lleva a su pestaña; sin nada que celebrar
+   —Guatemala, o una compra sin cashback— el recibo, que es lo único
+   que queda por mirar. */
+function purchaseHeader(state) {
+  const earned = state.lastEarned > 0;
   return `
-    <div class="oky-flow-cta-bar has-cash-strip">
-      <button class="oky-flow-wallet-mini" data-action="nav:wallet" type="button">
-        ${ping}
-        <span>Mi Wallet</span>
+    <header class="oky-flow-header is-purchase">
+      <button class="oky-flow-header-icon oky-flow-purchase-wallet" data-action="nav:wallet"
+        type="button" aria-label="Mi wallet">
+        <img src="Wallet-icon.png" alt="" />
+        ${
+          hasNewVouchers(state)
+            ? `<span class="header-icon-indicator-dot${beaconOf(state) === "wallet" ? " is-pulsing" : ""}"></span>`
+            : ""
+        }
       </button>
-      ${cashStrip(state)}
-    </div>
+
+      ${
+        earned
+          ? `<button class="oky-flow-purchase-badge is-cash" data-action="nav:okycash" type="button">
+              <img src="oky-cash-coin.png" alt="" />
+              <span>+${money(state.lastEarned)} en OKY Cash</span>
+            </button>`
+          : `<span class="oky-flow-purchase-badge is-receipt">
+              <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
+              <span>Ver recibo</span>
+            </span>`
+      }
+
+      <button class="oky-flow-header-icon" data-action="nav:country-home" type="button" aria-label="Ir al home">
+        <i class="fa-solid fa-house oky-flow-nav-hollow" aria-hidden="true"></i>
+      </button>
+    </header>
   `;
 }
 
@@ -2657,10 +2662,7 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
 
   return `
     ${statusBar()}
-    ${/* Sin icono a la derecha: la factura no se abre desde aquí, así
-         que era un botón que no lo era. El hueco se queda, que es lo
-         que mantiene el título centrado en la pantalla. */ ""}
-    ${titledHeader("Tus compras")}
+    ${purchaseHeader(state)}
 
     <div class="oky-flow-section">
       ${
@@ -4075,7 +4077,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
 
   return `
     ${statusBar()}
-    ${titledHeader(title)}
+    ${asPurchase ? purchaseHeader(state) : titledHeader(title)}
     <div class="oky-flow-section is-voucher${asPurchase ? " is-purchase" : ""}">
       <div class="oky-flow-card-carousel${archived ? " is-redeemed is-archived" : shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
@@ -4877,9 +4879,9 @@ function scrollClass(state) {
      ahorrado; sin ella el resumen baja a ras de la navbar y el hueco
      de abajo es menor. */
   if (state.screen === "guapdp") return cartSavings(state) > 0 ? "has-dock" : "has-dock-no-bar";
-  if (["purchases", "success", "cashwin"].includes(state.screen) && state.lastEarned <= 0) {
-    return "has-cta";
-  }
+  /* El acuse ya no lleva barra abajo: su hueco es el de la navbar y
+     nada más. */
+  if (["purchases", "success", "cashwin"].includes(state.screen)) return "";
   return SCROLL_CLASS[state.screen] || "";
 }
 
