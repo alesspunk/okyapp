@@ -2596,10 +2596,10 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
 
   return `
     ${statusBar()}
-    ${/* El icono del acuse va en contorno y no sólido: acompaña, no
-         manda. Font Awesome Free no trae el recibo en regular, así que
-         va el documento, que dice lo mismo. */ ""}
-    ${titledHeader("Tus compras", { trailing: "fa-regular fa-file-lines" })}
+    ${/* Sin icono a la derecha: la factura no se abre desde aquí, así
+         que era un botón que no lo era. El hueco se queda, que es lo
+         que mantiene el título centrado en la pantalla. */ ""}
+    ${titledHeader("Tus compras")}
 
     <div class="oky-flow-section">
       ${
@@ -4004,7 +4004,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
 
   return `
     ${statusBar()}
-    ${titledHeader(title, asPurchase ? { trailing: "fa-regular fa-file-lines" } : {})}
+    ${titledHeader(title)}
     <div class="oky-flow-section is-voucher${asPurchase ? " is-purchase" : ""}">
       <div class="oky-flow-card-carousel${archived ? " is-redeemed is-archived" : shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
