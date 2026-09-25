@@ -12574,6 +12574,21 @@ button.tactic-offer {
   display: none;
 }
 
+/* La versión 2 trae tres pestañas donde había cuatro, así que las de
+   64px fijos se quedaban recostadas a la izquierda: se centran. Y cada
+   una mide lo que mide su rótulo —"Para compartir" no cabía en 64 y se
+   salía de su píldora—, con 64 de mínimo para que los iconos guarden
+   su ritmo. */
+.oky-flow-wallet-nav.is-v2 .plateu-track.is-static {
+  justify-content: center;
+  gap: 24px;
+}
+
+.oky-flow-wallet-nav.is-v2 .plateu-item {
+  width: auto;
+  min-width: 64px;
+}
+
 .oky-flow-wallet-nav .plateu-item {
   flex: 0 0 auto;
   width: 64px;
@@ -21227,7 +21242,7 @@ function screenWallet(state) {
       `,
     })}
 
-    <section class="plateu-molecule is-static is-default oky-flow-wallet-nav" role="tablist" aria-label="Tipo de vale">
+    <section class="plateu-molecule is-static is-default oky-flow-wallet-nav${state.walletV2 ? " is-v2" : ""}" role="tablist" aria-label="Tipo de vale">
       <div class="plateu-track is-static">
         ${walletTabsOf(state).map(
           (t) => `

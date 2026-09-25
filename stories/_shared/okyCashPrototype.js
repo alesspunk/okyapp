@@ -3237,7 +3237,7 @@ function screenWallet(state) {
       `,
     })}
 
-    <section class="plateu-molecule is-static is-default oky-flow-wallet-nav" role="tablist" aria-label="Tipo de vale">
+    <section class="plateu-molecule is-static is-default oky-flow-wallet-nav${state.walletV2 ? " is-v2" : ""}" role="tablist" aria-label="Tipo de vale">
       <div class="plateu-track is-static">
         ${walletTabsOf(state).map(
           (t) => `
