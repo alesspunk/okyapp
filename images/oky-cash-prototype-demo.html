@@ -3365,11 +3365,19 @@ body {
   font-size: 24px;
 }
 
-/* Y para uno mismo, las banderas sobre blanco, como en la agenda. */
+/* Y para uno mismo, las banderas a pelo: sin el disco detrás, que aquí
+   no separa nada y dejaba el rótulo desalineado con el de la tarjeta de
+   abajo, que también es una marca suelta sobre el blanco de la card. */
 .dual-avatar.is-self {
-  box-sizing: border-box;
-  background: var(--white);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  /* Del ancho de la marca de la tarjeta de abajo, y con el mismo aire
+     después: así el nombre y el número arrancan en la misma columna que
+     el método de pago. */
+  width: 34px;
+  height: 34px;
+  margin-right: -8px;
+  background: none;
+  border: 0;
+  border-radius: 0;
 }
 
 .dual-avatar.is-self img {
