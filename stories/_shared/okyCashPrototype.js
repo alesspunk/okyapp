@@ -631,10 +631,11 @@ function createInitialState(userType) {
     /* Cuál de los vales de la orden enseña el acuse cuando todos son
        de la misma marca. */
     orderIndex: 0,
-    /* Qué versión de Mi wallet se está mirando: 1 la de siempre, 2 la
-       de "para quién es" y 3 la de países. Los dos interruptores de la
-       cabecera la eligen, y apagados vuelve la 1. */
-    walletVer: 1,
+    /* Qué versión de Mi wallet se está mirando: 2 la de "para quién
+       es", que es la de casa; 1 la de tipos, que era la de antes; 3 la
+       de países. Los dos interruptores de la cabecera llevan a las
+       otras dos, y apagados se vuelve a la 2. */
+    walletVer: 2,
     /* A quién apunta el radio de la agenda mientras está abierta; al
        tocar "Siguiente" pasa a ser el destinatario de la orden. */
     contactPick: null,
@@ -647,7 +648,9 @@ function createInitialState(userType) {
     savingsSheet: false,
     savingsSeen: false,
     savingsFromPdp: false,
-    walletTab: "gift",
+    /* La primera de la versión de casa. Con "gift" —la de la versión
+       de tipos— no había pestaña que marcar al abrir. */
+    walletTab: "parami",
     openGroups: ["activos"],
     /* Aviso de cambio de marketplace; guarda a dónde se iba. */
     countrySheet: null,
@@ -3285,7 +3288,7 @@ function screenWallet(state) {
          siempre; encendido, las pestañas pasan a ser "para quién es". */
       trailingHtml: `
         <span class="oky-flow-walletvers">
-          ${[2, 3]
+          ${[1, 3]
             .map(
               (v) => `
             <button class="oky-flow-walletver${state.walletVer === v ? " is-on" : ""}"
@@ -7038,8 +7041,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "wallet-version") {
       /* Cada interruptor es su propuesta: encender una apaga la otra, y
          apagar la encendida devuelve la de siempre. */
-      const pedida = Number(el.dataset.ver) || 2;
-      state.walletVer = state.walletVer === pedida ? 1 : pedida;
+      /* Cada interruptor lleva a su versión; apagarlo devuelve la de
+         casa, que es la 2. */
+      const pedida = Number(el.dataset.ver) || 1;
+      state.walletVer = state.walletVer === pedida ? 2 : pedida;
       /* Las pestañas de una versión no existen en la otra: si la
          abierta no está en la nueva lista, se cae a la primera que sí
          —OKY Cash se queda, que está en las dos—. Y el filtro se
