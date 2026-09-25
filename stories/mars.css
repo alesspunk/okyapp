@@ -12567,6 +12567,14 @@ button.tactic-offer {
   min-width: 64px;
 }
 
+/* La de países no trae tres pestañas fijas sino las que la persona
+   tenga, así que con muchas la fila se desborda: centrada a secas, lo
+   que sobra por la izquierda queda fuera de alcance. Con "safe" se
+   centra mientras quepa y se apoya a la izquierda en cuanto no. */
+.oky-flow-wallet-nav.is-v3 .plateu-track.is-static {
+  justify-content: safe center;
+}
+
 .oky-flow-wallet-nav .plateu-item {
   flex: 0 0 auto;
   width: 64px;
@@ -13347,13 +13355,44 @@ button.tactic-offer {
    Vive en la esquina de la cabecera, en el hueco del icono de la
    derecha, y ocupa lo mismo que él para no descentrar el título.
    Apagado, el wallet es el de siempre. */
-.oky-flow-walletver {
-  flex: 0 0 32px;
-  width: 32px;
-  height: 32px;
+/* Dos interruptores, uno por propuesta, con su número al lado para
+   saber cuál es cuál. */
+.oky-flow-walletvers {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+}
+
+.oky-flow-walletver-tag {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--disable-text, #8a8a8a);
+}
+
+.oky-flow-walletver.is-on .oky-flow-walletver-tag {
+  color: var(--primary-main);
+}
+
+/* La bandera de una pestaña de país ocupa lo mismo que el icono 3D de
+   las otras, para que la fila no cambie de ritmo. */
+.oky-flow-wallet-flag {
+  display: inline-flex;
+  width: 40px;
+}
+
+.oky-flow-wallet-flag .flag-atom {
+  width: 100%;
+  height: auto;
+}
+
+.oky-flow-walletver {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 32px;
   padding: 0;
   border: 0;
   background: none;
@@ -13362,8 +13401,9 @@ button.tactic-offer {
 
 .oky-flow-walletver-track {
   position: relative;
-  width: 32px;
-  height: 18px;
+  flex: none;
+  width: 28px;
+  height: 16px;
   border-radius: 999px;
   background: var(--disable-main, #c9c5cf);
   transition: background 180ms ease-out;
@@ -13377,8 +13417,8 @@ button.tactic-offer {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: var(--white);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -13386,7 +13426,7 @@ button.tactic-offer {
 }
 
 .oky-flow-walletver.is-on .oky-flow-walletver-knob {
-  transform: translateX(14px);
+  transform: translateX(12px);
 }
 
 /* ── Cabecera del acuse de compra ────────────────────────

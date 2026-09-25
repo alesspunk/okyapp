@@ -631,9 +631,10 @@ function createInitialState(userType) {
     /* Cuál de los vales de la orden enseña el acuse cuando todos son
        de la misma marca. */
     orderIndex: 0,
-    /* Mi wallet en su versión 2: arranca apagada y se enciende con el
-       interruptor de la cabecera. */
-    walletV2: false,
+    /* Qué versión de Mi wallet se está mirando: 1 la de siempre, 2 la
+       de "para quién es" y 3 la de países. Los dos interruptores de la
+       cabecera la eligen, y apagados vuelve la 1. */
+    walletVer: 1,
     /* A quién apunta el radio de la agenda mientras está abierta; al
        tocar "Siguiente" pasa a ser el destinatario de la orden. */
     contactPick: null,
@@ -2809,8 +2810,52 @@ const WALLET_TABS_V2 = [
 const V2_PARTS = { parami: ["gift"], paracompartir: ["vales", "servicios"] };
 const WALLET_SECTIONS_V2 = ["parami", "paracompartir"];
 
-const walletTabsOf = (state) => (state.walletV2 ? WALLET_TABS_V2 : WALLET_TABS);
-const walletSectionsOf = (state) => (state.walletV2 ? WALLET_SECTIONS_V2 : WALLET_SECTIONS);
+/* ── Y una tercera: por países ───────────────────────────
+   Ni por tipo ni por para quién es, sino de dónde viene cada vale. El
+   plateu no lista países: lista los que la persona tiene, así que un
+   wallet sin nada de Honduras no enseña Honduras. OKY Cash sigue
+   delante, que no es de ningún país. */
+const COUNTRY_NAME = Object.fromEntries(
+  [...MARKETS.left, ...MARKETS.right].map((m) => [m.iso, m.label]),
+);
+
+function walletCountries(state) {
+  const seen = [];
+  WALLET_SECTIONS.forEach((section) => {
+    walletDeck(state, section, { filtered: false }).forEach((v) => {
+      const code = countryOfVoucher(v.key, section);
+      if (!seen.includes(code)) seen.push(code);
+    });
+  });
+  /* En el orden del folder —Norteamérica primero y Latinoamérica
+     después—, que es el que la persona ya conoce. */
+  const order = [...MARKETS.left, ...MARKETS.right].map((m) => m.iso);
+  return seen.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+}
+
+const PAIS = "pais:";
+
+function walletTabsV3(state) {
+  return [
+    WALLET_TABS[0],
+    ...walletCountries(state).map((iso) => ({
+      key: PAIS + iso,
+      label: COUNTRY_NAME[iso] || iso,
+      title: COUNTRY_NAME[iso] || iso,
+      flag: iso,
+    })),
+  ];
+}
+
+const walletTabsOf = (state) =>
+  state.walletVer === 3 ? walletTabsV3(state) : state.walletVer === 2 ? WALLET_TABS_V2 : WALLET_TABS;
+
+const walletSectionsOf = (state) =>
+  state.walletVer === 3
+    ? walletCountries(state).map((iso) => PAIS + iso)
+    : state.walletVer === 2
+      ? WALLET_SECTIONS_V2
+      : WALLET_SECTIONS;
 
 function walletTitle(state) {
   const tab = walletTabsOf(state).find((t) => t.key === state.walletTab);
@@ -2831,6 +2876,14 @@ function walletDeck(state, section, { filtered = true } = {}) {
      debajo sigue viendo la misma lista de antes. */
   if (V2_PARTS[section]) {
     return V2_PARTS[section].flatMap((part) => walletDeck(state, part, { filtered }));
+  }
+  /* Y una pestaña de país junta lo de todas las secciones que salieron
+     de ahí, sea gift card, vale o servicio. */
+  if (section.startsWith(PAIS)) {
+    const iso = section.slice(PAIS.length);
+    return WALLET_SECTIONS.flatMap((part) =>
+      walletDeck(state, part, { filtered }).filter((v) => countryOfVoucher(v.key, part) === iso),
+    );
   }
   const all =
     section === "gift"
@@ -2948,6 +3001,7 @@ const WALLET_PAGE = 5;
    de su sección: las gift cards vienen del catálogo de Norteamérica y
    los vales y servicios del de Centroamérica. */
 function countryOfSection(section) {
+  if (section.startsWith(PAIS)) return section.slice(PAIS.length);
   return section === "gift" || section === "parami" ? "US" : "GT";
 }
 
@@ -3064,7 +3118,7 @@ function walletEntryTab(state) {
   return (
     walletSectionsOf(state).find((section) =>
       walletDeck(state, section, { filtered: false }).some((v) => v.isNew),
-    ) || (state.walletV2 ? "parami" : "gift")
+    ) || walletSectionsOf(state)[0] || "gift"
   );
 }
 
@@ -3230,20 +3284,38 @@ function screenWallet(state) {
       /* El interruptor de la versión 2. Apagado, el wallet es el de
          siempre; encendido, las pestañas pasan a ser "para quién es". */
       trailingHtml: `
-        <button class="oky-flow-walletver${state.walletV2 ? " is-on" : ""}" data-action="wallet-version"
-          type="button" role="switch" aria-checked="${state.walletV2}" aria-label="Wallet v2">
-          <span class="oky-flow-walletver-track"><span class="oky-flow-walletver-knob"></span></span>
-        </button>
+        <span class="oky-flow-walletvers">
+          ${[2, 3]
+            .map(
+              (v) => `
+            <button class="oky-flow-walletver${state.walletVer === v ? " is-on" : ""}"
+              data-action="wallet-version" data-ver="${v}"
+              type="button" role="switch" aria-checked="${state.walletVer === v}"
+              aria-label="Wallet versión ${v}">
+              <span class="oky-flow-walletver-track"><span class="oky-flow-walletver-knob"></span></span>
+              <span class="oky-flow-walletver-tag">${v}</span>
+            </button>
+          `,
+            )
+            .join("")}
+        </span>
       `,
     })}
 
-    <section class="plateu-molecule is-static is-default oky-flow-wallet-nav${state.walletV2 ? " is-v2" : ""}" role="tablist" aria-label="Tipo de vale">
+    <section class="plateu-molecule is-static is-default oky-flow-wallet-nav${state.walletVer > 1 ? " is-v2" : ""}${state.walletVer === 3 ? " is-v3" : ""}" role="tablist" aria-label="Tipo de vale">
       <div class="plateu-track is-static">
         ${walletTabsOf(state).map(
           (t) => `
           <button class="plateu-item${t.key === tab ? " is-on" : ""}" type="button" role="tab"
             data-action="wallet-tab" data-section="${t.key}" aria-selected="${t.key === tab}">
-            <div class="plateu-icon-wrap"><img class="plateu-icon" src="${t.icon}" alt="" /></div>
+            <div class="plateu-icon-wrap">${
+              /* En la propuesta de países la pestaña es la bandera: el
+                 mismo átomo del folder y de las pilas, para que se
+                 reconozca sin leer. */
+              t.flag
+                ? `<span class="oky-flow-wallet-flag">${renderFlag({ code: t.flag, size: "Large" })}</span>`
+                : `<img class="plateu-icon" src="${t.icon}" alt="" />`
+            }</div>
             ${
               t.key === tab
                 ? `<span class="plateu-chip is-outlined">${t.label}</span>`
@@ -6498,13 +6570,21 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          y en la 2 es para quién es —de USA, lo de uno; de Guatemala, lo
          que se manda—. Con la clave de la otra versión la pestaña no
          existía y ninguna quedaba marcada. */
-      const porPais = state.walletV2
-        ? state.country === "gua"
-          ? "paracompartir"
-          : "parami"
-        : state.country === "gua"
-          ? "vales"
-          : "gift";
+      const porTienda =
+        state.walletVer === 3
+          ? PAIS + (state.country === "gua" ? "GT" : "US")
+          : state.walletVer === 2
+            ? state.country === "gua"
+              ? "paracompartir"
+              : "parami"
+            : state.country === "gua"
+              ? "vales"
+              : "gift";
+      /* En la de países puede que esa bandera no esté —no hay nada de
+         ahí—, y entonces manda la primera que sí. */
+      const porPais = walletTabsOf(state).some((t) => t.key === porTienda)
+        ? porTienda
+        : walletSectionsOf(state)[0] || porTienda;
       state.walletTab = fromPurchase ? walletEntryTab(state) : porPais;
       state.openGroups = fromPurchase ? walletOpenGroups(state) : ["activos"];
       return leavePurchase("wallet");
@@ -6947,7 +7027,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "wallet-version") {
-      state.walletV2 = !state.walletV2;
+      /* Cada interruptor es su propuesta: encender una apaga la otra, y
+         apagar la encendida devuelve la de siempre. */
+      const pedida = Number(el.dataset.ver) || 2;
+      state.walletVer = state.walletVer === pedida ? 1 : pedida;
       /* Las pestañas de una versión no existen en la otra: si la
          abierta no está en la nueva lista, se cae a la primera que sí
          —OKY Cash se queda, que está en las dos—. Y el filtro se
@@ -6955,7 +7038,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.walletFilter = "";
       state.openBeforeFilter = null;
       if (!walletTabsOf(state).some((t) => t.key === state.walletTab)) {
-        state.walletTab = state.walletV2 ? "parami" : "gift";
+        state.walletTab = walletSectionsOf(state)[0] || "gift";
       }
       state.openGroups = ["activos"];
       state.walletShown = {};
