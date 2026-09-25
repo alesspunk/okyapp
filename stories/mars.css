@@ -3343,6 +3343,19 @@ body {
   font-size: 24px;
 }
 
+/* Y para uno mismo, las banderas sobre blanco, como en la agenda. */
+.dual-avatar.is-self {
+  box-sizing: border-box;
+  background: var(--white);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dual-avatar.is-self img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
 /* Yendo a otra persona el avatar es el suyo: el mismo círculo rosado
    con iniciales de la agenda, para reconocer a quién va sin releer el
    nombre. */
@@ -13632,9 +13645,19 @@ button.tactic-offer {
   opacity: 0.2;
 }
 
+/* Uno mismo lleva las banderas de su tienda, y el morado sobra: sobre
+   él se apagaban. Va sobre blanco, con un aro tenue que le da borde en
+   la fila gris y sobre la card blanca del pago. */
 .oky-flow-contact.is-self .oky-flow-contact-avatar {
-  color: #a8faf5;
-  font-size: 24px;
+  box-sizing: border-box;
+  background: var(--white);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.oky-flow-contact.is-self .oky-flow-contact-avatar img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
 }
 
 .oky-flow-contact-copy {

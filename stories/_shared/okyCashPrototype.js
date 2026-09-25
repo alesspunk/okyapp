@@ -2278,7 +2278,7 @@ function screenCheckout(state) {
                Para uno mismo se queda el muñeco. */
             recipient.initials
               ? `<span class="dual-avatar is-contact" aria-hidden="true">${recipient.initials}</span>`
-              : `<span class="dual-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></span>`
+              : `<span class="dual-avatar is-self" aria-hidden="true"><img src="plateu-parami.png" alt="" /></span>`
           }
           <div class="dual-copy">
             <p class="dual-title">${recipient.name}</p>
@@ -4610,7 +4610,13 @@ function screenContacts(state) {
       aria-checked="${c.key === chosen}">
       <span class="oky-flow-contact-radio" aria-hidden="true"></span>
       <span class="oky-flow-contact-avatar">
-        ${c.self ? `<i class="fa-solid fa-user" aria-hidden="true"></i>` : `<span>${c.initials}</span>`}
+        ${
+          /* Uno mismo no lleva iniciales: lleva las banderas de su
+             tienda, las mismas de la hoja y de la pestaña "Para mi". */
+          c.self
+            ? `<img src="plateu-parami.png" alt="" />`
+            : `<span>${c.initials}</span>`
+        }
       </span>
       <span class="oky-flow-contact-copy">
         <span class="oky-flow-contact-name">${c.name}</span>
