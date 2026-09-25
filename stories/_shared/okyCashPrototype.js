@@ -4424,7 +4424,10 @@ const CONFIRM_SHEETS = {
      la misma máquina que archivar y devolver, que ahí sí responde.
      "Para alguien más" sigue apagado: no hay a dónde llevar todavía. */
   decision: {
-    art: "oky-returning-illustration.png",
+    /* Las banderas cruzadas de Estados Unidos y Canadá, las mismas de
+       la pestaña "Para mi" del wallet: la pregunta es de la tienda de
+       Norteamérica y la ilustración lo dice sin leer. */
+    art: "oky-flags-usa-ca.png",
     title: "¿Es para ti o para alguien más?",
     note: "Si es para ti, lo guardamos en tu wallet apenas termines de pagar.",
     confirm: "Para mí",
