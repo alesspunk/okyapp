@@ -24498,7 +24498,19 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const fromPurchase = POST_PURCHASE.includes(state.screen) || hasNewVouchers(state);
       state.walletFilter = "";
       state.openBeforeFilter = null;
-      state.walletTab = fromPurchase ? walletEntryTab(state) : state.country === "gua" ? "vales" : "gift";
+      /* La pestaña de la tienda de la que se entra, en la versión que
+         esté abierta: en la de siempre es el tipo que esa tienda vende
+         y en la 2 es para quién es —de USA, lo de uno; de Guatemala, lo
+         que se manda—. Con la clave de la otra versión la pestaña no
+         existía y ninguna quedaba marcada. */
+      const porPais = state.walletV2
+        ? state.country === "gua"
+          ? "paracompartir"
+          : "parami"
+        : state.country === "gua"
+          ? "vales"
+          : "gift";
+      state.walletTab = fromPurchase ? walletEntryTab(state) : porPais;
       state.openGroups = fromPurchase ? walletOpenGroups(state) : ["activos"];
       return leavePurchase("wallet");
     }
