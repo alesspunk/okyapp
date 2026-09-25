@@ -631,6 +631,9 @@ function createInitialState(userType) {
     /* Cuál de los vales de la orden enseña el acuse cuando todos son
        de la misma marca. */
     orderIndex: 0,
+    /* Mi wallet en su versión 2: arranca apagada y se enciende con el
+       interruptor de la cabecera. */
+    walletV2: false,
     /* A quién apunta el radio de la agenda mientras está abierta; al
        tocar "Siguiente" pasa a ser el destinatario de la orden. */
     contactPick: null,
@@ -1036,7 +1039,7 @@ function backButton(action = "back") {
   `;
 }
 
-function titledHeader(title, { trailing = "", trailingAction = "" } = {}) {
+function titledHeader(title, { trailing = "", trailingAction = "", trailingHtml = "" } = {}) {
   /* El icono de la derecha es decorativo salvo que se le pase una
      acción; entonces pasa a ser botón (el carrito de la PLP). */
   const attrs = trailingAction
@@ -1046,7 +1049,7 @@ function titledHeader(title, { trailing = "", trailingAction = "" } = {}) {
     <header class="oky-flow-header">
       ${backButton()}
       <h1 class="oky-flow-title">${title}</h1>
-      <span ${attrs}>${trailing ? `<i class="${trailing}"></i>` : ""}</span>
+      ${trailingHtml || `<span ${attrs}>${trailing ? `<i class="${trailing}"></i>` : ""}</span>`}
     </header>
   `;
 }
@@ -2786,8 +2789,31 @@ const WALLET_TABS = [
    barra, las píldoras de saldo, el icono del home, el final de una
    compra— y cada una apunta a una pestaña: el título confirma al
    aterrizar que llegaste a donde ibas. */
+/* ── Mi wallet, versión 2 (101473:25532) ─────────────────
+   La misma pantalla ordenada de otra forma: en vez de separar por tipo
+   —gift cards, vales, servicios— separa por para quién es. Norteamérica
+   es lo que uno se queda y Latinoamérica lo que se manda, servicios
+   incluidos. OKY Cash no se mueve: es saldo, no vales.
+
+   Convive con la de siempre y se enciende con el interruptor de la
+   cabecera; apagado, nada de esto existe. Por eso cada pestaña nueva
+   dice de qué secciones de las viejas se compone: todo lo que hay
+   debajo —contadores, estados, filtros, pilas— sigue leyendo lo mismo
+   que antes. */
+const WALLET_TABS_V2 = [
+  { key: "cash", label: "OKY Cash", title: "OKY Cash", icon: "oky-cash-coin.png" },
+  { key: "parami", label: "Para mi", title: "Para mí", icon: "plateu-parami.png" },
+  { key: "paracompartir", label: "Para compartir", title: "Para compartir", icon: "plateu-paracompartir.png" },
+];
+
+const V2_PARTS = { parami: ["gift"], paracompartir: ["vales", "servicios"] };
+const WALLET_SECTIONS_V2 = ["parami", "paracompartir"];
+
+const walletTabsOf = (state) => (state.walletV2 ? WALLET_TABS_V2 : WALLET_TABS);
+const walletSectionsOf = (state) => (state.walletV2 ? WALLET_SECTIONS_V2 : WALLET_SECTIONS);
+
 function walletTitle(state) {
-  const tab = WALLET_TABS.find((t) => t.key === state.walletTab);
+  const tab = walletTabsOf(state).find((t) => t.key === state.walletTab);
   return tab ? tab.title : "Mi wallet";
 }
 
@@ -2800,6 +2826,12 @@ const WALLET_GROUPS = [
 /* Todo lo de una sección, pasado por el filtro de la pestaña. Archivar
    no borra —el vale sigue existiendo— solo lo manda a su sección. */
 function walletDeck(state, section, { filtered = true } = {}) {
+  /* Una pestaña de la versión 2 no tiene vales propios: junta los de
+     las secciones de siempre. Todo lo que cuenta, agrupa o filtra
+     debajo sigue viendo la misma lista de antes. */
+  if (V2_PARTS[section]) {
+    return V2_PARTS[section].flatMap((part) => walletDeck(state, part, { filtered }));
+  }
   const all =
     section === "gift"
       ? walletVouchers(state)
@@ -2916,7 +2948,7 @@ const WALLET_PAGE = 5;
    de su sección: las gift cards vienen del catálogo de Norteamérica y
    los vales y servicios del de Centroamérica. */
 function countryOfSection(section) {
-  return section === "gift" ? "US" : "GT";
+  return section === "gift" || section === "parami" ? "US" : "GT";
 }
 
 /* Pero cada marca es de donde es: el folder ofrece la región entera y
@@ -3030,9 +3062,9 @@ const WALLET_SECTIONS = ["gift", "vales", "servicios"];
    si no hay novedades, las gift cards, que es lo que más se guarda. */
 function walletEntryTab(state) {
   return (
-    WALLET_SECTIONS.find((section) =>
+    walletSectionsOf(state).find((section) =>
       walletDeck(state, section, { filtered: false }).some((v) => v.isNew),
-    ) || "gift"
+    ) || (state.walletV2 ? "parami" : "gift")
   );
 }
 
@@ -3194,11 +3226,20 @@ function screenWallet(state) {
 
   return `
     ${statusBar()}
-    ${titledHeader(walletTitle(state))}
+    ${titledHeader(walletTitle(state), {
+      /* El interruptor de la versión 2. Apagado, el wallet es el de
+         siempre; encendido, las pestañas pasan a ser "para quién es". */
+      trailingHtml: `
+        <button class="oky-flow-walletver${state.walletV2 ? " is-on" : ""}" data-action="wallet-version"
+          type="button" role="switch" aria-checked="${state.walletV2}" aria-label="Wallet v2">
+          <span class="oky-flow-walletver-track"><span class="oky-flow-walletver-knob"></span></span>
+        </button>
+      `,
+    })}
 
     <section class="plateu-molecule is-static is-default oky-flow-wallet-nav" role="tablist" aria-label="Tipo de vale">
       <div class="plateu-track is-static">
-        ${WALLET_TABS.map(
+        ${walletTabsOf(state).map(
           (t) => `
           <button class="plateu-item${t.key === tab ? " is-on" : ""}" type="button" role="tab"
             data-action="wallet-tab" data-section="${t.key}" aria-selected="${t.key === tab}">
@@ -3943,8 +3984,14 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
   const section = state.params.deck || (purchase ? sectionOfVoucher(purchase.productKey) : "gift");
   const unit = state.params.unit || 0;
   const wallet = voucherCarousel(state, section, state.params.key, unit);
-  /* Un vale de Pollo Campero no es una gift card: la card lo dice. */
-  const kind = { vales: "OKY Vale", servicios: "Servicio" }[section] || "Gift Card";
+  /* Un vale de Pollo Campero no es una gift card: la card lo dice. Y lo
+     dice el propio vale y no la pestaña de la que se entró: en la
+     versión 2 del wallet una pestaña junta vales y servicios, así que
+     preguntarle a ella devolvía "Gift Card" para los dos. */
+  const kind =
+    { vales: "OKY Vale", servicios: "Servicio" }[
+      sectionOfVoucher(purchase ? purchase.productKey : state.params.key)
+    ] || "Gift Card";
   const deck = state.params.id
     ? state.lastOrder.map((p) => ({ id: p.id, key: p.productKey }))
     : wallet;
@@ -6885,6 +6932,22 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "close-sheet") {
       state.sheet = null;
       return render();
+    }
+
+    if (action === "wallet-version") {
+      state.walletV2 = !state.walletV2;
+      /* Las pestañas de una versión no existen en la otra: si la
+         abierta no está en la nueva lista, se cae a la primera que sí
+         —OKY Cash se queda, que está en las dos—. Y el filtro se
+         suelta, porque las categorías se cuentan sobre otra lista. */
+      state.walletFilter = "";
+      state.openBeforeFilter = null;
+      if (!walletTabsOf(state).some((t) => t.key === state.walletTab)) {
+        state.walletTab = state.walletV2 ? "parami" : "gift";
+      }
+      state.openGroups = ["activos"];
+      state.walletShown = {};
+      return render({ keepScroll: true });
     }
 
     if (action === "wallet-more") {
