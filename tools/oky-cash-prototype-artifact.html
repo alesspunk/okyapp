@@ -19669,10 +19669,15 @@ function marketOf(state, side) {
   );
 }
 
-/* La hoja de elegir marketplace. Sale solo desde la doble flecha de la
+/* La hoja de elegir país. Sale solo desde la doble flecha de la
    pestaña que está delante, así que lo que ofrece es siempre el lado
    que se está mirando: nunca se puede saltar de Guatemala a Canadá sin
-   pasar por la pestaña de USA. */
+   pasar por la pestaña de USA.
+
+   El título dice "Elige el país" y no "Elige tu marketplace": lo que se
+   lista son países con su bandera y su código, y marketplace es palabra
+   de dentro de casa. El rótulo de debajo sigue diciendo de qué región
+   son los que se ofrecen. */
 function marketSheet(state) {
   const side = state.marketSheet;
   const current = marketOf(state, side);
@@ -19681,7 +19686,7 @@ function marketSheet(state) {
     <section class="oky-flow-market" role="dialog" aria-modal="true" aria-labelledby="oky-market-title">
       <span class="oky-flow-market-grip" aria-hidden="true"></span>
       <header class="oky-flow-market-head">
-        <h2 class="oky-flow-market-title" id="oky-market-title">Elige tu marketplace</h2>
+        <h2 class="oky-flow-market-title" id="oky-market-title">Elige el país</h2>
         <p class="oky-flow-market-note">${SIDE_LABEL[side]}</p>
       </header>
       <ul class="oky-flow-market-list">
