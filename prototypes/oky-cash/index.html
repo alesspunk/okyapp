@@ -17848,6 +17848,18 @@ function replaceContentLines(content, lines) {
     .filter(Boolean);
 }
 
+/* Una variante que ordena su contenido —códigos y barcode intercalados—
+   dibuja esa lista y nada más, así que un media propio se perdía por el
+   camino. Si llega uno, ocupa el sitio del que trae la variante y, si no
+   traía ninguno, se pone al final. */
+function withOwnMedia(content, media) {
+  if (!content || !media) return content;
+  if (content.some((item) => item?.type === "media")) {
+    return content.map((item) => (item?.type === "media" ? { type: "media", media } : item));
+  }
+  return [...content, { type: "media", media }];
+}
+
 function resolveCardBottom(args = {}) {
   const base = findCardBottom(args.variantPath);
   const overrideLines = Array.isArray(args.lines) ? args.lines : null;
@@ -17861,11 +17873,14 @@ function resolveCardBottom(args = {}) {
        puede tirarlo: las líneas nuevas entran donde iban las viejas y
        el media se queda en su sitio. Con la lista vacía —el vale
        compartido— no queda orden que respetar. */
-    content: overrideLines
-      ? base.content && overrideLines.length
-        ? replaceContentLines(base.content, overrideLines)
-        : null
-      : base.content,
+    content: withOwnMedia(
+      overrideLines
+        ? base.content && overrideLines.length
+          ? replaceContentLines(base.content, overrideLines)
+          : null
+        : base.content,
+      args.media,
+    ),
     media: args.media || base.media,
     expiry: typeof args.expiry === "string" ? args.expiry.trim() : base.expiry,
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,
@@ -21135,6 +21150,46 @@ function walletVoucherButton(v, deck, group = "activos") {
    —medallón festoneado, icono dentro y banda con la palabra—, pero este
    no existe como asset, así que se dibuja aquí para poder darle los
    grises: archivado no es un logro, es algo guardado. */
+/* Y el de comprado, que es el estado en uso: misma silueta que el de
+   archivado —para que se lean como la misma familia de sellos— pero en
+   el aqua del sistema y con un tique dentro. Va donde iba el barcode,
+   que solo traían algunas variantes y dejaba a las demás sin nada que
+   marcara el estado. */
+function boughtSeal() {
+  return `
+    <svg class="oky-flow-seal-bought" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="#7fe3db">
+        <circle cx="100.00" cy="18.00" r="12.50"/>
+        <circle cx="125.31" cy="22.46" r="12.50"/>
+        <circle cx="147.57" cy="35.31" r="12.50"/>
+        <circle cx="164.09" cy="55.00" r="12.50"/>
+        <circle cx="172.88" cy="79.15" r="12.50"/>
+        <circle cx="172.88" cy="104.85" r="12.50"/>
+        <circle cx="164.09" cy="129.00" r="12.50"/>
+        <circle cx="147.57" cy="148.69" r="12.50"/>
+        <circle cx="125.31" cy="161.54" r="12.50"/>
+        <circle cx="100.00" cy="166.00" r="12.50"/>
+        <circle cx="74.69" cy="161.54" r="12.50"/>
+        <circle cx="52.43" cy="148.69" r="12.50"/>
+        <circle cx="35.91" cy="129.00" r="12.50"/>
+        <circle cx="27.12" cy="104.85" r="12.50"/>
+        <circle cx="27.12" cy="79.15" r="12.50"/>
+        <circle cx="35.91" cy="55.00" r="12.50"/>
+        <circle cx="52.43" cy="35.31" r="12.50"/>
+        <circle cx="74.69" cy="22.46" r="12.50"/>
+        <circle cx="100" cy="92" r="74"/>
+      </g>
+      <circle cx="100" cy="92" r="62" fill="#5bd3c9"/>
+      <circle cx="100" cy="92" r="55" fill="#FFFFFF"/>
+      <path d="M74 92 L92 110 L127 74" fill="none" stroke="#5bd3c9" stroke-width="15"
+        stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="26" y="150" width="148" height="40" rx="8" fill="#5bd3c9"/>
+      <text x="100" y="179" text-anchor="middle" fill="#FFFFFF"
+        font-family="Nunito Sans, Lato, sans-serif" font-size="25" font-weight="700">Comprado</text>
+    </svg>
+  `;
+}
+
 function archivedSeal() {
   return `
     <svg class="oky-flow-seal-archived" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -22380,7 +22435,17 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
                   caption: sharedOn,
                 },
               }
-            : {}),
+            : /* En uso, el sello de comprado ocupa el sitio que traía el
+                 barcode: lo llevaban solo algunas variantes y las demás
+                 se quedaban sin nada que dijera en qué estado está. Los
+                 códigos no se tocan, que son a lo que se viene. */
+              {
+                bottomMedia: {
+                  type: "stamp",
+                  svg: boughtSeal(),
+                  alt: "Comprado",
+                },
+              }),
       })}
       ${
         many

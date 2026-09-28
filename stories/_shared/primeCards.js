@@ -456,6 +456,18 @@ function replaceContentLines(content, lines) {
     .filter(Boolean);
 }
 
+/* Una variante que ordena su contenido —códigos y barcode intercalados—
+   dibuja esa lista y nada más, así que un media propio se perdía por el
+   camino. Si llega uno, ocupa el sitio del que trae la variante y, si no
+   traía ninguno, se pone al final. */
+function withOwnMedia(content, media) {
+  if (!content || !media) return content;
+  if (content.some((item) => item?.type === "media")) {
+    return content.map((item) => (item?.type === "media" ? { type: "media", media } : item));
+  }
+  return [...content, { type: "media", media }];
+}
+
 export function resolveCardBottom(args = {}) {
   const base = findCardBottom(args.variantPath);
   const overrideLines = Array.isArray(args.lines) ? args.lines : null;
@@ -469,11 +481,14 @@ export function resolveCardBottom(args = {}) {
        puede tirarlo: las líneas nuevas entran donde iban las viejas y
        el media se queda en su sitio. Con la lista vacía —el vale
        compartido— no queda orden que respetar. */
-    content: overrideLines
-      ? base.content && overrideLines.length
-        ? replaceContentLines(base.content, overrideLines)
-        : null
-      : base.content,
+    content: withOwnMedia(
+      overrideLines
+        ? base.content && overrideLines.length
+          ? replaceContentLines(base.content, overrideLines)
+          : null
+        : base.content,
+      args.media,
+    ),
     media: args.media || base.media,
     expiry: typeof args.expiry === "string" ? args.expiry.trim() : base.expiry,
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,
