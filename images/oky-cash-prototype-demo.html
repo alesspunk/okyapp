@@ -13399,6 +13399,18 @@ button.tactic-offer {
   opacity: 0.9;
 }
 
+/* Qué tajada de ese vale pagó el saldo, bajo el nombre de la marca:
+   el monto dice cuánto se fue y esto dice cuánto alcanzó. */
+.oky-flow-order-share {
+  display: block;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--tier-base-text, #00524d);
+}
+
 /* ── Interruptor de versión de Mi wallet ─────────────────
    Vive en la esquina de la cabecera, en el hueco del icono de la
    derecha, y ocupa lo mismo que él para no descentrar el título.
@@ -21597,7 +21609,8 @@ function okyCashActivity(state) {
           ${debitRow}
           <div class="oky-flow-order-panel">
             <span class="oky-flow-order-toggle">
-              ${usedDetail.length} marca${usedDetail.length > 1 ? "s" : ""}
+              ${/* "2 marcas" solo contaba; esto dice qué se va a ver. */ ""}
+              En qué lo usaste
               <i class="fa-solid fa-chevron-${debitOpen ? "up" : "down"}" aria-hidden="true"></i>
             </span>
             ${
@@ -21607,7 +21620,9 @@ function okyCashActivity(state) {
                       .map(
                         (i) => `
                       <li class="oky-flow-order-line">
-                        <span>${i.label}</span>
+                        <span>${i.label}${
+                          i.share ? `<em class="oky-flow-order-share">cubrió el ${i.share}%</em>` : ""
+                        }</span>
                         <span class="is-debit">${i.amount}</span>
                       </li>
                     `,
@@ -24372,15 +24387,30 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          marca y el redondeo sobrante va a la última, para que el
          desglose sume exactamente lo que bajó del saldo. */
       const base = cartSubtotal(state) || 1;
-      let repartido = 0;
-      const detail = state.cart.map((item, i) => {
-        const last = i === state.cart.length - 1;
-        const parte = last
-          ? used - repartido
-          : Math.round(((item.amount * (item.qty || 1)) / base) * used * 100) / 100;
-        repartido += parte;
-        return { label: (PRODUCTS[item.productKey] || {}).label || "", amount: `- ${money(parte)}` };
-      });
+      /* El saldo no se reparte a prorrata: se empuja al vale más caro y
+         lo que sobra baja al siguiente. Descontar unos centavos de cada
+         cosa no se nota; tapar el vale grande sí, y es lo que la
+         persona esperaría que hiciera su saldo.
+
+         El desglose dice además qué tajada de ese vale pagó el saldo:
+         "cubrió el 60%" cuenta mejor lo que hizo el OKY Cash que un
+         monto suelto. */
+      let queda = used;
+      const detail = state.cart
+        .map((item) => ({ item, total: item.amount * (item.qty || 1) }))
+        .sort((a, b) => b.total - a.total)
+        .map(({ item, total }) => {
+          const parte = Math.min(queda, total);
+          queda = Math.round((queda - parte) * 100) / 100;
+          return { item, total, parte };
+        })
+        .filter((l) => l.parte > 0)
+        .map(({ item, total, parte }) => ({
+          label: (PRODUCTS[item.productKey] || {}).label || "",
+          amount: `- ${money(parte)}`,
+          /* Cuánto de ese vale pagó el saldo. */
+          share: total > 0 ? Math.round((parte / total) * 100) : 0,
+        }));
 
       state.activity.unshift({
         date: stamp(0),
