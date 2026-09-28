@@ -13825,6 +13825,23 @@ button.tactic-offer {
   color: rgba(0, 0, 0, 0.38);
 }
 
+/* La misma etiqueta, pero tocable cuando hay filtro puesto: reabre la
+   hoja para cambiar de categoría sin tener que quitar el filtro
+   primero. Se ve igual —el morado y el subrayado la delatan— y hereda
+   el área de 45px de .is-tappable. */
+button.oky-flow-wallet-filter-label {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  color: var(--oky-purple, #4b0082);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
 .oky-flow-filter-btn {
   flex: 0 0 auto;
 }

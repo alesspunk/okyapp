@@ -631,11 +631,11 @@ function createInitialState(userType) {
     /* Cuál de los vales de la orden enseña el acuse cuando todos son
        de la misma marca. */
     orderIndex: 0,
-    /* Qué versión de Mi wallet se está mirando: 2 la de "para quién
-       es", que es la de casa; 1 la de tipos, que era la de antes; 3 la
-       de países. Los dos interruptores de la cabecera llevan a las
-       otras dos, y apagados se vuelve a la 2. */
-    walletVer: 2,
+    /* Qué versión de Mi wallet se está mirando: 1 la de tipos de vale
+       —gift cards, vales, servicios—, que es la de casa; 2 la de "para
+       quién es"; 3 la de países. Los dos interruptores de la cabecera
+       llevan a las otras dos, y apagados se vuelve a la 1. */
+    walletVer: 1,
     /* A quién apunta el radio de la agenda mientras está abierta; al
        tocar "Siguiente" pasa a ser el destinatario de la orden. */
     contactPick: null,
@@ -650,7 +650,7 @@ function createInitialState(userType) {
     savingsFromPdp: false,
     /* La primera de la versión de casa. Con "gift" —la de la versión
        de tipos— no había pestaña que marcar al abrir. */
-    walletTab: "parami",
+    walletTab: "gift",
     openGroups: ["activos"],
     /* Aviso de cambio de marketplace; guarda a dónde se iba. */
     countrySheet: null,
@@ -3330,11 +3330,12 @@ function screenWallet(state) {
   return `
     ${statusBar()}
     ${titledHeader(walletTitle(state), {
-      /* El interruptor de la versión 2. Apagado, el wallet es el de
-         siempre; encendido, las pestañas pasan a ser "para quién es". */
+      /* Los interruptores de las dos propuestas. Apagados, el wallet
+         es el de siempre —por tipo de vale—; el 2 pasa las pestañas a
+         "para quién es" y el 3 a países. */
       trailingHtml: `
         <span class="oky-flow-walletvers">
-          ${[1, 3]
+          ${[2, 3]
             .map(
               (v) => `
             <button class="oky-flow-walletver${state.walletVer === v ? " is-on" : ""}"
@@ -3384,7 +3385,15 @@ function screenWallet(state) {
         ? okyCashActivity(state)
         : `
       <div class="oky-flow-wallet-filter">
-        <span class="oky-flow-wallet-filter-label">${walletFilterLabel(state)}</span>
+        ${
+          /* Con un filtro puesto el botón pasa a ser "Quitar filtro" y
+             la única salida era quitarlo para volver a elegir. La
+             categoría escrita hace de botón: se toca y vuelve a abrir
+             la hoja, así cambiar de categoría es un paso y no tres. */
+          state.walletFilter
+            ? `<button class="oky-flow-wallet-filter-label is-tappable" data-action="open-filter" type="button">${walletFilterLabel(state)}</button>`
+            : `<span class="oky-flow-wallet-filter-label">${walletFilterLabel(state)}</span>`
+        }
         ${
           state.walletFilter
             ? `<button class="btn btn-primary btn-small oky-flow-filter-btn is-on" data-action="clear-filter" type="button">
@@ -5775,14 +5784,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const was = state.walletFilter;
     if (next && !was) state.openBeforeFilter = state.openGroups;
     state.walletFilter = next;
-    /* Con filtro puesto se abre lo que tiene resultados y nada más:
-       desplegar una sección para enseñar que está vacía es hacer
-       trabajar a la persona para no darle nada. */
-    const withHits = next && WALLET_GROUPS.find((g) => walletGroupDeck(state, state.walletTab, g.key).length);
+    /* Con filtro puesto se abre TODO lo que tiene resultados y nada
+       más. Antes se abría solo la primera sección con aciertos y el
+       resto quedaba plegado: el filtro prometía "Comida 3", se
+       desplegaba Comprados con 2 y el tercero se quedaba dormido
+       dentro de Compartidos. Parecía que el filtro no filtraba bien
+       cuando lo que fallaba era lo que se enseñaba. Desplegar una
+       sección vacía sí sobra, así que esas siguen plegadas. */
     state.openGroups = next
-      ? withHits
-        ? [withHits.key]
-        : []
+      ? WALLET_GROUPS.filter((g) => walletGroupDeck(state, state.walletTab, g.key).length).map((g) => g.key)
       : state.openBeforeFilter || state.openGroups;
     if (!next) state.openBeforeFilter = null;
     state.sheet = null;
@@ -7116,11 +7126,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "wallet-version") {
       /* Cada interruptor es su propuesta: encender una apaga la otra, y
-         apagar la encendida devuelve la de siempre. */
-      /* Cada interruptor lleva a su versión; apagarlo devuelve la de
-         casa, que es la 2. */
+         apagar la encendida devuelve la de casa, que es la 1 —la de
+         siempre, por tipo de vale—. */
       const pedida = Number(el.dataset.ver) || 1;
-      state.walletVer = state.walletVer === pedida ? 2 : pedida;
+      state.walletVer = state.walletVer === pedida ? 1 : pedida;
       /* Las pestañas de una versión no existen en la otra: si la
          abierta no está en la nueva lista, se cae a la primera que sí
          —OKY Cash se queda, que está en las dos—. Y el filtro se

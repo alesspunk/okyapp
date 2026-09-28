@@ -32,35 +32,19 @@ export const GUA_HOME_MARKUP = `
 
         <section class="mockup-block mockup-left-tiles-block" data-pen-id="76102:40872-tiles">
           <div class="mockup-left-tiles">
+            ${/* El orden es el de la app: se leen de izquierda a derecha y
+                   de arriba abajo, y tenerlo distinto aquí confundía a
+                   quien ya la conoce. */ ""}
             <div class="mockup-tiles-row">
-              <article class="mockup-half-tile-wrap">
-                
-                <div class="service-tile service-tile-half is-secondary-border">
-                  <div class="tile-icon tile-icon-half"><img src="multimarca.webp" alt="Multimarca" /></div>
-                  <div class="tile-label">Multimarca</div>
-                </div>
-              </article>
-              <div class="service-tile service-tile-half">
-                <div class="tile-icon tile-icon-half"><img src="halloween.png" alt="Halloween" /></div>
-                <div class="tile-label">Halloween</div>
-              </div>
-              <div class="service-tile service-tile-half">
-                <div class="tile-icon tile-icon-half"><img src="hot.webp" alt="Ofertas" /></div>
-                <div class="tile-label">Ofertas</div>
-              </div>
-            </div>
-
-            <div class="mockup-tiles-row">
-              <div class="service-tile">
-                ${/* El teléfono con el billete: mandar plata es lo que
-                       dice, y en la teja de recargas no era eso. */ ""}
-                <div class="tile-icon"><img src="recargar.webp" alt="Hacer Remesas" /></div>
-                <div class="tile-label">Hacer<br />Remesas</div>
-              </div>
               <div class="service-tile is-live" data-action="open-category" data-category="comida"
                 role="button" tabindex="0">
                 <div class="tile-icon"><img src="invitar.webp" alt="Invitar a Comer" /></div>
                 <div class="tile-label">Invitar<br />a Comer</div>
+              </div>
+              <div class="service-tile is-live" data-action="open-category" data-category="recargas"
+                role="button" tabindex="0">
+                <div class="tile-icon"><img src="recargar-guate.png" alt="Recargar el Móvil" /></div>
+                <div class="tile-label">Recargar<br />el Móvil</div>
               </div>
               <div class="service-tile">
                 <div class="tile-icon"><img src="servicios.webp" alt="Pagar Servicios" /></div>
@@ -77,27 +61,24 @@ export const GUA_HOME_MARKUP = `
                 <div class="tile-icon"><img src="super.webp" alt="Mandar el Super" /></div>
                 <div class="tile-label">Mandar<br />el Super</div>
               </div>
-              <div class="service-tile is-live" data-action="open-category" data-category="recargas"
-                role="button" tabindex="0">
-                ${/* Y las recargas se quedan con la antena, que es la
-                       misma que lleva su propia Category Page. */ ""}
-                <div class="tile-icon"><img src="plateu-recargas.png" alt="Recargar el Móvil" /></div>
-                <div class="tile-label">Recargar<br />el Móvil</div>
+              <div class="service-tile">
+                <div class="tile-icon"><img src="recargar.webp" alt="Hacer Remesas" /></div>
+                <div class="tile-label">Hacer<br />Remesas</div>
               </div>
             </div>
 
             <div class="mockup-tiles-row">
               <div class="service-tile">
-                <div class="tile-icon"><img src="regalos.webp" alt="Enviar Regalos" /></div>
-                <div class="tile-label">Enviar<br />Regalos</div>
+                <div class="tile-icon"><img src="hogar.png" alt="Equipar su Hogar" /></div>
+                <div class="tile-label">Equipar<br />su Hogar</div>
               </div>
               <div class="service-tile">
                 <div class="tile-icon"><img src="gas.webp" alt="Llenar el Tanque" /></div>
                 <div class="tile-label">Llenar<br />el Tanque</div>
               </div>
               <div class="service-tile">
-                <div class="tile-icon"><img src="hogar.png" alt="Equipar su Hogar" /></div>
-                <div class="tile-label">Equipar<br />su Hogar</div>
+                <div class="tile-icon"><img src="regalos.webp" alt="Enviar Regalos" /></div>
+                <div class="tile-label">Enviar<br />Regalos</div>
               </div>
             </div>
           </div>
