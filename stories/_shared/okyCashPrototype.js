@@ -2866,7 +2866,7 @@ function walletTitle(state) {
 }
 
 const WALLET_GROUPS = [
-  { key: "activos", label: "Activos", icon: "fa-ticket", empty: "Nada activo por aquí." },
+  { key: "activos", label: "Comprados", icon: "fa-ticket", empty: "Nada comprado por aquí." },
   { key: "compartidos", label: "Compartidos", icon: "fa-paper-plane", empty: "Todavía no has compartido nada." },
   { key: "archivados", label: "Archivados", icon: "fa-box-archive", empty: "Nada archivado." },
 ];
@@ -2963,7 +2963,11 @@ function walletGroupDeck(state, section, group, opts) {
    en cada una: el contador evita abrir para descubrir que no hay nada,
    y ofrecer categorías de otra pestaña sería ofrecer un callejón. */
 function walletCategories(state, section = state.walletTab) {
-  const items = walletDeck(state, section, { filtered: false });
+  /* Cuenta vales y no marcas, que es como cuenta la cabecera de cada
+     sección: el filtro prometía "Transporte 1" y al aplicarlo la
+     sección decía "(3)" —tres Lyft son una card pero tres vales— y
+     parecía que no había filtrado nada. */
+  const items = expandUnits(walletDeck(state, section, { filtered: false }));
   return WALLET_CATEGORIES.map((cat) => ({
     ...cat,
     count: items.filter((v) => CATEGORY_OF[v.key] === cat.key).length,
@@ -4441,7 +4445,7 @@ const CONFIRM_SHEETS = {
   unshare: {
     art: "oky-share-hands.png",
     title: "¿No llegaste a compartirlo?",
-    note: "Lo devolveremos a la sección de activos. El vale y su código siguen intactos.",
+    note: "Lo devolveremos a la sección de comprados. El vale y su código siguen intactos.",
     confirm: "Activarla nuevamente",
     dismiss: "Cancelar",
     action: "confirm-unshare",
