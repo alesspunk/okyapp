@@ -52,7 +52,9 @@ export const GUA_HOME_MARKUP = `
 
             <div class="mockup-tiles-row">
               <div class="service-tile">
-                <div class="tile-icon"><img src="remesas.webp" alt="Hacer Remesas" /></div>
+                ${/* El teléfono con el billete: mandar plata es lo que
+                       dice, y en la teja de recargas no era eso. */ ""}
+                <div class="tile-icon"><img src="recargar.webp" alt="Hacer Remesas" /></div>
                 <div class="tile-label">Hacer<br />Remesas</div>
               </div>
               <div class="service-tile is-live" data-action="open-category" data-category="comida"
@@ -77,7 +79,9 @@ export const GUA_HOME_MARKUP = `
               </div>
               <div class="service-tile is-live" data-action="open-category" data-category="recargas"
                 role="button" tabindex="0">
-                <div class="tile-icon"><img src="recargar.webp" alt="Recargar el Móvil" /></div>
+                ${/* Y las recargas se quedan con la antena, que es la
+                       misma que lleva su propia Category Page. */ ""}
+                <div class="tile-icon"><img src="plateu-recargas.png" alt="Recargar el Móvil" /></div>
                 <div class="tile-label">Recargar<br />el Móvil</div>
               </div>
             </div>
