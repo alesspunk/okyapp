@@ -12635,6 +12635,11 @@ button.tactic-offer {
      rótulos de sistema, y "OKY Cash" pierde su forma en mayúsculas. */
   text-transform: none;
   letter-spacing: 0.2px;
+  /* Y del mismo tamaño la abierta y las demás: el átomo deja las
+     inactivas dos puntos más chicas y, siendo todas nombres de la
+     misma fila, se leían como letra pequeña. Lo que distingue a la
+     abierta es su píldora, no el cuerpo. */
+  font-size: 10px;
 }
 
 /* "Ver más" de la pila del wallet: centrado bajo la última card, como

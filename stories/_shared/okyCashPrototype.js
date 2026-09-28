@@ -1006,9 +1006,11 @@ function statusBar() {
   `;
 }
 
-/* Píldora de saldo de OKY Cash. Vive en el home y se repite al pie
-   de "Tus compras", donde el saldo acaba de cambiar por la compra. */
+/* Píldora de saldo de OKY Cash, en las dos homes. Sin saldo no sale:
+   un "$0.00" no invita a nada y ocupa el sitio de lo que sí se puede
+   comprar. Vuelve sola en cuanto la primera compra deje algo. */
 function cashStrip(state) {
+  if (!(state.okyCashBalance > 0)) return "";
   return `
     <button class="oky-flow-cash-strip" data-action="nav:okycash" type="button">
       <img src="oky-cash-coin.png" alt="" />
@@ -4696,7 +4698,9 @@ const GUA_TILES_ANCHOR = `<section class="mockup-block mockup-left-tiles-block"`
 function screenHomeGua(state) {
   const body = GUA_HOME_MARKUP.replace(
     GUA_TILES_ANCHOR,
-    `<div class="oky-flow-gua-cash">${cashStrip(state)}</div>${GUA_TILES_ANCHOR}`,
+    /* Sin píldora tampoco va su hueco, o quedaría un palmo de blanco
+       entre el carrusel y las categorías. */
+    `${cashStrip(state) ? `<div class="oky-flow-gua-cash">${cashStrip(state)}</div>` : ""}${GUA_TILES_ANCHOR}`,
   );
 
   return `
