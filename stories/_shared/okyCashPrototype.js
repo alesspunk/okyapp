@@ -3050,15 +3050,12 @@ function walletVoucherButton(v, deck, group = "activos") {
   `;
 }
 
-/* El sello de archivado. La familia de sellos del sistema es la misma
-   —medallón festoneado, icono dentro y banda con la palabra—, pero este
-   no existe como asset, así que se dibuja aquí para poder darle los
-   grises: archivado no es un logro, es algo guardado. */
-/* Y el de comprado, que es el estado en uso: misma silueta que el de
-   archivado —para que se lean como la misma familia de sellos— pero en
-   el aqua del sistema y con un tique dentro. Va donde iba el barcode,
-   que solo traían algunas variantes y dejaba a las demás sin nada que
-   marcara el estado. */
+/* El sello de comprado, que es el estado en uso: medallón festoneado,
+   icono dentro y banda con la palabra, la misma familia que el de
+   archivado y el de compartido. Va donde iba el barcode, que solo
+   traían algunas variantes y dejaba a las demás sin nada que marcara el
+   estado. Este se dibuja aquí porque no hay asset suyo; el de archivado
+   sí lo tiene (101530:25667) y entra como imagen. */
 function boughtSeal() {
   return `
     <svg class="oky-flow-seal-bought" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -3094,43 +3091,6 @@ function boughtSeal() {
   `;
 }
 
-function archivedSeal() {
-  return `
-    <svg class="oky-flow-seal-archived" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <g fill="#9EA4AD">
-        <circle cx="100.00" cy="18.00" r="12.50"/>
-        <circle cx="125.31" cy="22.46" r="12.50"/>
-        <circle cx="147.57" cy="35.31" r="12.50"/>
-        <circle cx="164.09" cy="55.00" r="12.50"/>
-        <circle cx="172.88" cy="79.15" r="12.50"/>
-        <circle cx="172.88" cy="104.85" r="12.50"/>
-        <circle cx="164.09" cy="129.00" r="12.50"/>
-        <circle cx="147.57" cy="148.69" r="12.50"/>
-        <circle cx="125.31" cy="161.54" r="12.50"/>
-        <circle cx="100.00" cy="166.00" r="12.50"/>
-        <circle cx="74.69" cy="161.54" r="12.50"/>
-        <circle cx="52.43" cy="148.69" r="12.50"/>
-        <circle cx="35.91" cy="129.00" r="12.50"/>
-        <circle cx="27.12" cy="104.85" r="12.50"/>
-        <circle cx="27.12" cy="79.15" r="12.50"/>
-        <circle cx="35.91" cy="55.00" r="12.50"/>
-        <circle cx="52.43" cy="35.31" r="12.50"/>
-        <circle cx="74.69" cy="22.46" r="12.50"/>
-        <circle cx="100" cy="92" r="74"/>
-      </g>
-      <circle cx="100" cy="92" r="62" fill="#8A9099"/>
-      <circle cx="100" cy="92" r="55" fill="#FFFFFF"/>
-      <g fill="#9EA4AD">
-        <rect x="65" y="52" width="70" height="19" rx="6"/>
-        <path d="M72 77h56a3.5 3.5 0 0 1 3.5 3.7l-3.7 44a7 7 0 0 1-7 6.3H79.2a7 7 0 0 1-7-6.3l-3.7-44A3.5 3.5 0 0 1 72 77Z"/>
-      </g>
-      <rect x="87" y="90" width="26" height="8" rx="4" fill="#FFFFFF"/>
-      <rect x="26" y="150" width="148" height="40" rx="8" fill="#8A9099"/>
-      <text x="100" y="179" text-anchor="middle" fill="#FFFFFF"
-        font-family="Nunito Sans, Lato, sans-serif" font-size="25" font-weight="700">Archivado</text>
-    </svg>
-  `;
-}
 
 /* ¿Este vale suelto está sin abrir? Lo está si se compró y todavía no
    se ha abierto. Se pregunta por las compras y no por el índice porque
@@ -4335,7 +4295,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               bottomShowButton: false,
               bottomMedia: {
                 type: "stamp",
-                svg: archivedSeal(),
+                src: "oky-seal-archived.png",
                 alt: "Archivado",
                 caption: sharedOn,
               },
