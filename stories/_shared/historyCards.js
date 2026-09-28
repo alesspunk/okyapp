@@ -180,9 +180,18 @@ function renderAvatar(card) {
      librería: el de la actividad de OKY Cash trae su propio círculo, así
      que la imagen ocupa el hueco entero. */
   if (card.icon.src) {
+    /* Y puede llevar una insignia encima: la flecha que antes iba en el
+       chip. Arriba y en verde lo que entra, abajo y en gris lo que sale,
+       pegada al borde del círculo. */
+    const badge = card.icon.badge
+      ? `<span class="icon-avatar-badge is-${card.icon.badge.tone}">
+          <i class="fa-solid ${card.icon.badge.glyph}" aria-hidden="true"></i>
+        </span>`
+      : "";
     return `
-      <span class="icon-avatar is-art${muted}">
+      <span class="icon-avatar is-art${muted}${badge ? " has-badge" : ""}">
         <img src="${card.icon.src}" alt="" />
+        ${badge}
       </span>
     `;
   }
@@ -199,11 +208,19 @@ function renderChip(chip) {
     return "";
   }
 
+  /* El icono es opcional. En la actividad de OKY Cash la flecha de
+     entrar y salir se mudó al avatar, así que el chip se queda solo con
+     la palabra: tener la misma flecha dos veces en la misma fila no
+     añadía nada. */
   return `
     <span class="history-card-chip is-${chip.tone}">
-      <span class="history-card-chip-icon">
-        <i class="fa-solid ${chip.icon}" aria-hidden="true"></i>
-      </span>
+      ${
+        chip.icon
+          ? `<span class="history-card-chip-icon">
+              <i class="fa-solid ${chip.icon}" aria-hidden="true"></i>
+            </span>`
+          : ""
+      }
       ${chip.label}
     </span>
   `;

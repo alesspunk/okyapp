@@ -6934,6 +6934,42 @@ body {
   object-fit: cover;
 }
 
+/* La insignia de entrada o salida, encima del círculo de la moneda: la
+   flecha que antes iba dentro del chip. Se sale un poco del borde para
+   que se lea como algo pegado al icono y no como parte del dibujo.
+   Arriba a la derecha lo que entra, abajo a la derecha lo que sale
+   (101537:38626 y 101537:38667). */
+.icon-avatar.is-art.has-badge {
+  position: relative;
+  overflow: visible;
+}
+
+.icon-avatar-badge {
+  position: absolute;
+  right: -3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: 2px solid var(--white, #fff);
+  box-sizing: border-box;
+  font-size: 8px;
+  line-height: 1;
+  color: var(--white, #fff);
+}
+
+.icon-avatar-badge.is-up {
+  top: -3px;
+  background: #22a06b;
+}
+
+.icon-avatar-badge.is-down {
+  bottom: -3px;
+  background: #6b7280;
+}
+
 .icon-avatar {
   /* sin token ni en el DS ni en Figma */
   --icon-avatar-bg: #e9d4ff;

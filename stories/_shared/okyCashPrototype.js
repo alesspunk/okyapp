@@ -610,8 +610,8 @@ function createInitialState(userType) {
       { date: stamp(33), group: monthGroup(33), amount: "+ $0.95", order: "Orden #01112439", kind: "credit", label: "CVS", value: 0.95 },
       { date: stamp(33), group: monthGroup(33), amount: "- $8.00", order: "Orden #01112439", kind: "debit", label: "Pagado con OKY Cash", value: -8,
         detail: [
-          { label: "Apple", amount: "- $5.00" },
-          { label: "CVS", amount: "- $3.00" },
+          { label: "Apple", amount: "- $5.00", share: 20 },
+          { label: "CVS", amount: "- $3.00", share: 30 },
         ] },
       { date: stamp(41), group: monthGroup(41), amount: "+ $2.24", order: "Orden #01112438", kind: "credit", label: "Google Play", value: 2.24 },
       /* Julio */
@@ -619,7 +619,7 @@ function createInitialState(userType) {
       { date: stamp(48), group: monthGroup(48), amount: "+ $0.90", order: "Orden #01112434", kind: "credit", label: "McDonald's", value: 0.9 },
       { date: stamp(52), group: monthGroup(52), amount: "+ $1.85", order: "Orden #01112430", kind: "credit", label: "eBay", value: 1.85 },
       { date: stamp(60), group: monthGroup(60), amount: "- $12.00", order: "Orden #01112427", kind: "debit", label: "Pagado con OKY Cash", value: -12,
-        detail: [{ label: "eBay", amount: "- $12.00" }] },
+        detail: [{ label: "eBay", amount: "- $12.00", share: 24 }] },
     ],
     /* El folder del Discovery Header se colapsa al scrollear el home. */
     headerCollapsed: false,
@@ -3398,27 +3398,32 @@ function okyCashActivity(state) {
     else groups.push({ label, items: [entry] });
   });
 
-  /* El arte de la actividad viene del sistema de diseño: las monedas
-     con la sonrisa de OKY para lo que entra y el dólar para lo que sale.
-     Antes eran glifos de Font Awesome —fa-coin suelto es de la versión
-     Pro y en el archivo standalone salía como caja, de ahí el signo de
-     dólar de relleno—; ahora es el arte de verdad, con su círculo. */
+  /* El arte de la actividad viene del sistema de diseño, con su propio
+     círculo lavanda: la pila de monedas para lo que entra (101537:38885)
+     y la moneda suelta para lo que sale (101540:26587). La cantidad de
+     monedas ya dice de qué lado está el movimiento antes de leer nada. */
   const COIN_ART = { earned: "oky-activity-earned.png", used: "oky-activity-used.png" };
 
-  /* Los dos chips son la misma pareja vista al derecho y al revés:
-     flecha arriba lo que entra, flecha abajo lo que sale. El check de
-     antes decía "correcto", no "subió", y no se leía contra su opuesto. */
+  /* La flecha de entrar y salir se mudó del chip al avatar
+     (101537:38626 y 101537:38667): el chip se queda con la palabra y la
+     moneda lleva encima la insignia que dice en qué dirección se movió
+     el saldo. Antes la misma flecha salía dos veces en la misma fila. */
   const chipFor = (positive) =>
+    positive ? { label: "Ganado", tone: "success" } : { label: "Usado", tone: "neutral" };
+
+  /* Y la insignia: verde y arriba lo que entra, gris y abajo lo que
+     sale, en la esquina del círculo de la moneda. */
+  const badgeFor = (positive) =>
     positive
-      ? { label: "Ganado", tone: "success", icon: "fa-circle-arrow-up" }
-      : { label: "Usado", tone: "neutral", icon: "fa-circle-arrow-down" };
+      ? { glyph: "fa-arrow-up", tone: "up" }
+      : { glyph: "fa-arrow-down", tone: "down" };
 
   const historyRow = ({ date, amount, order, positive }) =>
     renderHistoryCard({
       key: "oky-cash",
       id: "99135:104411",
       layout: "row",
-      icon: { src: positive ? COIN_ART.earned : COIN_ART.used },
+      icon: { src: positive ? COIN_ART.earned : COIN_ART.used, badge: badgeFor(positive) },
       date,
       amount,
       /* El signo manda el color: verde oscuro lo que entra, rojo lo que
