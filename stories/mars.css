@@ -13172,6 +13172,16 @@ button.tactic-offer {
   height: 136px;
 }
 
+/* El icono de "Para mí" va dentro del anillo de dentro, que le hace de
+   disco: dibujarle el suyo encima de los dos anillos de la hoja dejaba
+   tres círculos pisándose. */
+.oky-flow-sheet.is-decision .oky-flow-sheet-art img {
+  width: 156px;
+  height: 156px;
+  max-width: none;
+  max-height: 156px;
+}
+
 .oky-flow-sheet-actions {
   flex: 0 0 auto;
   display: flex;
@@ -13670,19 +13680,24 @@ button.tactic-offer {
   opacity: 0.2;
 }
 
-/* Uno mismo lleva las banderas de su tienda, y el morado sobra: sobre
-   él se apagaban. Va sobre blanco, con un aro tenue que le da borde en
-   la fila gris y sobre la card blanca del pago. */
+/* Uno mismo lleva su icono, y lo lleva a sangre: el círculo de la fila
+   es el icono, no un marco con un cuadrado dentro. Antes eran dos
+   formas —un cuadrado redondeado metido en un círculo blanco con aro—
+   y se leían como dos, no como un avatar. */
 .oky-flow-contact.is-self .oky-flow-contact-avatar {
   box-sizing: border-box;
-  background: var(--white);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: none;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 .oky-flow-contact.is-self .oky-flow-contact-avatar img {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .oky-flow-contact-copy {

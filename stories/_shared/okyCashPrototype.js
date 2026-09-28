@@ -2283,7 +2283,7 @@ function screenCheckout(state) {
                Para uno mismo se queda el muñeco. */
             recipient.initials
               ? `<span class="dual-avatar is-contact" aria-hidden="true">${recipient.initials}</span>`
-              : `<span class="dual-avatar is-self" aria-hidden="true"><img src="plateu-parami.png" alt="" /></span>`
+              : `<span class="dual-avatar is-self" aria-hidden="true"><img src="parami-redondo.png" alt="" /></span>`
           }
           <div class="dual-copy">
             <p class="dual-title">${recipient.name}</p>
@@ -4495,10 +4495,15 @@ const CONFIRM_SHEETS = {
      la misma máquina que archivar y devolver, que ahí sí responde.
      "Para alguien más" sigue apagado: no hay a dónde llevar todavía. */
   decision: {
-    /* Las banderas cruzadas de Estados Unidos y Canadá, las mismas de
-       la pestaña "Para mi" del wallet: la pregunta es de la tienda de
-       Norteamérica y la ilustración lo dice sin leer. */
-    art: "oky-flags-usa-ca.png",
+    /* El icono de "Para mí": la persona con la flecha que entra. La
+       pregunta es exactamente esa, y verla aquí es lo que después se
+       reconoce en la agenda, en el pago y en la pestaña del wallet.
+       Antes iban las banderas de Estados Unidos y Canadá, que hablaban
+       de la tienda y no de la pregunta.
+
+       Aquí va suelto, sin su disco: la hoja ya trae sus dos anillos y
+       un tercer círculo encima solo ensuciaba. */
+    art: "parami-arte.png",
     title: "¿Es para ti o para alguien más?",
     note: "Si es para ti, lo guardamos en tu wallet apenas termines de pagar.",
     confirm: "Para mí",
@@ -4682,10 +4687,12 @@ function screenContacts(state) {
       <span class="oky-flow-contact-radio" aria-hidden="true"></span>
       <span class="oky-flow-contact-avatar">
         ${
-          /* Uno mismo no lleva iniciales: lleva las banderas de su
-             tienda, las mismas de la hoja y de la pestaña "Para mi". */
+          /* Uno mismo no lleva iniciales: lleva el icono de "Para mí",
+             el mismo de la hoja y de la pestaña del wallet. Redondo y a
+             sangre, porque un cuadrado metido dentro del círculo de la
+             fila se veía como dos formas peleando. */
           c.self
-            ? `<img src="plateu-parami.png" alt="" />`
+            ? `<img src="parami-redondo.png" alt="" />`
             : `<span>${c.initials}</span>`
         }
       </span>
