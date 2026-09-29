@@ -2853,7 +2853,7 @@ const WALLET_SECTIONS_V2 = ["parami", "paracompartir"];
    amarillo y dicen lo mismo. */
 const WALLET_TABS_V3 = [
   { key: "v3mio", label: "Para mi", emoji: "🙋", title: "Mi wallet" },
-  { key: "v3comp", label: "Para compartir", emoji: "👫", title: "Mi wallet" },
+  { key: "v3comp", label: "Compartidas", emoji: "👫", title: "Mi wallet" },
 ];
 const WALLET_SECTIONS_V3 = ["v3mio", "v3comp"];
 
@@ -3301,6 +3301,25 @@ function screenWallet(state) {
     `;
   };
 
+  /* La pastilla de saldo de la versión 3, la misma del final de una
+     compra. Dice tres cosas distintas según lo que haya que decir:
+
+     · Acabas de ganar y todavía no lo has visto → lo que ganaste, con
+       su "+". Es la noticia, y es lo que trae a alguien al wallet.
+     · Ya lo viste, pero tienes saldo → cuánto tienes. La noticia caducó
+       y lo que queda es el dato.
+     · No tienes nada → ni cifra ni "$0.00", que no invita a nada:
+       solo el nombre y una puerta.
+
+     "Reciente" es literal: se apaga al entrar a OKY Cash, que es
+     justo cuando deja de ser noticia. */
+  const cashFresco = state.cashUnseen && state.lastEarned > 0;
+  const cashPildora = cashFresco
+    ? `+${money(state.lastEarned)} en OKY Cash`
+    : state.okyCashBalance > 0
+      ? `${money(state.okyCashBalance)} en OKY Cash`
+      : "OKY Cash, explora";
+
   return `
     ${statusBar()}
     ${titledHeader(walletTitle(state), {
@@ -3331,14 +3350,14 @@ function screenWallet(state) {
          pastilla aqua del checkout, debajo del título: dice cuánto hay
          sin robarle la pantalla a los vales, que es a lo que se viene.
          Se toca y lleva a OKY Cash. */
-      state.walletVer === 3 && state.okyCashBalance > 0
+      state.walletVer === 3
         ? `
-      <button class="oky-flow-wallet-cashchip" data-action="nav:cashsolo" type="button">
-        <img src="oky-cash-coin.png" alt="" />
-        <span class="oky-flow-wallet-cashchip-label">OKY Cash</span>
-        <span class="oky-flow-chip is-cash">${money(state.okyCashBalance)}</span>
-        <span class="oky-flow-wallet-cashchip-note">disponible</span>
-      </button>
+      <div class="oky-flow-wallet-cashrow">
+        <button class="oky-flow-purchase-badge is-cash is-wallet" data-action="nav:cashsolo" type="button">
+          <img src="oky-cash-coin.png" alt="" />
+          <span>${cashPildora}</span>
+        </button>
+      </div>
     `
         : ""
     }
@@ -3354,7 +3373,10 @@ function screenWallet(state) {
           (t) => `
           <button class="oky-flow-wallet-seg-item${t.key === tab ? " is-on" : ""}" type="button" role="tab"
             data-action="wallet-tab" data-section="${t.key}" aria-selected="${t.key === tab}">
-            <span class="oky-flow-wallet-seg-emoji" aria-hidden="true">${t.emoji}</span>${t.label}
+            ${/* El emoji cierra en vez de abrir: delante empujaba la
+                 palabra fuera del centro de su mitad y las dos
+                 pestañas se leían descuadradas. */ ""}
+            ${t.label}<span class="oky-flow-wallet-seg-emoji" aria-hidden="true">${t.emoji}</span>
           </button>
         `,
         ).join("")}
