@@ -21559,7 +21559,12 @@ function screenWallet(state) {
   const stack = (items, group, empty) => {
     if (!items.length) return `<p class="oky-flow-empty">${empty}</p>`;
     const slot = `${tab}:${group}`;
-    const shown = state.walletShown[slot] || WALLET_PAGE;
+    /* La 3 las suelta todas de una. Las tandas de cinco tenían sentido
+       cuando cada pestaña era un tipo de vale y la pila crecía sin
+       fondo; aquí las dos listas son cortas —lo que tienes y lo que
+       mandaste— y un "Ver más" a los cinco pide un toque para enseñar
+       lo que ya cabía. */
+    const shown = state.walletVer === 3 ? items.length : state.walletShown[slot] || WALLET_PAGE;
     const visible = items.slice(0, shown);
     return `
       <div class="oky-flow-stack" data-stack="${slot}">
