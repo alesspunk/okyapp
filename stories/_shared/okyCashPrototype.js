@@ -2288,7 +2288,7 @@ function screenCheckout(state) {
                Para uno mismo se queda el muñeco. */
             recipient.initials
               ? `<span class="dual-avatar is-contact" aria-hidden="true">${recipient.initials}</span>`
-              : `<span class="dual-avatar is-self" aria-hidden="true"><img src="parami-redondo.png" alt="" /></span>`
+              : `<span class="dual-avatar is-self" aria-hidden="true">🙋</span>`
           }
           <div class="dual-copy">
             <p class="dual-title">${recipient.name}</p>
@@ -4571,15 +4571,15 @@ const CONFIRM_SHEETS = {
      la misma máquina que archivar y devolver, que ahí sí responde.
      "Para alguien más" sigue apagado: no hay a dónde llevar todavía. */
   decision: {
-    /* El icono de "Para mí": la persona con la flecha que entra. La
-       pregunta es exactamente esa, y verla aquí es lo que después se
-       reconoce en la agenda, en el pago y en la pestaña del wallet.
-       Antes iban las banderas de Estados Unidos y Canadá, que hablaban
-       de la tienda y no de la pregunta.
+    /* La persona con la mano alzada: "yo". La pregunta es exactamente
+       esa, y el mismo emoji sale después en la agenda, en el pago y en
+       la pestaña del wallet, así que se reconoce de una pantalla a la
+       siguiente. Va suelto sobre los dos anillos de la hoja.
 
-       Aquí va suelto, sin su disco: la hoja ya trae sus dos anillos y
-       un tercer círculo encima solo ensuciaba. */
-    art: "parami-arte.png",
+       Antes era un icono dibujado —una persona con una flecha— y antes
+       de eso las banderas de Estados Unidos y Canadá, que hablaban de
+       la tienda y no de la pregunta. */
+    emoji: "🙋",
     title: "¿Es para ti o para alguien más?",
     note: "Si es para ti, lo guardamos en tu wallet apenas termines de pagar.",
     confirm: "Para mí",
@@ -4673,7 +4673,14 @@ function confirmSheet(state) {
       <h2 class="oky-flow-sheet-title">${sheet.title}</h2>
       ${sheet.note ? `<p class="oky-flow-sheet-note">${sheet.note}</p>` : ""}
       <div class="oky-flow-sheet-art">
-        <img src="${sheet.art}" alt="" />
+        ${
+          /* La mayoría de las hojas traen su ilustración 3D; la del
+             destinatario lleva el mismo emoji que el resto del flujo,
+             para que se reconozca de una pantalla a la siguiente. */
+          sheet.emoji
+            ? `<span class="oky-flow-sheet-emoji" aria-hidden="true">${sheet.emoji}</span>`
+            : `<img src="${sheet.art}" alt="" />`
+        }
       </div>
       <div class="oky-flow-sheet-actions">
         <button class="oky-flow-sheet-confirm" data-action="${sheet.action}" data-key="${state.sheet.key}"
@@ -4768,7 +4775,7 @@ function screenContacts(state) {
              sangre, porque un cuadrado metido dentro del círculo de la
              fila se veía como dos formas peleando. */
           c.self
-            ? `<img src="parami-redondo.png" alt="" />`
+            ? `<span class="oky-flow-contact-emoji">🙋</span>`
             : `<span>${c.initials}</span>`
         }
       </span>

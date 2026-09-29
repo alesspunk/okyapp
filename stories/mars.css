@@ -3358,10 +3358,9 @@ body {
   border-radius: 0;
 }
 
-.dual-avatar.is-self img {
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
+.dual-avatar.is-self {
+  font-size: 26px;
+  line-height: 1;
 }
 
 /* Yendo a otra persona el avatar es el suyo: el mismo círculo rosado
@@ -13206,14 +13205,12 @@ button.tactic-offer {
   height: 136px;
 }
 
-/* El icono de "Para mí" va dentro del anillo de dentro, que le hace de
-   disco: dibujarle el suyo encima de los dos anillos de la hoja dejaba
-   tres círculos pisándose. */
-.oky-flow-sheet.is-decision .oky-flow-sheet-art img {
-  width: 156px;
-  height: 156px;
-  max-width: none;
-  max-height: 156px;
+/* El emoji de la hoja va dentro del anillo interior, que le hace de
+   disco. */
+.oky-flow-sheet-emoji {
+  position: relative;
+  font-size: 92px;
+  line-height: 1;
 }
 
 .oky-flow-sheet-actions {
@@ -13714,24 +13711,18 @@ button.tactic-offer {
   opacity: 0.2;
 }
 
-/* Uno mismo lleva su icono, y lo lleva a sangre: el círculo de la fila
-   es el icono, no un marco con un cuadrado dentro. Antes eran dos
-   formas —un cuadrado redondeado metido en un círculo blanco con aro—
-   y se leían como dos, no como un avatar. */
+/* Uno mismo lleva el mismo emoji que el resto del flujo, sobre el mismo
+   círculo morado que los demás contactos: es un contacto más, el tuyo,
+   y tener otra forma solo para él lo sacaba de la lista. */
 .oky-flow-contact.is-self .oky-flow-contact-avatar {
   box-sizing: border-box;
-  background: none;
   border: 0;
   padding: 0;
-  overflow: hidden;
 }
 
-.oky-flow-contact.is-self .oky-flow-contact-avatar img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
+.oky-flow-contact-emoji {
+  font-size: 28px;
+  line-height: 1;
 }
 
 .oky-flow-contact-copy {
