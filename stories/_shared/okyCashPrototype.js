@@ -2817,52 +2817,39 @@ const WALLET_TABS_V2 = [
   { key: "paracompartir", label: "Para compartir", title: "Para compartir", icon: "plateu-paracompartir.png" },
 ];
 
-const V2_PARTS = { parami: ["gift"], paracompartir: ["vales", "servicios"] };
+/* De qué secciones de siempre se compone cada pestaña nueva. Las dos
+   propuestas reparten lo mismo: lo que uno se queda —gift cards— y lo
+   que manda —vales y servicios—; cambia cómo se llama y cómo se
+   navega. Todo lo que cuenta, agrupa o filtra debajo sigue leyendo las
+   secciones de siempre. */
+const WALLET_PARTS = {
+  parami: ["gift"],
+  paracompartir: ["vales", "servicios"],
+  paraotros: ["vales", "servicios"],
+};
 const WALLET_SECTIONS_V2 = ["parami", "paracompartir"];
 
-/* ── Y una tercera: por países ───────────────────────────
-   Ni por tipo ni por para quién es, sino de dónde viene cada vale. El
-   plateu no lista países: lista los que la persona tiene, así que un
-   wallet sin nada de Honduras no enseña Honduras. OKY Cash sigue
-   delante, que no es de ningún país. */
-const COUNTRY_NAME = Object.fromEntries(
-  [...MARKETS.left, ...MARKETS.right].map((m) => [m.iso, m.label]),
-);
+/* ── Y una tercera, la de los dos botones (101557:27312) ──
+   El mismo reparto que la 2 —lo mío y lo que mando— pero sin plateu:
+   dos botones de ancho completo, que es lo que se usa cuando solo hay
+   dos caminos y no hay que enseñar iconos para distinguirlos.
 
-function walletCountries(state) {
-  const seen = [];
-  WALLET_SECTIONS.forEach((section) => {
-    walletDeck(state, section, { filtered: false }).forEach((v) => {
-      const code = countryOfVoucher(v.key, section);
-      if (!seen.includes(code)) seen.push(code);
-    });
-  });
-  /* En el orden del folder —Norteamérica primero y Latinoamérica
-     después—, que es el que la persona ya conoce. */
-  const order = [...MARKETS.left, ...MARKETS.right].map((m) => m.iso);
-  return seen.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-}
-
-const PAIS = "pais:";
-
-function walletTabsV3(state) {
-  return [
-    WALLET_TABS[0],
-    ...walletCountries(state).map((iso) => ({
-      key: PAIS + iso,
-      label: COUNTRY_NAME[iso] || iso,
-      title: COUNTRY_NAME[iso] || iso,
-      flag: iso,
-    })),
-  ];
-}
+   Y una diferencia de fondo: OKY Cash deja de ser una pestaña y pasa a
+   ser la tarjeta que abre "Para mí". El saldo se ve al entrar, sin
+   tener que ir a buscarlo a una pestaña, y su botón lleva a la
+   actividad. */
+const WALLET_TABS_V3 = [
+  { key: "parami", label: "Para mi", title: "Mi wallet" },
+  { key: "paraotros", label: "Para otros", title: "Mi wallet" },
+];
+const WALLET_SECTIONS_V3 = ["parami", "paraotros"];
 
 const walletTabsOf = (state) =>
-  state.walletVer === 3 ? walletTabsV3(state) : state.walletVer === 2 ? WALLET_TABS_V2 : WALLET_TABS;
+  state.walletVer === 3 ? WALLET_TABS_V3 : state.walletVer === 2 ? WALLET_TABS_V2 : WALLET_TABS;
 
 const walletSectionsOf = (state) =>
   state.walletVer === 3
-    ? walletCountries(state).map((iso) => PAIS + iso)
+    ? WALLET_SECTIONS_V3
     : state.walletVer === 2
       ? WALLET_SECTIONS_V2
       : WALLET_SECTIONS;
@@ -2881,19 +2868,10 @@ const WALLET_GROUPS = [
 /* Todo lo de una sección, pasado por el filtro de la pestaña. Archivar
    no borra —el vale sigue existiendo— solo lo manda a su sección. */
 function walletDeck(state, section, { filtered = true } = {}) {
-  /* Una pestaña de la versión 2 no tiene vales propios: junta los de
-     las secciones de siempre. Todo lo que cuenta, agrupa o filtra
-     debajo sigue viendo la misma lista de antes. */
-  if (V2_PARTS[section]) {
-    return V2_PARTS[section].flatMap((part) => walletDeck(state, part, { filtered }));
-  }
-  /* Y una pestaña de país junta lo de todas las secciones que salieron
-     de ahí, sea gift card, vale o servicio. */
-  if (section.startsWith(PAIS)) {
-    const iso = section.slice(PAIS.length);
-    return WALLET_SECTIONS.flatMap((part) =>
-      walletDeck(state, part, { filtered }).filter((v) => countryOfVoucher(v.key, part) === iso),
-    );
+  /* Una pestaña de las propuestas nuevas no tiene vales propios: junta
+     los de las secciones de siempre. */
+  if (WALLET_PARTS[section]) {
+    return WALLET_PARTS[section].flatMap((part) => walletDeck(state, part, { filtered }));
   }
   const all =
     section === "gift"
@@ -3015,7 +2993,6 @@ const WALLET_PAGE = 5;
    de su sección: las gift cards vienen del catálogo de Norteamérica y
    los vales y servicios del de Centroamérica. */
 function countryOfSection(section) {
-  if (section.startsWith(PAIS)) return section.slice(PAIS.length);
   return section === "gift" || section === "parami" ? "US" : "GT";
 }
 
@@ -3317,20 +3294,29 @@ function screenWallet(state) {
       `,
     })}
 
-    <section class="plateu-molecule is-static is-default oky-flow-wallet-nav${state.walletVer > 1 ? " is-v2" : ""}${state.walletVer === 3 ? " is-v3" : ""}" role="tablist" aria-label="Tipo de vale">
+    ${
+      /* La 3 no navega con plateu: son dos caminos y ninguno necesita
+         icono para distinguirse, así que van como dos botones de ancho
+         completo sobre una pista gris (101557:27312). */
+      state.walletVer === 3
+        ? `
+      <section class="oky-flow-wallet-seg" role="tablist" aria-label="Para quién es">
+        ${walletTabsOf(state).map(
+          (t) => `
+          <button class="oky-flow-wallet-seg-item${t.key === tab ? " is-on" : ""}" type="button" role="tab"
+            data-action="wallet-tab" data-section="${t.key}" aria-selected="${t.key === tab}">${t.label}</button>
+        `,
+        ).join("")}
+      </section>
+    `
+        : `
+    <section class="plateu-molecule is-static is-default oky-flow-wallet-nav${state.walletVer > 1 ? " is-v2" : ""}" role="tablist" aria-label="Tipo de vale">
       <div class="plateu-track is-static">
         ${walletTabsOf(state).map(
           (t) => `
           <button class="plateu-item${t.key === tab ? " is-on" : ""}" type="button" role="tab"
             data-action="wallet-tab" data-section="${t.key}" aria-selected="${t.key === tab}">
-            <div class="plateu-icon-wrap">${
-              /* En la propuesta de países la pestaña es la bandera: el
-                 mismo átomo del folder y de las pilas, para que se
-                 reconozca sin leer. */
-              t.flag
-                ? `<span class="oky-flow-wallet-flag">${renderFlag({ code: t.flag, size: "Large" })}</span>`
-                : `<img class="plateu-icon" src="${t.icon}" alt="" />`
-            }</div>
+            <div class="plateu-icon-wrap"><img class="plateu-icon" src="${t.icon}" alt="" /></div>
             ${
               t.key === tab
                 ? `<span class="plateu-chip is-outlined">${t.label}</span>`
@@ -3341,6 +3327,18 @@ function screenWallet(state) {
         ).join("")}
       </div>
     </section>
+    `
+    }
+
+    ${
+      /* En la 3 el saldo abre "Para mí": se ve al entrar, sin ir a
+         buscarlo a una pestaña, y su botón lleva a la actividad. */
+      state.walletVer === 3 && tab === "parami"
+        ? `<div class="oky-flow-wallet-cash">${renderPaymentCard(
+            okyCashCard(state, { cta: "nav:cashsolo", label: "Ver actividad" }),
+          )}</div>`
+        : ""
+    }
 
     ${
       /* OKY Cash no es un repositorio de vales: su pestaña enseña la
@@ -3389,7 +3387,11 @@ function screenWallet(state) {
    Era una pantalla aparte y enseñaba la misma tarjeta que la pestaña
    de OKY Cash del wallet, con la actividad debajo. Dos sitios para lo
    mismo, y el bueno escondido: ahora es el cuerpo de esa pestaña. */
-function okyCashActivity(state) {
+/* card:false quita la tarjeta de arriba. Se usa en la pantalla a la
+   que llega "Ver actividad" de la versión 3: ahí la tarjeta acaba de
+   tocarse en la pantalla anterior y repetirla debajo solo empuja la
+   lista, que es a lo que se venía. */
+function okyCashActivity(state, { card = true } = {}) {
   /* Aquí ya estás en la actividad, así que el CTA no lleva a ninguna
      parte: se queda como rótulo, invitando a conocer el programa. */
   const cash = okyCashCard(state, { cta: false, label: "Conoce más" });
@@ -3576,7 +3578,7 @@ function okyCashActivity(state) {
 
   return `
     <div class="oky-flow-section" style="gap:16px">
-      <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
+      ${card ? `<div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>` : ""}
 
       <div class="oky-flow-home-head">
         <span class="oky-flow-section-head" style="padding:0">ACTIVIDAD</span>
@@ -3592,6 +3594,21 @@ function okyCashActivity(state) {
 
       <div class="oky-flow-history">${rows}</div>
     </div>
+  `;
+}
+
+/* ── La actividad suelta, solo de la versión 3 ────────────
+   La misma actividad de la pestaña de OKY Cash, sin el plateu de
+   arriba y sin repetir la tarjeta: a esta pantalla se llega tocando
+   esa tarjeta en "Para mí", así que el saldo ya se acaba de ver. No
+   hay otra puerta —ni la navbar ni las píldoras llevan aquí—, que
+   siguen yendo a la pestaña de siempre. */
+function screenCashSolo(state) {
+  return `
+    ${statusBar()}
+    ${titledHeader("OKY Cash")}
+    ${okyCashActivity(state, { card: false })}
+    ${navbar("okycash", state)}
   `;
 }
 
@@ -5082,6 +5099,7 @@ function renderScreen(state) {
     case "purchases": return screenPurchases(state);
     case "wallet": return screenWallet(state);
     case "carddesign": return screenCardDesign(state);
+    case "cashsolo": return screenCashSolo(state);
     case "homegua": return screenHomeGua(state);
     case "tigopdp": return screenTigoPdp(state);
     case "contacts": return screenContacts(state);
@@ -6654,7 +6672,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          existía y ninguna quedaba marcada. */
       const porTienda =
         state.walletVer === 3
-          ? PAIS + (state.country === "gua" ? "GT" : "US")
+          ? state.country === "gua"
+            ? "paraotros"
+            : "parami"
           : state.walletVer === 2
             ? state.country === "gua"
               ? "paracompartir"
@@ -6662,8 +6682,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
             : state.country === "gua"
               ? "vales"
               : "gift";
-      /* En la de países puede que esa bandera no esté —no hay nada de
-         ahí—, y entonces manda la primera que sí. */
+      /* Si esa pestaña no existe en la versión abierta, manda la
+         primera que sí. */
       const porPais = walletTabsOf(state).some((t) => t.key === porTienda)
         ? porTienda
         : walletSectionsOf(state)[0] || porTienda;
@@ -6674,13 +6694,25 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "nav:okycash") {
       /* La moneda de la navbar, las píldoras de saldo de los dos homes
          y el CTA de la tarjeta llevan al mismo sitio: la pestaña de
-         OKY Cash de Mi wallet, que es donde vive la actividad. */
+         OKY Cash de Mi wallet, que es donde vive la actividad.
+
+         Salvo en la versión 3, que no tiene esa pestaña: ahí el saldo
+         es la tarjeta de "Para mí", así que se aterriza en esa pestaña
+         —con la tarjeta delante— y desde su botón se sigue a la
+         actividad. Apuntar a una pestaña que no existe dejaba los dos
+         botones de arriba sin ninguno marcado. */
       state.cashUnseen = false;
-      state.walletTab = "cash";
+      state.walletTab = state.walletVer === 3 ? "parami" : "cash";
       state.walletFilter = "";
       state.openBeforeFilter = null;
-      state.openGroups = [];
+      state.openGroups = state.walletVer === 3 ? ["activos"] : [];
       return leavePurchase("wallet");
+    }
+
+    if (action === "nav:cashsolo") {
+      /* Solo desde la tarjeta de "Para mí" de la versión 3. */
+      state.cashUnseen = false;
+      return go("cashsolo");
     }
 
     if (action === "nav:carddesign") {

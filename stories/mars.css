@@ -13874,6 +13874,61 @@ button.tactic-offer {
   color: rgba(0, 0, 0, 0.38);
 }
 
+/* ── La navegación de la versión 3 del wallet ───────────────
+   Dos botones de ancho completo sobre una pista gris: el activo es una
+   pastilla blanca y el otro se queda al ras de la pista. Se usa cuando
+   solo hay dos caminos y ninguno necesita icono para distinguirse
+   (101557:27312). */
+.oky-flow-wallet-seg {
+  box-sizing: border-box;
+  display: flex;
+  gap: 0;
+  width: calc(100% - var(--oky-gutter) * 2);
+  /* Aire generoso arriba y abajo: la pieza es dos palabras sobre un
+     gris muy claro, así que lo que la separa de la cabecera y de lo que
+     viene debajo es el espacio, no un borde. Pegada, se leía como parte
+     del título. */
+  margin: 20px var(--oky-gutter) 14px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.oky-flow-wallet-seg-item {
+  box-sizing: border-box;
+  flex: 1 1 0;
+  min-width: 0;
+  appearance: none;
+  border: 1px solid transparent;
+  background: none;
+  padding: 13px 8px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.42);
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.oky-flow-wallet-seg-item.is-on {
+  background: var(--white, #fff);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: var(--primary-main);
+}
+
+/* La tarjeta de saldo que abre "Para mí" en la versión 3. */
+.oky-flow-wallet-cash {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 6px var(--oky-gutter) 0;
+  box-sizing: border-box;
+}
+
 /* La misma etiqueta, pero tocable cuando hay filtro puesto: reabre la
    hoja para cambiar de categoría sin tener que quitar el filtro
    primero. Se ve igual —el morado y el subrayado la delatan— y hereda
