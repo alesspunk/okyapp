@@ -13941,13 +13941,50 @@ button.tactic-offer {
   padding-top: 6px;
 }
 
-/* La tarjeta de saldo que abre "Para mí" en la versión 3. */
-.oky-flow-wallet-cash {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  padding: 6px var(--oky-gutter) 0;
+/* El saldo de la versión 3: una fila con la moneda, el rótulo y la
+   misma pastilla aqua del checkout. Va debajo del título, antes de las
+   pestañas, porque es de todo el wallet y no de una de las dos. */
+.oky-flow-wallet-cashchip {
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% - var(--oky-gutter) * 2);
+  margin: 4px var(--oky-gutter) 0;
+  padding: 10px 12px;
+  appearance: none;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 14px;
+  background: var(--white, #fff);
+  cursor: pointer;
+  text-align: left;
+}
+
+.oky-flow-wallet-cashchip img {
+  flex: none;
+  width: 24px;
+  height: 26px;
+}
+
+.oky-flow-wallet-cashchip-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary-main);
+}
+
+/* "disponible" va detrás de la cifra y en pequeño: la cifra es el dato
+   y esto solo dice de qué cifra se trata. */
+.oky-flow-wallet-cashchip-note {
+  flex: none;
+  font-family: "Lato", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.38);
 }
 
 /* La misma etiqueta, pero tocable cuando hay filtro puesto: reabre la

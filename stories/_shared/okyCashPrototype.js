@@ -2825,7 +2825,11 @@ const WALLET_TABS_V2 = [
 const WALLET_PARTS = {
   parami: ["gift"],
   paracompartir: ["vales", "servicios"],
-  paraotros: ["vales", "servicios"],
+  /* La 3 no reparte por tipo: sus dos pestañas ven los tres —gift
+     cards, vales y servicios— y lo que las separa es el estado del
+     vale, no de dónde salió. */
+  v3mio: ["gift", "vales", "servicios"],
+  v3comp: ["gift", "vales", "servicios"],
 };
 const WALLET_SECTIONS_V2 = ["parami", "paracompartir"];
 
@@ -2848,10 +2852,23 @@ const WALLET_SECTIONS_V2 = ["parami", "paracompartir"];
    otro desaparecía. Las dos personas de la mano son del mismo palo
    amarillo y dicen lo mismo. */
 const WALLET_TABS_V3 = [
-  { key: "parami", label: "Para mi", emoji: "🙋", title: "Mi wallet" },
-  { key: "paraotros", label: "Para compartir", emoji: "👫", title: "Mi wallet" },
+  { key: "v3mio", label: "Para mi", emoji: "🙋", title: "Mi wallet" },
+  { key: "v3comp", label: "Para compartir", emoji: "👫", title: "Mi wallet" },
 ];
-const WALLET_SECTIONS_V3 = ["parami", "paraotros"];
+const WALLET_SECTIONS_V3 = ["v3mio", "v3comp"];
+
+/* Y aquí está el fondo de la propuesta: la pestaña ES el estado. Separar
+   dentro en "Comprados" y "Compartidos" era decir dos veces lo mismo
+   —en "Para compartir" todo está compartido, por definición—, así que
+   cada pestaña enseña una sola lista con los tres tipos mezclados. Lo
+   archivado no cabe en ninguna de las dos: se guardó, ni se tiene a
+   mano ni se mandó, y por eso se queda en su cajón al fondo. */
+const V3_GROUP = { v3mio: "activos", v3comp: "compartidos" };
+
+/* Lo archivado, dicho como lo diría alguien: "archivado" es palabra de
+   oficina y sonaba a trámite. Es donde se guarda lo que no se quiere
+   tener delante, sin perderlo. */
+const V3_BIN = { key: "archivados", label: "Guardados", icon: "fa-box-archive", empty: "Aquí no has guardado nada." };
 
 const walletTabsOf = (state) =>
   state.walletVer === 3 ? WALLET_TABS_V3 : state.walletVer === 2 ? WALLET_TABS_V2 : WALLET_TABS;
@@ -3019,7 +3036,13 @@ const VOUCHER_COUNTRY = {
 };
 
 function countryOfVoucher(key, section) {
-  return VOUCHER_COUNTRY[brandKeyOf(key)] || countryOfSection(section);
+  /* Las pestañas de la 3 mezclan los tres tipos, así que la pestaña ya
+     no dice de dónde es nada: una gift card de Krispy Kreme salía con
+     bandera de Guatemala por estar en la misma lista que los vales. Si
+     la sección que llega no es una de las de verdad, se pregunta por la
+     del propio vale. */
+  const real = WALLET_SECTIONS.includes(section) ? section : sectionOfVoucher(key);
+  return VOUCHER_COUNTRY[brandKeyOf(key)] || countryOfSection(real);
 }
 
 function walletVoucherButton(v, deck, group = "activos") {
@@ -3304,6 +3327,23 @@ function screenWallet(state) {
     })}
 
     ${
+      /* En la 3 el saldo no es una tarjeta a toda página sino la misma
+         pastilla aqua del checkout, debajo del título: dice cuánto hay
+         sin robarle la pantalla a los vales, que es a lo que se viene.
+         Se toca y lleva a OKY Cash. */
+      state.walletVer === 3 && state.okyCashBalance > 0
+        ? `
+      <button class="oky-flow-wallet-cashchip" data-action="nav:cashsolo" type="button">
+        <img src="oky-cash-coin.png" alt="" />
+        <span class="oky-flow-wallet-cashchip-label">OKY Cash</span>
+        <span class="oky-flow-chip is-cash">${money(state.okyCashBalance)}</span>
+        <span class="oky-flow-wallet-cashchip-note">disponible</span>
+      </button>
+    `
+        : ""
+    }
+
+    ${
       /* La 3 no navega con plateu: son dos caminos y ninguno necesita
          icono para distinguirse, así que van como dos botones de ancho
          completo sobre una pista gris (101557:27312). */
@@ -3341,15 +3381,6 @@ function screenWallet(state) {
     `
     }
 
-    ${
-      /* En la 3 el saldo abre "Para mí": se ve al entrar, sin ir a
-         buscarlo a una pestaña, y su botón lleva a la actividad. */
-      state.walletVer === 3 && tab === "parami"
-        ? `<div class="oky-flow-wallet-cash">${renderPaymentCard(
-            okyCashCard(state, { cta: "nav:cashsolo", label: "Ver actividad" }),
-          )}</div>`
-        : ""
-    }
 
     ${
       /* OKY Cash no es un repositorio de vales: su pestaña enseña la
@@ -3380,12 +3411,24 @@ function screenWallet(state) {
       </div>
 
       <div class="oky-flow-section" style="gap:12px">
-        ${WALLET_GROUPS.map(
-          (g) => `
+        ${
+          /* La 3 no plega la lista principal: la pestaña ya dijo qué es
+             —lo mío o lo compartido— y una cabecera encima repitiéndolo
+             solo añade un clic. Al fondo sí queda el cajón de lo
+             guardado, que es lo único que se elige no ver. */
+          state.walletVer === 3
+            ? `
+          ${stack(decks[V3_GROUP[tab]], V3_GROUP[tab], tab === "v3comp" ? "Todavía no has compartido nada." : "Nada por aquí todavía.")}
+          ${sectionHead(V3_BIN, totalIn("archivados"), 0)}
+          ${body("archivados", stack(decks.archivados, "archivados", V3_BIN.empty))}
+        `
+            : WALLET_GROUPS.map(
+                (g) => `
           ${sectionHead(g, totalIn(g.key), newsIn(g.key))}
           ${body(g.key, stack(decks[g.key], g.key, g.empty))}
         `,
-        ).join("")}
+              ).join("")
+        }
       </div>
     `
     }
@@ -3398,11 +3441,7 @@ function screenWallet(state) {
    Era una pantalla aparte y enseñaba la misma tarjeta que la pestaña
    de OKY Cash del wallet, con la actividad debajo. Dos sitios para lo
    mismo, y el bueno escondido: ahora es el cuerpo de esa pestaña. */
-/* card:false quita la tarjeta de arriba. Se usa en la pantalla a la
-   que llega "Ver actividad" de la versión 3: ahí la tarjeta acaba de
-   tocarse en la pantalla anterior y repetirla debajo solo empuja la
-   lista, que es a lo que se venía. */
-function okyCashActivity(state, { card = true } = {}) {
+function okyCashActivity(state) {
   /* Aquí ya estás en la actividad, así que el CTA no lleva a ninguna
      parte: se queda como rótulo, invitando a conocer el programa. */
   const cash = okyCashCard(state, { cta: false, label: "Conoce más" });
@@ -3589,7 +3628,7 @@ function okyCashActivity(state, { card = true } = {}) {
 
   return `
     <div class="oky-flow-section" style="gap:16px">
-      ${card ? `<div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>` : ""}
+      <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
 
       <div class="oky-flow-home-head">
         <span class="oky-flow-section-head" style="padding:0">ACTIVIDAD</span>
@@ -3608,17 +3647,17 @@ function okyCashActivity(state, { card = true } = {}) {
   `;
 }
 
-/* ── La actividad suelta, solo de la versión 3 ────────────
-   La misma actividad de la pestaña de OKY Cash, sin el plateu de
-   arriba y sin repetir la tarjeta: a esta pantalla se llega tocando
-   esa tarjeta en "Para mí", así que el saldo ya se acaba de ver. No
-   hay otra puerta —ni la navbar ni las píldoras llevan aquí—, que
-   siguen yendo a la pestaña de siempre. */
+/* ── OKY Cash de la versión 3 ────────────────────────────
+   La misma pantalla de siempre —la tarjeta arriba y la actividad
+   debajo— sin el plateu, que en la 3 no existe. Se llega desde la
+   pastilla de saldo del wallet, y su botón dice "Conoce más": aquí la
+   actividad ya está debajo, así que mandar a verla no llevaría a
+   ninguna parte. */
 function screenCashSolo(state) {
   return `
     ${statusBar()}
     ${titledHeader("OKY Cash")}
-    ${okyCashActivity(state, { card: false })}
+    ${okyCashActivity(state)}
     ${navbar("okycash", state)}
   `;
 }
@@ -6684,8 +6723,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const porTienda =
         state.walletVer === 3
           ? state.country === "gua"
-            ? "paraotros"
-            : "parami"
+            ? "v3comp"
+            : "v3mio"
           : state.walletVer === 2
             ? state.country === "gua"
               ? "paracompartir"
@@ -6713,7 +6752,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          actividad. Apuntar a una pestaña que no existe dejaba los dos
          botones de arriba sin ninguno marcado. */
       state.cashUnseen = false;
-      state.walletTab = state.walletVer === 3 ? "parami" : "cash";
+      state.walletTab = state.walletVer === 3 ? "v3mio" : "cash";
       state.walletFilter = "";
       state.openBeforeFilter = null;
       state.openGroups = state.walletVer === 3 ? ["activos"] : [];
