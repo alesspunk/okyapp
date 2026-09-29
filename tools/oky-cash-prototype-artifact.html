@@ -13913,6 +13913,10 @@ button.tactic-offer {
   box-sizing: border-box;
   flex: 1 1 0;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   appearance: none;
   border: 1px solid transparent;
   background: none;
@@ -13927,6 +13931,15 @@ button.tactic-offer {
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.42);
   transition: background 160ms ease, color 160ms ease;
+}
+
+/* El emoji manda su propio tamaño: a 12px, que es el de la etiqueta,
+   se convertía en una mancha. Y sin el letter-spacing de la palabra,
+   que en un emoji solo abre un hueco a su derecha. */
+.oky-flow-wallet-seg-emoji {
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0;
 }
 
 .oky-flow-wallet-seg-item.is-on {
@@ -21068,9 +21081,18 @@ const WALLET_SECTIONS_V2 = ["parami", "paracompartir"];
    ser la tarjeta que abre "Para mí". El saldo se ve al entrar, sin
    tener que ir a buscarlo a una pestaña, y su botón lleva a la
    actividad. */
+/* Con emoji delante: son dos palabras en gris sobre gris y el emoji es
+   lo primero que se ve. La mano levantada dice "yo" —el gesto de pedir
+   para uno mismo— y las dos personas dicen a quién va lo otro; los dos
+   se reconocen antes de leer, que es lo que un toggle necesita.
+
+   El de familia (U+1F46A) era el candidato obvio, pero sale como
+   siluetas grises planas: al lado de la mano amarilla uno pesaba y el
+   otro desaparecía. Las dos personas de la mano son del mismo palo
+   amarillo y dicen lo mismo. */
 const WALLET_TABS_V3 = [
-  { key: "parami", label: "Para mi", title: "Mi wallet" },
-  { key: "paraotros", label: "Para otros", title: "Mi wallet" },
+  { key: "parami", label: "Para mi", emoji: "🙋", title: "Mi wallet" },
+  { key: "paraotros", label: "Para compartir", emoji: "👫", title: "Mi wallet" },
 ];
 const WALLET_SECTIONS_V3 = ["parami", "paraotros"];
 
@@ -21534,7 +21556,9 @@ function screenWallet(state) {
         ${walletTabsOf(state).map(
           (t) => `
           <button class="oky-flow-wallet-seg-item${t.key === tab ? " is-on" : ""}" type="button" role="tab"
-            data-action="wallet-tab" data-section="${t.key}" aria-selected="${t.key === tab}">${t.label}</button>
+            data-action="wallet-tab" data-section="${t.key}" aria-selected="${t.key === tab}">
+            <span class="oky-flow-wallet-seg-emoji" aria-hidden="true">${t.emoji}</span>${t.label}
+          </button>
         `,
         ).join("")}
       </section>

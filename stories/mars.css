@@ -13898,6 +13898,10 @@ button.tactic-offer {
   box-sizing: border-box;
   flex: 1 1 0;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   appearance: none;
   border: 1px solid transparent;
   background: none;
@@ -13912,6 +13916,15 @@ button.tactic-offer {
   text-transform: uppercase;
   color: rgba(0, 0, 0, 0.42);
   transition: background 160ms ease, color 160ms ease;
+}
+
+/* El emoji manda su propio tamaño: a 12px, que es el de la etiqueta,
+   se convertía en una mancha. Y sin el letter-spacing de la palabra,
+   que en un emoji solo abre un hueco a su derecha. */
+.oky-flow-wallet-seg-emoji {
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0;
 }
 
 .oky-flow-wallet-seg-item.is-on {
