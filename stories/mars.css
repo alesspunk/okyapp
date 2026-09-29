@@ -13961,6 +13961,14 @@ button.tactic-offer {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
 }
 
+/* Y el hueco que la pastilla necesita al final de la lista: flota, así
+   que no empuja nada, y al llegar abajo se sentaba encima de la última
+   card o de "Guardados". El alto es el suyo más el aire de arriba y de
+   abajo. */
+.oky-flow-section.has-cashdock {
+  padding-bottom: 82px;
+}
+
 /* Suelta se lee sola, así que puede crecer: en la cabecera del acuse
    compite por sitio con dos iconos y ahí va a 32px. */
 .oky-flow-purchase-badge.is-wallet {

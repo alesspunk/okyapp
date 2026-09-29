@@ -3420,7 +3420,7 @@ function screenWallet(state) {
         }
       </div>
 
-      <div class="oky-flow-section" style="gap:12px">
+      <div class="oky-flow-section${state.walletVer === 3 ? " has-cashdock" : ""}" style="gap:12px">
         ${
           /* La 3 no plega la lista principal: la pestaña ya dijo qué es
              —lo mío o lo compartido— y una cabecera encima repitiéndolo
@@ -3452,8 +3452,10 @@ function screenWallet(state) {
       state.walletVer === 3
         ? `
       <div class="oky-flow-cashdock">
+        ${/* Sin moneda: la de la navbar está justo debajo y a dos
+             centímetros, y la misma moneda dos veces se leía como dos
+             cosas distintas. La pastilla se apoya en ella. */ ""}
         <button class="oky-flow-purchase-badge is-cash is-wallet" data-action="nav:cashsolo" type="button">
-          <img src="oky-cash-coin.png" alt="" />
           <span>${cashPildora}</span>
         </button>
       </div>
