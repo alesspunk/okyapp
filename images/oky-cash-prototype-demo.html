@@ -6968,28 +6968,25 @@ body {
 
 .icon-avatar-badge {
   position: absolute;
-  right: -3px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  right: -2px;
+  display: block;
   width: 17px;
   height: 17px;
-  border-radius: 50%;
-  border: 2px solid var(--white, #fff);
-  box-sizing: border-box;
-  font-size: 8px;
-  line-height: 1;
-  color: var(--white, #fff);
+  line-height: 0;
+}
+
+.icon-avatar-badge img {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .icon-avatar-badge.is-up {
-  top: -3px;
-  background: #22a06b;
+  top: -2px;
 }
 
 .icon-avatar-badge.is-down {
-  bottom: -3px;
-  background: #6b7280;
+  bottom: -2px;
 }
 
 .icon-avatar {
@@ -9533,12 +9530,13 @@ body {
    cuenta. Un wrapper posicionado lo coloca y el ribbon se resetea
    a relative/top:0/right:0, que es lo que mantiene el notch
    pegado a su esquina superior derecha. */
-/* El ribbon del PDP se alinea con el título de la card: el título
-   cae en top:8px y mide 40, igual que el ribbon, así que centrarlos
-   deja el ribbon también en top:8px. */
+/* El ribbon del PDP cae sobre el primer tercio de la card, el mismo
+   tratamiento que ya tenían los vales de Guatemala: arriba se le
+   montaba al nombre de la gift card, y a esta altura queda en la franja
+   que sobra entre el nombre y el monto, sin tocar ninguno de los dos. */
 .oky-flow-ribbon-slot {
   position: absolute;
-  top: 13px;
+  top: 51px;
   right: -3px;
   z-index: 3;
 }
@@ -16138,7 +16136,7 @@ function renderAvatar(card) {
        pegada al borde del círculo. */
     const badge = card.icon.badge
       ? `<span class="icon-avatar-badge is-${card.icon.badge.tone}">
-          <i class="fa-solid ${card.icon.badge.glyph}" aria-hidden="true"></i>
+          <img src="${card.icon.badge.src}" alt="" />
         </span>`
       : "";
     return `
@@ -21594,12 +21592,15 @@ function okyCashActivity(state) {
   const chipFor = (positive) =>
     positive ? { label: "Ganado", tone: "success" } : { label: "Usado", tone: "neutral" };
 
-  /* Y la insignia: verde y arriba lo que entra, gris y abajo lo que
-     sale, en la esquina del círculo de la moneda. */
+  /* Y la insignia, que viene del sistema de diseño con su círculo
+     puesto: la verde hacia arriba (101556:3106) para lo que entra y la
+     gris hacia abajo (101556:3107) para lo que sale. Antes era una
+     flecha de Font Awesome dentro de un círculo pintado en CSS, que se
+     parecía pero no era la pieza. */
   const badgeFor = (positive) =>
     positive
-      ? { glyph: "fa-arrow-up", tone: "up" }
-      : { glyph: "fa-arrow-down", tone: "down" };
+      ? { src: "data:image/png;base64,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", tone: "up" }
+      : { src: "data:image/png;base64,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", tone: "down" };
 
   const historyRow = ({ date, amount, order, positive }) =>
     renderHistoryCard({
@@ -21699,7 +21700,11 @@ function okyCashActivity(state) {
         })}
         <div class="oky-flow-order-panel">
           <span class="oky-flow-order-toggle">
-            ${credits.length} movimiento${credits.length > 1 ? "s" : ""}
+            ${/* Espejo de "En qué lo usaste": la misma pregunta del otro
+                 lado. "2 movimientos" contaba cuántas líneas hay; esto
+                 dice qué se va a ver, que son las marcas que lo
+                 generaron. */ ""}
+            Con qué lo ganaste
             <i class="fa-solid fa-chevron-${open ? "up" : "down"}" aria-hidden="true"></i>
           </span>
           ${

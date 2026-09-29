@@ -3416,12 +3416,15 @@ function okyCashActivity(state) {
   const chipFor = (positive) =>
     positive ? { label: "Ganado", tone: "success" } : { label: "Usado", tone: "neutral" };
 
-  /* Y la insignia: verde y arriba lo que entra, gris y abajo lo que
-     sale, en la esquina del círculo de la moneda. */
+  /* Y la insignia, que viene del sistema de diseño con su círculo
+     puesto: la verde hacia arriba (101556:3106) para lo que entra y la
+     gris hacia abajo (101556:3107) para lo que sale. Antes era una
+     flecha de Font Awesome dentro de un círculo pintado en CSS, que se
+     parecía pero no era la pieza. */
   const badgeFor = (positive) =>
     positive
-      ? { glyph: "fa-arrow-up", tone: "up" }
-      : { glyph: "fa-arrow-down", tone: "down" };
+      ? { src: "oky-activity-up.png", tone: "up" }
+      : { src: "oky-activity-down.png", tone: "down" };
 
   const historyRow = ({ date, amount, order, positive }) =>
     renderHistoryCard({
@@ -3521,7 +3524,11 @@ function okyCashActivity(state) {
         })}
         <div class="oky-flow-order-panel">
           <span class="oky-flow-order-toggle">
-            ${credits.length} movimiento${credits.length > 1 ? "s" : ""}
+            ${/* Espejo de "En qué lo usaste": la misma pregunta del otro
+                 lado. "2 movimientos" contaba cuántas líneas hay; esto
+                 dice qué se va a ver, que son las marcas que lo
+                 generaron. */ ""}
+            Con qué lo ganaste
             <i class="fa-solid fa-chevron-${open ? "up" : "down"}" aria-hidden="true"></i>
           </span>
           ${

@@ -185,7 +185,7 @@ function renderAvatar(card) {
        pegada al borde del círculo. */
     const badge = card.icon.badge
       ? `<span class="icon-avatar-badge is-${card.icon.badge.tone}">
-          <i class="fa-solid ${card.icon.badge.glyph}" aria-hidden="true"></i>
+          <img src="${card.icon.badge.src}" alt="" />
         </span>`
       : "";
     return `

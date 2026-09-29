@@ -6946,28 +6946,25 @@ body {
 
 .icon-avatar-badge {
   position: absolute;
-  right: -3px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  right: -2px;
+  display: block;
   width: 17px;
   height: 17px;
-  border-radius: 50%;
-  border: 2px solid var(--white, #fff);
-  box-sizing: border-box;
-  font-size: 8px;
-  line-height: 1;
-  color: var(--white, #fff);
+  line-height: 0;
+}
+
+.icon-avatar-badge img {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .icon-avatar-badge.is-up {
-  top: -3px;
-  background: #22a06b;
+  top: -2px;
 }
 
 .icon-avatar-badge.is-down {
-  bottom: -3px;
-  background: #6b7280;
+  bottom: -2px;
 }
 
 .icon-avatar {
@@ -9511,12 +9508,13 @@ body {
    cuenta. Un wrapper posicionado lo coloca y el ribbon se resetea
    a relative/top:0/right:0, que es lo que mantiene el notch
    pegado a su esquina superior derecha. */
-/* El ribbon del PDP se alinea con el título de la card: el título
-   cae en top:8px y mide 40, igual que el ribbon, así que centrarlos
-   deja el ribbon también en top:8px. */
+/* El ribbon del PDP cae sobre el primer tercio de la card, el mismo
+   tratamiento que ya tenían los vales de Guatemala: arriba se le
+   montaba al nombre de la gift card, y a esta altura queda en la franja
+   que sobra entre el nombre y el monto, sin tocar ninguno de los dos. */
 .oky-flow-ribbon-slot {
   position: absolute;
-  top: 13px;
+  top: 51px;
   right: -3px;
   z-index: 3;
 }
