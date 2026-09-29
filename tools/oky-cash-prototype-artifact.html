@@ -25076,20 +25076,22 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return leavePurchase("wallet");
     }
     if (action === "nav:okycash") {
-      /* La moneda de la navbar, las píldoras de saldo de los dos homes
-         y el CTA de la tarjeta llevan al mismo sitio: la pestaña de
-         OKY Cash de Mi wallet, que es donde vive la actividad.
+      /* Todo lo que dice "OKY Cash" —la moneda de la navbar, las
+         píldoras de saldo de los dos homes, la insignia del acuse de
+         compra y el CTA de la tarjeta— abre OKY Cash. Dónde vive eso
+         depende de la propuesta que se esté mirando, y por eso se
+         decide aquí y no en cada botón:
 
-         Salvo en la versión 3, que no tiene esa pestaña: ahí el saldo
-         es la tarjeta de "Para mí", así que se aterriza en esa pestaña
-         —con la tarjeta delante— y desde su botón se sigue a la
-         actividad. Apuntar a una pestaña que no existe dejaba los dos
-         botones de arriba sin ninguno marcado. */
+         · En la 1 y la 2 es una pestaña más de Mi wallet.
+         · En la 3 esa pestaña no existe: OKY Cash es su propia
+           pantalla. Mandar al wallet dejaba la insignia del acuse
+           llevando a un sitio distinto del que anunciaba. */
       state.cashUnseen = false;
-      state.walletTab = state.walletVer === 3 ? "v3mio" : "cash";
+      if (state.walletVer === 3) return leavePurchase("cashsolo");
+      state.walletTab = "cash";
       state.walletFilter = "";
       state.openBeforeFilter = null;
-      state.openGroups = state.walletVer === 3 ? ["activos"] : [];
+      state.openGroups = [];
       return leavePurchase("wallet");
     }
 
