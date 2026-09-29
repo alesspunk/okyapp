@@ -2865,11 +2865,6 @@ const WALLET_SECTIONS_V3 = ["v3mio", "v3comp"];
    mano ni se mandó, y por eso se queda en su cajón al fondo. */
 const V3_GROUP = { v3mio: "activos", v3comp: "compartidos" };
 
-/* Lo archivado, dicho como lo diría alguien: "archivado" es palabra de
-   oficina y sonaba a trámite. Es donde se guarda lo que no se quiere
-   tener delante, sin perderlo. */
-const V3_BIN = { key: "archivados", label: "Guardados", icon: "fa-box-archive", empty: "Aquí no has guardado nada." };
-
 const walletTabsOf = (state) =>
   state.walletVer === 3 ? WALLET_TABS_V3 : state.walletVer === 2 ? WALLET_TABS_V2 : WALLET_TABS;
 
@@ -2888,7 +2883,11 @@ function walletTitle(state) {
 const WALLET_GROUPS = [
   { key: "activos", label: "Comprados", icon: "fa-ticket", empty: "Nada comprado por aquí." },
   { key: "compartidos", label: "Compartidos", icon: "fa-paper-plane", empty: "Todavía no has compartido nada." },
-  { key: "archivados", label: "Archivados", icon: "fa-box-archive", empty: "Nada archivado." },
+  /* "Archivado" era palabra de oficina y sonaba a trámite. Esto es
+     simplemente donde pones lo que no quieres tener delante, sin
+     perderlo, y así lo diría cualquiera. La clave interna no se toca:
+     es la misma sección de siempre. */
+  { key: "archivados", label: "Guardados", icon: "fa-box-archive", empty: "Aquí no has guardado nada." },
 ];
 
 /* Todo lo de una sección, pasado por el filtro de la pestaña. Archivar
@@ -3429,8 +3428,10 @@ function screenWallet(state) {
           state.walletVer === 3
             ? `
           ${stack(decks[V3_GROUP[tab]], V3_GROUP[tab], tab === "v3comp" ? "Todavía no has compartido nada." : "Nada por aquí todavía.")}
-          ${sectionHead(V3_BIN, totalIn("archivados"), 0)}
-          ${body("archivados", stack(decks.archivados, "archivados", V3_BIN.empty))}
+          ${/* El cajón de la 3 es la misma sección de guardados del
+               resto del wallet. */ ""}
+          ${sectionHead(WALLET_GROUPS[2], totalIn("archivados"), 0)}
+          ${body("archivados", stack(decks.archivados, "archivados", WALLET_GROUPS[2].empty))}
         `
             : WALLET_GROUPS.map(
                 (g) => `
@@ -4410,7 +4411,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               bottomMedia: {
                 type: "stamp",
                 src: "oky-seal-archived.png",
-                alt: "Archivado",
+                alt: "Guardado",
                 caption: sharedOn,
               },
             }
@@ -4453,16 +4454,17 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
 
       ${
         /* La misma fila en los tres estados: el interruptor dice si está
-           guardado —apagado "Archivar", encendido "Archivado"— y al lado
-           el botón de compartir. Archivar ya no pide haberlo compartido
-           antes, y desarchivar es apagar el interruptor en vez de un
-           botón que solo aparecía ahí. */ ""
+           guardado —apagado "Guardar", encendido "Guardado"— y al lado
+           el botón de compartir. Guardar ya no pide haberlo compartido
+           antes, y sacarlo es apagar el interruptor en vez de un botón
+           que solo aparecía ahí. */ ""
       }
       <div class="oky-flow-voucher-actions">
-        ${/* Compartir es el mismo trato que archivar, así que es el
+        ${/* Compartir es el mismo trato que guardar, así que es el
              mismo control: apagado se comparte y encendido se pregunta
-             si no llegó a mandarse. Guardado no se comparte —primero
-             hay que sacarlo del archivo— y el interruptor se apaga. */ ""}
+             si no llegó a mandarse. */ ""}
+        ${/* Guardado no se comparte —primero hay que sacarlo del
+             cajón— y el interruptor se apaga. */ ""}
         <button class="oky-flow-switch${shared ? " is-on" : ""}" data-action="toggle-shared"
           data-key="${card.key}" data-unit="${slot}" data-label="${card.label}" data-amount="${amount}"
           type="button" role="switch" aria-checked="${shared}" ${archived ? "disabled" : ""}>
@@ -4474,7 +4476,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           type="button" role="switch" aria-checked="${archived}">
           ${/* El rótulo delante: se lee la palabra y después se ve en
                qué estado está, que es el orden en que se mira. */ ""}
-          <span class="oky-flow-switch-label">${archived ? "Archivado" : "Archivar"}</span>
+          <span class="oky-flow-switch-label">${archived ? "Guardado" : "Guardar"}</span>
           <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
         </button>
       </div>
@@ -4595,9 +4597,9 @@ const CONFIRM_SHEETS = {
   },
   archive: {
     art: "oky-archive-hands.png",
-    title: "¿Deseas archivarla?",
-    note: "Te sugerimos archivar. Puedes verlas nuevamente al tocar la sección de archivados.",
-    confirm: "Archivar",
+    title: "¿Deseas guardarla?",
+    note: "La quitamos de en medio sin perderla: la encuentras cuando quieras en la sección de guardados.",
+    confirm: "Guardar",
     dismiss: "Ahora no",
     action: "confirm-archive",
   },
