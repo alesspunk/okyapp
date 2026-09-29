@@ -13903,7 +13903,7 @@ button.tactic-offer {
      gris muy claro, así que lo que la separa de la cabecera y de lo que
      viene debajo es el espacio, no un borde. Pegada, se leía como parte
      del título. */
-  margin: 20px var(--oky-gutter) 14px;
+  margin: 20px var(--oky-gutter) 34px;
   padding: 4px;
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.06);
@@ -13933,6 +13933,14 @@ button.tactic-offer {
   background: var(--white, #fff);
   border-color: rgba(0, 0, 0, 0.08);
   color: var(--primary-main);
+}
+
+/* Debajo del componente el hueco es el mismo en las dos pestañas. Sin
+   esto, "Para mí" cae sobre la tarjeta y "Para otros" sobre la fila de
+   filtros, que traen distinto aire propio, y el salto entre pestañas se
+   notaba. */
+.oky-flow-wallet-seg + .oky-flow-wallet-filter {
+  padding-top: 6px;
 }
 
 /* La tarjeta de saldo que abre "Para mí" en la versión 3. */
