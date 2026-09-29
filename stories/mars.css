@@ -13888,7 +13888,7 @@ button.tactic-offer {
      gris muy claro, así que lo que la separa de la cabecera y de lo que
      viene debajo es el espacio, no un borde. Pegada, se leía como parte
      del título. */
-  margin: 20px var(--oky-gutter) 34px;
+  margin: 25px var(--oky-gutter) 25px;
   padding: 4px;
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.06);
@@ -13938,18 +13938,27 @@ button.tactic-offer {
    filtros, que traen distinto aire propio, y el salto entre pestañas se
    notaba. */
 .oky-flow-wallet-seg + .oky-flow-wallet-filter {
-  padding-top: 6px;
+  padding-top: 0;
 }
 
 /* El saldo de la versión 3: la misma pastilla del final de una compra,
-   centrada debajo del título. Es de todo el wallet y no de una de las
-   dos pestañas, por eso va encima de ellas. */
-.oky-flow-wallet-cashrow {
+   flotando justo encima de la moneda de la navbar y fija ahí. El
+   contenedor no intercepta toques —solo la pastilla— para no tapar la
+   última card de la lista. */
+.oky-flow-cashdock {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--oky-nav-h) + 12px);
+  z-index: 85;
   display: flex;
   justify-content: center;
-  width: 100%;
-  padding: 6px var(--oky-gutter) 0;
-  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.oky-flow-cashdock .oky-flow-purchase-badge {
+  pointer-events: auto;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
 }
 
 /* Suelta se lee sola, así que puede crecer: en la cabecera del acuse

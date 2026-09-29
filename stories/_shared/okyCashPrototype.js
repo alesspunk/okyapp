@@ -3346,23 +3346,6 @@ function screenWallet(state) {
     })}
 
     ${
-      /* En la 3 el saldo no es una tarjeta a toda página sino la misma
-         pastilla aqua del checkout, debajo del título: dice cuánto hay
-         sin robarle la pantalla a los vales, que es a lo que se viene.
-         Se toca y lleva a OKY Cash. */
-      state.walletVer === 3
-        ? `
-      <div class="oky-flow-wallet-cashrow">
-        <button class="oky-flow-purchase-badge is-cash is-wallet" data-action="nav:cashsolo" type="button">
-          <img src="oky-cash-coin.png" alt="" />
-          <span>${cashPildora}</span>
-        </button>
-      </div>
-    `
-        : ""
-    }
-
-    ${
       /* La 3 no navega con plateu: son dos caminos y ninguno necesita
          icono para distinguirse, así que van como dos botones de ancho
          completo sobre una pista gris (101557:27312). */
@@ -3453,6 +3436,24 @@ function screenWallet(state) {
         }
       </div>
     `
+    }
+
+    ${
+      /* El saldo flota justo encima de la moneda de la navbar y se
+         queda ahí al scrollear: debajo del título competía con el
+         nombre de la pantalla y se iba con el primer desliz, que es
+         cuando más falta hace saberlo. Y al caer sobre su propio icono
+         se explica sola: la pastilla y la moneda son lo mismo. */
+      state.walletVer === 3
+        ? `
+      <div class="oky-flow-cashdock">
+        <button class="oky-flow-purchase-badge is-cash is-wallet" data-action="nav:cashsolo" type="button">
+          <img src="oky-cash-coin.png" alt="" />
+          <span>${cashPildora}</span>
+        </button>
+      </div>
+    `
+        : ""
     }
 
     ${navbar(isCash ? "okycash" : "", state)}
@@ -5385,7 +5386,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const scroll = frame.querySelector(".oky-flow-scroll");
     scroll
       .querySelectorAll(
-        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-checkoutdock, .oky-flow-dock, .oky-flow-foodbar, .oky-flow-cashwin, .oky-flow-scroll-hint",
+        ".oky-flow-navbar, .oky-flow-savingbar, .oky-flow-cta-bar, .oky-flow-checkoutdock, .oky-flow-dock, .oky-flow-foodbar, .oky-flow-cashwin, .oky-flow-scroll-hint, .oky-flow-cashdock",
       )
       .forEach((bar) => frame.appendChild(bar));
 
