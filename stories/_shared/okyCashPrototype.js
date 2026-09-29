@@ -2875,6 +2875,28 @@ const walletSectionsOf = (state) =>
       ? WALLET_SECTIONS_V2
       : WALLET_SECTIONS;
 
+/* De una sección de siempre —gift, vales, servicios— a la pestaña que
+   la contiene en la versión abierta. Cada propuesta reparte esas tres
+   de otra forma, así que guardar un vale y aterrizar "en su pestaña"
+   quiere decir algo distinto en cada una. Sin esto, archivar mandaba a
+   una pestaña que en la 2 no estaba seleccionada y que en la 3 no
+   existe: ahí el mazo salía indefinido y la pantalla se caía entera. */
+function walletTabOfSection(state, section) {
+  const quiere =
+    state.walletVer === 3
+      ? /* En la 3 lo guardado sale igual en las dos pestañas, así que
+           no hay a dónde saltar: se queda en la que estabas. */
+        state.walletTab
+      : state.walletVer === 2
+        ? section === "gift"
+          ? "parami"
+          : "paracompartir"
+        : section;
+  return walletTabsOf(state).some((t) => t.key === quiere)
+    ? quiere
+    : walletSectionsOf(state)[0] || "gift";
+}
+
 function walletTitle(state) {
   const tab = walletTabsOf(state).find((t) => t.key === state.walletTab);
   return tab ? tab.title : "Mi wallet";
@@ -3226,7 +3248,14 @@ function walletVouchers(state, section = "gift") {
 
 /* ── Mi wallet (99105:43773) ────────────────────────────── */
 function screenWallet(state) {
-  const tab = state.walletTab;
+  /* La pestaña abierta, comprobada contra la versión que se está
+     mirando. Cada propuesta tiene sus propias pestañas, y una que no
+     existe en la de ahora dejaba el mazo indefinido y tiraba la
+     pantalla entera. Aquí se cae a la primera que sí, que siempre hay
+     algo que enseñar. */
+  const tab = walletTabsOf(state).some((t) => t.key === state.walletTab)
+    ? state.walletTab
+    : walletSectionsOf(state)[0] || "gift";
   const isCash = tab === "cash";
 
   /* Cuántas hay en cada estado de la pestaña abierta, y cuántas de
@@ -6230,10 +6259,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (left.length) return go("voucher", { id: left[0].id }, { push: false });
     }
 
-    /* Y el wallet abre donde acaba de caer: su pestaña, con Archivados
+    /* Y el wallet abre donde acaba de caer: su pestaña, con Guardados
        desplegado. La hoja prometió que se podría volver a ver; esto lo
        enseña en vez de contarlo. */
-    state.walletTab = sectionOfVoucher(String(id).split("#")[0]);
+    state.walletTab = walletTabOfSection(state, sectionOfVoucher(String(id).split("#")[0]));
     state.walletFilter = "";
     state.openBeforeFilter = null;
     state.openGroups = ["archivados"];
