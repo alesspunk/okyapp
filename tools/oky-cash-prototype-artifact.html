@@ -21184,7 +21184,18 @@ function walletDeck(state, section, { filtered = true } = {}) {
   /* Una pestaña de las propuestas nuevas no tiene vales propios: junta
      los de las secciones de siempre. */
   if (WALLET_PARTS[section]) {
-    return WALLET_PARTS[section].flatMap((part) => walletDeck(state, part, { filtered }));
+    const juntos = WALLET_PARTS[section].flatMap((part) => walletDeck(state, part, { filtered }));
+    /* Y lo recién comprado va delante. Juntando varias secciones el
+       orden lo daba la lista de secciones —primero todas las gift
+       cards, después los vales—, así que un vale de Guatemala recién
+       comprado aparecía al final de la pila: en USA la compra nueva
+       salía arriba y en Guatemala había que ir a buscarla. Lo que no se
+       ha comprado —las marcas de muestra— se queda al fondo, en el
+       orden que traía. */
+    return juntos
+      .map((v, orden) => ({ v, orden, compra: ultimaCompraDe(state, v.key) }))
+      .sort((a, b) => b.compra - a.compra || a.orden - b.orden)
+      .map((x) => x.v);
   }
   const all =
     section === "gift"
@@ -21288,6 +21299,15 @@ function voucherCarousel(state, section, key, unit = 0) {
       : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]),
   );
   return all.filter((v) => v.key === key && v.unit === unit);
+}
+
+/* En qué lugar de la lista de compras está la más reciente de esta
+   marca. -1 si no se ha comprado nunca —una marca de muestra—. */
+function ultimaCompraDe(state, key) {
+  for (let i = state.purchases.length - 1; i >= 0; i -= 1) {
+    if (state.purchases[i].productKey === key) return i;
+  }
+  return -1;
 }
 
 function sectionOfVoucher(key) {
