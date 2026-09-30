@@ -15072,6 +15072,25 @@ img.oky-flow-method-mark {
     transform 340ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* El blanco de Clarita es más grande que Clarita. El muñeco mide 44px
+   de ancho y el globo 41 de alto: por separado ninguno llega al dedo
+   de nadie, y hay que apuntar. Esta capa invisible los envuelve a los
+   dos y estira el área hacia la izquierda —donde solo hay fondo— y un
+   poco arriba, así que se toca "por ahí" y entra. No cambia nada de lo
+   que se ve. */
+.oky-flow-guide::before {
+  content: "";
+  position: absolute;
+  inset: -12px -10px -10px -26px;
+  border-radius: 20px;
+}
+
+/* Sin esto, el navegador espera por si viene un segundo toque —el del
+   zoom— y el recorrido arrancaba tarde. */
+.oky-flow-guide {
+  touch-action: manipulation;
+}
+
 /* Bajando la home, Clarita se aparta hacia abajo y encogiendo; al
    volver hace el camino contrario. */
 .oky-flow-guide.is-away {
