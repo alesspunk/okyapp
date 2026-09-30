@@ -11451,6 +11451,22 @@ button.tactic-offer {
   color: var(--success-text);
 }
 
+/* ── El aqua de OKY Cash en su propia actividad ──────────────
+   Lo ganado salía en el verde de "correcto", que es el del sistema para
+   cualquier acierto. Aquí lo que entra es OKY Cash, y el aqua es lo que
+   lo dice: es el mismo par de la pastilla del saldo y del sello de
+   comprado, así que la pantalla entera habla del mismo programa. Lo
+   usado se queda en gris, que es su opuesto y no es de nadie. */
+.oky-flow-history .history-card-chip.is-success {
+  background: var(--tier-base-bg);
+  border-color: var(--tier-base-bg);
+  color: var(--tier-base-text);
+}
+
+.oky-flow-history .history-card-amount.is-credit {
+  color: var(--tier-base-text);
+}
+
 .history-card-amount.is-debit {
   color: var(--primary-main);
 }
@@ -13891,12 +13907,16 @@ button.tactic-offer {
   min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  /* El rótulo pega a la izquierda y el emoji a la derecha: centrados
+     como pareja, el conjunto se movía de sitio según lo larga que
+     fuera la palabra y las dos mitades no arrancaban igual. */
+  justify-content: space-between;
   gap: 7px;
   appearance: none;
   border: 1px solid transparent;
   background: none;
-  padding: 13px 8px;
+  padding: 13px 16px;
+  text-align: left;
   border-radius: 9px;
   cursor: pointer;
   font-family: "Lato", sans-serif;
