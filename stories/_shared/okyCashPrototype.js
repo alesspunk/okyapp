@@ -1023,6 +1023,46 @@ function cashStrip(state) {
   `;
 }
 
+/* La pastilla flotante de saldo. En Mi wallet está siempre; en las dos
+   homes y en las category pages entra al empezar a bajar, ocupando el
+   sitio que dejan el back-to-top y Clarita —lo que se va con el primer
+   scroll—. La idea es la isla dinámica: arriba la información vive
+   grande y suelta; al desplazarse se recoge en una pieza chica que no
+   se va nunca.
+
+   Qué dice depende de dónde estés, porque lo que importa no es lo
+   mismo en cada tienda. */
+function cashDockText(state, { ahorro = false } = {}) {
+  /* Guatemala habla de ahorro: ahí OKY Cash no se gana, se gasta, y lo
+     que mueve es cuánto llevas descontado. Sin nada en el carrito
+     manda el saldo, y sin saldo el tope del costo de servicio, que es
+     la razón para seguir agregando. */
+  if (ahorro && state.country === "gua") {
+    const guardado = cartSavings(state);
+    if (guardado > 0) return `Vas ahorrando ${money(guardado)}`;
+    if (state.okyCashBalance > 0) return `${money(state.okyCashBalance)} en OKY Cash`;
+    return "Fee $2.99 si agregas +";
+  }
+  /* Y en USA, los tres estados de siempre: lo que acabas de ganar, lo
+     que tienes, o una puerta. */
+  if (state.cashUnseen && state.lastEarned > 0) return `+${money(state.lastEarned)} en OKY Cash`;
+  if (state.okyCashBalance > 0) return `${money(state.okyCashBalance)} en OKY Cash`;
+  return "OKY Cash, explora";
+}
+
+function cashDock(state, opts = {}) {
+  /* Nace escondida en las pantallas que la revelan al scrollear: si
+     entrara ya puesta, el primer vistazo tendría la pieza chica y la
+     grande a la vez. */
+  return `
+    <div class="oky-flow-cashdock${opts.hidden ? " is-hidden" : ""}">
+      <button class="oky-flow-purchase-badge is-cash is-wallet" data-action="nav:okycash" type="button">
+        <span>${cashDockText(state, opts)}</span>
+      </button>
+    </div>
+  `;
+}
+
 /* Cuál de los dos puntos del header late. Late el que trae la novedad
    más reciente; si el otro también tiene punto, se queda encendido pero
    quieto. Con uno solo encendido no hay competencia y late ese. */
@@ -1825,6 +1865,7 @@ function screenHome(state) {
       <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
     </button>
 
+    ${cashDock(state, { hidden: true, ahorro: true })}
     ${navbar("home", state)}
   `;
 }
@@ -3354,25 +3395,6 @@ function screenWallet(state) {
     `;
   };
 
-  /* La pastilla de saldo de la versión 3, la misma del final de una
-     compra. Dice tres cosas distintas según lo que haya que decir:
-
-     · Acabas de ganar y todavía no lo has visto → lo que ganaste, con
-       su "+". Es la noticia, y es lo que trae a alguien al wallet.
-     · Ya lo viste, pero tienes saldo → cuánto tienes. La noticia caducó
-       y lo que queda es el dato.
-     · No tienes nada → ni cifra ni "$0.00", que no invita a nada:
-       solo el nombre y una puerta.
-
-     "Reciente" es literal: se apaga al entrar a OKY Cash, que es
-     justo cuando deja de ser noticia. */
-  const cashFresco = state.cashUnseen && state.lastEarned > 0;
-  const cashPildora = cashFresco
-    ? `+${money(state.lastEarned)} en OKY Cash`
-    : state.okyCashBalance > 0
-      ? `${money(state.okyCashBalance)} en OKY Cash`
-      : "OKY Cash, explora";
-
   return `
     ${statusBar()}
     ${titledHeader(walletTitle(state), {
@@ -3501,14 +3523,10 @@ function screenWallet(state) {
          se explica sola: la pastilla y la moneda son lo mismo. */
       state.walletVer === 3
         ? `
-      <div class="oky-flow-cashdock">
-        ${/* Sin moneda: la de la navbar está justo debajo y a dos
-             centímetros, y la misma moneda dos veces se leía como dos
-             cosas distintas. La pastilla se apoya en ella. */ ""}
-        <button class="oky-flow-purchase-badge is-cash is-wallet" data-action="nav:cashsolo" type="button">
-          <span>${cashPildora}</span>
-        </button>
-      </div>
+      ${/* La misma pieza que las homes, con el texto de OKY Cash: en el
+           wallet no hay carrito del que hablar. Sin moneda, que la de la
+           navbar está justo debajo. */ ""}
+      ${cashDock(state)}
     `
         : ""
     }
@@ -3831,6 +3849,10 @@ function screenCategory(state) {
       </section>
     </div>
 
+    ${/* Aquí la pastilla sale de entrada: la category page no tiene
+         back-to-top ni Clarita que la tapen, y se entra ya buscando
+         qué comprar. */ ""}
+    ${cashDock(state, { ahorro: true })}
     ${navbar("", state)}
   `;
 }
@@ -4915,6 +4937,7 @@ function screenHomeGua(state) {
       <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
     </button>
 
+    ${cashDock(state, { hidden: true, ahorro: true })}
     ${navbar("home", state)}
   `;
 }
@@ -6155,6 +6178,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
            se mueve; no hay razón para seguir insistiendo. */
         const hint = root.querySelector(".oky-flow-scroll-hint");
         if (hint) hint.classList.toggle("is-hidden", y > 24);
+
+        /* Y en el mismo umbral entra la pastilla del saldo: lo que se
+           va —la pista de scroll, y con ella Clarita— deja el sitio a
+           lo que se queda. Arriba el saldo ya se ve grande dentro del
+           contenido; en cuanto ese se va hacia arriba, la pieza chica
+           lo recoge. */
+        const dock = root.querySelector(".oky-flow-cashdock");
+        if (dock) dock.classList.toggle("is-hidden", y <= 24);
 
         /* Clarita vive arriba: bajando se va y al volver se asoma
            preguntando otra vez. Esconderse es estado y no solo una
