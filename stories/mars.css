@@ -10541,11 +10541,11 @@ button.header-icon {
   font-weight: 600;
   letter-spacing: 0.3px;
   color: rgba(255, 255, 255, 0.62);
-  /* Aparece casi al final de la animación (las monedas terminan a los
-     7 s): antes de eso no hay nada que continuar. Luego late suave. */
+  /* Se ve desde el inicio: tocar en cualquier parte salta la animación
+     y lo ganado queda en la pastilla de arriba. Entra suave y late. */
   animation:
-    oky-flow-cashwin-hint-in 400ms ease-out 5200ms both,
-    oky-flow-cashwin-hint 2s ease-in-out 5600ms infinite;
+    oky-flow-cashwin-hint-in 400ms ease-out 600ms both,
+    oky-flow-cashwin-hint 2s ease-in-out 1000ms infinite;
 }
 
 @keyframes oky-flow-cashwin-hint-in {
@@ -10560,7 +10560,7 @@ button.header-icon {
 @keyframes oky-flow-cashwin-hint {
   0%,
   100% {
-    opacity: 0.35;
+    opacity: 0.55;
   }
   50% {
     opacity: 0.85;

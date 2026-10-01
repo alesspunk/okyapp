@@ -1071,7 +1071,10 @@ function cashDockText(state, { ahorro = false } = {}) {
     const guardado = cartSavings(state);
     if (guardado > 0) return `Vas ahorrando ${money(guardado)}`;
     if (state.okyCashBalance > 0) return `${money(state.okyCashBalance)} en OKY Cash`;
-    return "Fee $2.99 si agregas +";
+    /* Sin ahorro ni saldo no se dice nada: "Fee $2.99 si agregas +"
+       apuntaba a OKY Cash sin tener que ver con él y confundía en la
+       prueba. La pastilla no sale hasta que haya algo que contar. */
+    return "";
   }
   /* Y en USA, los tres estados de siempre: lo que acabas de ganar, lo
      que tienes, o una puerta. */
@@ -1081,13 +1084,15 @@ function cashDockText(state, { ahorro = false } = {}) {
 }
 
 function cashDock(state, opts = {}) {
+  const text = cashDockText(state, opts);
+  if (!text) return "";
   /* Nace escondida en las pantallas que la revelan al scrollear: si
      entrara ya puesta, el primer vistazo tendría la pieza chica y la
      grande a la vez. */
   return `
     <div class="oky-flow-cashdock${opts.hidden ? " is-hidden" : ""}">
       <button class="oky-flow-purchase-badge is-cash is-wallet" data-action="nav:okycash" type="button">
-        <span>${cashDockText(state, opts)}</span>
+        <span>${text}</span>
       </button>
     </div>
   `;
@@ -3791,7 +3796,6 @@ function okyCashActivity(state) {
      estado vacío de 101742:103434 explica cómo se empieza a ganar, manda
      a las gift cards de USA y deja a mano los vales que ya se tienen. */
   if (!groups.length) {
-    const where = state.country === "usa" ? "USA" : "Guatemala";
     return `
     <div class="oky-flow-section" style="gap:16px">
       <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
@@ -3806,13 +3810,13 @@ function okyCashActivity(state) {
         </button>
       </div>
 
-      <button class="oky-flow-cash-empty-link" data-action="nav:wallet" type="button">
+      <button class="oky-flow-cash-empty-link" data-action="nav:wallet" data-tab="vales" type="button">
         <span class="oky-flow-cash-empty-wallet">
           <img src="Wallet-icon.png" alt="" />
           ${hasNewVouchers(state) ? `<span class="header-icon-indicator-dot"></span>` : ""}
         </span>
         <span class="oky-flow-cash-empty-copy">
-          <strong>Tus vales de ${where}</strong>
+          <strong>Tus OKY Vales</strong>
           <span>Ver en Mi wallet</span>
         </span>
         <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
@@ -6956,6 +6960,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const porPais = walletTabsOf(state).some((t) => t.key === porTienda)
         ? porTienda
         : walletSectionsOf(state)[0] || porTienda;
+      /* Un botón puede pedir su pestaña: "Tus OKY Vales" del
+         estado vacío de OKY Cash abre OKY Vales, se entre desde donde
+         se entre. */
+      const pedida = el.dataset.tab;
+      if (pedida && walletTabsOf(state).some((t) => t.key === pedida)) {
+        state.walletTab = pedida;
+        state.openGroups = walletOpenGroups(state, pedida);
+        return leavePurchase("wallet");
+      }
       state.walletTab = fromPurchase ? walletEntryTab(state) : porPais;
       state.openGroups = fromPurchase ? walletOpenGroups(state) : ["activos"];
       return leavePurchase("wallet");
