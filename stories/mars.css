@@ -15579,3 +15579,140 @@ img.oky-flow-method-mark {
 .folder-chevron-stack {
   pointer-events: none;
 }
+
+/* ── OKY Cash · vencimiento debajo de la tarjeta ─────────── */
+/* El saldo vence a los 6 meses de ganarlo. Una línea chica y centrada
+   bajo la tarjeta: se lee al pasar y no compite con el saldo. */
+.oky-flow-cash-expiry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin: -6px 0 0;
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color: #594f66;
+  text-align: center;
+}
+
+.oky-flow-cash-expiry strong {
+  color: var(--primary-main);
+  font-weight: 700;
+}
+
+.oky-flow-cash-expiry i {
+  font-size: 12px;
+  color: var(--primary-main);
+}
+
+/* ── OKY Cash · actividad vacía (101742:103434) ─────────── */
+.oky-flow-cash-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.oky-flow-cash-empty-art {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 32px;
+  background: #e0fcfa;
+}
+
+.oky-flow-cash-empty-art img {
+  width: 42px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.oky-flow-cash-empty-title {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 24px;
+  color: #301a47;
+}
+
+.oky-flow-cash-empty-note {
+  margin: 0;
+  max-width: 312px;
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #575963;
+}
+
+.oky-flow-cash-empty-cta {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.oky-flow-cash-empty-link {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px 12px;
+  appearance: none;
+  border: 1px solid #ded1eb;
+  border-radius: 12px;
+  background: #f6f4fb;
+  cursor: pointer;
+  text-align: left;
+}
+
+.oky-flow-cash-empty-wallet {
+  position: relative;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.oky-flow-cash-empty-wallet img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.oky-flow-cash-empty-wallet .header-icon-indicator-dot {
+  top: -2px;
+  right: -2px;
+}
+
+.oky-flow-cash-empty-copy {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-family: "Lato", sans-serif;
+}
+
+.oky-flow-cash-empty-copy strong {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: #552588;
+}
+
+.oky-flow-cash-empty-copy span {
+  font-size: 12px;
+  line-height: 16px;
+  color: #594f66;
+}
+
+.oky-flow-cash-empty-link > i {
+  font-size: 22px;
+  color: #552588;
+}

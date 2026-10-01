@@ -233,6 +233,24 @@ function orderCountry(state) {
 const PROMO_PRODUCTS = ["nike", "lyft", "macys", "ulta"];
 const PROMO_DEFAULT_AMOUNT = 51;
 
+/* Interruptores de la prueba de usabilidad. Lo que está apagado sigue
+   en el código, listo para volver a encenderse:
+   · usaGuide: Clarita en la home de USA y su recorrido. La de la card
+     del vale no depende de esto y sigue.
+   · spookyTimer: el cronómetro de Spooky Deals. Apagado, el strip se
+     queda en aqua con el porcentaje de siempre y las marcas abren en su
+     monto de siempre.
+   · superRibbon: el ribbon "Super Deals" junto al título del strip;
+     encendido, sin cronómetro se queda en su versión aqua.
+   · walletVersions: los interruptores 2 y 3 de Mi wallet; apagados, se
+     usa el wallet por defecto. */
+const TEST_FEATURES = {
+  usaGuide: false,
+  spookyTimer: false,
+  superRibbon: true,
+  walletVersions: false,
+};
+
 /* La promo de "Spooky Deals" dura tres minutos: mientras corre, el
    rango de $50 a $200 paga 20%; al vencer, todo vuelve al 5% base.
    Sigue siendo corta a propósito —la prueba de usabilidad quiere ver
@@ -561,7 +579,10 @@ function markCountryInUrl(country) {
 
 function createInitialState(userType) {
   const returning = userType === "returning";
-  const startingCash = returning ? 56 : 5;
+  /* Quien entra por primera vez arranca sin OKY Cash ni historial: el
+     saldo se descubre ganándolo en USA, y la actividad abre en su estado
+     vacío (101742:103434). */
+  const startingCash = returning ? 56 : 0;
 
   return {
     userType,
@@ -577,7 +598,9 @@ function createInitialState(userType) {
     history: [],
     /* Arranca en 51, dentro del rango de descuento especial (20%);
        al vencer la promo vuelve a los 5 del resto de marcas. */
-    amounts: PROMO_PRODUCTS.reduce((acc, key) => ({ ...acc, [key]: PROMO_DEFAULT_AMOUNT }), {}),
+    amounts: TEST_FEATURES.spookyTimer
+      ? PROMO_PRODUCTS.reduce((acc, key) => ({ ...acc, [key]: PROMO_DEFAULT_AMOUNT }), {})
+      : {},
     cart: [],
     cartOpen: false,
     checkoutIndex: 0,
@@ -601,7 +624,7 @@ function createInitialState(userType) {
     /* Historial de ejemplo. Las entradas de una misma orden van juntas y
        en orden, que es como las agrupa la pantalla: las órdenes con más
        de un movimiento traen su desglose por marca detrás del toque. */
-    activity: [
+    activity: !returning ? [] : [
       /* Agosto */
       { date: stamp(18), group: monthGroup(18), amount: "+ $2.80", order: "Orden #01112442", kind: "credit", label: "Amazon", value: 2.8 },
       { date: stamp(18), group: monthGroup(18), amount: "+ $1.27", order: "Orden #01112442", kind: "credit", label: "Starbucks", value: 1.27 },
@@ -1396,6 +1419,7 @@ function guideBubble() {
 }
 
 function homeGuide(state) {
+  if (!TEST_FEATURES.usaGuide) return "";
   return `
     <div class="oky-flow-guide${state.guideAway ? " is-away" : ""}" data-action="guide-tap"
       role="button" tabindex="0" aria-label="Clarita: Gana OKY Cash, ¿Quieres saber cómo?">
@@ -1630,6 +1654,7 @@ function promoRibbon(state) {
   }
 
   if (!state.promoLive) {
+    if (!TEST_FEATURES.superRibbon) return "";
     return `
       <div class="super-ribbon super-ribbon-type-normal${state.promoSettling ? " is-settling" : ""}">
         <span class="super-ribbon-icon"><i class="fa-solid fa-percent" aria-hidden="true"></i></span>
@@ -3401,7 +3426,7 @@ function screenWallet(state) {
       /* Los interruptores de las dos propuestas. Apagados, el wallet
          es el de siempre —por tipo de vale—; el 2 pasa las pestañas a
          "para quién es" y el 3 a países. */
-      trailingHtml: `
+      trailingHtml: !TEST_FEATURES.walletVersions ? "" : `
         <span class="oky-flow-walletvers">
           ${[2, 3]
             .map(
@@ -3539,6 +3564,39 @@ function screenWallet(state) {
    Era una pantalla aparte y enseñaba la misma tarjeta que la pestaña
    de OKY Cash del wallet, con la actividad debajo. Dos sitios para lo
    mismo, y el bueno escondido: ahora es el cuerpo de esa pestaña. */
+/* El OKY Cash vence a los 6 meses de ganarlo. Debajo de la tarjeta se
+   avisa cuándo vence lo próximo que va a vencer: el abono más antiguo
+   que sigue vigente. Sin saldo no hay fecha que dar, así que se cuenta
+   la regla. */
+const CASH_EXPIRY_MONTHS = 6;
+
+function cashExpiryNote(state) {
+  if (!(state.okyCashBalance > 0)) {
+    return `<p class="oky-flow-cash-expiry"><i class="fa-regular fa-clock" aria-hidden="true"></i>El OKY Cash que ganes vence a los ${CASH_EXPIRY_MONTHS} meses.</p>`;
+  }
+  const parse = (s) => {
+    const m = String(s || "").match(/(\d{1,2}) \/ ([A-Z]{3}) \/ (\d{4})/);
+    return m ? new Date(Number(m[3]), MONTHS_SHORT.indexOf(m[2]), Number(m[1])) : null;
+  };
+  const plus = (d) => {
+    const x = new Date(d);
+    x.setMonth(x.getMonth() + CASH_EXPIRY_MONTHS);
+    return x;
+  };
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const next =
+    state.activity
+      .filter((e) => e.kind === "credit")
+      .map((e) => parse(e.date))
+      .filter(Boolean)
+      .map(plus)
+      .filter((d) => d >= today)
+      .sort((a, b) => a - b)[0] || plus(today);
+  const label = `${String(next.getDate()).padStart(2, "0")} / ${MONTHS_SHORT[next.getMonth()]} / ${next.getFullYear()}`;
+  return `<p class="oky-flow-cash-expiry"><i class="fa-regular fa-clock" aria-hidden="true"></i>Tu OKY Cash vence el <strong>${label}</strong></p>`;
+}
+
 function okyCashActivity(state) {
   /* Aquí ya estás en la actividad, así que el CTA no lleva a ninguna
      parte: se queda como rótulo, invitando a conocer el programa. */
@@ -3722,11 +3780,46 @@ function okyCashActivity(state) {
         `;
         })
         .join("")
-    : `<p class="oky-flow-empty">Todavía no tienes movimientos de OKY Cash.</p>`;
+    : "";
+
+  /* Sin movimientos no hay nada que filtrar ni buscar: en su lugar, el
+     estado vacío de 101742:103434 explica cómo se empieza a ganar, manda
+     a las gift cards de USA y deja a mano los vales que ya se tienen. */
+  if (!groups.length) {
+    const where = state.country === "usa" ? "USA" : "Guatemala";
+    return `
+    <div class="oky-flow-section" style="gap:16px">
+      <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
+      ${cashExpiryNote(state)}
+
+      <div class="oky-flow-cash-empty">
+        <span class="oky-flow-cash-empty-art"><img src="oky-cash-coin.png" alt="" /></span>
+        <h2 class="oky-flow-cash-empty-title">Aún no has ganado OKY Cash</h2>
+        <p class="oky-flow-cash-empty-note">Compra una gift card en USA y usa el saldo que ganes en Guatemala.</p>
+        <button class="btn btn-primary btn-large oky-flow-cash-empty-cta" data-action="nav:home" type="button">
+          Explorar gift cards de USA
+        </button>
+      </div>
+
+      <button class="oky-flow-cash-empty-link" data-action="nav:wallet" type="button">
+        <span class="oky-flow-cash-empty-wallet">
+          <img src="Wallet-icon.png" alt="" />
+          ${hasNewVouchers(state) ? `<span class="header-icon-indicator-dot"></span>` : ""}
+        </span>
+        <span class="oky-flow-cash-empty-copy">
+          <strong>Tus vales de ${where}</strong>
+          <span>Ver en Mi wallet</span>
+        </span>
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      </button>
+    </div>
+  `;
+  }
 
   return `
     <div class="oky-flow-section" style="gap:16px">
       <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
+      ${cashExpiryNote(state)}
 
       <div class="oky-flow-home-head">
         <span class="oky-flow-section-head" style="padding:0">ACTIVIDAD</span>
@@ -5649,6 +5742,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      marcha —ir y volver de pestaña la alargaría sin fin— ni la pone si
      la promo ya corrió. */
   function armPromoIdle(delay = PROMO_IDLE_MS) {
+    if (!TEST_FEATURES.spookyTimer) return;
     if (state.promoLive || state.promoSpent || promoIdleTimer) return;
     promoIdleTimer = setTimeout(startPromo, delay);
   }
@@ -5664,6 +5758,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        contradecían. Y el sentido del reloj es justamente que se acaba:
        devolverlo sería quitarle lo único que dice. No sirve promoEnded,
        que es el aviso de "Promo terminada" y dura dos segundos. */
+    if (!TEST_FEATURES.spookyTimer) return;
     if (state.promoLive || state.promoSpent) return;
     /* Y solo arranca en la home. El confeti y el cruce de aqua a
        mostaza son para que se vean: disparándose mientras se mira una
@@ -5992,8 +6087,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          solas al final. */
       introTimer = setTimeout(() => {
         state.usaIntro = false;
-        state.guideOn = true;
-        state.guideAsk = true;
+        state.guideOn = TEST_FEATURES.usaGuide;
+        state.guideAsk = TEST_FEATURES.usaGuide;
         /* Clarita ya está ofreciendo el recorrido. Si nadie la toca, a
            los 7 segundos el reloj arranca solo: antes se quedaba en
            Super Deals para siempre, porque el único que lo ponía en
@@ -6953,7 +7048,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          home se entra con el que ya tenga la marca. */
       const key = el.dataset.product;
       if (el.dataset.amount) state.amounts[key] = Number(el.dataset.amount);
-      else if (!state.amounts[key]) state.amounts[key] = BRAND_DEFAULT_AMOUNT;
+      else if (!state.amounts[key]) state.amounts[key] = Math.max(BRAND_DEFAULT_AMOUNT, (PRODUCTS[key] || {}).min || 0);
       return go("pdp", { product: key });
     }
 
