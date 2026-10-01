@@ -10427,9 +10427,9 @@ button.header-icon {
   z-index: 120;
   overflow: hidden;
   border-radius: 24px;
-  /* Mismo morado que el onboarding: la moneda es plateada y sobre
-     fondo claro se perdía. */
-  background: radial-gradient(120% 80% at 50% 12%, #5a1ba8 0%, #410d86 62%, #2d0760 100%);
+  /* Verde oscuro de OKY Cash: la moneda es plateada y sobre fondo
+     claro se perdía. */
+  background: #00524d;
   cursor: pointer;
   /* El propio dotLottie desvanece las monedas entre los frames 210 y
      240 (7 s - 8 s): el overlay se va con ellas y la pantalla de la
@@ -10541,7 +10541,20 @@ button.header-icon {
   font-weight: 600;
   letter-spacing: 0.3px;
   color: rgba(255, 255, 255, 0.62);
-  animation: oky-flow-cashwin-hint 2s ease-in-out 1.4s infinite;
+  /* Aparece casi al final de la animación (las monedas terminan a los
+     7 s): antes de eso no hay nada que continuar. Luego late suave. */
+  animation:
+    oky-flow-cashwin-hint-in 400ms ease-out 5200ms both,
+    oky-flow-cashwin-hint 2s ease-in-out 5600ms infinite;
+}
+
+@keyframes oky-flow-cashwin-hint-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.85;
+  }
 }
 
 @keyframes oky-flow-cashwin-hint {
@@ -15715,4 +15728,67 @@ img.oky-flow-method-mark {
 .oky-flow-cash-empty-link > i {
   font-size: 22px;
   color: #552588;
+}
+
+/* La cabecera del acuse, repetida encima de la animación de "Ganaste":
+   solo se ve la pastilla de OKY Cash, en el mismo sitio que la de
+   debajo. No recibe toques: tocar en cualquier parte sigue cerrando. */
+.oky-flow-cashwin-top {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.oky-flow-cashwin-top .status-bar,
+.oky-flow-cashwin-top .oky-flow-header-icon {
+  visibility: hidden;
+}
+
+.oky-flow-cashwin-top .oky-flow-header {
+  background: transparent;
+}
+
+/* La pastilla de OKY Cash de la cabecera no se ve mientras están el
+   sello y la animación: la trae la propia animación de "Ganaste", que
+   la hace entrar casi al final subiendo hasta su sitio. Cuando el
+   overlay empieza a irse (7 s) la de la cabecera ya está debajo, en el
+   mismo lugar, y se queda. */
+.oky-flow-frame:has(.oky-flow-celebration) .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
+  visibility: hidden;
+}
+
+.oky-flow-frame:has(.oky-flow-cashwin) .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
+  animation: oky-flow-cash-pill-reveal 1ms linear 6900ms both;
+}
+
+@keyframes oky-flow-cash-pill-reveal {
+  from {
+    visibility: hidden;
+  }
+  to {
+    visibility: visible;
+  }
+}
+
+.oky-flow-frame .oky-flow-cashwin .oky-flow-cashwin-top .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
+  visibility: visible;
+  animation: oky-flow-cash-pill-in 650ms cubic-bezier(0.32, 0.72, 0, 1) 5200ms both;
+}
+
+@keyframes oky-flow-cash-pill-in {
+  from {
+    opacity: 0;
+    transform: translateY(180px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-frame .oky-flow-cashwin .oky-flow-cashwin-top .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
+    animation-duration: 1ms;
+  }
 }

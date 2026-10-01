@@ -243,12 +243,16 @@ const PROMO_DEFAULT_AMOUNT = 51;
    · superRibbon: el ribbon "Super Deals" junto al título del strip;
      encendido, sin cronómetro se queda en su versión aqua.
    · walletVersions: los interruptores 2 y 3 de Mi wallet; apagados, se
-     usa el wallet por defecto. */
+     usa el wallet por defecto.
+   · foodDiscounts: los precios rebajados de la comida de Guatemala
+     (McDonald's). Apagado, todo va a precio regular: sin tachado ni
+     "% OFF"; el ahorro que queda es el del costo por servicio. */
 const TEST_FEATURES = {
   usaGuide: false,
   spookyTimer: false,
   superRibbon: true,
   walletVersions: false,
+  foodDiscounts: false,
 };
 
 /* La promo de "Spooky Deals" dura tres minutos: mientras corre, el
@@ -842,6 +846,9 @@ const serviceFeeOf = (n) =>
 const serviceFeeList = (n) => n * SERVICE_FEE_UNIT;
 
 FOOD_PRODUCTS.forEach((food) => {
+  /* Sin descuentos para la prueba: se queda el precio que se cobra y se
+     quita el de lista, que es lo que pinta el tachado y el "% OFF". */
+  if (!TEST_FEATURES.foodDiscounts) delete food.was;
   PRODUCTS[food.key] = {
     ...food,
     bg: "#ffffff",
@@ -2668,16 +2675,9 @@ function purchaseOverlays(state, { celebrate = false, cashWin = false } = {}) {
             <div class="oky-flow-stamp-group">
               <img class="oky-flow-stamp" src="oky-stamp-exitosa.png" alt="" />
               <p class="oky-flow-stamp-label">Compra exitosa</p>
-              ${
-                /* Microinteracción: el sello no solo confirma el pago,
-                   también adelanta que esa compra generó OKY Cash. */
-                state.lastEarned
-                  ? `<span class="oky-flow-stamp-earned">
-                      <img src="oky-cash-coin.png" alt="" />
-                      <span>+${money(state.lastEarned)} en OKY Cash</span>
-                    </span>`
-                  : ""
-              }
+              ${/* El sello solo confirma el pago: lo ganado lo cuenta la
+                   animación de "Ganaste", que trae la pastilla a su sitio
+                   de la cabecera casi al final. */ ""}
             </div>
           </div>`
         : ""
@@ -2686,6 +2686,12 @@ function purchaseOverlays(state, { celebrate = false, cashWin = false } = {}) {
     ${
       cashWin
         ? `<div class="oky-flow-cashwin" data-action="dismiss-cashwin" role="button" tabindex="0">
+            ${/* La pastilla de la cabecera se ve también encima de la
+                 animación, en su sitio exacto: se pinta la misma
+                 cabecera y solo se deja visible la pastilla. Cuando el
+                 overlay se va —solo o al tocar— la de debajo está en el
+                 mismo lugar, así que parece que se queda. */ ""}
+            <div class="oky-flow-cashwin-top" aria-hidden="true">${statusBar()}${purchaseHeader(state)}</div>
             <div class="oky-flow-cashwin-stage" data-role="cashwin-lottie"></div>
             <div class="oky-flow-cashwin-copy">
               <p class="oky-flow-cashwin-kicker">Ganaste</p>
@@ -3566,14 +3572,13 @@ function screenWallet(state) {
    mismo, y el bueno escondido: ahora es el cuerpo de esa pestaña. */
 /* El OKY Cash vence a los 6 meses de ganarlo. Debajo de la tarjeta se
    avisa cuándo vence lo próximo que va a vencer: el abono más antiguo
-   que sigue vigente. Sin saldo no hay fecha que dar, así que se cuenta
-   la regla. */
+   que sigue vigente. Sin saldo no se muestra. */
 const CASH_EXPIRY_MONTHS = 6;
 
 function cashExpiryNote(state) {
-  if (!(state.okyCashBalance > 0)) {
-    return `<p class="oky-flow-cash-expiry"><i class="fa-regular fa-clock" aria-hidden="true"></i>El OKY Cash que ganes vence a los ${CASH_EXPIRY_MONTHS} meses.</p>`;
-  }
+  /* Sin saldo no hay nada que venza: la línea solo sale cuando ya se
+     ganó algo. */
+  if (!(state.okyCashBalance > 0)) return "";
   const parse = (s) => {
     const m = String(s || "").match(/(\d{1,2}) \/ ([A-Z]{3}) \/ (\d{4})/);
     return m ? new Date(Number(m[3]), MONTHS_SHORT.indexOf(m[2]), Number(m[1])) : null;
