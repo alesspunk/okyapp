@@ -3431,10 +3431,10 @@ function screenWallet(state) {
           (t) => `
           <button class="oky-flow-wallet-seg-item${t.key === tab ? " is-on" : ""}" type="button" role="tab"
             data-action="wallet-tab" data-section="${t.key}" aria-selected="${t.key === tab}">
-            ${/* El emoji cierra en vez de abrir: delante empujaba la
-                 palabra fuera del centro de su mitad y las dos
-                 pestañas se leían descuadradas. */ ""}
-            ${t.label}<span class="oky-flow-wallet-seg-emoji" aria-hidden="true">${t.emoji}</span>
+            ${/* Emoji arriba y rótulo debajo, los dos centrados en su
+                 mitad: apilados, el largo de la palabra ya no mueve el
+                 emoji y las dos pestañas quedan cuadradas. */ ""}
+            <span class="oky-flow-wallet-seg-emoji" aria-hidden="true">${t.emoji}</span>${t.label}
           </button>
         `,
         ).join("")}

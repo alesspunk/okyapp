@@ -13906,17 +13906,16 @@ button.tactic-offer {
   flex: 1 1 0;
   min-width: 0;
   display: flex;
+  /* Emoji arriba y rótulo debajo, centrados en su mitad. */
+  flex-direction: column;
   align-items: center;
-  /* El rótulo pega a la izquierda y el emoji a la derecha: centrados
-     como pareja, el conjunto se movía de sitio según lo larga que
-     fuera la palabra y las dos mitades no arrancaban igual. */
-  justify-content: space-between;
-  gap: 7px;
+  justify-content: center;
+  gap: 4px;
   appearance: none;
   border: 1px solid transparent;
   background: none;
-  padding: 13px 16px;
-  text-align: left;
+  padding: 8px 12px;
+  text-align: center;
   border-radius: 9px;
   cursor: pointer;
   font-family: "Lato", sans-serif;
@@ -13933,7 +13932,7 @@ button.tactic-offer {
    se convertía en una mancha. Y sin el letter-spacing de la palabra,
    que en un emoji solo abre un hueco a su derecha. */
 .oky-flow-wallet-seg-emoji {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
   letter-spacing: 0;
 }
