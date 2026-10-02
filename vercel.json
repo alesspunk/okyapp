@@ -17,6 +17,22 @@
       "destination": "/prototypes/oky-cash-web/index.html"
     },
     {
+      "source": "/prototypes/oky-cash-web/timer",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash-web/timer/usa",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash-web/timer/latam",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash-web/timer/gua",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
       "source": "/oky-cash-prototype-demo.html",
       "destination": "/prototypes/oky-cash/index.html"
     },
