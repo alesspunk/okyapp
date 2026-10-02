@@ -11767,6 +11767,38 @@ button.tactic-offer {
   right: 0;
 }
 
+/* En la PDP el relevo pasa al teclear un monto de otro tramo. El
+   ribbon que se va se ancla al mismo borde derecho que el nuevo, que
+   es el que no se mueve aunque cambie el ancho del texto. */
+.oky-flow-ribbon-slot .discount-ribbon-wrap.is-leaving {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+/* La barra de la PDP cruza de un color al otro cuando el monto cambia
+   de tramo, sin pasar por el rojo: aquí nada terminó, solo se movió el
+   monto. --retier-from lo deja el script con el color de antes. */
+.saving-bar.is-retier {
+  animation: oky-flow-bar-retier 520ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes oky-flow-bar-retier {
+  from {
+    background-color: var(--retier-from, var(--tier-base-bg));
+  }
+}
+
+/* El aviso del tramo entra igual que el de "Promo terminada": primero
+   el color, un pelín después el texto. */
+.saving-bar.is-retier .saving-bar-copy span,
+.saving-bar.is-hinting .saving-bar-copy span {
+  /* inline-block y no flex: en flex se comen los espacios entre el
+     texto y los <strong>. */
+  display: inline-block;
+  animation: oky-flow-bar-say 420ms cubic-bezier(0.32, 0.72, 0, 1) 100ms both;
+}
+
 .discount-ribbon.is-bumped {
   animation: oky-flow-rate-bump 640ms cubic-bezier(0.22, 1, 0.36, 1) 340ms both;
 }
@@ -11789,7 +11821,10 @@ button.tactic-offer {
 @media (prefers-reduced-motion: reduce) {
   .discount-ribbon.is-bumped,
   .discount-ribbon-wrap.is-leaving,
-  .super-ribbon-swap .super-ribbon.is-leaving {
+  .super-ribbon-swap .super-ribbon.is-leaving,
+  .saving-bar.is-retier,
+  .saving-bar.is-retier .saving-bar-copy span,
+  .saving-bar.is-hinting .saving-bar-copy span {
     animation: none;
   }
 
@@ -18777,11 +18812,23 @@ function orderCountry(state) {
 const PROMO_PRODUCTS = ["nike", "lyft", "macys", "ulta"];
 const PROMO_DEFAULT_AMOUNT = 51;
 
+/* El cronómetro vive en su propio apartado: /timer (o #timer donde el
+   prototipo no tiene ruta propia, como en un Artifact). El enlace de
+   siempre sigue sin reloj. */
+function timerRoute() {
+  if (typeof location === "undefined") return false;
+  const parts = location.pathname.toLowerCase().split("/");
+  return parts.includes("timer") || /(^#|[-&])timer\b/.test(location.hash.toLowerCase());
+}
+
+const TIMER_ROUTE = timerRoute();
+
 /* Interruptores de la prueba de usabilidad. Lo que está apagado sigue
    en el código, listo para volver a encenderse:
    · usaGuide: Clarita en la home de USA y su recorrido. La de la card
      del vale no depende de esto y sigue.
-   · spookyTimer: el cronómetro de Spooky Deals. Apagado, el strip se
+   · spookyTimer: el cronómetro de Spooky Deals; solo en /timer, igual
+     que usaGuide, tierHint y walletV3. Apagado, el strip se
      queda en aqua con el porcentaje de siempre y las marcas abren en su
      monto de siempre.
    · superRibbon: el ribbon "Super Deals" junto al título del strip;
@@ -18792,8 +18839,14 @@ const PROMO_DEFAULT_AMOUNT = 51;
      (McDonald's). Apagado, todo va a precio regular: sin tachado ni
      "% OFF"; el ahorro que queda es el del costo por servicio. */
 const TEST_FEATURES = {
-  usaGuide: false,
-  spookyTimer: false,
+  /* En /timer vuelven Clarita y su recorrido en la home de USA. */
+  usaGuide: TIMER_ROUTE,
+  spookyTimer: TIMER_ROUTE,
+  /* El relevo del ribbon y el aviso en la barra al teclear un monto de
+     otro tramo. Solo en /timer, que es donde existe el tramo del 20%. */
+  tierHint: TIMER_ROUTE,
+  /* Y Mi wallet abre en la variante 3 (Para mí / Compartidas). */
+  walletV3: TIMER_ROUTE,
   superRibbon: true,
   walletVersions: false,
   foodDiscounts: false,
@@ -19115,11 +19168,13 @@ function markCountryInUrl(country) {
     const segment = trimmed.split("/").pop().toLowerCase();
     const known = USA_ALIASES.includes(segment) || GUA_ALIASES.includes(segment);
     const base = known ? trimmed.slice(0, trimmed.lastIndexOf("/")) : trimmed;
-    if (/\/prototypes\/oky-cash$/.test(base)) {
+    if (/\/prototypes\/oky-cash(\/timer)?$|^\/timer$/.test(base)) {
       history.replaceState(null, "", `${base}/${country === "usa" ? "usa" : "latam"}`);
       return;
     }
-    history.replaceState(null, "", `#${country}`);
+    /* En el hash el apartado del cronómetro va delante del país para
+       que el enlace copiado siga abriendo con reloj. */
+    history.replaceState(null, "", `#${TEST_FEATURES.spookyTimer ? "timer-" : ""}${country}`);
   } catch (error) {
     /* Algunos hosts no dejan tocar la URL; no es crítico. */
   }
@@ -19206,7 +19261,7 @@ function createInitialState(userType) {
        —gift cards, vales, servicios—, que es la de casa; 2 la de "para
        quién es"; 3 la de países. Los dos interruptores de la cabecera
        llevan a las otras dos, y apagados se vuelve a la 1. */
-    walletVer: 1,
+    walletVer: TEST_FEATURES.walletV3 ? 3 : 1,
     /* A quién apunta el radio de la agenda mientras está abierta; al
        tocar "Siguiente" pasa a ser el destinatario de la orden. */
     contactPick: null,
@@ -19221,7 +19276,7 @@ function createInitialState(userType) {
     savingsFromPdp: false,
     /* La primera de la versión de casa. Con "gift" —la de la versión
        de tipos— no había pestaña que marcar al abrir. */
-    walletTab: "gift",
+    walletTab: TEST_FEATURES.walletV3 ? "v3mio" : "gift",
     openGroups: ["activos"],
     /* Aviso de cambio de marketplace; guarda a dónde se iba. */
     countrySheet: null,
@@ -26291,6 +26346,46 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     });
   });
 
+  /* Aviso de cambio de tramo en la PDP. Cuando el monto tecleado entra
+     o sale de la banda del 20%, la barra lo dice un momento —como el
+     "Promo terminada" del reloj— y luego vuelve a la cifra: el ribbon
+     ya cambió de color, pero lo que hace falta saber es por qué. */
+  const TIER_HINT_WAIT_MS = 450;
+  const TIER_HINT_MS = 2400;
+  const tierHint = { from: null, wait: null, restore: null };
+
+  function clearTierHint() {
+    clearTimeout(tierHint.wait);
+    clearTimeout(tierHint.restore);
+    tierHint.wait = null;
+    tierHint.restore = null;
+    root.querySelectorAll(".saving-bar.is-hinting").forEach((el) => el.classList.remove("is-hinting"));
+  }
+
+  function showTierHint(bar, tier, cashback) {
+    const copy = bar.querySelector(".saving-bar-copy span");
+    const chip = bar.querySelector(".saving-bar-timer");
+    if (!copy) return;
+    const promo = tier.bar === "is-tier-promo";
+    /* La banda sale de getTier: más de $50 y hasta $200. */
+    copy.innerHTML = promo
+      ? `<i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i>&nbsp;Con este monto ganas <strong>20%</strong>`
+      : `El <strong>20%</strong> es de <strong>$51 a $200</strong>`;
+    if (chip) chip.hidden = true;
+    bar.classList.remove("is-hinting");
+    void bar.offsetWidth;
+    bar.classList.add("is-hinting");
+    tierHint.restore = setTimeout(() => {
+      tierHint.restore = null;
+      copy.innerHTML = `Gana <strong>${money(cashback)}</strong> de <strong>OKY Cash</strong>`;
+      if (chip) chip.hidden = !promo;
+      bar.classList.remove("is-hinting");
+      void bar.offsetWidth;
+      bar.classList.add("is-hinting");
+      setTimeout(() => bar.classList.remove("is-hinting"), 520);
+    }, TIER_HINT_MS);
+  }
+
   /* Monto del PDP: se parchean solo los nodos afectados para no
      perder el foco del input en cada tecla. */
   root.addEventListener("input", (event) => {
@@ -26367,8 +26462,30 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const bigEl = root.querySelector(".middle-card-amount");
       if (bigEl) bigEl.textContent = product.quetzal ? bigQuetzal(amount) : bigAmount(amount);
 
+      /* Cualquier tecla corta el aviso que estuviera puesto: lo que
+         manda es el monto nuevo. */
+      clearTierHint();
+
       const ribbon = root.querySelector(".oky-flow-ribbon-slot .discount-ribbon-wrap");
+      const prevRibbon = ribbon && ribbon.classList.contains("is-tier-promo") ? "is-tier-promo" : "is-tier-base";
+      const retier = TEST_FEATURES.tierHint && Boolean(ribbon && tier.ribbon && tier.ribbon !== prevRibbon);
       if (ribbon) {
+        /* Si el monto cruza de tramo, el ribbon hace el mismo relevo
+           que cuando arranca o vence la promo: el viejo se disuelve
+           encima y el nuevo da un salto. Cambiar el color a secas no se
+           notaba con la vista puesta en el campo. */
+        if (retier) {
+          const leaving = ribbon.cloneNode(true);
+          leaving.classList.remove("is-bumped");
+          leaving.classList.add("is-leaving");
+          leaving.setAttribute("aria-hidden", "true");
+          ribbon.parentNode.appendChild(leaving);
+          setTimeout(() => leaving.remove(), PROMO_CROSS_MS);
+          ribbon.classList.remove("is-bumped");
+          void ribbon.offsetWidth;
+          ribbon.classList.add("is-bumped");
+          setTimeout(() => ribbon.classList.remove("is-bumped"), PROMO_BUMP_DELAY_MS + PROMO_BUMP_MS);
+        }
         ribbon.classList.remove("is-tier-base", "is-tier-promo");
         ribbon.classList.add(tier.ribbon);
         ribbon.querySelector(".discount-ribbon-text").textContent = `Gana ${Math.round(tier.rate * 100)}%`;
@@ -26377,9 +26494,31 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const bar = root.querySelector(".saving-bar");
       if (bar) {
         const promoTier = tier.bar === "is-tier-promo";
+        if (retier) {
+          /* La barra pasa de un color al otro en vez de saltar, igual
+             que al asentarse después de "Promo terminada". */
+          bar.style.setProperty("--retier-from", getComputedStyle(bar).backgroundColor);
+          bar.classList.remove("is-retier");
+          void bar.offsetWidth;
+          bar.classList.add("is-retier");
+          setTimeout(() => bar.classList.remove("is-retier"), 600);
+          if (tierHint.from == null) tierHint.from = prevRibbon;
+        }
         bar.classList.toggle("is-tier-promo", promoTier);
         bar.querySelector(".saving-bar-copy span").innerHTML =
           `Gana <strong>${money(cashback)}</strong> de <strong>OKY Cash</strong>`;
+        /* El aviso sale cuando se deja de teclear: escribiendo "40"
+           sobre "51" el tramo cambia en la primera tecla y no tiene
+           sentido avisar a cada una. Si se vuelve al tramo de antes,
+           no hay nada que contar. */
+        if (tierHint.from != null) {
+          tierHint.wait = setTimeout(() => {
+            const from = tierHint.from;
+            tierHint.from = null;
+            if (from === tier.ribbon) return;
+            showTierHint(bar, tier, cashback);
+          }, TIER_HINT_WAIT_MS);
+        }
         /* El reloj solo vale para el 20%, que es el tier que se cae
            cuando se acaba el tiempo. Tecleando por encima del tramo la
            barra volvía al aqua pero el reloj se quedaba puesto: aquí no

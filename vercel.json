@@ -41,6 +41,38 @@
       "destination": "/prototypes/oky-cash/index.html"
     },
     {
+      "source": "/timer",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/timer/usa",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/timer/latam",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/timer/gua",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash/timer",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash/timer/usa",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash/timer/latam",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash/timer/gua",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
       "source": "/atomic",
       "destination": "/public/ATOMIC-DESIGN-LIBRARY.html"
     },

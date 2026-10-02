@@ -11752,6 +11752,38 @@ button.tactic-offer {
   right: 0;
 }
 
+/* En la PDP el relevo pasa al teclear un monto de otro tramo. El
+   ribbon que se va se ancla al mismo borde derecho que el nuevo, que
+   es el que no se mueve aunque cambie el ancho del texto. */
+.oky-flow-ribbon-slot .discount-ribbon-wrap.is-leaving {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+/* La barra de la PDP cruza de un color al otro cuando el monto cambia
+   de tramo, sin pasar por el rojo: aquí nada terminó, solo se movió el
+   monto. --retier-from lo deja el script con el color de antes. */
+.saving-bar.is-retier {
+  animation: oky-flow-bar-retier 520ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes oky-flow-bar-retier {
+  from {
+    background-color: var(--retier-from, var(--tier-base-bg));
+  }
+}
+
+/* El aviso del tramo entra igual que el de "Promo terminada": primero
+   el color, un pelín después el texto. */
+.saving-bar.is-retier .saving-bar-copy span,
+.saving-bar.is-hinting .saving-bar-copy span {
+  /* inline-block y no flex: en flex se comen los espacios entre el
+     texto y los <strong>. */
+  display: inline-block;
+  animation: oky-flow-bar-say 420ms cubic-bezier(0.32, 0.72, 0, 1) 100ms both;
+}
+
 .discount-ribbon.is-bumped {
   animation: oky-flow-rate-bump 640ms cubic-bezier(0.22, 1, 0.36, 1) 340ms both;
 }
@@ -11774,7 +11806,10 @@ button.tactic-offer {
 @media (prefers-reduced-motion: reduce) {
   .discount-ribbon.is-bumped,
   .discount-ribbon-wrap.is-leaving,
-  .super-ribbon-swap .super-ribbon.is-leaving {
+  .super-ribbon-swap .super-ribbon.is-leaving,
+  .saving-bar.is-retier,
+  .saving-bar.is-retier .saving-bar-copy span,
+  .saving-bar.is-hinting .saving-bar-copy span {
     animation: none;
   }
 
