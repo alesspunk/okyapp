@@ -244,12 +244,23 @@ function timerRoute() {
 
 const TIMER_ROUTE = timerRoute();
 
+/* En /timer el wallet se presenta como "Mis compras", con su icono de
+   dos bolsas: en el home, en el acuse y en el título de la pantalla.
+   El punto rojo y su latido siguen las mismas reglas. */
+const WALLET_NAME = TIMER_ROUTE ? "Mis compras" : "Mi wallet";
+/* Caso límite de /timer: nadie ha guardado tarjeta todavía
+   (/timer/sintarjetas o #timer-sintarjetas). */
+const NO_CARDS_ROUTE =
+  TIMER_ROUTE && typeof location !== "undefined" && /sintarjeta/.test(`${location.pathname}${location.hash}`.toLowerCase());
+const WALLET_ICON = TIMER_ROUTE ? "Mis-compras-icon.png" : "Wallet-icon.png";
+
 /* Interruptores de la prueba de usabilidad. Lo que está apagado sigue
    en el código, listo para volver a encenderse:
    · usaGuide: Clarita en la home de USA y su recorrido. La de la card
      del vale no depende de esto y sigue.
    · spookyTimer: el cronómetro de Spooky Deals; solo en /timer, igual
-     que usaGuide, tierHint y walletV3. Apagado, el strip se
+     que usaGuide, tierHint, walletV3, walletSeed y cardClarita.
+     Apagado, el strip se
      queda en aqua con el porcentaje de siempre y las marcas abren en su
      monto de siempre.
    · superRibbon: el ribbon "Super Deals" junto al título del strip;
@@ -268,6 +279,13 @@ const TEST_FEATURES = {
   tierHint: TIMER_ROUTE,
   /* Y Mi wallet abre en la variante 3 (Para mí / Compartidas). */
   walletV3: TIMER_ROUTE,
+  /* Las gift cards y vales de muestra del wallet. Fuera de /timer la
+     prueba arranca con el wallet vacío: lo que haya es lo que la
+     persona compró durante la sesión. */
+  walletSeed: TIMER_ROUTE,
+  /* Clarita en la card del vale ("¿Necesitas ayuda con el canje?"),
+     en gift cards y OKY Vales. Fuera de /timer no sale. */
+  cardClarita: TIMER_ROUTE,
   superRibbon: true,
   walletVersions: false,
   foodDiscounts: false,
@@ -468,6 +486,14 @@ const WALLET_VOUCHERS = [
   { key: "nike", label: "Nike", art: "oky-card-nike.png", bg: "#ef4c26", live: true, amounts: [40] },
 ];
 
+/* Sin muestra, el wallet arranca vacío. Se vacían las listas en vez de
+   quitarlas para que todo lo que las recorre siga funcionando igual. */
+if (!TEST_FEATURES.walletSeed) {
+  WALLET_VOUCHERS.length = 0;
+  WALLET_EXTRAS.vales.length = 0;
+  WALLET_EXTRAS.servicios.length = 0;
+}
+
 /* El mazo del detalle va de vale en vale, no de marca en marca: una
    card con contador 3 esconde tres vales, y deslizando se ven los
    tres con su propio monto. */
@@ -519,6 +545,19 @@ const CARDS = [
   { key: "visa", label: "**2111", mark: "fa-cc-visa", variant: "Molecule/Payment Card/Visa" },
   { key: "mastercard", label: "**4566", mark: "fa-cc-mastercard", variant: "Molecule/Payment Card/Mastercard" },
 ];
+
+/* Las tarjetas que la persona tiene guardadas. En el caso límite de
+   /timer arranca sin ninguna y la primera se agrega desde el estado
+   vacío de métodos de pago. */
+function savedCards(state) {
+  return CARDS.filter((c) => (state.savedCards || []).includes(c.key));
+}
+
+function selectedCardOf(state) {
+  const cards = savedCards(state);
+  return cards.find((c) => c.key === state.selectedCard) || cards[0] || null;
+}
+
 
 const money = (v) => `$${(Number(v) || 0).toFixed(2)}`;
 /* El monto grande de la card va sin decimales cuando es redondo
@@ -637,6 +676,7 @@ function createInitialState(userType) {
     promoDraft: "",
     promoError: false,
     selectedCard: "visa",
+    savedCards: NO_CARDS_ROUTE ? [] : CARDS.map((c) => c.key),
     /* Repositorio acumulado de gift cards: alimenta Mi wallet. */
     purchases: returning
       ? [{ id: "seed", productKey: "lyft", amount: 20, cashback: 1, used: 5, date: stamp(6) }]
@@ -716,7 +756,8 @@ function createInitialState(userType) {
     openBeforeFilter: null,
     /* Presentación de USA: la lluvia de banderas y el recorrido guiado.
        Se ven una sola vez, la primera que se entra al marketplace. */
-    usaIntro: false,
+    /* La bandera de la lluvia que está cayendo ("US" o "GT"), o nada. */
+    flagIntro: null,
     tourStep: null,
     /* Qué recorrido está abierto: el de la home o el de la card. */
     tourDeck: null,
@@ -743,11 +784,18 @@ function createInitialState(userType) {
     /* Cuántas cards se han pedido ya en cada pestaña y estado del
        wallet, con la clave "pestaña:estado". */
     walletShown: {},
+    /* Lo que se ha escrito en el buscador de marcas. */
+    searchQuery: "",
+    /* La mitad abierta de OKY Cash en la versión 3: el saldo o los
+       métodos de pago. */
+    cashSoloTab: "cash",
     /* Vales que ya se compartieron y vales archivados (por key). Los dos
        primeros arrancan compartidos para que el filtro de compartidas y
        el sello del vale se vean sin tener que compartir algo antes. */
-    sharedVouchers: ["underarmour#0", "pollocampero#0"],
-    archivedVouchers: ["nike#0"],
+    /* Solo con la muestra: sin ella, "nike#0" sería la primera Nike
+       que se compre, y nacería ya guardada. */
+    sharedVouchers: TEST_FEATURES.walletSeed ? ["underarmour#0", "pollocampero#0"] : [],
+    archivedVouchers: TEST_FEATURES.walletSeed ? ["nike#0"] : [],
     /* Hoja de confirmación abierta, si hay: {type, key}. */
     sheet: null,
     /* Categoría por la que se filtra la pestaña abierta del wallet;
@@ -1220,7 +1268,11 @@ const MENU_ITEMS = [
   /* Las dos que llevan a algún sitio van arriba: el wallet es a donde
      se viene a ver lo comprado, y los métodos de pago son pantalla
      propia desde que se pueden mirar sin estar pagando. */
-  { label: "Mi Wallet", icon: "wallet", action: "menu:wallet" },
+  /* En /timer el wallet se llama Mis compras y lleva bolsas, como su
+     icono del header; en Free la bolsa solo existe en sólido. */
+  TIMER_ROUTE
+    ? { label: "Mis compras", icon: "bag-shopping", style: "solid", action: "menu:wallet" }
+    : { label: "Mi Wallet", icon: "wallet", action: "menu:wallet" },
   /* La moneda va en sólido: Font Awesome Free no la trae en contorno y
      en Light caía a otro glifo. */
   { label: "OKY Cash", icon: "coins", style: "solid", action: "nav:okycash" },
@@ -1379,13 +1431,17 @@ const TOUR_FLAG_MS = 1600;
 /* Lo que dura el estallido del final. Es un golpe, no una lluvia. */
 const TOUR_CONFETTI_MS = 1200;
 
-/* Lluvia de banderas al entrar a USA por primera vez: un guiño corto,
-   que se quita solo. */
-function usaIntro() {
+/* Lluvia de banderas al cambiar de marketplace: un guiño corto, que se
+   quita solo. Sale cada vez que se cambia de país desde la pestaña, con
+   la bandera del país al que se llega —las de USA o las de Guatemala—.
+   Los demás países del folder son de mentira y no tienen la suya. */
+const FLAG_WALL_MS = 2100;
+
+function flagIntro(code = "US") {
   /* El "Inferno" del botón de fuego de DuckDuckGo: no son partículas
-     sueltas cruzando la pantalla, es una pared que sube desde el borde
-     de abajo, se traga la vista y se va. Aquí la pared es de banderas:
-     muchas, grandes, encimadas y a distinto ritmo. */
+     sueltas cruzando la pantalla, es una pared que cae desde el borde
+     de arriba, se traga la vista y se va por abajo. Aquí la pared es de
+     banderas: muchas, grandes, encimadas y a distinto ritmo. */
   const rnd = (seed) => {
     const x = Math.sin(seed * 12.9898) * 43758.5453;
     return x - Math.floor(x);
@@ -1403,11 +1459,11 @@ function usaIntro() {
     const start = rnd(i + 181) * 90;
     return `<span class="oky-flow-flagrise-item" style="left:${left.toFixed(
       2,
-    )}%;width:${size.toFixed(0)}px;bottom:${-90 - start.toFixed(0)}px;animation-delay:${delay.toFixed(
+    )}%;width:${size.toFixed(0)}px;top:${-90 - start.toFixed(0)}px;animation-delay:${delay.toFixed(
       0,
     )}ms;animation-duration:${dur.toFixed(0)}ms;--drift:${drift.toFixed(0)}px;--spin:${spin.toFixed(
       0,
-    )}deg">${renderFlag({ code: "US", size: "Large" })}</span>`;
+    )}deg">${renderFlag({ code, size: "Large" })}</span>`;
   }).join("");
   return `<div class="oky-flow-flagrise" aria-hidden="true">${flags}</div>`;
 }
@@ -1668,7 +1724,13 @@ function homeHeader(state, headerState) {
        carrito. */
     keepAppHeader: true,
     markets: { left: marketOf(state, "left"), right: marketOf(state, "right") },
-  });
+  })
+    /* El buscador del home no se escribe ahí: tocarlo abre la pantalla
+       de búsqueda, con la barra arriba y ya enfocada. */
+    .replace('<section class="discovery-header-search', '<section data-action="open-search" role="button" class="discovery-header-search')
+    .replace('class="input-field search-input search-input-empty"', 'class="input-field search-input search-input-empty" readonly tabindex="-1"')
+    .replace('src="Wallet-icon.png"', `src="${WALLET_ICON}"`)
+    .replace('aria-label="Mi wallet"', `aria-label="${WALLET_NAME}"`);
 }
 
 /* Super Ribbon "Por tiempo" con la cuenta atrás real de la promo; al
@@ -2318,7 +2380,8 @@ function screenCheckout(state) {
   const first = PRODUCTS[state.cart[active].productKey];
   const applied = orderCash(state);
   const toCard = orderDue(state);
-  const checkoutCard = CARDS.find((c) => c.key === state.selectedCard) || CARDS[0];
+  /* En /timer puede no haber tarjeta guardada todavía. */
+  const checkoutCard = selectedCardOf(state);
 
   return `
     <div class="oky-flow-page">
@@ -2398,14 +2461,26 @@ function screenCheckout(state) {
 
       <div class="payment-method-input oky-flow-paygroup" style="width:100%">
         <span class="payment-method-label">Método de pago</span>
-        <div class="oky-flow-payrow ${hasCash ? "is-first" : "is-only"}" data-action="open-methods" role="button" tabindex="0">
+        ${
+          checkoutCard
+            ? `<div class="oky-flow-payrow ${hasCash ? "is-first" : "is-only"}" data-action="open-methods" role="button" tabindex="0">
           <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
           <p class="oky-flow-payrow-copy">${checkoutCard.label}</p>
           <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-card">${money(toCard)}</span></span>
           <span class="oky-flow-payrow-more" aria-hidden="true">
             <i class="fa-solid fa-ellipsis-vertical"></i>
           </span>
-        </div>
+        </div>`
+            : /* Sin tarjeta guardada la fila invita a agregar una y lleva a
+                 los métodos de pago, donde está el vacío con su botón. */
+              `<div class="oky-flow-payrow is-add ${hasCash ? "is-first" : "is-only"}" data-action="open-methods" role="button" tabindex="0">
+          <span class="oky-flow-payrow-add" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+          <p class="oky-flow-payrow-copy">Agregar tarjeta</p>
+          <span class="oky-flow-payrow-more" aria-hidden="true">
+            <i class="fa-solid fa-chevron-right"></i>
+          </span>
+        </div>`
+        }
         ${
           /* Sin saldo no hay nada que activar: la fila de OKY Cash sobra
              y el método de pago se queda solo, con las cuatro esquinas
@@ -2478,7 +2553,7 @@ function screenCheckout(state) {
             </div>
           </div>
           <div class="summary-cta-row">
-            <button class="btn btn-primary summary-btn" data-action="pay" type="button">Comprar</button>
+            <button class="btn btn-primary summary-btn" data-action="pay" type="button"${checkoutCard || toCard <= 0 ? "" : " disabled"}>Comprar</button>
           </div>
         </div>
       </div>
@@ -2513,7 +2588,7 @@ function screenCheckout(state) {
           <span class="summary-label-strong">TOTAL</span>
           <span class="summary-label-strong">${money(toCard)}</span>
         </div>
-        <button class="btn btn-primary summary-btn" data-action="pay" type="button">Comprar</button>
+        <button class="btn btn-primary summary-btn" data-action="pay" type="button"${checkoutCard || toCard <= 0 ? "" : " disabled"}>Comprar</button>
       </div>
     </div>
     ${navbar("", state)}
@@ -2531,23 +2606,45 @@ function screenMethods(state) {
   const toCard = Math.max(total - applied, 0);
   const keep = Math.max(state.okyCashBalance - applied, 0);
 
-  const selected = CARDS.find((c) => c.key === state.selectedCard) || CARDS[0];
+  /* En /timer la pantalla lleva el selector de OKY Cash arriba, el
+     "Agregar tarjeta" al final y un vacío si no hay tarjetas. */
+  const timer = TIMER_ROUTE;
+  /* Las tarjetas guardadas: se pueden eliminar desde sus tres puntos. */
+  const cards = savedCards(state);
+  const selected = selectedCardOf(state);
 
-  const top = { ...findPaymentCard(selected.variant) };
+  const top = selected ? { ...findPaymentCard(selected.variant) } : null;
   const cash = okyCashCard(state, { balance: keep, edit: false });
   /* Sin saldo no hay nada que casar con la tarjeta: fuera la card de
      OKY Cash y fuera su fila, y la del método queda sola y redondeada
      por sus cuatro esquinas. */
   const hasCash = state.okyCashBalance > 0;
 
+  /* Sin tarjeta el pago solo sale si OKY Cash cubre todo. */
+  const canPay = Boolean(selected) || (state.okyCashEnabled && toCard <= 0);
+
+  if (!selected) {
+    return `
+    ${statusBar()}
+    ${titledHeader("Métodos de pago")}
+    ${timer ? cashSoloSeg(state, "methods") : ""}
+    <div class="oky-flow-section" style="gap:8px">${methodsEmpty()}</div>
+    <div class="oky-flow-cta-bar">
+      <button class="btn btn-primary btn-large" data-action="confirm-methods" type="button" disabled>
+        Siguiente - ${money(total)}
+      </button>
+    </div>
+    ${navbar("", state)}
+  `;
+  }
+
   return `
     ${statusBar()}
     ${titledHeader("Métodos de pago")}
+    ${timer ? cashSoloSeg(state, "methods") : ""}
 
     <div class="oky-flow-section" style="gap:8px">
-      <button class="oky-flow-addcard" type="button">
-        <i class="fa-solid fa-plus" aria-hidden="true"></i>Agregar tarjeta crédito/débito
-      </button>
+      ${addCardButton()}
 
       <div class="payment-card-stack" style="--payment-card-stack-offset:-144px">
         ${renderPaymentCard(top)}
@@ -2555,7 +2652,7 @@ function screenMethods(state) {
       </div>
 
       <div class="oky-flow-method-list" style="width:100%">
-        ${CARDS.map((card) => {
+        ${cards.map((card) => {
           const isSelected = card.key === selected.key;
           /* La lista no se reordena al elegir: cada tarjeta se queda en
              su sitio y lo que se mueve es el radio. La fila de OKY Cash
@@ -2567,6 +2664,10 @@ function screenMethods(state) {
               <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
               <p class="oky-flow-method-name${isSelected ? "" : " is-regular"}">${card.label}</p>
               ${isSelected ? `<span class="oky-flow-chip is-card">${money(toCard)}</span>` : ""}
+              ${/* Solo la elegida lleva los tres puntos: sus opciones son
+                   las de la tarjeta con la que se va a pagar. Ni las otras
+                   ni OKY Cash los llevan. */ ""}
+              ${isSelected ? methodMore(card) : ""}
             </div>
           `;
 
@@ -2591,7 +2692,7 @@ function screenMethods(state) {
     </div>
 
     <div class="oky-flow-cta-bar">
-      <button class="btn btn-primary btn-large" data-action="confirm-methods" type="button">
+      <button class="btn btn-primary btn-large" data-action="confirm-methods" type="button"${canPay ? "" : " disabled"}>
         Siguiente - ${money(total)}
       </button>
     </div>
@@ -2661,8 +2762,8 @@ function purchaseHeader(state) {
   return `
     <header class="oky-flow-header is-purchase">
       <button class="oky-flow-header-icon oky-flow-purchase-wallet" data-action="nav:wallet"
-        type="button" aria-label="Mi wallet">
-        <img src="Wallet-icon.png" alt="" />
+        type="button" aria-label="${WALLET_NAME}">
+        <img src="${WALLET_ICON}" alt="" />
         ${
           hasNewVouchers(state)
             ? `<span class="header-icon-indicator-dot${beaconOf(state) === "wallet" ? " is-pulsing" : ""}"></span>`
@@ -2687,6 +2788,71 @@ function purchaseHeader(state) {
       </button>
     </header>
   `;
+}
+
+/* La animación de "Ganaste" se cuadra con la pastilla de la cabecera,
+   que hace de ranura de alcancía: las monedas nacen justo debajo de
+   ella —ocultas por encima de la línea de la ranura— y caen desde ahí.
+   El dotLottie trae las caídas desde y=245 de un lienzo de 360x800, y
+   la pastilla cae más arriba o más abajo según el alto de la pantalla,
+   así que se mide y se reescribe el punto de partida. En pantallas
+   bajas, además, la pila de abajo sube lo que haga falta para no
+   cortarse. */
+const WIN_COMP = { w: 360, h: 800, spawn: 245, coinHalf: 72, floor: 16 };
+
+function fitWinAnimation(stage) {
+  const data = OKY_CASH_WIN_ANIMATION;
+  const frame = stage.closest(".oky-flow-frame");
+  /* La pastilla de debajo, no la de la animación: la de encima entra
+     escalándose y su caja todavía no está en su tamaño final. */
+  const pill = frame && frame.querySelector(".oky-flow-scroll .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash");
+  if (!pill) return data;
+  const box = stage.getBoundingClientRect();
+  const slot = pill.getBoundingClientRect();
+  if (!box.width || !box.height) return data;
+
+  /* Lo mismo que hace "xMidYMid slice": escala para cubrir y centra. */
+  const s = Math.max(box.width / WIN_COMP.w, box.height / WIN_COMP.h);
+  const offX = (box.width - WIN_COMP.w * s) / 2;
+  const offY = (box.height - WIN_COMP.h * s) / 2;
+  const toCompX = (x) => (x - box.left - offX) / s;
+  const toCompY = (y) => (y - box.top - offY) / s;
+
+  const slotX = toCompX(slot.left + slot.width / 2);
+  /* La moneda arranca entera por encima del borde de abajo de la
+     ranura, que es donde se corta el lienzo. */
+  const lineY = toCompY(slot.bottom - 2);
+  const spawnY = lineY - WIN_COMP.coinHalf;
+  /* Y la pila no pasa del borde de abajo. */
+  const lowest = toCompY(box.bottom - WIN_COMP.floor) - WIN_COMP.coinHalf;
+
+  const fit = JSON.parse(JSON.stringify(data));
+  let deepest = 0;
+  fit.layers.forEach((layer) => {
+    const p = layer.ks && layer.ks.p;
+    if (!p) return;
+    const points = p.a ? p.k.map((k) => k.s) : [p.k];
+    points.forEach((pt) => {
+      if (pt && pt[1] > WIN_COMP.spawn) deepest = Math.max(deepest, pt[1]);
+    });
+  });
+  const lift = Math.max(0, deepest - lowest);
+  fit.layers.forEach((layer) => {
+    const p = layer.ks && layer.ks.p;
+    if (!p) return;
+    const points = p.a ? p.k.map((k) => k.s) : [p.k];
+    points.forEach((pt) => {
+      if (!pt) return;
+      pt[0] = slotX;
+      pt[1] = pt[1] === WIN_COMP.spawn ? spawnY : pt[1] - lift;
+    });
+  });
+
+  /* Lo que está por encima de la ranura no se ve: así la moneda sale
+     de la pastilla en vez de aparecer encima de ella. */
+  const cut = ((slot.bottom - 2 - box.top) / box.height) * stage.offsetHeight;
+  stage.style.clipPath = `inset(${Math.max(0, cut)}px 0 0 0)`;
+  return fit;
 }
 
 /* El sello de compra exitosa y la animación del cashback, que se pintan
@@ -2885,11 +3051,16 @@ const CATEGORY_OF = {
    arriba elige el tipo —OKY Cash, gift cards, vales, servicios— y
    dentro, las secciones plegables separan los tres estados en que
    puede estar un vale. Un vale cae en uno solo, nunca en dos. */
+/* Los cuatro iconos van en lienzos iguales (192x192) y a la misma
+   altura, recortados a su dibujo: así la moneda, la tarjeta, el vale y
+   el foco se leen del mismo tamaño aunque sus formas no se parezcan.
+   Servicios es el foco del home ("Pagar Servicios"), no la casita;
+   gift cards y OKY Vales son los de Figma (101931:26279 y 26295). */
 const WALLET_TABS = [
-  { key: "cash", label: "OKY Cash", title: "OKY Cash", icon: "oky-cash-coin.png" },
-  { key: "gift", label: "Gift Cards", title: "Gift Cards", icon: "plateu-giftcards.png" },
-  { key: "vales", label: "OKY Vales", title: "OKY Vales", icon: "plateu-vales.png" },
-  { key: "servicios", label: "Servicios", title: "Servicios", icon: "plateu-servicios.png" },
+  { key: "cash", label: "OKY Cash", title: "OKY Cash", icon: "wallet-tab-cash.png" },
+  { key: "gift", label: "Gift Cards", title: "Gift Cards", icon: "wallet-tab-giftcards.png" },
+  { key: "vales", label: "OKY Vales", title: "OKY Vales", icon: "wallet-tab-vales.png" },
+  { key: "servicios", label: "Servicios", title: "Servicios", icon: "wallet-tab-servicios.png" },
 ];
 
 /* La cabecera dice en qué pestaña estás. El wallet es un solo sitio,
@@ -2949,8 +3120,8 @@ const WALLET_SECTIONS_V2 = ["parami", "paracompartir"];
    otro desaparecía. Las dos personas de la mano son del mismo palo
    amarillo y dicen lo mismo. */
 const WALLET_TABS_V3 = [
-  { key: "v3mio", label: "Para mi", emoji: "🙋", title: "Mi wallet" },
-  { key: "v3comp", label: "Compartidas", emoji: "👫", title: "Mi wallet" },
+  { key: "v3mio", label: "Para mi", emoji: "🙋", title: WALLET_NAME },
+  { key: "v3comp", label: "Compartidas", emoji: "👫", title: WALLET_NAME },
 ];
 const WALLET_SECTIONS_V3 = ["v3mio", "v3comp"];
 
@@ -2996,7 +3167,7 @@ function walletTabOfSection(state, section) {
 
 function walletTitle(state) {
   const tab = walletTabsOf(state).find((t) => t.key === state.walletTab);
-  return tab ? tab.title : "Mi wallet";
+  return tab ? tab.title : WALLET_NAME;
 }
 
 const WALLET_GROUPS = [
@@ -3363,6 +3534,64 @@ function walletVouchers(state, section = "gift") {
   }));
 }
 
+/* Estado vacío de cada pestaña del wallet. Es la misma pieza que el de
+   OKY Cash —ilustración, título, nota y botón— con lo que toca a cada
+   tipo de vale; abajo, la misma tarjeta de enlace, que aquí lleva al
+   OKY Cash porque comprar es como se gana. */
+const WALLET_EMPTY = {
+  gift: {
+    art: "wallet-tab-giftcards.png",
+    title: "Aún no tienes gift cards",
+    note: "Las gift cards que compres en USA se guardan aquí, listas para usar o compartir.",
+    cta: "Explorar gift cards de USA",
+    action: "nav:home",
+    cash: "Gana saldo con cada gift card",
+  },
+  vales: {
+    art: "wallet-tab-vales.png",
+    title: "Aún no tienes OKY Vales",
+    note: "Los vales que compres para comer o recargar en Guatemala se guardan aquí.",
+    cta: "Explorar OKY Vales",
+    action: "nav:homegua",
+    cash: "Úsalo para pagar tus vales",
+  },
+  servicios: {
+    art: "wallet-tab-servicios.png",
+    title: "Aún no tienes servicios",
+    note: "Los comprobantes de lo que pagues —luz, agua o internet— se guardan aquí.",
+    cta: "Pagar un servicio",
+    action: "nav:homegua",
+    cash: "Úsalo para pagar tus servicios",
+  },
+};
+
+function walletEmptyState(state, tab) {
+  const copy = WALLET_EMPTY[tab] || WALLET_EMPTY.gift;
+  return `
+    <div class="oky-flow-section" style="gap:16px">
+      <div class="oky-flow-cash-empty is-wallet">
+        <span class="oky-flow-cash-empty-art"><img src="${copy.art}" alt="" /></span>
+        <h2 class="oky-flow-cash-empty-title">${copy.title}</h2>
+        <p class="oky-flow-cash-empty-note">${copy.note}</p>
+        <button class="btn btn-primary btn-large oky-flow-cash-empty-cta" data-action="${copy.action}" type="button">
+          ${copy.cta}
+        </button>
+      </div>
+
+      <button class="oky-flow-cash-empty-link" data-action="nav:wallet" data-tab="cash" type="button">
+        <span class="oky-flow-cash-empty-wallet">
+          <img src="oky-cash-coin.png" alt="" />
+        </span>
+        <span class="oky-flow-cash-empty-copy">
+          <strong>Tu OKY Cash</strong>
+          <span>${copy.cash}</span>
+        </span>
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      </button>
+    </div>
+  `;
+}
+
 /* ── Mi wallet (99105:43773) ────────────────────────────── */
 function screenWallet(state) {
   /* La pestaña abierta, comprobada contra la versión que se está
@@ -3392,6 +3621,12 @@ function screenWallet(state) {
   );
   const newsIn = (group) => units[group].filter((v) => v.isNew).length;
   const totalIn = (group) => units[group].length;
+  /* Una pestaña sin nada —ni comprado, ni compartido, ni guardado— no
+     enseña tres secciones vacías y un filtro sin nada que filtrar: dice
+     qué va ahí y cómo se consigue, como el estado vacío de OKY Cash.
+     Solo en el wallet de siempre; la 3 tiene sus propios vacíos. */
+  const isEmpty =
+    !isCash && state.walletVer !== 3 && !state.walletFilter && WALLET_GROUPS.every((g) => totalIn(g.key) === 0);
 
   /* Cabecera de sección: pliega, dice cuántas guarda —a la derecha,
      junto al chevron— y, si trae novedades, las avisa con un punto en
@@ -3524,7 +3759,9 @@ function screenWallet(state) {
          tampoco hay filtro que ofrecer. */
       isCash
         ? okyCashActivity(state)
-        : `
+        : isEmpty
+          ? walletEmptyState(state, tab)
+          : `
       <div class="oky-flow-wallet-filter">
         ${
           /* Con un filtro puesto el botón pasa a ser "Quitar filtro" y
@@ -3832,12 +4069,14 @@ function okyCashActivity(state) {
 
       <button class="oky-flow-cash-empty-link" data-action="nav:wallet" data-tab="vales" type="button">
         <span class="oky-flow-cash-empty-wallet">
-          <img src="Wallet-icon.png" alt="" />
+          ${/* El vale de la pestaña de OKY Vales, no el icono del wallet:
+               el enlace lleva a los vales y así lo dice el dibujo. */ ""}
+          <img src="wallet-tab-vales.png" alt="" />
           ${hasNewVouchers(state) ? `<span class="header-icon-indicator-dot"></span>` : ""}
         </span>
         <span class="oky-flow-cash-empty-copy">
           <strong>Tus OKY Vales</strong>
-          <span>Ver en Mi wallet</span>
+          <span>Ver en ${WALLET_NAME}</span>
         </span>
         <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
       </button>
@@ -3873,11 +4112,123 @@ function okyCashActivity(state) {
    pastilla de saldo del wallet, y su botón dice "Conoce más": aquí la
    actividad ya está debajo, así que mandar a verla no llevaría a
    ninguna parte. */
+/* Arriba, el mismo selector de dos mitades de Mis compras, sin emojis:
+   a la izquierda OKY Cash —la moneda— y a la derecha los métodos de
+   pago —la tarjeta dorada de las filas de pago—. Así el saldo y con qué
+   se paga viven juntos, en el mismo sitio que Para mí y Compartidas. */
+const CASH_SOLO_TABS = [
+  { key: "cash", label: "OKY Cash", icon: "oky-cash-coin.png" },
+  { key: "methods", label: "Métodos de pago", icon: "oky-card-3d.png" },
+];
+
+function cashSoloSeg(state, active) {
+  const on = active || (state.cashSoloTab === "methods" ? "methods" : "cash");
+  return `
+    <section class="oky-flow-wallet-seg is-cash-solo" role="tablist" aria-label="OKY Cash y métodos de pago">
+      ${CASH_SOLO_TABS.map(
+        (t) => `
+        <button class="oky-flow-wallet-seg-item${t.key === on ? " is-on" : ""}" type="button" role="tab"
+          data-action="cashsolo-tab" data-tab="${t.key}" aria-selected="${t.key === on}">
+          <img class="oky-flow-wallet-seg-icon" src="${t.icon}" alt="" />${t.label}
+        </button>
+      `,
+      ).join("")}
+    </section>
+  `;
+}
+
+/* "Agregar tarjeta", arriba de la tarjeta elegida, como siempre. */
+function methodMore(card) {
+  return `<button class="oky-flow-method-more" data-action="card-menu" data-card="${card.key}" type="button"
+    aria-label="Opciones de la tarjeta ${card.label}"><i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i></button>`;
+}
+
+/* El menú de los tres puntos: una hoja corta sobre el atenuado, con las
+   dos cosas que se hacen con una tarjeta guardada. */
+function cardMenuSheet(state) {
+  const card = CARDS.find((c) => c.key === state.sheet.card);
+  if (!card) return "";
+  const row = (action, icon, label) => `
+    <button class="oky-flow-cardmenu-row" data-action="${action}" data-card="${card.key}" type="button">
+      <img class="oky-flow-cardmenu-icon" src="${icon}" alt="" />
+      <span class="oky-flow-cardmenu-label">${label}</span>
+      <i class="fa-solid fa-chevron-right oky-flow-cardmenu-go" aria-hidden="true"></i>
+    </button>
+  `;
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-cardmenu" role="dialog" aria-modal="true" aria-label="Opciones de la tarjeta ${card.label}">
+      ${row("card-delete", "icon-eliminar-3d.png", "Eliminar")}
+      ${row("card-default", "icon-check-3d.png", "Marcar como tarjeta para pago")}
+    </section>
+  `;
+}
+
+function addCardButton() {
+  return `
+    <button class="oky-flow-addcard" data-action="add-card" type="button">
+      <i class="fa-solid fa-plus" aria-hidden="true"></i>Agregar tarjeta crédito/débito
+    </button>
+  `;
+}
+
+/* Sin tarjetas guardadas: la misma pieza que los vacíos del wallet y de
+   OKY Cash, con la tarjeta dorada y un botón que agrega la primera. */
+function methodsEmpty() {
+  return `
+    <div class="oky-flow-cash-empty is-wallet is-methods">
+      <span class="oky-flow-cash-empty-art"><img src="oky-card-3d.png" alt="" /></span>
+      <h2 class="oky-flow-cash-empty-title">Aún no tienes tarjetas</h2>
+      <p class="oky-flow-cash-empty-note">Agrega una tarjeta de crédito o débito para pagar tus compras.</p>
+      <button class="btn btn-primary btn-large oky-flow-cash-empty-cta" data-action="add-card" type="button">
+        Agregar tarjeta crédito/débito
+      </button>
+    </div>
+  `;
+}
+
+/* Los métodos de pago guardados, fuera de una compra: la tarjeta
+   elegida arriba y la lista para cambiarla. Sin total ni "Siguiente",
+   que aquí no se está pagando nada, y sin la fila de OKY Cash, que ya
+   tiene su mitad al lado. */
+function cashSoloMethods(state) {
+  const cards = savedCards(state);
+  const selected = selectedCardOf(state);
+  if (!selected) return `<div class="oky-flow-section" style="gap:8px">${methodsEmpty()}</div>`;
+  const top = { ...findPaymentCard(selected.variant) };
+  return `
+    <div class="oky-flow-section" style="gap:8px">
+      ${addCardButton()}
+
+      <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(top)}</div>
+
+      <div class="oky-flow-method-list" style="width:100%">
+        ${cards.map((card) => {
+          const isSelected = card.key === selected.key;
+          return `
+            <div class="oky-flow-method-group">
+              <div class="oky-flow-method-row${isSelected ? " is-selected is-only" : ""}"
+                ${isSelected ? "" : `data-action="select-card" data-card="${card.key}" role="button" tabindex="0"`}>
+                <span class="oky-flow-radio${isSelected ? " is-on" : ""}" aria-hidden="true"></span>
+                <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
+                <p class="oky-flow-method-name${isSelected ? "" : " is-regular"}">${card.label}</p>
+                ${isSelected ? methodMore(card) : ""}
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
 function screenCashSolo(state) {
+  const methods = state.cashSoloTab === "methods";
   return `
     ${statusBar()}
-    ${titledHeader("OKY Cash")}
-    ${okyCashActivity(state)}
+    ${titledHeader(methods ? "Métodos de pago" : "OKY Cash")}
+    ${cashSoloSeg(state)}
+    ${methods ? cashSoloMethods(state) : okyCashActivity(state)}
     ${navbar("okycash", state)}
   `;
 }
@@ -3929,6 +4280,118 @@ const CATEGORY_PAGES = {
   },
 };
 
+/* ── Buscar marcas ─────────────────────────────────────────
+   El buscador del home es de mentira pero se comporta como el de
+   verdad: tocarlo abre esta pantalla con la barra ya enfocada arriba;
+   sin texto enseña las novedades del país y, escribiendo, filtra al
+   momento. Cada marca lleva a su pantalla de siempre. La prueba pide
+   encontrar Target en USA y McDonald's o Claro en Guatemala, así que
+   esas están siempre entre las novedades. */
+const SEARCH_CATALOG = {
+  usa: [
+    ...Object.keys(BRANDS).map((key) => ({ key, label: BRANDS[key].label, art: BRANDS[key].art, action: "open-pdp", product: key })),
+    { key: "nike", label: "Nike", art: "oky-card-nike.png", action: "open-pdp", product: "nike" },
+    { key: "lyft", label: "Lyft", art: "oky-card-lyft.png", action: "open-pdp", product: "lyft" },
+  ].map((brand) => ({ ...brand, tags: "usa estados unidos gift card" })),
+  gua: [
+    { key: "claro", label: "Claro", art: "claro.png", action: "open-tigo", tags: "recarga recargas celular telefono saldo" },
+    { key: "mcdonalds", label: "McDonald's", art: "mcdonalds.webp", action: "open-plp", brand: "mcdonalds", tags: "comida hamburguesa" },
+    { key: "gua-pollocampero", label: "Pollo Campero", art: "pollo-campero.webp", action: "open-guapdp", product: "gua-pollocampero", tags: "comida pollo" },
+    { key: "gua-pollogranjero", label: "Pollo Granjero", art: "pollo-granjero.webp", action: "open-guapdp", product: "gua-pollogranjero", tags: "comida pollo" },
+    { key: "gua-burgerking", label: "Burger King", art: "burguerking.webp", action: "open-guapdp", product: "gua-burgerking", tags: "comida hamburguesa" },
+    { key: "gua-claro", label: "Tigo", art: "tigo.webp", action: "open-guapdp", product: "gua-claro", tags: "recarga recargas internet celular" },
+    { key: "gua-ihop", label: "IHOP", art: "ihop.webp", action: "open-guapdp", product: "gua-ihop", tags: "comida desayuno" },
+    { key: "gua-dominos", label: "Domino's", art: "dominos.png", action: "open-guapdp", product: "gua-dominos", tags: "comida pizza" },
+  ].map((brand) => ({ ...brand, tags: `${brand.tags} guatemala gt` })),
+};
+
+const SEARCH_NEWS = {
+  usa: ["target", "gap", "amazon", "starbucks", "nike", "apple"],
+  gua: ["claro", "mcdonalds", "gua-pollocampero", "gua-pollogranjero", "gua-burgerking", "gua-claro"],
+};
+
+const escapeHtml = (text) =>
+  String(text || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+/* Sin tildes, sin mayúsculas y sin apóstrofos: "mcdonalds" encuentra
+   McDonald's y "cinepolis" encontraría Cinépolis. */
+const searchKey = (text) =>
+  String(text || "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/['’]/g, "")
+    .toLowerCase()
+    .trim();
+
+function searchCountry(state) {
+  return state.country === "gua" ? "gua" : "usa";
+}
+
+function searchMatches(state) {
+  const catalog = SEARCH_CATALOG[searchCountry(state)];
+  const query = searchKey(state.searchQuery);
+  if (!query) return { title: "Novedades", brands: SEARCH_NEWS[searchCountry(state)].map((k) => catalog.find((b) => b.key === k)).filter(Boolean) };
+  const words = query.split(/\s+/);
+  const brands = catalog.filter((brand) => {
+    const hay = searchKey(`${brand.label} ${brand.tags}`);
+    return words.every((w) => hay.includes(w));
+  });
+  return { title: "Resultados", brands };
+}
+
+/* El cuerpo de la búsqueda va aparte porque se repinta a mano en cada
+   tecla: un render completo recrearía el campo y se perdería el foco. */
+function searchResults(state) {
+  const { title, brands } = searchMatches(state);
+  const tile = (brand) => `
+    <article class="homecard-tile is-live" data-action="${brand.action}"${brand.product ? ` data-product="${brand.product}"` : ""}${
+      brand.brand ? ` data-brand="${brand.brand}"` : ""
+    } role="button" tabindex="0">
+      <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="${brand.art}" alt="${brand.label}" /></div>
+      <p class="token-brand homecard-tile-name">${brand.label}</p>
+    </article>
+  `;
+  return `
+    <section class="homecard-organism">
+      <header class="homecard-header">
+        <h2 class="token-h6 homecard-title">${title}</h2>
+      </header>
+      <div class="homecard-content homecard-content-default">
+        ${
+          brands.length
+            ? `<div class="homecard-grid">${brands.map(tile).join("")}</div>`
+            : `<p class="oky-flow-search-none">No encontramos marcas con “${escapeHtml(state.searchQuery.trim())}”.</p>`
+        }
+      </div>
+    </section>
+  `;
+}
+
+function screenSearch(state) {
+  const has = Boolean(state.searchQuery);
+  return `
+    ${statusBar()}
+    ${productHeader(state, { title: "Buscar Marcas", backAction: "close-search" })}
+
+    <div class="oky-flow-section oky-flow-search">
+      <div class="input-wrapper oky-flow-search-bar" style="width:100%">
+        <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+        <input id="oky-search" class="input-field search-input ${has ? "search-input-hasvalue" : "search-input-empty"}"
+          type="search" name="search" placeholder="Buscar Marcas" aria-label="Buscar marcas" autocomplete="off"
+          data-action="input-search" value="${escapeHtml(state.searchQuery)}" />
+        <button class="icon-button clear-icon search-clear-icon oky-flow-search-clear" data-action="clear-search"
+          type="button" aria-label="Borrar búsqueda"${has ? "" : " hidden"}>
+          <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="oky-flow-search-results" data-role="search-results">${searchResults(state)}</div>
+    </div>
+
+    ${navbar("", state)}
+  `;
+}
+
 function screenCategory(state) {
   const page = CATEGORY_PAGES[state.params.category] || CATEGORY_PAGES.recargas;
 
@@ -3956,9 +4419,9 @@ function screenCategory(state) {
     ${productHeader(state, { title: page.title })}
 
     <div class="oky-flow-section oky-flow-category">
-      <div class="input-wrapper" style="width:100%">
+      <div class="input-wrapper" style="width:100%" data-action="open-search" role="button">
         <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
-        <input class="input-field search-input search-input-empty" value="" placeholder="Buscar marcas" readonly />
+        <input class="input-field search-input search-input-empty" value="" placeholder="Buscar marcas" readonly tabindex="-1" />
       </div>
 
       <section class="homecard-organism">
@@ -5388,6 +5851,7 @@ function renderScreen(state) {
     case "contacts": return screenContacts(state);
     case "guapdp": return screenGuaPdp(state);
     case "category": return screenCategory(state);
+    case "search": return screenSearch(state);
     case "plp": return screenPlp(state);
     case "foodpdp": return screenFoodPdp(state);
     case "voucher": return screenVoucher(state);
@@ -5525,18 +5989,26 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const keptScroll = keepScroll ? (root.querySelector(".oky-flow-scroll") || {}).scrollTop || 0 : 0;
 
     root.innerHTML = `
-      <div class="oky-flow-frame${state.claritaMuted ? " is-clarita-muted" : ""}">
+      <div class="oky-flow-frame${state.claritaMuted ? " is-clarita-muted" : ""}${TEST_FEATURES.cardClarita ? "" : " is-no-card-clarita"}">
         <div class="oky-flow-scroll ${scrollClass(state)}">
           ${renderScreen(state)}
         </div>
         ${state.cartOpen ? cartDrawer(state) : ""}
-        ${state.sheet ? (state.sheet.type === "filter" ? filterSheet(state) : confirmSheet(state)) : ""}
+        ${
+          state.sheet
+            ? state.sheet.type === "filter"
+              ? filterSheet(state)
+              : state.sheet.type === "cardmenu"
+                ? cardMenuSheet(state)
+                : confirmSheet(state)
+            : ""
+        }
         ${state.countrySheet ? countrySheet(state) : ""}
         ${state.marketSheet ? marketSheet(state) : ""}
         ${state.savingsSheet ? savingsSheet() : ""}
         ${state.promoOpen ? promoDialog(state) : ""}
         ${state.addedToast ? addedToast() : ""}
-        ${state.usaIntro ? usaIntro() : ""}
+        ${state.flagIntro ? flagIntro(state.flagIntro) : ""}
         ${state.guideOn && state.screen === "home" && state.tourStep == null && !state.tourSeen ? homeGuide(state) : ""}
         ${state.helpOn && (state.screen === "home" || state.screen === "homegua") && state.tourStep == null ? homeHelp() : ""}
         ${state.tourStep != null ? tourOverlay(state) : ""}
@@ -5551,6 +6023,21 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (keptScroll > 0) {
       const kept = root.querySelector(".oky-flow-scroll");
       if (kept) kept.scrollTop = keptScroll;
+    }
+
+    /* La búsqueda abre con el teclado listo, el cursor al final de lo
+       escrito. */
+    if (state.screen === "search") {
+      const input = root.querySelector("#oky-search");
+      if (input) {
+        input.focus({ preventScroll: true });
+        const end = input.value.length;
+        try {
+          input.setSelectionRange(end, end);
+        } catch (error) {
+          /* type="search" no deja mover el cursor en todos los motores. */
+        }
+      }
     }
 
     /* Las barras se escriben dentro de la plantilla de cada pantalla
@@ -5584,7 +6071,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         renderer: "svg",
         loop: false,
         autoplay: true,
-        animationData: OKY_CASH_WIN_ANIMATION,
+        animationData: fitWinAnimation(winHost),
         rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
       });
       winAnimation.addEventListener("complete", () => {
@@ -6094,16 +6581,28 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        sigue ahí al ir y volver. */
     const firstUsa = country === "usa" && !state.usaSeen;
     if (country === "usa") state.usaSeen = true;
+    /* Cada cambio de marketplace se celebra con la lluvia de su
+       bandera, no solo la primera visita a USA. Tocar la pestaña del
+       país en el que ya se está no cambia nada y no llueve. */
+    const switching = country !== state.country || firstUsa;
     state.country = country;
     markCountryInUrl(country);
-    /* La primera visita a USA se presenta: banderas y, al acabar, el
-       recorrido por lo que hay que saber. */
-    if (firstUsa) state.usaIntro = true;
+    if (switching) state.flagIntro = country === "usa" ? "US" : "GT";
     /* Sin presentación no hay quien ponga el reloj en marcha, así que
        lo hace la visita: quien pasó por USA antes de los 7 segundos y
        se fue, al volver sigue teniendo su promo. */
     if (country === "usa") armPromoIdle();
     go(country === "usa" ? "home" : "homegua", {}, { market: false });
+    if (switching && !firstUsa) {
+      /* Sin recorrido detrás: la lluvia pasa y se quita sola. Se apaga
+         por DOM, no con un render, que la haría caer otra vez. */
+      clearTimeout(introTimer);
+      introTimer = setTimeout(() => {
+        state.flagIntro = null;
+        const wall = root.querySelector(".oky-flow-flagrise");
+        if (wall) wall.remove();
+      }, FLAG_WALL_MS);
+    }
     if (firstUsa) {
       clearTimeout(introTimer);
       /* El recorrido entra en cuanto la pared cruza, sin esperar a las
@@ -6115,7 +6614,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          el aire terminan su viaje detrás del recorrido y se quitan
          solas al final. */
       introTimer = setTimeout(() => {
-        state.usaIntro = false;
+        state.flagIntro = null;
         state.guideOn = TEST_FEATURES.usaGuide;
         state.guideAsk = TEST_FEATURES.usaGuide;
         /* Clarita ya está ofreciendo el recorrido. Si nadie la toca, a
@@ -6204,6 +6703,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      lo justo para seguir viéndose en la esquina; nunca baja de donde
      vive, así que en pantallas altas no se mueve nada. */
   function bindClaritaInView(scroll) {
+    if (!TEST_FEATURES.cardClarita) return;
     const clarita = root.querySelector(".prime-card-clarita");
     if (!clarita || !scroll) return;
 
@@ -6875,6 +7375,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "menu:methods") {
+      /* En la 3 los métodos de pago son la mitad derecha de OKY Cash. */
+      if (state.walletVer === 3) {
+        state.cashSoloTab = "methods";
+        return go("cashsolo");
+      }
       return go("methods");
     }
 
@@ -7005,7 +7510,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
            pantalla. Mandar al wallet dejaba la insignia del acuse
            llevando a un sitio distinto del que anunciaba. */
       state.cashUnseen = false;
-      if (state.walletVer === 3) return leavePurchase("cashsolo");
+      if (state.walletVer === 3) {
+        /* Se entra siempre por la mitad del saldo. */
+        state.cashSoloTab = "cash";
+        return leavePurchase("cashsolo");
+      }
       state.walletTab = "cash";
       state.walletFilter = "";
       state.openBeforeFilter = null;
@@ -7013,9 +7522,54 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return leavePurchase("wallet");
     }
 
+    if (action === "cashsolo-tab") {
+      const tab = el.dataset.tab === "methods" ? "methods" : "cash";
+      /* Desde los métodos del checkout, la mitad de OKY Cash es la
+         pantalla de OKY Cash; atrás devuelve al pago. */
+      if (state.screen === "methods") {
+        if (tab === "methods") return;
+        state.cashSoloTab = "cash";
+        return go("cashsolo");
+      }
+      state.cashSoloTab = tab;
+      return render();
+    }
+
+    if (action === "card-menu") {
+      state.sheet = { type: "cardmenu", card: el.dataset.card };
+      return render({ keepScroll: true });
+    }
+
+    if (action === "card-delete") {
+      /* Se va de la lista; si era la elegida, pasa a serlo la siguiente.
+         Sin ninguna, la pantalla cae en su vacío. */
+      state.savedCards = state.savedCards.filter((k) => k !== el.dataset.card);
+      if (state.selectedCard === el.dataset.card) state.selectedCard = state.savedCards[0] || null;
+      state.sheet = null;
+      return render({ keepScroll: true });
+    }
+
+    if (action === "card-default") {
+      state.selectedCard = el.dataset.card;
+      state.sheet = null;
+      return render({ keepScroll: true });
+    }
+
+    if (action === "add-card") {
+      /* El prototipo no captura tarjetas: agregar trae la de siempre
+         (**2111) si falta, y la deja elegida. Con las dos guardadas el
+         botón no hace nada más. */
+      const missing = CARDS.find((c) => !state.savedCards.includes(c.key));
+      if (!missing) return;
+      state.savedCards = [...state.savedCards, missing.key];
+      state.selectedCard = missing.key;
+      return render({ keepScroll: true });
+    }
+
     if (action === "nav:cashsolo") {
       /* Solo desde la tarjeta de "Para mí" de la versión 3. */
       state.cashUnseen = false;
+      state.cashSoloTab = "cash";
       return go("cashsolo");
     }
 
@@ -7187,7 +7741,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (turningOn) state.promo = null;
       state.okyCashEnabled = turningOn;
       state.okyCashApplied = turningOn ? Math.min(state.okyCashBalance, cartTotal(state)) : 0;
-      render();
+      /* Se queda donde estaba: marcar una casilla y saltar arriba no
+         dejaba ver que se había marcado. */
+      render({ keepScroll: true });
       if (turningOn) burstConfetti();
       return;
     }
@@ -7343,6 +7899,28 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       render();
       const after = root.querySelector(".oky-flow-scroll");
       if (after && y) after.scrollTop = y;
+      return;
+    }
+
+    if (action === "open-search") {
+      /* Cada búsqueda empieza en blanco, con las novedades. */
+      state.searchQuery = "";
+      return go("search");
+    }
+
+    if (action === "close-search") {
+      state.searchQuery = "";
+      return go(state.country === "gua" ? "homegua" : "home");
+    }
+
+    if (action === "clear-search") {
+      state.searchQuery = "";
+      paintSearch();
+      const input = root.querySelector("#oky-search");
+      if (input) {
+        input.value = "";
+        input.focus();
+      }
       return;
     }
 
@@ -7809,7 +8387,29 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   /* Monto del PDP: se parchean solo los nodos afectados para no
      perder el foco del input en cada tecla. */
+  /* Repinta solo lo que cambia al escribir en el buscador: el campo se
+     queda donde está, con su foco y su borde morado. */
+  function paintSearch() {
+    const results = root.querySelector("[data-role='search-results']");
+    if (results) results.innerHTML = searchResults(state);
+    const input = root.querySelector("#oky-search");
+    const has = Boolean(state.searchQuery);
+    if (input) {
+      input.classList.toggle("search-input-hasvalue", has);
+      input.classList.toggle("search-input-empty", !has);
+    }
+    const clear = root.querySelector(".oky-flow-search-clear");
+    if (clear) clear.hidden = !has;
+  }
+
   root.addEventListener("input", (event) => {
+    const searchInput = event.target.closest("[data-action='input-search']");
+    if (searchInput) {
+      state.searchQuery = searchInput.value;
+      paintSearch();
+      return;
+    }
+
     /* El campo del código se repinta a mano: un render completo
        recrearía el input y se perdería el foco a la primera letra. */
     const promoInput = event.target.closest("[data-action='input-promo']");

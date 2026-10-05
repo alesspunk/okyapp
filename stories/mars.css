@@ -10956,14 +10956,16 @@ button.tactic-offer {
 }
 
 /* La History Card solo trae chips success y error; gastar saldo no es
-   ninguna de las dos, así que lleva un tono neutro. */
+   ninguna de las dos, así que lleva un tono neutro. Un gris con cuerpo
+   y su borde: el gris del fondo apenas se distinguía de la card. */
 .history-card-chip.is-neutral {
-  background: var(--background);
-  color: var(--text-secondary);
+  background: #d6d6d6;
+  border-color: #bdbdbd;
+  color: #595959;
 }
 
 .history-card-chip.is-neutral .history-card-chip-icon {
-  color: var(--text-secondary);
+  color: #595959;
 }
 
 /* Indicador de vale nuevo: el mismo punto del header, sobre la card. */
@@ -15011,7 +15013,7 @@ img.oky-flow-method-mark {
 
 .oky-flow-flagrise-item {
   position: absolute;
-  bottom: -70px;
+  top: -70px;
   aspect-ratio: 4 / 3;
   will-change: transform, opacity;
   animation-name: oky-flagrise;
@@ -15041,8 +15043,8 @@ img.oky-flow-method-mark {
     opacity: 1;
   }
   100% {
-    /* Sube hasta salir por arriba: la pared barre la pantalla entera. */
-    transform: translate3d(var(--drift, 0px), -980px, 0) rotate(var(--spin, 0deg)) scale(1.05);
+    /* Cae hasta salir por abajo: la pared barre la pantalla entera. */
+    transform: translate3d(var(--drift, 0px), 980px, 0) rotate(var(--spin, 0deg)) scale(1.05);
     opacity: 0;
   }
 }
@@ -15704,6 +15706,18 @@ img.oky-flow-method-mark {
   margin-top: 6px;
 }
 
+/* El mismo estado vacío en las pestañas del wallet: sin la tarjeta de
+   saldo encima, baja un poco para no pegarse a las pestañas, y el aro
+   del dibujo va en el lila de los iconos de pestaña en vez del aqua
+   del OKY Cash. */
+.oky-flow-cash-empty.is-wallet {
+  margin-top: 32px;
+}
+
+.oky-flow-cash-empty.is-wallet .oky-flow-cash-empty-art {
+  background: #f2ecfa;
+}
+
 .oky-flow-cash-empty-link {
   box-sizing: border-box;
   display: flex;
@@ -15785,10 +15799,9 @@ img.oky-flow-method-mark {
 }
 
 /* La pastilla de OKY Cash de la cabecera no se ve mientras están el
-   sello y la animación: la trae la propia animación de "Ganaste", que
-   la hace entrar casi al final subiendo hasta su sitio. Cuando el
-   overlay empieza a irse (7 s) la de la cabecera ya está debajo, en el
-   mismo lugar, y se queda. */
+   sello y la animación: durante "Ganaste" la que se ve es su copia
+   vacía de encima. Cuando el overlay empieza a irse (7 s) la de la
+   cabecera ya está debajo, en el mismo lugar, y se queda. */
 .oky-flow-frame:has(.oky-flow-celebration) .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
   visibility: hidden;
 }
@@ -15806,24 +15819,235 @@ img.oky-flow-method-mark {
   }
 }
 
+/* La pastilla está desde el principio, pero vacía: es la alcancía de
+   la que salen las monedas. Entra en su sitio nada más abrirse la
+   animación y se queda quieta; la moneda y la cifra no se ven todavía
+   —siguen ocupando su sitio, así que la forma ya tiene el tamaño
+   final—. */
 .oky-flow-frame .oky-flow-cashwin .oky-flow-cashwin-top .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
   visibility: visible;
-  animation: oky-flow-cash-pill-in 650ms cubic-bezier(0.32, 0.72, 0, 1) 5200ms both;
+  animation: oky-flow-cash-pill-in 520ms cubic-bezier(0.18, 1.25, 0.4, 1) 200ms both;
+}
+
+.oky-flow-frame .oky-flow-cashwin .oky-flow-cashwin-top .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash > * {
+  opacity: 0;
 }
 
 @keyframes oky-flow-cash-pill-in {
   from {
     opacity: 0;
-    transform: translateY(180px) scale(0.9);
+    transform: scale(0.6);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: scale(1);
+  }
+}
+
+/* Cuando el overlay se desvanece (7 s), la pastilla vacía se va con él
+   y debajo queda la de la cabecera, en el mismo sitio y con la misma
+   forma: lo único que cambia a la vista es que la moneda y la cifra
+   aparecen dentro. */
+.oky-flow-frame:has(.oky-flow-cashwin) .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash > * {
+  animation: oky-flow-cash-pill-say 500ms cubic-bezier(0.32, 0.72, 0, 1) 7000ms both;
+}
+
+@keyframes oky-flow-cash-pill-say {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .oky-flow-frame .oky-flow-cashwin .oky-flow-cashwin-top .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
+  .oky-flow-frame .oky-flow-cashwin .oky-flow-cashwin-top .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash,
+  .oky-flow-frame:has(.oky-flow-cashwin) .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash > * {
     animation-duration: 1ms;
+  }
+}
+
+/* Fuera de /timer la card del vale va sin Clarita: el hueco de su
+   columna se queda, con la caducidad encima. */
+.oky-flow-frame.is-no-card-clarita .prime-card-clarita {
+  display: none;
+}
+
+/* ── Buscar marcas ──────────────────────────────────────────
+   La barra va arriba y enfocada mientras se está en la pantalla, se
+   escriba o no: borde morado de marca y la X para borrar en cuanto hay
+   texto. El foco del sistema no basta —se pierde al tocar la lista— y
+   la barra se quedaba gris justo cuando se empieza a escribir. */
+.oky-flow-search {
+  gap: 16px;
+}
+
+.oky-flow-frame .oky-flow-search-bar .search-input,
+.oky-flow-frame .oky-flow-search-bar .search-input:focus {
+  border: 2px solid var(--primary-main);
+  box-shadow: none;
+}
+
+.oky-flow-search-bar .search-icon {
+  color: var(--primary-main);
+}
+
+.oky-flow-search-clear {
+  right: 10px;
+  color: #bdbdbd;
+  font-size: 20px;
+}
+
+.oky-flow-search-clear[hidden] {
+  display: none;
+}
+
+.oky-flow-search-results {
+  width: 100%;
+}
+
+.oky-flow-search-none {
+  margin: 0;
+  padding: 8px 0 16px;
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* El buscador del home y el de la categoría abren la búsqueda: se
+   tocan, no se escriben. */
+.discovery-header-search[data-action="open-search"],
+.input-wrapper[data-action="open-search"] {
+  cursor: pointer;
+}
+
+.discovery-header-search[data-action="open-search"] .search-input,
+.input-wrapper[data-action="open-search"] .search-input {
+  pointer-events: none;
+}
+
+/* Como en la Category Page: el nombre centrado bajo su logo. */
+.oky-flow-search .homecard-tile-name {
+  align-self: stretch;
+  text-align: center;
+}
+
+/* El selector de OKY Cash (versión 3): mismo componente que el de Mis
+   compras, con iconos de imagen en lugar de emojis —la moneda y la
+   tarjeta dorada— del mismo cuerpo que tenían los emojis. */
+.oky-flow-wallet-seg-icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+/* Los tres puntos de la tarjeta elegida en Métodos de pago. Va pegado
+   al borde derecho, después de la cifra. */
+.oky-flow-method-more {
+  margin-left: auto;
+  flex: 0 0 auto;
+  padding: 8px 4px 8px 12px;
+  border: 0;
+  background: none;
+  color: #757575;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.oky-flow-method-row .oky-flow-chip + .oky-flow-method-more {
+  margin-left: 0;
+}
+
+/* Fila "Agregar tarjeta" del checkout cuando no hay ninguna guardada. */
+.oky-flow-payrow-add {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f2ecfa;
+  color: var(--primary-main);
+  font-size: 14px;
+}
+
+/* El vacío de métodos baja un poco menos que el del wallet: ya tiene el
+   selector encima. */
+.oky-flow-cash-empty.is-methods {
+  margin-top: 16px;
+}
+
+/* Menú de los tres puntos de una tarjeta: hoja blanca y corta sobre el
+   atenuado, con sus dos opciones en filas con icono 3D y chevron. */
+.oky-flow-cardmenu {
+  position: absolute;
+  /* Todo el ancho y pegada al borde de abajo, por encima de la navbar
+     —la tapa el atenuado—. Solo se redondean las esquinas de arriba. */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 121;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0 24px;
+  border-radius: 24px 24px 0 0;
+  background: var(--white, #fff);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  animation: oky-flow-cardmenu-in 260ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes oky-flow-cardmenu-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.oky-flow-cardmenu-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 20px;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  color: var(--primary-base);
+}
+
+.oky-flow-cardmenu-icon {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.oky-flow-cardmenu-label {
+  flex: 1 1 auto;
+}
+
+.oky-flow-cardmenu-go {
+  font-size: 16px;
+  color: var(--primary-base);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-cardmenu {
+    animation: none;
   }
 }

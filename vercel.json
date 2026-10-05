@@ -33,6 +33,10 @@
       "destination": "/prototypes/oky-cash-web/index.html"
     },
     {
+      "source": "/prototypes/oky-cash-web/timer/sintarjetas",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
       "source": "/oky-cash-prototype-demo.html",
       "destination": "/prototypes/oky-cash/index.html"
     },
@@ -73,6 +77,10 @@
       "destination": "/prototypes/oky-cash/index.html"
     },
     {
+      "source": "/timer/sintarjetas",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
       "source": "/prototypes/oky-cash/timer",
       "destination": "/prototypes/oky-cash/index.html"
     },
@@ -86,6 +94,10 @@
     },
     {
       "source": "/prototypes/oky-cash/timer/gua",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash/timer/sintarjetas",
       "destination": "/prototypes/oky-cash/index.html"
     },
     {
