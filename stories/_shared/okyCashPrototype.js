@@ -233,26 +233,36 @@ function orderCountry(state) {
 const PROMO_PRODUCTS = ["nike", "lyft", "macys", "ulta"];
 const PROMO_DEFAULT_AMOUNT = 51;
 
-/* El cronómetro vive en su propio apartado: /timer (o #timer donde el
-   prototipo no tiene ruta propia, como en un Artifact). El enlace de
-   siempre sigue sin reloj. */
-function timerRoute() {
+/* Los apartados del prototipo. Cada uno vive en su ruta (/timer,
+   /miscompras) o, donde el prototipo no tiene ruta propia —un
+   Artifact—, en el hash (#timer, #miscompras). El enlace de siempre
+   (/usa, /latam) no enciende ninguno.
+   · /timer: el cronómetro de Spooky Deals y Clarita, para probar esas
+     dos cosas; trae también la variante 3.
+   · /miscompras: la variante 3 completa —Mis compras, OKY Cash con sus
+     métodos de pago— sin cronómetro y sin Clarita. */
+function routeHas(name) {
   if (typeof location === "undefined") return false;
   const parts = location.pathname.toLowerCase().split("/");
-  return parts.includes("timer") || /(^#|[-&])timer\b/.test(location.hash.toLowerCase());
+  return parts.includes(name) || new RegExp(`(^#|[-&])${name}\\b`).test(location.hash.toLowerCase());
 }
 
-const TIMER_ROUTE = timerRoute();
+const TIMER_ROUTE = routeHas("timer");
+const MISCOMPRAS_ROUTE = !TIMER_ROUTE && routeHas("miscompras");
+/* Lo que es de la variante 3 y no del reloj: los dos apartados. */
+const V3_ROUTE = TIMER_ROUTE || MISCOMPRAS_ROUTE;
+/* El prefijo del hash al cambiar de país, para no perder el apartado. */
+const ROUTE_PREFIX = TIMER_ROUTE ? "timer" : MISCOMPRAS_ROUTE ? "miscompras" : "";
 
-/* En /timer el wallet se presenta como "Mis compras", con su icono de
-   dos bolsas: en el home, en el acuse y en el título de la pantalla.
-   El punto rojo y su latido siguen las mismas reglas. */
-const WALLET_NAME = TIMER_ROUTE ? "Mis compras" : "Mi wallet";
-/* Caso límite de /timer: nadie ha guardado tarjeta todavía
-   (/timer/sintarjetas o #timer-sintarjetas). */
+/* En la variante 3 el wallet se presenta como "Mis compras", con su
+   icono de dos bolsas: en el home, en el acuse y en el título de la
+   pantalla. El punto rojo y su latido siguen las mismas reglas. */
+const WALLET_NAME = V3_ROUTE ? "Mis compras" : "Mi wallet";
+/* Caso límite de la variante 3: nadie ha guardado tarjeta todavía
+   (/timer/sintarjetas, /miscompras/sintarjetas o su hash). */
 const NO_CARDS_ROUTE =
-  TIMER_ROUTE && typeof location !== "undefined" && /sintarjeta/.test(`${location.pathname}${location.hash}`.toLowerCase());
-const WALLET_ICON = TIMER_ROUTE ? "Mis-compras-icon.png" : "Wallet-icon.png";
+  V3_ROUTE && typeof location !== "undefined" && /sintarjeta/.test(`${location.pathname}${location.hash}`.toLowerCase());
+const WALLET_ICON = V3_ROUTE ? "Mis-compras-icon.png" : "Wallet-icon.png";
 
 /* Interruptores de la prueba de usabilidad. Lo que está apagado sigue
    en el código, listo para volver a encenderse:
@@ -278,14 +288,18 @@ const TEST_FEATURES = {
      otro tramo. Solo en /timer, que es donde existe el tramo del 20%. */
   tierHint: TIMER_ROUTE,
   /* Y Mi wallet abre en la variante 3 (Para mí / Compartidas). */
-  walletV3: TIMER_ROUTE,
+  walletV3: V3_ROUTE,
   /* Las gift cards y vales de muestra del wallet. Fuera de /timer la
      prueba arranca con el wallet vacío: lo que haya es lo que la
      persona compró durante la sesión. */
-  walletSeed: TIMER_ROUTE,
+  walletSeed: V3_ROUTE,
   /* Clarita en la card del vale ("¿Necesitas ayuda con el canje?"),
      en gift cards y OKY Vales. Fuera de /timer no sale. */
   cardClarita: TIMER_ROUTE,
+  /* El código promocional del carrito de Guatemala ("verano26"), que
+     desplaza al OKY Cash. En la versión actual la píldora se ve pero
+     tocarla no hace nada. */
+  promoCodes: V3_ROUTE,
   superRibbon: true,
   walletVersions: false,
   foodDiscounts: false,
@@ -628,13 +642,13 @@ function markCountryInUrl(country) {
     const segment = trimmed.split("/").pop().toLowerCase();
     const known = USA_ALIASES.includes(segment) || GUA_ALIASES.includes(segment);
     const base = known ? trimmed.slice(0, trimmed.lastIndexOf("/")) : trimmed;
-    if (/\/prototypes\/oky-cash(\/timer)?$|^\/timer$/.test(base)) {
+    if (/\/prototypes\/oky-cash(\/timer|\/miscompras)?$|^\/(timer|miscompras)$/.test(base)) {
       history.replaceState(null, "", `${base}/${country === "usa" ? "usa" : "latam"}`);
       return;
     }
     /* En el hash el apartado del cronómetro va delante del país para
        que el enlace copiado siga abriendo con reloj. */
-    history.replaceState(null, "", `#${TEST_FEATURES.spookyTimer ? "timer-" : ""}${country}`);
+    history.replaceState(null, "", `#${ROUTE_PREFIX ? `${ROUTE_PREFIX}-` : ""}${country}`);
   } catch (error) {
     /* Algunos hosts no dejan tocar la URL; no es crítico. */
   }
@@ -735,6 +749,10 @@ function createInitialState(userType) {
     savingsSheet: false,
     savingsSeen: false,
     savingsFromPdp: false,
+    /* El aviso de "Tienes OKY Cash" sale una vez por sesión, la primera
+       vez que se llega al checkout con saldo para usar. */
+    cashNotice: false,
+    cashNoticeSeen: false,
     /* La primera de la versión de casa. Con "gift" —la de la versión
        de tipos— no había pestaña que marcar al abrir. */
     walletTab: TEST_FEATURES.walletV3 ? "v3mio" : "gift",
@@ -1270,7 +1288,7 @@ const MENU_ITEMS = [
      propia desde que se pueden mirar sin estar pagando. */
   /* En /timer el wallet se llama Mis compras y lleva bolsas, como su
      icono del header; en Free la bolsa solo existe en sólido. */
-  TIMER_ROUTE
+  V3_ROUTE
     ? { label: "Mis compras", icon: "bag-shopping", style: "solid", action: "menu:wallet" }
     : { label: "Mi Wallet", icon: "wallet", action: "menu:wallet" },
   /* La moneda va en sólido: Font Awesome Free no la trae en contorno y
@@ -2608,7 +2626,7 @@ function screenMethods(state) {
 
   /* En /timer la pantalla lleva el selector de OKY Cash arriba, el
      "Agregar tarjeta" al final y un vacío si no hay tarjetas. */
-  const timer = TIMER_ROUTE;
+  const timer = V3_ROUTE;
   /* Las tarjetas guardadas: se pueden eliminar desde sus tres puntos. */
   const cards = savedCards(state);
   const selected = selectedCardOf(state);
@@ -2626,7 +2644,7 @@ function screenMethods(state) {
   if (!selected) {
     return `
     ${statusBar()}
-    ${titledHeader("Métodos de pago")}
+    ${titledHeader(timer ? "Tu billetera" : "Métodos de pago")}
     ${timer ? cashSoloSeg(state, "methods") : ""}
     <div class="oky-flow-section" style="gap:8px">${methodsEmpty()}</div>
     <div class="oky-flow-cta-bar">
@@ -2640,7 +2658,7 @@ function screenMethods(state) {
 
   return `
     ${statusBar()}
-    ${titledHeader("Métodos de pago")}
+    ${titledHeader(timer ? "Tu billetera" : "Métodos de pago")}
     ${timer ? cashSoloSeg(state, "methods") : ""}
 
     <div class="oky-flow-section" style="gap:8px">
@@ -2754,9 +2772,10 @@ function purchaseFoot() {
    donde estorbaban: lo que hay que ver es el código y su botón.
 
    En medio va lo que esta compra dejó. Ganando OKY Cash, la píldora
-   aqua con la cifra, que lleva a su pestaña; sin nada que celebrar
-   —Guatemala, o una compra sin cashback— el recibo, que es lo único
-   que queda por mirar. */
+   aqua con la cifra, que lleva a su pestaña, y a su lado el recibo en
+   chiquito —solo el icono—; sin nada que celebrar —Guatemala, o una
+   compra sin cashback— el recibo con su rótulo, que es lo único que
+   queda por mirar. */
 function purchaseHeader(state) {
   const earned = state.lastEarned > 0;
   return `
@@ -2773,10 +2792,15 @@ function purchaseHeader(state) {
 
       ${
         earned
-          ? `<button class="oky-flow-purchase-badge is-cash" data-action="nav:okycash" type="button">
-              <img src="oky-cash-coin.png" alt="" />
-              <span>+${money(state.lastEarned)} en OKY Cash</span>
-            </button>`
+          ? `<span class="oky-flow-purchase-center">
+              <button class="oky-flow-purchase-badge is-cash" data-action="nav:okycash" type="button">
+                <img src="oky-cash-coin.png" alt="" />
+                <span>+${money(state.lastEarned)} en OKY Cash</span>
+              </button>
+              <span class="oky-flow-purchase-receipt" role="img" aria-label="Ver recibo">
+                <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
+              </span>
+            </span>`
           : `<span class="oky-flow-purchase-badge is-receipt">
               <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
               <span>Ver recibo</span>
@@ -2819,9 +2843,11 @@ function fitWinAnimation(stage) {
   const toCompY = (y) => (y - box.top - offY) / s;
 
   const slotX = toCompX(slot.left + slot.width / 2);
-  /* La moneda arranca entera por encima del borde de abajo de la
-     ranura, que es donde se corta el lienzo. */
-  const lineY = toCompY(slot.bottom - 2);
+  /* La boca de la ranura es su línea media: por encima la moneda está
+     dentro y no se ve; por debajo sale, pasando por delante de la mitad
+     baja de la ranura (las monedas van en una capa más alta). */
+  const mouth = slot.top + slot.height / 2;
+  const lineY = toCompY(mouth);
   const spawnY = lineY - WIN_COMP.coinHalf;
   /* Y la pila no pasa del borde de abajo. */
   const lowest = toCompY(box.bottom - WIN_COMP.floor) - WIN_COMP.coinHalf;
@@ -2850,7 +2876,7 @@ function fitWinAnimation(stage) {
 
   /* Lo que está por encima de la ranura no se ve: así la moneda sale
      de la pastilla en vez de aparecer encima de ella. */
-  const cut = ((slot.bottom - 2 - box.top) / box.height) * stage.offsetHeight;
+  const cut = ((mouth - box.top) / box.height) * stage.offsetHeight;
   stage.style.clipPath = `inset(${Math.max(0, cut)}px 0 0 0)`;
   return fit;
 }
@@ -3550,7 +3576,7 @@ const WALLET_EMPTY = {
   vales: {
     art: "wallet-tab-vales.png",
     title: "Aún no tienes OKY Vales",
-    note: "Los vales que compres para comer o recargar en Guatemala se guardan aquí.",
+    note: "Los vales que compres para comer o recargar en Latinoamérica se guardan aquí.",
     cta: "Explorar OKY Vales",
     action: "nav:homegua",
     cash: "Úsalo para pagar tus vales",
@@ -3965,9 +3991,7 @@ function okyCashActivity(state) {
                       .map(
                         (i) => `
                       <li class="oky-flow-order-line">
-                        <span>${i.label}${
-                          i.share ? `<em class="oky-flow-order-share">cubrió el ${i.share}%</em>` : ""
-                        }</span>
+                        <span>${i.label}</span>
                         <span class="is-debit">${i.amount}</span>
                       </li>
                     `,
@@ -4053,15 +4077,17 @@ function okyCashActivity(state) {
      estado vacío de 101742:103434 explica cómo se empieza a ganar, manda
      a las gift cards de USA y deja a mano los vales que ya se tienen. */
   if (!groups.length) {
+    /* Más compacto que la actividad: la tarjeta de "Tus OKY Vales" tiene
+       que quedar entera sobre la navbar, sin scrollear. */
     return `
-    <div class="oky-flow-section" style="gap:16px">
+    <div class="oky-flow-section is-cash-empty" style="gap:12px">
       <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
       ${cashExpiryNote(state)}
 
       <div class="oky-flow-cash-empty">
         <span class="oky-flow-cash-empty-art"><img src="oky-cash-coin.png" alt="" /></span>
         <h2 class="oky-flow-cash-empty-title">Aún no has ganado OKY Cash</h2>
-        <p class="oky-flow-cash-empty-note">Compra una gift card en USA y usa el saldo que ganes en Guatemala.</p>
+        <p class="oky-flow-cash-empty-note">Compra una gift card en USA y usa el saldo que ganes en tus próximas compras.</p>
         <button class="btn btn-primary btn-large oky-flow-cash-empty-cta" data-action="nav:home" type="button">
           Explorar gift cards de USA
         </button>
@@ -4226,7 +4252,9 @@ function screenCashSolo(state) {
   const methods = state.cashSoloTab === "methods";
   return `
     ${statusBar()}
-    ${titledHeader(methods ? "Métodos de pago" : "OKY Cash")}
+    ${/* Un solo título para las dos mitades: la pantalla es la
+         billetera; el selector dice cuál de las dos se está mirando. */ ""}
+    ${titledHeader("Tu billetera")}
     ${cashSoloSeg(state)}
     ${methods ? cashSoloMethods(state) : okyCashActivity(state)}
     ${navbar("okycash", state)}
@@ -4810,6 +4838,28 @@ function promoDialog(state) {
       <div class="oky-flow-promosheet-divider" aria-hidden="true"></div>
       <button class="btn btn-primary btn-large oky-flow-promosheet-cta" data-action="apply-promo" type="button"
         ${has ? "" : "disabled"}>Aplicar</button>
+    </section>
+  `;
+}
+
+/* Misma anatomía que "Agrega más, paga menos" —hoja, nota, arte y
+   "Entendido"— con el título de "Ganaste": el monto grande en aqua y
+   la pila de monedas con la que termina esa animación. Recuerda que hay saldo justo donde se usa;
+   activarlo sigue siendo cosa de la casilla. */
+function cashNoticeSheet(state) {
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-cash-notice" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-savings is-cash" role="dialog" aria-modal="true" aria-label="Tienes OKY Cash">
+      <h2 class="oky-flow-cashnote-title">
+        <span class="oky-flow-cashwin-kicker">Tienes</span>
+        <span class="oky-flow-cashwin-amount"><span>$</span>${state.okyCashBalance.toFixed(2)}</span>
+        <span class="oky-flow-cashwin-label">en OKY Cash</span>
+      </h2>
+      <p class="oky-flow-savings-note">
+        Márcalo en tu método de pago y úsalo para pagar esta compra
+      </p>
+      <div class="oky-flow-savings-art"><img src="oky-cash-coin-stack.png" alt="" /></div>
+      <button class="btn btn-primary btn-large oky-flow-savings-cta" data-action="close-cash-notice" type="button">Entendido</button>
     </section>
   `;
 }
@@ -6006,6 +6056,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.countrySheet ? countrySheet(state) : ""}
         ${state.marketSheet ? marketSheet(state) : ""}
         ${state.savingsSheet ? savingsSheet() : ""}
+        ${state.cashNotice && state.screen === "checkout" ? cashNoticeSheet(state) : ""}
         ${state.promoOpen ? promoDialog(state) : ""}
         ${state.addedToast ? addedToast() : ""}
         ${state.flagIntro ? flagIntro(state.flagIntro) : ""}
@@ -6999,6 +7050,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.cartOpen = false;
     state.menuOpen = false;
     state.headerCollapsed = false;
+    /* Primera llegada al checkout con saldo sin usar: se avisa una vez. */
+    if (screen === "checkout" && !state.cashNoticeSeen && state.okyCashBalance > 0 && !state.okyCashEnabled) {
+      state.cashNoticeSeen = true;
+      state.cashNotice = true;
+    }
     render();
   }
 
@@ -7085,9 +7141,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          cosa no se nota; tapar el vale grande sí, y es lo que la
          persona esperaría que hiciera su saldo.
 
-         El desglose dice además qué tajada de ese vale pagó el saldo:
-         "cubrió el 60%" cuenta mejor lo que hizo el OKY Cash que un
-         monto suelto. */
+         El desglose guarda además qué tajada de ese vale pagó el saldo
+         (share); la actividad ya no la muestra. */
       let queda = used;
       const detail = state.cart
         .map((item) => ({ item, total: item.amount * (item.qty || 1) }))
@@ -7752,6 +7807,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        Se abre desde la píldora del carrito y se quita desde su X,
        que es el único camino que tiene el flujo. */
     if (action === "open-promo") {
+      if (!TEST_FEATURES.promoCodes) return;
       state.promoOpen = true;
       state.promoDraft = "";
       state.promoError = false;
@@ -7883,6 +7939,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          lo que va la promesa de llenar el carrito. */
       if (step > 0 && cartSavings(state) > 0) burstConfetti(".oky-flow-foodbar-save");
       return;
+    }
+
+    if (action === "close-cash-notice") {
+      state.cashNotice = false;
+      return render({ keepScroll: true });
     }
 
     if (action === "close-savings") {

@@ -10463,6 +10463,9 @@ button.header-icon {
 .oky-flow-cashwin-stage {
   position: absolute;
   inset: 0;
+  /* Por encima de la ranura (cashwin-top, 3): la moneda sale de ella y
+     pasa por delante. El texto de "Ganaste" sigue por encima de todo. */
+  z-index: 4;
   pointer-events: none;
 }
 
@@ -10485,6 +10488,7 @@ button.header-icon {
   padding: 0 var(--oky-gutter);
   text-align: center;
   pointer-events: none;
+  z-index: 5;
   animation: oky-flow-cashwin-copy-in 640ms cubic-bezier(0.18, 1.25, 0.4, 1) 240ms both;
 }
 
@@ -12478,6 +12482,29 @@ button.tactic-offer {
   color: var(--primary-base);
 }
 
+/* El de OKY Cash: el verde y el título de "Ganaste" —"Tienes", el
+   monto en aqua y "en OKY Cash"— y la pila de monedas. */
+.oky-flow-savings.is-cash {
+  background: #00524d;
+}
+
+.oky-flow-cashnote-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: 0 0 12px;
+}
+
+.oky-flow-cashnote-title > span {
+  display: block;
+}
+
+.oky-flow-savings.is-cash .oky-flow-savings-art img {
+  width: 116px;
+  height: auto;
+}
+
 /* ── Código promocional (Figma 82510:85319) ───────────────
    La píldora del carrito, en las dos caras del componente: la
    invitación y el código ya aplicado. La anatomía es la misma —
@@ -13632,6 +13659,50 @@ button.tactic-offer {
 
 .oky-flow-purchase-badge.is-receipt i {
   font-size: 16px;
+}
+
+/* Ganando OKY Cash la píldora no se mueve de su sitio —es la ranura de
+   la animación—: el recibo cuelga a su derecha, fuera del flujo, como
+   botón redondo de solo icono. */
+.oky-flow-purchase-center {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.oky-flow-purchase-receipt {
+  position: absolute;
+  top: 1px;
+  left: calc(100% + 5px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border-main);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--primary-base);
+  font-size: 15px;
+}
+
+/* Con el recibo al lado la píldora afina su padding para que el botón
+   no se pegue a la casa en pantallas de 360. */
+.oky-flow-purchase-center .oky-flow-purchase-badge.is-cash {
+  padding: 0 12px;
+}
+
+/* Mientras están el sello y "Ganaste" no se ve —en la copia de la
+   cabecera del overlay nunca—: entra con la cifra de la píldora cuando
+   el overlay se va. */
+.oky-flow-cashwin-top .oky-flow-purchase-receipt,
+.oky-flow-frame:has(.oky-flow-celebration) .oky-flow-header.is-purchase .oky-flow-purchase-receipt {
+  visibility: hidden;
+}
+
+.oky-flow-frame:has(.oky-flow-cashwin) .oky-flow-header.is-purchase .oky-flow-purchase-receipt {
+  animation: oky-flow-cash-pill-say 500ms cubic-bezier(0.32, 0.72, 0, 1) 7000ms both;
 }
 
 /* ── Agenda de contactos (99140:46744) ───────────────────
@@ -15826,7 +15897,29 @@ img.oky-flow-method-mark {
    final—. */
 .oky-flow-frame .oky-flow-cashwin .oky-flow-cashwin-top .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
   visibility: visible;
-  animation: oky-flow-cash-pill-in 520ms cubic-bezier(0.18, 1.25, 0.4, 1) 200ms both;
+  /* La ranura es oscura —un hueco en el verde del fondo, como la boca
+     de una alcancía—, no la pastilla aqua: el aqua es de la pastilla
+     de verdad, la de la cabecera, que aparece cuando el overlay se va. */
+  background: #003633;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+  /* Entra al principio y, cuando ya cayeron las monedas, se llena: del
+     hueco oscuro al aqua de la pastilla (6.3 s → 6.9 s). Al irse el
+     overlay a los 7 s, debajo está la de la cabecera en el mismo aqua y
+     ahí aparece la cifra. */
+  animation:
+    oky-flow-cash-pill-in 520ms cubic-bezier(0.18, 1.25, 0.4, 1) 200ms both,
+    oky-flow-cash-slot-fill 600ms ease-in-out 6300ms forwards;
+}
+
+@keyframes oky-flow-cash-slot-fill {
+  from {
+    background-color: #003633;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+  }
+  to {
+    background-color: var(--tier-base-bg);
+    box-shadow: inset 0 0 0 rgba(0, 0, 0, 0);
+  }
 }
 
 .oky-flow-frame .oky-flow-cashwin .oky-flow-cashwin-top .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash > * {
@@ -16050,4 +16143,27 @@ img.oky-flow-method-mark {
   .oky-flow-cardmenu {
     animation: none;
   }
+}
+
+/* Estado vacío de OKY Cash: cabe entero sobre la navbar, con la
+   tarjeta de "Tus OKY Vales" a la vista. Se recorta aire, no
+   contenido: la moneda un poco más chica y menos margen entre piezas. */
+.is-cash-empty .oky-flow-cash-empty:not(.is-wallet) {
+  margin-top: 0;
+  gap: 6px;
+}
+
+.is-cash-empty .oky-flow-cash-empty:not(.is-wallet) .oky-flow-cash-empty-art {
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+}
+
+.is-cash-empty .oky-flow-cash-empty:not(.is-wallet) .oky-flow-cash-empty-art img {
+  width: 36px;
+  height: 38px;
+}
+
+.is-cash-empty .oky-flow-cash-empty-link {
+  margin-top: 6px;
 }

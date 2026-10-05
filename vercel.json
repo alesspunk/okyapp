@@ -37,6 +37,26 @@
       "destination": "/prototypes/oky-cash-web/index.html"
     },
     {
+      "source": "/prototypes/oky-cash-web/miscompras",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash-web/miscompras/usa",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash-web/miscompras/latam",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash-web/miscompras/gua",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash-web/miscompras/sintarjetas",
+      "destination": "/prototypes/oky-cash-web/index.html"
+    },
+    {
       "source": "/oky-cash-prototype-demo.html",
       "destination": "/prototypes/oky-cash/index.html"
     },
@@ -81,6 +101,26 @@
       "destination": "/prototypes/oky-cash/index.html"
     },
     {
+      "source": "/miscompras",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/miscompras/usa",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/miscompras/latam",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/miscompras/gua",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/miscompras/sintarjetas",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
       "source": "/prototypes/oky-cash/timer",
       "destination": "/prototypes/oky-cash/index.html"
     },
@@ -98,6 +138,26 @@
     },
     {
       "source": "/prototypes/oky-cash/timer/sintarjetas",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash/miscompras",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash/miscompras/usa",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash/miscompras/latam",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash/miscompras/gua",
+      "destination": "/prototypes/oky-cash/index.html"
+    },
+    {
+      "source": "/prototypes/oky-cash/miscompras/sintarjetas",
       "destination": "/prototypes/oky-cash/index.html"
     },
     {

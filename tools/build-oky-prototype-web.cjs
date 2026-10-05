@@ -47,9 +47,9 @@ function buildWebPrototype(output) {
     return url;
   });
   // Only the web derivative gets its own country-switch URL namespace.
-  // The canonical route also accepts the /timer section (and a bare /timer).
-  const oldRoute = String.raw`/\/prototypes\/oky-cash(\/timer)?$|^\/timer$/`;
-  const newRoute = String.raw`/\/prototypes\/oky-cash-web(\/timer)?$|^\/timer$/`;
+  // The canonical route also accepts the /timer and /miscompras sections (and bare /timer, /miscompras).
+  const oldRoute = String.raw`/\/prototypes\/oky-cash(\/timer|\/miscompras)?$|^\/(timer|miscompras)$/`;
+  const newRoute = String.raw`/\/prototypes\/oky-cash-web(\/timer|\/miscompras)?$|^\/(timer|miscompras)$/`;
   if (!html.includes(oldRoute)) throw new Error('Country URL logic changed; review web route adaptation');
   html = html.replace(oldRoute, newRoute);
   if (/data:[^;,\s]+;base64,/.test(html)) throw new Error('Embedded assets remain');
