@@ -4338,9 +4338,10 @@ function methodsEmpty() {
    tiene su mitad al lado. */
 function cashSoloMethods(state) {
   const cards = savedCards(state);
-  /* Fuera de una compra no hay nada que elegir para pagar: el radio es
-     la tarjeta para pago, y tocar otra fila la vuelve la predeterminada. */
-  const selected = defaultCardOf(state);
+  /* El radio elige qué tarjeta se mira; la de arriba dice si es la de
+     pago o una secundaria. Solo una es para pago, y se cambia desde los
+     tres puntos con "Marcar como tarjeta para pago". */
+  const selected = selectedCardOf(state);
   if (!selected) return `<div class="oky-flow-section" style="gap:8px">${methodsEmpty()}</div>`;
   const top = methodTopCard(state, selected);
   return `
@@ -4355,7 +4356,7 @@ function cashSoloMethods(state) {
           return `
             <div class="oky-flow-method-group">
               <div class="oky-flow-method-row${isSelected ? " is-selected is-only" : ""}"
-                ${isSelected ? "" : `data-action="card-default" data-card="${card.key}" role="button" tabindex="0"`}>
+                ${isSelected ? "" : `data-action="select-card" data-card="${card.key}" role="button" tabindex="0"`}>
                 <span class="oky-flow-radio${isSelected ? " is-on" : ""}" aria-hidden="true"></span>
                 <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
                 <p class="oky-flow-method-name${isSelected ? "" : " is-regular"}">${card.label}</p>
