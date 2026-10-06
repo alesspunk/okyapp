@@ -12556,6 +12556,7 @@ button.tactic-offer {
 
 .oky-flow-cashnote-preview .oky-flow-payrow {
   background: #ffffff;
+  cursor: pointer;
 }
 
 /* En el checkout el destello de la fila sube un nivel: el rótulo
@@ -13189,6 +13190,11 @@ button.tactic-offer {
   width: 100%;
   padding: 2px 4px;
   box-sizing: border-box;
+}
+
+/* Variante 3: un solo interruptor, "Marcar como usado", al centro. */
+.oky-flow-voucher-actions.is-single {
+  justify-content: center;
 }
 
 
@@ -19836,6 +19842,8 @@ function createInitialState(userType) {
        vez que se llega al checkout con saldo para usar. */
     cashNotice: false,
     cashNoticeSeen: false,
+    /* Si se marcó OKY Cash desde el propio aviso. */
+    cashNoticePick: false,
     /* La primera de la versión de casa. Con "gift" —la de la versión
        de tipos— no había pestaña que marcar al abrir. */
     walletTab: TEST_FEATURES.walletV3 ? "v3mio" : "gift",
@@ -24011,9 +24019,8 @@ function promoDialog(state) {
    la pila de monedas con la que termina esa animación. Recuerda que hay saldo justo donde se usa;
    activarlo sigue siendo cosa de la casilla. */
 /* En vez de la pila de monedas, el aviso enseña la misma fila de OKY
-   Cash del checkout: así se reconoce dónde marcarlo. Es una copia
-   quieta, sin acciones ni destello; el destello queda para la fila
-   real, al cerrar. */
+   Cash del checkout: así se reconoce dónde marcarlo. Se puede marcar
+   ahí mismo; al cerrar, la fila real queda marcada igual y destella. */
 function cashNoticeSheet(state) {
   return `
     <button class="oky-flow-sheet-backdrop" data-action="close-cash-notice" type="button" aria-label="Cerrar"></button>
@@ -24026,14 +24033,16 @@ function cashNoticeSheet(state) {
       <p class="oky-flow-savings-note">
         Márcalo en tu método de pago y úsalo para pagar esta compra
       </p>
-      <div class="oky-flow-cashnote-preview" aria-hidden="true">
+      <div class="oky-flow-cashnote-preview">
         <div class="payment-method-input oky-flow-paygroup">
           <span class="payment-method-label">Método de pago</span>
-          <div class="oky-flow-payrow is-cash is-only">
-            <span class="oky-flow-check"><i class="fa-solid fa-check"></i></span>
+          <div class="oky-flow-payrow is-cash is-only${state.cashNoticePick ? " is-checked" : ""}"
+            data-action="notice-pick-cash" role="checkbox" tabindex="0"
+            aria-checked="${Boolean(state.cashNoticePick)}" aria-label="Usar OKY Cash en esta compra">
+            <span class="oky-flow-check${state.cashNoticePick ? " is-checked" : ""}" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
             <p class="oky-flow-payrow-copy">OKY Cash</p>
             <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash">${money(state.okyCashBalance)}</span></span>
-            <span class="oky-flow-payrow-more"><i class="fa-solid fa-ellipsis-vertical"></i></span>
+            <span class="oky-flow-payrow-more" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
           </div>
         </div>
       </div>
@@ -24343,6 +24352,22 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
            antes, y sacarlo es apagar el interruptor en vez de un botón
            que solo aparecía ahí. */ ""
       }
+      ${
+        /* Variante 3: en la poscompra no hay interruptores —el vale se
+           acaba de comprar— y en Mis compras queda uno solo, centrado:
+           "Marcar como usado". Compartir sale de esta versión. */
+        V3_ROUTE
+          ? asPurchase
+            ? ""
+            : `<div class="oky-flow-voucher-actions is-single">
+        <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
+          data-key="${card.key}" data-unit="${slot}"
+          type="button" role="switch" aria-checked="${archived}">
+          <span class="oky-flow-switch-label">Marcar como usado</span>
+          <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
+        </button>
+      </div>`
+          : `
       <div class="oky-flow-voucher-actions">
         ${/* Compartir es el mismo trato que guardar, así que es el
              mismo control: apagado se comparte y encendido se pregunta
@@ -24360,14 +24385,11 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           type="button" role="switch" aria-checked="${archived}">
           ${/* El rótulo delante: se lee la palabra y después se ve en
                qué estado está, que es el orden en que se mira. */ ""}
-          ${/* En la variante 3 el rótulo dice "Usado" siempre: el switch
-               ya enseña si está marcado, y "Usar" se leía como una orden. */ ""}
-          <span class="oky-flow-switch-label">${
-            V3_ROUTE ? "Usado" : archived ? "Guardado" : "Guardar"
-          }</span>
+          <span class="oky-flow-switch-label">${archived ? "Guardado" : "Guardar"}</span>
           <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
         </button>
-      </div>
+      </div>`
+      }
     </div>
     ${asPurchase ? purchaseFoot(state) : ""}
     ${navbar("", state)}
@@ -27252,8 +27274,23 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
+    if (action === "notice-pick-cash") {
+      state.cashNoticePick = !state.cashNoticePick;
+      render({ keepScroll: true });
+      if (state.cashNoticePick) burstConfetti(".oky-flow-cashnote-preview .oky-flow-payrow");
+      return;
+    }
+
     if (action === "close-cash-notice") {
       state.cashNotice = false;
+      /* Lo marcado en el aviso vale igual que marcarlo en el checkout:
+         la casilla de la fila real llega marcada. */
+      if (state.cashNoticePick && !state.okyCashEnabled) {
+        state.promo = null;
+        state.okyCashEnabled = true;
+        state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
+      }
+      state.cashNoticePick = false;
       render({ keepScroll: true });
       /* "Entendido" lleva a la casilla y la hace destellar: el aviso dice
          que hay saldo, y esto dice dónde se usa. El fondo atenuado solo

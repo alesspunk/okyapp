@@ -12541,6 +12541,7 @@ button.tactic-offer {
 
 .oky-flow-cashnote-preview .oky-flow-payrow {
   background: #ffffff;
+  cursor: pointer;
 }
 
 /* En el checkout el destello de la fila sube un nivel: el rótulo
@@ -13174,6 +13175,11 @@ button.tactic-offer {
   width: 100%;
   padding: 2px 4px;
   box-sizing: border-box;
+}
+
+/* Variante 3: un solo interruptor, "Marcar como usado", al centro. */
+.oky-flow-voucher-actions.is-single {
+  justify-content: center;
 }
 
 
