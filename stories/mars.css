@@ -9839,6 +9839,13 @@ button.header-icon {
   cursor: pointer;
 }
 
+/* Hueco de los tres puntos en la fila de OKY Cash: no hay menú, pero
+   guarda el ancho para que la pastilla quede en la columna de la de la
+   tarjeta. */
+.oky-flow-payrow-more.is-empty {
+  cursor: default;
+}
+
 /* Botón "Mi Wallet" del success (Figma 99140:56033): píldora
    outlined con el bitmap del wallet a la izquierda. */
 .oky-flow-wallet-btn {

@@ -2550,9 +2550,9 @@ function screenCheckout(state) {
           </button>
           <p class="oky-flow-payrow-copy" data-action="toggle-okycash" role="button" tabindex="0">OKY Cash</p>
           <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash">${money(state.okyCashEnabled ? applied : state.okyCashBalance)}</span></span>
-          <button class="oky-flow-payrow-more" data-action="open-methods" type="button" aria-label="Editar monto">
-            <i class="fa-solid fa-ellipsis-vertical"></i>
-          </button>
+          ${/* Sin tres puntos: en Métodos de pago ya no hay nada de OKY Cash
+               que editar. Se marca o desmarca aquí y aplica lo que alcance. */ ""}
+          <span class="oky-flow-payrow-more is-empty" aria-hidden="true"></span>
         </div>
         `
         }
@@ -4927,7 +4927,7 @@ function cashNoticeSheet(state) {
             <span class="oky-flow-check${state.cashNoticePick ? " is-checked" : ""}" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
             <p class="oky-flow-payrow-copy">OKY Cash</p>
             <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash">${money(state.okyCashBalance)}</span></span>
-            <span class="oky-flow-payrow-more" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
+            <span class="oky-flow-payrow-more is-empty" aria-hidden="true"></span>
           </div>
         </div>
       </div>
