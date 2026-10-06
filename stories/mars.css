@@ -2832,8 +2832,10 @@ body {
   min-height: 32px;
 }
 
+/* El precio de venta va siempre en morado; la rebaja la marca el de
+   lista tachado en aqua oscuro al lado. */
 .token-price-tag-plp {
-  color: var(--secondary-dark);
+  color: var(--primary-main);
   font-family: 'Lato', sans-serif;
   font-size: 16px;
   font-weight: 900;
@@ -2841,17 +2843,16 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* El aqua es la marca de que hay rebaja: sin precio tachado al lado,
-   el precio es uno normal y va en el morado de la marca. */
+/* Sin precio tachado al lado, el precio es uno normal: mismo morado. */
 .token-price-tag-plp.is-plain {
   color: var(--primary-main);
 }
 
 .token-price-plp {
-  color: var(--disable-text);
+  color: var(--secondary-dark);
   font-family: 'Lato', sans-serif;
   font-size: 13px;
-  font-weight: 400;
+  font-weight: 900;
   line-height: 157%;
   letter-spacing: 0.5px;
   text-decoration: line-through;
@@ -2957,7 +2958,7 @@ body {
 }
 
 .token-price-tag-cart {
-  color: var(--secondary-dark);
+  color: var(--primary-main);
   font-family: 'Lato', sans-serif;
   font-size: 16px;
   font-weight: 900;
@@ -2966,10 +2967,10 @@ body {
 }
 
 .token-price-cart {
-  color: var(--disable-text);
+  color: var(--secondary-dark);
   font-family: 'Lato', sans-serif;
   font-size: 13px;
-  font-weight: 400;
+  font-weight: 900;
   line-height: 157%;
   letter-spacing: 0.5px;
   text-decoration: line-through;
@@ -3093,6 +3094,8 @@ body {
   color: var(--primary-main);
 }
 
+/* Rebaja en el resumen: el de lista tachado en aqua oscuro, con la
+   letra de la resta de OKY Cash, y lo que se paga en morado. */
 .summary-value-old {
   font-family: "Lato", sans-serif;
   font-size: 14px;
@@ -3100,7 +3103,7 @@ body {
   line-height: 1.75;
   letter-spacing: 0.15px;
   text-decoration: line-through;
-  color: var(--disable-text);
+  color: var(--secondary-dark);
 }
 
 .summary-value-new {
@@ -3109,7 +3112,7 @@ body {
   font-weight: 700;
   line-height: 1.75;
   letter-spacing: 0.15px;
-  color: var(--secondary-dark);
+  color: var(--primary-main);
 }
 
 .summary-value-success {
@@ -8464,7 +8467,7 @@ body {
 
 /* Fila activa: fondo aqua tenue, igual familia que el tier base
    del ribbon/saving-bar (#A8FAF5) pero muy diluido. */
-.oky-flow-payrow.is-last.is-checked {
+.oky-flow-payrow.is-cash.is-checked {
   background: #f3fffe;
 }
 
@@ -8472,9 +8475,39 @@ body {
    Ráfaga corta de piezas de color que aparecen y se desvanecen
    sobre la fila; se dispara una vez al pasar de no-marcado a
    marcado y se limpia sola (ver JS, timeout ~1100ms). */
-.oky-flow-payrow.is-last {
+.oky-flow-payrow.is-cash {
   position: relative;
   overflow: hidden;
+}
+
+/* Al cerrar "Tienes OKY Cash" con Entendido, la fila destella dos veces
+   en aqua: el borde se enciende y suelta un halo que se apaga. */
+.oky-flow-payrow.is-cash.is-hint {
+  z-index: 1;
+  animation: oky-flow-cash-hint 1100ms cubic-bezier(0.32, 0.72, 0, 1) 250ms 2 both;
+}
+
+@keyframes oky-flow-cash-hint {
+  0% {
+    border-color: #c4c4c4;
+    box-shadow: 0 0 0 0 rgba(9, 180, 176, 0);
+  }
+  35% {
+    border-color: #09b4b0;
+    box-shadow: 0 0 0 3px rgba(9, 180, 176, 0.55), 0 0 18px 6px rgba(9, 180, 176, 0.35);
+  }
+  100% {
+    border-color: #c4c4c4;
+    box-shadow: 0 0 0 0 rgba(9, 180, 176, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-payrow.is-cash.is-hint {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+    border-color: #09b4b0;
+  }
 }
 
 .oky-flow-confetti-piece {
@@ -12351,27 +12384,37 @@ button.tactic-offer {
   font-weight: 700;
 }
 
+/* Lo que se paga va en morado, como el subtotal con el que se suma; el
+   de lista tachado queda en el aqua oscuro de la rebaja, igual que la
+   resta de OKY Cash. Así la cuenta se lee de arriba abajo sin confundir
+   el importe que suma con el que resta. */
 .oky-flow-fee-now {
-  color: var(--secondary-dark);
+  color: var(--primary-main);
 }
 
+/* El tachado con la misma letra que la resta de OKY Cash —Lato
+   14/400, aqua oscuro—: las dos son dinero que no pagas y solo las
+   distingue el tachado o el menos. */
 .oky-flow-fee-was {
   margin-right: 6px;
-  color: var(--disable-text);
-  font-weight: 700;
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.15px;
+  color: var(--secondary-dark);
   text-decoration: line-through;
 }
 
 /* El precio de lista del producto, tachado junto al de venta. */
-/* Con precio de lista al lado, el de venta pasa al aqua de siempre y
-   el tachado al gris de deshabilitado. */
+/* Con precio de lista al lado, el de venta sigue en morado y el
+   tachado va en aqua oscuro, con el mismo peso: el mismo esquema del
+   resumen de compra. */
 .oky-flow-cart-price.is-deal {
-  color: var(--secondary-dark);
+  color: var(--primary-main);
 }
 
 .oky-flow-cart-was {
   margin-left: 10px;
-  color: var(--disable-text);
+  color: var(--secondary-dark);
   font-weight: 800;
   text-decoration: line-through;
 }
@@ -12474,6 +12517,22 @@ button.tactic-offer {
   max-width: 190px;
   max-height: 100%;
   object-fit: contain;
+}
+
+/* "Tienes OKY Cash": la fila del checkout sobre su fondo blanco. */
+.oky-flow-cashnote-preview {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 328px;
+  margin: 8px auto 14px;
+  padding: 18px 14px 14px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+}
+
+.oky-flow-cashnote-preview .payment-method-input {
+  width: 100%;
 }
 
 .oky-flow-savings-cta {
@@ -13607,6 +13666,12 @@ button.tactic-offer {
    hecha— y sin barra abajo, que es lo que le quitaba sitio al código. */
 .oky-flow-header.is-purchase {
   gap: 8px;
+}
+
+/* Hueco del lado derecho: sostiene la píldora centrada sin la casa. */
+.oky-flow-header-spacer {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .oky-flow-purchase-wallet {
@@ -16166,4 +16231,26 @@ img.oky-flow-method-mark {
 
 .is-cash-empty .oky-flow-cash-empty-link {
   margin-top: 6px;
+}
+
+/* PDP · el monto de la card lleva al campo: se ve tocable y el campo,
+   al recibir el foco desde ahí, da un pulso para que se vea dónde se
+   escribe. */
+.middle-card-value.is-editable {
+  cursor: text;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.input-field.is-called {
+  animation: oky-flow-input-called 900ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes oky-flow-input-called {
+  0% { box-shadow: 0 0 0 0 rgba(85, 37, 136, 0); }
+  30% { box-shadow: 0 0 0 4px rgba(85, 37, 136, 0.22); }
+  100% { box-shadow: 0 0 0 0 rgba(85, 37, 136, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input-field.is-called { animation: none; }
 }

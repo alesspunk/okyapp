@@ -292,7 +292,7 @@ const TEST_FEATURES = {
   /* Las gift cards y vales de muestra del wallet. Fuera de /timer la
      prueba arranca con el wallet vacío: lo que haya es lo que la
      persona compró durante la sesión. */
-  walletSeed: V3_ROUTE,
+  walletSeed: false,
   /* Clarita en la card del vale ("¿Necesitas ayuda con el canje?"),
      en gift cards y OKY Vales. Fuera de /timer no sale. */
   cardClarita: TIMER_ROUTE,
@@ -547,11 +547,35 @@ function unitOfPurchase(state, purchase) {
   return demo + Math.max(at, 0);
 }
 
+/* Para quién fue la compra: lo marca el destinatario del pago. Los
+   servicios y recargas —Claro se guarda con los vales, pero es una
+   recarga— van siempre a "Para otros" mientras no tengan su flujo. */
+function purchaseIsForSelf(state, productKey) {
+  if (((PRODUCTS[productKey] || {}).wallet || "gift") === "servicios") return false;
+  if (CATEGORY_OF[productKey] === "servicios") return false;
+  const who = recipientOf(state);
+  return Boolean(who.self) || who.name === USA_RECIPIENT.name;
+}
+
+/* El vale concreto ("nike#1") es de la compra con ese mismo número de
+   vale; sin compra detrás —muestra— cuenta como propio. */
+function unitForSelf(state, key, unit = 0) {
+  const p = state.purchases.find((x) => x.productKey === key && unitOfPurchase(state, x) === unit);
+  return p ? p.forSelf !== false : true;
+}
+
 function unitGroup(state, key, unit = 0) {
   const id = unitId(key, unit);
   if (state.archivedVouchers.includes(id)) return "archivados";
+  /* En la variante 3 la pestaña la decide para quién fue, no si se
+     compartió: compartir solo cambia el vale (su sello), no de sitio. */
+  if (TEST_FEATURES.walletV3) return unitForSelf(state, key, unit) ? "activos" : "compartidos";
   return state.sharedVouchers.includes(id) ? "compartidos" : "activos";
 }
+
+/* En la 3 cada pestaña tiene su propio cajón de usados: lo de uno con
+   lo de uno y lo de otros con lo de otros. */
+const V3_SELF_TAB = { v3mio: true, v3comp: false };
 
 /* Tarjetas tokenizadas. La seleccionada es la que se combina con
    OKY Cash; la otra baja como fila suelta (Figma 99105:41895). */
@@ -855,6 +879,8 @@ function createInitialState(userType) {
        vez, no vuelve a aparecer. */
     usaSeen: false,
     recipient: "",
+    /* De qué pago salió el destinatario elegido ("usa" | "gua"). */
+    recipientMarket: "",
   };
 }
 
@@ -2039,7 +2065,8 @@ function screenPdp(state) {
               <div class="middle-card-main">
                 <p class="middle-card-title">${product.cardTitle}</p>
                 <div class="middle-card-center">
-                  <div class="middle-card-value">
+                  <div class="middle-card-value is-editable" data-action="focus-amount" role="button" tabindex="-1"
+                    aria-label="Escribir el monto">
                     <span class="middle-card-currency">$</span>
                     <p class="middle-card-amount">${bigAmount(amount)}</p>
                   </div>
@@ -2467,7 +2494,7 @@ function screenCheckout(state) {
                Para uno mismo se queda el muñeco. */
             recipient.initials
               ? `<span class="dual-avatar is-contact" aria-hidden="true">${recipient.initials}</span>`
-              : `<span class="dual-avatar is-self" aria-hidden="true">🙋</span>`
+              : `<span class="dual-avatar is-self" aria-hidden="true">🙋🏽</span>`
           }
           <div class="dual-copy">
             <p class="dual-title">${recipient.name}</p>
@@ -2480,33 +2507,14 @@ function screenCheckout(state) {
       <div class="payment-method-input oky-flow-paygroup" style="width:100%">
         <span class="payment-method-label">Método de pago</span>
         ${
-          checkoutCard
-            ? `<div class="oky-flow-payrow ${hasCash ? "is-first" : "is-only"}" data-action="open-methods" role="button" tabindex="0">
-          <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
-          <p class="oky-flow-payrow-copy">${checkoutCard.label}</p>
-          <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-card">${money(toCard)}</span></span>
-          <span class="oky-flow-payrow-more" aria-hidden="true">
-            <i class="fa-solid fa-ellipsis-vertical"></i>
-          </span>
-        </div>`
-            : /* Sin tarjeta guardada la fila invita a agregar una y lleva a
-                 los métodos de pago, donde está el vacío con su botón. */
-              `<div class="oky-flow-payrow is-add ${hasCash ? "is-first" : "is-only"}" data-action="open-methods" role="button" tabindex="0">
-          <span class="oky-flow-payrow-add" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
-          <p class="oky-flow-payrow-copy">Agregar tarjeta</p>
-          <span class="oky-flow-payrow-more" aria-hidden="true">
-            <i class="fa-solid fa-chevron-right"></i>
-          </span>
-        </div>`
-        }
-        ${
-          /* Sin saldo no hay nada que activar: la fila de OKY Cash sobra
-             y el método de pago se queda solo, con las cuatro esquinas
-             redondeadas. */
+          /* Con saldo, OKY Cash va primero: en pantallas bajas la tarjeta
+             empujaba la casilla bajo el pliegue y nadie bajaba a verla.
+             Sin saldo no hay nada que activar: la fila sobra y el método
+             de pago se queda solo, con las cuatro esquinas redondeadas. */
           !hasCash
             ? ""
             : `
-        <div class="oky-flow-payrow is-last${state.okyCashEnabled ? " is-checked" : ""}">
+        <div class="oky-flow-payrow is-cash is-first${state.okyCashEnabled ? " is-checked" : ""}">
           <button class="oky-flow-check${state.okyCashEnabled ? " is-checked" : ""}"
             data-action="toggle-okycash" type="button"
             aria-pressed="${state.okyCashEnabled}" aria-label="Usar OKY Cash">
@@ -2519,6 +2527,26 @@ function screenCheckout(state) {
           </button>
         </div>
         `
+        }
+        ${
+          checkoutCard
+            ? `<div class="oky-flow-payrow ${hasCash ? "is-last" : "is-only"}" data-action="open-methods" role="button" tabindex="0">
+          <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
+          <p class="oky-flow-payrow-copy">${checkoutCard.label}</p>
+          <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-card">${money(toCard)}</span></span>
+          <span class="oky-flow-payrow-more" aria-hidden="true">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </span>
+        </div>`
+            : /* Sin tarjeta guardada la fila invita a agregar una y lleva a
+                 los métodos de pago, donde está el vacío con su botón. */
+              `<div class="oky-flow-payrow is-add ${hasCash ? "is-last" : "is-only"}" data-action="open-methods" role="button" tabindex="0">
+          <span class="oky-flow-payrow-add" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+          <p class="oky-flow-payrow-copy">Agregar tarjeta</p>
+          <span class="oky-flow-payrow-more" aria-hidden="true">
+            <i class="fa-solid fa-chevron-right"></i>
+          </span>
+        </div>`
         }
       </div>
 
@@ -2771,11 +2799,12 @@ function purchaseFoot() {
    tienda. Las tres cosas caben en la cabecera y liberan el pie, que es
    donde estorbaban: lo que hay que ver es el código y su botón.
 
-   En medio va lo que esta compra dejó. Ganando OKY Cash, la píldora
-   aqua con la cifra, que lleva a su pestaña, y a su lado el recibo en
-   chiquito —solo el icono—; sin nada que celebrar —Guatemala, o una
-   compra sin cashback— el recibo con su rótulo, que es lo único que
-   queda por mirar. */
+   En medio va lo que esta compra dejó: ganando OKY Cash, la píldora
+   aqua con la cifra, que lleva a su pestaña. Sin nada que celebrar
+   —Guatemala, o una compra sin cashback— el medio queda vacío. Ni
+   recibo ni casa: la casa ya está en la navbar. A la derecha queda un
+   hueco del ancho del icono para que la píldora siga centrada, que es
+   donde la espera la animación de "Ganaste". */
 function purchaseHeader(state) {
   const earned = state.lastEarned > 0;
   return `
@@ -2792,24 +2821,14 @@ function purchaseHeader(state) {
 
       ${
         earned
-          ? `<span class="oky-flow-purchase-center">
-              <button class="oky-flow-purchase-badge is-cash" data-action="nav:okycash" type="button">
-                <img src="oky-cash-coin.png" alt="" />
-                <span>+${money(state.lastEarned)} en OKY Cash</span>
-              </button>
-              <span class="oky-flow-purchase-receipt" role="img" aria-label="Ver recibo">
-                <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
-              </span>
-            </span>`
-          : `<span class="oky-flow-purchase-badge is-receipt">
-              <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
-              <span>Ver recibo</span>
-            </span>`
+          ? `<button class="oky-flow-purchase-badge is-cash" data-action="nav:okycash" type="button">
+              <img src="oky-cash-coin.png" alt="" />
+              <span>+${money(state.lastEarned)} en OKY Cash</span>
+            </button>`
+          : ""
       }
 
-      <button class="oky-flow-header-icon" data-action="nav:country-home" type="button" aria-label="Ir al home">
-        <i class="fa-solid fa-house oky-flow-nav-hollow" aria-hidden="true"></i>
-      </button>
+      <span class="oky-flow-header-icon oky-flow-header-spacer" aria-hidden="true"></span>
     </header>
   `;
 }
@@ -3003,15 +3022,19 @@ function okyCashCard(state, { balance, cta, label, edit = true } = {}) {
   const card = { ...findPaymentCard("Molecule/Payment Card/OKY Cash Black") };
   card.balance = { ...card.balance, value: (balance ?? state.okyCashBalance).toFixed(2) };
 
-  /* Con el saldo en cero no hay actividad que ver: el CTA pasa a
-     explicar qué es OKY Cash en vez de llevar a una lista vacía. */
+  /* Con el saldo en cero la tarjeta va sin botón: no hay actividad que
+     ver y el "Conoce más" llevaba a una explicación que nadie pedía. */
   const amount = balance ?? state.okyCashBalance;
+  const ctaLabel = label || (amount > 0 ? card.cta.label : "Conoce más");
+  /* "Conoce más" ya no sale en ninguna variante, con o sin saldo:
+     confundía —parecía llevar a la actividad y no llevaba a nada—. Los
+     demás botones de la tarjeta (Ver actividad) se quedan. */
   card.cta =
-    cta === null
+    cta === null || amount <= 0 || /^Conoce m/i.test(ctaLabel)
       ? null
       : {
           ...card.cta,
-          label: label || (amount > 0 ? card.cta.label : "Conoce más"),
+          label: ctaLabel,
           action: cta === false ? "" : cta || "nav:okycash",
         };
   /* El lápiz abre el selector de diseño, y solo vive en la pestaña de
@@ -3146,8 +3169,8 @@ const WALLET_SECTIONS_V2 = ["parami", "paracompartir"];
    otro desaparecía. Las dos personas de la mano son del mismo palo
    amarillo y dicen lo mismo. */
 const WALLET_TABS_V3 = [
-  { key: "v3mio", label: "Para mi", emoji: "🙋", title: WALLET_NAME },
-  { key: "v3comp", label: "Compartidas", emoji: "👫", title: WALLET_NAME },
+  { key: "v3mio", label: "Para mí", emoji: "🙋🏽", title: WALLET_NAME },
+  { key: "v3comp", label: "Para otros", emoji: "👫", title: WALLET_NAME },
 ];
 const WALLET_SECTIONS_V3 = ["v3mio", "v3comp"];
 
@@ -3203,7 +3226,11 @@ const WALLET_GROUPS = [
      simplemente donde pones lo que no quieres tener delante, sin
      perderlo, y así lo diría cualquiera. La clave interna no se toca:
      es la misma sección de siempre. */
-  { key: "archivados", label: "Guardados", icon: "fa-box-archive", empty: "Aquí no has guardado nada." },
+  /* En la variante 3 (Mis compras) la sección es la de lo ya usado:
+     el vale se aparta porque se canjeó, no para guardarlo. */
+  V3_ROUTE
+    ? { key: "archivados", label: "Usados", icon: "fa-box-archive", empty: "Aquí no has marcado nada como usado." }
+    : { key: "archivados", label: "Guardados", icon: "fa-box-archive", empty: "Aquí no has guardado nada." },
 ];
 
 /* Todo lo de una sección, pasado por el filtro de la pestaña. Archivar
@@ -3240,6 +3267,11 @@ function walletDeck(state, section, { filtered = true } = {}) {
 function walletGroupUnits(state, section, group, opts) {
   return expandUnits(walletDeck(state, section, opts))
     .filter((v) => unitGroup(state, v.key, v.unit) === group)
+    .filter(
+      (v) =>
+        !(TEST_FEATURES.walletV3 && group === "archivados" && section in V3_SELF_TAB) ||
+        unitForSelf(state, v.key, v.unit) === V3_SELF_TAB[section],
+    )
     .map((v) => ({
       /* Lo archivado no puede estrenarse: se guardó a propósito, y un
          punto de "nuevo" ahí pediría atención para algo que la persona
@@ -3473,6 +3505,18 @@ const WALLET_SECTIONS = ["gift", "vales", "servicios"];
    comprado y sin abrir —lo mismo que enciende el punto del icono— y,
    si no hay novedades, las gift cards, que es lo que más se guarda. */
 function walletEntryTab(state) {
+  /* En la 3 las dos pestañas juntan todas las secciones: la que manda
+     es la que tiene lo nuevo de su lado (para mí o para otros). */
+  if (state.walletVer === 3) {
+    /* Saliendo de una compra, manda lo que se acaba de comprar: si fue
+       para otro, "Para otros", aunque quede algo sin abrir en la otra. */
+    const last = (state.lastOrder || [])[0];
+    if (last && ["success", "cashwin", "purchases"].includes(state.screen)) return last.forSelf === false ? "v3comp" : "v3mio";
+    return (
+      WALLET_SECTIONS_V3.find((t) => walletGroupUnits(state, t, V3_GROUP[t], { filtered: false }).some((v) => v.isNew)) ||
+      "v3mio"
+    );
+  }
   return (
     walletSectionsOf(state).find((section) =>
       walletDeck(state, section, { filtered: false }).some((v) => v.isNew),
@@ -3581,6 +3625,22 @@ const WALLET_EMPTY = {
     action: "nav:homegua",
     cash: "Úsalo para pagar tus vales",
   },
+  v3mio: {
+    art: "wallet-tab-giftcards.png",
+    title: "Aún no tienes compras para ti",
+    note: "Las gift cards y los OKY Vales que compres para ti se guardan aquí, listos para usar.",
+    cta: "Explorar gift cards de USA",
+    action: "nav:home",
+    cash: "Gana saldo con cada gift card",
+  },
+  v3comp: {
+    art: "oky-share-hands.png",
+    title: "Aún no has comprado para otros",
+    note: "Lo que compres para alguien de tu agenda —gift cards, OKY Vales o servicios— se guarda aquí.",
+    cta: "Explorar OKY Vales",
+    action: "nav:homegua",
+    cash: "Úsalo para pagar tus vales",
+  },
   servicios: {
     art: "wallet-tab-servicios.png",
     title: "Aún no tienes servicios",
@@ -3604,7 +3664,9 @@ function walletEmptyState(state, tab) {
         </button>
       </div>
 
-      <button class="oky-flow-cash-empty-link" data-action="nav:wallet" data-tab="cash" type="button">
+      <button class="oky-flow-cash-empty-link" ${
+        state.walletVer === 3 ? 'data-action="nav:okycash"' : 'data-action="nav:wallet" data-tab="cash"'
+      } type="button">
         <span class="oky-flow-cash-empty-wallet">
           <img src="oky-cash-coin.png" alt="" />
         </span>
@@ -3652,7 +3714,11 @@ function screenWallet(state) {
      qué va ahí y cómo se consigue, como el estado vacío de OKY Cash.
      Solo en el wallet de siempre; la 3 tiene sus propios vacíos. */
   const isEmpty =
-    !isCash && state.walletVer !== 3 && !state.walletFilter && WALLET_GROUPS.every((g) => totalIn(g.key) === 0);
+    !isCash &&
+    !state.walletFilter &&
+    (state.walletVer === 3
+      ? totalIn(V3_GROUP[tab]) === 0 && totalIn("archivados") === 0
+      : WALLET_GROUPS.every((g) => totalIn(g.key) === 0));
 
   /* Cabecera de sección: pliega, dice cuántas guarda —a la derecha,
      junto al chevron— y, si trae novedades, las avisa con un punto en
@@ -3817,7 +3883,7 @@ function screenWallet(state) {
              guardado, que es lo único que se elige no ver. */
           state.walletVer === 3
             ? `
-          ${stack(decks[V3_GROUP[tab]], V3_GROUP[tab], tab === "v3comp" ? "Todavía no has compartido nada." : "Nada por aquí todavía.")}
+          ${stack(decks[V3_GROUP[tab]], V3_GROUP[tab], tab === "v3comp" ? "Todavía no has comprado para otros." : "Nada por aquí todavía.")}
           ${/* El cajón de la 3 es la misma sección de guardados del
                resto del wallet. */ ""}
           ${sectionHead(WALLET_GROUPS[2], totalIn("archivados"), 0)}
@@ -4846,6 +4912,10 @@ function promoDialog(state) {
    "Entendido"— con el título de "Ganaste": el monto grande en aqua y
    la pila de monedas con la que termina esa animación. Recuerda que hay saldo justo donde se usa;
    activarlo sigue siendo cosa de la casilla. */
+/* En vez de la pila de monedas, el aviso enseña la misma fila de OKY
+   Cash del checkout: así se reconoce dónde marcarlo. Es una copia
+   quieta, sin acciones ni destello; el destello queda para la fila
+   real, al cerrar. */
 function cashNoticeSheet(state) {
   return `
     <button class="oky-flow-sheet-backdrop" data-action="close-cash-notice" type="button" aria-label="Cerrar"></button>
@@ -4858,8 +4928,18 @@ function cashNoticeSheet(state) {
       <p class="oky-flow-savings-note">
         Márcalo en tu método de pago y úsalo para pagar esta compra
       </p>
-      <div class="oky-flow-savings-art"><img src="oky-cash-coin-stack.png" alt="" /></div>
-      <button class="btn btn-primary btn-large oky-flow-savings-cta" data-action="close-cash-notice" type="button">Entendido</button>
+      <div class="oky-flow-cashnote-preview" aria-hidden="true">
+        <div class="payment-method-input oky-flow-paygroup">
+          <span class="payment-method-label">Método de pago</span>
+          <div class="oky-flow-payrow is-cash is-only">
+            <span class="oky-flow-check"><i class="fa-solid fa-check"></i></span>
+            <p class="oky-flow-payrow-copy">OKY Cash</p>
+            <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash">${money(state.okyCashBalance)}</span></span>
+            <span class="oky-flow-payrow-more"><i class="fa-solid fa-ellipsis-vertical"></i></span>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-large oky-flow-savings-cta" data-action="close-cash-notice" data-hint="cash" type="button">Entendido</button>
     </section>
   `;
 }
@@ -5116,8 +5196,8 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               bottomShowButton: false,
               bottomMedia: {
                 type: "stamp",
-                src: "oky-seal-archived.png",
-                alt: "Guardado",
+                src: V3_ROUTE ? "oky-seal-used.png" : "oky-seal-archived.png",
+                alt: V3_ROUTE ? "Usado" : "Guardado",
                 caption: sharedOn,
               },
             }
@@ -5182,7 +5262,9 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           type="button" role="switch" aria-checked="${archived}">
           ${/* El rótulo delante: se lee la palabra y después se ve en
                qué estado está, que es el orden en que se mira. */ ""}
-          <span class="oky-flow-switch-label">${archived ? "Guardado" : "Guardar"}</span>
+          <span class="oky-flow-switch-label">${
+            V3_ROUTE ? (archived ? "Usado" : "Usar") : archived ? "Guardado" : "Guardar"
+          }</span>
           <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
         </button>
       </div>
@@ -5285,7 +5367,7 @@ const CONFIRM_SHEETS = {
        Antes era un icono dibujado —una persona con una flecha— y antes
        de eso las banderas de Estados Unidos y Canadá, que hablaban de
        la tienda y no de la pregunta. */
-    emoji: "🙋",
+    emoji: "🙋🏽",
     title: "¿Es para ti o para alguien más?",
     note: "Si es para ti, lo guardamos en tu wallet apenas termines de pagar.",
     confirm: "Para mí",
@@ -5296,16 +5378,20 @@ const CONFIRM_SHEETS = {
   unshare: {
     art: "oky-share-hands.png",
     title: "¿No llegaste a compartirlo?",
-    note: "Lo devolveremos a la sección de comprados. El vale y su código siguen intactos.",
+    note: V3_ROUTE
+      ? "Le quitamos el sello de compartido. El vale y su código siguen intactos."
+      : "Lo devolveremos a la sección de comprados. El vale y su código siguen intactos.",
     confirm: "Activarla nuevamente",
     dismiss: "Cancelar",
     action: "confirm-unshare",
   },
   archive: {
     art: "oky-archive-hands.png",
-    title: "¿Deseas guardarla?",
-    note: "La quitamos de en medio sin perderla: la encuentras cuando quieras en la sección de guardados.",
-    confirm: "Guardar",
+    title: V3_ROUTE ? "¿Ya la usaste?" : "¿Deseas guardarla?",
+    note: V3_ROUTE
+      ? "La pasamos a la sección de usados sin perderla: la encuentras ahí cuando quieras."
+      : "La quitamos de en medio sin perderla: la encuentras cuando quieras en la sección de guardados.",
+    confirm: V3_ROUTE ? "Sí, ya la usé" : "Guardar",
     dismiss: "Ahora no",
     action: "confirm-archive",
   },
@@ -5441,7 +5527,10 @@ function contactsOf(state) {
      "Para mí" no entra en el orden: es la vCard de uno y va arriba del
      todo, separada del resto. */
   const rest = CONTACTS.filter((c) => !c.self).sort((a, b) => a.name.localeCompare(b.name, "es"));
-  return gua ? rest : [CONTACTS.find((c) => c.self), ...rest];
+  /* En la variante 3 (Mis compras) la agenda de Guatemala también
+     ofrece "Para mí": es la única forma de que un OKY Vale cuente como
+     tuyo. En la de siempre la compra de Guatemala va siempre a alguien. */
+  return gua && !TEST_FEATURES.walletV3 ? rest : [CONTACTS.find((c) => c.self), ...rest];
 }
 
 function contactByName(name) {
@@ -5454,7 +5543,12 @@ function contactByName(name) {
    ignora y manda Daniel Paz, que es el destinatario de salida. */
 function recipientOf(state) {
   const picked = contactByName(state.recipient);
-  if (orderCountry(state) === "gua") return picked && !picked.self ? picked : GUA_RECIPIENT;
+  if (orderCountry(state) === "gua") {
+    /* "Para mí" en Guatemala solo vale si se eligió en la agenda de un
+       pago de Guatemala: el de una compra de USA no se arrastra. */
+    const selfHere = picked && picked.self && TEST_FEATURES.walletV3 && state.recipientMarket === "gua";
+    return picked && (!picked.self || selfHere) ? picked : GUA_RECIPIENT;
+  }
   return (
     picked || {
       name: state.recipient || USA_RECIPIENT.name,
@@ -5481,7 +5575,7 @@ function screenContacts(state) {
              sangre, porque un cuadrado metido dentro del círculo de la
              fila se veía como dos formas peleando. */
           c.self
-            ? `<span class="oky-flow-contact-emoji">🙋</span>`
+            ? `<span class="oky-flow-contact-emoji">🙋🏽</span>`
             : `<span>${c.initials}</span>`
         }
       </span>
@@ -5766,7 +5860,8 @@ function screenGuaPdp(state) {
               <div class="middle-card-main">
                 <p class="middle-card-title">${product.cardTitle}</p>
                 <div class="middle-card-center">
-                  <div class="middle-card-value">
+                  <div class="middle-card-value is-editable" data-action="focus-amount" role="button" tabindex="-1"
+                    aria-label="Escribir el monto">
                     <span class="middle-card-currency">Q</span>
                     <p class="middle-card-amount">${bigQuetzal(q)}</p>
                   </div>
@@ -5996,6 +6091,71 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   /* Al cerrarse el teclado el visual viewport vuelve a su sitio, pero
      iOS no siempre avisa: se re-mide al soltar el campo. */
   root.addEventListener("focusout", () => setTimeout(fitToViewport, 120));
+
+  /* Teclado en la PDP: el lienzo conserva su alto con el teclado abierto
+     (ver fitToViewport), así que la barra de Agregar y la de OKY Cash,
+     pegadas al fondo, quedaban debajo del teclado en pantallas bajas.
+     Con el campo de monto enfocado se mide cuánto tapa el teclado
+     —visualViewport en iOS y en Android— y se suben las dos lo justo
+     para quedar encima, y el contenido se corre para que el campo no
+     quede detrás de ellas. Sin teclado no se mueve nada. */
+  let keyboardTimer = 0;
+  function liftForKeyboard() {
+    clearTimeout(keyboardTimer);
+    keyboardTimer = setTimeout(() => {
+      const frame = root.querySelector(".oky-flow-frame");
+      if (!frame) return;
+      const docks = [...frame.querySelectorAll(".oky-flow-dock, .oky-flow-savingbar")].filter(
+        (n) => !n.closest(".oky-flow-drawer, .oky-flow-sheet"),
+      );
+      const scroller = root.querySelector(".oky-flow-scroll");
+      docks.forEach((n) => (n.style.transform = ""));
+      if (scroller) scroller.style.paddingBottom = "";
+      frame.classList.remove("is-keyboard");
+
+      const input = document.activeElement;
+      if (!input || !input.matches || !input.matches("[data-action='input-amount']") || !docks.length) return;
+
+      const vv = window.visualViewport;
+      const visibleBottom = vv ? vv.offsetTop + vv.height : window.innerHeight;
+      const scale = frame.getBoundingClientRect().height / (frame.offsetHeight || 1) || 1;
+      const lowest = Math.max(...docks.map((n) => n.getBoundingClientRect().bottom));
+      const overlap = lowest - visibleBottom;
+      if (overlap <= 1) return;
+
+      const dy = overlap / scale;
+      frame.classList.add("is-keyboard");
+      docks.forEach((n) => (n.style.transform = `translateY(${-dy}px)`));
+
+      const dock = docks.find((n) => n.classList.contains("oky-flow-dock")) || docks[0];
+      if (scroller) {
+        /* El hueco de abajo crece lo que haga falta para poder subir el
+           campo hasta justo encima de la barra, aunque la página sea corta. */
+        const gap = 12 * scale;
+        const hidden = input.getBoundingClientRect().bottom + gap - dock.getBoundingClientRect().top;
+        scroller.style.paddingBottom = `${dy + Math.max(hidden, 0) / scale}px`;
+        if (hidden > 0) scroller.scrollTop += hidden / scale;
+      }
+    }, 0);
+  }
+  const watchKeyboard = () => {
+    liftForKeyboard();
+    /* El teclado entra animado y no siempre avisa al terminar. */
+    setTimeout(liftForKeyboard, 250);
+    setTimeout(liftForKeyboard, 600);
+  };
+  /* Se engancha al foco y también al toque: hay navegadores que no
+     avisan del foco cuando la página no lo tenía. */
+  const onAmountField = (event) => {
+    if (event.target.closest && event.target.closest("[data-action='input-amount']")) watchKeyboard();
+  };
+  root.addEventListener("focusin", onAmountField);
+  root.addEventListener("pointerup", onAmountField);
+  root.addEventListener("focusout", () => setTimeout(liftForKeyboard, 60));
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", liftForKeyboard);
+    window.visualViewport.addEventListener("scroll", liftForKeyboard);
+  }
 
   const resetButton = document.createElement("button");
   resetButton.type = "button";
@@ -7193,6 +7353,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
              solo para no contarlo tantas veces como vales haya. */
           used: i === 0 && u === 0 ? used : 0,
           date: stamp(0),
+          /* Para quién fue: decide la pestaña de la variante 3. */
+          forSelf: purchaseIsForSelf(state, item.productKey),
         };
         state.purchases.push(purchase);
         state.lastOrder.push(purchase);
@@ -7282,7 +7444,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   function burstConfetti(selector) {
     const row = selector
       ? root.querySelector(selector)
-      : root.querySelector(".oky-flow-payrow.is-last") || root.querySelector(".oky-flow-method-row.is-cash");
+      : root.querySelector(".oky-flow-payrow.is-cash") || root.querySelector(".oky-flow-method-row.is-cash");
     if (!row) return;
 
     const colors = ["#09b4b0", "#a8faf5", "#552588", "#ffb400"];
@@ -7456,6 +7618,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const picked = CONTACTS.find((c) => c.key === state.contactPick) || contactsOf(state)[0];
       state.recipient = picked.name;
       state.recipientPhone = picked.phone;
+      state.recipientMarket = orderCountry(state);
       /* Elegido, se sigue al pago: la agenda es un paso de la compra,
          no un sitio donde quedarse. Desde el menú no hay compra que
          seguir, así que se vuelve por donde se vino. */
@@ -7688,6 +7851,23 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          decisión de esta compra, no de la primera que se hizo. */
       state.sheet = { type: "decision" };
       return render();
+    }
+
+    /* El monto grande de la card no se escribe: tocarlo lleva al campo
+       de abajo, que es donde se teclea. El foco se pide dentro del mismo
+       toque para que iOS y Android abran el teclado. */
+    if (action === "focus-amount") {
+      const input = root.querySelector("#oky-amount");
+      if (!input) return;
+      input.focus();
+      const end = input.value.length;
+      try { input.setSelectionRange(end, end); } catch (e) { /* inputmode decimal en algunos Android */ }
+      input.classList.remove("is-called");
+      void input.offsetWidth;
+      input.classList.add("is-called");
+      setTimeout(() => input.classList.remove("is-called"), 900);
+      watchKeyboard();
+      return;
     }
 
     if (action === "open-pdp") {
@@ -7943,7 +8123,20 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "close-cash-notice") {
       state.cashNotice = false;
-      return render({ keepScroll: true });
+      render({ keepScroll: true });
+      /* "Entendido" lleva a la casilla y la hace destellar: el aviso dice
+         que hay saldo, y esto dice dónde se usa. El fondo atenuado solo
+         cierra. */
+      if (el.dataset.hint !== "cash") return;
+      const row = root.querySelector(".oky-flow-payrow.is-cash");
+      if (!row) return;
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      row.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+      row.classList.remove("is-hint");
+      void row.offsetWidth;
+      row.classList.add("is-hint");
+      row.addEventListener("animationend", () => row.classList.remove("is-hint"), { once: true });
+      return;
     }
 
     if (action === "close-savings") {
@@ -8385,6 +8578,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "decision-self") {
       state.sheet = null;
       state.recipient = "Para mí";
+      state.recipientMarket = "usa";
       /* push:false deja el modal fuera del historial: "atrás" desde el
          checkout vuelve al PDP, no al modal. */
       return go("checkout", {}, { push: false });
