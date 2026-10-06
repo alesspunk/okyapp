@@ -13736,6 +13736,15 @@ button.tactic-offer {
   object-fit: contain;
 }
 
+/* En la cabecera de compra la cifra va sola ("+$0.50"), pero la pastilla
+   guarda el ancho que tenía con "en OKY Cash": es la ranura de la que
+   caen las monedas y su tamaño es parte de la animación. La moneda y la
+   cifra van centradas. */
+.oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
+  min-width: 184px;
+  justify-content: center;
+}
+
 .oky-flow-purchase-badge.is-receipt {
   background: var(--white);
   border: 1px solid var(--border-main);

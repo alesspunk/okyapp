@@ -2842,9 +2842,10 @@ function purchaseHeader(state) {
 
       ${
         earned
-          ? `<button class="oky-flow-purchase-badge is-cash" data-action="nav:okycash" type="button">
+          ? `<button class="oky-flow-purchase-badge is-cash" data-action="nav:okycash" type="button"
+              aria-label="+${money(state.lastEarned)} en OKY Cash">
               <img src="oky-cash-coin.png" alt="" />
-              <span>+${money(state.lastEarned)} en OKY Cash</span>
+              <span>+${money(state.lastEarned)}</span>
             </button>`
           : ""
       }
