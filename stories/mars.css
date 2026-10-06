@@ -13385,6 +13385,12 @@ button.tactic-offer {
   line-height: 1;
 }
 
+/* La imagen trae el brazo levantado a la izquierda: corrida un poco a la
+   derecha, la cabeza y el cuerpo quedan al centro del anillo. */
+.oky-flow-sheet-emoji .oky-flow-emoji-img {
+  transform: translateX(8%);
+}
+
 .oky-flow-sheet-actions {
   flex: 0 0 auto;
   display: flex;

@@ -2671,103 +2671,22 @@ function screenCheckout(state) {
 
 /* ── Métodos de pago (99105:41588) ──────────────────────── */
 function screenMethods(state) {
-  const total = cartTotal(state);
-  const max = Math.min(state.okyCashBalance, total);
-  /* Sin marcar no hay nada aplicado, y el saldo entero sigue ahí. Es lo
-     mismo que enseña el checkout: marcado, lo que se va en esta compra;
-     sin marcar, lo que hay disponible. */
-  const applied = state.okyCashEnabled ? clamp(state.okyCashApplied, 0, max) : 0;
-  const toCard = Math.max(total - applied, 0);
-  const keep = Math.max(state.okyCashBalance - applied, 0);
-
-  /* En /timer la pantalla lleva el selector de OKY Cash arriba, el
-     "Agregar tarjeta" al final y un vacío si no hay tarjetas. */
+  /* La misma pantalla que Métodos de pago de Tu billetera: la tarjeta de
+     pago arriba y la lista para elegir, sin la card de OKY Cash ni su
+     fila —OKY Cash se marca en el checkout—. Lo único que cambia
+     viniendo de una compra es el botón de abajo, que vuelve a pagar. */
   const timer = V3_ROUTE;
-  /* Las tarjetas guardadas: se pueden eliminar desde sus tres puntos. */
-  const cards = savedCards(state);
-  const selected = selectedCardOf(state);
-
-  const top = selected ? methodTopCard(state, selected) : null;
-  const cash = okyCashCard(state, { balance: keep, edit: false });
-  /* Sin saldo no hay nada que casar con la tarjeta: fuera la card de
-     OKY Cash y fuera su fila, y la del método queda sola y redondeada
-     por sus cuatro esquinas. */
-  const hasCash = state.okyCashBalance > 0;
-
+  const due = orderDue(state);
   /* Sin tarjeta el pago solo sale si OKY Cash cubre todo. */
-  const canPay = Boolean(selected) || (state.okyCashEnabled && toCard <= 0);
-
-  if (!selected) {
-    return `
-    ${statusBar()}
-    ${titledHeader(timer ? "Tu billetera" : "Métodos de pago")}
-    ${timer ? cashSoloSeg(state, "methods") : ""}
-    <div class="oky-flow-section" style="gap:8px">${methodsEmpty()}</div>
-    <div class="oky-flow-cta-bar">
-      <button class="btn btn-primary btn-large" data-action="confirm-methods" type="button" disabled>
-        Siguiente - ${money(total)}
-      </button>
-    </div>
-    ${navbar("", state)}
-  `;
-  }
-
+  const canPay = Boolean(selectedCardOf(state)) || (state.okyCashEnabled && due <= 0);
   return `
     ${statusBar()}
     ${titledHeader(timer ? "Tu billetera" : "Métodos de pago")}
     ${timer ? cashSoloSeg(state, "methods") : ""}
-
-    <div class="oky-flow-section" style="gap:8px">
-      ${addCardButton()}
-
-      <div class="payment-card-stack" style="--payment-card-stack-offset:-144px">
-        ${renderPaymentCard(top)}
-        ${hasCash ? renderPaymentCard(cash) : ""}
-      </div>
-
-      <div class="oky-flow-method-list" style="width:100%">
-        ${cards.map((card) => {
-          const isSelected = card.key === selected.key;
-          /* La lista no se reordena al elegir: cada tarjeta se queda en
-             su sitio y lo que se mueve es el radio. La fila de OKY Cash
-             acompaña a la que esté seleccionada. */
-          const row = `
-            <div class="oky-flow-method-row${isSelected ? ` is-selected${hasCash ? "" : " is-only"}` : ""}"
-              ${isSelected ? "" : `data-action="select-card" data-card="${card.key}" role="button" tabindex="0"`}>
-              <span class="oky-flow-radio${isSelected ? " is-on" : ""}" aria-hidden="true"></span>
-              <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
-              <p class="oky-flow-method-name${isSelected ? "" : " is-regular"}">${card.label}</p>
-              ${isSelected ? `<span class="oky-flow-chip is-card">${money(toCard)}</span>` : ""}
-              ${/* Solo la elegida lleva los tres puntos: desde ahí se marca
-                   como la de pago o se elimina. Ni las otras ni OKY Cash
-                   los llevan. */ ""}
-              ${isSelected ? methodMore(card) : ""}
-            </div>
-          `;
-
-          const cashRow = `
-            <div class="oky-flow-method-row is-cash${state.okyCashEnabled ? " is-checked" : ""}">
-              <div class="oky-flow-method-head">
-                <button class="oky-flow-check${state.okyCashEnabled ? " is-checked" : ""}"
-                  data-action="toggle-okycash" type="button"
-                  aria-pressed="${state.okyCashEnabled}" aria-label="Usar OKY Cash">
-                  <i class="fa-solid fa-check" aria-hidden="true"></i>
-                </button>
-                <img class="oky-flow-coin" src="oky-cash-coin.png" alt="" style="width:24px;height:26px" />
-                <p class="oky-flow-method-label">OKY Cash</p>
-                <span class="oky-flow-chip is-cash">${money(state.okyCashEnabled ? applied : state.okyCashBalance)}</span>
-              </div>
-            </div>
-          `;
-
-          return `<div class="oky-flow-method-group">${row}${isSelected && hasCash ? cashRow : ""}</div>`;
-        }).join("")}
-      </div>
-    </div>
-
+    ${cashSoloMethods(state)}
     <div class="oky-flow-cta-bar">
       <button class="btn btn-primary btn-large" data-action="confirm-methods" type="button"${canPay ? "" : " disabled"}>
-        Siguiente - ${money(total)}
+        Ir a pagar - ${money(due)}
       </button>
     </div>
     ${navbar("", state)}
@@ -4346,10 +4265,10 @@ function methodsEmpty() {
   `;
 }
 
-/* Los métodos de pago guardados, fuera de una compra: la tarjeta
-   elegida arriba y la lista para cambiarla. Sin total ni "Siguiente",
-   que aquí no se está pagando nada, y sin la fila de OKY Cash, que ya
-   tiene su mitad al lado. */
+/* Los métodos de pago guardados: la tarjeta elegida arriba y la lista
+   para cambiarla, sin la fila de OKY Cash. Es la misma desde Tu
+   billetera y desde el checkout; desde el checkout se le suma abajo el
+   botón de "Ir a pagar" (screenMethods). */
 function cashSoloMethods(state) {
   const cards = savedCards(state);
   /* El radio elige qué tarjeta se mira; la de arriba dice si es la de
@@ -8270,8 +8189,16 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "notice-pick-cash") {
+      /* Solo cambia la casilla: volver a pintar todo reiniciaba la
+         entrada de la hoja y daba un salto. */
       state.cashNoticePick = !state.cashNoticePick;
-      render({ keepScroll: true });
+      const row = root.querySelector(".oky-flow-cashnote-preview .oky-flow-payrow");
+      if (row) {
+        row.classList.toggle("is-checked", state.cashNoticePick);
+        row.setAttribute("aria-checked", String(state.cashNoticePick));
+        const box = row.querySelector(".oky-flow-check");
+        if (box) box.classList.toggle("is-checked", state.cashNoticePick);
+      }
       if (state.cashNoticePick) burstConfetti(".oky-flow-cashnote-preview .oky-flow-payrow");
       return;
     }
