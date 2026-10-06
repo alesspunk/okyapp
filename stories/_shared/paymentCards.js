@@ -41,7 +41,6 @@ export const PAYMENT_CARD_VARIANTS = [
     showFooter: true,
     footerDivider: true,
     expiry: { label: "Vencimiento", value: "24 / SEP / 2028" },
-    actionIcon: "fa-chevron-right",
     recommendation:
       "Esqueleto neutro: blanco con el borde gris del sistema, header con columna de logo + columna derecha de saldo/dígitos y el patrón por defecto. Punto de partida para cualquier marca nueva.",
   },
@@ -77,9 +76,8 @@ export const PAYMENT_CARD_VARIANTS = [
     pattern: "arcs",
     showFooter: true,
     expiry: { label: "Vencimiento", value: "SEP / 2028" },
-    actionIcon: "fa-chevron-right",
     recommendation:
-      "Navy Visa con últimos 4 dígitos en vez de saldo. Es la única variante del set con vencimiento y área de acción visibles.",
+      "Navy Visa con últimos 4 dígitos en vez de saldo y vencimiento. Sin chevron en la esquina: la card no navega a ningún lado.",
   },
   {
     path: "Molecule/Payment Card/Mastercard",

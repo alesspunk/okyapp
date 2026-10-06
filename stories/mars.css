@@ -12519,20 +12519,34 @@ button.tactic-offer {
   object-fit: contain;
 }
 
-/* "Tienes OKY Cash": la fila del checkout sobre su fondo blanco. */
+/* "Tienes OKY Cash": la fila del checkout sola, sin tarjeta blanca
+   alrededor —el blanco se fundía con el botón de Entendido—. */
 .oky-flow-cashnote-preview {
   box-sizing: border-box;
   width: 100%;
   max-width: 328px;
-  margin: 8px auto 14px;
-  padding: 18px 14px 14px;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+  margin: 8px auto 18px;
 }
 
 .oky-flow-cashnote-preview .payment-method-input {
   width: 100%;
+  padding-top: 0;
+}
+
+/* En el modal la fila va sin rótulo: la nota de arriba ya dice
+   "Márcalo en tu método de pago". */
+.oky-flow-cashnote-preview .payment-method-label {
+  display: none;
+}
+
+.oky-flow-cashnote-preview .oky-flow-payrow {
+  background: #ffffff;
+}
+
+/* En el checkout el destello de la fila sube un nivel: el rótulo
+   "Método de pago" va por encima para no quedar tapado por el halo. */
+.oky-flow-paygroup > .payment-method-label {
+  z-index: 2;
 }
 
 .oky-flow-savings-cta {
@@ -16202,6 +16216,47 @@ img.oky-flow-method-mark {
 .oky-flow-cardmenu-go {
   font-size: 16px;
   color: var(--primary-base);
+}
+
+/* Encabezado de la hoja: de qué tarjeta son las opciones. */
+.oky-flow-cardmenu-title {
+  margin: 4px 20px 4px;
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-secondary, #757575);
+}
+
+/* "Es tu tarjeta para pago": informa, no se toca. */
+.oky-flow-cardmenu-row.is-static {
+  cursor: default;
+  color: var(--secondary-dark);
+}
+
+/* La tarjeta para pago se marca en su fila, pegada al número. */
+.oky-flow-method-name:has(+ .oky-flow-method-tag) {
+  flex: 0 1 auto;
+}
+
+.oky-flow-method-tag {
+  flex: 0 0 auto;
+  margin-right: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e8f7f5;
+  color: var(--secondary-dark);
+  font-family: "Lato", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+/* En la fila activa los tres puntos se apartan 10px del borde morado. */
+.oky-flow-method-row.is-selected .oky-flow-method-more {
+  margin-right: 10px;
 }
 
 @media (prefers-reduced-motion: reduce) {

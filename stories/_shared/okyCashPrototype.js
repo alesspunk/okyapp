@@ -552,7 +552,7 @@ function unitOfPurchase(state, purchase) {
    recarga— van siempre a "Para otros" mientras no tengan su flujo. */
 function purchaseIsForSelf(state, productKey) {
   if (((PRODUCTS[productKey] || {}).wallet || "gift") === "servicios") return false;
-  if (CATEGORY_OF[productKey] === "servicios") return false;
+  if (categoryOf(productKey) === "servicios") return false;
   const who = recipientOf(state);
   return Boolean(who.self) || who.name === USA_RECIPIENT.name;
 }
@@ -593,7 +593,30 @@ function savedCards(state) {
 
 function selectedCardOf(state) {
   const cards = savedCards(state);
-  return cards.find((c) => c.key === state.selectedCard) || cards[0] || null;
+  return cards.find((c) => c.key === state.selectedCard) || defaultCardOf(state);
+}
+
+/* La tarjeta "para pago": la predeterminada. Solo una lo es; las demás
+   son secundarias. Es distinta de la elegida en una compra —en el
+   checkout se puede pagar con otra sin cambiar la predeterminada—. */
+function defaultCardOf(state) {
+  const cards = savedCards(state);
+  return cards.find((c) => c.key === state.defaultCard) || cards[0] || null;
+}
+
+/* La card grande de arriba dice si esa es la de pago o una secundaria. */
+function methodTopCard(state, card) {
+  const top = { ...findPaymentCard(card.variant) };
+  const isDefault = (defaultCardOf(state) || {}).key === card.key;
+  top.balance = { ...top.balance, label: isDefault ? "para pago" : "secundaria" };
+  return top;
+}
+
+/* Etiqueta de la fila de la predeterminada. */
+function methodDefaultTag(state, card) {
+  return (defaultCardOf(state) || {}).key === card.key
+    ? `<span class="oky-flow-method-tag">Para pago</span>`
+    : "";
 }
 
 
@@ -714,6 +737,7 @@ function createInitialState(userType) {
     promoDraft: "",
     promoError: false,
     selectedCard: "visa",
+    defaultCard: "visa",
     savedCards: NO_CARDS_ROUTE ? [] : CARDS.map((c) => c.key),
     /* Repositorio acumulado de gift cards: alimenta Mi wallet. */
     purchases: returning
@@ -2659,7 +2683,7 @@ function screenMethods(state) {
   const cards = savedCards(state);
   const selected = selectedCardOf(state);
 
-  const top = selected ? { ...findPaymentCard(selected.variant) } : null;
+  const top = selected ? methodTopCard(state, selected) : null;
   const cash = okyCashCard(state, { balance: keep, edit: false });
   /* Sin saldo no hay nada que casar con la tarjeta: fuera la card de
      OKY Cash y fuera su fila, y la del método queda sola y redondeada
@@ -2709,11 +2733,11 @@ function screenMethods(state) {
               <span class="oky-flow-radio${isSelected ? " is-on" : ""}" aria-hidden="true"></span>
               <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
               <p class="oky-flow-method-name${isSelected ? "" : " is-regular"}">${card.label}</p>
+              ${methodDefaultTag(state, card)}
               ${isSelected ? `<span class="oky-flow-chip is-card">${money(toCard)}</span>` : ""}
-              ${/* Solo la elegida lleva los tres puntos: sus opciones son
-                   las de la tarjeta con la que se va a pagar. Ni las otras
-                   ni OKY Cash los llevan. */ ""}
-              ${isSelected ? methodMore(card) : ""}
+              ${/* Cada tarjeta lleva sus tres puntos: desde ahí se marca
+                   como la de pago o se elimina. OKY Cash no los lleva. */ ""}
+              ${methodMore(card)}
             </div>
           `;
 
@@ -3096,6 +3120,17 @@ const CATEGORY_OF = {
   tigo: "servicios",
 };
 
+/* La categoría de un vale. Los de Guatemala no siempre usan la clave de
+   la marca: la comida de McDonald's va por plato ("mcd-pollo") y el resto
+   lleva prefijo ("gua-ihop"). Sin esto caían fuera de toda categoría y
+   el filtro no los ofrecía. */
+function categoryOf(key) {
+  if (CATEGORY_OF[key]) return CATEGORY_OF[key];
+  const brand = (PRODUCTS[key] || {}).brand;
+  if (brand && CATEGORY_OF[brand]) return CATEGORY_OF[brand];
+  return CATEGORY_OF[String(key).replace(/^gua-/, "")] || "";
+}
+
 /* El wallet se navega por tipo y se ordena por estado. El plateu de
    arriba elige el tipo —OKY Cash, gift cards, vales, servicios— y
    dentro, las secciones plegables separan los tres estados en que
@@ -3258,7 +3293,7 @@ function walletDeck(state, section, { filtered = true } = {}) {
       : mergeWalletSection(walletVouchers(state, section), WALLET_EXTRAS[section]);
   const mode = filtered ? state.walletFilter : "";
   if (!mode) return all;
-  return all.filter((v) => CATEGORY_OF[v.key] === mode);
+  return all.filter((v) => categoryOf(v.key) === mode);
 }
 
 /* Los vales sueltos de un estado concreto. Compartido y sin compartir
@@ -3336,10 +3371,20 @@ function walletCategories(state, section = state.walletTab) {
      sección: el filtro prometía "Transporte 1" y al aplicarlo la
      sección decía "(3)" —tres Lyft son una card pero tres vales— y
      parecía que no había filtrado nada. */
-  const items = expandUnits(walletDeck(state, section, { filtered: false }));
+  /* En la variante 3 la pestaña no es un tipo de vale sino para quién
+     fue: cuenta solo lo de esa pestaña —su pila y sus usados—. Antes
+     contaba todo lo comprado y en Para otros ofrecía el Target usado
+     de Para mí. */
+  const items =
+    TEST_FEATURES.walletV3 && section in V3_SELF_TAB
+      ? [
+          ...walletGroupUnits(state, section, V3_GROUP[section], { filtered: false }),
+          ...walletGroupUnits(state, section, "archivados", { filtered: false }),
+        ]
+      : expandUnits(walletDeck(state, section, { filtered: false }));
   return WALLET_CATEGORIES.map((cat) => ({
     ...cat,
-    count: items.filter((v) => CATEGORY_OF[v.key] === cat.key).length,
+    count: items.filter((v) => categoryOf(v.key) === cat.key).length,
   })).filter((cat) => cat.count > 0);
 }
 
@@ -3634,7 +3679,10 @@ const WALLET_EMPTY = {
     cash: "Gana saldo con cada gift card",
   },
   v3comp: {
-    art: "oky-share-hands.png",
+    /* El corazón del original es blanco: sobre el círculo lila del vacío
+       no se veía. Esta copia lo trae en morado; el blanco sigue en la
+       hoja morada de "¿No llegaste a compartirlo?". */
+    art: "oky-share-hands-purple.png",
     title: "Aún no has comprado para otros",
     note: "Lo que compres para alguien de tu agenda —gift cards, OKY Vales o servicios— se guarda aquí.",
     cta: "Explorar OKY Vales",
@@ -4247,11 +4295,21 @@ function cardMenuSheet(state) {
       <i class="fa-solid fa-chevron-right oky-flow-cardmenu-go" aria-hidden="true"></i>
     </button>
   `;
+  /* Si ya es la de pago, marcarla no haría nada: la fila lo dice en vez
+     de ofrecerlo, y la hoja deja solo lo que sí se puede hacer. */
+  const isDefault = (defaultCardOf(state) || {}).key === card.key;
+  const defaultRow = isDefault
+    ? `<div class="oky-flow-cardmenu-row is-static" role="note">
+        <img class="oky-flow-cardmenu-icon" src="icon-check-3d.png" alt="" />
+        <span class="oky-flow-cardmenu-label">Es tu tarjeta para pago</span>
+      </div>`
+    : row("card-default", "icon-check-3d.png", "Marcar como tarjeta para pago");
   return `
     <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
     <section class="oky-flow-cardmenu" role="dialog" aria-modal="true" aria-label="Opciones de la tarjeta ${card.label}">
+      <p class="oky-flow-cardmenu-title">Tarjeta ${card.label}</p>
+      ${defaultRow}
       ${row("card-delete", "icon-eliminar-3d.png", "Eliminar")}
-      ${row("card-default", "icon-check-3d.png", "Marcar como tarjeta para pago")}
     </section>
   `;
 }
@@ -4285,9 +4343,11 @@ function methodsEmpty() {
    tiene su mitad al lado. */
 function cashSoloMethods(state) {
   const cards = savedCards(state);
-  const selected = selectedCardOf(state);
+  /* Fuera de una compra no hay nada que elegir para pagar: el radio es
+     la tarjeta para pago, y tocar otra fila la vuelve la predeterminada. */
+  const selected = defaultCardOf(state);
   if (!selected) return `<div class="oky-flow-section" style="gap:8px">${methodsEmpty()}</div>`;
-  const top = { ...findPaymentCard(selected.variant) };
+  const top = methodTopCard(state, selected);
   return `
     <div class="oky-flow-section" style="gap:8px">
       ${addCardButton()}
@@ -4300,11 +4360,12 @@ function cashSoloMethods(state) {
           return `
             <div class="oky-flow-method-group">
               <div class="oky-flow-method-row${isSelected ? " is-selected is-only" : ""}"
-                ${isSelected ? "" : `data-action="select-card" data-card="${card.key}" role="button" tabindex="0"`}>
+                ${isSelected ? "" : `data-action="card-default" data-card="${card.key}" role="button" tabindex="0"`}>
                 <span class="oky-flow-radio${isSelected ? " is-on" : ""}" aria-hidden="true"></span>
                 <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
                 <p class="oky-flow-method-name${isSelected ? "" : " is-regular"}">${card.label}</p>
-                ${isSelected ? methodMore(card) : ""}
+                ${methodDefaultTag(state, card)}
+                ${methodMore(card)}
               </div>
             </div>
           `;
@@ -5356,6 +5417,14 @@ function screenCardDesign(state) {
      pero en móvil es un blanco de 24px arriba del todo: el par de
      botones deja las dos decisiones al alcance del pulgar. */
 const CONFIRM_SHEETS = {
+  deletecard: {
+    art: "icon-eliminar-3d.png",
+    title: "¿Eliminar esta tarjeta?",
+    note: "Dejará de aparecer en tus métodos de pago. Si era tu tarjeta para pago, la otra pasa a serlo.",
+    confirm: "Eliminar",
+    dismiss: "Cancelar",
+    action: "confirm-card-delete",
+  },
   /* La pregunta del destinatario. Era una pantalla morada completa y en
      el teléfono el toque en "Para mí" no llegaba nunca; como hoja usa
      la misma máquina que archivar y devolver, que ahí sí responde.
@@ -6218,7 +6287,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.countrySheet ? countrySheet(state) : ""}
         ${state.marketSheet ? marketSheet(state) : ""}
         ${state.savingsSheet ? savingsSheet() : ""}
-        ${state.cashNotice && state.screen === "checkout" ? cashNoticeSheet(state) : ""}
+        ${
+          /* Una hoja a la vez: en Guatemala "Agrega más, paga menos" sale
+             al mismo tiempo; el aviso de OKY Cash espera a que se cierre. */
+          state.cashNotice && state.screen === "checkout" && !state.savingsSheet ? cashNoticeSheet(state) : ""
+        }
         ${state.promoOpen ? promoDialog(state) : ""}
         ${state.addedToast ? addedToast() : ""}
         ${state.flagIntro ? flagIntro(state.flagIntro) : ""}
@@ -7766,15 +7839,26 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "card-delete") {
-      /* Se va de la lista; si era la elegida, pasa a serlo la siguiente.
-         Sin ninguna, la pantalla cae en su vacío. */
-      state.savedCards = state.savedCards.filter((k) => k !== el.dataset.card);
-      if (state.selectedCard === el.dataset.card) state.selectedCard = state.savedCards[0] || null;
+      /* Borrar una tarjeta no se deshace: se pregunta antes. */
+      state.sheet = { type: "deletecard", key: el.dataset.card };
+      return render({ keepScroll: true });
+    }
+
+    if (action === "confirm-card-delete") {
+      /* Se va de la lista; si era la de pago o la elegida, pasa a serlo
+         la siguiente. Sin ninguna, la pantalla cae en su vacío. */
+      const key = el.dataset.key;
+      state.savedCards = state.savedCards.filter((k) => k !== key);
+      if (state.defaultCard === key) state.defaultCard = state.savedCards[0] || null;
+      if (state.selectedCard === key) state.selectedCard = state.defaultCard;
       state.sheet = null;
       return render({ keepScroll: true });
     }
 
     if (action === "card-default") {
+      /* Solo una es la de pago: marcar esta deja la otra como secundaria.
+         También queda elegida, por si se está pagando. */
+      state.defaultCard = el.dataset.card;
       state.selectedCard = el.dataset.card;
       state.sheet = null;
       return render({ keepScroll: true });
@@ -7788,6 +7872,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (!missing) return;
       state.savedCards = [...state.savedCards, missing.key];
       state.selectedCard = missing.key;
+      /* La primera que se guarda es la de pago; las siguientes llegan
+         como secundarias. */
+      if (!savedCards(state).some((c) => c.key === state.defaultCard)) state.defaultCard = missing.key;
       return render({ keepScroll: true });
     }
 
