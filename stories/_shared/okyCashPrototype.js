@@ -579,6 +579,13 @@ const V3_SELF_TAB = { v3mio: true, v3comp: false };
 
 /* Tarjetas tokenizadas. La seleccionada es la que se combina con
    OKY Cash; la otra baja como fila suelta (Figma 99105:41895). */
+/* "Para mí" y "Para otros" se dibujan con imagen y no con el emoji del
+   sistema: ningún tono de piel trae pelo negro con tez clara, y cada
+   teléfono pinta el emoji distinto. Son el emoji de Apple con la tez
+   clara entibiada y el pelo llevado a negro. */
+const EMOJI_SELF = `<img class="oky-flow-emoji-img" src="oky-emoji-para-mi.png" alt="" />`;
+const EMOJI_OTHERS = `<img class="oky-flow-emoji-img" src="oky-emoji-para-otros.png" alt="" />`;
+
 const CARDS = [
   { key: "visa", label: "**2111", mark: "fa-cc-visa", variant: "Molecule/Payment Card/Visa" },
   { key: "mastercard", label: "**4566", mark: "fa-cc-mastercard", variant: "Molecule/Payment Card/Mastercard" },
@@ -2515,7 +2522,7 @@ function screenCheckout(state) {
                Para uno mismo se queda el muñeco. */
             recipient.initials
               ? `<span class="dual-avatar is-contact" aria-hidden="true">${recipient.initials}</span>`
-              : `<span class="dual-avatar is-self" aria-hidden="true">🙋🏽</span>`
+              : `<span class="dual-avatar is-self" aria-hidden="true">${EMOJI_SELF}</span>`
           }
           <div class="dual-copy">
             <p class="dual-title">${recipient.name}</p>
@@ -2842,7 +2849,7 @@ function purchaseHeader(state) {
 
       ${
         earned
-          ? `<button class="oky-flow-purchase-badge is-cash" data-action="nav:okycash" type="button"
+          ? `<button class="oky-flow-purchase-badge is-cash${state.pillShrink ? " is-shrinking" : ""}" data-action="nav:okycash" type="button"
               aria-label="+${money(state.lastEarned)} en OKY Cash">
               <img src="oky-cash-coin.png" alt="" />
               <span>+${money(state.lastEarned)}</span>
@@ -2863,6 +2870,10 @@ function purchaseHeader(state) {
    así que se mide y se reescribe el punto de partida. En pantallas
    bajas, además, la pila de abajo sube lo que haga falta para no
    cortarse. */
+/* Ancho de la ranura de "Ganaste": el de la pastilla cuando decía
+   "+$X en OKY Cash". La de la cabecera parte de aquí al irse. */
+const SLOT_WIDTH = 184;
+
 const WIN_COMP = { w: 360, h: 800, spawn: 245, coinHalf: 72, floor: 16 };
 
 function fitWinAnimation(stage) {
@@ -3202,8 +3213,8 @@ const WALLET_SECTIONS_V2 = ["parami", "paracompartir"];
    otro desaparecía. Las dos personas de la mano son del mismo palo
    amarillo y dicen lo mismo. */
 const WALLET_TABS_V3 = [
-  { key: "v3mio", label: "Para mí", emoji: "🙋🏽", title: WALLET_NAME },
-  { key: "v3comp", label: "Para otros", emoji: "👫", title: WALLET_NAME },
+  { key: "v3mio", label: "Para mí", emoji: EMOJI_SELF, title: WALLET_NAME },
+  { key: "v3comp", label: "Para otros", emoji: EMOJI_OTHERS, title: WALLET_NAME },
 ];
 const WALLET_SECTIONS_V3 = ["v3mio", "v3comp"];
 
@@ -5452,7 +5463,7 @@ const CONFIRM_SHEETS = {
        Antes era un icono dibujado —una persona con una flecha— y antes
        de eso las banderas de Estados Unidos y Canadá, que hablaban de
        la tienda y no de la pregunta. */
-    emoji: "🙋🏽",
+    emoji: EMOJI_SELF,
     title: "¿Es para ti o para alguien más?",
     note: "Si es para ti, lo guardamos en tu wallet apenas termines de pagar.",
     confirm: "Para mí",
@@ -5660,7 +5671,7 @@ function screenContacts(state) {
              sangre, porque un cuadrado metido dentro del círculo de la
              fila se veía como dos formas peleando. */
           c.self
-            ? `<span class="oky-flow-contact-emoji">🙋🏽</span>`
+            ? `<span class="oky-flow-contact-emoji" aria-hidden="true">${EMOJI_SELF}</span>`
             : `<span>${c.initials}</span>`
         }
       </span>
@@ -6375,7 +6386,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
       });
       winAnimation.addEventListener("complete", () => {
-        if (state.screen === "cashwin") go("purchases", {}, { push: false });
+        if (state.screen === "cashwin") leaveCashWin();
       });
     }
 
@@ -7305,6 +7316,35 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.cashNotice = true;
     }
     render();
+  }
+
+  /* Al irse "Ganaste", la pastilla de la cabecera —que hizo de ranura—
+     arranca con el ancho de la ranura y se angosta hasta su cifra. El
+     aviso dura un render: el siguiente ya la pinta en su tamaño. */
+  function leaveCashWin() {
+    state.pillShrink = true;
+    go("purchases", {}, { push: false });
+    state.pillShrink = false;
+    const pill = root.querySelector(".oky-flow-scroll .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-shrinking");
+    if (!pill) return;
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    /* Se mide el ancho final y se anima el ancho de verdad: animando el
+       mínimo hasta 0, casi todo el recorrido caía por debajo de la cifra
+       y la pastilla se cerraba de golpe. */
+    const hug = pill.getBoundingClientRect().width;
+    if (reduce || hug >= SLOT_WIDTH) return;
+    pill.style.width = `${SLOT_WIDTH}px`;
+    void pill.offsetWidth;
+    pill.style.transition = "width 620ms cubic-bezier(0.32, 0.72, 0, 1)";
+    pill.style.width = `${hug}px`;
+    pill.addEventListener(
+      "transitionend",
+      () => {
+        pill.style.transition = "";
+        pill.style.width = "";
+      },
+      { once: true },
+    );
   }
 
   function goBack() {
@@ -8665,7 +8705,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       clearTimeout(celebrationTimer);
       return go(nextAfterStamp(), {}, { push: false });
     }
-    if (action === "dismiss-cashwin") return go("purchases", {}, { push: false });
+    if (action === "dismiss-cashwin") return leaveCashWin();
     if (action === "toggle-order") {
       const id = el.dataset.order;
       state.openOrders = state.openOrders.includes(id)

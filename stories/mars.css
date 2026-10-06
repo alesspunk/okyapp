@@ -13736,13 +13736,17 @@ button.tactic-offer {
   object-fit: contain;
 }
 
-/* En la cabecera de compra la cifra va sola ("+$0.50"), pero la pastilla
-   guarda el ancho que tenía con "en OKY Cash": es la ranura de la que
-   caen las monedas y su tamaño es parte de la animación. La moneda y la
-   cifra van centradas. */
+/* En la cabecera de compra la cifra va sola ("+$0.50") y la pastilla
+   abraza su contenido. La ranura de la animación sí guarda el ancho de
+   antes —184px—: al revelarse la pastilla arranca de ese ancho y se va
+   angostando hasta su tamaño. */
 .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
-  min-width: 184px;
   justify-content: center;
+  overflow: hidden;
+}
+
+.oky-flow-frame .oky-flow-cashwin .oky-flow-cashwin-top .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
+  min-width: 184px;
 }
 
 .oky-flow-purchase-badge.is-receipt {
@@ -13954,6 +13958,15 @@ button.tactic-offer {
 .oky-flow-contact-emoji {
   font-size: 28px;
   line-height: 1;
+}
+
+/* Las imágenes de "Para mí" / "Para otros" miden lo que mediría el
+   emoji: 1em del contenedor (26px en el checkout, 92px en la hoja…). */
+.oky-flow-emoji-img {
+  display: block;
+  width: auto;
+  height: 1em;
+  object-fit: contain;
 }
 
 .oky-flow-contact-copy {
@@ -15974,6 +15987,14 @@ img.oky-flow-method-mark {
 .oky-flow-frame:has(.oky-flow-cashwin) .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
   animation: oky-flow-cash-pill-reveal 1ms linear 6900ms both;
 }
+
+/* Mientras está la animación la pastilla tiene el ancho de la ranura;
+   al irse, se angosta hasta su cifra (lo anima leaveCashWin). */
+.oky-flow-frame:has(.oky-flow-cashwin) .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
+  min-width: 184px;
+}
+
+
 
 @keyframes oky-flow-cash-pill-reveal {
   from {
