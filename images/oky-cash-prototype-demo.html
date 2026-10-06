@@ -24277,8 +24277,10 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           type="button" role="switch" aria-checked="${archived}">
           ${/* El rótulo delante: se lee la palabra y después se ve en
                qué estado está, que es el orden en que se mira. */ ""}
+          ${/* En la variante 3 el rótulo dice "Usado" siempre: el switch
+               ya enseña si está marcado, y "Usar" se leía como una orden. */ ""}
           <span class="oky-flow-switch-label">${
-            V3_ROUTE ? (archived ? "Usado" : "Usar") : archived ? "Guardado" : "Guardar"
+            V3_ROUTE ? "Usado" : archived ? "Guardado" : "Guardar"
           }</span>
           <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
         </button>
@@ -26764,6 +26766,11 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.cashSoloTab = "cash";
         return go("cashsolo");
       }
+      /* Y al revés: si a OKY Cash se llegó desde los métodos del checkout,
+         la mitad de métodos es esa misma pantalla, con su "Siguiente".
+         Quedarse en la de la billetera dejaba la compra sin salida. */
+      const prev = state.history[state.history.length - 1];
+      if (tab === "methods" && prev && prev.screen === "methods") return goBack();
       state.cashSoloTab = tab;
       return render();
     }
