@@ -604,7 +604,8 @@ function defaultCardOf(state) {
   return cards.find((c) => c.key === state.defaultCard) || cards[0] || null;
 }
 
-/* La card grande de arriba dice si esa es la de pago o una secundaria. */
+/* La card grande de arriba dice si esa es la de pago o una secundaria:
+   es el único sitio donde se marca, debajo del número. */
 function methodTopCard(state, card) {
   const top = { ...findPaymentCard(card.variant) };
   const isDefault = (defaultCardOf(state) || {}).key === card.key;
@@ -612,12 +613,6 @@ function methodTopCard(state, card) {
   return top;
 }
 
-/* Etiqueta de la fila de la predeterminada. */
-function methodDefaultTag(state, card) {
-  return (defaultCardOf(state) || {}).key === card.key
-    ? `<span class="oky-flow-method-tag">Para pago</span>`
-    : "";
-}
 
 
 const money = (v) => `$${(Number(v) || 0).toFixed(2)}`;
@@ -2733,11 +2728,11 @@ function screenMethods(state) {
               <span class="oky-flow-radio${isSelected ? " is-on" : ""}" aria-hidden="true"></span>
               <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
               <p class="oky-flow-method-name${isSelected ? "" : " is-regular"}">${card.label}</p>
-              ${methodDefaultTag(state, card)}
               ${isSelected ? `<span class="oky-flow-chip is-card">${money(toCard)}</span>` : ""}
-              ${/* Cada tarjeta lleva sus tres puntos: desde ahí se marca
-                   como la de pago o se elimina. OKY Cash no los lleva. */ ""}
-              ${methodMore(card)}
+              ${/* Solo la elegida lleva los tres puntos: desde ahí se marca
+                   como la de pago o se elimina. Ni las otras ni OKY Cash
+                   los llevan. */ ""}
+              ${isSelected ? methodMore(card) : ""}
             </div>
           `;
 
@@ -4364,8 +4359,7 @@ function cashSoloMethods(state) {
                 <span class="oky-flow-radio${isSelected ? " is-on" : ""}" aria-hidden="true"></span>
                 <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
                 <p class="oky-flow-method-name${isSelected ? "" : " is-regular"}">${card.label}</p>
-                ${methodDefaultTag(state, card)}
-                ${methodMore(card)}
+                ${isSelected ? methodMore(card) : ""}
               </div>
             </div>
           `;
@@ -4903,7 +4897,9 @@ function screenFoodPdp(state) {
    caras: la invitación a teclear el código y, ya aplicado, cuál es,
    con la X para quitarlo. */
 function promoPill(state) {
-  if (orderCountry(state) !== "gua") return "";
+  /* Solo Guatemala, y solo donde el código funciona (variante 3): en
+     /latam la píldora salía pero no abría nada. */
+  if (orderCountry(state) !== "gua" || !TEST_FEATURES.promoCodes) return "";
   const tag = `<img class="oky-flow-promo-art" src="oky-promo-tag.png" alt="" />`;
   return state.promo
     ? `<div class="oky-flow-promo is-applied">

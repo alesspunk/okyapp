@@ -16235,25 +16235,6 @@ img.oky-flow-method-mark {
   color: var(--secondary-dark);
 }
 
-/* La tarjeta para pago se marca en su fila, pegada al número. */
-.oky-flow-method-name:has(+ .oky-flow-method-tag) {
-  flex: 0 1 auto;
-}
-
-.oky-flow-method-tag {
-  flex: 0 0 auto;
-  margin-right: auto;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: #e8f7f5;
-  color: var(--secondary-dark);
-  font-family: "Lato", sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-}
-
 /* En la fila activa los tres puntos se apartan 10px del borde morado. */
 .oky-flow-method-row.is-selected .oky-flow-method-more {
   margin-right: 10px;
