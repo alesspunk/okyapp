@@ -5384,7 +5384,10 @@ const CONFIRM_SHEETS = {
        la tienda y no de la pregunta. */
     emoji: EMOJI_SELF,
     title: "¿Es para ti o para alguien más?",
-    note: "Si es para ti, lo guardamos en tu wallet apenas termines de pagar.",
+    /* En la variante 3 el sitio se llama Mis compras, no wallet. */
+    note: V3_ROUTE
+      ? "Si es para ti, lo guardamos en Mis compras apenas termines de pagar."
+      : "Si es para ti, lo guardamos en tu wallet apenas termines de pagar.",
     confirm: "Para mí",
     dismiss: "Para alguien más",
     dismissAction: "open-contacts",
