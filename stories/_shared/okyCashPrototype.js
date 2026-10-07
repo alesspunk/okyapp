@@ -2768,7 +2768,7 @@ function purchaseHeader(state) {
 
       ${
         earned
-          ? `<button class="oky-flow-purchase-badge is-cash${state.pillShrink ? " is-shrinking" : ""}" data-action="nav:okycash" type="button"
+          ? `<button class="oky-flow-purchase-badge is-cash${state.pillArrive ? " is-arriving" : ""}" data-action="nav:okycash" type="button"
               aria-label="+${money(state.lastEarned)} en OKY Cash">
               <img src="oky-cash-coin.png" alt="" />
               <span>+${money(state.lastEarned)}</span>
@@ -2789,10 +2789,6 @@ function purchaseHeader(state) {
    así que se mide y se reescribe el punto de partida. En pantallas
    bajas, además, la pila de abajo sube lo que haga falta para no
    cortarse. */
-/* Ancho de la ranura de "Ganaste": el de la pastilla cuando decía
-   "+$X en OKY Cash". La de la cabecera parte de aquí al irse. */
-const SLOT_WIDTH = 184;
-
 const WIN_COMP = { w: 360, h: 800, spawn: 245, coinHalf: 72, floor: 16 };
 
 function fitWinAnimation(stage) {
@@ -7240,33 +7236,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     render();
   }
 
-  /* Al irse "Ganaste", la pastilla de la cabecera —que hizo de ranura—
-     arranca con el ancho de la ranura y se angosta hasta su cifra. El
-     aviso dura un render: el siguiente ya la pinta en su tamaño. */
+  /* Al irse "Ganaste" la pastilla de la cabecera —que hizo de ranura—
+     se queda en su sitio y con su ancho: pasa del oscuro de la ranura al
+     aqua y luego aparecen la moneda y la cifra. El aviso dura un render. */
   function leaveCashWin() {
-    state.pillShrink = true;
+    state.pillArrive = true;
     go("purchases", {}, { push: false });
-    state.pillShrink = false;
-    const pill = root.querySelector(".oky-flow-scroll .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-shrinking");
-    if (!pill) return;
-    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    /* Se mide el ancho final y se anima el ancho de verdad: animando el
-       mínimo hasta 0, casi todo el recorrido caía por debajo de la cifra
-       y la pastilla se cerraba de golpe. */
-    const hug = pill.getBoundingClientRect().width;
-    if (reduce || hug >= SLOT_WIDTH) return;
-    pill.style.width = `${SLOT_WIDTH}px`;
-    void pill.offsetWidth;
-    pill.style.transition = "width 620ms cubic-bezier(0.32, 0.72, 0, 1)";
-    pill.style.width = `${hug}px`;
-    pill.addEventListener(
-      "transitionend",
-      () => {
-        pill.style.transition = "";
-        pill.style.width = "";
-      },
-      { once: true },
-    );
+    state.pillArrive = false;
   }
 
   function goBack() {

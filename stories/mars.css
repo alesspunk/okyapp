@@ -13749,18 +13749,32 @@ button.tactic-offer {
   object-fit: contain;
 }
 
-/* En la cabecera de compra la cifra va sola ("+$0.50") y la pastilla
-   abraza su contenido. La ranura de la animación sí guarda el ancho de
-   antes —184px—: al revelarse la pastilla arranca de ese ancho y se va
-   angostando hasta su tamaño. */
+/* En la cabecera de compra la cifra va sola ("+$0.50"), centrada en una
+   pastilla de ancho fijo: 184px, el mismo de la ranura de "Ganaste", así
+   que de la ranura a la pastilla no cambia de tamaño. */
 .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
+  width: 184px;
   justify-content: center;
-  overflow: hidden;
 }
 
-.oky-flow-frame .oky-flow-cashwin .oky-flow-cashwin-top .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
-  min-width: 184px;
+/* Al irse "Ganaste": del oscuro de la ranura al aqua, y después la
+   moneda y la cifra suben a su sitio. */
+.oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash.is-arriving {
+  animation: oky-flow-cash-slot-fill 420ms ease-out both;
 }
+
+.oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash.is-arriving > * {
+  animation: oky-flow-cash-pill-say 420ms cubic-bezier(0.32, 0.72, 0, 1) 260ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash.is-arriving,
+  .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash.is-arriving > * {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+}
+
 
 .oky-flow-purchase-badge.is-receipt {
   background: var(--white);
@@ -16001,11 +16015,6 @@ img.oky-flow-method-mark {
   animation: oky-flow-cash-pill-reveal 1ms linear 6900ms both;
 }
 
-/* Mientras está la animación la pastilla tiene el ancho de la ranura;
-   al irse, se angosta hasta su cifra (lo anima leaveCashWin). */
-.oky-flow-frame:has(.oky-flow-cashwin) .oky-flow-header.is-purchase .oky-flow-purchase-badge.is-cash {
-  min-width: 184px;
-}
 
 
 
