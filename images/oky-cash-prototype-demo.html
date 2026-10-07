@@ -8274,6 +8274,47 @@ body {
   cursor: default;
 }
 
+/* Mazo de la misma marca: dos cantos grises que asoman 16px por encima
+   de la card cuando hay más de una unidad. El de atrás es más angosto y
+   más oscuro (Figma Group 1076: 297px #757675 y 316px #959695 sobre una
+   card de 328px). La card deja de recortar para que se vean; la imagen
+   y el borde ya llevan su propio radio. */
+.oky-flow-voucher.has-pile {
+  overflow: visible;
+}
+
+.oky-flow-stack > .oky-flow-voucher.has-pile:first-child {
+  margin-top: 16px;
+}
+
+.oky-flow-voucher-pile {
+  position: absolute;
+  /* 20px más angosto que en la matriz (10px por lado): así arranca
+     donde termina la curva de 16px de la card y no asoma por fuera de
+     la esquina redondeada. */
+  left: 16px;
+  right: 16px;
+  top: -8px;
+  height: 8px;
+  border-radius: 50px 50px 0 0;
+  background: #959695;
+  /* Gris al 80%: deja pasar algo de lo que hay detrás (la card de
+     arriba en la pila) sin dejar de leerse como canto. */
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.oky-flow-voucher-pile::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: -8px;
+  height: 8px;
+  border-radius: 50px 50px 0 0;
+  background: #757675;
+}
+
 /* badge de cantidad + QR (Figma top 13). Se ancla por la derecha en
    vez de por la izquierda: con left:271px estaba calculado para una
    card de 343px y al ajustarse a la columna quedaba a 5px del borde. */
@@ -22050,8 +22091,9 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
                   (v) => {
                   const mark = stackMark(v);
                   return `
-                <button class="oky-flow-voucher" style="background:${mark.bg};border-color:${mark.bg}"
+                <button class="oky-flow-voucher${v.count > 1 ? " has-pile" : ""}" style="background:${mark.bg};border-color:${mark.bg}"
                   data-action="open-purchase" data-id="${v.id}" type="button">
+                  ${voucherPile(v.count)}
                   <img src="${mark.art}" alt="${v.label}" />
                   <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
                 </button>
@@ -22488,15 +22530,24 @@ function countryOfVoucher(key, section) {
   return VOUCHER_COUNTRY[brandKeyOf(key)] || countryOfSection(real);
 }
 
+/* Cuando de una marca hay más de una unidad (dos vales de McDonald's,
+   dos gift cards de Walgreens), asoman dos cantos grises por encima de
+   la card, como un mazo de la misma marca. Con una sola no sale nada.
+   Matriz Unhappy path de MARS (Group 1076), 20px más angosto. */
+function voucherPile(count) {
+  return count > 1 ? `<span class="oky-flow-voucher-pile" aria-hidden="true"></span>` : "";
+}
+
 function walletVoucherButton(v, deck, group = "activos") {
   const country = countryOfVoucher(v.key, deck);
   const mark = stackMark(v);
   return `
-    <button class="oky-flow-voucher${group === "archivados" ? " is-archived" : ""}"
+    <button class="oky-flow-voucher${group === "archivados" ? " is-archived" : ""}${v.count > 1 ? " has-pile" : ""}"
       style="background:${mark.bg};border-color:${mark.bg}"
       data-action="open-voucher" data-key="${v.openKey ?? v.key}" data-unit="${v.openUnit ?? (v.units || [0])[0]}"
       data-deck="${deck}" data-group="${group}"
       type="button" aria-label="${v.label}">
+      ${voucherPile(v.count)}
       <img src="${mark.art}" alt="${v.label}" />
       ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
       <span class="oky-flow-voucher-badge">

@@ -2943,8 +2943,9 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
                   (v) => {
                   const mark = stackMark(v);
                   return `
-                <button class="oky-flow-voucher" style="background:${mark.bg};border-color:${mark.bg}"
+                <button class="oky-flow-voucher${v.count > 1 ? " has-pile" : ""}" style="background:${mark.bg};border-color:${mark.bg}"
                   data-action="open-purchase" data-id="${v.id}" type="button">
+                  ${voucherPile(v.count)}
                   <img src="${mark.art}" alt="${v.label}" />
                   <span class="oky-flow-voucher-badge">${v.count}<i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
                 </button>
@@ -3381,15 +3382,24 @@ function countryOfVoucher(key, section) {
   return VOUCHER_COUNTRY[brandKeyOf(key)] || countryOfSection(real);
 }
 
+/* Cuando de una marca hay más de una unidad (dos vales de McDonald's,
+   dos gift cards de Walgreens), asoman dos cantos grises por encima de
+   la card, como un mazo de la misma marca. Con una sola no sale nada.
+   Matriz Unhappy path de MARS (Group 1076), 20px más angosto. */
+function voucherPile(count) {
+  return count > 1 ? `<span class="oky-flow-voucher-pile" aria-hidden="true"></span>` : "";
+}
+
 function walletVoucherButton(v, deck, group = "activos") {
   const country = countryOfVoucher(v.key, deck);
   const mark = stackMark(v);
   return `
-    <button class="oky-flow-voucher${group === "archivados" ? " is-archived" : ""}"
+    <button class="oky-flow-voucher${group === "archivados" ? " is-archived" : ""}${v.count > 1 ? " has-pile" : ""}"
       style="background:${mark.bg};border-color:${mark.bg}"
       data-action="open-voucher" data-key="${v.openKey ?? v.key}" data-unit="${v.openUnit ?? (v.units || [0])[0]}"
       data-deck="${deck}" data-group="${group}"
       type="button" aria-label="${v.label}">
+      ${voucherPile(v.count)}
       <img src="${mark.art}" alt="${v.label}" />
       ${v.isNew ? `<span class="oky-flow-voucher-dot" aria-label="Nuevo"></span>` : ""}
       <span class="oky-flow-voucher-badge">
