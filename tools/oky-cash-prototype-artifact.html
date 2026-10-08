@@ -25205,7 +25205,11 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
         fromOrder
           ? ""
           : V3_ROUTE
-          ? asPurchase
+          ? asPurchase ||
+            /* En /miscompras "Marcar como usado" es solo de Para mí con
+               gift cards de USA/Canadá: OKY Vales y servicios no lo
+               llevan. */
+            (MISCOMPRAS_ROUTE && (state.params.deck !== "v3mio" || sectionOfVoucher(card.key) !== "gift"))
             ? ""
             : `<div class="oky-flow-voucher-actions is-single">
         <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
