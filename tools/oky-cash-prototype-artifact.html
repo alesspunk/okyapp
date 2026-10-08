@@ -23812,8 +23812,14 @@ function screenWallet(state) {
           ${stack(decks[V3_GROUP[tab]], V3_GROUP[tab], tab === "v3comp" ? "Todavía no has comprado para otros." : "Nada por aquí todavía.")}
           ${/* El cajón de la 3 es la misma sección de guardados del
                resto del wallet. */ ""}
-          ${sectionHead(WALLET_GROUPS[2], totalIn("archivados"), 0)}
-          ${body("archivados", stack(decks.archivados, "archivados", WALLET_GROUPS[2].empty))}
+          ${
+            /* En /miscompras, Para otros no tiene cajón de usados: ahí
+               no se marca nada como usado, solo se manda foto. */
+            MISCOMPRAS_ROUTE && tab === "v3comp"
+              ? ""
+              : `${sectionHead(WALLET_GROUPS[2], totalIn("archivados"), 0)}
+          ${body("archivados", stack(decks.archivados, "archivados", WALLET_GROUPS[2].empty))}`
+          }
         `
             : WALLET_GROUPS.map(
                 (g) => `
