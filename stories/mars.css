@@ -7729,6 +7729,19 @@ body {
   cursor: pointer;
 }
 
+/* Con vencimiento abajo a la izquierda (OKY Cash), el lápiz se muda a
+   la esquina derecha. El pie sube por encima de la ilustración para
+   que la fecha no quede debajo del remolino. */
+.payment-card-edit.is-right {
+  left: auto;
+  right: 18px;
+}
+
+.payment-card-molecule:has(.payment-card-edit.is-right) .payment-card-footer {
+  position: relative;
+  z-index: 3;
+}
+
 .payment-card-edit img {
   display: block;
   width: 100%;

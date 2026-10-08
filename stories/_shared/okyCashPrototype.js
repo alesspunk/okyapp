@@ -3104,10 +3104,15 @@ function okyCashCard(state, { balance, cta, label, edit = true } = {}) {
      salida a otra cosa en mitad de la compra. */
   if (edit) {
     card.editAction = "nav:carddesign";
+    /* El lápiz va a la derecha: la izquierda es del vencimiento. */
+    card.editSide = "right";
   } else {
     card.editIcon = null;
     card.editAction = null;
   }
+  /* Abajo a la izquierda, cuándo vence el saldo; sin saldo, vacío. */
+  const vence = cashExpiryLabel(state);
+  card.expiry = vence ? { label: "Vencimiento", value: vence } : null;
   const design = findCardDesign(state.cardDesign);
   return { ...card, ...design.style, art: design.art, artClass: design.artClass };
 }
@@ -4031,9 +4036,10 @@ function screenWallet(state) {
    que sigue vigente. Sin saldo no se muestra. */
 const CASH_EXPIRY_MONTHS = 6;
 
-function cashExpiryNote(state) {
-  /* Sin saldo no hay nada que venza: la línea solo sale cuando ya se
-     ganó algo. */
+/* La fecha en que vence el saldo más próximo, o "" sin saldo: sin saldo
+   no hay nada que venza. Va dentro de la tarjeta, abajo a la izquierda,
+   como el vencimiento de las tarjetas de pago. */
+function cashExpiryLabel(state) {
   if (!(state.okyCashBalance > 0)) return "";
   const parse = (s) => {
     const m = String(s || "").match(/(\d{1,2}) \/ ([A-Z]{3}) \/ (\d{4})/);
@@ -4054,8 +4060,7 @@ function cashExpiryNote(state) {
       .map(plus)
       .filter((d) => d >= today)
       .sort((a, b) => a - b)[0] || plus(today);
-  const label = `${String(next.getDate()).padStart(2, "0")} / ${MONTHS_SHORT[next.getMonth()]} / ${next.getFullYear()}`;
-  return `<p class="oky-flow-cash-expiry"><i class="fa-regular fa-clock" aria-hidden="true"></i>Tu OKY Cash vence el <strong>${label}</strong></p>`;
+  return `${String(next.getDate()).padStart(2, "0")} / ${MONTHS_SHORT[next.getMonth()]} / ${next.getFullYear()}`;
 }
 
 function okyCashActivity(state) {
@@ -4250,7 +4255,6 @@ function okyCashActivity(state) {
     return `
     <div class="oky-flow-section is-cash-empty" style="gap:12px">
       <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
-      ${cashExpiryNote(state)}
 
       <div class="oky-flow-cash-empty">
         <span class="oky-flow-cash-empty-art"><img src="oky-cash-coin.png" alt="" /></span>
@@ -4281,7 +4285,6 @@ function okyCashActivity(state) {
   return `
     <div class="oky-flow-section" style="gap:16px">
       <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
-      ${cashExpiryNote(state)}
 
       <div class="oky-flow-home-head">
         <span class="oky-flow-section-head" style="padding:0">ACTIVIDAD</span>
@@ -4405,9 +4408,12 @@ function cashSoloMethods(state) {
   const top = methodTopCard(state, selected);
   return `
     <div class="oky-flow-section" style="gap:8px">
-      ${addCardButton()}
-
+      ${/* La tarjeta va primero, a la misma altura que la de OKY Cash:
+           al cambiar de pestaña no salta. "Agregar tarjeta" baja a
+           debajo de ella. */ ""}
       <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(top)}</div>
+
+      ${addCardButton()}
 
       <div class="oky-flow-method-list" style="width:100%">
         ${cards.map((card) => {
