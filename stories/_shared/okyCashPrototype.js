@@ -3757,9 +3757,11 @@ function walletEmptyState(state, tab) {
         </button>
       </div>
 
-      <button class="oky-flow-cash-empty-link" ${
-        state.walletVer === 3 ? 'data-action="nav:okycash"' : 'data-action="nav:wallet" data-tab="cash"'
-      } type="button">
+${
+        /* En Para mí / Para otros (v3) no va: abultaba sin aportar. */
+        state.walletVer === 3
+          ? ""
+          : `      <button class="oky-flow-cash-empty-link" data-action="nav:wallet" data-tab="cash" type="button">
         <span class="oky-flow-cash-empty-wallet">
           <img src="oky-cash-coin.png" alt="" />
         </span>
@@ -3768,7 +3770,8 @@ function walletEmptyState(state, tab) {
           <span>${copy.cash}</span>
         </span>
         <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-      </button>
+      </button>`
+      }
     </div>
   `;
 }
