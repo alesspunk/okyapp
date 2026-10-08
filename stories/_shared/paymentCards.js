@@ -92,6 +92,9 @@ export const PAYMENT_CARD_VARIANTS = [
     balance: { currency: "", value: "**4566", label: "para pago", embossed: true },
     pattern: "arcs",
     showFooter: true,
+    /* Inventado para el prototipo: la Mastercard salía sin vencimiento
+       y la Visa sí lo traía. */
+    expiry: { label: "Vencimiento", value: "MAR / 2029" },
     recommendation:
       "Naranja Mastercard con los últimos 4 dígitos. Figma le aplica `mix-blend-mode: luminosity` al logo, pero con el asset exportado lava la marca, así que va plano.",
   },

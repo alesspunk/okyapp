@@ -802,6 +802,10 @@ function createInitialState(userType) {
     /* El aviso de "Tienes OKY Cash" sale una vez por sesión, la primera
        vez que se llega al checkout con saldo para usar. */
     cashNotice: false,
+    /* El webview de la landing de OKY Cash: null, o { phase: "loading" |
+       "ready" | "error", fresh } —fresh solo la primera vez, para que
+       suba desde abajo una vez y no en cada repintado—. */
+    webview: null,
     cashNoticeSeen: false,
     /* Si se marcó OKY Cash desde el propio aviso. */
     cashNoticePick: false,
@@ -1163,6 +1167,65 @@ function earnedCashback(state) {
 
 /* ── Piezas compartidas ─────────────────────────────────── */
 
+/* ── Webview · landing de OKY Cash (F05-FT2…FT4) ─────────
+   Lo que abre la (i) de la barra de la PDP de USA: un navegador dentro
+   de la app con la landing de okyapp.com/oky-cash. Carga con esqueleto
+   y barra de progreso, y si no hay conexión muestra el error con
+   Reintentar. La landing es ficticia: el contenido final está por
+   escribir. */
+function webviewSheet(state) {
+  const { phase, fresh } = state.webview;
+  const body =
+    phase === "loading"
+      ? `<div class="oky-webview-skeleton" aria-hidden="true">
+          <span class="is-hero"></span>
+          <span class="is-line" style="width:73%"></span>
+          <span class="is-line" style="width:92%"></span>
+          <span class="is-line" style="width:86%"></span>
+          <span class="is-line" style="width:61%"></span>
+          <span class="is-block"></span>
+          <span class="is-block is-cta"></span>
+        </div>`
+      : phase === "error"
+        ? `<div class="oky-webview-error" role="alert">
+            <span class="oky-webview-error-art"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i></span>
+            <h2>No pudimos cargar la página</h2>
+            <p>Revisa tu conexión e inténtalo de nuevo. Tu saldo y tus vales no cambian.</p>
+            <button class="btn btn-primary btn-large" data-action="reload-webview" type="button">Reintentar</button>
+            <button class="btn btn-outlined btn-large" data-action="close-webview" type="button">Volver a OKY Cash</button>
+          </div>`
+        : `<article class="oky-webview-landing">
+            <div class="oky-webview-card"><span>OKY Cash</span></div>
+            <h2>Lo que va, vuelve</h2>
+            <p>Cada gift card que compras en USA te devuelve OKY Cash. Úsalo para pagar tu próxima compra.</p>
+            <ol class="oky-webview-steps">
+              <li><span>1</span>Compra una gift card en USA</li>
+              <li><span>2</span>Gana un porcentaje en OKY Cash</li>
+              <li><span>3</span>Úsalo en tu próxima compra</li>
+            </ol>
+            <button class="btn btn-primary btn-large" data-action="close-webview" type="button">Explorar gift cards</button>
+          </article>`;
+  return `
+    <div class="oky-webview${fresh ? " is-fresh" : ""}" role="dialog" aria-modal="true" aria-label="OKY Cash · okyapp.com">
+      ${statusBar()}
+      <header class="oky-webview-bar">
+        <button class="oky-webview-icon" data-action="close-webview" type="button" aria-label="Cerrar">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <div class="oky-webview-title">
+          <strong>OKY Cash</strong>
+          <span><i class="fa-solid fa-lock" aria-hidden="true"></i>okyapp.com/oky-cash</span>
+        </div>
+        <button class="oky-webview-icon" data-action="reload-webview" type="button" aria-label="Recargar">
+          <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+        </button>
+        ${phase === "loading" ? `<span class="oky-webview-progress" aria-hidden="true"></span>` : ""}
+      </header>
+      <div class="oky-webview-body">${body}</div>
+    </div>
+  `;
+}
+
 function statusBar() {
   return `
     <div class="status-bar">
@@ -1405,10 +1468,13 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
       <div class="saving-bar is-oky-cash ${tier.bar} ${settled ? "is-settled" : ""}">
         ${
           /* La (i) va enfrente del reloj, en la esquina contraria, y
-             toma el color del tier igual que el texto: no se toca, solo
-             dice que el número de la barra tiene letra pequeña detrás.
-             La explicación está a un paso, en el checkout. */
-          info ? `<span class="saving-bar-info" aria-hidden="true"><i class="fa-solid fa-circle-info"></i></span>` : ""
+             toma el color del tier igual que el texto. Abre la landing
+             de OKY Cash en un webview, sin salir de la PDP. */
+          info
+            ? `<button class="saving-bar-info" data-action="open-webview" type="button" aria-label="Qué es OKY Cash">
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+              </button>`
+            : ""
         }
         ${
           timer
@@ -2550,9 +2616,15 @@ function screenCheckout(state) {
           </button>
           <p class="oky-flow-payrow-copy" data-action="toggle-okycash" role="button" tabindex="0">OKY Cash</p>
           <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash">${money(state.okyCashEnabled ? applied : state.okyCashBalance)}</span></span>
-          ${/* Sin tres puntos: en Métodos de pago ya no hay nada de OKY Cash
-               que editar. Se marca o desmarca aquí y aplica lo que alcance. */ ""}
-          <span class="oky-flow-payrow-more is-empty" aria-hidden="true"></span>
+          ${/* Los tres puntos vuelven: llevan a ver el disponible. En la
+               variante 3 abren Tu billetera en la pestaña de OKY Cash, y en
+               las demás, la pestaña de OKY Cash del wallet (nav:okycash ya
+               decide cuál). Atrás regresa al checkout. Marcar o desmarcar
+               sigue siendo aquí, con el check. */ ""}
+          <button class="oky-flow-payrow-more" data-action="nav:okycash" type="button"
+            aria-label="Ver tu OKY Cash disponible">
+            <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+          </button>
         </div>
         `
         }
@@ -2682,8 +2754,10 @@ function screenMethods(state) {
   return `
     ${statusBar()}
     ${titledHeader(timer ? "Tu billetera" : "Métodos de pago")}
-    ${timer ? cashSoloSeg(state, "methods") : ""}
-    ${cashSoloMethods(state)}
+    ${/* La pestaña de OKY Cash se mira aquí mismo, sin salir de la
+         compra: así el botón de pagar no se pierde. */ ""}
+    ${timer ? cashSoloSeg(state, state.methodsTab === "cash" ? "cash" : "methods") : ""}
+    ${timer && state.methodsTab === "cash" ? okyCashActivity(state) : cashSoloMethods(state)}
     <div class="oky-flow-cta-bar">
       <button class="btn btn-primary btn-large" data-action="confirm-methods" type="button"${canPay ? "" : " disabled"}>
         Ir a pagar - ${money(due)}
@@ -2735,8 +2809,38 @@ function screenProcessing(state) {
    se subió a la cabecera, que es donde no le quita sitio al código ni
    a su botón de canje. Se deja la función devolviendo nada para no
    tocar las dos pantallas que la llaman. */
-function purchaseFoot() {
-  return "";
+/* Vuelve el pie cuando se compra uno solo (sin pila), como en la matriz
+   Unhappy path, pero solo en Guatemala: "Mandale foto" (antes "Avísale
+   a tu familiar"), que abre WhatsApp con el mensaje listo. En USA no va nada: un "Ver
+   detalle de la compra" que no lleva a ningún sitio confundía. */
+function orderMarketOf(state) {
+  const first = (state.lastOrder || [])[0];
+  return first ? countryOfSection(sectionOfVoucher(first.productKey)) : "US";
+}
+
+/* Una sola marca en la orden: el acuse enseña el vale y no la pila. */
+function orderIsSingle(state) {
+  return new Set((state.lastOrder || []).map((p) => brandKeyOf(p.productKey))).size === 1;
+}
+
+
+/* Solo en /miscompras y solo en la pestaña Para otros: el vale
+   abierto desde ahí lleva abajo "Mandale foto", el mismo aviso por WhatsApp de la poscompra, pensado
+   para mandarle el vale a quien lo va a usar. Lo de Para mí (las gift
+   cards de USA) se queda solo con "Marcar como usado", y en /usa y
+   /latam (Mi wallet) no va. */
+function sendPhotoBar(brand, id = "") {
+  return `
+    <div class="oky-flow-cta-bar is-order-voucher">
+      <button class="btn btn-outlined btn-large" data-action="send-photo" data-label="${brand}" data-id="${id}" type="button">
+        <i class="fa-solid fa-camera" aria-hidden="true"></i> Mandale foto
+      </button>
+    </div>
+  `;
+}
+
+function purchaseFoot(state, brand = "", id = "") {
+  return orderMarketOf(state) === "US" ? "" : sendPhotoBar(brand, id);
 }
 
 /* ── Cabecera del acuse ──────────────────────────────────
@@ -2769,11 +2873,19 @@ function purchaseHeader(state) {
       ${
         earned
           ? `<button class="oky-flow-purchase-badge is-cash${state.pillArrive ? " is-arriving" : ""}" data-action="nav:okycash" type="button"
-              aria-label="+${money(state.lastEarned)} en OKY Cash">
+              aria-label="${money(state.okyCashBalance)} disponible en OKY Cash">
               <img src="oky-cash-coin.png" alt="" />
-              <span>+${money(state.lastEarned)}</span>
+              ${/* El saldo, no lo ganado: la animación ya contó cuánto se
+                   ganó; lo que queda arriba es con cuánto se cuenta. */ ""}
+              <span>${money(state.okyCashBalance)} <span class="oky-flow-purchase-badge-note">disponible</span></span>
             </button>`
-          : ""
+          : /* Sin OKY Cash ganado (Guatemala, o una compra que no da
+               cashback), en el mismo sitio va el toast de compra
+               exitosa. Los dos nunca conviven. */
+            `<div class="oky-flow-toast is-success is-header" role="status">
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+              <span>Compra exitosa</span>
+            </div>`
       }
 
       <span class="oky-flow-header-icon oky-flow-header-spacer" aria-hidden="true"></span>
@@ -2957,7 +3069,7 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
       }
     </div>
 
-    ${purchaseFoot(state)}
+    ${/* La pila no lleva pie: el botón es del vale suelto. */ ""}
     ${navbar("", state)}
     ${purchaseOverlays(state, { celebrate, cashWin })}
   `;
@@ -3613,10 +3725,9 @@ const WALLET_EMPTY = {
     cash: "Gana saldo con cada gift card",
   },
   v3comp: {
-    /* El corazón del original es blanco: sobre el círculo lila del vacío
-       no se veía. Esta copia lo trae en morado; el blanco sigue en la
-       hoja morada de "¿No llegaste a compartirlo?". */
-    art: "oky-share-hands-purple.png",
+    /* El OKY Vale en 3D de la pestaña de vales de Mi wallet: lo que se
+       compra para otros son, sobre todo, vales. */
+    art: "wallet-tab-vales.png",
     title: "Aún no has comprado para otros",
     note: "Lo que compres para alguien de tu agenda —gift cards, OKY Vales o servicios— se guarda aquí.",
     cta: "Explorar OKY Vales",
@@ -4916,13 +5027,18 @@ function cashNoticeSheet(state) {
   return `
     <button class="oky-flow-sheet-backdrop" data-action="close-cash-notice" type="button" aria-label="Cerrar"></button>
     <section class="oky-flow-savings is-cash" role="dialog" aria-modal="true" aria-label="Tienes OKY Cash">
+      ${/* Sin "Entendido": marcar la casilla ya lleva al checkout, y la X
+           también, con la fila destellando sin marcar. */ ""}
+      <button class="oky-flow-sheet-close" data-action="close-cash-notice" data-hint="cash" type="button" aria-label="Cerrar">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
       <h2 class="oky-flow-cashnote-title">
         <span class="oky-flow-cashwin-kicker">Tienes</span>
         <span class="oky-flow-cashwin-amount"><span>$</span>${state.okyCashBalance.toFixed(2)}</span>
         <span class="oky-flow-cashwin-label">en OKY Cash</span>
       </h2>
       <p class="oky-flow-savings-note">
-        Márcalo en tu método de pago y úsalo para pagar esta compra
+        Márcalo ahora o en tu método de pago
       </p>
       <div class="oky-flow-cashnote-preview">
         <div class="payment-method-input oky-flow-paygroup">
@@ -4937,7 +5053,6 @@ function cashNoticeSheet(state) {
           </div>
         </div>
       </div>
-      <button class="btn btn-primary btn-large oky-flow-savings-cta" data-action="close-cash-notice" data-hint="cash" type="button">Entendido</button>
     </section>
   `;
 }
@@ -5107,6 +5222,13 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
      mismo sitio al que se llega al pagar, solo que con el vale abierto
      en vez de la pila. */
   const title = asPurchase ? "Tus compras" : state.params.id ? "Detalle de la orden" : headerBrand;
+  /* Abierto desde la pila de la poscompra (más de un vale en la orden):
+     como en la matriz Unhappy path, arriba el toast de compra exitosa y
+     la X que vuelve a la pila, sin interruptores, y abajo un solo botón:
+     en USA "Ver historial" (todavía sin destino) y en Guatemala
+     "Avísale a tu familiar". */
+  const fromOrder = !asPurchase && !!state.params.id;
+  const orderMarket = countryOfSection(section);
 
   const sharedOn = new Date()
     .toLocaleDateString("es-GT", { day: "2-digit", month: "short", year: "numeric" })
@@ -5116,7 +5238,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
 
   return `
     ${statusBar()}
-    ${asPurchase ? purchaseHeader(state) : titledHeader(title)}
+    ${asPurchase ? purchaseHeader(state) : fromOrder ? orderVoucherHeader() : titledHeader(title)}
     <div class="oky-flow-section is-voucher${asPurchase ? " is-purchase" : ""}">
       <div class="oky-flow-card-carousel${archived ? " is-redeemed is-archived" : shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
@@ -5247,7 +5369,9 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
         /* Variante 3: en la poscompra no hay interruptores —el vale se
            acaba de comprar— y en Mis compras queda uno solo, centrado:
            "Marcar como usado". Compartir sale de esta versión. */
-        V3_ROUTE
+        fromOrder
+          ? ""
+          : V3_ROUTE
           ? asPurchase
             ? ""
             : `<div class="oky-flow-voucher-actions is-single">
@@ -5282,9 +5406,41 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
       </div>`
       }
     </div>
-    ${asPurchase ? purchaseFoot(state) : ""}
+    ${asPurchase ? purchaseFoot(state, headerBrand, id) : ""}
+    ${fromOrder ? orderVoucherFoot(orderMarket, headerBrand, id) : asPurchase || !MISCOMPRAS_ROUTE || state.params.deck !== "v3comp" ? "" : sendPhotoBar(headerBrand, id)}
     ${navbar("", state)}
     ${asPurchase ? purchaseOverlays(state, { celebrate, cashWin }) : ""}
+  `;
+}
+
+/* Cabecera del vale abierto desde la pila de la poscompra: el toast de
+   compra exitosa (Fat Toast de MARS) y la X que devuelve a la pila. */
+function orderVoucherHeader() {
+  return `
+    <header class="oky-flow-header is-order-voucher">
+      <div class="oky-flow-toast is-success" role="status">
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        <span>Compra exitosa</span>
+      </div>
+      <button class="oky-flow-header-icon oky-flow-toast-close" data-action="close-order-voucher"
+        type="button" aria-label="Volver a Tus compras">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </header>
+  `;
+}
+
+/* Pie del vale abierto desde la pila: en USA "Ver historial", que
+   todavía no lleva a ningún sitio porque el historial no existe en el
+   prototipo; en Guatemala "Mandale foto", que sí funciona. */
+function orderVoucherFoot(market, brand = "", id = "") {
+  if (market !== "US") return sendPhotoBar(brand, id);
+  return `
+    <div class="oky-flow-cta-bar is-order-voucher">
+      <button class="btn btn-outlined btn-large is-inert" type="button" aria-disabled="true" tabindex="-1">
+        Ver historial
+      </button>
+    </div>
   `;
 }
 
@@ -5998,7 +6154,20 @@ function scrollClass(state) {
   if (state.screen === "guapdp") return cartSavings(state) > 0 ? "has-dock" : "has-dock-no-bar";
   /* El acuse ya no lleva barra abajo: su hueco es el de la navbar y
      nada más. */
-  if (["purchases", "success", "cashwin"].includes(state.screen)) return "";
+  /* El acuse vuelve a llevar su botón abajo (Avísale a tu familiar o
+     Ver detalle de la compra). */
+  if (["purchases", "success", "cashwin"].includes(state.screen))
+    return orderIsSingle(state) && orderMarketOf(state) !== "US" ? "has-cta" : "";
+  /* El vale abierto desde la pila de la orden lleva su botón abajo
+     (Ver historial o Avísale a tu familiar). */
+  /* El vale abierto lleva su botón abajo: Ver historial o Avísale a tu
+     familiar desde la pila de la orden, y Mandale foto desde Mis compras
+     (solo /miscompras). */
+  if (state.screen === "voucher") {
+    const p = state.params || {};
+    if (p.id) return "has-cta";
+    if (MISCOMPRAS_ROUTE && p.deck === "v3comp") return "has-cta";
+  }
   return SCROLL_CLASS[state.screen] || "";
 }
 
@@ -6033,6 +6202,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   let state = createInitialState(userType);
   let celebrationTimer = 0;
   let winAnimation = null;
+  let webviewTimer = null;
+  /* Cuándo arrancó "Ganaste": a los 7 s la pastilla de la cabecera ya
+     se reveló sola, y volver a animarla al salir era el parpadeo. */
+  let winStartedAt = 0;
 
   /* Control de la prueba, no de la app: vive fuera del teléfono para
      que no se confunda con la UI. render() reescribe el root, así que
@@ -6256,6 +6429,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.tourFlag ? tourFlag() : ""}
         ${state.tourConfetti ? `<div class="oky-flow-burst" data-role="tour-confetti"></div>` : ""}
         ${state.menuOpen ? menuSheet() : ""}
+        ${state.webview ? webviewSheet(state) : ""}
       </div>
     `;
 
@@ -6305,6 +6479,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        compra; un toque la salta. */
     const winHost = root.querySelector("[data-role='cashwin-lottie']");
     if (winHost) {
+      winStartedAt = Date.now();
       winAnimation = lottie.loadAnimation({
         container: winHost,
         renderer: "svg",
@@ -7189,6 +7364,290 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      que nadie quiere volver. */
   const POST_PURCHASE = ["success", "cashwin", "purchases"];
 
+  /* ── Mandale foto ──────────────────────────────────────
+     Imita la captura de pantalla del teléfono (iOS 27 o Android, según
+     el dispositivo): destello, la pantalla se encoge a la esquina como
+     miniatura y, al tocarla, una hoja para compartir con el mensaje ya
+     escrito —en tono de chisme de barrio, humo sano— y el enlace al
+     vale. La captura es un clon de la pantalla, no una imagen.
+     En el teléfono (iOS Safari, Android Chrome) la miniatura abre la hoja
+     nativa del sistema con el PNG y el mensaje: el PNG se arma apenas se
+     toma la captura, porque navigator.share solo funciona dentro del toque
+     y cualquier espera antes de llamarlo lo invalida. En compu, o si algo
+     falla, se abre la hoja HTML de abajo. */
+  const SHOT_TEASERS = [
+    (n, b, l) => `¿Qué onda, ${n}? 👀 No te voy a decir quién, pero en la colonia se anda diciendo que alguien te dejó algo en ${b} y que si no lo abrís hoy…\n\n👉 ${l}`,
+    (n, b, l) => `${n}, ¡púchica! 😱 La vecina de la tienda me contó algo de vos y ${b} que no te vas a creer. Resulta que…\n\n👉 ${l}`,
+    (n, b, l) => `No es por chismear, ${n}, pero… 🤫 alguien te tiene una sorpresa en ${b} y ya todo el barrio sabe menos vos. Mirá esto antes de que…\n\n👉 ${l}`,
+    (n, b, l) => `${n}, ¿ya te contaron? 👀 Dicen que hoy te toca ${b} y que el que manda la foto es…\n\n👉 ${l}`,
+  ];
+
+  function shotRecipientName() {
+    const full = state.recipient && state.recipient !== "Para mí" ? state.recipient : GUA_RECIPIENT.name;
+    return full.split(" ")[0];
+  }
+
+  /* El enlace es universal: con la app instalada abre el vale; sin ella,
+     la landing de quien recibe (la de la matriz de MARS). */
+  function shotLink(id) {
+    /* Código corto y estable por vale, como el de un enlace real. */
+    let h = 0;
+    for (const ch of String(id || "vale")) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const code = h.toString(36).toUpperCase().padStart(6, "0").slice(-6);
+    return `https://okyapp.com/v/${code}?ref=foto`;
+  }
+
+  function takeVoucherShot({ brand, id }) {
+    const frame = root.querySelector(".oky-flow-frame");
+    if (!frame || frame.querySelector(".oky-shot")) return;
+    const android = /Android/i.test(navigator.userAgent);
+    const scroll = frame.querySelector(".oky-flow-scroll");
+    const scrollTop = scroll ? scroll.scrollTop : 0;
+
+    /* El mensaje se arma igual para la hoja nativa y la HTML. */
+    let turn = Math.floor(Math.random() * SHOT_TEASERS.length);
+    const name = shotRecipientName();
+    const link = shotLink(id);
+    const compose = () => SHOT_TEASERS[turn % SHOT_TEASERS.length](name, brand || "OKY", link);
+
+    /* Hoja nativa: solo con pantalla táctil y Web Share con archivos. */
+    const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    const native = coarse && typeof navigator.share === "function" && typeof navigator.canShare === "function";
+    let png = null;
+    if (native) {
+      shotPng(frame)
+        .then((file) => {
+          if (file && navigator.canShare({ files: [file] })) png = file;
+        })
+        .catch(() => {});
+    }
+
+    /* La captura: un clon inerte de lo que se ve. */
+    const snapshot = () => {
+      const copy = frame.cloneNode(true);
+      copy.querySelectorAll(".oky-shot").forEach((n) => n.remove());
+      copy.querySelectorAll("[data-action]").forEach((n) => n.removeAttribute("data-action"));
+      copy.classList.add("oky-shot-copy");
+      copy.setAttribute("aria-hidden", "true");
+      return copy;
+    };
+    const keepScroll = (copy) => {
+      const sc = copy.querySelector(".oky-flow-scroll");
+      if (sc) sc.scrollTop = scrollTop;
+    };
+
+    const shot = document.createElement("div");
+    shot.className = `oky-shot is-${android ? "android" : "ios"}`;
+    shot.innerHTML = `
+      <div class="oky-shot-flash"></div>
+      <button class="oky-shot-thumb is-full" type="button" aria-label="Captura de pantalla. Tocá para compartir"></button>
+      ${
+        android
+          ? `<div class="oky-shot-chips" role="toolbar" aria-label="Captura de pantalla">
+              <button type="button" data-shot="share"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i>Compartir</button>
+              <button type="button" disabled><i class="fa-solid fa-pen" aria-hidden="true"></i>Editar</button>
+              <button type="button" disabled><i class="fa-solid fa-arrows-up-down" aria-hidden="true"></i>Capturar más</button>
+            </div>`
+          : ""
+      }
+    `;
+    const thumb = shot.querySelector(".oky-shot-thumb");
+    const copy = snapshot();
+    thumb.appendChild(copy);
+    frame.appendChild(shot);
+    keepScroll(copy);
+
+    /* Destello y, enseguida, la pantalla se encoge a la esquina. */
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        shot.classList.add("is-flashing");
+        setTimeout(() => thumb.classList.remove("is-full"), 260);
+        setTimeout(() => shot.classList.add("is-ready"), 620);
+      }),
+    );
+
+    let idle = setTimeout(() => close(), 7000);
+    const close = () => {
+      clearTimeout(idle);
+      shot.classList.add("is-leaving");
+      setTimeout(() => shot.remove(), 220);
+    };
+
+    const openSheet = () => {
+      clearTimeout(idle);
+      if (shot.querySelector(".oky-shot-sheet")) return;
+      shot.classList.add("is-sharing");
+      const sheet = document.createElement("div");
+      sheet.className = "oky-shot-sheet";
+      sheet.setAttribute("role", "dialog");
+      sheet.setAttribute("aria-label", "Compartir captura");
+      sheet.innerHTML = `
+        <div class="oky-shot-sheet-head">
+          <div class="oky-shot-sheet-thumb"></div>
+          <div class="oky-shot-sheet-meta">
+            <strong>Captura de pantalla</strong>
+            <span>Foto del vale${brand ? ` de ${brand}` : ""} + mensaje</span>
+          </div>
+          <button class="oky-shot-sheet-close" type="button" aria-label="Cerrar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        </div>
+        <label class="oky-shot-sheet-label" for="oky-shot-msg">Mensaje para ${name}</label>
+        <textarea id="oky-shot-msg" class="oky-shot-sheet-msg" rows="5"></textarea>
+        <button class="oky-shot-reroll" type="button"><i class="fa-solid fa-shuffle" aria-hidden="true"></i>Otro chisme</button>
+        <div class="oky-shot-apps">
+          ${[
+            ["wa", "WhatsApp", "fa-brands fa-whatsapp"],
+            ["sms", "Mensajes", "fa-solid fa-comment-sms"],
+            ["tg", "Telegram", "fa-brands fa-telegram"],
+            ["fb", "Messenger", "fa-brands fa-facebook-messenger"],
+            ["mail", "Correo", "fa-solid fa-envelope"],
+            ["copy", "Copiar", "fa-regular fa-copy"],
+            ["more", "Más", "fa-solid fa-ellipsis"],
+          ]
+            .map(
+              ([k, label, icon]) => `
+            <button class="oky-shot-app is-${k}" type="button" data-shot-app="${k}">
+              <span class="oky-shot-app-icon"><i class="${icon}" aria-hidden="true"></i></span>
+              <span class="oky-shot-app-label">${label}</span>
+            </button>`,
+            )
+            .join("")}
+        </div>
+        <button class="oky-shot-cancel" type="button">Cancelar</button>
+      `;
+      const mini = snapshot();
+      const box = sheet.querySelector(".oky-shot-sheet-thumb");
+      box.appendChild(mini);
+      /* La miniatura es la pantalla entera reducida a lo ancho del cuadro. */
+      const fw = frame.offsetWidth || 360;
+      const fh = frame.offsetHeight || 780;
+      Object.assign(mini.style, {
+        width: `${fw}px`,
+        height: `${fh}px`,
+        transform: `scale(${56 / fw})`,
+      });
+      box.style.height = `${Math.round((fh * 56) / fw)}px`;
+      shot.appendChild(sheet);
+      keepScroll(mini);
+      const msg = sheet.querySelector(".oky-shot-sheet-msg");
+      msg.value = compose();
+      requestAnimationFrame(() => sheet.classList.add("is-open"));
+
+      sheet.querySelector(".oky-shot-reroll").addEventListener("click", () => {
+        turn += 1;
+        msg.value = compose();
+      });
+      sheet.querySelector(".oky-shot-sheet-close").addEventListener("click", close);
+      sheet.querySelector(".oky-shot-cancel").addEventListener("click", close);
+
+      const say = (button, text) => {
+        const label = button.querySelector(".oky-shot-app-label");
+        const before = label.textContent;
+        label.textContent = text;
+        setTimeout(() => (label.textContent = before), 1500);
+      };
+      const open = (url) => window.open(url, "_blank", "noopener");
+
+      sheet.querySelectorAll("[data-shot-app]").forEach((button) =>
+        button.addEventListener("click", async () => {
+          const text = msg.value;
+          const enc = encodeURIComponent(text);
+          const app = button.dataset.shotApp;
+          if (app === "wa") return open(`https://wa.me/?text=${enc}`);
+          if (app === "sms") return open(`sms:?&body=${enc}`);
+          if (app === "tg")
+            return open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text.replace(link, "").trim())}`);
+          if (app === "fb") return open(`fb-messenger://share/?link=${encodeURIComponent(link)}`);
+          if (app === "mail")
+            return open(`mailto:?subject=${encodeURIComponent(`${name}, tenés que ver esto 👀`)}&body=${enc}`);
+          if (app === "copy") {
+            try {
+              await navigator.clipboard.writeText(text);
+              say(button, "Copiado");
+            } catch (error) {
+              say(button, "No se pudo");
+            }
+            return;
+          }
+          /* "Más": la hoja del sistema, con la imagen si el navegador
+             deja armarla; si no, solo el texto. */
+          /* Sin esperas antes de share(): si el PNG no está listo, va
+             solo el texto. */
+          const payload = { text };
+          if (png) payload.files = [png];
+          if (navigator.share) {
+            navigator.share(payload).catch(() => {});
+          } else {
+            open(`https://wa.me/?text=${enc}`);
+          }
+        }),
+      );
+    };
+
+    /* Teléfono: hoja nativa con la foto. WhatsApp en iOS a veces suelta
+       el texto cuando va con imagen, así que el mensaje también queda
+       copiado para pegarlo en el chat. */
+    const shareNative = () => {
+      if (!png) return openSheet();
+      clearTimeout(idle);
+      shot.classList.add("is-sharing");
+      const text = compose();
+      if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+      navigator
+        .share({ files: [png], text })
+        .then(close)
+        .catch((error) => (error && error.name === "AbortError" ? close() : openSheet()));
+    };
+    const onShare = native ? shareNative : openSheet;
+
+    thumb.addEventListener("click", onShare);
+    const chip = shot.querySelector('[data-shot="share"]');
+    if (chip) chip.addEventListener("click", onShare);
+  }
+
+  /* PNG de la pantalla para la hoja nativa. html2canvas se carga solo la
+     primera vez que hace falta. */
+  let html2canvasReady = null;
+  async function shotPng(frame) {
+    if (!html2canvasReady) {
+      html2canvasReady = new Promise((resolve, reject) => {
+        if (window.html2canvas) return resolve(window.html2canvas);
+        const script = document.createElement("script");
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+        script.onload = () => resolve(window.html2canvas);
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+    const h2c = await html2canvasReady;
+    const target = frame.querySelector(".oky-flow-scroll") || frame;
+    const canvas = await h2c(target, { backgroundColor: "#ffffff", scale: 2, useCORS: true, logging: false });
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    return blob ? new File([blob], ["oky-vale", "png"].join("."), { type: "image/png" }) : null;
+  }
+
+  function closeCashNotice(hint) {
+    if (!state.cashNotice) return;
+    state.cashNotice = false;
+    /* Lo marcado en el aviso vale igual que marcarlo en el checkout: la
+       casilla de la fila real llega marcada. */
+    if (state.cashNoticePick && !state.okyCashEnabled) {
+      state.promo = null;
+      state.okyCashEnabled = true;
+      state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
+    }
+    state.cashNoticePick = false;
+    render({ keepScroll: true });
+    if (!hint) return;
+    const row = root.querySelector(".oky-flow-payrow.is-cash");
+    if (!row) return;
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    row.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+    row.classList.remove("is-hint");
+    void row.offsetWidth;
+    row.classList.add("is-hint");
+    row.addEventListener("animationend", () => row.classList.remove("is-hint"), { once: true });
+  }
+
   function leavePurchase(screen) {
     if (!POST_PURCHASE.includes(state.screen)) return go(screen);
     state.history = [{ screen: homeOfCountry(), params: {} }];
@@ -7250,7 +7709,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      se queda en su sitio y con su ancho: pasa del oscuro de la ranura al
      aqua y luego aparecen la moneda y la cifra. El aviso dura un render. */
   function leaveCashWin() {
-    state.pillArrive = true;
+    /* Solo si se salta con un toque antes de que la pastilla se llene:
+       al terminar sola ya está en aqua y con la cifra, y repetir el
+       llenado la hacía parpadear. */
+    state.pillArrive = Date.now() - winStartedAt < 7000;
     go("purchases", {}, { push: false });
     state.pillArrive = false;
   }
@@ -7743,7 +8205,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* Un botón puede pedir su pestaña: "Tus OKY Vales" del
          estado vacío de OKY Cash abre OKY Vales, se entre desde donde
          se entre. */
-      const pedida = el.dataset.tab;
+      /* El botón pide la pestaña con el nombre de siempre (gift, vales,
+         servicios) y aquí se traduce a la de la versión abierta. Sin
+         esto, en /miscompras "vales" no existía y caía en Para mí. */
+      const ALIAS = {
+        2: { gift: "parami", vales: "paracompartir", servicios: "paracompartir" },
+        3: { gift: "v3mio", vales: "v3comp", servicios: "v3comp" },
+      };
+      const pedida = (ALIAS[state.walletVer] || {})[el.dataset.tab] || el.dataset.tab;
       if (pedida && walletTabsOf(state).some((t) => t.key === pedida)) {
         state.walletTab = pedida;
         state.openGroups = walletOpenGroups(state, pedida);
@@ -7779,12 +8248,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "cashsolo-tab") {
       const tab = el.dataset.tab === "methods" ? "methods" : "cash";
-      /* Desde los métodos del checkout, la mitad de OKY Cash es la
-         pantalla de OKY Cash; atrás devuelve al pago. */
+      /* Desde los métodos del checkout las dos mitades se miran sin
+         salir de la compra: el botón de "Ir a pagar" sigue abajo. */
       if (state.screen === "methods") {
-        if (tab === "methods") return;
-        state.cashSoloTab = "cash";
-        return go("cashsolo");
+        if ((state.methodsTab || "methods") === tab) return;
+        state.methodsTab = tab;
+        return render();
       }
       /* Y al revés: si a OKY Cash se llegó desde los métodos del checkout,
          la mitad de métodos es esa misma pantalla, con su "Siguiente".
@@ -8023,6 +8492,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          Cash ya marcado y de paso borraba el código promocional. Mirar
          no es elegir, y al volver al checkout la persona se encontraba
          con una decisión que no había tomado. */
+      state.methodsTab = "methods";
       return go("methods");
     }
 
@@ -8178,44 +8648,27 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "notice-pick-cash") {
-      /* Solo cambia la casilla: volver a pintar todo reiniciaba la
-         entrada de la hoja y daba un salto. */
-      state.cashNoticePick = !state.cashNoticePick;
+      /* Marcar la casilla es la decisión: se ve el check y el confeti un
+         instante y la hoja se cierra sola al checkout, con la fila real
+         marcada y destellando. */
+      if (state.cashNoticePick) return;
+      state.cashNoticePick = true;
       const row = root.querySelector(".oky-flow-cashnote-preview .oky-flow-payrow");
       if (row) {
-        row.classList.toggle("is-checked", state.cashNoticePick);
-        row.setAttribute("aria-checked", String(state.cashNoticePick));
+        row.classList.add("is-checked");
+        row.setAttribute("aria-checked", "true");
         const box = row.querySelector(".oky-flow-check");
-        if (box) box.classList.toggle("is-checked", state.cashNoticePick);
+        if (box) box.classList.add("is-checked");
       }
-      if (state.cashNoticePick) burstConfetti(".oky-flow-cashnote-preview .oky-flow-payrow");
+      burstConfetti(".oky-flow-cashnote-preview .oky-flow-payrow");
+      setTimeout(() => closeCashNotice(true), 520);
       return;
     }
 
     if (action === "close-cash-notice") {
-      state.cashNotice = false;
-      /* Lo marcado en el aviso vale igual que marcarlo en el checkout:
-         la casilla de la fila real llega marcada. */
-      if (state.cashNoticePick && !state.okyCashEnabled) {
-        state.promo = null;
-        state.okyCashEnabled = true;
-        state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
-      }
-      state.cashNoticePick = false;
-      render({ keepScroll: true });
-      /* "Entendido" lleva a la casilla y la hace destellar: el aviso dice
-         que hay saldo, y esto dice dónde se usa. El fondo atenuado solo
-         cierra. */
-      if (el.dataset.hint !== "cash") return;
-      const row = root.querySelector(".oky-flow-payrow.is-cash");
-      if (!row) return;
-      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      row.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
-      row.classList.remove("is-hint");
-      void row.offsetWidth;
-      row.classList.add("is-hint");
-      row.addEventListener("animationend", () => row.classList.remove("is-hint"), { once: true });
-      return;
+      /* La X lleva igual al checkout y hace destellar la fila, sin
+         marcar. El fondo atenuado solo cierra. */
+      return closeCashNotice(el.dataset.hint === "cash");
     }
 
     if (action === "close-savings") {
@@ -8608,6 +9061,26 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "confirm-methods") return goBack();
 
+    if (action === "open-webview" || action === "reload-webview") {
+      clearTimeout(webviewTimer);
+      state.webview = { phase: "loading", fresh: action === "open-webview" && !state.webview };
+      render({ keepScroll: true });
+      /* Un respiro de carga, como una página de verdad. Sin conexión,
+         el error. */
+      webviewTimer = setTimeout(() => {
+        if (!state.webview) return;
+        state.webview = { phase: navigator.onLine === false ? "error" : "ready", fresh: false };
+        render({ keepScroll: true });
+      }, 900);
+      return;
+    }
+
+    if (action === "close-webview") {
+      clearTimeout(webviewTimer);
+      state.webview = null;
+      return render({ keepScroll: true });
+    }
+
     if (action === "pay") {
       /* Un segundo toque mientras corre el procesamiento duplicaría
          la compra. */
@@ -8640,6 +9113,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
+    if (action === "send-photo") {
+      return takeVoucherShot({ brand: el.dataset.label || "", id: el.dataset.id || "" });
+    }
+    if (action === "close-order-voucher") {
+      /* La X vuelve a la pila de la orden sin repetir la celebración. */
+      return go("purchases", {}, { push: false });
+    }
     if (action === "open-purchase") {
       /* Callarla vale para el vale que estabas mirando, no para el
          resto: en uno nuevo vuelve a ofrecerse. */

@@ -8015,6 +8015,74 @@ body {
   width: 100%;
 }
 
+/* ── Vale abierto desde la pila de la orden ──────────────
+   Toast de compra exitosa (Fat Toast de MARS, variante Success) a todo
+   lo ancho y la X que vuelve a la pila. */
+.oky-flow-header.is-order-voucher {
+  gap: 12px;
+}
+
+.oky-flow-toast {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.oky-flow-toast.is-success {
+  background: #edf7ed;
+  color: #1e4620;
+}
+
+.oky-flow-toast.is-success i {
+  color: #4caf50;
+  font-size: 18px;
+}
+
+.oky-flow-toast-close {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--primary-main);
+  font-size: 28px;
+}
+
+/* En la cabecera del acuse el toast ocupa el sitio de la pastilla:
+   entre las bolsas de Mis compras y el hueco de la derecha. */
+.oky-flow-header.is-purchase .oky-flow-toast.is-header {
+  flex: 1;
+  max-width: 240px;
+  height: 40px;
+  margin: 0 auto;
+  font-size: 15px;
+}
+
+/* El contenedor del botón no lleva fondo ni sombra: el botón flota
+   sobre la pantalla con su propio blanco. */
+.oky-flow-cta-bar.is-order-voucher {
+  background: none;
+  box-shadow: none;
+}
+
+.oky-flow-cta-bar.is-order-voucher .btn {
+  gap: 10px;
+  background: var(--white);
+}
+
+/* "Ver historial" todavía no lleva a ningún sitio. */
+.oky-flow-cta-bar.is-order-voucher .btn.is-inert {
+  cursor: default;
+}
+
 /* Summary acoplado al fondo, encima del saving bar (Figma PDP).
    Copia el degradado de .pdp-page-summary-wrap. */
 .oky-flow-dock {
@@ -13085,15 +13153,22 @@ button.tactic-offer {
    el color del texto de su tier, aqua o mostaza, como el resto. */
 .saving-bar-info {
   position: absolute;
-  left: 12px;
+  left: 2px;
   top: 50%;
   transform: translateY(-50%);
+  /* 40px de blanco para el dedo; el icono sigue a 12px del borde. */
+  width: 40px;
+  height: 40px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
   font-size: 14px;
   line-height: 1;
   color: var(--tier-base-text);
-  pointer-events: none;
+  cursor: pointer;
 }
 
 .saving-bar.is-tier-promo .saving-bar-info {
@@ -13788,6 +13863,11 @@ button.tactic-offer {
   width: 22px;
   height: 24px;
   object-fit: contain;
+}
+
+/* "disponible" acompaña al saldo sin competir con la cifra. */
+.oky-flow-purchase-badge-note {
+  font-weight: 400;
 }
 
 /* En la cabecera de compra la cifra va sola ("+$0.50"), centrada en una
@@ -15929,6 +16009,20 @@ img.oky-flow-method-mark {
   object-fit: contain;
 }
 
+/* En los vacíos de Mis compras, el doble (64 → 128): el arte en 3D es
+   lo primero que se lee y a 42px no se distinguía. El vacío de OKY Cash
+   se queda como estaba porque tiene que caber sobre la navbar. */
+.oky-flow-cash-empty.is-wallet .oky-flow-cash-empty-art {
+  width: 128px;
+  height: 128px;
+  border-radius: 64px;
+}
+
+.oky-flow-cash-empty.is-wallet .oky-flow-cash-empty-art img {
+  width: 84px;
+  height: 88px;
+}
+
 .oky-flow-cash-empty-title {
   margin: 0;
   font-family: "Nunito Sans", sans-serif;
@@ -16388,4 +16482,598 @@ img.oky-flow-method-mark {
 
 @media (prefers-reduced-motion: reduce) {
   .input-field.is-called { animation: none; }
+}
+
+
+/* ── Mandale foto · captura de pantalla simulada ───────────────
+   Destello, la pantalla se encoge a la esquina (iOS 27) o deja la
+   barra de Compartir / Editar / Capturar más (Android), y la hoja para
+   compartir con el mensaje y el enlace. */
+.oky-shot {
+  position: absolute;
+  inset: 0;
+  z-index: 400;
+  pointer-events: none;
+  border-radius: inherit;
+  overflow: hidden;
+  transition: background-color 240ms ease;
+}
+
+.oky-shot > * {
+  pointer-events: auto;
+}
+
+.oky-shot-flash {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.oky-shot.is-flashing .oky-shot-flash {
+  animation: oky-shot-flash 420ms ease-out;
+}
+
+@keyframes oky-shot-flash {
+  0% { opacity: 0; }
+  15% { opacity: 0.95; }
+  100% { opacity: 0; }
+}
+
+/* La captura: la pantalla entera, que se encoge con transform hacia la
+   esquina de abajo a la izquierda, con su marco blanco y sombra. */
+.oky-shot-thumb {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  margin: 0;
+  border: 14px solid #ffffff;
+  border-radius: 64px;
+  background: #ffffff;
+  overflow: hidden;
+  cursor: pointer;
+  transform: scale(0.3);
+  transform-origin: 16px calc(100% - 104px);
+  box-shadow: 0 30px 80px rgba(20, 10, 40, 0.45);
+  transition:
+    transform 380ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-width 380ms ease,
+    border-radius 380ms ease,
+    opacity 200ms ease;
+}
+
+.oky-shot-thumb.is-full {
+  transform: none;
+  border-width: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.oky-shot-copy {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.oky-shot.is-android .oky-shot-thumb {
+  border-radius: 40px;
+}
+
+.oky-shot-chips {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 18px;
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 24px;
+  background: rgba(32, 33, 36, 0.94);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.oky-shot.is-ready .oky-shot-chips {
+  opacity: 1;
+  transform: none;
+}
+
+.oky-shot-chips button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 6px;
+  border: 0;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.oky-shot-chips button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.oky-shot.is-sharing {
+  background: rgba(20, 10, 40, 0.4);
+}
+
+.oky-shot.is-sharing .oky-shot-thumb,
+.oky-shot.is-sharing .oky-shot-chips {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.oky-shot.is-leaving {
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+/* Hoja para compartir. */
+.oky-shot-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 90%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 16px 24px;
+  border-radius: 24px 24px 0 0;
+  background: #ffffff;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.18);
+  font-family: "Lato", sans-serif;
+  transform: translateY(100%);
+  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.oky-shot-sheet.is-open {
+  transform: none;
+}
+
+.oky-shot-sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.oky-shot-sheet-thumb {
+  position: relative;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 100px;
+  overflow: hidden;
+  border: 1px solid #e6e4ec;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.oky-shot-sheet-thumb .oky-shot-copy {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+.oky-shot-sheet-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.oky-shot-sheet-meta strong {
+  font-size: 15px;
+  color: var(--primary-main);
+}
+
+.oky-shot-sheet-meta span {
+  font-size: 12px;
+  color: #6e6a78;
+}
+
+.oky-shot-sheet-close {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: #f1eff5;
+  color: var(--primary-main);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.oky-shot-sheet-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #6e6a78;
+}
+
+.oky-shot-sheet-msg {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: -6px;
+  padding: 10px 12px;
+  border: 1px solid #d9d5e3;
+  border-radius: 12px;
+  font-family: "Lato", sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #2b2633;
+  resize: none;
+}
+
+.oky-shot-sheet-msg:focus-visible {
+  outline: 2px solid var(--primary-main);
+  outline-offset: 1px;
+}
+
+.oky-shot-reroll {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: -6px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--primary-main);
+  font-family: "Lato", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.oky-shot-apps {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 4px 2px 6px;
+  scrollbar-width: none;
+}
+
+.oky-shot-apps::-webkit-scrollbar {
+  display: none;
+}
+
+.oky-shot-app {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 60px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.oky-shot-app-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  color: #ffffff;
+  font-size: 24px;
+}
+
+.oky-shot-app.is-wa .oky-shot-app-icon { background: #25d366; }
+.oky-shot-app.is-sms .oky-shot-app-icon { background: #34c759; }
+.oky-shot-app.is-tg .oky-shot-app-icon { background: #2aabee; }
+.oky-shot-app.is-fb .oky-shot-app-icon { background: linear-gradient(135deg, #0084ff, #a033ff); }
+.oky-shot-app.is-mail .oky-shot-app-icon { background: #3d7bf7; }
+.oky-shot-app.is-copy .oky-shot-app-icon,
+.oky-shot-app.is-more .oky-shot-app-icon {
+  background: #f1eff5;
+  color: var(--primary-main);
+}
+
+.oky-shot-app-label {
+  font-size: 11px;
+  color: #2b2633;
+  white-space: nowrap;
+}
+
+.oky-shot-cancel {
+  width: 100%;
+  height: 44px;
+  border: 1px solid var(--primary-main);
+  border-radius: 24px;
+  background: #ffffff;
+  color: var(--primary-main);
+  font-family: "Lato", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-shot-thumb,
+  .oky-shot-sheet,
+  .oky-shot-chips {
+    transition: none;
+  }
+  .oky-shot.is-flashing .oky-shot-flash {
+    animation: none;
+  }
+}
+
+
+/* ── Webview · landing de OKY Cash (F05-FT2…FT4) ──────────
+   Navegador dentro de la app: cubre toda la pantalla, navbar incluida,
+   y sube desde abajo la primera vez. Barra con cerrar, título + URL con
+   candado y recargar; debajo, la barra de progreso mientras carga. */
+.oky-webview {
+  position: absolute;
+  inset: 0;
+  z-index: 160;
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.oky-webview.is-fresh {
+  animation: oky-webview-up 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+@keyframes oky-webview-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.oky-webview-bar {
+  position: relative;
+  flex: none;
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  padding: 8px 8px 10px;
+  border-bottom: 1px solid #ececf1;
+}
+
+.oky-webview-icon {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: none;
+  color: #552588;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.oky-webview-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.oky-webview-title strong {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #552588;
+}
+
+.oky-webview-title span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #6b6b78;
+  white-space: nowrap;
+}
+
+.oky-webview-title span i {
+  font-size: 9px;
+  color: #c9a227;
+}
+
+.oky-webview-progress {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 3px;
+  background: #552588;
+  animation: oky-webview-progress 900ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes oky-webview-progress {
+  from {
+    width: 6%;
+  }
+  to {
+    width: 82%;
+  }
+}
+
+.oky-webview-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px 32px;
+}
+
+.oky-webview-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.oky-webview-skeleton span {
+  display: block;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #ececf1 0%, #f6f6f9 50%, #ececf1 100%) 0 0 / 200% 100%;
+  animation: oky-webview-shimmer 1.2s linear infinite;
+}
+
+.oky-webview-skeleton .is-hero {
+  height: 230px;
+  border-radius: 20px;
+}
+
+.oky-webview-skeleton .is-line {
+  height: 16px;
+}
+
+.oky-webview-skeleton .is-line:first-of-type {
+  height: 26px;
+}
+
+.oky-webview-skeleton .is-block {
+  height: 80px;
+  border-radius: 16px;
+}
+
+.oky-webview-skeleton .is-cta {
+  height: 52px;
+  border-radius: 999px;
+}
+
+@keyframes oky-webview-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.oky-webview-landing {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.oky-webview-card {
+  height: 230px;
+  border-radius: 20px;
+  padding: 22px 24px;
+  background: url(oky-card-design-black.png) center 70% / 85% no-repeat #000;
+}
+
+.oky-webview-card span {
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.oky-webview-landing h2 {
+  margin: 4px 0 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: #552588;
+}
+
+.oky-webview-landing p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: #6b6b78;
+}
+
+.oky-webview-steps {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.oky-webview-steps li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #552588;
+}
+
+.oky-webview-steps li span {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--tier-base-bg);
+  color: #003633;
+}
+
+.oky-webview-error {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 12px 80px;
+  text-align: center;
+}
+
+.oky-webview-error-art {
+  width: 88px;
+  height: 88px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fdecea;
+  color: #d93025;
+  font-size: 36px;
+}
+
+.oky-webview-error h2 {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: #552588;
+}
+
+.oky-webview-error p {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #6b6b78;
+}
+
+.oky-webview-error .btn {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-webview.is-fresh,
+  .oky-webview-progress,
+  .oky-webview-skeleton span {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
 }
