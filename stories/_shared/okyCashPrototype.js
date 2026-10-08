@@ -131,7 +131,9 @@ const CARD_DESIGNS = [
       backgroundMode: "solid",
       /* El color va debajo del arte: si por el recorte o el redondeo
          asoma un píxel, es del color de la tarjeta y no del fondo. */
-      backgroundColor: "url(oky-card-design-black.png) center/85% no-repeat #000000",
+      /* Al 64 % el remolino deja libres las cuatro esquinas: nombre,
+         saldo, vencimiento y lápiz se leen sobre negro. */
+      backgroundColor: "url(oky-card-design-black.png) center/64% no-repeat #000000",
       showBorder: false,
       pattern: null,
     },
