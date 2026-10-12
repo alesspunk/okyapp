@@ -22400,21 +22400,9 @@ function cartDrawer(state) {
       </div>
 
       <div class="oky-flow-drawer-foot${state.cart.length ? "" : " is-hidden"}">
-        ${
-          /* En Guatemala se compra en quetzales y se paga en dólares:
-             la solapa del tipo de cambio acompaña al resumen, como en
-             el PDP. En USA no hay conversión que explicar. */
-          /* Solo si hay un vale de monto en quetzales: con productos en
-             dólares (comida, recargas) no hay conversión que explicar. */
-          orderCountry(state) === "gua" && state.cart.some((item) => (PRODUCTS[item.productKey] || {}).quetzal)
-            ? `<div class="summary-box summary-box-compact with-overlap">
-                <div class="summary-type-overlay">
-                  <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
-                </div>
-                <div class="summary-card">`
-            : `<div class="summary-box summary-box-compact">
-                <div class="summary-card">`
-        }
+        ${/* Sin solapa del tipo de cambio: va solo en el checkout. */ ""}
+        <div class="summary-box summary-box-compact">
+                <div class="summary-card">
             <div class="summary-card-body">
               <div class="summary-row summary-row-total">
                 <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
@@ -22676,7 +22664,16 @@ function screenCheckout(state) {
         }
       </div>
 
-      <div class="summary-box summary-box-compact oky-flow-push" style="width:100%">
+      ${
+        /* La solapa del tipo de cambio, igual que en el carrito: solo con
+           un vale de monto en quetzales en la orden. */
+        orderCountry(state) === "gua" && state.cart.some((item) => (PRODUCTS[item.productKey] || {}).quetzal)
+          ? `<div class="summary-box summary-box-compact with-overlap oky-flow-push" style="width:100%">
+              <div class="summary-type-overlay">
+                <span class="token-exchange">TIPO DE CAMBIO: Q ${GUA_RATE.toFixed(2)}</span>
+              </div>`
+          : `<div class="summary-box summary-box-compact oky-flow-push" style="width:100%">`
+      }
         <div class="summary-card">
           <div class="summary-card-body">
             ${
@@ -26164,10 +26161,8 @@ function screenGuaPdp(state) {
     </div>
 
     <div class="oky-flow-dock${savings > 0 ? "" : " is-no-bar"}">
-      <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="pdp">
-        <div class="summary-type-overlay">
-          <span class="token-exchange">TIPO DE CAMBIO: Q ${GUA_RATE.toFixed(2)}</span>
-        </div>
+      ${/* La solapa del tipo de cambio va solo en el checkout. */ ""}
+      <div class="summary-box summary-box-compact" data-flow="products" data-step="pdp">
         <div class="summary-card">
           <div class="summary-card-body">
             <div class="summary-row">
