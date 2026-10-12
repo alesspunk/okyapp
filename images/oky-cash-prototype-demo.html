@@ -22413,7 +22413,9 @@ function cartDrawer(state) {
           /* En Guatemala se compra en quetzales y se paga en dólares:
              la solapa del tipo de cambio acompaña al resumen, como en
              el PDP. En USA no hay conversión que explicar. */
-          orderCountry(state) === "gua"
+          /* Solo si hay un vale de monto en quetzales: con productos en
+             dólares (comida, recargas) no hay conversión que explicar. */
+          orderCountry(state) === "gua" && state.cart.some((item) => (PRODUCTS[item.productKey] || {}).quetzal)
             ? `<div class="summary-box summary-box-compact with-overlap">
                 <div class="summary-type-overlay">
                   <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
@@ -24963,10 +24965,10 @@ function screenFoodPdp(state) {
     </div>
 
     <section class="pdp-page-summary-wrap oky-flow-dock" aria-label="Resumen de compra">
-      <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="pdp">
-        <div class="summary-type-overlay">
-          <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
-        </div>
+      ${/* Sin solapa de tipo de cambio: la comida se vende en dólares y
+           no hay conversión que explicar. Solo la llevan los vales de
+           monto en quetzales. */ ""}
+      <div class="summary-box summary-box-compact" data-flow="products" data-step="pdp">
         <div class="summary-card">
           <div class="summary-card-body">
             <div class="summary-row summary-row-total">
@@ -26076,10 +26078,8 @@ function screenTigoPdp(state) {
       </section>
 
       <section class="pdp-page-summary-wrap oky-flow-dock" aria-label="Resumen de compra">
-        <div class="summary-box with-overlap summary-box-compact" data-flow="products" data-step="pdp">
-          <div class="summary-type-overlay">
-            <span class="token-exchange">TIPO DE CAMBIO: Q 7.55</span>
-          </div>
+        ${/* La recarga se elige en dólares: sin solapa de tipo de cambio. */ ""}
+        <div class="summary-box summary-box-compact" data-flow="products" data-step="pdp">
           <div class="summary-card">
             <div class="summary-card-body">
               <div class="summary-row">
