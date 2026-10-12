@@ -110,7 +110,7 @@ export const PAYMENT_CARD_VARIANTS = [
     cta: { label: "Ver actividad", icon: "fa-arrow-right" },
     editIcon: "payment-card-edit.svg",
     recommendation:
-      "OKY Cash negra: ilustración protagonista encima del contenido, CTA `Ver actividad` y botón de editar abajo a la izquierda.",
+      "OKY Cash negra: ilustración protagonista encima del contenido (al 64 % en el prototipo), CTA `Ver actividad` y botón de editar abajo a la izquierda; en las pantallas de OKY Cash el lápiz va abajo a la derecha y el vencimiento ocupa la izquierda (solo con saldo).",
   },
   {
     path: "Molecule/Payment Card/OKY Cash Teal",

@@ -589,8 +589,8 @@ const EMOJI_SELF = `<img class="oky-flow-emoji-img" src="oky-emoji-para-mi.png" 
 const EMOJI_OTHERS = `<img class="oky-flow-emoji-img" src="oky-emoji-para-otros.png" alt="" />`;
 
 const CARDS = [
-  { key: "visa", label: "**2111", mark: "fa-cc-visa", variant: "Molecule/Payment Card/Visa" },
-  { key: "mastercard", label: "**4566", mark: "fa-cc-mastercard", variant: "Molecule/Payment Card/Mastercard" },
+  { key: "visa", label: "**2111", brand: "Visa", last4: "2111", mark: "fa-cc-visa", variant: "Molecule/Payment Card/Visa" },
+  { key: "mastercard", label: "**4566", brand: "Mastercard", last4: "4566", mark: "fa-cc-mastercard", variant: "Molecule/Payment Card/Mastercard" },
 ];
 
 /* Las tarjetas que la persona tiene guardadas. En el caso límite de
@@ -1119,9 +1119,8 @@ const promoValue = (code) => PROMO_CODES[String(code || "").trim().toLowerCase()
 /* Lo que pide el carrito antes de cualquier descuento de pago. */
 const cartGross = (state) => cartSubtotal(state) + cartServiceFee(state);
 
-/* Lo que rebaja el código. Nunca deja el total en negativo, y no
-   convive con OKY Cash: el descuento que se aplica de último apaga
-   al otro. */
+/* Lo que rebaja el código. Nunca deja el total en negativo. Convive
+   con OKY Cash: primero baja el código y el saldo cubre lo que queda. */
 function appliedPromo(state) {
   if (!state.promo) return 0;
   return Math.min(promoValue(state.promo), cartGross(state));
@@ -2617,7 +2616,7 @@ function screenCheckout(state) {
             <i class="fa-solid fa-check" aria-hidden="true"></i>
           </button>
           <p class="oky-flow-payrow-copy" data-action="toggle-okycash" role="button" tabindex="0">OKY Cash</p>
-          <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash">${money(state.okyCashEnabled ? applied : state.okyCashBalance)}</span></span>
+          <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash"><img class="oky-flow-chip-icon is-coin" src="oky-cash-coin.png" alt="" />${money(state.okyCashEnabled ? applied : state.okyCashBalance)}</span></span>
           ${/* Los tres puntos vuelven: llevan a ver el disponible. En la
                variante 3 abren Tu billetera en la pestaña de OKY Cash, y en
                las demás, la pestaña de OKY Cash del wallet (nav:okycash ya
@@ -2633,9 +2632,11 @@ function screenCheckout(state) {
         ${
           checkoutCard
             ? `<div class="oky-flow-payrow ${hasCash ? "is-last" : "is-only"}" data-action="open-methods" role="button" tabindex="0">
-          <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
-          <p class="oky-flow-payrow-copy">${checkoutCard.label}</p>
-          <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-card">${money(toCard)}</span></span>
+          ${/* En el checkout la fila dice qué tarjeta es: marca y últimos
+               cuatro («Visa **** 2111»). La tarjeta 3D se muda adentro
+               del chip, como la moneda en el de OKY Cash. */ ""}
+          <p class="oky-flow-payrow-copy">${checkoutCard.brand} **** ${checkoutCard.last4}</p>
+          <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-card"><img class="oky-flow-chip-icon is-card" src="oky-card-3d.png" alt="" />${money(toCard)}</span></span>
           <span class="oky-flow-payrow-more" aria-hidden="true">
             <i class="fa-solid fa-ellipsis-vertical"></i>
           </span>
@@ -2678,6 +2679,9 @@ function screenCheckout(state) {
                          </div>`
                        : ""
                    }
+                   ${/* El código y OKY Cash conviven: los dos descuentos
+                        se ven a la vez. */ ""}
+                   ${promoRow(state)}
                    ${cashRow(state)}`
                 : cartServiceCount(state) || appliedPromo(state) > 0
                   ? `<div class="summary-row">
@@ -4990,7 +4994,7 @@ function promoPill(state) {
 function promoRow(state) {
   const off = appliedPromo(state);
   return off > 0
-    ? `<div class="summary-row">
+    ? `<div class="summary-row is-discount">
         <span class="summary-value-success">Código promo</span>
         <span class="summary-value-success">-${money(off)}</span>
       </div>`
@@ -5002,7 +5006,7 @@ function promoRow(state) {
    visible. */
 function cashRow(state) {
   return state.okyCashEnabled
-    ? `<div class="summary-row">
+    ? `<div class="summary-row is-discount">
         <span class="summary-value-success">OKY Cash</span>
         <span class="summary-value-success">-${money(orderCash(state))}</span>
       </div>`
@@ -5051,11 +5055,12 @@ function cashNoticeSheet(state) {
       </button>
       <h2 class="oky-flow-cashnote-title">
         <span class="oky-flow-cashwin-kicker">Tienes</span>
-        <span class="oky-flow-cashwin-amount"><span>$</span>${state.okyCashBalance.toFixed(2)}</span>
+        ${/* La moneda a la izquierda del $, y el $ al tamaño de la cifra. */ ""}
+        <span class="oky-flow-cashwin-amount is-notice"><img class="oky-flow-cashnote-coin" src="oky-cash-coin.png" alt="" /><span>$</span>${state.okyCashBalance.toFixed(2)}</span>
         <span class="oky-flow-cashwin-label">en OKY Cash</span>
       </h2>
       <p class="oky-flow-savings-note">
-        Márcalo ahora o en tu método de pago
+        Úsalo ahora o en compras futuras
       </p>
       <div class="oky-flow-cashnote-preview">
         <div class="payment-method-input oky-flow-paygroup">
@@ -5065,7 +5070,7 @@ function cashNoticeSheet(state) {
             aria-checked="${Boolean(state.cashNoticePick)}" aria-label="Usar OKY Cash en esta compra">
             <span class="oky-flow-check${state.cashNoticePick ? " is-checked" : ""}" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
             <p class="oky-flow-payrow-copy">OKY Cash</p>
-            <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash">${money(state.okyCashBalance)}</span></span>
+            <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash"><img class="oky-flow-chip-icon is-coin" src="oky-cash-coin.png" alt="" />${money(state.okyCashBalance)}</span></span>
             <span class="oky-flow-payrow-more is-empty" aria-hidden="true"></span>
           </div>
         </div>
@@ -5657,6 +5662,30 @@ function filterSheet(state) {
 function confirmSheet(state) {
   const sheet = CONFIRM_SHEETS[state.sheet.type];
   if (!sheet) return "";
+  /* En /miscompras la pregunta del destinatario enseña la UI real: las
+     pestañas Para mí / Para otros de Mis compras, y tocar una ya elige.
+     Sin emoji ni botones. La X también es «Para mí». */
+  if (state.sheet.type === "decision" && MISCOMPRAS_ROUTE) {
+    return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-sheet is-decision is-tabs" role="dialog" aria-modal="true" aria-label="${sheet.title}">
+      <button class="oky-flow-sheet-close" data-action="decision-self" type="button" aria-label="Cerrar: es para mí">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <h2 class="oky-flow-sheet-title">${sheet.title}</h2>
+      ${sheet.note ? `<p class="oky-flow-sheet-note">${sheet.note}</p>` : ""}
+      <section class="oky-flow-wallet-seg is-decision" role="tablist" aria-label="Para quién es">
+        ${WALLET_TABS_V3.map(
+          (t) => `
+          <button class="oky-flow-wallet-seg-item${t.key === "v3mio" ? " is-on" : ""}" type="button" role="tab"
+            data-action="${t.key === "v3mio" ? "decision-self" : "open-contacts"}" aria-selected="${t.key === "v3mio"}">
+            <span class="oky-flow-wallet-seg-emoji" aria-hidden="true">${t.emoji}</span>${t.label}
+          </button>`,
+        ).join("")}
+      </section>
+    </section>
+  `;
+  }
   return `
     <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
     <section class="oky-flow-sheet is-${state.sheet.type}" role="dialog" aria-modal="true" aria-label="${sheet.title}">
@@ -7652,7 +7681,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     /* Lo marcado en el aviso vale igual que marcarlo en el checkout: la
        casilla de la fila real llega marcada. */
     if (state.cashNoticePick && !state.okyCashEnabled) {
-      state.promo = null;
       state.okyCashEnabled = true;
       state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
     }
@@ -7663,6 +7691,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (!row) return;
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     row.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+    /* Al mismo tiempo que el scroll y el destello, confeti que cae de
+       arriba de la pantalla hasta la mitad. */
+    if (!reduce) rainConfetti();
     row.classList.remove("is-hint");
     void row.offsetWidth;
     row.classList.add("is-hint");
@@ -7934,6 +7965,36 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       piece.style.setProperty("--piece-h", `${9 + Math.random() * 7}px`);
       host.appendChild(piece);
     }
+  }
+
+  /* Lluvia corta de confeti en la mitad de arriba de la pantalla: cae
+     desde el borde de arriba y se apaga al llegar a la mitad. Vive en
+     el marco (no en el scroll) para que no se mueva con el scroll a la
+     fila de OKY Cash. */
+  function rainConfetti() {
+    const frame = root.querySelector(".oky-flow-frame");
+    if (!frame) return;
+    frame.querySelectorAll(".oky-flow-rain").forEach((n) => n.remove());
+    const host = document.createElement("div");
+    host.className = "oky-flow-rain";
+    host.setAttribute("aria-hidden", "true");
+    const colors = ["#09b4b0", "#a8faf5", "#552588", "#ffb400", "#ff6b9d", "#7cf4ef"];
+    for (let i = 0; i < 40; i += 1) {
+      const piece = document.createElement("span");
+      piece.className = "oky-flow-rain-piece";
+      piece.style.setProperty("--piece-x", `${Math.random() * 100}%`);
+      piece.style.setProperty("--piece-color", colors[i % colors.length]);
+      piece.style.setProperty("--piece-rot", `${Math.random() * 360}deg`);
+      piece.style.setProperty("--piece-spin", `${240 + Math.random() * 480}deg`);
+      piece.style.setProperty("--piece-delay", `${Math.random() * 350}ms`);
+      piece.style.setProperty("--piece-dur", `${900 + Math.random() * 500}ms`);
+      piece.style.setProperty("--piece-w", `${5 + Math.random() * 5}px`);
+      piece.style.setProperty("--piece-h", `${9 + Math.random() * 7}px`);
+      piece.style.setProperty("--piece-drift", `${-30 + Math.random() * 60}px`);
+      host.appendChild(piece);
+    }
+    frame.appendChild(host);
+    setTimeout(() => host.remove(), 1900);
   }
 
   function seedCelebration(host) {
@@ -8519,8 +8580,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "toggle-okycash") {
       const turningOn = !state.okyCashEnabled;
-      /* Un descuento a la vez: marcar OKY Cash borra el código. */
-      if (turningOn) state.promo = null;
+      /* El código y OKY Cash conviven: marcar OKY Cash ya no borra el
+         código; el saldo cubre lo que queda después del código. */
       state.okyCashEnabled = turningOn;
       state.okyCashApplied = turningOn ? Math.min(state.okyCashBalance, cartTotal(state)) : 0;
       /* Se queda donde estaba: marcar una casilla y saltar arriba no
@@ -8557,9 +8618,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.promoOpen = false;
       state.promoDraft = "";
       state.promoError = false;
-      /* El código desplaza al OKY Cash: no pueden convivir. */
-      state.okyCashEnabled = false;
-      state.okyCashApplied = 0;
+      /* El código ya no desplaza al OKY Cash: conviven, y el saldo se
+         recalcula sobre el total que deja el código. */
+      if (state.okyCashEnabled) state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
       render();
       burstConfetti(".oky-flow-promo");
       return;
@@ -8567,6 +8628,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "clear-promo") {
       state.promo = null;
+      if (state.okyCashEnabled) state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
       return render();
     }
 

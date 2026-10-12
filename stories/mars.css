@@ -17090,3 +17090,131 @@ img.oky-flow-method-mark {
     animation-iteration-count: 1;
   }
 }
+
+
+/* Confeti al cerrar el aviso de OKY Cash: cae de arriba de la pantalla
+   hasta la mitad y se apaga ahí, mientras la fila destella. */
+.oky-flow-rain {
+  position: absolute;
+  inset: 0 0 50% 0;
+  z-index: 150;
+  overflow: hidden;
+  pointer-events: none;
+  /* Para que las piezas midan la caída en alto de la mitad (cqh). */
+  container-type: size;
+}
+
+.oky-flow-rain-piece {
+  position: absolute;
+  top: -20px;
+  left: var(--piece-x);
+  width: var(--piece-w);
+  height: var(--piece-h);
+  border-radius: 2px;
+  background: var(--piece-color);
+  opacity: 0;
+  animation: oky-flow-rain var(--piece-dur) cubic-bezier(0.3, 0.6, 0.5, 1) var(--piece-delay) forwards;
+}
+
+@keyframes oky-flow-rain {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(var(--piece-rot));
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--piece-drift), calc(100cqh + 20px)) rotate(calc(var(--piece-rot) + var(--piece-spin)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-rain {
+    display: none;
+  }
+}
+
+
+/* Aviso «Tienes $X en OKY Cash»: la moneda va a la izquierda del $ y el
+   $ va al mismo tamaño que la cifra (en «Ganaste» sigue chico). */
+.oky-flow-cashwin-amount.is-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.oky-flow-cashwin-amount.is-notice span {
+  font-size: inherit;
+  vertical-align: baseline;
+  margin-right: -4px;
+}
+
+.oky-flow-cashnote-coin {
+  width: 44px;
+  height: 46px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+}
+
+
+/* Descuentos del resumen (OKY Cash y código promo): línea resaltada en
+   aqua claro, texto teal en bold. Los dos conviven en el resumen. */
+.summary-row.is-discount {
+  margin: 2px 0;
+  padding: 4px 0;
+  background: #e8fbf8;
+  box-shadow: -6px 0 0 #e8fbf8, 6px 0 0 #e8fbf8;
+}
+
+.summary-row.is-discount .summary-value-success {
+  font-weight: 800;
+  color: #007c72;
+}
+
+
+/* «¿Es para ti o para alguien más?» en /miscompras: en vez de emoji y
+   botones, las pestañas de Mis compras. La pista va blanca sobre el
+   morado para que se lea como el control real. */
+.oky-flow-sheet.is-decision.is-tabs {
+  padding-bottom: 32px;
+}
+
+.oky-flow-wallet-seg.is-decision {
+  width: 100%;
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+
+/* Chips del checkout con su ícono adentro, a la izquierda de la cifra:
+   la moneda en el de OKY Cash y la tarjeta 3D en el de la tarjeta. Las
+   dos celdas arrancan en la misma x (ancho fijo, chip a la izquierda). */
+.oky-flow-payrow .oky-flow-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px 4px 6px;
+  line-height: 1.2;
+}
+
+.oky-flow-chip-icon.is-coin {
+  width: 18px;
+  height: 19px;
+  object-fit: contain;
+}
+
+/* El PNG de la tarjeta trae aire alrededor: a 28px la tarjeta mide
+   ~23x16 y el margen negativo la deja a la altura de la moneda. */
+.oky-flow-chip-icon.is-card {
+  width: 28px;
+  height: 28px;
+  margin: -5px -3px -5px -4px;
+  object-fit: contain;
+}
+
+.oky-flow-payrow .oky-flow-chip-cell {
+  flex-basis: 112px;
+  width: 112px;
+}
