@@ -804,6 +804,10 @@ function createInitialState(userType) {
     /* El aviso de "Tienes OKY Cash" sale una vez por sesión, la primera
        vez que se llega al checkout con saldo para usar. */
     cashNotice: false,
+    /* Cuántas veces seguidas se eligió «Para mí» en la pregunta del
+       destinatario. A la tercera ya se sabe y no se vuelve a preguntar;
+       elegir «Para otros» la reinicia. */
+    selfStreak: 0,
     /* El webview de la landing de OKY Cash: null, o { phase: "loading" |
        "ready" | "error", fresh } —fresh solo la primera vez, para que
        suba desde abajo una vez y no en cada repintado—. */
@@ -5005,6 +5009,11 @@ function promoRow(state) {
    aunque el saldo sea cero, para que marcarla siempre haga algo
    visible. */
 function cashRow(state) {
+  /* Los dos descuentos restan a la vez: primero el código y el saldo
+     cubre lo que queda. Si el código ya cubre todo, no hay nada que
+     restar con OKY Cash y la línea no sale (un «-$0.00» se leía como
+     error); el saldo queda intacto para la próxima. */
+  if (state.okyCashEnabled && appliedPromo(state) > 0 && orderCash(state) <= 0) return "";
   return state.okyCashEnabled
     ? `<div class="summary-row is-discount">
         <span class="summary-value-success">OKY Cash</span>
@@ -5070,7 +5079,7 @@ function cashNoticeSheet(state) {
             aria-checked="${Boolean(state.cashNoticePick)}" aria-label="Usar OKY Cash en esta compra">
             <span class="oky-flow-check${state.cashNoticePick ? " is-checked" : ""}" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
             <p class="oky-flow-payrow-copy">OKY Cash</p>
-            <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash"><img class="oky-flow-chip-icon is-coin" src="oky-cash-coin.png" alt="" />${money(state.okyCashBalance)}</span></span>
+            <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash">${/* Sin moneda: la grande de arriba ya la enseña. */ ""}${money(state.okyCashBalance)}</span></span>
             <span class="oky-flow-payrow-more is-empty" aria-hidden="true"></span>
           </div>
         </div>
@@ -5260,7 +5269,23 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
 
   return `
     ${statusBar()}
-    ${asPurchase ? purchaseHeader(state) : fromOrder ? orderVoucherHeader() : titledHeader(title)}
+    ${
+      asPurchase
+        ? purchaseHeader(state)
+        : fromOrder
+          ? orderVoucherHeader()
+          : /* En /miscompras, los vales de Para mí comparten desde la
+               esquina de arriba (el ícono de compartir del sistema): hace
+               lo mismo que «Mandale foto» de Para otros. */
+            MISCOMPRAS_ROUTE && state.params.deck === "v3mio"
+            ? titledHeader(title, {
+                trailingHtml: `<button class="oky-flow-header-icon oky-flow-header-share" data-action="send-photo"
+                  data-label="${headerBrand}" data-id="${id}" type="button" aria-label="Compartir el vale">
+                  <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>
+                </button>`,
+              })
+            : titledHeader(title)
+    }
     <div class="oky-flow-section is-voucher${asPurchase ? " is-purchase" : ""}">
       <div class="oky-flow-card-carousel${archived ? " is-redeemed is-archived" : shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
@@ -5674,11 +5699,13 @@ function confirmSheet(state) {
       </button>
       <h2 class="oky-flow-sheet-title">${sheet.title}</h2>
       ${sheet.note ? `<p class="oky-flow-sheet-note">${sheet.note}</p>` : ""}
-      <section class="oky-flow-wallet-seg is-decision" role="tablist" aria-label="Para quién es">
+      ${/* Ninguna viene elegida: son dos opciones, con una línea entre
+           las dos para que se lea que se toca una o la otra. */ ""}
+      <section class="oky-flow-wallet-seg is-decision" role="group" aria-label="Para quién es">
         ${WALLET_TABS_V3.map(
           (t) => `
-          <button class="oky-flow-wallet-seg-item${t.key === "v3mio" ? " is-on" : ""}" type="button" role="tab"
-            data-action="${t.key === "v3mio" ? "decision-self" : "open-contacts"}" aria-selected="${t.key === "v3mio"}">
+          <button class="oky-flow-wallet-seg-item" type="button"
+            data-action="${t.key === "v3mio" ? "decision-self" : "open-contacts"}">
             <span class="oky-flow-wallet-seg-emoji" aria-hidden="true">${t.emoji}</span>${t.label}
           </button>`,
         ).join("")}
@@ -8184,6 +8211,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "open-contacts") {
       /* La agenda abre con el radio puesto en quien ya es destinatario,
          para que se vea de dónde se parte. */
+      /* Elegir «Para otros» en la pregunta reinicia la cuenta de «Para mí». */
+      if (state.sheet && state.sheet.type === "decision") state.selfStreak = 0;
       state.sheet = null;
       const lista = contactsOf(state);
       state.contactPick = (lista.find((c) => c.name === recipientOf(state).name) || lista[0]).key;
@@ -8456,6 +8485,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          teléfono, y así usa la misma máquina que archivar y devolver,
          que ahí sí responde. Cada vez, además: a quién se le regala es
          decisión de esta compra, no de la primera que se hizo. */
+      /* A la tercera vez seguida de «Para mí» ya no se pregunta: va
+         directo al pago como «Para mí». En el checkout se puede cambiar
+         desde los tres puntos de «¿Para quién es?». */
+      if (state.selfStreak >= 3) {
+        state.recipient = "Para mí";
+        state.recipientMarket = "usa";
+        return go("checkout");
+      }
       state.sheet = { type: "decision" };
       return render();
     }
@@ -9219,6 +9256,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "decision-self") {
       state.sheet = null;
+      state.selfStreak = (state.selfStreak || 0) + 1;
       state.recipient = "Para mí";
       state.recipientMarket = "usa";
       /* push:false deja el modal fuera del historial: "atrás" desde el

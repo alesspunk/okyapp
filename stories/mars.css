@@ -17177,14 +17177,32 @@ img.oky-flow-method-mark {
 /* «¿Es para ti o para alguien más?» en /miscompras: en vez de emoji y
    botones, las pestañas de Mis compras. La pista va blanca sobre el
    morado para que se lea como el control real. */
+/* Abraza su contenido: sin ilustración, el 68 % de alto dejaba un
+   hueco morado debajo de las pestañas. */
 .oky-flow-sheet.is-decision.is-tabs {
+  height: auto;
   padding-bottom: 32px;
 }
 
 .oky-flow-wallet-seg.is-decision {
   width: 100%;
-  margin-top: 20px;
+  margin: 20px 0 0;
   background: rgba(255, 255, 255, 0.92);
+}
+
+/* Ninguna está elegida: las dos en morado, iguales, y una línea entre
+   ellas. */
+.oky-flow-wallet-seg.is-decision .oky-flow-wallet-seg-item {
+  color: var(--primary-main);
+}
+
+.oky-flow-wallet-seg.is-decision .oky-flow-wallet-seg-item + .oky-flow-wallet-seg-item {
+  border-left: 1px solid rgba(85, 37, 136, 0.18);
+  border-radius: 0;
+}
+
+.oky-flow-wallet-seg.is-decision .oky-flow-wallet-seg-item:active {
+  background: var(--white, #fff);
 }
 
 
@@ -17217,4 +17235,32 @@ img.oky-flow-method-mark {
 .oky-flow-payrow .oky-flow-chip-cell {
   flex-basis: 112px;
   width: 112px;
+}
+
+
+/* Compartir en la esquina del vale de Para mí: el ícono de compartir
+   del sistema, del mismo morado y tamaño que la flecha de atrás. */
+.oky-flow-header-share {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--primary-main);
+  font-size: 22px;
+  cursor: pointer;
+}
+
+
+/* En la fila del aviso el chip va sin moneda: el padding vuelve al
+   parejo de siempre. */
+.oky-flow-cashnote-preview .oky-flow-payrow .oky-flow-chip {
+  padding: 4px 10px;
+}
+
+
+/* El resumen crece con sus líneas: con código promo y OKY Cash a la vez
+   no cabe en el alto máximo de MARS (200/224px) y la tarjeta se salía
+   del cajón, encima de la barra de ahorro. */
+.oky-flow-frame .summary-box,
+.oky-flow-frame .summary-box.summary-box-compact {
+  max-height: none;
 }
