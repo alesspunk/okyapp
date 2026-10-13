@@ -4256,11 +4256,10 @@ function okyCashActivity(state) {
     : "";
 
   /* Sin movimientos no hay nada que filtrar ni buscar: en su lugar, el
-     estado vacío de 101742:103434 explica cómo se empieza a ganar, manda
-     a las gift cards de USA y deja a mano los vales que ya se tienen. */
+     estado vacío (F00-FT-43, Wallet / Estado vacío de MARS) explica cómo
+     se empieza a ganar y manda a las gift cards de USA. La tarjeta de
+     «Tus OKY Vales» de abajo ya no va. */
   if (!groups.length) {
-    /* Más compacto que la actividad: la tarjeta de "Tus OKY Vales" tiene
-       que quedar entera sobre la navbar, sin scrollear. */
     return `
     <div class="oky-flow-section is-cash-empty" style="gap:12px">
       <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
@@ -4273,20 +4272,6 @@ function okyCashActivity(state) {
           Explorar gift cards de USA
         </button>
       </div>
-
-      <button class="oky-flow-cash-empty-link" data-action="nav:wallet" data-tab="vales" type="button">
-        <span class="oky-flow-cash-empty-wallet">
-          ${/* El vale de la pestaña de OKY Vales, no el icono del wallet:
-               el enlace lleva a los vales y así lo dice el dibujo. */ ""}
-          <img src="wallet-tab-vales.png" alt="" />
-          ${hasNewVouchers(state) ? `<span class="header-icon-indicator-dot"></span>` : ""}
-        </span>
-        <span class="oky-flow-cash-empty-copy">
-          <strong>Tus OKY Vales</strong>
-          <span>Ver en ${WALLET_NAME}</span>
-        </span>
-        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-      </button>
     </div>
   `;
   }

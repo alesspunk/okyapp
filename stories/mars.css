@@ -16007,24 +16007,26 @@ img.oky-flow-method-mark {
   text-align: center;
 }
 
+/* 128px con la moneda a 84x88, como Wallet / Estado vacío de MARS
+   (Pestaña=OKY Cash). Cabe sobre la navbar porque el vacío de OKY Cash
+   ya no lleva la tarjeta de «Tus OKY Vales». */
 .oky-flow-cash-empty-art {
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 32px;
+  width: 128px;
+  height: 128px;
+  border-radius: 64px;
   background: #e0fcfa;
 }
 
 .oky-flow-cash-empty-art img {
-  width: 42px;
-  height: 44px;
+  width: 84px;
+  height: 88px;
   object-fit: contain;
 }
 
-/* En los vacíos de Mis compras, el doble (64 → 128): el arte en 3D es
-   lo primero que se lee y a 42px no se distinguía. El vacío de OKY Cash
-   se queda como estaba porque tiene que caber sobre la navbar. */
+/* En los vacíos de Mis compras, el mismo tamaño: el arte en 3D es lo
+   primero que se lee y a 42px no se distinguía. */
 .oky-flow-cash-empty.is-wallet .oky-flow-cash-empty-art {
   width: 128px;
   height: 128px;
@@ -16452,27 +16454,12 @@ img.oky-flow-method-mark {
   }
 }
 
-/* Estado vacío de OKY Cash: cabe entero sobre la navbar, con la
-   tarjeta de "Tus OKY Vales" a la vista. Se recorta aire, no
-   contenido: la moneda un poco más chica y menos margen entre piezas. */
+/* Estado vacío de OKY Cash (F00-FT-43): sin la tarjeta de «Tus OKY
+   Vales» ya hay sitio para la moneda a 128px; 8px entre piezas, como
+   Wallet / Estado vacío de MARS. */
 .is-cash-empty .oky-flow-cash-empty:not(.is-wallet) {
   margin-top: 0;
-  gap: 6px;
-}
-
-.is-cash-empty .oky-flow-cash-empty:not(.is-wallet) .oky-flow-cash-empty-art {
-  width: 56px;
-  height: 56px;
-  border-radius: 28px;
-}
-
-.is-cash-empty .oky-flow-cash-empty:not(.is-wallet) .oky-flow-cash-empty-art img {
-  width: 36px;
-  height: 38px;
-}
-
-.is-cash-empty .oky-flow-cash-empty-link {
-  margin-top: 6px;
+  gap: 8px;
 }
 
 /* PDP · el monto de la card lleva al campo: se ve tocable y el campo,
@@ -17203,6 +17190,19 @@ img.oky-flow-method-mark {
 
 .oky-flow-wallet-seg.is-decision .oky-flow-wallet-seg-item:active {
   background: var(--white, #fff);
+}
+
+/* En la hoja los emojis van más grandes que en Mis compras (31x35 en
+   Figma, 101742:118019): la pestaña queda en 71px de alto. */
+.oky-flow-wallet-seg.is-decision .oky-flow-wallet-seg-emoji {
+  font-size: 35px;
+}
+
+/* 7px arriba y abajo: con el borde de 1px de cada pestaña suman los
+   71px de Figma. */
+.oky-flow-wallet-seg.is-decision .oky-flow-wallet-seg-item {
+  padding-top: 7px;
+  padding-bottom: 7px;
 }
 
 
