@@ -4072,6 +4072,13 @@ function cashExpiryLabel(state) {
   return `${String(next.getDate()).padStart(2, "0")} / ${MONTHS_SHORT[next.getMonth()]} / ${next.getFullYear()}`;
 }
 
+/* El vencimiento de un OKY Vale de Guatemala: a un año de hoy. */
+function valeExpiryLabel() {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() + 1);
+  return `Vence ${String(d.getDate()).padStart(2, "0")} / ${MONTHS_SHORT[d.getMonth()]} / ${d.getFullYear()}`;
+}
+
 function okyCashActivity(state) {
   /* Aquí ya estás en la actividad, así que el CTA no lleva a ninguna
      parte: se queda como rótulo, invitando a conocer el programa. */
@@ -5217,6 +5224,10 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
             {
               bottomVariantPath: "Molecule/Bottom Card/OKY Vales",
               bottomLines: [{ label: "Copia el código", value: giftCode(bottomSeed, 10), copyable: true }],
+              /* Sin fecha propia la card traía la de ejemplo del
+                 componente (10 / SEP / 2025), que ya se lee vencida:
+                 el vale vence a un año de hoy. */
+              bottomExpiry: valeExpiryLabel(),
               bottomButtonLabel: "Ayuda",
             };
 
