@@ -8,7 +8,7 @@ export const MIDDLE_CARD_VARIANTS = [
     currency: "Q",
     amount: "1,000",
     leftLabel: "Mostrar al cajero",
-    rightLabel: "Como canjear",
+    rightLabel: "Cómo canjear",
     image: "",
     recommendation: 'Recomendado: título máx. 14 caracteres ("Vale de Monto") · monto máx. 5 dígitos + separadores.',
   },
@@ -52,7 +52,7 @@ export const MIDDLE_CARD_VARIANTS = [
     currency: "",
     amount: "",
     leftLabel: "Mostrar al cajero",
-    rightLabel: "Como canjear",
+    rightLabel: "Cómo canjear",
     image: "middle-card-vale-de-producto.png",
     recommendation:
       'Recomendado: título máx. 60 caracteres (base Figma: "Cajita Feliz de McNuggets + Cono Vainilla y Juguete incluido").',

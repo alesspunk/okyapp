@@ -9,7 +9,7 @@ const DUAL_VARIANT_META = {
   },
   "PARA MI": {
     penId: "7370:49646",
-    name: "Para mi",
+    name: "Para mí",
     phone: "+1 407 284-8092",
     icon: "address-card",
   },

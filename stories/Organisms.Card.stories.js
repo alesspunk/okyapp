@@ -181,7 +181,7 @@ export const OkyValesFlow = {
           middleCurrency: "Q",
           middleAmount: "1,000",
           middleLeftLabel: "Mostrar al cajero",
-          middleRightLabel: "Como canjear",
+          middleRightLabel: "Cómo canjear",
           bottomVariantPath: "Molecule/Bottom Card/OKY Vales",
           bottomShowButtonLabel: true,
           bottomButtonLabel: "Ayuda",

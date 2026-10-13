@@ -2487,7 +2487,7 @@ function screenCheckout(state) {
             </div>
           </div>
           <div class="middle-card-footer">
-            <span class="middle-card-footer-start">Que debo saber</span>
+            <span class="middle-card-footer-start">¿Qué debo saber?</span>
             <span class="middle-card-footer-end" aria-hidden="true"></span>
           </div>
         </div>
@@ -3216,7 +3216,7 @@ const WALLET_TABS = [
    que antes. */
 const WALLET_TABS_V2 = [
   { key: "cash", label: "OKY Cash", title: "OKY Cash", icon: "oky-cash-coin.png" },
-  { key: "parami", label: "Para mi", title: "Para mí", icon: "plateu-parami.png" },
+  { key: "parami", label: "Para mí", title: "Para mí", icon: "plateu-parami.png" },
   { key: "paracompartir", label: "Para compartir", title: "Para compartir", icon: "plateu-paracompartir.png" },
 ];
 
@@ -5303,7 +5303,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               middleTitle: card.label,
               middleImage: card.art,
               middleLeftLabel: "Mostrar al cajero",
-              middleRightLabel: "Como canjear",
+              middleRightLabel: "Cómo canjear",
               bottomVariantPath: "Molecule/Bottom Card/OKY Vales",
               /* Sin esto todas enseñaban el código de muestra de la
                  variante, el mismo en todas las cards. */
@@ -5994,7 +5994,7 @@ function screenTigoPdp(state) {
                   </div>
                   <div class="middle-card-footer">
                     <span class="middle-card-footer-start">Mostrar al cajero</span>
-                    <span class="middle-card-footer-end">Como canjear</span>
+                    <span class="middle-card-footer-end">Cómo canjear</span>
                   </div>
                 </div>
               </article>
@@ -6119,7 +6119,7 @@ function screenGuaPdp(state) {
               </div>
               <div class="middle-card-footer">
                 <span class="middle-card-footer-start">Mostrar al cajero</span>
-                <span class="middle-card-footer-end">Como canjear</span>
+                <span class="middle-card-footer-end">Cómo canjear</span>
               </div>
             </div>
           </article>
@@ -6185,7 +6185,7 @@ function screenDecision() {
         <img src="oky-returning-illustration.png" alt="" />
       </div>
       <div class="oky-flow-decision-actions">
-        <button class="oky-flow-btn-inverted" data-action="decision-self" type="button">Para mi</button>
+        <button class="oky-flow-btn-inverted" data-action="decision-self" type="button">Para mí</button>
         <button class="oky-flow-btn-ghost" type="button" disabled>Para alguien más</button>
       </div>
     </div>

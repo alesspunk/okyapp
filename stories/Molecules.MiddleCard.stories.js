@@ -149,7 +149,7 @@ export const DocsPlayground = {
     currency: "Q",
     amount: "1,000",
     leftLabel: "Mostrar al cajero",
-    rightLabel: "Como canjear",
+    rightLabel: "Cómo canjear",
     image: "middle-card-vale-de-producto.png",
     showDiscountRibbon: true,
     discountRibbonType: "Normal",
