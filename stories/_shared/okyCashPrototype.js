@@ -53,6 +53,8 @@ import { GUA_HOME_MARKUP } from "./guaHome";
 import { renderFlag } from "./flag";
 import { lottie } from "./lottieLight";
 import { OKY_CASH_WIN_ANIMATION } from "./okyCashWinAnimation";
+import { OKY_FLAGS_US, OKY_FLAGS_GT } from "./okyFlagsAnimation";
+import { OKY_COIN_FLIP } from "./okyCoinFlipAnimation";
 
 /* ── Catálogo ────────────────────────────────────────────── */
 
@@ -1374,9 +1376,18 @@ function navbar(active, state = {}) {
         /* El item activo va en Solid y el resto en Light; OKY Cash es
            siempre la moneda, que es una imagen. */
         key === "okycash"
-          ? `<span class="oky-flow-coin-3d ${state.cashUnseen ? "is-spinning" : ""}">
+          ? `<span class="oky-flow-coin-3d${state.cashUnseen ? " is-lottie" : ""}">
               <img class="oky-flow-coin" src="oky-cash-coin.png" alt="" />
-              <span class="oky-flow-coin-back" aria-hidden="true">$</span>
+              ${
+                /* Con cashback nuevo la moneda gira: es el dotLottie de
+                   diseño (giro + pausa, en bucle, como el Dock de la
+                   Mac). El player se monta después de dibujar y tapa
+                   la moneda quieta, que se queda debajo por si no hay
+                   animación (reduced motion). */
+                state.cashUnseen
+                  ? `<span class="oky-flow-coin-flip" data-role="coin-flip" aria-hidden="true"></span>`
+                  : `<span class="oky-flow-coin-back" aria-hidden="true">$</span>`
+              }
             </span>`
           : `<i class="fa-${key === active ? "solid" : "light"} fa-${icon}${
               /* Font Awesome Free no trae la casita en contorno —es
@@ -1583,9 +1594,16 @@ const TOUR_CONFETTI_MS = 1200;
    quita solo. Sale cada vez que se cambia de país desde la pestaña, con
    la bandera del país al que se llega —las de USA o las de Guatemala—.
    Los demás países del folder son de mentira y no tienen la suya. */
-const FLAG_WALL_MS = 2100;
+/* En /miscompras la lluvia es el dotLottie de diseño (90 cuadros a
+   30 fps): se deja terminar entera. */
+const FLAG_WALL_MS = MISCOMPRAS_ROUTE ? 3000 : 2100;
 
 function flagIntro(code = "US") {
+  /* En /miscompras las banderas son la animación de Lottie del folder
+     (una escena por país). El player se monta después de dibujar. */
+  if (MISCOMPRAS_ROUTE) {
+    return `<div class="oky-flow-flagrise is-lottie" data-role="flag-lottie" data-code="${code}" aria-hidden="true"></div>`;
+  }
   /* El "Inferno" del botón de fuego de DuckDuckGo: no son partículas
      sueltas cruzando la pantalla, es una pared que cae desde el borde
      de arriba, se traga la vista y se va por abajo. Aquí la pared es de
@@ -6278,6 +6296,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   let state = createInitialState(userType);
   let celebrationTimer = 0;
   let winAnimation = null;
+  let flagAnimation = null;
+  let coinAnimation = null;
   let webviewTimer = null;
   /* Cuándo arrancó "Ganaste": a los 7 s la pastilla de la cabecera ya
      se reveló sola, y volver a animarla al salir era el parpadeo. */
@@ -6463,6 +6483,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       winAnimation.destroy();
       winAnimation = null;
     }
+    if (flagAnimation) {
+      flagAnimation.destroy();
+      flagAnimation = null;
+    }
+    if (coinAnimation) {
+      coinAnimation.destroy();
+      coinAnimation = null;
+    }
 
     /* La promo que se quedó esperando fuera de la home arranca en
        cuanto se vuelve, con el mismo respiro que tras la presentación:
@@ -6556,6 +6584,32 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     /* Animación "Ganaste OKY Cash" (dotLottie del equipo de diseño).
        Se reproduce una vez y al terminar deja la pantalla de la
        compra; un toque la salta. */
+    /* La moneda del navbar con cashback nuevo: giro y pausa en bucle. */
+    const coinHost = root.querySelector("[data-role='coin-flip']");
+    if (coinHost && !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+      coinAnimation = lottie.loadAnimation({
+        container: coinHost,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        animationData: OKY_COIN_FLIP,
+      });
+      coinHost.parentElement.classList.add("is-ready");
+    }
+
+    /* Lluvia de banderas del folder (/miscompras): una sola pasada. */
+    const flagHost = root.querySelector("[data-role='flag-lottie']");
+    if (flagHost) {
+      flagAnimation = lottie.loadAnimation({
+        container: flagHost,
+        renderer: "svg",
+        loop: false,
+        autoplay: true,
+        animationData: flagHost.dataset.code === "GT" ? OKY_FLAGS_GT : OKY_FLAGS_US,
+        rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
+      });
+    }
+
     const winHost = root.querySelector("[data-role='cashwin-lottie']");
     if (winHost) {
       winStartedAt = Date.now();
@@ -7066,6 +7120,17 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     return render();
   }
 
+  /* Quita la pared de banderas sin repintar (un render la haría caer
+     otra vez) y suelta el player de Lottie si lo hay. */
+  function dropFlagWall() {
+    if (flagAnimation) {
+      flagAnimation.destroy();
+      flagAnimation = null;
+    }
+    const wall = root.querySelector(".oky-flow-flagrise");
+    if (wall) wall.remove();
+  }
+
   function goCountry(country) {
     /* La pared de banderas es de la primera vez que se enseña USA. Se
        miraba tourSeen, que solo se marca al terminar el recorrido, así
@@ -7092,8 +7157,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       clearTimeout(introTimer);
       introTimer = setTimeout(() => {
         state.flagIntro = null;
-        const wall = root.querySelector(".oky-flow-flagrise");
-        if (wall) wall.remove();
+        dropFlagWall();
       }, FLAG_WALL_MS);
     }
     if (firstUsa) {
@@ -7125,10 +7189,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.guideAway = false;
         const guide = root.querySelector(".oky-flow-guide");
         if (guide) setTimeout(() => guide.classList.remove("is-away"), 24);
-        introTimer = setTimeout(() => {
-          const wall = root.querySelector(".oky-flow-flagrise");
-          if (wall) wall.remove();
-        }, 1170);
+        introTimer = setTimeout(() => dropFlagWall(), MISCOMPRAS_ROUTE ? FLAG_WALL_MS - 1035 : 1170);
       }, 1035);
     }
   }

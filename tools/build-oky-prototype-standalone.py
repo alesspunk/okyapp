@@ -119,7 +119,7 @@ MODULES = [
     # lottie-web vendorizado + el dotLottie de "Ganaste OKY Cash" ya
     # aplanado con sus webp en data URI: el HTML suelto reproduce la
     # animación sin pedir nada por red.
-    "lottieLight", "okyCashWinAnimation",
+    "lottieLight", "okyCashWinAnimation", "okyFlagsAnimation", "okyCoinFlipAnimation",
     "okyCashPrototype",
 ]
 

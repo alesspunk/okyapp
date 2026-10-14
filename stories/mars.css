@@ -8151,6 +8151,41 @@ body {
   line-height: 1.2;
 }
 
+/* Los cinco labels en la misma línea: cada item ocupa todo el alto de
+   la barra y el label se ancla a la misma distancia del borde de abajo;
+   el ícono (o la moneda) se centra en lo que queda arriba. El subrayado
+   del activo se pinta con una sombra y no con un borde, que le comía
+   3px al item y lo descuadraba. */
+.oky-flow-navbar .nav-item {
+  position: relative;
+  align-self: stretch;
+  height: auto;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  padding: 4px 4px 0;
+}
+
+.oky-flow-navbar .nav-item.active {
+  border-bottom: 0;
+  box-shadow: inset 0 -3px 0 var(--primary-main);
+}
+
+.oky-flow-navbar .nav-item > i,
+.oky-flow-navbar .nav-item > .oky-flow-coin-3d {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+}
+
+.oky-flow-navbar .nav-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 7px;
+  text-align: center;
+}
+
 .oky-flow-coin {
   width: 28px;
   height: 30px;
@@ -11488,6 +11523,25 @@ button.tactic-offer {
   .oky-flow-coin-3d.is-spinning {
     animation: none;
   }
+}
+
+/* La moneda con cashback nuevo es el dotLottie de diseño. La moneda
+   ocupa 220px de un lienzo de 512 centrada, así que el lienzo se
+   escala para que mida lo mismo que la de siempre (28px) y desborda
+   la ranura sin empujar el label. La quieta queda debajo y se oculta
+   cuando el player ya está puesto. */
+.oky-flow-coin-flip {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(28px * 512 / 220);
+  height: calc(28px * 512 / 220);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.oky-flow-coin-3d.is-lottie.is-ready .oky-flow-coin {
+  visibility: hidden;
 }
 
 /* ── Actividad de OKY Cash agrupada por orden ────────────── */
