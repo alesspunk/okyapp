@@ -241,8 +241,9 @@ const PROMO_DEFAULT_AMOUNT = 51;
    /miscompras) o, donde el prototipo no tiene ruta propia —un
    Artifact—, en el hash (#timer, #miscompras). El enlace de siempre
    (/usa, /latam) no enciende ninguno.
-   · /timer: el cronómetro de Spooky Deals y Clarita, para probar esas
-     dos cosas; trae también la variante 3.
+   · /timer: todo /miscompras más el cronómetro de Spooky Deals y
+     Clarita, para probar esas dos cosas (en revisión). Lo que abajo
+     dice «en /miscompras» vale también aquí: va con V3_ROUTE.
    · /miscompras: la variante 3 completa —Mis compras, OKY Cash con sus
      métodos de pago— sin cronómetro y sin Clarita. */
 function routeHas(name) {
@@ -1603,12 +1604,12 @@ const TOUR_CONFETTI_MS = 1200;
    Los demás países del folder son de mentira y no tienen la suya. */
 /* En /miscompras la lluvia es el dotLottie de diseño (90 cuadros a
    30 fps): se deja terminar entera. */
-const FLAG_WALL_MS = MISCOMPRAS_ROUTE ? 3000 : 2100;
+const FLAG_WALL_MS = V3_ROUTE ? 3000 : 2100;
 
 function flagIntro(code = "US") {
   /* En /miscompras las banderas son la animación de Lottie del folder
      (una escena por país). El player se monta después de dibujar. */
-  if (MISCOMPRAS_ROUTE) {
+  if (V3_ROUTE) {
     return `<div class="oky-flow-flagrise is-lottie" data-role="flag-lottie" data-code="${code}" aria-hidden="true"></div>`;
   }
   /* El "Inferno" del botón de fuego de DuckDuckGo: no son partículas
@@ -4031,7 +4032,7 @@ function screenWallet(state) {
           ${
             /* En /miscompras, Para otros no tiene cajón de usados: ahí
                no se marca nada como usado, solo se manda foto. */
-            MISCOMPRAS_ROUTE && tab === "v3comp"
+            V3_ROUTE && tab === "v3comp"
               ? ""
               : `${sectionHead(WALLET_GROUPS[2], totalIn("archivados"), 0)}
           ${body("archivados", stack(decks.archivados, "archivados", WALLET_GROUPS[2].empty))}`
@@ -5308,7 +5309,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           : /* En /miscompras, los vales de Para mí comparten desde la
                esquina de arriba (el ícono de compartir del sistema): hace
                lo mismo que «Mandale foto» de Para otros. */
-            MISCOMPRAS_ROUTE && state.params.deck === "v3mio" && !archived
+            V3_ROUTE && state.params.deck === "v3mio" && !archived
             ? titledHeader(title, {
                 trailingHtml: `<button class="oky-flow-header-icon oky-flow-header-share" data-action="send-photo"
                   data-label="${headerBrand}" data-id="${id}" type="button" aria-label="Compartir el vale">
@@ -5454,7 +5455,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
             /* En /miscompras "Marcar como usado" es solo de Para mí con
                gift cards de USA/Canadá: OKY Vales y servicios no lo
                llevan. */
-            (MISCOMPRAS_ROUTE && (state.params.deck !== "v3mio" || sectionOfVoucher(card.key) !== "gift"))
+            (V3_ROUTE && (state.params.deck !== "v3mio" || sectionOfVoucher(card.key) !== "gift"))
             ? ""
             : `<div class="oky-flow-voucher-actions is-single">
         <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
@@ -5489,7 +5490,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
       }
     </div>
     ${asPurchase ? purchaseFoot(state, headerBrand, id) : ""}
-    ${fromOrder ? orderVoucherFoot(orderMarket, headerBrand, id) : asPurchase || !MISCOMPRAS_ROUTE || state.params.deck !== "v3comp" ? "" : sendPhotoBar(headerBrand, id)}
+    ${fromOrder ? orderVoucherFoot(orderMarket, headerBrand, id) : asPurchase || !V3_ROUTE || state.params.deck !== "v3comp" ? "" : sendPhotoBar(headerBrand, id)}
     ${navbar("", state)}
     ${asPurchase ? purchaseOverlays(state, { celebrate, cashWin }) : ""}
   `;
@@ -5721,7 +5722,7 @@ function confirmSheet(state) {
   /* En /miscompras la pregunta del destinatario enseña la UI real: las
      pestañas Para mí / Para otros de Mis compras, y tocar una ya elige.
      Sin emoji ni botones. La X también es «Para mí». */
-  if (state.sheet.type === "decision" && MISCOMPRAS_ROUTE) {
+  if (state.sheet.type === "decision" && V3_ROUTE) {
     /* Tocar fuera cierra igual que la X: cuenta como «Para mí». */
     return `
     <button class="oky-flow-sheet-backdrop" data-action="decision-self" type="button" aria-label="Cerrar: es para mí"></button>
@@ -6271,7 +6272,7 @@ function scrollClass(state) {
   if (state.screen === "voucher") {
     const p = state.params || {};
     if (p.id) return "has-cta";
-    if (MISCOMPRAS_ROUTE && p.deck === "v3comp") return "has-cta";
+    if (V3_ROUTE && p.deck === "v3comp") return "has-cta";
   }
   return SCROLL_CLASS[state.screen] || "";
 }
@@ -7200,7 +7201,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.guideAway = false;
         const guide = root.querySelector(".oky-flow-guide");
         if (guide) setTimeout(() => guide.classList.remove("is-away"), 24);
-        introTimer = setTimeout(() => dropFlagWall(), MISCOMPRAS_ROUTE ? FLAG_WALL_MS - 1035 : 1170);
+        introTimer = setTimeout(() => dropFlagWall(), V3_ROUTE ? FLAG_WALL_MS - 1035 : 1170);
       }, 1035);
     }
   }
