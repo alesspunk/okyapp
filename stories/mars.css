@@ -17250,6 +17250,12 @@ img.oky-flow-method-mark {
   cursor: pointer;
 }
 
+.oky-flow-header-share .oky-flow-share-ios {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
 
 /* En la fila del aviso el chip va sin moneda: el padding vuelve al
    parejo de siempre. */
