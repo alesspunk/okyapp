@@ -1047,8 +1047,8 @@ GUA_BRANDS.forEach((brand) => {
   PRODUCTS[brand.key] = {
     ...brand,
     /* La card enseña qué es; el carrito, de quién es. */
-    cardTitle: "OKYVale",
-    cartTitle: `OKYVale ${brand.label}`,
+    cardTitle: "OKY Vale",
+    cartTitle: `OKY Vale ${brand.label}`,
     hero: brand.art,
     /* Blanco salvo que la marca traiga el suyo: el arte de Tigo es su
        logo en blanco sobre azul y encima de blanco se perdía el canto. */
@@ -2719,7 +2719,9 @@ function screenCheckout(state) {
       /* Con comida en el carrito lo que se anuncia abajo es el ahorro
          de la orden; el cashback de OKY Cash es otra barra y en
          Guatemala todavía no aplica. */
-      orderSavings(state) > 0
+      /* Una sola barra a la vez: si la orden da cashback (USA), manda
+         la de lo que se gana; las dos en el mismo sitio se tapaban. */
+      orderSavings(state) > 0 && !(cashback > 0)
         ? `<div class="oky-flow-savingbar"><div class="oky-flow-savebar is-bar"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(orderSavings(state))}</div></div>`
         : ""
     }
@@ -5247,7 +5249,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
   /* De acuse de compra la pantalla sigue siendo "Tus compras": es el
      mismo sitio al que se llega al pagar, solo que con el vale abierto
      en vez de la pila. */
-  const title = asPurchase ? "Tus compras" : state.params.id ? "Detalle de la orden" : headerBrand;
+  const title = asPurchase ? (V3_ROUTE ? "Mis compras" : "Tus compras") : state.params.id ? "Detalle de la orden" : headerBrand;
   /* Abierto desde la pila de la poscompra (más de un vale en la orden):
      como en la matriz Unhappy path, arriba el toast de compra exitosa y
      la X que vuelve a la pila, sin interruptores, y abajo un solo botón:
@@ -5272,7 +5274,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           : /* En /miscompras, los vales de Para mí comparten desde la
                esquina de arriba (el ícono de compartir del sistema): hace
                lo mismo que «Mandale foto» de Para otros. */
-            MISCOMPRAS_ROUTE && state.params.deck === "v3mio"
+            MISCOMPRAS_ROUTE && state.params.deck === "v3mio" && !archived
             ? titledHeader(title, {
                 trailingHtml: `<button class="oky-flow-header-icon oky-flow-header-share" data-action="send-photo"
                   data-label="${headerBrand}" data-id="${id}" type="button" aria-label="Compartir el vale">
@@ -5469,7 +5471,7 @@ function orderVoucherHeader() {
         <span>Compra exitosa</span>
       </div>
       <button class="oky-flow-header-icon oky-flow-toast-close" data-action="close-order-voucher"
-        type="button" aria-label="Volver a Tus compras">
+        type="button" aria-label="Volver a ${V3_ROUTE ? "Mis compras" : "Tus compras"}">
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
     </header>
@@ -5686,8 +5688,9 @@ function confirmSheet(state) {
      pestañas Para mí / Para otros de Mis compras, y tocar una ya elige.
      Sin emoji ni botones. La X también es «Para mí». */
   if (state.sheet.type === "decision" && MISCOMPRAS_ROUTE) {
+    /* Tocar fuera cierra igual que la X: cuenta como «Para mí». */
     return `
-    <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
+    <button class="oky-flow-sheet-backdrop" data-action="decision-self" type="button" aria-label="Cerrar: es para mí"></button>
     <section class="oky-flow-sheet is-decision is-tabs" role="dialog" aria-modal="true" aria-label="${sheet.title}">
       <button class="oky-flow-sheet-close" data-action="decision-self" type="button" aria-label="Cerrar: es para mí">
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -6347,6 +6350,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (target === "home") state.usaSeen = true;
     state.country = target === "home" ? "usa" : "gua";
     state.history = [];
+    /* Una hoja abierta (el filtro, por ejemplo) era del país de antes:
+       no se arrastra al otro. */
+    state.sheet = null;
     go(target, {}, { push: false });
   });
 
@@ -7156,6 +7162,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          problema que no existe. */
       const fuera = real.getBoundingClientRect().bottom > limit + 12;
       box.classList.toggle("is-on", fuera);
+      /* El cintillo se apoya justo donde empieza la barra de más arriba:
+         con el alto fijo de la barra quedaba un hueco cuando la de
+         ahorro es más baja, y por ahí asomaba el resumen de verdad con
+         su TOTAL y su "Comprar" repetidos. */
+      box.style.bottom = `${Math.round(frame.getBoundingClientRect().bottom - limit)}px`;
       /* Con el cintillo puesto, el final del contenido tiene que poder
          subir por encima de él. */
       scroll.style.paddingBottom = fuera
