@@ -11550,6 +11550,46 @@ button.tactic-offer {
   cursor: pointer;
 }
 
+/* La tarjeta de OKY Cash es un ancla al último movimiento. */
+.oky-flow-cash-jump {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 20px;
+}
+
+.oky-flow-cash-jump:focus-visible {
+  outline: 2px solid var(--primary-main);
+  outline-offset: 4px;
+}
+
+/* Al llegar, el movimiento destella dos veces en aqua, como la fila de
+   OKY Cash del checkout, para que se vea a cuál se bajó. */
+.oky-flow-history-group > .is-jump-hint {
+  position: relative;
+  z-index: 1;
+  border-radius: 20px;
+  animation: oky-flow-jump-hint 1100ms cubic-bezier(0.32, 0.72, 0, 1) 350ms 2 both;
+}
+
+@keyframes oky-flow-jump-hint {
+  0%,
+  100% {
+    box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
+  }
+  35% {
+    box-shadow: 0 0 0 3px rgba(9, 180, 176, 0.55), 0 0 18px 6px rgba(9, 180, 176, 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-history-group > .is-jump-hint {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
+}
+
 /* El panel se acopla bajo la History Card y lleva el fondo: así el
    "3 movimientos" no se mete en la anatomía de la card, donde el
    número de orden ya ocupa la esquina inferior izquierda. */

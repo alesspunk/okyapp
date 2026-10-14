@@ -4317,7 +4317,11 @@ function okyCashActivity(state) {
 
   return `
     <div class="oky-flow-section" style="gap:16px">
-      <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
+      ${/* Tocar la tarjeta baja al último movimiento, como un ancla: el
+           saldo dice cuánto hay y lo de abajo dice de dónde salió. El
+           lápiz tiene su propia acción y la gana por estar más adentro. */ ""}
+      <div class="oky-flow-cash-jump" data-action="cash-jump" role="button" tabindex="0"
+        aria-label="Ver el último movimiento">${renderPaymentCard(cash)}</div>
 
       <div class="oky-flow-home-head">
         <span class="oky-flow-section-head" style="padding:0">ACTIVIDAD</span>
@@ -9290,6 +9294,18 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return go(nextAfterStamp(), {}, { push: false });
     }
     if (action === "dismiss-cashwin") return leaveCashWin();
+    if (action === "cash-jump") {
+      /* El primer movimiento del primer mes es el más reciente. */
+      const row = root.querySelector(".oky-flow-history-group > :not(.oky-flow-history-label)");
+      if (!row) return;
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      row.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+      row.classList.remove("is-jump-hint");
+      void row.offsetWidth;
+      row.classList.add("is-jump-hint");
+      row.addEventListener("animationend", () => row.classList.remove("is-jump-hint"), { once: true });
+      return;
+    }
     if (action === "toggle-order") {
       const id = el.dataset.order;
       state.openOrders = state.openOrders.includes(id)

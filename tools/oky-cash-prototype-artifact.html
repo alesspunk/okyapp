@@ -11565,6 +11565,46 @@ button.tactic-offer {
   cursor: pointer;
 }
 
+/* La tarjeta de OKY Cash es un ancla al último movimiento. */
+.oky-flow-cash-jump {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 20px;
+}
+
+.oky-flow-cash-jump:focus-visible {
+  outline: 2px solid var(--primary-main);
+  outline-offset: 4px;
+}
+
+/* Al llegar, el movimiento destella dos veces en aqua, como la fila de
+   OKY Cash del checkout, para que se vea a cuál se bajó. */
+.oky-flow-history-group > .is-jump-hint {
+  position: relative;
+  z-index: 1;
+  border-radius: 20px;
+  animation: oky-flow-jump-hint 1100ms cubic-bezier(0.32, 0.72, 0, 1) 350ms 2 both;
+}
+
+@keyframes oky-flow-jump-hint {
+  0%,
+  100% {
+    box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
+  }
+  35% {
+    box-shadow: 0 0 0 3px rgba(9, 180, 176, 0.55), 0 0 18px 6px rgba(9, 180, 176, 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-history-group > .is-jump-hint {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
+}
+
 /* El panel se acopla bajo la History Card y lleva el fondo: así el
    "3 movimientos" no se mete en la anatomía de la card, donde el
    número de orden ya ocupa la esquina inferior izquierda. */
@@ -24452,7 +24492,11 @@ function okyCashActivity(state) {
 
   return `
     <div class="oky-flow-section" style="gap:16px">
-      <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
+      ${/* Tocar la tarjeta baja al último movimiento, como un ancla: el
+           saldo dice cuánto hay y lo de abajo dice de dónde salió. El
+           lápiz tiene su propia acción y la gana por estar más adentro. */ ""}
+      <div class="oky-flow-cash-jump" data-action="cash-jump" role="button" tabindex="0"
+        aria-label="Ver el último movimiento">${renderPaymentCard(cash)}</div>
 
       <div class="oky-flow-home-head">
         <span class="oky-flow-section-head" style="padding:0">ACTIVIDAD</span>
@@ -29425,6 +29469,18 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return go(nextAfterStamp(), {}, { push: false });
     }
     if (action === "dismiss-cashwin") return leaveCashWin();
+    if (action === "cash-jump") {
+      /* El primer movimiento del primer mes es el más reciente. */
+      const row = root.querySelector(".oky-flow-history-group > :not(.oky-flow-history-label)");
+      if (!row) return;
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      row.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+      row.classList.remove("is-jump-hint");
+      void row.offsetWidth;
+      row.classList.add("is-jump-hint");
+      row.addEventListener("animationend", () => row.classList.remove("is-jump-hint"), { once: true });
+      return;
+    }
     if (action === "toggle-order") {
       const id = el.dataset.order;
       state.openOrders = state.openOrders.includes(id)
