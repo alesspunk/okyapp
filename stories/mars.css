@@ -16129,6 +16129,16 @@ img.oky-flow-method-mark {
   background: #f2ecfa;
 }
 
+/* El vacío de OKY Cash va sin tarjeta y a la altura del de Métodos de
+   pago, pero conserva el aro aqua de la moneda. */
+.oky-flow-cash-empty.is-wallet.is-cash {
+  margin-top: 16px;
+}
+
+.oky-flow-cash-empty.is-wallet.is-cash .oky-flow-cash-empty-art {
+  background: #e0fcfa;
+}
+
 .oky-flow-cash-empty-link {
   box-sizing: border-box;
   display: flex;

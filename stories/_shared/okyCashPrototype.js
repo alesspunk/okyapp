@@ -268,10 +268,17 @@ const NO_CARDS_ROUTE =
   V3_ROUTE && typeof location !== "undefined" && /sintarjeta/.test(`${location.pathname}${location.hash}`.toLowerCase());
 const WALLET_ICON = V3_ROUTE ? "Mis-compras-icon.png" : "Wallet-icon.png";
 
-/* El ícono de compartir del sistema, como el de iOS (caja abierta y
-   flecha hacia arriba). SVG propio en vez del de Font Awesome; es el
-   mismo que el componente «Icono / Compartir (iOS)» de MARS. */
+/* El ícono de compartir es el del sistema, así que cambia según la
+   plataforma: en iOS la caja abierta con la flecha (el mismo que el
+   componente «Icono / Compartir (iOS)» de MARS); en Android y en la web,
+   los tres nodos unidos de Material (variante «Android y web»). */
 const SHARE_ICON_IOS = `<svg class="oky-flow-share-ios" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M8.5 9.25H7.25C6.007 9.25 5 10.257 5 11.5V19.25C5 20.493 6.007 21.5 7.25 21.5H16.75C17.993 21.5 19 20.493 19 19.25V11.5C19 10.257 17.993 9.25 16.75 9.25H15.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 14.75V2.75" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><path d="M8.5 6.25L12 2.75L15.5 6.25" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const SHARE_ICON_ANDROID = `<svg class="oky-flow-share-ios" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><circle cx="17.5" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.75"/><circle cx="6.5" cy="12" r="2.5" stroke="currentColor" stroke-width="1.75"/><circle cx="17.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="1.75"/><path d="M8.7 10.7L15.3 6.8M8.7 13.3L15.3 17.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>`;
+const IS_IOS =
+  typeof navigator !== "undefined" &&
+  (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1));
+const SHARE_ICON = IS_IOS ? SHARE_ICON_IOS : SHARE_ICON_ANDROID;
 
 /* Interruptores de la prueba de usabilidad. Lo que está apagado sigue
    en el código, listo para volver a encenderse:
@@ -4287,16 +4294,16 @@ function okyCashActivity(state) {
         .join("")
     : "";
 
-  /* Sin movimientos no hay nada que filtrar ni buscar: en su lugar, el
-     estado vacío (F00-FT-43, Wallet / Estado vacío de MARS) explica cómo
-     se empieza a ganar y manda a las gift cards de USA. La tarjeta de
-     «Tus OKY Vales» de abajo ya no va. */
+  /* Sin movimientos no hay nada que filtrar ni buscar, y tampoco
+     tarjeta: una tarjeta en $0.00 no dice nada. Va solo el estado vacío
+     (F00-FT-43, Wallet / Estado vacío de MARS), armado igual que el de
+     Métodos de pago para que los dos caigan a la misma altura al cambiar
+     de pestaña. Explica cómo se empieza a ganar y manda a las gift cards
+     de USA. */
   if (!groups.length) {
     return `
-    <div class="oky-flow-section is-cash-empty" style="gap:12px">
-      <div style="display:flex;justify-content:center;width:100%">${renderPaymentCard(cash)}</div>
-
-      <div class="oky-flow-cash-empty">
+    <div class="oky-flow-section is-cash-empty" style="gap:8px">
+      <div class="oky-flow-cash-empty is-wallet is-cash">
         <span class="oky-flow-cash-empty-art"><img src="oky-cash-coin.png" alt="" /></span>
         <h2 class="oky-flow-cash-empty-title">Aún no has ganado OKY Cash</h2>
         <p class="oky-flow-cash-empty-note">Compra una gift card en USA y usa el saldo que ganes en tus próximas compras.</p>
@@ -5301,7 +5308,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
             ? titledHeader(title, {
                 trailingHtml: `<button class="oky-flow-header-icon oky-flow-header-share" data-action="send-photo"
                   data-label="${headerBrand}" data-id="${id}" type="button" aria-label="Compartir el vale">
-                  ${SHARE_ICON_IOS}
+                  ${SHARE_ICON}
                 </button>`,
               })
             : titledHeader(title)
