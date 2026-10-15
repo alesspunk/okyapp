@@ -55,6 +55,7 @@ import { lottie } from "./lottieLight";
 import { OKY_CASH_WIN_ANIMATION } from "./okyCashWinAnimation";
 import { OKY_FLAGS_US, OKY_FLAGS_GT } from "./okyFlagsAnimation";
 import { OKY_COIN_FLIP } from "./okyCoinFlipAnimation";
+import { OKY_CONFETTI } from "./okyConfettiAnimation";
 
 /* ── Catálogo ────────────────────────────────────────────── */
 
@@ -1384,18 +1385,17 @@ function navbar(active, state = {}) {
         /* El item activo va en Solid y el resto en Light; OKY Cash es
            siempre la moneda, que es una imagen. */
         key === "okycash"
-          ? `<span class="oky-flow-coin-3d${state.cashUnseen ? " is-lottie" : ""}">
+          ? `<span class="oky-flow-coin-3d is-lottie">
               <img class="oky-flow-coin" src="oky-cash-coin.png" alt="" />
               ${
-                /* Con cashback nuevo la moneda gira: es el dotLottie de
-                   diseño (giro + pausa, en bucle, como el Dock de la
-                   Mac). El player se monta después de dibujar y tapa
-                   la moneda quieta, que se queda debajo por si no hay
-                   animación (reduced motion). */
-                state.cashUnseen
-                  ? `<span class="oky-flow-coin-flip" data-role="coin-flip" aria-hidden="true"></span>`
-                  : `<span class="oky-flow-coin-back" aria-hidden="true">$</span>`
+                /* La moneda es siempre el Lottie de diseño. Con cashback
+                   nuevo gira en bucle (giro + pausa, como el Dock de la
+                   Mac); sin él se queda quieta en el cuadro 0, que es la
+                   misma pose de perfil con la que arranca el giro: así
+                   no salta al empezar. La imagen de debajo solo se ve
+                   hasta que el player está puesto. */ ""
               }
+              <span class="oky-flow-coin-flip" data-role="coin-flip" data-play="${state.cashUnseen ? "1" : "0"}" aria-hidden="true"></span>
             </span>`
           : `<i class="fa-${key === active ? "solid" : "light"} fa-${icon}${
               /* Font Awesome Free no trae la casita en contorno —es
@@ -2641,7 +2641,11 @@ function screenCheckout(state) {
             <i class="fa-solid fa-check" aria-hidden="true"></i>
           </button>
           <p class="oky-flow-payrow-copy" data-action="toggle-okycash" role="button" tabindex="0">OKY Cash</p>
-          <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash"><img class="oky-flow-chip-icon is-coin" src="oky-cash-coin.png" alt="" />${money(state.okyCashEnabled ? applied : state.okyCashBalance)}</span></span>
+          ${/* Sin chip: el saldo en texto teal y la moneda a la derecha
+               (MARS, checkout minimalista). Enseña siempre el saldo,
+               marcado o no; lo que se usa lo dice el resumen. */ ""}
+          <span class="oky-flow-pay-amount">${money(state.okyCashBalance)}</span>
+          <img class="oky-flow-pay-icon is-coin" src="oky-cash-coin.png" alt="" />
           ${/* Los tres puntos vuelven: llevan a ver el disponible. En la
                variante 3 abren Tu billetera en la pestaña de OKY Cash, y en
                las demás, la pestaña de OKY Cash del wallet (nav:okycash ya
@@ -2661,10 +2665,10 @@ function screenCheckout(state) {
           checkoutCard
             ? `<div class="oky-flow-payrow ${hasCash ? "is-last" : "is-only"}" data-action="open-methods" role="button" tabindex="0">
           ${/* En el checkout la fila dice qué tarjeta es: marca y últimos
-               cuatro («Visa **** 2111»). La tarjeta 3D se muda adentro
-               del chip, como la moneda en el de OKY Cash. */ ""}
-          <p class="oky-flow-payrow-copy">${checkoutCard.brand} **** ${checkoutCard.last4}</p>
-          <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-card"><img class="oky-flow-chip-icon is-card" src="oky-card-3d.png" alt="" />${money(toCard)}</span></span>
+               cuatro («Visa **** 2111») y la tarjeta 3D a la derecha. Sin
+               monto: lo que paga la tarjeta lo dice el resumen. */ ""}
+          <p class="oky-flow-payrow-copy is-card">${checkoutCard.brand} **** ${checkoutCard.last4}</p>
+          <img class="oky-flow-pay-icon is-card" src="oky-card-3d.png" alt="" />
           <span class="oky-flow-payrow-more" aria-hidden="true">
             <i class="fa-solid fa-ellipsis-vertical"></i>
           </span>
@@ -5122,7 +5126,10 @@ function cashNoticeSheet(state) {
             aria-checked="${Boolean(state.cashNoticePick)}" aria-label="Usar OKY Cash en esta compra">
             <span class="oky-flow-check${state.cashNoticePick ? " is-checked" : ""}" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
             <p class="oky-flow-payrow-copy">OKY Cash</p>
-            <span class="oky-flow-chip-cell"><span class="oky-flow-chip is-cash">${/* Sin moneda: la grande de arriba ya la enseña. */ ""}${money(state.okyCashBalance)}</span></span>
+            <span class="oky-flow-pay-amount">${money(state.okyCashBalance)}</span>
+            ${/* Sin moneda: la grande de arriba ya la enseña. El hueco
+                 la reemplaza para que la cifra quede en su sitio. */ ""}
+            <span class="oky-flow-pay-icon is-empty" aria-hidden="true"></span>
             <span class="oky-flow-payrow-more is-empty" aria-hidden="true"></span>
           </div>
         </div>
@@ -6325,6 +6332,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   let winAnimation = null;
   let flagAnimation = null;
   let coinAnimation = null;
+  let confettiAnimation = null;
   let webviewTimer = null;
   /* Cuándo arrancó "Ganaste": a los 7 s la pastilla de la cabecera ya
      se reveló sola, y volver a animarla al salir era el parpadeo. */
@@ -6514,6 +6522,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       flagAnimation.destroy();
       flagAnimation = null;
     }
+    if (confettiAnimation) {
+      confettiAnimation.destroy();
+      confettiAnimation = null;
+    }
     if (coinAnimation) {
       coinAnimation.destroy();
       coinAnimation = null;
@@ -6599,7 +6611,18 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     const confettiHost = root.querySelector("[data-role='celebration-confetti']");
     if (confettiHost) {
-      seedCelebration(confettiHost);
+      /* El confeti es el Lottie de Nicky: una sola pasada, en cada
+         «Comprar». Con movimiento reducido no cae nada. */
+      if (!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+        confettiAnimation = lottie.loadAnimation({
+          container: confettiHost,
+          renderer: "svg",
+          loop: false,
+          autoplay: true,
+          animationData: OKY_CONFETTI,
+          rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
+        });
+      }
       /* El sello es una celebración, no una pantalla: se retira solo y
          da paso a la animación de "Ganaste OKY Cash". */
       clearTimeout(celebrationTimer);
@@ -6611,16 +6634,20 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     /* Animación "Ganaste OKY Cash" (dotLottie del equipo de diseño).
        Se reproduce una vez y al terminar deja la pantalla de la
        compra; un toque la salta. */
-    /* La moneda del navbar con cashback nuevo: giro y pausa en bucle. */
+    /* La moneda del navbar: con cashback nuevo, giro y pausa en bucle;
+       sin él (o con movimiento reducido), quieta en el cuadro 0. */
     const coinHost = root.querySelector("[data-role='coin-flip']");
-    if (coinHost && !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+    if (coinHost) {
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const play = coinHost.dataset.play === "1" && !reduce;
       coinAnimation = lottie.loadAnimation({
         container: coinHost,
         renderer: "svg",
-        loop: true,
-        autoplay: true,
+        loop: play,
+        autoplay: play,
         animationData: OKY_COIN_FLIP,
       });
+      if (!play) coinAnimation.goToAndStop(0, true);
       coinHost.parentElement.classList.add("is-ready");
     }
 
@@ -8123,24 +8150,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
     frame.appendChild(host);
     setTimeout(() => host.remove(), 1900);
-  }
-
-  function seedCelebration(host) {
-    const colors = ["#09b4b0", "#a8faf5", "#552588", "#ffb400", "#ff6b9d", "#7cf4ef"];
-    for (let i = 0; i < 46; i += 1) {
-      const piece = document.createElement("span");
-      piece.className = "oky-flow-celebration-piece";
-      piece.style.setProperty("--piece-x", `${Math.random() * 100}%`);
-      piece.style.setProperty("--piece-color", colors[i % colors.length]);
-      piece.style.setProperty("--piece-rot", `${Math.random() * 360}deg`);
-      piece.style.setProperty("--piece-spin", `${360 + Math.random() * 720}deg`);
-      piece.style.setProperty("--piece-delay", `${Math.random() * 900}ms`);
-      piece.style.setProperty("--piece-dur", `${1800 + Math.random() * 1400}ms`);
-      piece.style.setProperty("--piece-w", `${5 + Math.random() * 6}px`);
-      piece.style.setProperty("--piece-h", `${9 + Math.random() * 8}px`);
-      piece.style.setProperty("--piece-drift", `${-40 + Math.random() * 80}px`);
-      host.appendChild(piece);
-    }
   }
 
   /* Ráfaga corta de confeti sobre la fila de OKY Cash al activarla.

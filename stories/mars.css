@@ -17385,3 +17385,52 @@ img.oky-flow-method-mark {
   background: #f0f0f0;
   box-shadow: 0 0 0 10px var(--white);
 }
+
+
+/* ── Método de pago minimalista (MARS, 15/10) ─────────────
+   Sin chips: OKY Cash enseña su saldo en texto teal con la moneda a la
+   derecha, y la tarjeta solo su nombre con la tarjeta 3D. Lo que paga
+   cada uno lo dice el resumen. Los íconos van en un hueco fijo de 24px
+   para que la moneda y la tarjeta caigan en la misma x. */
+.oky-flow-pay-amount {
+  flex: none;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.15px;
+  font-variant-numeric: tabular-nums;
+  color: #057a73;
+}
+
+.oky-flow-pay-icon {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.oky-flow-pay-icon.is-coin {
+  box-sizing: border-box;
+  padding: 2.5px 3px;
+}
+
+/* El PNG de la tarjeta trae aire alrededor: a 28px la tarjeta se ve
+   del ancho de la de Figma y el margen negativo la deja en su hueco. */
+.oky-flow-pay-icon.is-card {
+  width: 28px;
+  height: 28px;
+  margin: -2px;
+}
+
+.oky-flow-payrow-copy.is-card {
+  font-size: 16px;
+}
+
+.oky-flow-payrow.is-cash.is-checked {
+  background: #effdfc;
+}
+
+.oky-flow-payrow .oky-flow-check.is-checked {
+  border-color: #057a73;
+  background: #057a73;
+}
