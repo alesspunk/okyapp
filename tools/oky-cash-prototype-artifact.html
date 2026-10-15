@@ -22817,7 +22817,10 @@ function screenCheckout(state) {
                las demás, la pestaña de OKY Cash del wallet (nav:okycash ya
                decide cuál). Atrás regresa al checkout. Marcar o desmarcar
                sigue siendo aquí, con el check. */ ""}
-          <button class="oky-flow-payrow-more" data-action="nav:okycash" type="button"
+          ${/* En la variante 3 abren la pestaña de OKY Cash de los métodos
+               del checkout, no la de la navbar: esa no tiene el botón de
+               pagar y dejaba la compra sin salida. */ ""}
+          <button class="oky-flow-payrow-more" data-action="${V3_ROUTE ? "open-methods-cash" : "nav:okycash"}" type="button"
             aria-label="Ver tu OKY Cash disponible">
             <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
           </button>
@@ -22963,6 +22966,10 @@ function screenMethods(state) {
   const due = orderDue(state);
   /* Sin tarjeta el pago solo sale si OKY Cash cubre todo. */
   const canPay = Boolean(selectedCardOf(state)) || (state.okyCashEnabled && due <= 0);
+  /* Pago compartido (OKY Cash y tarjeta): el monto ya es solo la parte
+     de la tarjeta, y el botón lo dice. Sin OKY Cash, es el total. */
+  const split = orderCash(state) > 0 && due > 0;
+  const ctaLabel = split ? `Pago con tarjeta - ${money(due)}` : `Ir a pagar - ${money(due)}`;
   return `
     ${statusBar()}
     ${titledHeader(timer ? "Tu billetera" : "Métodos de pago")}
@@ -22972,7 +22979,7 @@ function screenMethods(state) {
     ${timer && state.methodsTab === "cash" ? okyCashActivity(state) : cashSoloMethods(state)}
     <div class="oky-flow-cta-bar">
       <button class="btn btn-primary btn-large" data-action="confirm-methods" type="button"${canPay ? "" : " disabled"}>
-        Ir a pagar - ${money(due)}
+        ${ctaLabel}
       </button>
     </div>
     ${navbar("", state)}
@@ -24284,8 +24291,16 @@ function valeExpiryLabel() {
 
 function okyCashActivity(state) {
   /* Aquí ya estás en la actividad, así que el CTA no lleva a ninguna
-     parte: se queda como rótulo, invitando a conocer el programa. */
-  const cash = okyCashCard(state, { cta: false, label: "Conoce más" });
+     parte: se queda como rótulo, invitando a conocer el programa.
+     Si en el checkout está marcado OKY Cash, la tarjeta enseña lo que
+     queda disponible después de esa compra, no el saldo entero: es lo
+     que la persona vino a mirar desde los tres puntos. */
+  const reserved = appliedOkyCash(state);
+  const cash = okyCashCard(state, {
+    cta: false,
+    label: "Conoce más",
+    ...(reserved > 0 ? { balance: Math.max(state.okyCashBalance - reserved, 0) } : {}),
+  });
 
   /* Los movimientos se agrupan por mes conservando el orden. */
   const groups = [];
@@ -28147,6 +28162,12 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           /* Cuánto de ese vale pagó el saldo. */
           share: total > 0 ? Math.round((parte / total) * 100) : 0,
         }));
+      /* Lo que queda después de los productos es el costo por servicio:
+         sin su línea el desglose sumaba menos que el movimiento y
+         parecía que faltaban centavos. */
+      if (queda > 0) {
+        detail.push({ label: "Costo por servicio", amount: `- ${money(queda)}`, share: 0 });
+      }
 
       state.activity.unshift({
         date: stamp(0),
@@ -28862,6 +28883,10 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          no es elegir, y al volver al checkout la persona se encontraba
          con una decisión que no había tomado. */
       state.methodsTab = "methods";
+      return go("methods");
+    }
+    if (action === "open-methods-cash") {
+      state.methodsTab = "cash";
       return go("methods");
     }
 
