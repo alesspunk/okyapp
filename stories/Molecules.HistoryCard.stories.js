@@ -13,6 +13,7 @@ import {
   resolveHistoryCard,
 } from "./_shared/historyCards";
 
+import { renderCashMovement } from "./_shared/okyCashParts";
 export default {
   title: "Molecules/History Card",
   tags: ["autodocs"],
@@ -150,4 +151,18 @@ export const StatusChips = {
       </div>
     </div>
   `,
+};
+
+/* ── OKY Cash / Movimiento (sprint 20/10) ─────────────────
+   La fila de OKY Cash de Tu billetera con su panel plegable:
+   «Con qué lo ganaste» (ganado) / «En qué lo usaste» (usado). Al
+   usarlo, el desglose incluye el costo por servicio. */
+export const OkyCashMovement = {
+  name: "OKY Cash · Movimiento",
+  render: () => `
+    <div style="display:flex;flex-direction:column;gap:16px">
+      ${renderCashMovement({ positive: true, open: false })}
+      ${renderCashMovement({ positive: true, open: true })}
+      ${renderCashMovement({ positive: false, open: true, order: "Orden #11112443" })}
+    </div>`,
 };

@@ -1,3 +1,5 @@
+import { CART_QTY_STATES, renderCartQty } from "./_shared/okyCashParts";
+
 /**
  * Quantity Input — DS-MARS v2 (updated)
  * 4 reusable components. Icons use Material Icons Outlined to match DS-MARS2.pen.
@@ -171,4 +173,15 @@ export const AllStates = {
         </table>
       </div>`;
   },
+};
+
+/* ── Carrito / Cantidad (sprint 20/10) ────────────────────
+   El contador compacto de los productos de comida: «+» para agregar,
+   cerrado con el número y abierto con − / número / +. */
+export const CartQuantity = {
+  name: "Carrito · Cantidad",
+  render: () => `
+    <div style="display:flex;gap:24px;align-items:center">
+      ${CART_QTY_STATES.map((state) => `<div style="display:flex;flex-direction:column;gap:8px;align-items:center"><div class="mars-label">${state}</div>${renderCartQty({ state })}</div>`).join("")}
+    </div>`,
 };

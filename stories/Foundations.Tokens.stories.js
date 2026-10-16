@@ -76,6 +76,39 @@ const surfaceTokens = [
     preview: "#E0E0E0",
     note: "Override scopeado dentro de Middle Card para respetar el stroke lateral del componente sin afectar el token global existente.",
   },
+  // ── OKY Cash (sprint 20/10) ────────────────────────────────
+  {
+    name: "Highlight Surface",
+    css: "--highlight-surface",
+    type: "solid",
+    value: "#E8FBF8",
+    preview: "#E8FBF8",
+    note: "Línea resaltada del resumen: fondo aqua claro de los descuentos (OKY Cash y código promo), desbordado 6px a cada lado.",
+  },
+  {
+    name: "Highlight Text",
+    css: "--highlight-text",
+    type: "solid",
+    value: "#007C72",
+    preview: "#007C72",
+    note: "Monto de la línea resaltada: teal sobre Highlight Surface, en Lato 800 (token summaryHighlight).",
+  },
+  {
+    name: "Payrow Checked",
+    css: "--payrow-checked",
+    type: "solid",
+    value: "#EFFDFC",
+    preview: "#EFFDFC",
+    note: "Fondo de la fila de OKY Cash marcada en «Método de pago» del checkout. El saldo va en Secondary Dark #057A73.",
+  },
+  {
+    name: "OKY Cash Dark",
+    css: "--oky-cash-dark",
+    type: "solid",
+    value: "#00524D",
+    preview: "#00524D",
+    note: "Verde oscuro de OKY Cash: fondo de «Ganaste OKY Cash» y de la hoja «Tienes OKY Cash», y la casilla marcada de OKY Cash.",
+  },
 ];
 
 const semanticGroups = [
@@ -121,7 +154,7 @@ const semanticGroups = [
   },
 ];
 
-// Full 30-token typography scale — DS-MARS2.pen source of truth
+// Full 31-token typography scale — DS-MARS2.pen source of truth
 const typographyTokens = [
   // ── Display / Headings ──────────────────────────────────────
   { token: "H1",          size: "96px", weight: "700", style: "",       cas: "",          ls: "-1.5px", lh: "1.167" },
@@ -143,6 +176,7 @@ const typographyTokens = [
   { token: "priceTag",    size: "14px", weight: "700", style: "italic", cas: "",          ls: "0.15px", lh: "1.5"   },
   { token: "subtitle2",   size: "14px", weight: "500", style: "",       cas: "",          ls: "0.1px",  lh: "1.57"  },
   { token: "productText", size: "14px", weight: "600", style: "",       cas: "",          ls: "0.15px", lh: "1.5"   },
+  { token: "summaryHighlight", size: "14px", weight: "800", style: "", cas: "", ls: "0.15px", lh: "1.43", family: "Lato" },
   { token: "SumText",     size: "14px", weight: "400", style: "",       cas: "",          ls: "0.15px", lh: "1.5"   },
   // ── 13px ────────────────────────────────────────────────────
   { token: "buttonSm",    size: "13px", weight: "500", style: "",       cas: "",          ls: "0.4px",  lh: "1.75"  },
@@ -193,7 +227,7 @@ export default {
     docs: {
       description: {
         component:
-          "Core design tokens: color palette, semantic palettes, surface/effect tokens and full typography scale (30 tokens). Incluye la familia `Card Top`, `Card Middle`, `Card Bottom`, `Back Drop` y `Separator Border`.",
+          "Core design tokens: color palette, semantic palettes, surface/effect tokens and full typography scale (31 tokens). Incluye la familia `Card Top`, `Card Middle`, `Card Bottom`, `Back Drop` y `Separator Border`, y los de OKY Cash: `Highlight Surface`, `Highlight Text`, `Payrow Checked` y `OKY Cash Dark`.",
       },
     },
   },
@@ -304,7 +338,7 @@ export const TypographyScale = {
   render: () => `
     <div class="mars-story">
       <h3 style="margin:0 0 4px;color:var(--primary-main)">Typography Tokens</h3>
-      <p class="mars-subtitle">Nunito Sans + Lato + Inter (text) · Material Icons Outlined (icons) — 30 tokens.</p>
+      <p class="mars-subtitle">Nunito Sans + Lato + Inter (text) · Material Icons Outlined (icons) — 31 tokens.</p>
       <table class="type-table">
         <thead>
           <tr>

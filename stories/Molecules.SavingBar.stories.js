@@ -1,3 +1,5 @@
+import { CASH_BAR_KINDS, renderCashSavingBar } from "./_shared/okyCashParts";
+
 /* ─────────────────────────────────────────────────────────
    Molecules / Saving Bar
    Pen reference: 8141:52920
@@ -131,5 +133,17 @@ export const AllVariants = {
         </div>
 
       </div>
+    </div>`,
+};
+
+/* ── OKY Cash (sprint 20/10) ──────────────────────────────
+   Base en la PDP (con la (i) que abre la landing), base en el
+   checkout y la de ahorro de Guatemala. Los tiers Promo / Terminada /
+   Aviso quedan fuera de esta entrega junto con el cronómetro. */
+export const OkyCash = {
+  name: "OKY Cash",
+  render: () => `
+    <div style="display:flex;flex-direction:column;gap:16px">
+      ${CASH_BAR_KINDS.map((kind) => `<div class="mars-label">${kind}</div>${renderCashSavingBar({ kind })}`).join("")}
     </div>`,
 };

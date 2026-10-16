@@ -1,3 +1,5 @@
+import { renderCountryRow } from "./_shared/okyCashParts";
+
 /**
  * Lists — DS-MARS v2
  * List / PLP  · dsvtw  · 360px · product listing with Add chips
@@ -240,4 +242,16 @@ export const AllLists = {
         </div>
       </div>`;
   },
+};
+
+/* ── List / Country Row (sprint 20/10) ────────────────────
+   Las filas de la hoja «Elige el país»: bandera, país, código y el
+   check del país actual. */
+export const CountryRow = {
+  name: "Country Row",
+  render: () => `
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${renderCountryRow({ iso: "US", current: true })}
+      ${renderCountryRow({ iso: "CA", current: false })}
+    </div>`,
 };

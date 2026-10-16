@@ -1,3 +1,5 @@
+import { htmlToElement as okyCashElement, phoneFrame, renderSheet, SHEET_KINDS } from "./_shared/okyCashParts";
+
 const MODAL_VARIANTS = ["Large", "Medium", "Small", "Important", "Centered"];
 
 const MODAL_META = {
@@ -634,4 +636,14 @@ export const Centered = {
       ${renderModalDemo({ variant: "Centered" })}
     </div>
   `,
+};
+
+/* ── Hojas de OKY Cash y Mis compras (sprint 20/10) ───────
+   Las hojas de abajo del prototipo, cada una en su marco de 360×800
+   con el fondo atenuado. */
+export const OkyCashSheets = {
+  name: "OKY Cash · Hojas",
+  argTypes: { sheet: { control: "select", options: SHEET_KINDS } },
+  args: { sheet: SHEET_KINDS[0] },
+  render: ({ sheet }) => okyCashElement(phoneFrame(renderSheet(sheet, { balance: 5 }), { background: "#f5f5f5" })),
 };

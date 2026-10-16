@@ -13,6 +13,7 @@ import {
   renderPaymentCardStack,
 } from "./_shared/paymentCards";
 
+import { CARD_DESIGNS, okyCashCardData } from "./_shared/okyCashParts";
 export default {
   title: "Molecules/Payment Card",
   tags: ["autodocs"],
@@ -263,4 +264,21 @@ export const Customization = {
       </div>
     `;
   },
+};
+
+/* ── OKY Cash · los 5 diseños (sprint 20/10) ──────────────
+   La tarjeta de OKY Cash de Tu billetera: saldo arriba, vencimiento
+   abajo (solo con saldo) y el lápiz a la derecha, que abre el
+   selector de diseño. Tocar la tarjeta baja al último movimiento. */
+export const OkyCashDesigns = {
+  name: "OKY Cash · Diseños",
+  render: () => `
+    <div style="display:flex;flex-wrap:wrap;gap:24px">
+      ${CARD_DESIGNS.map(
+        (d) => `<div style="display:flex;flex-direction:column;gap:8px">
+          <div class="mars-label">${d.label}</div>
+          ${renderPaymentCard(okyCashCardData(findPaymentCard, { design: d.key }))}
+        </div>`,
+      ).join("")}
+    </div>`,
 };

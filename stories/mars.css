@@ -6,6 +6,13 @@
   --secondary-main: #18afa5;
   --accent-color: #ffb400;
 
+  /* OKY Cash (sprint 20/10): línea resaltada del resumen y fila de
+     OKY Cash marcada en «Método de pago». */
+  --highlight-surface: #e8fbf8;
+  --highlight-text: #007c72;
+  --payrow-checked: #effdfc;
+  --oky-cash-dark: #00524d;
+
   /* Tiers de cashback: un solo par por tier, para que ribbon, saving
      bar, chips y el chip de countdown no vuelvan a irse cada uno por
      su lado (el bar usaba #ff9800 y el ribbon #ffb400). */
@@ -8619,7 +8626,7 @@ body {
    con el check en blanco — no el fa-square-check morado genérico. */
 .oky-flow-check.is-checked {
   border-color: #00524d;
-  background: #00524d;
+  background: var(--oky-cash-dark);
   color: var(--white);
 }
 
@@ -10627,7 +10634,7 @@ button.header-icon {
   border-radius: 24px;
   /* Verde oscuro de OKY Cash: la moneda es plateada y sobre fondo
      claro se perdía. */
-  background: #00524d;
+  background: var(--oky-cash-dark);
   cursor: pointer;
   /* El propio dotLottie desvanece las monedas entre los frames 210 y
      240 (7 s - 8 s): el overlay se va con ellas y la pantalla de la
@@ -12783,7 +12790,7 @@ button.tactic-offer {
 /* El de OKY Cash: el verde y el título de "Ganaste" —"Tienes", el
    monto en aqua y "en OKY Cash"— y la pila de monedas. */
 .oky-flow-savings.is-cash {
-  background: #00524d;
+  background: var(--oky-cash-dark);
 }
 
 .oky-flow-cashnote-title {
@@ -17255,13 +17262,13 @@ img.oky-flow-method-mark {
 .summary-row.is-discount {
   margin: 2px 0;
   padding: 4px 0;
-  background: #e8fbf8;
-  box-shadow: -6px 0 0 #e8fbf8, 6px 0 0 #e8fbf8;
+  background: var(--highlight-surface);
+  box-shadow: -6px 0 0 var(--highlight-surface), 6px 0 0 var(--highlight-surface);
 }
 
 .summary-row.is-discount .summary-value-success {
   font-weight: 800;
-  color: #007c72;
+  color: var(--highlight-text);
 }
 
 
@@ -17427,7 +17434,7 @@ img.oky-flow-method-mark {
 }
 
 .oky-flow-payrow.is-cash.is-checked {
-  background: #effdfc;
+  background: var(--payrow-checked);
 }
 
 .oky-flow-payrow .oky-flow-check.is-checked {

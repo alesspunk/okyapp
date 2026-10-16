@@ -1,3 +1,5 @@
+import { renderNewDot, renderVoucherBadge } from "./_shared/okyCashParts";
+
 export default {
   title: "Atoms/Chips",
   tags: ["autodocs"],
@@ -243,4 +245,20 @@ export const Variants = {
       </div>
     </div>
   `,
+};
+
+/* ── Insignia de vale · Punto Nuevo (sprint 20/10) ────────
+   La insignia de la pila de Mis compras: unidades + bandera del
+   marketplace (vale), + check (compra) o + equis (fallida). El punto
+   marca un vale nuevo. */
+export const VoucherBadge = {
+  name: "Insignia de vale · Punto Nuevo",
+  render: () => `
+    <div style="display:flex;gap:24px;align-items:center">
+      ${renderVoucherBadge({ type: "vale", count: 2, country: "US" })}
+      ${renderVoucherBadge({ type: "vale", count: 1, country: "GT" })}
+      ${renderVoucherBadge({ type: "compra", count: 3 })}
+      ${renderVoucherBadge({ type: "fallida", count: 1 })}
+      ${renderNewDot()}
+    </div>`,
 };

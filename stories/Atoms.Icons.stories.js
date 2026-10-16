@@ -1,3 +1,5 @@
+import { SHARE_ICON_ANDROID, SHARE_ICON_IOS } from "./_shared/okyCashParts";
+
 export default {
   title: "Atoms/Icons",
   tags: ["autodocs"],
@@ -153,4 +155,16 @@ export const AllSizes = {
       </div>
     `;
   },
+};
+
+/* ── Icono / Compartir (sprint 20/10) ─────────────────────
+   El ícono de compartir del vale cambia según la plataforma: la caja
+   con flecha en iOS y los tres nodos en Android y web. */
+export const Share = {
+  name: "Compartir · iOS / Android y web",
+  render: () => `
+    <div style="display:flex;gap:32px;align-items:center;color:var(--neutral-900, #1a1a1a)">
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:center">${SHARE_ICON_IOS}<div class="mars-label">iOS</div></div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:center">${SHARE_ICON_ANDROID}<div class="mars-label">Android y web</div></div>
+    </div>`,
 };
