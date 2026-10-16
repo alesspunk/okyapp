@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────────────────────
    Organisms / Purchase Success
-   MARS: Poscompra / Sello de compra exitosa + confeti (Lottie de
-   Nicky, 15/10)
+   MARS: Poscompra / Sello de compra exitosa + confeti
+   («confetti stamp.json», 16/10)
 ───────────────────────────────────────────────────────── */
 
 import { OKY_CONFETTI } from "./_shared/okyConfettiAnimation";
@@ -15,7 +15,7 @@ export default {
       description: {
         component:
           "**Purchase Success** es la celebración que tapa la pantalla al tocar **Comprar**: velo blanco al 88 %, " +
-          "el sello «Compra exitosa» y el confeti Lottie de una sola pasada. Se retira sola a los 2.6 s (o con un " +
+          "el sello «Compra exitosa» y el confeti Lottie de una sola pasada. Se retira sola a los 3 s, lo que dura el confeti, (o con un " +
           "toque) y da paso a «Ganaste OKY Cash» cuando la compra dio cashback. Con movimiento reducido no cae " +
           "confeti. En Storybook, un toque la repite. Prototipo: `.oky-flow-celebration` · `OKY_CONFETTI`.",
       },

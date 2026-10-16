@@ -6611,8 +6611,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     const confettiHost = root.querySelector("[data-role='celebration-confetti']");
     if (confettiHost) {
-      /* El confeti es el Lottie de Nicky: una sola pasada, en cada
-         «Comprar». Con movimiento reducido no cae nada. */
+      /* El confeti es «confetti stamp.json» de diseño, tal cual: una
+         sola pasada, en cada «Comprar». Con movimiento reducido no cae
+         nada. */
       if (!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
         confettiAnimation = lottie.loadAnimation({
           container: confettiHost,
@@ -6624,11 +6625,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         });
       }
       /* El sello es una celebración, no una pantalla: se retira solo y
-         da paso a la animación de "Ganaste OKY Cash". */
+         da paso a la animación de "Ganaste OKY Cash". Dura lo mismo que
+         el confeti (180 cuadros a 60 fps = 3 s) para que se vea entero. */
       clearTimeout(celebrationTimer);
       celebrationTimer = setTimeout(() => {
         if (state.screen === "success") go(nextAfterStamp(), {}, { push: false });
-      }, 2600);
+      }, 3000);
     }
 
     /* Animación "Ganaste OKY Cash" (dotLottie del equipo de diseño).
