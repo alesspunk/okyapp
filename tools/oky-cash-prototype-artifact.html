@@ -23026,7 +23026,12 @@ function screenCheckout(state) {
          Guatemala todavía no aplica. */
       /* Una sola barra a la vez: si la orden da cashback (USA), manda
          la de lo que se gana; las dos en el mismo sitio se tapaban. */
-      orderSavings(state) > 0 && !(cashback > 0)
+      /* En Guatemala nada da OKY Cash, pero si el saldo paga la orden
+         entera se avisa igual que en USA: «No acumulas OKY Cash en esta
+         compra» (CHK-23). Solo en ese caso; si no, sigue el ahorro. */
+      V3_ROUTE && !(cashback > 0) && orderCountry(state) === "gua" && used > 0 && orderDue(state) <= 0
+        ? savingBar(0, { bar: "" }, () => `No acumulas <strong>OKY Cash</strong> en esta compra`)
+        : orderSavings(state) > 0 && !(cashback > 0)
         ? `<div class="oky-flow-savingbar"><div class="oky-flow-savebar is-bar"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(orderSavings(state))}</div></div>`
         : ""
     }
