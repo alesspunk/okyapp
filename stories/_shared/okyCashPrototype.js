@@ -2620,6 +2620,15 @@ function screenCheckout(state) {
             <p class="dual-title">${recipient.name}</p>
             <p class="dual-subtitle">${recipient.phone}</p>
           </div>
+          ${
+            /* Yendo a otra persona, la tarjeta de ocasión a la derecha, en
+               el mismo hueco y la misma x que la moneda y la tarjeta 3D del
+               método de pago. Para uno mismo no tiene sentido y no va. Por
+               ahora no hace nada: solo se enseña. */
+            V3_ROUTE && recipient.initials
+              ? `<img class="oky-flow-pay-icon is-occasion" src="oky-tarjeta-ocasion.png" alt="" />`
+              : ""
+          }
           <span class="dual-action" aria-hidden="true"><i class="fa-solid fa-ellipsis-vertical"></i></span>
         </div>
       </article>
@@ -2800,17 +2809,19 @@ function screenMethods(state) {
   const due = orderDue(state);
   /* Sin tarjeta el pago solo sale si OKY Cash cubre todo. */
   const canPay = Boolean(selectedCardOf(state)) || (state.okyCashEnabled && due <= 0);
-  /* Pago compartido (OKY Cash y tarjeta): el monto ya es solo la parte
-     de la tarjeta, y el botón lo dice. Sin OKY Cash, es el total. */
+  /* En /miscompras lo que se le cobra al método elegido va en su fila
+     (si OKY Cash paga una parte, solo lo que le toca a la tarjeta), así
+     que el botón ya no lo repite: solo dice «Ir a pagar». En las otras
+     rutas el botón sigue llevando el monto. */
   const split = orderCash(state) > 0 && due > 0;
-  const ctaLabel = split ? `Pago con tarjeta - ${money(due)}` : `Ir a pagar - ${money(due)}`;
+  const ctaLabel = V3_ROUTE ? "Ir a pagar" : split ? `Pago con tarjeta - ${money(due)}` : `Ir a pagar - ${money(due)}`;
   return `
     ${statusBar()}
     ${titledHeader(timer ? "Tu billetera" : "Métodos de pago")}
     ${/* La pestaña de OKY Cash se mira aquí mismo, sin salir de la
          compra: así el botón de pagar no se pierde. */ ""}
     ${timer ? cashSoloSeg(state, state.methodsTab === "cash" ? "cash" : "methods") : ""}
-    ${timer && state.methodsTab === "cash" ? okyCashActivity(state) : cashSoloMethods(state)}
+    ${timer && state.methodsTab === "cash" ? okyCashActivity(state) : cashSoloMethods(state, { charge: timer ? due : 0 })}
     <div class="oky-flow-cta-bar">
       <button class="btn btn-primary btn-large" data-action="confirm-methods" type="button"${canPay ? "" : " disabled"}>
         ${ctaLabel}
@@ -4455,7 +4466,7 @@ function methodsEmpty() {
    para cambiarla, sin la fila de OKY Cash. Es la misma desde Tu
    billetera y desde el checkout; desde el checkout se le suma abajo el
    botón de "Ir a pagar" (screenMethods). */
-function cashSoloMethods(state) {
+function cashSoloMethods(state, { charge = 0 } = {}) {
   const cards = savedCards(state);
   /* El radio elige qué tarjeta se mira; la de arriba dice si es la de
      pago o una secundaria. Solo una es para pago, y se cambia desde los
@@ -4482,6 +4493,10 @@ function cashSoloMethods(state) {
                 <span class="oky-flow-radio${isSelected ? " is-on" : ""}" aria-hidden="true"></span>
                 <img class="oky-flow-method-mark" src="oky-card-3d.png" alt="" />
                 <p class="oky-flow-method-name${isSelected ? "" : " is-regular"}">${card.label}</p>
+                ${/* Desde el checkout, la fila elegida dice cuánto se le cobra
+                     (MARS CHK-14…17, 21). Si OKY Cash cubre todo, no hay
+                     nada que cobrarle y no lleva monto. */ ""}
+                ${isSelected && charge > 0 ? `<span class="oky-flow-method-amount">${money(charge)}</span>` : ""}
                 ${isSelected ? methodMore(card) : ""}
               </div>
             </div>

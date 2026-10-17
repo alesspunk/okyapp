@@ -8924,6 +8924,21 @@ body {
   font-weight: 400;
 }
 
+/* Lo que se le cobra al método elegido, desde el checkout (MARS
+   CHK-14…17, 21): Lato Bold 16 en morado, antes de los tres puntos. */
+.oky-flow-method-amount {
+  flex: none;
+  font-family: "Lato", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--primary-base);
+}
+
+.oky-flow-method-amount + .oky-flow-method-more {
+  margin-left: 0;
+}
+
 /* slider compacto teal: track 15px, thumb 29px (el .slider-atom
    del sistema es 20/36 y morado) */
 .oky-flow-cash-slider {
@@ -17431,6 +17446,17 @@ img.oky-flow-method-mark {
 
 .oky-flow-payrow-copy.is-card {
   font-size: 16px;
+}
+
+/* La tarjeta de ocasión de «¿Para quién es?» (solo yendo a otra
+   persona): en el hueco de 24px de los íconos de pago, para que caiga en
+   la misma x que la moneda y la tarjeta 3D de abajo. */
+.dual-card .oky-flow-pay-icon.is-occasion {
+  height: 26px;
+  /* La fila de pago separa el ícono de los tres puntos con 8px y la
+     del destinatario con más aire: se corre 8px para que su centro caiga
+     sobre el de la moneda y la tarjeta 3D. */
+  margin-right: -8px;
 }
 
 .oky-flow-payrow.is-cash.is-checked {
