@@ -1,5 +1,9 @@
 const coreSwatches = [
-  { name: "Primary Main",    value: "#552588" },
+  /* El morado OKY es Primary Base (#552588, en Figma primary/main);
+     Primary Main (#410088) es el morado oscuro de botones y bordes
+     activos. Los dos existen y no se mezclan (19/10). */
+  { name: "Primary Base",    value: "#552588" },
+  { name: "Primary Main",    value: "#410088" },
   { name: "Primary Dark",    value: "#230741" },
   { name: "Primary Light",   value: "#bc9edc" },
   { name: "Secondary Main",  value: "#18afa5" },
@@ -193,11 +197,9 @@ function previewStyle(t) {
   const size = Math.min(parseInt(t.size), 28);
   const textTransform = t.cas === "UPPERCASE" ? "uppercase" : "none";
   const family =
-    t.family === "Lato"
-      ? '"Lato",sans-serif'
-      : t.family === "Inter"
-        ? '"Inter",sans-serif'
-        : '"Nunito Sans",sans-serif';
+    t.family === "Inter"
+      ? '"Inter",sans-serif'
+      : '"Nunito Sans",sans-serif';
   return [
     `font-size:${size}px`,
     `font-weight:${t.weight}`,

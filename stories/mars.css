@@ -32,7 +32,7 @@
   --background: #f5f5f5;
   --back-drop: rgba(0, 0, 0, 0.4);
   --secondary-dark: #057a73;
-  --secondary-light: #8adad7;
+  --secondary-light: #a8faf5;
   --disable-main: #e0e0e0;
   --card-top: linear-gradient(149.41deg, #fcfcfc 18.83%, #f1f2f5 41%);
   --card-middle: radial-gradient(50% 50% at 50% 50%, #fff 0%, #f1f2f5 100%);
@@ -594,7 +594,7 @@ body {
   flex: 1;
   min-width: 0;
   color: #552588;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 1.75;
@@ -614,7 +614,7 @@ body {
   border-radius: 16px;
   background: var(--primary-light);
   color: #fff;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 1;
@@ -1419,7 +1419,7 @@ body {
   border: 1px solid var(--border-main);
   color: var(--primary-main);
   border-radius: 16px;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   line-height: 1;
 }
@@ -1439,7 +1439,7 @@ body {
   background: var(--secondary-main);
   color: #fff;
   justify-content: center;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 7px;
   font-weight: 700;
   line-height: 1.57;
@@ -2050,7 +2050,7 @@ body {
 .token-h6 {
   margin: 0;
   color: var(--primary-main);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-style: normal;
   font-weight: 700;
@@ -2061,7 +2061,7 @@ body {
 .token-brand {
   margin: 0;
   color: var(--primary-main);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -2194,7 +2194,7 @@ body {
   font-weight: 700;
   letter-spacing: -0.5px;
   color: var(--primary-main);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2843,7 +2843,7 @@ body {
    lista tachado en aqua oscuro al lado. */
 .token-price-tag-plp {
   color: var(--primary-main);
-  font-family: 'Lato', sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 900;
   line-height: 157%;
@@ -2857,7 +2857,7 @@ body {
 
 .token-price-plp {
   color: var(--secondary-dark);
-  font-family: 'Lato', sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 13px;
   font-weight: 900;
   line-height: 157%;
@@ -2966,7 +2966,7 @@ body {
 
 .token-price-tag-cart {
   color: var(--primary-main);
-  font-family: 'Lato', sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 900;
   line-height: 157%;
@@ -2975,7 +2975,7 @@ body {
 
 .token-price-cart {
   color: var(--secondary-dark);
-  font-family: 'Lato', sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 13px;
   font-weight: 900;
   line-height: 157%;
@@ -3046,7 +3046,7 @@ body {
 }
 
 .token-exchange {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 10px;
   font-weight: 400;
   line-height: 1.2;
@@ -3084,7 +3084,7 @@ body {
 }
 
 .summary-label {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.75;
@@ -3093,7 +3093,7 @@ body {
 }
 
 .summary-label-strong {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 1.75;
@@ -3104,7 +3104,7 @@ body {
 /* Rebaja en el resumen: el de lista tachado en aqua oscuro, con la
    letra de la resta de OKY Cash, y lo que se paga en morado. */
 .summary-value-old {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.75;
@@ -3114,7 +3114,7 @@ body {
 }
 
 .summary-value-new {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 1.75;
@@ -3123,7 +3123,7 @@ body {
 }
 
 .summary-value-success {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.43;
@@ -3165,7 +3165,7 @@ body {
   justify-content: center;
   gap: 4px;
   color: var(--secondary-dark);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 1.43;
@@ -3181,7 +3181,7 @@ body {
   width: 100%;
   height: 40px;
   border-radius: 32px;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-weight: 700;
   line-height: 24px;
@@ -3251,7 +3251,7 @@ body {
   min-width: 0;
   margin: 0;
   color: var(--secondary-dark);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 1.75;
@@ -3379,7 +3379,7 @@ body {
 .dual-avatar.is-contact {
   background: rgba(106, 11, 208, 0.2);
   color: var(--white);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 19px;
   font-weight: 500;
   letter-spacing: -0.5px;
@@ -3400,7 +3400,7 @@ body {
 .dual-title {
   margin: 0;
   color: var(--text-primary);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-weight: 700;
   line-height: 1.6;
@@ -3413,7 +3413,7 @@ body {
 .dual-subtitle {
   margin: -2px 0 0;
   color: var(--disable-text);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 400;
   line-height: 1.43;
@@ -3450,7 +3450,7 @@ body {
   color: var(--secondary-dark);
   text-align: center;
   font-feature-settings: 'liga' off, 'clig' off;
-  font-family: 'Lato', sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-weight: 700;
   font-style: italic;
@@ -3540,7 +3540,7 @@ body {
   color: var(--discount-ribbon-text);
   text-align: center;
   font-feature-settings: 'liga' off, 'clig' off;
-  font-family: 'Lato', sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 700;
@@ -3612,7 +3612,7 @@ body {
 .super-ribbon-text {
   color: var(--super-ribbon-text);
   text-align: center;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
@@ -4054,7 +4054,7 @@ body {
   width: 360px;
   height: 77px;
   position: relative;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   overflow: visible;
   transform: scale(var(--folder-scale));
   transform-origin: top center;
@@ -4400,7 +4400,7 @@ body {
   padding: 3px 0;
   text-align: center;
   color: rgba(0, 0, 0, 0.38);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 8px;
   font-weight: 700;
   line-height: 1.2;
@@ -4418,7 +4418,7 @@ body {
   border-radius: 13px;
   background: var(--accent-color);
   color: var(--warning-text);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 8px;
   font-weight: 700;
   line-height: 1.57;
@@ -5006,7 +5006,7 @@ body {
 .prime-card-bottom-expiry {
   min-height: 22px;
   color: rgba(85, 37, 136, 0.7);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 10px;
   font-weight: 400;
   line-height: 22px;
@@ -5038,7 +5038,7 @@ body {
 }
 
 .prime-card-bottom-line-label {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 10px;
   font-weight: 400;
   line-height: 1.57;
@@ -5711,7 +5711,7 @@ body {
 .modal-sheet-title {
   margin: 0;
   color: inherit;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 24px;
   font-weight: 700;
   line-height: 1.1;
@@ -5738,7 +5738,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 24px;
   font-weight: 700;
   line-height: 1;
@@ -5746,7 +5746,7 @@ body {
 
 .modal-sheet-badge-label {
   color: inherit;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 1;
@@ -5768,7 +5768,7 @@ body {
   margin: 0;
   padding-left: 24px;
   color: var(--primary-main);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 400;
   line-height: 1.43;
@@ -5792,7 +5792,7 @@ body {
 .modal-large-section-title {
   margin: 0;
   color: var(--primary-main);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 18px;
   font-weight: 700;
   line-height: 1.43;
@@ -5864,7 +5864,7 @@ body {
 
 .modal-large-icon-label {
   color: var(--primary-main);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.1;
@@ -5920,7 +5920,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 40px;
   font-weight: 700;
   line-height: 1;
@@ -5939,7 +5939,7 @@ body {
 .modal-contact-name {
   margin: 0;
   color: var(--text-primary);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-weight: 700;
   line-height: 1.4;
@@ -5949,7 +5949,7 @@ body {
 .modal-contact-phone {
   margin: 0;
   color: var(--text-secondary);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 18px;
   font-weight: 400;
   line-height: 1.3;
@@ -6008,7 +6008,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-weight: 400;
   line-height: 1.6;
@@ -6057,7 +6057,7 @@ body {
 .modal-important-title {
   margin: 0;
   color: var(--white);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 32px;
   font-weight: 700;
   line-height: 1.235;
@@ -6067,7 +6067,7 @@ body {
 .modal-important-description {
   margin: 0;
   color: var(--white);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
@@ -6138,7 +6138,7 @@ body {
   border: 0;
   background: none;
   color: var(--white);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-weight: 700;
   line-height: 1.2;
@@ -6254,7 +6254,7 @@ body {
   align-items: center;
   gap: 8px;
   color: var(--tier-base-text);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-weight: 900;
   font-size: 16px;
   line-height: 1.43;
@@ -6296,7 +6296,7 @@ body {
   height: 96px;
   border-radius: 20px;
   overflow: hidden;
-  background: #fff;
+  background: var(--white);
   box-shadow: 0 3px 2.5px rgba(0, 0, 0, 0.2), 0 5px 4px rgba(0, 0, 0, 0.14),
     0 1px 7px rgba(0, 0, 0, 0.12);
 }
@@ -6324,12 +6324,12 @@ body {
 }
 
 .saving-bar-card-actions .btn-outlined {
-  border-color: #552588;
-  color: #552588;
+  border-color: var(--primary-base);
+  color: var(--primary-base);
 }
 
 .saving-bar-card-actions .btn-primary {
-  background: #552588;
+  background: var(--primary-base);
 }
 
 /* ── Reminder Card (Molecule) ───────────────────────────── */
@@ -6347,7 +6347,7 @@ body {
   border: 1px solid var(--border-main);
   background: var(--info-bg);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.17);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   color: var(--primary-base);
 }
 
@@ -6542,7 +6542,7 @@ body {
 .reminder-card-merchant {
   margin: 0;
   color: var(--info-text);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 600;
   line-height: 20px;
@@ -6616,7 +6616,7 @@ body {
   border: 1px solid var(--border-main);
   background: var(--white);
   box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   overflow: hidden;
 }
 
@@ -6990,7 +6990,7 @@ body {
   border-radius: 32px;
   background: var(--icon-avatar-bg);
   color: var(--primary-base);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
 }
 
 .icon-avatar i {
@@ -7028,13 +7028,13 @@ body {
 }
 
 /* ── Amount Display (Atom) ──────────────────────────────── */
-/* Monto grande con moneda en superíndice, Lato Black sobre --info-text. */
+/* Monto grande con moneda en superíndice, Nunito Sans Black sobre --info-text. */
 .amount-display {
   margin: 0;
   display: inline-flex;
   align-items: flex-start;
   color: var(--info-text);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-weight: 900;
   line-height: 1.43;
   letter-spacing: 0.35px;
@@ -7089,7 +7089,7 @@ body {
   border: 0;
   background: none;
   cursor: pointer;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.4px;
@@ -7244,7 +7244,7 @@ body {
 
 .modal-detail-title {
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-weight: 700;
   line-height: 1.43;
@@ -7254,7 +7254,7 @@ body {
 
 .modal-detail-note {
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 400;
   line-height: 20px;
@@ -7327,7 +7327,7 @@ body {
   white-space: normal;
   overflow: visible;
   text-overflow: clip;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 400;
   line-height: 1.43;
@@ -7337,7 +7337,7 @@ body {
 
 .toast-banner-amount {
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 24px;
   font-weight: 700;
   line-height: 1.43;
@@ -7401,7 +7401,7 @@ body {
   background: var(--payment-card-bg);
   box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
   color: var(--payment-card-ink);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
 }
 
 /* capa de patrón (por encima del contenido, como en Figma) */
@@ -7715,7 +7715,7 @@ body {
   background: none;
   cursor: pointer;
   color: inherit;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.15px;
@@ -7793,7 +7793,7 @@ body {
 }
 
 .payment-card-molecule.is-saldo-oky {
-  --payment-card-bg: linear-gradient(244.68deg, #ac6fee 21.04%, #552588 83.55%);
+  --payment-card-bg: linear-gradient(244.68deg, #ac6fee 21.04%, var(--primary-base) 83.55%);
   --payment-card-border: var(--white);
 }
 
@@ -8066,7 +8066,7 @@ body {
   padding: 0 16px;
   box-sizing: border-box;
   border-radius: 8px;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
 }
@@ -8077,7 +8077,7 @@ body {
 }
 
 .oky-flow-toast.is-success i {
-  color: #4caf50;
+  color: var(--success-main);
   font-size: 18px;
 }
 
@@ -8131,7 +8131,7 @@ body {
   display: flex;
   justify-content: center;
   padding: 16px var(--oky-gutter) 10px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 18%, #fff 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--white) 18%, var(--white) 100%);
   pointer-events: none;
 }
 
@@ -8262,7 +8262,7 @@ body {
   pointer-events: none;
   max-width: calc(100% - 120px);
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 24px;
   font-weight: 700;
   line-height: normal;
@@ -8282,7 +8282,7 @@ body {
      y 8 abajo al hueco de la pila, más los 12 de su propio padding. */
   margin: -8px 0 -8px;
   padding-bottom: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 10px;
   font-weight: 400;
   line-height: 1.57;
@@ -8294,7 +8294,7 @@ body {
 .oky-flow-legal {
   width: 309px;
   margin: 0 auto;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 10px;
   line-height: 1.57;
   color: var(--primary-base);
@@ -8467,7 +8467,7 @@ body {
   border: 1px solid var(--primary-base);
   border-radius: 8px;
   background: var(--white);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 13px;
   line-height: 22px;
   letter-spacing: 0.4px;
@@ -8489,7 +8489,7 @@ body {
   gap: 8px;
   height: 24px;
   padding-left: 20px;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
@@ -8640,7 +8640,7 @@ body {
 /* Casilla marcada de OKY Cash: cuadro sólido verde-azulado oscuro
    con el check en blanco — no el fa-square-check morado genérico. */
 .oky-flow-check.is-checked {
-  border-color: #00524d;
+  border-color: var(--oky-cash-dark);
   background: var(--oky-cash-dark);
   color: var(--white);
 }
@@ -8757,7 +8757,7 @@ body {
    dato de la sección y no una coletilla del título. Solo el número
    toma el morado de marca. */
 .oky-flow-section-count {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 13px;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
@@ -8783,7 +8783,7 @@ body {
   border: 2px solid var(--white);
   border-radius: 50%;
   background: var(--error-main);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 11px;
   font-weight: 900;
   line-height: 1;
@@ -8800,7 +8800,7 @@ body {
   flex: 1 1 auto;
   min-width: 0;
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-weight: 700;
   line-height: 1.75;
@@ -8813,7 +8813,7 @@ body {
   flex: 0 0 auto;
   padding: 4px 8px;
   border-radius: 16px;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.15px;
@@ -8858,7 +8858,7 @@ body {
   cursor: pointer;
   width: 100%;
   text-align: left;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
 }
 
 .oky-flow-method-row.is-selected {
@@ -8940,10 +8940,10 @@ body {
 }
 
 /* Lo que se le cobra al método elegido, desde el checkout (MARS
-   CHK-14…17, 21): Lato Bold 16 en morado, antes de los tres puntos. */
+   CHK-14…17, 21): Nunito Sans Bold 16 en morado, antes de los tres puntos. */
 .oky-flow-method-amount {
   flex: none;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 1.5;
@@ -9021,7 +9021,7 @@ body {
   border: 0;
   background: none;
   cursor: pointer;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 1.43;
@@ -9058,7 +9058,7 @@ body {
 .oky-flow-wait-title {
   margin: 0;
   padding: 16px 24px;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 24px;
   font-weight: 700;
   line-height: 1.75;
@@ -9107,7 +9107,7 @@ body {
   flex: 1 1 auto;
   min-width: 0;
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 1.75;
@@ -9117,7 +9117,7 @@ body {
 
 .oky-flow-timeline-time {
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   line-height: 1.5;
   letter-spacing: 0.15px;
@@ -9131,7 +9131,7 @@ body {
   justify-content: center;
   gap: 12px;
   border-top: 1px solid var(--border-main);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 1.75;
@@ -9212,7 +9212,7 @@ body {
 .oky-flow-decision-title {
   width: 274px;
   margin: 44px auto 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 35px;
   font-weight: 900;
   line-height: normal;
@@ -9263,7 +9263,7 @@ body {
   border-radius: 44px;
   background: var(--white);
   color: #410d86;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-weight: 700;
   line-height: 24px;
@@ -9280,7 +9280,7 @@ body {
   border-radius: 32px;
   background: transparent;
   color: var(--white);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-weight: 700;
   line-height: 24px;
@@ -9359,17 +9359,15 @@ body {
 
 .oky-flow-empty {
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   color: var(--text-secondary);
   text-align: center;
 }
 
-/* Aqua real de Figma para el ribbon del tier base. --secondary-light /
-   --secondary-dark del sistema son #8adad7 / #057a73, que NO son el
-   #a8faf5 / #00524d del diseño (el mismo par que .saving-bar ya trae
-   hardcodeado). No toco los tokens globales porque los consumen
-   Summary Box, Promo Code y Super Ribbon; se declara aquí. */
+/* Ribbon del tier base: aqua #a8faf5 (= --secondary-light desde el
+   19/10) con el texto verde OKY Cash #00524d, que no es el
+   --secondary-dark del ribbon normal. */
 .discount-ribbon.is-tier-base {
   --discount-ribbon-bg: var(--tier-base-bg);
   --discount-ribbon-text: var(--tier-base-text);
@@ -9378,7 +9376,7 @@ body {
 
 .discount-ribbon.is-tier-base .discount-ribbon-text,
 .discount-ribbon.is-tier-promo .discount-ribbon-text {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-weight: 700;
   line-height: 1.6;
@@ -9446,7 +9444,7 @@ body {
 
 .oky-flow-home-title {
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 22px;
   font-weight: 900;
   line-height: 1.2;
@@ -9562,7 +9560,7 @@ body {
 
 .oky-flow-drawer-title {
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-weight: 900;
   color: var(--primary-main);
@@ -9638,7 +9636,7 @@ body {
 }
 
 .oky-flow-cash-hero-amount {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 40px;
   font-weight: 900;
   line-height: 1.1;
@@ -10321,7 +10319,7 @@ button.header-icon {
   border-radius: 8px;
   background: #43a047;
   color: var(--white);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-weight: 900;
   text-align: center;
@@ -11342,7 +11340,7 @@ button.tactic-offer {
 
 .oky-flow-design-title {
   margin: 0 0 8px;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 22px;
   font-weight: 900;
   color: var(--primary-base);
@@ -12535,7 +12533,7 @@ button.tactic-offer {
 }
 
 .chip-ds-number {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: var(--primary-base);
@@ -12620,10 +12618,10 @@ button.tactic-offer {
   color: var(--secondary-dark);
 }
 
-/* Y el rótulo con la misma letra que el de OKY Cash —Lato 14/400—:
+/* Y el rótulo con la misma letra que el de OKY Cash —Nunito Sans 14/400—:
    son dos líneas del mismo desglose y se leen como pareja. */
 .oky-flow-feerow > :first-child {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.43;
@@ -12634,7 +12632,7 @@ button.tactic-offer {
 /* El importe rebajado va en el aqua de OKY Cash, con el de lista
    tachado delante: mismo esquema en subtotal y en costo por servicio. */
 /* Los dos importes del par van con la misma letra y peso en todas las
-   filas del resumen: en Subtotal heredaban la Lato del rótulo y se
+   filas del resumen: en Subtotal heredaban la letra del rótulo y se
    veían más gordos que los del costo por servicio. */
 .oky-flow-fee-now,
 .oky-flow-fee-was {
@@ -12653,12 +12651,12 @@ button.tactic-offer {
   color: var(--primary-main);
 }
 
-/* El tachado con la misma letra que la resta de OKY Cash —Lato
+/* El tachado con la misma letra que la resta de OKY Cash —Nunito Sans
    14/400, aqua oscuro—: las dos son dinero que no pagas y solo las
    distingue el tachado o el menos. */
 .oky-flow-fee-was {
   margin-right: 6px;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-weight: 400;
   letter-spacing: 0.15px;
   color: var(--secondary-dark);
@@ -12801,7 +12799,7 @@ button.tactic-offer {
 }
 
 .oky-flow-cashnote-preview .oky-flow-payrow {
-  background: #ffffff;
+  background: var(--white);
   cursor: pointer;
 }
 
@@ -13141,7 +13139,7 @@ button.tactic-offer {
 
 .oky-flow-cart-empty-title {
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 18px;
   font-weight: 900;
   color: var(--primary-base);
@@ -13575,7 +13573,7 @@ button.tactic-offer {
      —"¿No llegaste a compartirlo?"— se le metía debajo y la
      interrogación quedaba cruzada por el aspa. */
   margin: 4px 40px 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 24px;
   font-weight: 900;
   line-height: 1.15;
@@ -13808,7 +13806,7 @@ button.tactic-offer {
   border-radius: 10px;
   background: var(--error-main);
   color: var(--white);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
@@ -13859,7 +13857,7 @@ button.tactic-offer {
 
 .oky-flow-menu-label {
   flex: 1 1 auto;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 17px;
   font-weight: 400;
   line-height: 1.3;
@@ -13880,7 +13878,7 @@ button.tactic-offer {
   font-style: normal;
   font-weight: 700;
   line-height: 1.3;
-  color: var(--tier-base-text, #00524d);
+  color: var(--tier-base-text, var(--oky-cash-dark));
 }
 
 /* ── Interruptor de versión de Mi wallet ─────────────────
@@ -14116,7 +14114,7 @@ button.tactic-offer {
   flex: 1 1 auto;
   min-width: 0;
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 24px;
   font-weight: 700;
   line-height: normal;
@@ -14202,7 +14200,7 @@ button.tactic-offer {
 /* "Para mí" es la vCard de uno: fondo gris y línea arriba y abajo, que
    es lo que la separa de la agenda de verdad. */
 .oky-flow-contact.is-self {
-  background: #f5f5f5;
+  background: var(--background);
   border-top: 1px solid rgba(0, 0, 0, 0.23);
   border-bottom: 1px solid rgba(0, 0, 0, 0.23);
 }
@@ -14236,7 +14234,7 @@ button.tactic-offer {
   border-radius: 50%;
   background: var(--primary-text-dark, #6a0bd0);
   color: var(--white);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 22px;
   font-weight: 500;
   letter-spacing: -0.5px;
@@ -14287,7 +14285,7 @@ button.tactic-offer {
 }
 
 .oky-flow-contact-name {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-weight: 700;
   line-height: 1.6;
@@ -14296,7 +14294,7 @@ button.tactic-offer {
 }
 
 .oky-flow-contact-phone {
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 18px;
   font-weight: 400;
   line-height: 1.5;
@@ -14401,7 +14399,7 @@ button.tactic-offer {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.4px;
@@ -14446,7 +14444,7 @@ button.tactic-offer {
   text-align: center;
   border-radius: 9px;
   cursor: pointer;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 700;
   line-height: 16px;
@@ -14466,7 +14464,7 @@ button.tactic-offer {
 }
 
 .oky-flow-wallet-seg-item.is-on {
-  background: var(--white, #fff);
+  background: var(--white, var(--white));
   border-color: rgba(0, 0, 0, 0.08);
   color: var(--primary-main);
 }
@@ -14597,7 +14595,7 @@ button.oky-flow-wallet-filter-label {
 
 .oky-flow-filter-title {
   margin: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-weight: 900;
   color: var(--primary-base);
@@ -15158,7 +15156,7 @@ button.oky-flow-wallet-filter-label {
   width: auto;
   transform: none;
   padding: 12px var(--oky-gutter) 10px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 18%, #fff 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--white) 18%, var(--white) 100%);
 }
 
 /* El divisor del resumen sobra: separa el total del botón con una línea
@@ -15311,7 +15309,7 @@ button.oky-flow-wallet-filter-label {
 /* Todas las Home Cards del prototipo van sobre el mismo degradado
    plateado, no solo la de Deportes & Apparel. */
 .oky-flow-frame .homecard-organism {
-  background: radial-gradient(50% 50% at 50% 50%, #ffffff 0%, #f1f2f5 100%);
+  background: radial-gradient(50% 50% at 50% 50%, var(--white) 0%, #f1f2f5 100%);
   border: 1px solid rgba(0, 0, 0, 0.231373);
   border-radius: 12px;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
@@ -16023,7 +16021,7 @@ img.oky-flow-method-mark {
 
 .oky-flow-market-note {
   margin: 2px 0 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 13px;
   color: var(--text-secondary);
 }
@@ -16076,7 +16074,7 @@ img.oky-flow-method-mark {
 
 .oky-flow-market-code {
   flex: none;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.6px;
@@ -16118,7 +16116,7 @@ img.oky-flow-method-mark {
   gap: 6px;
   width: 100%;
   margin: -6px 0 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   line-height: 16px;
   color: #594f66;
@@ -16155,7 +16153,7 @@ img.oky-flow-method-mark {
   width: 128px;
   height: 128px;
   border-radius: 64px;
-  background: #e0fcfa;
+  background: var(--highlight-surface);
 }
 
 .oky-flow-cash-empty-art img {
@@ -16189,7 +16187,7 @@ img.oky-flow-method-mark {
 .oky-flow-cash-empty-note {
   margin: 0;
   max-width: 312px;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   line-height: 20px;
   color: #575963;
@@ -16219,7 +16217,7 @@ img.oky-flow-method-mark {
 }
 
 .oky-flow-cash-empty.is-wallet.is-cash .oky-flow-cash-empty-art {
-  background: #e0fcfa;
+  background: var(--highlight-surface);
 }
 
 .oky-flow-cash-empty-link {
@@ -16262,14 +16260,14 @@ img.oky-flow-method-mark {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
 }
 
 .oky-flow-cash-empty-copy strong {
   font-size: 14px;
   font-weight: 700;
   line-height: 18px;
-  color: #552588;
+  color: var(--primary-base);
 }
 
 .oky-flow-cash-empty-copy span {
@@ -16280,7 +16278,7 @@ img.oky-flow-method-mark {
 
 .oky-flow-cash-empty-link > i {
   font-size: 22px;
-  color: #552588;
+  color: var(--primary-base);
 }
 
 /* La cabecera del acuse, repetida encima de la animación de "Ganaste":
@@ -16440,7 +16438,7 @@ img.oky-flow-method-mark {
 .oky-flow-search-none {
   margin: 0;
   padding: 8px 0 16px;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   line-height: 20px;
   color: var(--text-secondary);
@@ -16526,7 +16524,7 @@ img.oky-flow-method-mark {
   flex-direction: column;
   padding: 12px 0 24px;
   border-radius: 24px 24px 0 0;
-  background: var(--white, #fff);
+  background: var(--white, var(--white));
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   animation: oky-flow-cardmenu-in 260ms cubic-bezier(0.32, 0.72, 0, 1) both;
 }
@@ -16553,7 +16551,7 @@ img.oky-flow-method-mark {
   background: none;
   text-align: left;
   cursor: pointer;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   color: var(--primary-base);
 }
@@ -16577,7 +16575,7 @@ img.oky-flow-method-mark {
 /* Encabezado de la hoja: de qué tarjeta son las opciones. */
 .oky-flow-cardmenu-title {
   margin: 4px 20px 4px;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.6px;
@@ -16740,7 +16738,7 @@ img.oky-flow-method-mark {
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -16781,7 +16779,7 @@ img.oky-flow-method-mark {
   border-radius: 24px 24px 0 0;
   background: #ffffff;
   box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.18);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   transform: translateY(100%);
   transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -16858,7 +16856,7 @@ img.oky-flow-method-mark {
   padding: 10px 12px;
   border: 1px solid #d9d5e3;
   border-radius: 12px;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   line-height: 1.4;
   color: #2b2633;
@@ -16880,7 +16878,7 @@ img.oky-flow-method-mark {
   border: 0;
   background: none;
   color: var(--primary-main);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -16946,7 +16944,7 @@ img.oky-flow-method-mark {
   border-radius: 24px;
   background: #ffffff;
   color: var(--primary-main);
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
@@ -17337,7 +17335,7 @@ img.oky-flow-method-mark {
 }
 
 .oky-flow-wallet-seg.is-decision .oky-flow-wallet-seg-item:active {
-  background: var(--white, #fff);
+  background: var(--white, var(--white));
 }
 
 /* En la hoja los emojis van más grandes que en Mis compras (31x35 en
@@ -17438,12 +17436,12 @@ img.oky-flow-method-mark {
    para que la moneda y la tarjeta caigan en la misma x. */
 .oky-flow-pay-amount {
   flex: none;
-  font-family: "Lato", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.15px;
   font-variant-numeric: tabular-nums;
-  color: #057a73;
+  color: var(--secondary-dark);
 }
 
 .oky-flow-pay-icon {
@@ -17486,6 +17484,6 @@ img.oky-flow-method-mark {
 }
 
 .oky-flow-payrow .oky-flow-check.is-checked {
-  border-color: #057a73;
-  background: #057a73;
+  border-color: var(--secondary-dark);
+  background: var(--secondary-dark);
 }

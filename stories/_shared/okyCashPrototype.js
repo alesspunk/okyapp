@@ -45,6 +45,7 @@
 ───────────────────────────────────────────────────────── */
 
 import { findPaymentCard, renderPaymentCard } from "./paymentCards";
+import { CARD_DESIGNS } from "./okyCashParts";
 import { renderHistoryCard } from "./historyCards";
 import { renderDiscoveryHeader } from "./discoveryHeader";
 import { renderCardOrganism } from "./cardOrganism";
@@ -122,56 +123,7 @@ const BRANDS = {
 /* Diseños de la tarjeta de OKY Cash (Figma 99135:103902). La molécula
    Payment Card ya acepta fondo sólido o degradado por `buildStyle`, así
    que cada diseño es solo eso más su arte. */
-const CARD_DESIGNS = [
-  /* Diseños finales de Nicky (7600 › Design assets › 23–27, 19/10). Cada
-     arte es un PNG del tamaño de la tarjeta con el dibujo en su sitio y
-     las cuatro esquinas limpias: nombre, saldo, vencimiento y lápiz se
-     leen sobre el color de fondo. Sin el patrón de arcos ni borde. */
-  {
-    key: "black",
-    label: "Lo que va, vuelve",
-    note: "Cada regalo que envíes a tu familia volverá a ti como un ripple effect.",
-    /* La ola de Nicky, estirada solo a lo ancho para ir casi de borde a
-       borde en la franja libre entre el saldo y el vencimiento. */
-    art: "oky-card-art-lo-que-va-vuelve.png",
-    artClass: "is-nicky",
-    style: { backgroundMode: "solid", backgroundColor: "#000000", showBorder: false, pattern: null },
-  },
-  {
-    key: "bubbles",
-    label: "Burbujas",
-    note: "Las monedas suben solas, como lo que ganas sin darte cuenta.",
-    /* El morado baja a lila, como en la captura 24 de Nicky. */
-    art: "oky-card-art-burbujas.png",
-    artClass: "is-nicky",
-    style: { backgroundMode: "gradient", gradientFrom: "#7334ae", gradientTo: "#c4a1e5", gradientAngle: 180, showBorder: false, pattern: null },
-  },
-  {
-    key: "teal",
-    label: "Turquesa",
-    note: "El verde agua del cashback, para que se note lo que ganas.",
-    art: "oky-card-art-turquesa.png",
-    artClass: "is-nicky",
-    style: { backgroundMode: "gradient", gradientFrom: "#0ab5b1", gradientTo: "#109794", gradientAngle: 92, showBorder: false, pattern: null },
-  },
-  {
-    key: "purple",
-    label: "Morado OKY",
-    note: "El lazo de monedas que no se acaba: lo que ganas vuelve a ti.",
-    art: "oky-card-art-morado-oky.png",
-    artClass: "is-nicky",
-    style: { backgroundMode: "solid", backgroundColor: "#5a289b", showBorder: false, pattern: null },
-  },
-  {
-    key: "coins",
-    label: "Ola de monedas",
-    note: "Una ola de monedas cruzando el negro: lo que se va juntando.",
-    /* La cinta va de lado a lado, a media altura. */
-    art: "oky-card-art-ola-de-monedas.png",
-    artClass: "is-nicky",
-    style: { backgroundMode: "solid", backgroundColor: "#000000", showBorder: false, pattern: null },
-  },
-];
+/* Los cinco diseños viven en okyCashParts.js, junto a las stories. */
 
 const findCardDesign = (key) => CARD_DESIGNS.find((d) => d.key === key) || CARD_DESIGNS[0];
 
@@ -3599,7 +3551,7 @@ function boughtSeal() {
         stroke-linecap="round" stroke-linejoin="round"/>
       <rect x="26" y="150" width="148" height="40" rx="8" fill="#5bd3c9"/>
       <text x="100" y="179" text-anchor="middle" fill="#FFFFFF"
-        font-family="Nunito Sans, Lato, sans-serif" font-size="25" font-weight="700">Comprado</text>
+        font-family="Nunito Sans, sans-serif" font-size="25" font-weight="700">Comprado</text>
     </svg>
   `;
 }

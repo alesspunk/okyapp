@@ -27,7 +27,7 @@ export default {
           "Tiene dos anatomías: **row** (avatar + fecha/monto + fila meta) para Pago de servicios, OKY Cash, " +
           "Recargas y los dos estados de Yayo; y **order** (header con iniciales + divider + lista de ítems) " +
           "para Giftcards archivadas y OKY Vales. " +
-          "Tipografía Lato en todas las variantes, alineada a los tokens `Summary Total` (Bold 14/1.43/0.15) y " +
+          "Tipografía Nunito Sans en todas las variantes, alineada a los tokens `Summary Total` (Bold 14/1.43/0.15) y " +
           "`Summary Text` (Regular 14/1.75/0.15) del DS. " +
           "Colores 100% por token: `--primary-base` (fecha, monto, producto), `--text-secondary` (marca, orden, " +
           "monto local), `--text-primary`, `--border-main`, `--white`, `--divider`, `--disable-main` (avatar " +
@@ -163,6 +163,7 @@ export const OkyCashMovement = {
     <div style="display:flex;flex-direction:column;gap:16px">
       ${renderCashMovement({ positive: true, open: false })}
       ${renderCashMovement({ positive: true, open: true })}
+      ${renderCashMovement({ positive: false, open: false, order: "Orden #11112443" })}
       ${renderCashMovement({ positive: false, open: true, order: "Orden #11112443" })}
     </div>`,
 };

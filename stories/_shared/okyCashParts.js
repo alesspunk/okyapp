@@ -268,6 +268,8 @@ export function renderCashMovement({ positive = true, open = false, date = "15 /
 /* ── Tarjeta de OKY Cash · los 5 diseños ─────────────────
    Copia de CARD_DESIGNS del prototipo: la Payment Card de OKY Cash
    con el estilo de cada diseño encima. */
+/* Única lista de diseños de la tarjeta de OKY Cash: la leen las
+   stories (Payment Card › OKY Cash · Diseños) y el prototipo. */
 export const CARD_DESIGNS = [
   /* Diseños finales de Nicky (7600 › Design assets › 23–27, 19/10). Cada
      arte es un PNG del tamaño de la tarjeta con el dibujo en su sitio y
@@ -276,6 +278,7 @@ export const CARD_DESIGNS = [
   {
     key: "black",
     label: "Lo que va, vuelve",
+    note: "Cada regalo que envíes a tu familia volverá a ti como un ripple effect.",
     /* La ola de Nicky, estirada solo a lo ancho para ir casi de borde a
        borde en la franja libre entre el saldo y el vencimiento. */
     art: "oky-card-art-lo-que-va-vuelve.png",
@@ -285,6 +288,7 @@ export const CARD_DESIGNS = [
   {
     key: "bubbles",
     label: "Burbujas",
+    note: "Las monedas suben solas, como lo que ganas sin darte cuenta.",
     /* El morado baja a lila, como en la captura 24 de Nicky. */
     art: "oky-card-art-burbujas.png",
     artClass: "is-nicky",
@@ -293,6 +297,7 @@ export const CARD_DESIGNS = [
   {
     key: "teal",
     label: "Turquesa",
+    note: "El verde agua del cashback, para que se note lo que ganas.",
     art: "oky-card-art-turquesa.png",
     artClass: "is-nicky",
     style: { backgroundMode: "gradient", gradientFrom: "#0ab5b1", gradientTo: "#109794", gradientAngle: 92, showBorder: false, pattern: null },
@@ -300,6 +305,7 @@ export const CARD_DESIGNS = [
   {
     key: "purple",
     label: "Morado OKY",
+    note: "El lazo de monedas que no se acaba: lo que ganas vuelve a ti.",
     art: "oky-card-art-morado-oky.png",
     artClass: "is-nicky",
     style: { backgroundMode: "solid", backgroundColor: "#5a289b", showBorder: false, pattern: null },
@@ -307,6 +313,7 @@ export const CARD_DESIGNS = [
   {
     key: "coins",
     label: "Ola de monedas",
+    note: "Una ola de monedas cruzando el negro: lo que se va juntando.",
     /* La cinta va de lado a lado, a media altura. */
     art: "oky-card-art-ola-de-monedas.png",
     artClass: "is-nicky",
@@ -382,6 +389,7 @@ export const SHARE_ICON_ANDROID = `<svg width="24" height="24" viewBox="0 0 24 2
 export const SHEET_KINDS = [
   "Tienes OKY Cash",
   "¿Ya la usaste?",
+  "¿Eliminar esta tarjeta?",
   "¿Es para ti o para alguien más?",
   "Filtrar",
   "Agrega más, paga menos",
@@ -500,6 +508,21 @@ export function renderSheet(kind, { balance = 5 } = {}) {
             .join("")}
         </div>
       </nav>`;
+  }
+  /* Sheet / Confirmación con la tarjeta y el basurero (CASH-28):
+     mismas reglas que el prototipo (.is-deletecard, arte de 183px). */
+  if (kind === "¿Eliminar esta tarjeta?") {
+    return `${backdrop}
+      <section class="oky-flow-sheet is-deletecard" role="dialog" aria-label="${kind}">
+        ${close()}
+        <h2 class="oky-flow-sheet-title">${kind}</h2>
+        <p class="oky-flow-sheet-note">Dejará de aparecer en tus métodos de pago. Si era tu tarjeta para pago, la otra pasa a serlo.</p>
+        <div class="oky-flow-sheet-art"><img src="icon-eliminar-tarjeta-3d.png" alt="" /></div>
+        <div class="oky-flow-sheet-actions">
+          <button class="oky-flow-sheet-confirm" type="button">Eliminar</button>
+          <button class="oky-flow-sheet-dismiss" type="button">Cancelar</button>
+        </div>
+      </section>`;
   }
   /* ¿Ya la usaste? — la hoja de confirmación morada. */
   return `${backdrop}
