@@ -14,7 +14,7 @@ const SB = "https://okyapp.vercel.app/?path=";
 const FIGMA_MAP = [
   { mars: "OKY Cash / Balance Strip", node: "8367:206709", story: "/docs/molecules-oky-cash-balance-strip--docs", label: "Molecules/OKY Cash Balance Strip", estado: "igual" },
   { mars: "OKY Cash / Saving Bar", node: "8367:206715", story: "/story/molecules-saving-bar--oky-cash", label: "Molecules/Saving Bar › OKY Cash", estado: "diferencias", nota: "Storybook: Base PDP, Base Checkout y Ahorro GT. Promo, Terminada y Aviso son del cronómetro (legacy)." },
-  { mars: "OKY Cash / Pastilla", node: "8367:206774", story: "/docs/molecules-oky-cash-pill--docs", label: "Molecules/OKY Cash Pill", estado: "diferencias", nota: "Falta Tamaño=Icono y Tipo=Recibo en Storybook." },
+  { mars: "OKY Cash / Pastilla", node: "8367:206774", story: "/docs/molecules-oky-cash-pill--docs", label: "Molecules/OKY Cash Pill", estado: "igual" },
   { mars: "OKY Cash / Movimiento", node: "8367:206785", story: "/story/molecules-history-card--oky-cash-movement", label: "Molecules/History Card › OKY Cash · Movimiento", estado: "igual" },
   { mars: "OKY Cash / Diseño de tarjeta", node: "8367:206988", story: "/story/molecules-payment-card--oky-cash-designs", label: "Molecules/Payment Card › OKY Cash · Diseños", estado: "igual" },
   { mars: "OKY Cash / Ganaste", node: "8367:206999", story: "/docs/organisms-oky-cash-win--docs", label: "Organisms/OKY Cash Win", estado: "igual" },
@@ -30,10 +30,10 @@ const FIGMA_MAP = [
   { mars: "Wallet / Estado vacío", node: "8367:207199", story: "/docs/molecules-empty-state--docs", label: "Molecules/Empty State", estado: "diferencias", nota: "Storybook: OKY Cash y Métodos de pago. Gift Cards, OKY Vales y Servicios son de la variante 1 (legacy)." },
   { mars: "Wallet / Punto Nuevo", node: "8367:207185", story: "/story/atoms-chips--voucher-badge", label: "Atoms/Chips › Insignia de vale · Punto Nuevo", estado: "igual" },
   { mars: "Wallet / Insignia de vale", node: "8367:207187", story: "/story/atoms-chips--voucher-badge", label: "Atoms/Chips › Insignia de vale · Punto Nuevo", estado: "igual" },
-  { mars: "Wallet / Insignia de compra", node: "8367:207190", estado: "solo-mars" },
-  { mars: "Wallet / Insignia de compra · fallida", node: "8367:207193", estado: "solo-mars" },
+  { mars: "Wallet / Insignia de compra", node: "8367:207190", story: "/story/atoms-chips--voucher-badge", label: "Atoms/Chips › Insignia de vale · Punto Nuevo", estado: "igual" },
+  { mars: "Wallet / Insignia de compra · fallida", node: "8367:207193", story: "/story/atoms-chips--voucher-badge", label: "Atoms/Chips › Insignia de vale · Punto Nuevo", estado: "igual" },
   { mars: "Wallet / Mazo de la misma marca", node: "8367:207196", estado: "solo-mars" },
-  { mars: "Wallet / Sección plegada", node: "8367:207168", estado: "solo-mars" },
+  { mars: "Wallet / Sección plegada", node: "8367:207168", story: "/docs/molecules-wallet-section--docs", label: "Molecules/Wallet Section", estado: "igual" },
   { mars: "Wallet / Pestañas v1", node: "8367:207099", estado: "legacy", nota: "Variante 1 (/usa), fuera de /miscompras." },
   { mars: "Tour / Llamada", node: "8367:207491", story: "/docs/molecules-tour-callout--docs", label: "Molecules/Tour Callout", estado: "igual" },
   { mars: "Tour / ¿Estás listo?", node: "8367:207498", estado: "legacy", nota: "Recorrido con Clarita y cronómetro, fuera del sprint (15/10)." },
@@ -47,9 +47,9 @@ const FIGMA_MAP = [
   { mars: "List / Country Row", node: "8367:207800", story: "/story/organisms-lists--country-row", label: "Organisms/Lists › Country Row", estado: "igual" },
   { mars: "Flag / CA - Canada", node: "8367:207794", story: "/story/organisms-lists--country-row", label: "Organisms/Lists › Country Row (bandera CA)", estado: "igual" },
   { mars: "Folder / Doble flecha", node: "8367:207791", estado: "solo-mars" },
-  { mars: "Card / Bottom · Gift Card USA", node: "8367:207814", estado: "solo-mars", nota: "Revisar contra Molecules/Bottom Card." },
+  { mars: "Card / Bottom · Gift Card USA", node: "8367:207814", story: "/docs/molecules-bottom-card--docs", label: "Molecules/Bottom Card › Gift Card USA", estado: "igual" },
   { mars: "Feedback / Compra exitosa", node: "8367:207859", story: "/docs/organisms-purchase-success--docs", label: "Organisms/Purchase Success", estado: "igual" },
-  { mars: "Poscompra / Toast de estado (Fat Toast MARS)", node: "8367:207911", estado: "solo-mars" },
+  { mars: "Poscompra / Toast de estado (Fat Toast MARS)", node: "8367:207911", story: "/story/atoms-toast-banners--poscompra-toast", label: "Atoms/Toast Banners › Poscompra · Toast de estado", estado: "igual" },
   { mars: "Poscompra / Botón (MARS button large)", node: "8367:207916", estado: "solo-mars" },
   { mars: "Poscompra / Vale fallido · parte inferior", node: "8367:207927", estado: "solo-mars" },
   { mars: "Webview / Barra", node: "8367:207939", story: "/docs/molecules-webview-bar--docs", label: "Molecules/Webview Bar", estado: "igual" },
@@ -57,9 +57,9 @@ const FIGMA_MAP = [
   { mars: "Carrito / Cantidad", node: "8367:207999", story: "/story/molecules-quantity-input--cart-quantity", label: "Molecules/Quantity Input › Carrito · Cantidad", estado: "igual" },
   { mars: "Icono / Compartir", node: "8478:81710", story: "/story/atoms-icons--share", label: "Atoms/Icons › Compartir", estado: "igual" },
   /* Solo en Storybook: falta su componente en MARS. */
-  { mars: "—", story: "/docs/molecules-payment-method-row--docs", label: "Molecules/Payment Method Row", estado: "solo-storybook", nota: "En Pages 3.0 las filas son frames armados a mano." },
+  { mars: "OKY Cash / Fila de método de pago", node: "8556:111259", story: "/docs/molecules-payment-method-row--docs", label: "Molecules/Payment Method Row", estado: "igual", nota: "Nuevo en MARS (19/10); las 48 filas de Pages 3.0 son instancias. Agregar tarjeta y Aviso aún no son variante en MARS." },
   { mars: "—", story: "/story/molecules-navigation--oky-cash-coin", label: "Molecules/Navigation › OKY Cash · Moneda", estado: "solo-storybook" },
-  { mars: "Saldo Card (vieja) + arte", story: "/story/molecules-payment-card--oky-cash-designs", label: "Molecules/Payment Card › OKY Cash", estado: "diferencias", nota: "La tarjeta de Tu billetera (vencimiento + lápiz) no es componente en MARS: las 31 de Pages 3.0 son frames «Saldo Card · OKY Cash»." },
+  { mars: "OKY Cash / Tarjeta", node: "8551:39272", story: "/story/molecules-payment-card--oky-cash-designs", label: "Molecules/Payment Card › OKY Cash · Diseños", estado: "igual", nota: "Nuevo en MARS (19/10); las 31 tarjetas de Pages 3.0 y las 32 de 7600 son instancias." },
 ];
 
 const ESTADOS = {

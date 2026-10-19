@@ -645,5 +645,5 @@ export const OkyCashSheets = {
   name: "OKY Cash · Hojas",
   argTypes: { sheet: { control: "select", options: SHEET_KINDS } },
   args: { sheet: SHEET_KINDS[0] },
-  render: ({ sheet }) => okyCashElement(phoneFrame(renderSheet(sheet, { balance: 5 }), { background: "#f5f5f5" })),
+  render: ({ sheet }) => okyCashElement(phoneFrame(renderSheet(sheet, { balance: 5 }), { background: "var(--background)" })),
 };

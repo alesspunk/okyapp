@@ -373,3 +373,56 @@ export const TypographyScale = {
     </div>
   `,
 };
+
+/* ── OKY Tokens (19/10) ───────────────────────────────────
+   Todos los colores de :root en mars.css, con el nombre que llevan en
+   Figma (MARS › variables «OKY Tokens»: el primer guion es la barra,
+   --primary-text-dark → primary/text-dark). Se leen del CSS cargado,
+   así que esta tabla no se desincroniza del código. */
+const FIGMA_SPECIAL = { black: "base/black", white: "base/white", divider: "line/divider", "separator-border": "line/separator-border", background: "surface/background", "back-drop": "surface/back-drop" };
+const figmaName = (css) => FIGMA_SPECIAL[css] || (css.startsWith("oky-cash-") ? css.replace("oky-cash-", "oky-cash/") : css.replace("-", "/"));
+
+function rootColorTokens() {
+  const out = [];
+  for (const sheet of Array.from(document.styleSheets)) {
+    let rules;
+    try { rules = sheet.cssRules; } catch (e) { continue; }
+    for (const rule of Array.from(rules || [])) {
+      if (rule.selectorText !== ":root") continue;
+      for (const prop of Array.from(rule.style)) {
+        if (!prop.startsWith("--")) continue;
+        const value = rule.style.getPropertyValue(prop).trim();
+        if (/^(#[0-9a-f]{3,8}|rgba?\()/i.test(value)) out.push({ css: prop.slice(2), value });
+      }
+    }
+  }
+  return out;
+}
+
+export const OkyTokens = {
+  name: "OKY Tokens (Storybook = Figma)",
+  render: () => {
+    const el = document.createElement("div");
+    el.className = "mars-story";
+    const tokens = rootColorTokens();
+    el.innerHTML = `
+      <h2 class="mars-section-title">OKY Tokens · ${tokens.length} colores</h2>
+      <p class="mars-subtitle">Fuente de la verdad: <code>:root</code> en <code>mars.css</code>. En Figma son las variables de la colección «OKY Tokens» con el mismo valor; en Dev Mode cada una muestra su <code>var(--…)</code>.</p>
+      <table class="mars-token-table">
+        <thead><tr><th></th><th>CSS</th><th>Figma</th><th>Valor</th></tr></thead>
+        <tbody>
+          ${tokens
+            .map(
+              (t) => `<tr>
+                <td><span style="display:inline-block;width:28px;height:28px;border-radius:6px;border:1px solid var(--divider);background:${t.value}"></span></td>
+                <td><code>--${t.css}</code></td>
+                <td><code>${figmaName(t.css)}</code></td>
+                <td><code>${t.value}</code></td>
+              </tr>`,
+            )
+            .join("")}
+        </tbody>
+      </table>`;
+    return el;
+  },
+};

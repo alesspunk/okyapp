@@ -1,7 +1,8 @@
 /* ─────────────────────────────────────────────────────────
    Molecules / OKY Cash Pill
    MARS: OKY Cash / Pastilla (8367:206774)
-   Variantes: Dock (flotante) · Header (poscompra, disponible)
+   Variantes: Dock (flotante) · Header (poscompra, disponible) ·
+   Recibo (Header en blanco) · Icono (botón redondo del recibo)
 ───────────────────────────────────────────────────────── */
 
 import { renderCashPill } from "./_shared/okyCashParts";
@@ -22,11 +23,12 @@ export default {
     },
   },
   argTypes: {
-    size: { control: "inline-radio", options: ["Dock", "Header"] },
+    size: { control: "inline-radio", options: ["Dock", "Header", "Icono"] },
+    tipo: { control: "inline-radio", options: ["OKY Cash", "Recibo"], description: "Recibo: blanca con borde, abre el recibo." },
     text: { control: "text", description: "Texto de la variante Dock." },
     balance: { control: { type: "number", min: 0, step: 0.01 }, description: "Saldo disponible de la variante Header." },
   },
-  args: { size: "Dock", text: "$5.00 en OKY Cash", balance: 5.25 },
+  args: { size: "Dock", tipo: "OKY Cash", text: "$5.00 en OKY Cash", balance: 5.25 },
 };
 
 export const Playground = { render: (args) => renderCashPill(args) };
@@ -38,5 +40,7 @@ export const Variants = {
       ${renderCashPill({ size: "Dock", text: "$5.00 en OKY Cash" })}
       ${renderCashPill({ size: "Dock", text: "OKY Cash, explora" })}
       ${renderCashPill({ size: "Header", balance: 5.25 })}
+      ${renderCashPill({ size: "Header", tipo: "Recibo", text: "+$0.25 en OKY Cash" })}
+      ${renderCashPill({ size: "Icono", tipo: "Recibo" })}
     </div>`,
 };

@@ -1,3 +1,5 @@
+import { renderStatusToast } from "./_shared/okyCashParts";
+
 const TOAST_VARIANTS = ["Success", "Warning", "Error"];
 const TOAST_ICON_OPTIONS = [
   "circle-check",
@@ -198,4 +200,17 @@ export const PaymentRequestInfo = {
       </div>
     </div>
   `,
+};
+
+/* ── Poscompra · Toast de estado (sprint 20/10) ───────────
+   MARS: Poscompra / Toast de estado (8367:207911). Va en el centro de
+   la cabecera de la poscompra cuando la compra no dio OKY Cash; si dio,
+   ahí va la pastilla de saldo y no el toast. */
+export const PoscompraToast = {
+  name: "Poscompra · Toast de estado",
+  render: () => `
+    <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start">
+      ${renderStatusToast({ estado: "Exito" })}
+      ${renderStatusToast({ estado: "Error" })}
+    </div>`,
 };

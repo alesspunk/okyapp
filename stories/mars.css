@@ -75,6 +75,112 @@
   --info-main: #2196f3;
   --info-dark: #0b79d0;
   --info-text: #0d3c61;
+  /* Tokens de OKY Cash (19/10): cada color de las piezas de OKY Cash
+     tiene nombre; MARS los tiene igual en la colección «OKY Tokens». */
+  --black: #000000;
+  --primary-text-dark: #6a0bd0; /* avatar de «Para mí» (detrás del emoji); en Figma primary/text-dark */
+  --primary-text-dark-a20: rgba(106, 11, 208, 0.2);
+  --primary-surface: #f2ecfa;
+  --avatar-contact-bg: #e9d4ff; /* avatar de contacto (Para otros) e iniciales de la tienda */
+  --aqua-bright: #09b4b0;
+  --aqua-dark: #0f6b63;
+  --oky-cash-darker: #003633;
+  --oky-cash-ink: #21514d;
+  --highlight-surface-light: #f3fffe;
+  --ink-purple-dark: #301a47;
+  --text-muted: #575963;
+  --text-muted-light: #7a6d8f;
+  --icon-muted: #8e8e99;
+  --grey-400: #bdbdbd;
+  --grey-600: #757575;
+  --divider-solid: #d6d6d6;
+  --border-input: #c4c4c4;
+  --border-purple-soft: #d9cdee;
+  --border-purple-hover: #cdbfe6;
+  --border-info-soft: #d0def3;
+  --surface-track: #f0f0f0;
+  --surface-pressed: #ececf1;
+  --surface-card: #f1f2f5;
+  --surface-card-light: #fcfcfc;
+  --success-600: #43a047;
+  --campaign-orange: #e2711d;
+  --discovery-orange: #ff9019;
+  --pile-front: #959695;
+  --secondary-selected: rgba(32, 243, 229, 0.08);
+  --card-default-bg: #d5d7da;
+  --card-saldo-from: #ac6fee;
+  --card-turquesa-from: #0ab5b1;
+  --card-turquesa-to: #109794;
+  --card-burbujas-from: #7334ae;
+  --card-burbujas-to: #c4a1e5;
+  --card-morado-oky: #5a289b;
+  --brand-visa: #1a1f71;
+  --brand-mastercard-red: #eb001b;
+  --brand-mastercard-orange: #f79e1b;
+  --brand-yayo-ink: #10325c;
+  --illu-checker: #17171b;
+  --illu-coin-1: #8d8da1;
+  --illu-coin-2: #a9a9bb;
+  --illu-coin-3: #d9d9e4;
+  --illu-coin-4: #fdfdff;
+  --illu-count-red: #ff453a;
+  --illu-count-amber: #ffc400;
+  --illu-count-green: #3ddc84;
+  --device-frame: #16161a;
+  --device-frame-edge: #35353c;
+  --black-a04: rgba(0, 0, 0, 0.04);
+  --black-a06: rgba(0, 0, 0, 0.06);
+  --black-a08: rgba(0, 0, 0, 0.08);
+  --black-a10: rgba(0, 0, 0, 0.1);
+  --black-a14: rgba(0, 0, 0, 0.14);
+  --black-a16: rgba(0, 0, 0, 0.16);
+  --black-a18: rgba(0, 0, 0, 0.18);
+  --black-a20: rgba(0, 0, 0, 0.2);
+  --black-a24: rgba(0, 0, 0, 0.24);
+  --black-a30: rgba(0, 0, 0, 0.3);
+  --black-a35: rgba(0, 0, 0, 0.35);
+  --black-a42: rgba(0, 0, 0, 0.42);
+  --black-a45: rgba(0, 0, 0, 0.45);
+  --black-a50: rgba(0, 0, 0, 0.5);
+  --black-a62: rgba(0, 0, 0, 0.62);
+  --white-a0: rgba(255, 255, 255, 0);
+  --white-a08: rgba(255, 255, 255, 0.08);
+  --white-a10: rgba(255, 255, 255, 0.1);
+  --white-a12: rgba(255, 255, 255, 0.12);
+  --white-a16: rgba(255, 255, 255, 0.16);
+  --white-a25: rgba(255, 255, 255, 0.25);
+  --white-a62: rgba(255, 255, 255, 0.62);
+  --white-a75: rgba(255, 255, 255, 0.75);
+  --white-a88: rgba(255, 255, 255, 0.88);
+  --white-a92: rgba(255, 255, 255, 0.92);
+  --scrim-45: rgba(16, 16, 16, 0.45);
+  --scrim-72: rgba(16, 16, 16, 0.72);
+  --shadow-purple-a16: rgba(16, 4, 36, 0.16);
+  --shadow-purple-a18: rgba(16, 4, 36, 0.18);
+  --shadow-purple-a30: rgba(16, 4, 36, 0.3);
+  --shadow-purple-a45: rgba(16, 4, 36, 0.45);
+  --shadow-purple-a55: rgba(16, 4, 36, 0.55);
+  --primary-main-a06: rgba(65, 0, 136, 0.06);
+  --primary-main-a16: rgba(65, 0, 136, 0.16);
+  --primary-main-a18: rgba(65, 0, 136, 0.18);
+  --primary-base-a18: rgba(85, 37, 136, 0.18);
+  --primary-dark-a34: rgba(58, 8, 112, 0.34);
+  --aqua-bright-a18: rgba(9, 180, 176, 0.18);
+  --discovery-orange-a0: rgba(255, 144, 25, 0);
+  /* Marcas (texto de Tactic Strips) y anotaciones del archivo de Figma
+     (doc/*: no son UI, pero comparten nombre en los dos lados). */
+  --brand-tigo-blue: #012771;
+  --brand-claro-red: #830100;
+  --doc-text: #262633;
+  --doc-text-muted: #666673;
+  --doc-warning-text: #731414;
+  --doc-warning-border: #e54d4d;
+  --doc-warning-bg: #ffeded;
+  --doc-note-bg: #fffadb;
+  /* Selección morada y colores de sistema iOS (barra y switch). */
+  --primary-selected: rgba(134, 32, 243, 0.08);
+  --device-ios-fill: rgba(120, 120, 128, 0.16);
+  --device-ios-green: #34c759;
 }
 
 * {
@@ -210,8 +316,8 @@ body {
   justify-content: center;
   flex: 0 0 auto;
   overflow: hidden;
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: var(--white);
+  border: 1px solid var(--divider);
   border-radius: var(--flag-radius);
   box-shadow: none;
   filter: none;
@@ -413,8 +519,8 @@ body {
 .btn-primary {
   background: var(--primary-main);
   color: white;
-  box-shadow: 0 1px 4.375px rgba(0, 0, 0, 0.12), 0 2px 1.75px rgba(0, 0, 0, 0.14),
-    0 3px 0.875px -2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 4.375px var(--divider), 0 2px 1.75px var(--black-a14),
+    0 3px 0.875px -2px var(--black-a20);
 }
 
 .btn-secondary {
@@ -436,14 +542,14 @@ body {
 }
 
 .btn-secondary.btn-disabled {
-  background: #fff;
+  background: var(--white);
   color: var(--disable-text);
 }
 
 .btn-outlined.btn-disabled {
-  background: #fff;
+  background: var(--white);
   color: var(--disable-text);
-  border-color: rgba(0, 0, 0, 0.08);
+  border-color: var(--black-a08);
 }
 
 .btn-medium {
@@ -556,9 +662,9 @@ body {
   align-items: center;
   height: 16px;
   padding: 0 4px;
-  background: #fff;
+  background: var(--white);
   border-radius: 4px;
-  color: #552588;
+  color: var(--primary-base);
   font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 600;
@@ -570,9 +676,9 @@ body {
 .payment-method-control {
   min-height: 64px;
   border-radius: 8px;
-  border: 1px solid #c4c4c4;
-  background: #fff;
-  box-shadow: 0 4px 21px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-input);
+  background: var(--white);
+  box-shadow: 0 4px 21px var(--black-a04);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -582,7 +688,7 @@ body {
 .payment-method-icon.fa-icon {
   min-width: 32px;
   flex-shrink: 0;
-  color: #552588;
+  color: var(--primary-base);
 }
 
 .payment-method-icon-glyph {
@@ -593,7 +699,7 @@ body {
 .payment-method-copy {
   flex: 1;
   min-width: 0;
-  color: #552588;
+  color: var(--primary-base);
   font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
@@ -613,7 +719,7 @@ body {
   padding: 4px 8px;
   border-radius: 16px;
   background: var(--primary-light);
-  color: #fff;
+  color: var(--white);
   font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
@@ -705,7 +811,7 @@ body {
 .dropdown-control:focus-visible {
   outline: none;
   border-color: var(--primary-main);
-  box-shadow: 0 0 0 2px rgba(85, 37, 136, 0.18);
+  box-shadow: 0 0 0 2px var(--primary-base-a18);
 }
 
 .dropdown-icon-left {
@@ -941,7 +1047,7 @@ body {
   height: 20px;
   border-radius: 999px;
   background: var(--white);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+  box-shadow: inset 0 0 0 1px var(--black-a14);
 }
 
 /* Se pinta por encima de las marcas —de ahí el z-index— para que solo
@@ -970,7 +1076,7 @@ body {
   width: 3px;
   height: 12px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.16);
+  background: var(--black-a16);
   transform: translate(-50%, -50%);
 }
 
@@ -1120,7 +1226,7 @@ body {
   border: 1px solid var(--border-main);
   padding: 8px;
   background: white;
-  box-shadow: 0 2px 10.5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10.5px var(--black-a10);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1163,7 +1269,7 @@ body {
   width: 360px;
   height: 56px;
   background: white;
-  border-top: 1px solid var(--other-border, rgba(0, 0, 0, 0.23));
+  border-top: 1px solid var(--border-main);
   border-radius: 0 0 24px 24px;
   box-shadow: 0 1px 8px -2px rgba(16, 24, 40, 0.1);
   display: flex;
@@ -1396,7 +1502,7 @@ body {
 .header-cart-full {
   border: 1px solid var(--primary-main);
   background: var(--primary-main);
-  color: #fff;
+  color: var(--white);
 }
 
 .header-cart-count {
@@ -1408,14 +1514,14 @@ body {
   font-size: 16px;
   font-weight: 700;
   line-height: 1;
-  color: #fff;
+  color: var(--white);
 }
 
 .chip-ds {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: var(--white);
   border: 1px solid var(--border-main);
   color: var(--primary-main);
   border-radius: 16px;
@@ -1437,7 +1543,7 @@ body {
   border-radius: 4px;
   padding: 2px 4px;
   background: var(--secondary-main);
-  color: #fff;
+  color: var(--white);
   justify-content: center;
   font-family: "Nunito Sans", sans-serif;
   font-size: 7px;
@@ -1446,17 +1552,17 @@ body {
   letter-spacing: 1px;
   text-transform: uppercase;
   box-shadow:
-    0 2px 1px -1px rgba(0, 0, 0, 0.2),
-    0 1px 1px 0 rgba(0, 0, 0, 0.14),
-    0 1px 3px 0 rgba(0, 0, 0, 0.12);
+    0 2px 1px -1px var(--black-a20),
+    0 1px 1px 0 var(--black-a14),
+    0 1px 3px 0 var(--divider);
 }
 
 .chip-ds-cart {
   width: 58px;
   height: 40px;
-  background: #552588;
-  border-color: #552588;
-  color: #fff;
+  background: var(--primary-base);
+  border-color: var(--primary-base);
+  color: var(--white);
   justify-content: flex-end;
   gap: 6px;
   padding: 4px 8px;
@@ -1476,7 +1582,7 @@ body {
 }
 
 .chip-ds-shadow {
-  box-shadow: 0 4px 14px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px 4px var(--black-a08);
 }
 
 .chip-ds-qty {
@@ -1502,7 +1608,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #552588;
+  color: var(--primary-base);
   font-size: 12px;
 }
 
@@ -1513,7 +1619,7 @@ body {
 .chip-ds-number {
   min-width: 10px;
   text-align: center;
-  color: #552588;
+  color: var(--primary-base);
   letter-spacing: 0.15px;
 }
 
@@ -1628,7 +1734,7 @@ body {
 }
 
 .radio-native:focus-visible + .radio-control {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(85, 37, 136, 0.32);
+  box-shadow: 0 0 0 2px var(--white), 0 0 0 4px rgba(85, 37, 136, 0.32);
 }
 
 .radio-label {
@@ -1666,7 +1772,7 @@ body {
 }
 
 .radio-flag-xl.active {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--secondary-main);
+  box-shadow: 0 0 0 2px var(--white), 0 0 0 3px var(--secondary-main);
 }
 
 .radio-dots {
@@ -1703,7 +1809,7 @@ body {
   border: 1px solid var(--border-main);
   padding: 8px;
   background: white;
-  box-shadow: 0 2px 10.5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10.5px var(--black-a10);
 }
 
 .widget-header {
@@ -1797,7 +1903,7 @@ body {
   width: 292px;
   height: 136px;
   border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.54);
+  border: 1px solid var(--text-secondary);
   overflow: hidden;
   background: var(--white);
   flex: 0 0 auto;
@@ -1851,8 +1957,8 @@ body {
   flex-shrink: 0;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--disable-main);
+  box-shadow: 0 2px 8px var(--black-a10);
   font-family: "Nunito Sans", sans-serif;
 }
 
@@ -1862,7 +1968,7 @@ body {
   align-items: center;
   gap: 12px;
   padding: 16px 16px 12px 16px;
-  background: #ffffff;
+  background: var(--white);
 }
 .promo-banner--dark .promo-banner-slide { background: var(--primary-main); }
 
@@ -1877,7 +1983,7 @@ body {
 .promo-banner-label {
   font-size: 11px;
   font-weight: 400;
-  color: rgba(0, 0, 0, 0.4);
+  color: var(--back-drop);
   letter-spacing: 0.15px;
 }
 .promo-banner--dark .promo-banner-label { color: rgba(255, 255, 255, 0.7); }
@@ -1889,12 +1995,12 @@ body {
   line-height: 1.2;
   margin: 0;
 }
-.promo-banner--dark .promo-banner-title { color: #ffffff; }
+.promo-banner--dark .promo-banner-title { color: var(--white); }
 
 .promo-banner-desc {
   font-size: 12px;
   font-weight: 400;
-  color: rgba(0, 0, 0, 0.4);
+  color: var(--back-drop);
   margin: 0;
   line-height: 1.4;
 }
@@ -1905,7 +2011,7 @@ body {
   margin-top: 2px;
 }
 .promo-banner--dark .promo-banner-cta {
-  background: #ffffff;
+  background: var(--white);
   color: var(--primary-main);
   box-shadow: none;
 }
@@ -1943,8 +2049,8 @@ body {
   height: 8px;
   background: var(--primary-main);
 }
-.promo-banner--dark .promo-dot { background: rgba(255, 255, 255, 0.25); }
-.promo-banner--dark .promo-dot.promo-dot-active { background: #ffffff; }
+.promo-banner--dark .promo-dot { background: var(--white-a25); }
+.promo-banner--dark .promo-dot.promo-dot-active { background: var(--white); }
 
 .strip-container {
   width: 360px;
@@ -2127,7 +2233,7 @@ body {
 
 .story-table th {
   background: var(--primary-main);
-  color: #fff;
+  color: var(--white);
   text-align: left;
   padding: 8px;
 }
@@ -2297,7 +2403,7 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: rgba(0, 0, 0, 0.54);
+  color: var(--text-secondary);
   background: transparent;
 }
 
@@ -2323,7 +2429,7 @@ body {
   width: 16px;
   height: 16px;
   border-radius: 0;
-  color: #552588;
+  color: var(--primary-base);
   background: transparent;
   flex: none;
   order: 2;
@@ -2417,7 +2523,7 @@ body {
 .brand-item-base {
   width: 111px;
   height: 70px;
-  border: 2px solid #ffffff;
+  border: 2px solid var(--white);
   border-radius: 8px;
   background: transparent;
   display: flex;
@@ -2454,7 +2560,7 @@ body {
   content: "";
   position: absolute;
   inset: 1px;
-  border: 2px solid #ffffff;
+  border: 2px solid var(--white);
   border-radius: var(--brand-item-card-inner-radius);
   pointer-events: none;
 }
@@ -2732,7 +2838,7 @@ body {
   height: 28px;
   border-radius: 6px;
   flex-shrink: 0;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid var(--black-a08);
 }
 
 /* ── Typography token table ───────────────────────────── */
@@ -2745,7 +2851,7 @@ body {
 
 .type-table th {
   background: var(--primary-main);
-  color: #fff;
+  color: var(--white);
   text-align: left;
   padding: 8px 12px;
   font-size: 11px;
@@ -3041,8 +3147,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.17);
-  background: linear-gradient(177.29deg, #fcfcfc 18.83%, #f1f2f5 41%);
+  box-shadow: 0 4px 24px 0 var(--black-a18);
+  background: linear-gradient(177.29deg, var(--surface-card-light) 18.83%, var(--surface-card) 41%);
 }
 
 .token-exchange {
@@ -3061,9 +3167,9 @@ body {
   border-radius: 20px;
   background: var(--white);
   box-shadow:
-    0 1px 14px 0 rgba(0, 0, 0, 0.12),
-    0 5px 8px 0 rgba(0, 0, 0, 0.14),
-    0 3px 5px -1px rgba(0, 0, 0, 0.2);
+    0 1px 14px 0 var(--divider),
+    0 5px 8px 0 var(--black-a14),
+    0 3px 5px -1px var(--black-a20);
   overflow: hidden;
 }
 
@@ -3221,7 +3327,7 @@ body {
   min-height: 48px;
   border-radius: 16px;
   border: 1px solid var(--secondary-main);
-  background: rgba(32, 243, 229, 0.08);
+  background: var(--secondary-selected);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3309,9 +3415,9 @@ body {
 .dual-card {
   min-height: 64px;
   border-radius: 8px;
-  border: 1px solid #c4c4c4;
-  background: #fff;
-  box-shadow: 0 4px 21px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-input);
+  background: var(--white);
+  box-shadow: 0 4px 21px var(--black-a04);
   display: flex;
   align-items: center;
   gap: 16px;
@@ -3327,9 +3433,9 @@ body {
   align-items: center;
   height: 16px;
   padding: 0 4px;
-  background: #fff;
+  background: var(--white);
   border-radius: 4px;
-  color: #552588;
+  color: var(--primary-base);
   font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 600;
@@ -3348,7 +3454,7 @@ body {
   flex-shrink: 0;
   /* Muestreados del frame 99105:31825: morado saturado con el glifo en
      el aqua del sistema, no el lavanda pálido con el icono blanco. */
-  background: #6a0bd0;
+  background: var(--primary-text-dark);
   color: var(--tier-base-bg);
   font-size: 24px;
 }
@@ -3377,7 +3483,7 @@ body {
    con iniciales de la agenda, para reconocer a quién va sin releer el
    nombre. */
 .dual-avatar.is-contact {
-  background: rgba(106, 11, 208, 0.2);
+  background: var(--primary-text-dark-a20);
   color: var(--white);
   font-family: "Nunito Sans", sans-serif;
   font-size: 19px;
@@ -3386,7 +3492,7 @@ body {
 }
 
 .dual-molecule.is-para-mi .dual-avatar {
-  background: #6a0bd0;
+  background: var(--primary-text-dark);
 }
 
 .dual-copy {
@@ -3515,9 +3621,9 @@ body {
   border-radius: 4px 0 4px 4px;
   background: var(--discount-ribbon-bg);
   box-shadow:
-    0 3px 3px -2px rgba(0, 0, 0, 0.2),
-    0 3px 4px 0 rgba(0, 0, 0, 0.14),
-    0 1px 8px 0 rgba(0, 0, 0, 0.12);
+    0 3px 3px -2px var(--black-a20),
+    0 3px 4px 0 var(--black-a14),
+    0 1px 8px 0 var(--divider);
   z-index: 0;
 }
 
@@ -3591,7 +3697,7 @@ body {
   padding: 8px;
   background: var(--super-ribbon-bg);
   color: var(--super-ribbon-text);
-  box-shadow: 0 4px 16px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px 4px var(--black-a08);
 }
 
 .super-ribbon-icon {
@@ -3821,7 +3927,7 @@ body {
   border-radius: 16px;
   border: 1px solid var(--border-main);
   background: var(--white);
-  box-shadow: 0 4px 10.5px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 10.5px var(--divider);
   display: flex;
   flex-direction: column;
   padding: 4px 0 16px;
@@ -3853,7 +3959,7 @@ body {
   bottom: 0;
   height: 64px;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--white) 95%);
+  background: linear-gradient(180deg, var(--white-a0) 0%, var(--white) 95%);
 }
 
 .homecard-content-default {
@@ -3912,7 +4018,7 @@ body {
   border-radius: 12px;
   border-color: var(--border-main);
   background: var(--white);
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 12px var(--black-a10);
   overflow: clip;
 }
 
@@ -4050,7 +4156,7 @@ body {
 }
 
 .folder-control {
-  --folder-primary: #552588;
+  --folder-primary: var(--primary-base);
   width: 360px;
   height: 77px;
   position: relative;
@@ -4068,7 +4174,7 @@ body {
   width: 84px;
   height: 4px;
   border-radius: 999px;
-  background: #fff;
+  background: var(--white);
   pointer-events: none;
   z-index: 6;
 }
@@ -4076,14 +4182,14 @@ body {
 .folder-control.is-collapsed {
   height: 35px;
   overflow: hidden;
-  background: linear-gradient(180deg, #f1f2f5 0%, #eceff8 88.01%);
+  background: linear-gradient(180deg, var(--surface-card) 0%, #eceff8 88.01%);
 }
 
 .folder-control.is-collapsed::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #f1f2f5 0%, #eceff8 88.01%);
+  background: linear-gradient(180deg, var(--surface-card) 0%, #eceff8 88.01%);
   transform: matrix(-1, 0, 0, 1, 0, 0);
   pointer-events: none;
   z-index: 0;
@@ -4330,7 +4436,7 @@ body {
 
 .plateu-molecule.is-home {
   border-radius: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.23);
+  border-bottom: 1px solid var(--border-main);
   box-shadow: none;
 }
 
@@ -4399,7 +4505,7 @@ body {
   min-height: 19px;
   padding: 3px 0;
   text-align: center;
-  color: rgba(0, 0, 0, 0.38);
+  color: var(--disable-text);
   font-family: "Nunito Sans", sans-serif;
   font-size: 8px;
   font-weight: 700;
@@ -4495,7 +4601,7 @@ body {
 
 /* ── Middle Card (Molecule) ─────────────────────────── */
 .middle-card-shell {
-  --border-main: #e0e0e0;
+  --border-main: var(--disable-main);
   width: min(342px, 100%);
   position: relative;
   border-radius: 16px;
@@ -4593,7 +4699,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #552588;
+  color: var(--primary-base);
   text-align: center;
   font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
@@ -4634,7 +4740,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #552588;
+  color: var(--primary-base);
 }
 
 .middle-card-currency {
@@ -4644,7 +4750,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #552588;
+  color: var(--primary-base);
   font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -4658,7 +4764,7 @@ body {
 
 .middle-card-amount {
   margin: 0;
-  color: #552588;
+  color: var(--primary-base);
   font-family: "Nunito Sans", sans-serif;
   font-size: 60px;
   font-weight: 700;
@@ -4671,7 +4777,7 @@ body {
   height: 100px;
   margin: 0;
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--white-a92);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4697,7 +4803,7 @@ body {
   justify-content: flex-start;
   gap: 4px;
   padding: 8px 20px;
-  color: #552588;
+  color: var(--primary-base);
   margin-top: auto;
 }
 
@@ -4724,7 +4830,7 @@ body {
 .middle-card-footer-start,
 .middle-card-footer-end {
   min-width: 0;
-  color: #552588;
+  color: var(--primary-base);
   white-space: nowrap;
 }
 
@@ -4751,7 +4857,7 @@ body {
   font-size: 10px;
   font-weight: 500;
   line-height: 1.2;
-  color: #552588;
+  color: var(--primary-base);
   white-space: nowrap;
 }
 
@@ -4800,7 +4906,7 @@ body {
 
 /* ── Top Card / Bottom Card (Molecules) ──────────── */
 .prime-card-shell {
-  --prime-card-border: #e0e0e0;
+  --prime-card-border: var(--disable-main);
   width: min(342px, 100%);
   position: relative;
   background: transparent;
@@ -4854,7 +4960,7 @@ body {
 }
 
 .prime-card-top-brand {
-  color: #552588;
+  color: var(--primary-base);
   text-align: center;
 }
 
@@ -4922,7 +5028,7 @@ body {
   min-height: 24px;
   display: flex;
   align-items: center;
-  color: #552588;
+  color: var(--primary-base);
   padding: 8px 16px 10px;
 }
 
@@ -4940,7 +5046,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #552588;
+  color: var(--primary-base);
 }
 
 .prime-card-top-footer-link.is-left,
@@ -5034,7 +5140,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #552588;
+  color: var(--primary-base);
 }
 
 .prime-card-bottom-line-label {
@@ -5048,14 +5154,14 @@ body {
 }
 
 .prime-card-copy-icon {
-  color: #552588;
+  color: var(--primary-base);
 }
 
 .prime-card-bottom-line-value {
   margin: 0;
   width: 243px;
   max-width: 100%;
-  color: #552588;
+  color: var(--primary-base);
   min-height: 24px;
   display: flex;
   align-items: flex-end;
@@ -5243,7 +5349,7 @@ body {
   height: 53px;
   display: block;
   color: var(--primary-main);
-  filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.16));
+  filter: drop-shadow(0 5px 8px var(--black-a16));
   /* Primero llega ella. */
   animation: oky-clarita-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) 200ms both;
 }
@@ -5272,7 +5378,7 @@ body {
 }
 
 .clarita-gloss {
-  fill: #ffffff;
+  fill: var(--white);
   opacity: 0.26;
 }
 
@@ -5308,7 +5414,7 @@ body {
 }
 
 .clarita-shadow {
-  fill: rgba(0, 0, 0, 0.16);
+  fill: var(--black-a16);
 }
 
 /* Todas las partes giran sobre sí mismas, no sobre el lienzo. */
@@ -5632,7 +5738,7 @@ body {
   overflow: hidden;
   border-radius: 24px;
   background: #8b8b8b;
-  border: 1px solid rgba(0, 0, 0, 0.14);
+  border: 1px solid var(--black-a14);
 }
 
 .modal-molecule-backdrop {
@@ -5847,7 +5953,7 @@ body {
 }
 
 .modal-large-icon-wrap.is-muted {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--black-a08);
   color: var(--disable-text);
 }
 
@@ -5976,7 +6082,7 @@ body {
 
 .modal-medium-footer .btn {
   width: 100%;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px var(--black-a08);
 }
 
 .modal-medium-footer .btn i {
@@ -6130,8 +6236,8 @@ body {
 }
 
 .modal-important-primary {
-  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14),
-    0 1px 5px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 3px 1px -2px var(--black-a20), 0 2px 2px var(--black-a14),
+    0 1px 5px var(--divider);
 }
 
 .modal-important-secondary {
@@ -6238,7 +6344,7 @@ body {
   height: 32px;
   padding: 10px;
   background: var(--tier-base-bg);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.17);
+  box-shadow: 0 4px 12px var(--black-a18);
   overflow: hidden;
 }
 
@@ -6297,8 +6403,8 @@ body {
   border-radius: 20px;
   overflow: hidden;
   background: var(--white);
-  box-shadow: 0 3px 2.5px rgba(0, 0, 0, 0.2), 0 5px 4px rgba(0, 0, 0, 0.14),
-    0 1px 7px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 3px 2.5px var(--black-a20), 0 5px 4px var(--black-a14),
+    0 1px 7px var(--divider);
 }
 
 .saving-bar-card-actions {
@@ -6606,7 +6712,7 @@ body {
           99105:41197 · 99105:7037 · 99105:6997                  */
 .history-card-molecule {
   /* "Iniciales de tienda" de Figma: no existe token ni en el DS ni en Figma */
-  --history-card-avatar-bg: #e9d4ff;
+  --history-card-avatar-bg: var(--avatar-contact-bg);
   width: min(328px, 100%);
   box-sizing: border-box;
   display: flex;
@@ -6615,7 +6721,7 @@ body {
   border-radius: 20px;
   border: 1px solid var(--border-main);
   background: var(--white);
-  box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 12px 0 var(--black-a10);
   font-family: "Nunito Sans", sans-serif;
   overflow: hidden;
 }
@@ -6977,7 +7083,7 @@ body {
 
 .icon-avatar {
   /* sin token ni en el DS ni en Figma */
-  --icon-avatar-bg: #e9d4ff;
+  --icon-avatar-bg: var(--avatar-contact-bg);
   --icon-avatar-size: 41px;
   --icon-avatar-glyph: 16px;
   flex: 0 0 var(--icon-avatar-size);
@@ -7012,7 +7118,7 @@ body {
    iniciales en blanco y baja TODO el grupo al 20% de opacidad, que es
    lo que le da el tono lavanda pálido. */
 .icon-avatar.is-faded {
-  --icon-avatar-bg: #6a0bd0;
+  --icon-avatar-bg: var(--primary-text-dark);
   opacity: 0.2;
 }
 
@@ -7063,7 +7169,7 @@ body {
 /* Figma 99140:45088 "Resumen del pago": caja de monto, no un toast. */
 .amount-summary {
   /* sin token */
-  --amount-summary-border: #d0def3;
+  --amount-summary-border: var(--border-info-soft);
   width: 100%;
   box-sizing: border-box;
   display: flex;
@@ -7073,7 +7179,7 @@ body {
   border: 1px solid var(--amount-summary-border);
   border-radius: 16px;
   background: var(--info-bg);
-  box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px 0 var(--black-a10);
 }
 
 /* ── Action Circle (Atom) ───────────────────────────────── */
@@ -7104,7 +7210,7 @@ body {
   justify-content: center;
   border-radius: 50%;
   color: var(--white);
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.16);
+  box-shadow: 0 4px 8px 0 var(--black-a16);
 }
 
 .action-circle-icon i {
@@ -7224,10 +7330,10 @@ body {
 }
 
 .modal-detail-rows {
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--black-a06);
   border-radius: 16px 16px 0 0;
   background: var(--white);
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 8px 0 var(--black-a08);
 }
 
 .modal-detail-row {
@@ -7378,7 +7484,7 @@ body {
   /* 16px en todas: las esquinas no cambian según lleven o no otra
      tarjeta encima. */
   --payment-card-radius: 16px;
-  --payment-card-bg: #d5d7da;
+  --payment-card-bg: var(--card-default-bg);
   --payment-card-ink: var(--white);
   --payment-card-border: transparent;
   --payment-card-border-width: 1px;
@@ -7399,7 +7505,7 @@ body {
   border: var(--payment-card-border-width) solid var(--payment-card-border);
   border-radius: var(--payment-card-radius);
   background: var(--payment-card-bg);
-  box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 12px 0 var(--black-a10);
   color: var(--payment-card-ink);
   font-family: "Nunito Sans", sans-serif;
 }
@@ -7601,8 +7707,8 @@ body {
 
 /* relieve del saldo (stack de 4 sombras del Figma) */
 .payment-card-balance.is-embossed {
-  filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.25)) drop-shadow(0 2px 0.5px rgba(0, 0, 0, 0.16))
-    drop-shadow(0 1px 0.5px rgba(0, 0, 0, 0.14)) drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.12));
+  filter: drop-shadow(0 4px 2px var(--black-a24)) drop-shadow(0 2px 0.5px var(--black-a16))
+    drop-shadow(0 1px 0.5px var(--black-a14)) drop-shadow(0 1px 1.5px var(--divider));
 }
 
 .payment-card-amount {
@@ -7610,7 +7716,7 @@ body {
   font-weight: 900;
   line-height: normal;
   letter-spacing: 0.3462px;
-  text-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 0 12px var(--black-a10);
 }
 
 .payment-card-amount-currency {
@@ -7667,7 +7773,7 @@ body {
   justify-content: center;
   gap: 2px;
   white-space: nowrap;
-  filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.25)) drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.12));
+  filter: drop-shadow(0 4px 2px var(--black-a24)) drop-shadow(0 1px 1.5px var(--divider));
 }
 
 .payment-card-expiry-label {
@@ -7719,7 +7825,7 @@ body {
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.15px;
-  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.17);
+  text-shadow: 0 4px 24px var(--black-a18);
 }
 
 .payment-card-cta i {
@@ -7770,7 +7876,7 @@ body {
   /* El SVG viene gris y sobre las ilustraciones se perdía. brightness(0)
      lo aplana a negro e invert(1) lo pasa a blanco; la sombra lo
      despega también de los diseños claros. */
-  filter: brightness(0) invert(1) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45));
+  filter: brightness(0) invert(1) drop-shadow(0 1px 3px var(--black-a45));
 }
 
 /* ── Variantes ──────────────────────────────────────────── */
@@ -7787,36 +7893,36 @@ body {
 }
 
 .payment-card-molecule.is-yayo {
-  --payment-card-bg: #d5d7da;
-  --payment-card-ink: #10325c;
+  --payment-card-bg: var(--card-default-bg);
+  --payment-card-ink: var(--brand-yayo-ink);
   --payment-card-pattern-opacity: 0.38;
 }
 
 .payment-card-molecule.is-saldo-oky {
-  --payment-card-bg: linear-gradient(244.68deg, #ac6fee 21.04%, var(--primary-base) 83.55%);
+  --payment-card-bg: linear-gradient(244.68deg, var(--card-saldo-from) 21.04%, var(--primary-base) 83.55%);
   --payment-card-border: var(--white);
 }
 
 .payment-card-molecule.is-visa {
-  --payment-card-bg: #1a1f71;
+  --payment-card-bg: var(--brand-visa);
   --payment-card-border: var(--white);
 }
 
 .payment-card-molecule.is-mastercard {
-  --payment-card-bg: #f79e1b;
+  --payment-card-bg: var(--brand-mastercard-orange);
   --payment-card-border: var(--white);
 }
 
 /* La tarjeta de OKY Cash va a 16px, no a los 24px de las bancarias. */
 .payment-card-molecule.is-oky-cash-black {
   --payment-card-radius: 16px;
-  --payment-card-bg: #000000;
-  --payment-card-border: #000000;
+  --payment-card-bg: var(--black);
+  --payment-card-border: var(--black);
 }
 
 .payment-card-molecule.is-oky-cash-teal {
   --payment-card-radius: 16px;
-  --payment-card-bg: linear-gradient(91.71deg, #0ab5b1 38.84%, #109794 104.52%);
+  --payment-card-bg: linear-gradient(91.71deg, var(--card-turquesa-from) 38.84%, var(--card-turquesa-to) 104.52%);
   --payment-card-border: var(--border-main);
   --payment-card-pattern-opacity: 0.27;
   --payment-card-pattern-blend: screen;
@@ -7929,7 +8035,7 @@ body {
   border: 1px solid var(--border-main);
   border-radius: 24px;
   background: var(--white);
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 4px var(--black-a24);
   font-family: "Nunito Sans", sans-serif;
 }
 
@@ -8042,7 +8148,7 @@ body {
   box-sizing: border-box;
   padding: 11px var(--oky-gutter);
   background: var(--white);
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -4px 12px var(--black-a06);
 }
 
 .oky-flow-cta-bar .btn {
@@ -8072,8 +8178,19 @@ body {
 }
 
 .oky-flow-toast.is-success {
-  background: #edf7ed;
-  color: #1e4620;
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+/* Error (MARS · Poscompra / Toast de estado · Estado=Error). */
+.oky-flow-toast.is-error {
+  background: var(--error-bg);
+  color: var(--error-text);
+}
+
+.oky-flow-toast.is-error i {
+  color: var(--error-main);
+  font-size: 18px;
 }
 
 .oky-flow-toast.is-success i {
@@ -8106,7 +8223,7 @@ body {
    que se apoya en la navbar y tapa lo que pasa por detrás. */
 .oky-flow-cta-bar.is-order-voucher {
   background: var(--white);
-  box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -1px 0 var(--black-a08);
 }
 
 .oky-flow-cta-bar.is-order-voucher .btn {
@@ -8131,7 +8248,7 @@ body {
   display: flex;
   justify-content: center;
   padding: 16px var(--oky-gutter) 10px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--white) 18%, var(--white) 100%);
+  background: linear-gradient(180deg, var(--white-a0) 0%, var(--white) 18%, var(--white) 100%);
   pointer-events: none;
 }
 
@@ -8339,7 +8456,7 @@ body {
   border-radius: 16px;
   background: var(--white);
   /* Sombra del Brand Item de Figma. */
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 12px var(--black-a10);
   padding: 0;
   cursor: pointer;
   display: block;
@@ -8370,7 +8487,7 @@ body {
      card, y con un z-index se colaba por encima de las cards de abajo
      del mazo, que van después. */
   border-radius: 16px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.231373);
+  box-shadow: inset 0 0 0 1px var(--border-main);
   pointer-events: none;
 }
 
@@ -8414,7 +8531,7 @@ body {
   top: -8px;
   height: 8px;
   border-radius: 50px 50px 0 0;
-  background: #959695;
+  background: var(--pile-front);
   /* Gris al 80%: deja pasar algo de lo que hay detrás (la card de
      arriba en la pila) sin dejar de leerse como canto. */
   opacity: 0.8;
@@ -8429,7 +8546,7 @@ body {
   top: -8px;
   height: 8px;
   border-radius: 50px 50px 0 0;
-  background: #757675;
+  background: var(--grey-600);
 }
 
 /* badge de cantidad + QR (Figma top 13). Se ancla por la derecha en
@@ -8474,6 +8591,12 @@ body {
   color: var(--primary-base);
 }
 
+/* La pila de una compra que no se procesó: borde en rojo, como la
+   equis (MARS · Wallet / Insignia de compra · fallida). */
+.oky-flow-voucher-badge.is-failed {
+  border-color: var(--error-main);
+}
+
 .oky-flow-voucher-badge i {
   font-size: 12px;
   /* El vale ya está comprado: un check dice eso mejor que un QR, que
@@ -8495,7 +8618,7 @@ body {
   line-height: 1;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.38);
+  color: var(--disable-text);
 }
 
 /* Cuando la cabecera pliega —solo en Mi wallet— es una fila entera que
@@ -8515,11 +8638,11 @@ body {
   height: auto;
   min-height: 56px;
   padding: 0 14px 0 16px;
-  border: 1px solid var(--border-main, #e3e3e8);
+  border: 1px solid var(--border-main);
   border-radius: 14px;
   background: var(--white);
   font-size: 13px;
-  color: rgba(0, 0, 0, 0.62);
+  color: var(--black-a62);
   cursor: pointer;
   transition:
     background 160ms ease-out,
@@ -8527,16 +8650,16 @@ body {
 }
 
 .oky-flow-section-head[data-action="toggle-section"][aria-expanded="true"] {
-  border-color: #d9cdee;
-  background: var(--grey-100, #f5f5f7);
+  border-color: var(--border-purple-soft);
+  background: var(--background);
 }
 
 .oky-flow-section-head[data-action="toggle-section"]:hover {
-  border-color: #cdbfe6;
+  border-color: var(--border-purple-hover);
 }
 
 .oky-flow-section-head[data-action="toggle-section"]:active {
-  background: #ececf1;
+  background: var(--surface-pressed);
 }
 
 .oky-flow-section-head[data-action="toggle-section"]:focus-visible {
@@ -8553,7 +8676,7 @@ body {
 
 .oky-flow-section-head i {
   font-size: 16px;
-  color: #8e8e99;
+  color: var(--icon-muted);
 }
 
 /* El resumen va en el morado de marca y sin mayúsculas forzadas: es un
@@ -8629,7 +8752,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1.5px solid #c4c4c4;
+  border: 1.5px solid var(--border-input);
   border-radius: 6px;
   background: var(--white);
   cursor: pointer;
@@ -8648,7 +8771,7 @@ body {
 /* Fila activa: fondo aqua tenue, igual familia que el tier base
    del ribbon/saving-bar (#A8FAF5) pero muy diluido. */
 .oky-flow-payrow.is-cash.is-checked {
-  background: #f3fffe;
+  background: var(--highlight-surface-light);
 }
 
 /* ── Confeti al activar OKY Cash ──────────────────────────
@@ -8669,15 +8792,15 @@ body {
 
 @keyframes oky-flow-cash-hint {
   0% {
-    border-color: #c4c4c4;
+    border-color: var(--border-input);
     box-shadow: 0 0 0 0 rgba(9, 180, 176, 0);
   }
   35% {
-    border-color: #09b4b0;
+    border-color: var(--aqua-bright);
     box-shadow: 0 0 0 3px rgba(9, 180, 176, 0.55), 0 0 18px 6px rgba(9, 180, 176, 0.35);
   }
   100% {
-    border-color: #c4c4c4;
+    border-color: var(--border-input);
     box-shadow: 0 0 0 0 rgba(9, 180, 176, 0);
   }
 }
@@ -8686,7 +8809,7 @@ body {
   .oky-flow-payrow.is-cash.is-hint {
     animation-duration: 1ms;
     animation-iteration-count: 1;
-    border-color: #09b4b0;
+    border-color: var(--aqua-bright);
   }
 }
 
@@ -8696,7 +8819,7 @@ body {
   left: var(--piece-x, 50%);
   width: var(--piece-w, 6px);
   height: var(--piece-h, 10px);
-  background: var(--piece-color, #09b4b0);
+  background: var(--aqua-bright);
   opacity: 0;
   transform: translate(-50%, -50%) rotate(var(--piece-rot, 0deg));
   pointer-events: none;
@@ -8736,9 +8859,9 @@ body {
   min-height: 60px;
   padding: 2px 12px 2px 16px;
   box-sizing: border-box;
-  border: 1px solid #c4c4c4;
+  border: 1px solid var(--border-input);
   background: var(--white);
-  box-shadow: 0 4px 10.5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 10.5px var(--black-a04);
   cursor: pointer;
   width: 100%;
   text-align: left;
@@ -8825,7 +8948,7 @@ body {
 }
 
 .oky-flow-chip.is-cash {
-  background: linear-gradient(85.03deg, #09b4b0 14.2%, #109592 92.1%);
+  background: linear-gradient(85.03deg, var(--aqua-bright) 14.2%, var(--card-turquesa-to) 92.1%);
 }
 
 /* ── Selector de métodos de pago (pantalla dedicada) ────── */
@@ -8893,7 +9016,7 @@ body {
 }
 
 .oky-flow-method-row.is-cash.is-checked {
-  background: #f3fffe;
+  background: var(--highlight-surface-light);
 }
 
 .oky-flow-method-head {
@@ -8910,7 +9033,7 @@ body {
   font-weight: 700;
   line-height: 1.4;
   letter-spacing: 0.15px;
-  color: #21514d;
+  color: var(--oky-cash-ink);
 }
 
 /* El radio lo dibuja .oky-flow-radio entero —borde y punto—; antes
@@ -8970,10 +9093,10 @@ body {
   border-radius: 999px;
   background: linear-gradient(
     to right,
-    #09b4b0 0%,
-    #09b4b0 var(--oky-cash-progress, 26%),
-    rgba(9, 180, 176, 0.18) var(--oky-cash-progress, 26%),
-    rgba(9, 180, 176, 0.18) 100%
+    var(--aqua-bright) 0%,
+    var(--aqua-bright) var(--oky-cash-progress, 26%),
+    var(--aqua-bright-a18) var(--oky-cash-progress, 26%),
+    var(--aqua-bright-a18) 100%
   );
   outline: none;
 }
@@ -8984,18 +9107,18 @@ body {
   height: 29px;
   border-radius: 50%;
   background: var(--white);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
+  border: 1px solid var(--divider);
+  box-shadow: 0 2px 6px var(--black-a24);
   cursor: pointer;
 }
 
 .oky-flow-cash-slider input[type="range"]::-moz-range-thumb {
   width: 29px;
   height: 29px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--divider);
   border-radius: 50%;
   background: var(--white);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 2px 6px var(--black-a24);
   cursor: pointer;
 }
 
@@ -9003,7 +9126,7 @@ body {
   margin: 0;
   font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
-  color: #21514d;
+  color: var(--oky-cash-ink);
 }
 
 .oky-flow-cash-caption strong {
@@ -9156,7 +9279,7 @@ body {
   position: absolute;
   inset: 0;
   z-index: 25;
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--white-a88);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9201,7 +9324,7 @@ body {
   flex-direction: column;
   overflow: hidden;
   border-radius: 24px;
-  background: #410d86;
+  background: var(--primary-main);
 }
 
 .oky-flow-decision-head {
@@ -9236,7 +9359,7 @@ body {
   width: 326px;
   height: 326px;
   border-radius: 50%;
-  background: rgba(24, 4, 56, 0.55);
+  background: var(--shadow-purple-a55);
 }
 
 .oky-flow-decision-art img {
@@ -9262,15 +9385,15 @@ body {
   border: 0;
   border-radius: 44px;
   background: var(--white);
-  color: #410d86;
+  color: var(--primary-main);
   font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-weight: 700;
   line-height: 24px;
   letter-spacing: 0.25px;
   cursor: pointer;
-  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14),
-    0 1px 5px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 3px 1px -2px var(--black-a20), 0 2px 2px var(--black-a14),
+    0 1px 5px var(--divider);
 }
 
 .oky-flow-btn-ghost {
@@ -9303,7 +9426,7 @@ body {
      mensaje —lo que ganas— y con dos verdes distintos parecía otro
      sistema. Aplica igual en el home y en el checkout. */
   background: var(--tier-base-bg);
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.17));
+  filter: drop-shadow(0 4px 12px var(--black-a18));
   cursor: pointer;
   border: 0;
   text-align: left;
@@ -9346,7 +9469,7 @@ body {
   font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 700;
-  color: #7a6d8f;
+  color: var(--text-muted-light);
 }
 
 /* ── Cart / genéricos ───────────────────────────────────── */
@@ -9405,7 +9528,7 @@ body {
   justify-content: center;
   gap: 8px;
   border: 0;
-  background: #eceff3;
+  background: var(--surface-track);
   color: var(--text-secondary);
   font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
@@ -9514,7 +9637,7 @@ body {
   z-index: 100;
   border: 0;
   padding: 0;
-  background: rgba(16, 16, 16, 0.45);
+  background: var(--scrim-45);
   animation: oky-flow-fade 0.18s ease-out;
 }
 
@@ -9537,7 +9660,7 @@ body {
   flex-direction: column;
   background: var(--background);
   border-radius: 16px 0 0 16px;
-  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.18);
+  box-shadow: -8px 0 24px var(--black-a18);
   animation: oky-flow-slide-in 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -9594,7 +9717,7 @@ body {
   background: var(--white);
   border-radius: 16px;
   padding: 4px 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px var(--black-a06);
 }
 
 /* En el carrito el chip de cashback siempre va aqua, sin importar
@@ -9720,11 +9843,11 @@ body {
 }
 
 .oky-flow-method-art.is-visa {
-  background: #1a1f71;
+  background: var(--brand-visa);
 }
 
 .oky-flow-method-art.is-mastercard {
-  background: #f79e1b;
+  background: var(--brand-mastercard-orange);
 }
 
 /* ── Colocación del discount ribbon ──────────────────────────
@@ -9807,7 +9930,7 @@ body {
   background: var(--white);
   /* Se levanta del contenido: la sombra es lo que dice que está
      flotando por encima y no al final de la lista. */
-  box-shadow: 0 -6px 20px rgba(16, 4, 36, 0.16);
+  box-shadow: 0 -6px 20px var(--shadow-purple-a16);
 }
 
 /* La barra de abajo, cuando la hay, se le mete debajo: el cintillo
@@ -9999,11 +10122,11 @@ button.header-icon {
 }
 
 .oky-flow-method-mark.is-visa {
-  color: #1a1f71;
+  color: var(--brand-visa);
 }
 
 .oky-flow-method-mark.is-mastercard {
-  color: #eb001b;
+  color: var(--brand-mastercard-red);
 }
 
 /* Las dos píldoras arrancan en la misma x sin estirarse: la celda
@@ -10097,7 +10220,7 @@ button.header-icon {
   width: var(--piece-w, 7px);
   height: var(--piece-h, 12px);
   border-radius: 2px;
-  background: var(--piece-color, #09b4b0);
+  background: var(--aqua-bright);
   opacity: 0;
   animation: oky-flow-burst var(--piece-dur, 900ms) cubic-bezier(0.14, 0.86, 0.3, 1)
     var(--piece-delay, 0ms) both;
@@ -10134,7 +10257,7 @@ button.header-icon {
   width: var(--piece-w, 8px);
   height: var(--piece-h, 14px);
   border-radius: 2px;
-  background: var(--piece-color, #09b4b0);
+  background: var(--aqua-bright);
   opacity: 0;
   animation: oky-flow-confetti-fall var(--piece-dur, 2200ms) linear var(--piece-delay, 0ms) forwards;
 }
@@ -10202,7 +10325,7 @@ button.header-icon {
 .oky-flow-frame .input-field:focus-visible {
   outline: none;
   border-color: var(--primary-main);
-  box-shadow: 0 0 0 3px rgba(65, 0, 136, 0.16);
+  box-shadow: 0 0 0 3px var(--primary-main-a16);
 }
 
 /* Sin status bar, el título necesita su propio aire arriba. */
@@ -10287,7 +10410,7 @@ button.header-icon {
   border-radius: 8px;
   background: var(--white);
   color: var(--primary-main);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px var(--divider);
   cursor: pointer;
 }
 
@@ -10317,14 +10440,14 @@ button.header-icon {
   margin: 0;
   padding: 8px 20px;
   border-radius: 8px;
-  background: #43a047;
+  background: var(--success-600);
   color: var(--white);
   font-family: "Nunito Sans", sans-serif;
   font-size: 20px;
   font-weight: 900;
   text-align: center;
   white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 10px var(--black-a18);
 }
 
 /* ── Checkout · carrusel de vales ────────────────────────────
@@ -10429,7 +10552,7 @@ button.header-icon {
   border-radius: 8px;
   background: var(--white);
   color: var(--primary-main);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px var(--divider);
   cursor: pointer;
 }
 
@@ -10582,7 +10705,7 @@ button.header-icon {
    suaviza porque ya hay la de la propia barra. */
 .oky-flow-cta-bar .oky-flow-cash-strip {
   width: 100%;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 2px 6px var(--black-a10));
 }
 
 /* .oky-flow-cta-bar .btn estira cualquier botón al 100%: eso también
@@ -10626,7 +10749,7 @@ button.header-icon {
   font-size: 14px;
   font-weight: 800;
   white-space: nowrap;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 6px 16px var(--black-a16);
   transform: translate(-50%, 10px) scale(0.6);
   opacity: 0;
   animation: oky-flow-earned-pop 620ms cubic-bezier(0.18, 1.3, 0.42, 1) 900ms forwards;
@@ -10742,7 +10865,7 @@ button.header-icon {
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.6px;
-  color: rgba(255, 255, 255, 0.86);
+  color: var(--white-a88);
 }
 
 .oky-flow-cashwin-amount {
@@ -10752,7 +10875,7 @@ button.header-icon {
   font-weight: 900;
   line-height: 1.06;
   color: var(--tier-base-bg);
-  text-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 6px 22px var(--black-a35);
 }
 
 .oky-flow-cashwin-amount span {
@@ -10777,7 +10900,7 @@ button.header-icon {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.3px;
-  color: rgba(255, 255, 255, 0.62);
+  color: var(--white-a62);
   /* Se ve desde el inicio: tocar en cualquier parte salta la animación
      y lo ganado queda en la pastilla de arriba. Entra suave y late. */
   animation:
@@ -10839,9 +10962,9 @@ button.header-icon {
      el último tramo, que es donde cae el título de la sección. */
   background: linear-gradient(
     180deg,
-    #ff9019 0%,
-    #ff9019 48%,
-    rgba(255, 144, 25, 0) 100%
+    var(--discovery-orange) 0%,
+    var(--discovery-orange) 48%,
+    var(--discovery-orange-a0) 100%
   );
   pointer-events: none;
   z-index: 0;
@@ -10937,7 +11060,7 @@ button.tactic-offer {
   height: auto;
   aspect-ratio: 50 / 31;
   overflow: hidden;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 6px var(--divider);
 }
 
 .oky-flow-brand-card .promo-strip-brand {
@@ -11041,7 +11164,7 @@ button.tactic-offer {
    entero y no solo la banda. */
 .oky-flow-home {
   position: relative;
-  --home-theme: #e2711d;
+  --home-theme: var(--campaign-orange);
 }
 
 /* El carrusel de banners respeta los 16px de margen del resto de la
@@ -11189,20 +11312,20 @@ button.tactic-offer {
 /* El título de la campaña va sobre el naranja, así que lleva el marrón
    del tema y no el morado de marca. */
 .oky-flow-frame .tactic-strip-title {
-  color: #593706;
+  color: var(--warning-text);
 }
 
 /* La History Card solo trae chips success y error; gastar saldo no es
    ninguna de las dos, así que lleva un tono neutro. Un gris con cuerpo
    y su borde: el gris del fondo apenas se distinguía de la card. */
 .history-card-chip.is-neutral {
-  background: #d6d6d6;
-  border-color: #bdbdbd;
-  color: #595959;
+  background: var(--divider-solid);
+  border-color: var(--grey-400);
+  color: var(--text-muted);
 }
 
 .history-card-chip.is-neutral .history-card-chip-icon {
-  color: #595959;
+  color: var(--text-muted);
 }
 
 /* Indicador de vale nuevo: el mismo punto del header, sobre la card. */
@@ -11215,7 +11338,7 @@ button.tactic-offer {
   border: 2px solid var(--white);
   border-radius: 50%;
   background: var(--error-main);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 4px var(--black-a24);
 }
 
 /* ── Destino táctil ──────────────────────────────────────
@@ -11306,7 +11429,7 @@ button.tactic-offer {
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px var(--black-a08);
 }
 
 .oky-flow-reset:hover {
@@ -11417,7 +11540,7 @@ button.tactic-offer {
   height: 22px;
   border-radius: 50%;
   border: 2px solid var(--white);
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--white-a25);
 }
 
 .oky-flow-design-slide.is-active .oky-flow-design-radio::after {
@@ -11504,8 +11627,8 @@ button.tactic-offer {
   border-radius: 50%;
   /* Mismo metal que el canto de la moneda. */
   background:
-    radial-gradient(120% 120% at 30% 25%, #fdfdff 0%, #d9d9e4 42%, #a9a9bb 78%, #8d8da1 100%);
-  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.75);
+    radial-gradient(120% 120% at 30% 25%, var(--illu-coin-4) 0%, var(--illu-coin-3) 42%, var(--illu-coin-2) 78%, var(--illu-coin-1) 100%);
+  box-shadow: inset 0 0 0 1.5px var(--white-a75);
   color: var(--primary-main);
   font-family: "Nunito Sans", sans-serif;
   font-size: 16px;
@@ -11610,7 +11733,7 @@ button.tactic-offer {
 @keyframes oky-flow-jump-hint {
   0%,
   100% {
-    box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 12px 0 var(--black-a10);
   }
   35% {
     box-shadow: 0 0 0 3px rgba(9, 180, 176, 0.55), 0 0 18px 6px rgba(9, 180, 176, 0.35);
@@ -11704,16 +11827,16 @@ button.tactic-offer {
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--black-a08);
   border-radius: 50%;
   /* Translúcida: es una sugerencia, no un control. Deja ver lo que
      tiene detrás, que es justo lo que invita a seguir bajando. */
-  background: rgba(255, 255, 255, 0.62);
+  background: var(--white-a62);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   color: var(--primary-main);
   opacity: 0.85;
-  box-shadow: 0 6px 18px rgba(65, 13, 134, 0.18);
+  box-shadow: 0 6px 18px var(--primary-main-a18);
   cursor: pointer;
   opacity: 1;
   transition:
@@ -11807,7 +11930,7 @@ button.tactic-offer {
 
 .oky-flow-order.has-panel {
   border-radius: 20px;
-  box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 12px 0 var(--black-a10);
 }
 
 /* Y el desglose hereda el mismo código de color. */
@@ -11853,12 +11976,12 @@ button.tactic-offer {
    (24px) más el grosor del bisel, así la curva de dentro no cambia. */
 @media (min-width: 641px) {
   .oky-flow-frame {
-    border: 12px solid #16161a;
+    border: 12px solid var(--device-frame);
     border-radius: 36px;
     box-shadow:
-      0 0 0 2px #35353c,
-      0 30px 60px -12px rgba(16, 4, 36, 0.45),
-      0 8px 20px -6px rgba(16, 4, 36, 0.3);
+      0 0 0 2px var(--device-frame-edge),
+      0 30px 60px -12px var(--shadow-purple-a45),
+      0 8px 20px -6px var(--shadow-purple-a30);
   }
 }
 
@@ -11946,7 +12069,7 @@ button.tactic-offer {
 @keyframes oky-flow-promo-end-pulse {
   0%,
   100% {
-    box-shadow: 0 4px 16px 4px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 16px 4px var(--black-a08);
   }
   50% {
     box-shadow: 0 4px 18px 6px rgba(244, 67, 54, 0.45);
@@ -12292,7 +12415,7 @@ button.tactic-offer {
   margin-top: 10px;
   /* La sombra del plateu del sistema: sin ella la barra se pegaba al
      fondo y dejaba de leerse como una tarjeta. */
-  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.17);
+  box-shadow: 0 4px 24px 0 var(--black-a18);
 }
 
 /* Los rótulos van como se escriben, igual que el chip activo. */
@@ -12570,7 +12693,7 @@ button.tactic-offer {
   overflow: hidden;
   border-radius: 16px;
   background: var(--white);
-  box-shadow: 0 8px 24px rgba(16, 4, 36, 0.18);
+  box-shadow: 0 8px 24px var(--shadow-purple-a18);
 }
 
 /* La franja del ahorro corona la barra: es el argumento para seguir
@@ -12582,7 +12705,7 @@ button.tactic-offer {
   justify-content: center;
   min-height: 34px;
   padding: 7px 14px;
-  background: var(--aqua-light, #a6f7ee);
+  background: var(--secondary-light);
   color: var(--secondary-dark);
   font-family: "Nunito Sans", sans-serif;
   font-size: 15px;
@@ -12689,8 +12812,8 @@ button.tactic-offer {
   min-height: 34px;
   padding: 7px 14px;
   border-radius: 10px;
-  background: var(--aqua-light, #a6f7ee);
-  color: var(--aqua-dark, #0c6462);
+  background: var(--secondary-light);
+  color: var(--aqua-dark);
   font-family: "Nunito Sans", sans-serif;
   font-size: 15px;
   font-weight: 800;
@@ -12734,7 +12857,7 @@ button.tactic-offer {
   max-height: 88%;
   padding: 30px 24px 22px;
   border-radius: 22px 22px 0 0;
-  background: #0f6b63;
+  background: var(--aqua-dark);
   color: var(--white);
   text-align: center;
   animation: oky-flow-sheet-up 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
@@ -12756,7 +12879,7 @@ button.tactic-offer {
   font-size: 14px;
   font-weight: 600;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--white-a92);
 }
 
 .oky-flow-savings-art {
@@ -12858,7 +12981,7 @@ button.tactic-offer {
   gap: 3px;
   border: 1px solid var(--secondary-main);
   border-radius: 16px;
-  background: rgba(32, 243, 229, 0.08);
+  background: var(--secondary-selected);
   text-align: left;
   cursor: pointer;
 }
@@ -12975,7 +13098,7 @@ button.tactic-offer {
   font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   line-height: 1.4;
-  color: var(--error-main, #d32f2f);
+  color: var(--error-main);
 }
 
 .oky-flow-promosheet-error.is-hidden {
@@ -13014,7 +13137,7 @@ button.tactic-offer {
   top: 0;
   z-index: 6;
   background: var(--white);
-  box-shadow: 0 1px 0 var(--border-main, #e3e3e8);
+  box-shadow: 0 1px 0 var(--border-main);
 }
 
 .oky-flow-wallet-nav .plateu-track.is-static {
@@ -13275,7 +13398,7 @@ button.tactic-offer {
   gap: 5px;
   padding: 3px 8px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.14);
+  background: var(--black-a14);
   font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 800;
@@ -13499,7 +13622,7 @@ button.tactic-offer {
   height: 22px;
   border-radius: 50%;
   background: var(--white);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px var(--black-a20);
   transition: transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
@@ -13524,7 +13647,7 @@ button.tactic-offer {
   z-index: 120;
   border: 0;
   padding: 0;
-  background: rgba(16, 4, 36, 0.55);
+  background: var(--shadow-purple-a55);
   cursor: pointer;
   animation: oky-flow-sheet-fade 240ms ease-out both;
 }
@@ -13587,7 +13710,7 @@ button.tactic-offer {
   font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.86);
+  color: var(--white-a88);
 }
 
 .oky-flow-sheet-art {
@@ -13608,7 +13731,7 @@ button.tactic-offer {
   width: 208px;
   height: 208px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--white-a10);
 }
 
 .oky-flow-sheet-art img {
@@ -13635,7 +13758,7 @@ button.tactic-offer {
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--white-a08);
 }
 
 /* En la del destinatario los anillos se encogen: su explicación ocupa
@@ -13689,7 +13812,7 @@ button.tactic-offer {
   height: 44px;
   border: 0;
   background: none;
-  color: rgba(255, 255, 255, 0.86);
+  color: var(--white-a88);
   font-family: "Nunito Sans", sans-serif;
   font-size: 15px;
   font-weight: 700;
@@ -13832,7 +13955,7 @@ button.tactic-offer {
   align-items: center;
   gap: 18px;
   padding: 16px 4px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid var(--white-a16);
   color: var(--white);
 }
 
@@ -13845,7 +13968,7 @@ button.tactic-offer {
 }
 
 .oky-flow-menu-row.is-live:active {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--white-a12);
   border-radius: 12px;
 }
 
@@ -13898,7 +14021,7 @@ button.tactic-offer {
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
-  color: var(--disable-text, #8a8a8a);
+  color: var(--disable-text);
 }
 
 .oky-flow-walletver.is-on .oky-flow-walletver-tag {
@@ -13935,7 +14058,7 @@ button.tactic-offer {
   width: 28px;
   height: 16px;
   border-radius: 999px;
-  background: var(--disable-main, #c9c5cf);
+  background: var(--disable-main);
   transition: background 180ms ease-out;
 }
 
@@ -13951,7 +14074,7 @@ button.tactic-offer {
   height: 12px;
   border-radius: 50%;
   background: var(--white);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px var(--black-a30);
   transition: transform 180ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
@@ -14138,7 +14261,7 @@ button.tactic-offer {
   width: 340px;
   max-width: calc(100% - 20px);
   margin: 16px 0 0;
-  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.17);
+  box-shadow: 0 4px 24px 0 var(--black-a18);
 }
 
 /* Y cada pestaña toma su tercio de la tarjeta y se centra dentro. */
@@ -14193,7 +14316,7 @@ button.tactic-offer {
   min-height: 72px;
   padding: 8px 8px 8px 16px;
   background: var(--white);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid var(--divider);
   cursor: pointer;
 }
 
@@ -14201,8 +14324,8 @@ button.tactic-offer {
    es lo que la separa de la agenda de verdad. */
 .oky-flow-contact.is-self {
   background: var(--background);
-  border-top: 1px solid rgba(0, 0, 0, 0.23);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.23);
+  border-top: 1px solid var(--border-main);
+  border-bottom: 1px solid var(--border-main);
 }
 
 .oky-flow-contact-radio {
@@ -14211,7 +14334,7 @@ button.tactic-offer {
   height: 20px;
   margin: 0 9px;
   box-sizing: border-box;
-  border: 2px solid rgba(0, 0, 0, 0.54);
+  border: 2px solid var(--text-secondary);
   border-radius: 50%;
 }
 
@@ -14232,7 +14355,7 @@ button.tactic-offer {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--primary-text-dark, #6a0bd0);
+  background: var(--primary-text-dark);
   color: var(--white);
   font-family: "Nunito Sans", sans-serif;
   font-size: 22px;
@@ -14290,7 +14413,7 @@ button.tactic-offer {
   font-weight: 700;
   line-height: 1.6;
   letter-spacing: 0.15px;
-  color: rgba(0, 0, 0, 0.87);
+  color: var(--text-primary);
 }
 
 .oky-flow-contact-phone {
@@ -14299,11 +14422,11 @@ button.tactic-offer {
   font-weight: 400;
   line-height: 1.5;
   letter-spacing: 0.15px;
-  color: rgba(0, 0, 0, 0.38);
+  color: var(--disable-text);
 }
 
 .oky-flow-contact.is-self .oky-flow-contact-phone {
-  color: rgba(0, 0, 0, 0.54);
+  color: var(--text-secondary);
 }
 
 /* Elegido, el contacto se pinta de marca: nombre y teléfono en morado
@@ -14327,7 +14450,7 @@ button.tactic-offer {
   flex: none;
   width: 32px;
   text-align: center;
-  color: rgba(0, 0, 0, 0.38);
+  color: var(--disable-text);
 }
 
 .oky-flow-contact-star {
@@ -14336,7 +14459,7 @@ button.tactic-offer {
 
 .oky-flow-contact-more {
   font-size: 20px;
-  color: rgba(0, 0, 0, 0.54);
+  color: var(--text-secondary);
 }
 
 .oky-flow-contact-edit {
@@ -14404,7 +14527,7 @@ button.tactic-offer {
   font-weight: 700;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.38);
+  color: var(--disable-text);
 }
 
 /* ── La navegación de la versión 3 del wallet ───────────────
@@ -14424,7 +14547,7 @@ button.tactic-offer {
   margin: 25px var(--oky-gutter) 25px;
   padding: 4px;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--black-a06);
 }
 
 .oky-flow-wallet-seg-item {
@@ -14450,7 +14573,7 @@ button.tactic-offer {
   line-height: 16px;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.42);
+  color: var(--black-a42);
   transition: background 160ms ease, color 160ms ease;
 }
 
@@ -14465,7 +14588,7 @@ button.tactic-offer {
 
 .oky-flow-wallet-seg-item.is-on {
   background: var(--white, var(--white));
-  border-color: rgba(0, 0, 0, 0.08);
+  border-color: var(--black-a08);
   color: var(--primary-main);
 }
 
@@ -14494,7 +14617,7 @@ button.tactic-offer {
 
 .oky-flow-cashdock .oky-flow-purchase-badge {
   pointer-events: auto;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 4px 14px var(--black-a16);
   /* Entra y sale como la isla dinámica: no aparece, se forma. Encoge
      hacia su propio centro y baja un poco al irse, y al volver se
      estira pasándose un pelo antes de asentar —de ahí el bezier con
@@ -14556,7 +14679,7 @@ button.oky-flow-wallet-filter-label {
   padding: 0;
   text-align: left;
   cursor: pointer;
-  color: var(--oky-purple, #4b0082);
+  color: var(--primary-main);
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
@@ -14582,7 +14705,7 @@ button.oky-flow-wallet-filter-label {
   width: 40px;
   height: 4px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.16);
+  background: var(--black-a16);
 }
 
 .oky-flow-filter-head {
@@ -14630,7 +14753,7 @@ button.oky-flow-wallet-filter-label {
 }
 
 .oky-flow-filter-option:active {
-  background: var(--grey-100, #f5f5f7);
+  background: var(--background);
 }
 
 .oky-flow-filter-option-label {
@@ -14644,7 +14767,7 @@ button.oky-flow-wallet-filter-label {
   min-width: 24px;
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--grey-100, #f5f5f7);
+  background: var(--background);
   font-size: 13px;
   font-weight: 800;
   color: var(--text-secondary);
@@ -14733,7 +14856,7 @@ button.oky-flow-wallet-filter-label {
 
       .mockup-block {
         width: 100%;
-        background: #fff;
+        background: var(--white);
       }
 
       .mockup-discovery-sticky {
@@ -14748,7 +14871,7 @@ button.oky-flow-wallet-filter-label {
       }
 
       .mockup-discovery-sticky > .discovery-header-organism {
-        background: #fff;
+        background: var(--white);
         pointer-events: auto;
       }
 
@@ -14827,7 +14950,7 @@ button.oky-flow-wallet-filter-label {
         top: 73px;
         width: 84px;
         height: 4px;
-        background: #fff;
+        background: var(--white);
         border-radius: 999px;
         pointer-events: none;
         z-index: 6;
@@ -14842,7 +14965,7 @@ button.oky-flow-wallet-filter-label {
         flex-direction: column;
         gap: 12px;
         padding: 4px 8px 24px;
-        background: #fff;
+        background: var(--white);
       }
 
       .mockup-left-tiles-block {
@@ -14934,12 +15057,12 @@ button.oky-flow-wallet-filter-label {
    prototipo. */
 .pdp-page-section {
   width: 100%;
-  background: #fff;
+  background: var(--white);
 }
 
 .pdp-page-top {
   width: 100%;
-  background: #fff;
+  background: var(--white);
 }
 
 .pdp-page-status-icons {
@@ -15020,7 +15143,7 @@ button.oky-flow-wallet-filter-label {
   justify-content: center;
   padding: 16px 0 10px;
   box-sizing: border-box;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 18%, #fff 100%);
+  background: linear-gradient(180deg, var(--white-a0) 0%, var(--white) 18%, var(--white) 100%);
   pointer-events: none;
 }
 
@@ -15156,7 +15279,7 @@ button.oky-flow-wallet-filter-label {
   width: auto;
   transform: none;
   padding: 12px var(--oky-gutter) 10px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--white) 18%, var(--white) 100%);
+  background: linear-gradient(180deg, var(--white-a0) 0%, var(--white) 18%, var(--white) 100%);
 }
 
 /* El divisor del resumen sobra: separa el total del botón con una línea
@@ -15181,7 +15304,7 @@ button.oky-flow-wallet-filter-label {
   top: 0;
   bottom: var(--oky-nav-h);
   z-index: 120;
-  background: rgba(16, 16, 16, 0.45);
+  background: var(--scrim-45);
   animation: oky-flow-fade 0.18s ease-out;
 }
 
@@ -15237,7 +15360,7 @@ button.oky-flow-wallet-filter-label {
   font-size: 14px;
   line-height: 1.4;
   text-align: center;
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--white-a88);
 }
 
 /* La ilustración: el aviso va colgado del globo, sobre un halo del
@@ -15261,7 +15384,7 @@ button.oky-flow-wallet-filter-label {
   width: min(100%, 190px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--white-a12);
 }
 
 .oky-flow-country-art img {
@@ -15288,7 +15411,7 @@ button.oky-flow-wallet-filter-label {
 }
 
 .oky-flow-country-primary:hover {
-  background: #f3eefa;
+  background: var(--primary-surface);
   color: var(--primary-main);
 }
 
@@ -15309,10 +15432,10 @@ button.oky-flow-wallet-filter-label {
 /* Todas las Home Cards del prototipo van sobre el mismo degradado
    plateado, no solo la de Deportes & Apparel. */
 .oky-flow-frame .homecard-organism {
-  background: radial-gradient(50% 50% at 50% 50%, var(--white) 0%, #f1f2f5 100%);
-  border: 1px solid rgba(0, 0, 0, 0.231373);
+  background: radial-gradient(50% 50% at 50% 50%, var(--white) 0%, var(--surface-card) 100%);
+  border: 1px solid var(--border-main);
   border-radius: 12px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 12px var(--black-a10);
   padding-bottom: 16px;
 }
 
@@ -15364,8 +15487,8 @@ button.oky-flow-wallet-filter-label {
 /* El logo se recorta al tile y toma el color de la marca, como en las
    parrillas del home. */
 .oky-flow-frame .oky-flow-apparel .homecard-photo-logo-wrap {
-  border-color: rgba(0, 0, 0, 0.12);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  border-color: var(--divider);
+  box-shadow: 0 2px 8px var(--black-a18);
 }
 
 .oky-flow-frame .oky-flow-apparel .homecard-photo-logo {
@@ -15391,7 +15514,7 @@ button.oky-flow-wallet-filter-label {
 .oky-flow-added-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(16, 16, 16, 0.45);
+  background: var(--scrim-45);
   animation: oky-flow-fade 180ms ease-out both;
 }
 
@@ -15399,7 +15522,7 @@ button.oky-flow-wallet-filter-label {
   position: relative;
   width: auto;
   max-width: calc(100% - 48px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 24px var(--black-a18);
   animation: oky-flow-added-in 220ms cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
@@ -15503,7 +15626,7 @@ img.oky-flow-method-mark {
   height: 100%;
   border: 0;
   border-radius: 3px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 3px 10px var(--black-a30);
   object-fit: cover;
 }
 
@@ -15551,7 +15674,7 @@ img.oky-flow-method-mark {
   width: var(--hole-w);
   height: var(--hole-h);
   border-radius: 14px;
-  box-shadow: 0 0 0 9999px rgba(16, 16, 16, 0.72);
+  box-shadow: 0 0 0 9999px var(--scrim-72);
   pointer-events: none;
 }
 
@@ -15631,13 +15754,13 @@ img.oky-flow-method-mark {
 .oky-flow-guide-bubble {
   align-self: center;
   animation-delay: 520ms;
-  background: #6a0bd0;
+  background: var(--primary-text-dark);
   color: var(--white);
-  box-shadow: 0 6px 20px rgba(58, 8, 112, 0.34);
+  box-shadow: 0 6px 20px var(--primary-dark-a34);
 }
 
 .oky-flow-guide-bubble::after {
-  background: #6a0bd0;
+  background: var(--primary-text-dark);
 }
 
 /* ── El "¿Estás listo?" que cierra el recorrido ───────────
@@ -15650,7 +15773,7 @@ img.oky-flow-method-mark {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(16, 16, 16, 0.45);
+  background: var(--scrim-45);
   /* Tapa lo de abajo mientras dura: con la capa transparente al
      toque, un dedo sobre la pregunta del final abría lo que hubiera
      detrás y sacaba de la presentación sin querer. */
@@ -15672,7 +15795,7 @@ img.oky-flow-method-mark {
   letter-spacing: -0.5px;
   text-align: center;
   color: var(--white);
-  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 10px 30px var(--black-a50);
   animation: oky-flow-ready-in 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -15703,7 +15826,7 @@ img.oky-flow-method-mark {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(16, 16, 16, 0.45);
+  background: var(--scrim-45);
   /* Tapa lo de abajo mientras dura: con la capa transparente al
      toque, un dedo sobre la cuenta atrás abría lo que hubiera
      detrás y sacaba de la presentación sin querer. */
@@ -15717,20 +15840,20 @@ img.oky-flow-method-mark {
   font-weight: 900;
   line-height: 1;
   letter-spacing: -4px;
-  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 10px 30px var(--black-a50);
   animation: oky-flow-tourcount-pop 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .oky-flow-tourcount-num.is-red {
-  color: #ff453a;
+  color: var(--illu-count-red);
 }
 
 .oky-flow-tourcount-num.is-amber {
-  color: #ffc400;
+  color: var(--illu-count-amber);
 }
 
 .oky-flow-tourcount-num.is-green {
-  color: #3ddc84;
+  color: var(--illu-count-green);
 }
 
 @keyframes oky-flow-tourcount-pop {
@@ -15814,7 +15937,7 @@ img.oky-flow-method-mark {
 .oky-flow-tourflag-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(16, 16, 16, 0.45);
+  background: var(--scrim-45);
   animation: oky-flow-tourflag-dim 1600ms ease-out both;
 }
 
@@ -15834,7 +15957,7 @@ img.oky-flow-method-mark {
   margin: 0;
   padding: 22px 24px;
   background: var(--primary-main);
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 12px 34px var(--black-a30);
   font-family: "Nunito Sans", sans-serif;
   font-size: 24px;
   font-weight: 900;
@@ -15855,8 +15978,8 @@ img.oky-flow-method-mark {
   height: 10px;
   background-color: var(--white);
   background-image:
-    linear-gradient(45deg, #17171b 25%, transparent 25%, transparent 75%, #17171b 75%),
-    linear-gradient(45deg, #17171b 25%, transparent 25%, transparent 75%, #17171b 75%);
+    linear-gradient(45deg, var(--illu-checker) 25%, transparent 25%, transparent 75%, var(--illu-checker) 75%),
+    linear-gradient(45deg, var(--illu-checker) 25%, transparent 25%, transparent 75%, var(--illu-checker) 75%);
   background-size: 10px 10px;
   background-position: 0 0, 5px 5px;
 }
@@ -15952,7 +16075,7 @@ img.oky-flow-method-mark {
   font-size: 34px;
   line-height: 1;
   color: var(--white);
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 2px 8px var(--black-a45));
 }
 
 .oky-flow-tour-label {
@@ -15966,7 +16089,7 @@ img.oky-flow-method-mark {
   line-height: 1.25;
   text-wrap: balance;
   color: var(--white);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 10px var(--black-a50);
 }
 
 /* Debajo del elemento la flecha va primero, apuntando hacia arriba;
@@ -15995,7 +16118,7 @@ img.oky-flow-method-mark {
   padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px));
   border-radius: 24px 24px 0 0;
   background: var(--white);
-  box-shadow: 0 -8px 32px rgba(16, 4, 36, 0.18);
+  box-shadow: 0 -8px 32px var(--shadow-purple-a18);
   animation: oky-flow-sheet-up 360ms cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
@@ -16056,7 +16179,7 @@ img.oky-flow-method-mark {
 }
 
 .oky-flow-market-item:active {
-  background: rgba(65, 0, 136, 0.06);
+  background: var(--primary-main-a06);
 }
 
 .oky-flow-market-flag {
@@ -16119,7 +16242,7 @@ img.oky-flow-method-mark {
   font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   line-height: 16px;
-  color: #594f66;
+  color: var(--text-muted);
   text-align: center;
 }
 
@@ -16181,7 +16304,7 @@ img.oky-flow-method-mark {
   font-size: 18px;
   font-weight: 800;
   line-height: 24px;
-  color: #301a47;
+  color: var(--ink-purple-dark);
 }
 
 .oky-flow-cash-empty-note {
@@ -16190,7 +16313,7 @@ img.oky-flow-method-mark {
   font-family: "Nunito Sans", sans-serif;
   font-size: 14px;
   line-height: 20px;
-  color: #575963;
+  color: var(--text-muted);
 }
 
 .oky-flow-cash-empty-cta {
@@ -16207,7 +16330,7 @@ img.oky-flow-method-mark {
 }
 
 .oky-flow-cash-empty.is-wallet .oky-flow-cash-empty-art {
-  background: #f2ecfa;
+  background: var(--primary-surface);
 }
 
 /* El vacío de OKY Cash va sin tarjeta y a la altura del de Métodos de
@@ -16229,9 +16352,9 @@ img.oky-flow-method-mark {
   margin-top: 15px;
   padding: 10px 12px;
   appearance: none;
-  border: 1px solid #ded1eb;
+  border: 1px solid var(--border-purple-soft);
   border-radius: 12px;
-  background: #f6f4fb;
+  background: var(--primary-surface);
   cursor: pointer;
   text-align: left;
 }
@@ -16273,7 +16396,7 @@ img.oky-flow-method-mark {
 .oky-flow-cash-empty-copy span {
   font-size: 12px;
   line-height: 16px;
-  color: #594f66;
+  color: var(--text-muted);
 }
 
 .oky-flow-cash-empty-link > i {
@@ -16334,8 +16457,8 @@ img.oky-flow-method-mark {
   /* La ranura es oscura —un hueco en el verde del fondo, como la boca
      de una alcancía—, no la pastilla aqua: el aqua es de la pastilla
      de verdad, la de la cabecera, que aparece cuando el overlay se va. */
-  background: #003633;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+  background: var(--oky-cash-darker);
+  box-shadow: inset 0 2px 6px var(--black-a35);
   /* Entra al principio y, cuando ya cayeron las monedas, se llena: del
      hueco oscuro al aqua de la pastilla (6.3 s → 6.9 s). Al irse el
      overlay a los 7 s, debajo está la de la cabecera en el mismo aqua y
@@ -16347,8 +16470,8 @@ img.oky-flow-method-mark {
 
 @keyframes oky-flow-cash-slot-fill {
   from {
-    background-color: #003633;
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+    background-color: var(--oky-cash-darker);
+    box-shadow: inset 0 2px 6px var(--black-a35);
   }
   to {
     background-color: var(--tier-base-bg);
@@ -16423,7 +16546,7 @@ img.oky-flow-method-mark {
 
 .oky-flow-search-clear {
   right: 10px;
-  color: #bdbdbd;
+  color: var(--grey-400);
   font-size: 20px;
 }
 
@@ -16481,7 +16604,7 @@ img.oky-flow-method-mark {
   padding: 8px 4px 8px 12px;
   border: 0;
   background: none;
-  color: #757575;
+  color: var(--grey-600);
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
@@ -16499,7 +16622,7 @@ img.oky-flow-method-mark {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #f2ecfa;
+  background: var(--primary-surface);
   color: var(--primary-main);
   font-size: 14px;
 }
@@ -16525,7 +16648,7 @@ img.oky-flow-method-mark {
   padding: 12px 0 24px;
   border-radius: 24px 24px 0 0;
   background: var(--white, var(--white));
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 24px var(--black-a18);
   animation: oky-flow-cardmenu-in 260ms cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
@@ -16580,7 +16703,7 @@ img.oky-flow-method-mark {
   font-weight: 700;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: var(--text-secondary, #757575);
+  color: var(--text-secondary);
 }
 
 /* "Es tu tarjeta para pago": informa, no se toca. */
@@ -16652,7 +16775,7 @@ img.oky-flow-method-mark {
 .oky-shot-flash {
   position: absolute;
   inset: 0;
-  background: #ffffff;
+  background: var(--white);
   opacity: 0;
   pointer-events: none;
 }
@@ -16674,9 +16797,9 @@ img.oky-flow-method-mark {
   inset: 0;
   padding: 0;
   margin: 0;
-  border: 14px solid #ffffff;
+  border: 14px solid var(--white);
   border-radius: 64px;
-  background: #ffffff;
+  background: var(--white);
   overflow: hidden;
   cursor: pointer;
   transform: scale(0.3);
@@ -16736,8 +16859,8 @@ img.oky-flow-method-mark {
   padding: 8px 6px;
   border: 0;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: var(--white-a10);
+  color: var(--white);
   font-family: "Nunito Sans", sans-serif;
   font-size: 12px;
   font-weight: 700;
@@ -16777,8 +16900,8 @@ img.oky-flow-method-mark {
   gap: 12px;
   padding: 16px 16px 24px;
   border-radius: 24px 24px 0 0;
-  background: #ffffff;
-  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.18);
+  background: var(--white);
+  box-shadow: 0 -8px 30px var(--black-a18);
   font-family: "Nunito Sans", sans-serif;
   transform: translateY(100%);
   transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -16802,7 +16925,7 @@ img.oky-flow-method-mark {
   overflow: hidden;
   border: 1px solid #e6e4ec;
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--white);
 }
 
 .oky-shot-sheet-thumb .oky-shot-copy {
@@ -16916,7 +17039,7 @@ img.oky-flow-method-mark {
   width: 52px;
   height: 52px;
   border-radius: 16px;
-  color: #ffffff;
+  color: var(--white);
   font-size: 24px;
 }
 
@@ -16942,7 +17065,7 @@ img.oky-flow-method-mark {
   height: 44px;
   border: 1px solid var(--primary-main);
   border-radius: 24px;
-  background: #ffffff;
+  background: var(--white);
   color: var(--primary-main);
   font-family: "Nunito Sans", sans-serif;
   font-size: 15px;
@@ -16997,7 +17120,7 @@ img.oky-flow-method-mark {
   grid-template-columns: 48px 1fr 48px;
   align-items: center;
   padding: 8px 8px 10px;
-  border-bottom: 1px solid #ececf1;
+  border-bottom: 1px solid var(--surface-pressed);
 }
 
 .oky-webview-icon {
@@ -17008,7 +17131,7 @@ img.oky-flow-method-mark {
   justify-content: center;
   border: 0;
   background: none;
-  color: #552588;
+  color: var(--primary-base);
   font-size: 20px;
   cursor: pointer;
 }
@@ -17025,7 +17148,7 @@ img.oky-flow-method-mark {
   font-family: "Nunito Sans", sans-serif;
   font-size: 17px;
   font-weight: 700;
-  color: #552588;
+  color: var(--primary-base);
 }
 
 .oky-webview-title span {
@@ -17047,7 +17170,7 @@ img.oky-flow-method-mark {
   left: 0;
   bottom: -1px;
   height: 3px;
-  background: #552588;
+  background: var(--primary-base);
   animation: oky-webview-progress 900ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
 }
 
@@ -17075,7 +17198,7 @@ img.oky-flow-method-mark {
 .oky-webview-skeleton span {
   display: block;
   border-radius: 10px;
-  background: linear-gradient(90deg, #ececf1 0%, #f6f6f9 50%, #ececf1 100%) 0 0 / 200% 100%;
+  background: linear-gradient(90deg, var(--surface-pressed) 0%, #f6f6f9 50%, var(--surface-pressed) 100%) 0 0 / 200% 100%;
   animation: oky-webview-shimmer 1.2s linear infinite;
 }
 
@@ -17133,7 +17256,7 @@ img.oky-flow-method-mark {
   font-family: "Nunito Sans", sans-serif;
   font-size: 30px;
   font-weight: 800;
-  color: #552588;
+  color: var(--primary-base);
 }
 
 .oky-webview-landing p {
@@ -17158,7 +17281,7 @@ img.oky-flow-method-mark {
   gap: 16px;
   font-size: 16px;
   font-weight: 700;
-  color: #552588;
+  color: var(--primary-base);
 }
 
 .oky-webview-steps li span {
@@ -17170,7 +17293,7 @@ img.oky-flow-method-mark {
   justify-content: center;
   border-radius: 50%;
   background: var(--tier-base-bg);
-  color: #003633;
+  color: var(--oky-cash-darker);
 }
 
 .oky-webview-error {
@@ -17201,7 +17324,7 @@ img.oky-flow-method-mark {
   font-family: "Nunito Sans", sans-serif;
   font-size: 22px;
   font-weight: 800;
-  color: #552588;
+  color: var(--primary-base);
 }
 
 .oky-webview-error p {
@@ -17288,7 +17411,7 @@ img.oky-flow-method-mark {
   width: 44px;
   height: 46px;
   object-fit: contain;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 4px 10px var(--black-a30));
 }
 
 
@@ -17320,7 +17443,7 @@ img.oky-flow-method-mark {
 .oky-flow-wallet-seg.is-decision {
   width: 100%;
   margin: 20px 0 0;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--white-a92);
 }
 
 /* Ninguna está elegida: las dos en morado, iguales, y una línea entre
@@ -17330,7 +17453,7 @@ img.oky-flow-method-mark {
 }
 
 .oky-flow-wallet-seg.is-decision .oky-flow-wallet-seg-item + .oky-flow-wallet-seg-item {
-  border-left: 1px solid rgba(85, 37, 136, 0.18);
+  border-left: 1px solid var(--primary-base-a18);
   border-radius: 0;
 }
 
@@ -17424,7 +17547,7 @@ img.oky-flow-method-mark {
   position: sticky;
   top: 8px;
   z-index: 6;
-  background: #f0f0f0;
+  background: var(--surface-track);
   box-shadow: 0 0 0 10px var(--white);
 }
 

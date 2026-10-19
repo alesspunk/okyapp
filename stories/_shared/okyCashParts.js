@@ -21,7 +21,7 @@ export const EMOJI_OTHERS = `<img class="oky-flow-emoji-img" src="oky-emoji-para
 /* Marco de 360 × 800 para lo que se pinta encima de una pantalla
    (hojas, sellos, transiciones): las piezas van en absoluto dentro
    del frame, igual que en el prototipo. */
-export function phoneFrame(inner, { background = "#ffffff" } = {}) {
+export function phoneFrame(inner, { background = "var(--white)" } = {}) {
   return `<div class="oky-flow-frame" style="background:${background}">${inner}</div>`;
 }
 
@@ -50,6 +50,31 @@ export function renderVoucherBadge({ type = "vale", count = 2, country = "US" } 
     </span>`;
 }
 
+/* Toast de estado de la poscompra (MARS · Poscompra / Toast de estado):
+   ocupa el centro de la cabecera cuando la compra no dio OKY Cash. */
+export function renderStatusToast({ estado = "Exito" } = {}) {
+  const ok = estado !== "Error";
+  return `
+    <div class="oky-flow-toast ${ok ? "is-success" : "is-error"} is-header" role="status" style="flex:none">
+      <i class="fa-solid ${ok ? "fa-circle-check" : "fa-circle-exclamation"}" aria-hidden="true"></i>
+      <span>${ok ? "Compra exitosa" : "No se pudo completar"}</span>
+    </div>`;
+}
+
+/* Cabecera de sección de Mis compras (MARS · Wallet / Sección plegada):
+   pliega, dice cuántas guarda y avisa las nuevas con un número. */
+export function renderSectionHead({ label = "Usados", icon = "fa-box-archive", count = 1, news = 0, open = false } = {}) {
+  return `
+    <button class="oky-flow-section-head is-tappable" data-action="toggle-section" type="button" aria-expanded="${open}" style="width:328px">
+      ${news ? `<span class="oky-flow-section-news" aria-label="${news} sin abrir">${news}</span>` : ""}
+      <span class="oky-flow-section-head-label"><i class="fa-solid ${icon}" aria-hidden="true"></i>${label}</span>
+      <span class="oky-flow-section-head-meta">
+        <span class="oky-flow-section-count">(${count})</span>
+        <i class="fa-solid fa-chevron-down oky-flow-section-caret" aria-hidden="true"></i>
+      </span>
+    </button>`;
+}
+
 export function renderNewDot() {
   return `<span class="oky-flow-voucher-dot" aria-label="Nuevo" style="position:static;display:inline-block"></span>`;
 }
@@ -70,7 +95,20 @@ export function renderBalanceStrip({ balance = 5 } = {}) {
 
 /* La pastilla de saldo: flotante (dock) en homes y wallet, y en la
    cabecera de la poscompra con lo disponible. */
-export function renderCashPill({ size = "Dock", text = "$5.00 en OKY Cash", balance = 5.25 } = {}) {
+export function renderCashPill({ size = "Dock", tipo = "OKY Cash", text = "$5.00 en OKY Cash", balance = 5.25 } = {}) {
+  /* Recibo (MARS · Tipo=Recibo): la misma pastilla en blanco con borde,
+     para abrir el recibo de la compra. Icono: solo el botón redondo
+     del recibo, que cuelga a la derecha de la pastilla de saldo. */
+  if (size === "Icono") {
+    return `<button class="oky-flow-purchase-receipt" type="button" aria-label="Ver recibo" style="position:static"><i class="fa-regular fa-receipt" aria-hidden="true"></i></button>`;
+  }
+  if (tipo === "Recibo") {
+    return `
+      <button class="oky-flow-purchase-badge is-receipt" type="button" aria-label="Ver recibo">
+        <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
+        <span>${text}</span>
+      </button>`;
+  }
   if (size === "Header") {
     return `
       <button class="oky-flow-purchase-badge is-cash" type="button" aria-label="${money(balance)} disponible en OKY Cash">
@@ -117,7 +155,7 @@ export function renderSegTabs({ kind = "Mis compras", active = 0, decision = fal
 export function renderTourCallout({ label = "Aquí ves tus compras", position = "Debajo" } = {}) {
   const up = position !== "Encima";
   return `
-    <div style="position:relative;width:328px;padding:24px;border-radius:16px;background:rgba(16,16,16,0.72)">
+    <div style="position:relative;width:328px;padding:24px;border-radius:16px;background:var(--scrim-72)">
       ${/* Como en el prototipo: flecha y frase en ese orden; .is-below
            deja la flecha arriba y sin ella mars.css la baja. */ ""}
       <div class="oky-flow-tour-call${up ? " is-below" : ""}" style="position:static;transform:none">
@@ -283,7 +321,7 @@ export const CARD_DESIGNS = [
        borde en la franja libre entre el saldo y el vencimiento. */
     art: "oky-card-art-lo-que-va-vuelve.png",
     artClass: "is-nicky",
-    style: { backgroundMode: "solid", backgroundColor: "#000000", showBorder: false, pattern: null },
+    style: { backgroundMode: "solid", backgroundColor: "var(--black)", showBorder: false, pattern: null },
   },
   {
     key: "bubbles",
@@ -292,7 +330,7 @@ export const CARD_DESIGNS = [
     /* El morado baja a lila, como en la captura 24 de Nicky. */
     art: "oky-card-art-burbujas.png",
     artClass: "is-nicky",
-    style: { backgroundMode: "gradient", gradientFrom: "#7334ae", gradientTo: "#c4a1e5", gradientAngle: 180, showBorder: false, pattern: null },
+    style: { backgroundMode: "gradient", gradientFrom: "var(--card-burbujas-from)", gradientTo: "var(--card-burbujas-to)", gradientAngle: 180, showBorder: false, pattern: null },
   },
   {
     key: "teal",
@@ -300,7 +338,7 @@ export const CARD_DESIGNS = [
     note: "El verde agua del cashback, para que se note lo que ganas.",
     art: "oky-card-art-turquesa.png",
     artClass: "is-nicky",
-    style: { backgroundMode: "gradient", gradientFrom: "#0ab5b1", gradientTo: "#109794", gradientAngle: 92, showBorder: false, pattern: null },
+    style: { backgroundMode: "gradient", gradientFrom: "var(--card-turquesa-from)", gradientTo: "var(--card-turquesa-to)", gradientAngle: 92, showBorder: false, pattern: null },
   },
   {
     key: "purple",
@@ -308,7 +346,7 @@ export const CARD_DESIGNS = [
     note: "El lazo de monedas que no se acaba: lo que ganas vuelve a ti.",
     art: "oky-card-art-morado-oky.png",
     artClass: "is-nicky",
-    style: { backgroundMode: "solid", backgroundColor: "#5a289b", showBorder: false, pattern: null },
+    style: { backgroundMode: "solid", backgroundColor: "var(--card-morado-oky)", showBorder: false, pattern: null },
   },
   {
     key: "coins",
@@ -317,7 +355,7 @@ export const CARD_DESIGNS = [
     /* La cinta va de lado a lado, a media altura. */
     art: "oky-card-art-ola-de-monedas.png",
     artClass: "is-nicky",
-    style: { backgroundMode: "solid", backgroundColor: "#000000", showBorder: false, pattern: null },
+    style: { backgroundMode: "solid", backgroundColor: "var(--black)", showBorder: false, pattern: null },
   },
 ];
 

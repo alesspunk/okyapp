@@ -21,5 +21,5 @@ export default {
 };
 
 export const Default = {
-  render: () => `<div style="padding:24px;background:#f5f5f5">${renderScrollHint()}</div>`,
+  render: () => `<div style="padding:24px;background:var(--background)">${renderScrollHint()}</div>`,
 };
