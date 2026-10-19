@@ -104,13 +104,16 @@ export const PAYMENT_CARD_VARIANTS = [
     id: "99140:14006",
     brand: { type: "text", text: "OKY Cash" },
     balance: { currency: "$", value: "36.00", label: "disponible", embossed: true },
-    pattern: "arcs",
-    art: "payment-card-swirl.png",
+    /* Arte final de Nicky (7600 › Design assets 23): la ola a sangre con
+       las cuatro esquinas limpias. */
+    pattern: null,
+    art: "oky-card-art-lo-que-va-vuelve.png",
+    artClass: "is-nicky",
     showFooter: true,
     cta: { label: "Ver actividad", icon: "fa-arrow-right" },
     editIcon: "payment-card-edit.svg",
     recommendation:
-      "OKY Cash negra: ilustración protagonista encima del contenido (al 64 % en el prototipo), CTA `Ver actividad` y botón de editar abajo a la izquierda; en las pantallas de OKY Cash el lápiz va abajo a la derecha y el vencimiento ocupa la izquierda (solo con saldo).",
+      "OKY Cash negra · «Lo que va, vuelve»: el arte final de Nicky va a sangre, debajo del contenido, y deja libres las cuatro esquinas (nombre, saldo, vencimiento y lápiz). En Tu billetera el lápiz va abajo a la derecha y el vencimiento a la izquierda (solo con saldo).",
   },
   {
     path: "Molecule/Payment Card/OKY Cash Teal",
@@ -118,11 +121,13 @@ export const PAYMENT_CARD_VARIANTS = [
     id: "99140:13835",
     brand: { type: "text", text: "OKY Cash" },
     balance: { currency: "$", value: "36.00", label: "disponible", embossed: true },
-    pattern: "bubbles",
+    pattern: null,
+    art: "oky-card-art-turquesa.png",
+    artClass: "is-nicky",
     showFooter: true,
     cta: { label: "Ver actividad", icon: "fa-arrow-right" },
     recommendation:
-      "OKY Cash turquesa: degradado horizontal y textura full-bleed en `screen` al 27% en vez de los arcos.",
+      "OKY Cash turquesa: degradado horizontal y el patrón de monedas final de Nicky (7600 › Design assets 25), con las cuatro esquinas limpias.",
   },
 ];
 

@@ -123,81 +123,53 @@ const BRANDS = {
    Payment Card ya acepta fondo sólido o degradado por `buildStyle`, así
    que cada diseño es solo eso más su arte. */
 const CARD_DESIGNS = [
+  /* Diseños finales de Nicky (7600 › Design assets › 23–27, 19/10). Cada
+     arte es un PNG del tamaño de la tarjeta con el dibujo en su sitio y
+     las cuatro esquinas limpias: nombre, saldo, vencimiento y lápiz se
+     leen sobre el color de fondo. Sin el patrón de arcos ni borde. */
   {
     key: "black",
     label: "Lo que va, vuelve",
     note: "Cada regalo que envíes a tu familia volverá a ti como un ripple effect.",
-    /* La card negra del frame va entera: el remolino sangra hasta los
-       bordes y no cabe como arte suelto encima del fondo. */
-    art: null,
-    style: {
-      backgroundMode: "solid",
-      /* El color va debajo del arte: si por el recorte o el redondeo
-         asoma un píxel, es del color de la tarjeta y no del fondo. */
-      /* Al 64 % el remolino deja libres las cuatro esquinas: nombre,
-         saldo, vencimiento y lápiz se leen sobre negro. */
-      backgroundColor: "url(oky-card-design-black.png) center/64% no-repeat #000000",
-      showBorder: false,
-      pattern: null,
-    },
+    /* La ola de Nicky, estirada solo a lo ancho para ir casi de borde a
+       borde en la franja libre entre el saldo y el vencimiento. */
+    art: "oky-card-art-lo-que-va-vuelve.png",
+    artClass: "is-nicky",
+    style: { backgroundMode: "solid", backgroundColor: "#000000", showBorder: false, pattern: null },
   },
   {
     key: "bubbles",
     label: "Burbujas",
     note: "Las monedas suben solas, como lo que ganas sin darte cuenta.",
-    /* Diseño completo del frame: va de fondo a sangre. Sin arte encima
-       y sin el patrón de arcos ni el borde de la molécula, que sobre
-       una ilustración a sangre se leían como un marco pálido. */
-    art: null,
-    style: {
-      backgroundMode: "solid",
-      backgroundColor: "url(oky-card-design-bubbles.png) center/cover no-repeat #7034ab",
-      showBorder: false,
-      pattern: null,
-    },
+    /* El morado baja a lila, como en la captura 24 de Nicky. */
+    art: "oky-card-art-burbujas.png",
+    artClass: "is-nicky",
+    style: { backgroundMode: "gradient", gradientFrom: "#7334ae", gradientTo: "#c4a1e5", gradientAngle: 180, showBorder: false, pattern: null },
   },
   {
     key: "teal",
     label: "Turquesa",
     note: "El verde agua del cashback, para que se note lo que ganas.",
-    /* El patrón va lavado sobre el turquesa —sin color propio y a media
-       opacidad— para que se lea como textura del fondo y no como una
-       foto pegada encima, que es como está en el frame. */
-    art: "oky-card-coins-pattern.png",
-    artClass: "is-washed",
-    style: {
-      backgroundMode: "gradient",
-      gradientFrom: "#0ab5b1",
-      gradientTo: "#109794",
-      gradientAngle: 92,
-      borderColor: "#0ab5b1",
-    },
+    art: "oky-card-art-turquesa.png",
+    artClass: "is-nicky",
+    style: { backgroundMode: "gradient", gradientFrom: "#0ab5b1", gradientTo: "#109794", gradientAngle: 92, showBorder: false, pattern: null },
   },
   {
     key: "purple",
     label: "Morado OKY",
     note: "El lazo de monedas que no se acaba: lo que ganas vuelve a ti.",
-    /* 95277:35388. El lazo va en su sitio del frame (0/36 de 243x162
-       sobre 328x214), pegado al borde izquierdo y por debajo del
-       saldo. */
-    art: "oky-card-coins-loop.png",
-    artClass: "is-loop",
-    style: { backgroundMode: "solid", backgroundColor: "#5a289b", borderColor: "#5a289b" },
+    art: "oky-card-art-morado-oky.png",
+    artClass: "is-nicky",
+    style: { backgroundMode: "solid", backgroundColor: "#5a289b", showBorder: false, pattern: null },
   },
   {
     key: "coins",
     label: "Ola de monedas",
     note: "Una ola de monedas cruzando el negro: lo que se va juntando.",
-    /* La cinta va en su sitio del frame (95300:3952): a media altura,
-       de lado a lado, sin tocar el saldo ni el CTA. */
-    art: "oky-card-coins-band.png",
-    artClass: "is-band",
-    style: {
-      backgroundMode: "solid",
-      backgroundColor: "#000000",
-      showBorder: false,
-      pattern: null,
-    },
+    /* La cinta va de lado a lado, a media altura. */
+    art: "oky-card-art-ola-de-monedas.png",
+    artClass: "is-nicky",
+    style: { backgroundMode: "solid", backgroundColor: "#000000", showBorder: false, pattern: null },
   },
 ];
 
