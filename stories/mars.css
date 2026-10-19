@@ -7,10 +7,10 @@
   --accent-color: #ffb400;
 
   /* OKY Cash (sprint 20/10): línea resaltada del resumen y fila de
-     OKY Cash marcada en «Método de pago». */
+     OKY Cash marcada en «Método de pago» (las dos con Highlight
+     Surface desde el 19/10). */
   --highlight-surface: #e8fbf8;
   --highlight-text: #007c72;
-  --payrow-checked: #effdfc;
   --oky-cash-dark: #00524d;
 
   /* Tiers de cashback: un solo par por tier, para que ribbon, saving
@@ -17460,7 +17460,7 @@ img.oky-flow-method-mark {
 }
 
 .oky-flow-payrow.is-cash.is-checked {
-  background: var(--payrow-checked);
+  background: var(--highlight-surface);
 }
 
 .oky-flow-payrow .oky-flow-check.is-checked {

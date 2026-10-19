@@ -1,19 +1,46 @@
 /* ─────────────────────────────────────────────────────────
    Molecules / Payment Card
-   7 variantes: Default · Yayo · Saldo OKY · Visa ·
-   Mastercard · OKY Cash Black · OKY Cash Teal
+   6 variantes: Visa · Mastercard · Yayo · Saldo OKY ·
+   OKY Cash Black · OKY Cash Teal. La «Default» blanca ya no se
+   muestra (19/10); los datos compartidos no cambian porque el
+   prototipo los sigue leyendo.
 ───────────────────────────────────────────────────────── */
 
 import {
   findPaymentCard,
   PATTERN_OPTIONS,
-  PAYMENT_CARD_PATHS,
   PAYMENT_CARD_VARIANTS,
   renderPaymentCard,
   renderPaymentCardStack,
 } from "./_shared/paymentCards";
 
 import { CARD_DESIGNS, okyCashCardData } from "./_shared/okyCashParts";
+
+/* Lo que enseña la story: sin la «Default», con Visa primero, y las de
+   OKY Cash en su última versión —sin «Ver actividad», el lápiz abajo a
+   la derecha y el vencimiento a la izquierda—, igual que en Tu
+   billetera (okyCashCardData). Solo cambia aquí: paymentCards.js lo
+   comparte el prototipo y se deja como está. */
+const ORDER = ["visa", "mastercard", "yayo", "saldo-oky", "oky-cash-black", "oky-cash-teal"];
+const STORY_VARIANTS = ORDER.map((key) => PAYMENT_CARD_VARIANTS.find((v) => v.key === key))
+  .filter(Boolean)
+  .map((v) =>
+    v.key.startsWith("oky-cash")
+      ? {
+          ...v,
+          cta: null,
+          editIcon: v.editIcon || "payment-card-edit.svg",
+          editSide: "right",
+          editAction: "",
+          expiry: { label: "Vencimiento", value: "24 / FEB / 2027" },
+          recommendation:
+            "OKY Cash (Tu billetera): saldo disponible arriba a la derecha, vencimiento abajo a la izquierda (solo con saldo) y el lápiz abajo a la derecha, que abre el selector de diseño. Sin «Ver actividad»: tocar la tarjeta baja al último movimiento.",
+        }
+      : v,
+  );
+const STORY_PATHS = STORY_VARIANTS.map((v) => v.path);
+const storyCard = (path) => STORY_VARIANTS.find((v) => v.path === path) || STORY_VARIANTS[0];
+
 export default {
   title: "Molecules/Payment Card",
   tags: ["autodocs"],
@@ -22,7 +49,7 @@ export default {
       description: {
         component:
           "**Payment Card** es la tarjeta de pago skeumórfica de `328x214` con radio `24px`. " +
-          "Las 7 variantes comparten la **misma anatomía de 3 filas** y solo cambian de piel: " +
+          "Las 6 variantes comparten la **misma anatomía de 3 filas** y solo cambian de piel: " +
           "*header* (columna de logo `85px` · spacer · columna derecha con saldo disponible o últimos dígitos), " +
           "*región central* (slot reservado) y *footer* (vencimiento · área de acción). " +
           "Toda la piel se aplica con **custom properties** (`--payment-card-bg`, `--payment-card-ink`, " +
@@ -40,7 +67,7 @@ export default {
   argTypes: {
     variantPath: {
       control: "select",
-      options: PAYMENT_CARD_PATHS,
+      options: STORY_PATHS,
       description: "Variante base del componente.",
     },
     backgroundMode: {
@@ -110,7 +137,7 @@ export default {
 };
 
 function resolveArgs(args = {}) {
-  const base = findPaymentCard(args.variantPath);
+  const base = storyCard(args.variantPath);
 
   return {
     ...base,
@@ -134,7 +161,7 @@ function resolveArgs(args = {}) {
 export const DocsPlayground = {
   name: "Docs Playground",
   args: {
-    variantPath: "Molecule/Payment Card/Default",
+    variantPath: "Molecule/Payment Card/Visa",
     backgroundMode: "variant",
     backgroundColor: "#552588",
     gradientFrom: "#ac6fee",
@@ -147,7 +174,7 @@ export const DocsPlayground = {
   },
   render: (args) => {
     const card = resolveArgs(args);
-    const base = findPaymentCard(args.variantPath);
+    const base = storyCard(args.variantPath);
 
     return `
       <div class="mars-story">
@@ -170,14 +197,14 @@ export const Variants = {
     controls: { disable: true },
     docs: {
       description: {
-        story: "Las 7 variantes con su piel de Figma. Misma anatomía, distinta piel.",
+        story: "Las 6 variantes con su piel de Figma. Misma anatomía, distinta piel.",
       },
     },
   },
   render: () => `
     <div class="mars-story">
       <div style="display:flex;flex-wrap:wrap;gap:24px">
-        ${PAYMENT_CARD_VARIANTS.map(
+        ${STORY_VARIANTS.map(
           (card) => `
           <div style="flex:0 0 auto">
             <div class="mars-label" style="margin-bottom:8px">${card.path} · ${card.id}</div>
@@ -215,7 +242,7 @@ export const Stack = {
             [
               findPaymentCard("Molecule/Payment Card/Visa"),
               findPaymentCard("Molecule/Payment Card/Mastercard"),
-              findPaymentCard("Molecule/Payment Card/OKY Cash Teal"),
+              storyCard("Molecule/Payment Card/OKY Cash Teal"),
             ],
             { offset: -90 },
           )}
@@ -232,14 +259,14 @@ export const Customization = {
     docs: {
       description: {
         story:
-          "Las tres palancas que pide el sistema, sobre la misma variante Default: " +
+          "Las tres palancas que pide el sistema, sobre la misma variante Visa: " +
           "**fondo** (sólido o degradado de dos colores), **patrón** (asset, opacidad y blend) y " +
           "**borde** (`--border-main`).",
       },
     },
   },
   render: () => {
-    const base = findPaymentCard("Molecule/Payment Card/Default");
+    const base = storyCard("Molecule/Payment Card/Visa");
     const samples = [
       { label: "Sólido + borde gris", card: { ...base, backgroundMode: "solid", backgroundColor: "#552588", ink: "#ffffff", showBorder: true, borderColor: "rgba(0,0,0,0.23)" } },
       { label: "Degradado izq→der", card: { ...base, backgroundMode: "gradient", gradientFrom: "#0ab5b1", gradientTo: "#109794", gradientAngle: 90, ink: "#ffffff", showBorder: false } },
