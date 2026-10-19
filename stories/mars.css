@@ -13622,6 +13622,13 @@ button.tactic-offer {
   object-fit: contain;
 }
 
+/* La tarjeta con el basurero va en una caja de 183px, como CASH-28. */
+.oky-flow-sheet.is-deletecard .oky-flow-sheet-art img {
+  width: 183px;
+  height: 183px;
+  max-width: none;
+}
+
 /* Dos anillos como en el frame: el de dentro asienta la ilustración y
    el de fuera la separa del morado plano de la hoja. */
 .oky-flow-sheet-art::before {

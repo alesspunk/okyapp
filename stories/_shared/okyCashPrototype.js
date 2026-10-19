@@ -5616,7 +5616,9 @@ function screenCardDesign(state) {
      botones deja las dos decisiones al alcance del pulgar. */
 const CONFIRM_SHEETS = {
   deletecard: {
-    art: "icon-eliminar-3d.png",
+    /* La tarjeta con el basurero (7600 · Design assets 102700:1195), como
+       CASH-28; el basurero solo se queda en la fila «Eliminar» del menú. */
+    art: "icon-eliminar-tarjeta-3d.png",
     title: "¿Eliminar esta tarjeta?",
     note: "Dejará de aparecer en tus métodos de pago. Si era tu tarjeta para pago, la otra pasa a serlo.",
     confirm: "Eliminar",
