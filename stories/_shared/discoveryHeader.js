@@ -265,7 +265,9 @@ function renderFolderOption({
   `;
 }
 
-function renderFolder(property1, { showNewItemChip = true, showChevrons = true, newItemSide = "right", markets } = {}) {
+/* Folder (MARS 7296:48470). La story Molecules/Folder y el prototipo
+   usan esta misma pieza: banderas del átomo Flag (flagpack). */
+export function renderFolder(property1, { showNewItemChip = true, showChevrons = true, newItemSide = "right", markets } = {}) {
   /* Cada lado enseña el país elegido en él; sin elección, el de
      siempre. La izquierda sigue siendo el marketplace de USA y la
      derecha el de Guatemala: lo que cambia es la bandera. */

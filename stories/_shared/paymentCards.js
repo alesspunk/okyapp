@@ -123,7 +123,7 @@ export const PAYMENT_CARD_VARIANTS = [
     balance: { currency: "$", value: "36.00", label: "disponible", embossed: true },
     pattern: null,
     art: "oky-card-art-turquesa.png",
-    artClass: "is-nicky",
+    artClass: "is-nicky is-soft",
     showFooter: true,
     cta: { label: "Ver actividad", icon: "fa-arrow-right" },
     recommendation:

@@ -337,7 +337,8 @@ export const CARD_DESIGNS = [
     label: "Turquesa",
     note: "El verde agua del cashback, para que se note lo que ganas.",
     art: "oky-card-art-turquesa.png",
-    artClass: "is-nicky",
+    /* En MARS el arte de Turquesa va al 27 % sobre el degradado. */
+    artClass: "is-nicky is-soft",
     style: { backgroundMode: "gradient", gradientFrom: "var(--card-turquesa-from)", gradientTo: "var(--card-turquesa-to)", gradientAngle: 92, showBorder: false, pattern: null },
   },
   {

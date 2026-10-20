@@ -34,9 +34,9 @@
   --secondary-dark: #057a73;
   --secondary-light: #a8faf5;
   --disable-main: #e0e0e0;
-  --card-top: linear-gradient(149.41deg, #fcfcfc 18.83%, #f1f2f5 41%);
-  --card-middle: radial-gradient(50% 50% at 50% 50%, #fff 0%, #f1f2f5 100%);
-  --card-bottom: linear-gradient(180deg, #f1f2f5 0%, #eceff8 88.01%);
+  --card-top: linear-gradient(149.41deg, var(--surface-card-light) 18.83%, var(--surface-card) 41%);
+  --card-middle: radial-gradient(50% 50% at 50% 50%, var(--white) 0%, var(--surface-card) 100%);
+  --card-bottom: linear-gradient(180deg, var(--surface-card) 0%, var(--surface-card-end) 88.01%);
   --card-shadow: drop-shadow(0px 0px 12px rgba(0, 0, 0, 0.1));
   --pdp-card-shadow: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.14))
     drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.12));
@@ -102,6 +102,7 @@
   --surface-pressed: #ececf1;
   --surface-card: #f1f2f5;
   --surface-card-light: #fcfcfc;
+  --surface-card-end: #eceff8; /* final de Card Bottom */
   --success-600: #43a047;
   --campaign-orange: #e2711d;
   --discovery-orange: #ff9019;
@@ -181,6 +182,15 @@
   --primary-selected: rgba(134, 32, 243, 0.08);
   --device-ios-fill: rgba(120, 120, 128, 0.16);
   --device-ios-green: #34c759;
+  --doc-connector: #ff0000;
+  --doc-flow-bg: #f9f7fd;
+  --doc-flow-border: rgba(112, 74, 163, 0.36);
+  --doc-flow-title: #4f2185;
+  --doc-surface: #e5e3ed;
+  --doc-success: #339e6b;
+  --doc-success-bg: #c7f0cc;
+  --doc-accent-dark: #0b6e66;
+  --doc-orange: #b4520a;
 }
 
 * {
@@ -3300,10 +3310,12 @@ body {
   margin-right: 4px;
 }
 
-/* Summary Box — saving pricing: label + regular price → Secondary Dark */
+/* Summary Box — saving pricing (OKYC-EXP-083, 19/10): solo el precio de
+   lista va tachado en aqua oscuro (.summary-value-old); lo que se paga y
+   las etiquetas quedan en Primary Main. */
 .summary-box-saving .summary-label,
 .summary-box-saving .summary-label-strong {
-  color: var(--secondary-dark);
+  color: var(--primary-main);
 }
 
 /* PAGAS / TOTAL row always stays Primary Main, even in saving mode */
@@ -3627,6 +3639,14 @@ body {
   z-index: 0;
 }
 
+/* En el wrap el cuerpo empieza 6px abajo (la muesca va arriba) y las
+   mayúsculas de Nunito Sans quedan altas en su línea: el texto baja 3px
+   para quedar centrado en el cuerpo visible (19/10). Middle Card, Tactic
+   Strips y Home Card usan este mismo wrap. */
+.discount-ribbon-wrap .discount-ribbon-text {
+  top: 3px;
+}
+
 /* List variant — inline static badge */
 .discount-ribbon-list {
   width: 88px;
@@ -3921,12 +3941,14 @@ body {
 
 /* ── HomeCard (Organism) ─────────────────────────────── */
 .homecard-organism {
+  position: relative;
   width: 330px;
   min-height: 526px;
   margin-bottom: 20px;
   border-radius: 16px;
   border: 1px solid var(--border-main);
-  background: var(--white);
+  /* Card Middle de Figma: radial de blanco a gris (19/10). */
+  background: var(--card-middle);
   box-shadow: 0 4px 10.5px var(--divider);
   display: flex;
   flex-direction: column;
@@ -3959,7 +3981,8 @@ body {
   bottom: 0;
   height: 64px;
   pointer-events: none;
-  background: linear-gradient(180deg, var(--white-a0) 0%, var(--white) 95%);
+  /* Se funde con el gris del borde del Card Middle, no con blanco. */
+  background: linear-gradient(180deg, transparent 0%, var(--surface-card) 95%);
 }
 
 .homecard-content-default {
@@ -4017,7 +4040,7 @@ body {
   min-height: 665px;
   border-radius: 12px;
   border-color: var(--border-main);
-  background: var(--white);
+  background: var(--card-middle);
   box-shadow: 0 0 12px var(--black-a10);
   overflow: clip;
 }
@@ -4031,7 +4054,7 @@ body {
 .homecard-organism-photo .homecard-content {
   height: auto;
   overflow: visible;
-  background: var(--white);
+  background: transparent;
 }
 
 .homecard-organism-photo .homecard-content::after {
@@ -4041,7 +4064,31 @@ body {
 .homecard-photo-track {
   display: flex;
   flex-direction: column;
-  background: var(--white);
+  background: transparent;
+}
+
+/* Wrap ribbon de la cabecera: uno solo por card, colgado del borde
+   derecho (MARS «Ribbon · Header»). El prototipo lo usa igual. */
+.homecard-organism:has(.homecard-header-ribbon) {
+  overflow: visible;
+}
+
+.homecard-organism:has(.homecard-header-ribbon) .homecard-header {
+  padding-right: 116px;
+}
+
+.homecard-header-ribbon {
+  top: 14px;
+  right: -6px;
+  width: auto;
+  max-width: none;
+}
+
+.homecard-header-ribbon .discount-ribbon-text {
+  display: block;
+  padding: 3px 9px;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 .homecard-photo-item {
@@ -4051,7 +4098,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  background: var(--white);
+  background: transparent;
 }
 
 .homecard-photo-media-wrap {
@@ -7597,6 +7644,12 @@ body {
 
 .payment-card-art.is-nicky img {
   object-fit: fill;
+}
+
+/* Turquesa: el arte va al 27 % de opacidad, como en MARS
+   (OKY Cash / Tarjeta · Diseño=Turquesa). */
+.payment-card-art.is-soft img {
+  opacity: 0.27;
 }
 
 /* El lazo de monedas del morado va donde lo pone el frame: pegado al
@@ -17417,15 +17470,21 @@ img.oky-flow-method-mark {
 
 /* Descuentos del resumen (OKY Cash y código promo): línea resaltada en
    aqua claro, texto teal en bold. Los dos conviven en el resumen. */
+/* OKYC-EXP-083 / 128: fila entera de 24px, sin esquinas, etiqueta y
+   monto en Highlight Text ExtraBold 14. */
 .summary-row.is-discount {
+  height: 24px;
   margin: 2px 0;
-  padding: 4px 0;
+  padding: 0;
+  border-radius: 0;
   background: var(--highlight-surface);
   box-shadow: -6px 0 0 var(--highlight-surface), 6px 0 0 var(--highlight-surface);
 }
 
 .summary-row.is-discount .summary-value-success {
+  font-size: 14px;
   font-weight: 800;
+  line-height: 24px;
   color: var(--highlight-text);
 }
 

@@ -51,6 +51,17 @@ export default {
         "Muestra la fila de código promocional (Voucherify). **Solo aplica en PLP / cart / checkout** — en PDP no tiene efecto.",
       table: { defaultValue: { summary: false } },
     },
+    withOkyCash: {
+      control: "boolean",
+      description:
+        "Fila **OKY Cash** resaltada (casilla marcada en el checkout): Highlight Surface `#E8FBF8` y texto Highlight Text `#007C72` en bold. **Solo cart / checkout**; resta del total.",
+      table: { defaultValue: { summary: false } },
+    },
+    okyCashAmount: {
+      control: { type: "number", min: 0, step: 0.01 },
+      description: "Monto que paga OKY Cash.",
+      table: { defaultValue: { summary: 8.05 } },
+    },
     exchangeRate: {
       control: "text",
       description: 'Valor del tipo de cambio en la barra superior (ej. "Q 7.55").',
@@ -79,7 +90,10 @@ function buildOverlay(exchangeRate) {
     </div>`;
 }
 
-function buildSummaryBox({ flow, step, pricing, showAddButton, withVoucherify, exchangeRate, productLabel, productCount }) {
+/* Resta OKY Cash del total ("$77.50" → "$69.45"). */
+const minus = (total, off) => "$" + Math.max(0, parseFloat(String(total).replace(/[^0-9.]/g, "")) - off).toFixed(2);
+
+function buildSummaryBox({ flow, step, pricing, showAddButton, withVoucherify, withOkyCash = false, okyCashAmount = 8.05, exchangeRate, productLabel, productCount }) {
   const label = productLabel ?? (flow === "giftCards" ? "Producto, Gift Card" : "Producto");
   const count = productCount ?? 3;
   const isSaving = pricing === "saving";
@@ -96,11 +110,23 @@ function buildSummaryBox({ flow, step, pricing, showAddButton, withVoucherify, e
   const productsNormal = `<span class="summary-label-strong">$100.00</span>`;
   const productsHtml = isSaving ? productsSaving : productsNormal;
 
+  /* Descuentos del resumen (código promo y OKY Cash): línea resaltada en
+     Highlight Surface con el texto en Highlight Text, en bold (prototipo
+     .summary-row.is-discount · CHK-12, CART). */
   const promoRow = `
-      <div class="summary-row">
+      <div class="summary-row is-discount">
         <span class="summary-value-success">Código promo</span>
         <span class="summary-value-success">-$5.00</span>
       </div>`;
+  const cashOn = withOkyCash && (step === "cart" || step === "checkout") && !isBill;
+  const cashRow = cashOn
+    ? `
+      <div class="summary-row is-discount">
+        <span class="summary-value-success">OKY Cash</span>
+        <span class="summary-value-success">-$${Number(okyCashAmount).toFixed(2)}</span>
+      </div>`
+    : "";
+  const withCash = (total) => (cashOn ? minus(total, Number(okyCashAmount)) : total);
 
   let bodyHtml = "";
   let footerHtml = "";
@@ -212,10 +238,10 @@ function buildSummaryBox({ flow, step, pricing, showAddButton, withVoucherify, e
         <span class="summary-label-strong">${cartLabel}</span>
         <span>${productsHtml}</span>
       </div>
-      ${withVoucherify ? promoRow : ""}
+      ${withVoucherify ? promoRow : ""}${cashRow}
       <div class="summary-row summary-row-total" style="padding-bottom:8px">
         <span class="summary-label">${finalLabel}</span>
-        <span class="summary-label-strong">${giftCartTotal}</span>
+        <span class="summary-label-strong">${withCash(giftCartTotal)}</span>
       </div>`;
     } else {
       const cartTotal = isSaving
@@ -231,10 +257,10 @@ function buildSummaryBox({ flow, step, pricing, showAddButton, withVoucherify, e
         <span class="summary-label">Costo por servicio</span>
         <span>${serviceHtml}</span>
       </div>
-      ${withVoucherify ? promoRow : ""}
+      ${withVoucherify ? promoRow : ""}${cashRow}
       <div class="summary-row summary-row-total" style="padding-bottom:8px">
         <span class="summary-label-strong">${finalLabel}</span>
-        <span class="summary-label-strong">${cartTotal}</span>
+        <span class="summary-label-strong">${withCash(cartTotal)}</span>
       </div>`;
     }
 
@@ -263,10 +289,10 @@ function buildSummaryBox({ flow, step, pricing, showAddButton, withVoucherify, e
         <span class="summary-label">Costo por servicio</span>
         <span>${serviceHtml}</span>
       </div>
-      ${withVoucherify ? promoRow : ""}
+      ${withVoucherify ? promoRow : ""}${cashRow}
       <div class="summary-row summary-row-total" style="padding-bottom:8px">
         <span class="summary-label-strong">${finalLabel}</span>
-        <span class="summary-label-strong">${coTotal}</span>
+        <span class="summary-label-strong">${withCash(coTotal)}</span>
       </div>`;
 
     // Nota: la fila "¡Ahorro total!" se removió del footer (Checkout) porque
@@ -307,6 +333,8 @@ export const Playground = {
     pricing: "saving",
     showAddButton: true,
     withVoucherify: false,
+    withOkyCash: false,
+    okyCashAmount: 8.05,
     exchangeRate: "Q 7.55",
     productLabel: "Producto, Gift Card",
     productCount: 3,
@@ -370,6 +398,34 @@ export const VariantMatrix = {
           ${buildSummaryBox({ flow:"billPayments", step:"pdp", pricing:"normal", showAddButton:false, withVoucherify:false, exchangeRate:"Q 7.55", productLabel:"Producto", productCount:1 })}
         </div>
 
+      </div>
+    </div>`,
+};
+
+/* ── OKY Cash · línea resaltada (sprint 20/10) ───────────
+   Al marcar OKY Cash en el checkout el resumen suma su línea en
+   Highlight Surface; el código promo usa la misma (CHK-12, CHK-13). */
+export const OkyCashHighlight = {
+  name: "OKY Cash · Línea resaltada",
+  render: () => `
+    <div class="mars-story" style="min-width:720px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;align-items:start">
+        <div class="story-card">
+          <div class="mars-label">products / cart — OKY Cash</div>
+          ${buildSummaryBox({ flow: "products", step: "cart", pricing: "saving", withVoucherify: false, withOkyCash: true, exchangeRate: "Q 7.55", productLabel: "Producto", productCount: 3 })}
+        </div>
+        <div class="story-card">
+          <div class="mars-label">products / checkout — OKY Cash</div>
+          ${buildSummaryBox({ flow: "products", step: "checkout", pricing: "saving", withVoucherify: false, withOkyCash: true, exchangeRate: "Q 7.55", productLabel: "Producto", productCount: 3 })}
+        </div>
+        <div class="story-card">
+          <div class="mars-label">products / checkout — código promo + OKY Cash</div>
+          ${buildSummaryBox({ flow: "products", step: "checkout", pricing: "saving", withVoucherify: true, withOkyCash: true, exchangeRate: "Q 7.55", productLabel: "Producto", productCount: 3 })}
+        </div>
+        <div class="story-card">
+          <div class="mars-label">giftCards / cart — código promo + OKY Cash</div>
+          ${buildSummaryBox({ flow: "giftCards", step: "cart", pricing: "saving", withVoucherify: true, withOkyCash: true, exchangeRate: "Q 7.55", productLabel: "Producto, Gift Card", productCount: 3 })}
+        </div>
       </div>
     </div>`,
 };

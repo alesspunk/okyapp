@@ -42,11 +42,6 @@ function photoTile(item) {
     <article class="homecard-photo-item">
       <div class="homecard-photo-media-wrap">
         <img class="homecard-photo-hero" src="${item.hero}" alt="${item.name}">
-        <div class="homecard-photo-ribbon-wrap">
-          <div class="discount-ribbon discount-ribbon-wrap discount-ribbon-type-normal">
-            <span class="discount-ribbon-text token-price-percent">40% OFF</span>
-          </div>
-        </div>
       </div>
       <div class="homecard-photo-logo-stack">
         <div class="homecard-photo-logo-wrap">
@@ -57,12 +52,21 @@ function photoTile(item) {
     </article>`;
 }
 
-function homeCard({ variant, title }) {
+function homeCard({ variant, title, rate = 40 }) {
   const isWithPhoto = variant === "With Photo";
   return `
     <section class="homecard-organism ${isWithPhoto ? "homecard-organism-photo" : ""}">
       <header class="homecard-header">
         <h3 class="token-h6 homecard-title">${title}</h3>
+        ${
+          /* Un solo wrap ribbon, en la cabecera (MARS «Ribbon · Header»):
+             los de cada marca van ocultos en el componente. */
+          isWithPhoto
+            ? `<div class="discount-ribbon discount-ribbon-wrap is-tier-base homecard-header-ribbon">
+                 <span class="discount-ribbon-text token-price-percent">Gana hasta ${rate}%</span>
+               </div>`
+            : ""
+        }
       </header>
 
       <div class="homecard-content ${isWithPhoto ? "homecard-content-photo" : "homecard-content-default"}">
@@ -87,7 +91,8 @@ export default {
       description: {
         component:
           "Organismo **HomeCard** con dos variantes: **Default** y **With Photo**. " +
-          "Mantiene el contenedor `IqRGM` con borde, sombra y jerarquía de contenido para home discovery.",
+          "Fondo en degradado `--card-middle` (Card Middle de Figma: radial de blanco a #F1F2F5), borde y sombra. " +
+          "**With Photo** lleva un solo wrap ribbon en la cabecera («Gana hasta X%», tier base de OKY Cash), no uno por marca.",
       },
     },
   },

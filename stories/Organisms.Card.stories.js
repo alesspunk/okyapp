@@ -1,4 +1,4 @@
-import { renderCardOrganism } from "./_shared/cardOrganism";
+import { renderCardOrganism, resolveCardOrganismArgs as resolveArgs } from "./_shared/cardOrganism";
 import { DISCOUNT_RIBBON_TYPES, MIDDLE_CARD_PATHS } from "./_shared/middleCard";
 import { CARD_BOTTOM_PATHS, CARD_TOP_PATHS } from "./_shared/primeCards";
 
