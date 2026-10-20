@@ -64,7 +64,225 @@ body { margin:0; padding:24px; background:#eceef2; display:flex; justify-content
 
   /* ── Colores de soporte ───────────────────────────────
      Fuente de verdad: tokens del archivo Figma "7500 - UX Handoff".
-     Mapeo Figma → CSS: `{semantic}/light-bg` → --{semantic}-bg ·
+     Mapeo Figma → CSS: `{semantic
+  /* ── Tipografía OKY · tokens medidos de Figma (MARS «OKY/…») ── */
+  --type-h1: 700 96px/112.03px "Nunito Sans", sans-serif;
+  --type-h1-ls: -1.5px;
+  --type-h2: 700 60px/72px "Nunito Sans", sans-serif;
+  --type-h2-ls: -0.5px;
+  --type-h3: 500 48px/56.02px "Nunito Sans", sans-serif;
+  --type-h3-ls: 0px;
+  --type-h4: 700 32px/39.52px "Nunito Sans", sans-serif;
+  --type-h4-ls: 0.25px;
+  --type-h5: 700 24px/28.8px "Nunito Sans", sans-serif;
+  --type-h5-ls: 0px;
+  --type-h6: 700 20px/32px "Nunito Sans", sans-serif;
+  --type-h6-ls: 0.15px;
+  --type-code: italic 800 20px/24px "Inter", sans-serif;
+  --type-code-ls: 2px;
+  --type-button-lg: 700 20px/35px "Nunito Sans", sans-serif;
+  --type-button-lg-ls: 0.4px;
+  --type-price: 900 16px/25.12px "Nunito Sans", sans-serif;
+  --type-price-ls: 0.5px;
+  --type-subtitle1: 700 16px/22.88px "Nunito Sans", sans-serif;
+  --type-subtitle1-ls: 0.15px;
+  --type-body1: 400 16px/22.88px "Nunito Sans", sans-serif;
+  --type-body1-ls: 0.15px;
+  --type-button: 700 14px/16.8px "Nunito Sans", sans-serif;
+  --type-button-ls: 0.15px;
+  --type-price-tag: italic 700 14px/21px "Nunito Sans", sans-serif;
+  --type-price-tag-ls: 0.15px;
+  --type-subtitle2: 500 14px/21.98px "Nunito Sans", sans-serif;
+  --type-subtitle2-ls: 0.1px;
+  --type-product-text: 600 14px/24.5px "Nunito Sans", sans-serif;
+  --type-product-text-ls: 0.15px;
+  --type-summary-highlight: 800 14px/24.5px "Nunito Sans", sans-serif;
+  --type-summary-highlight-ls: 0.15px;
+  --type-sum-text: 400 14px/16.8px "Nunito Sans", sans-serif;
+  --type-sum-text-ls: 0.15px;
+  --type-button-sm: 500 13px/22.75px "Nunito Sans", sans-serif;
+  --type-button-sm-ls: 0.4px;
+  --type-price-sm: 400 13px/15.6px "Nunito Sans", sans-serif;
+  --type-price-sm-ls: 0px;
+  --type-caption: 700 12px/14.4px "Nunito Sans", sans-serif;
+  --type-caption-ls: 0px;
+  --type-desc-text: 600 12px/22px "Nunito Sans", sans-serif;
+  --type-desc-text-ls: 0.4px;
+  --type-overline: 400 12px/31.92px "Nunito Sans", sans-serif;
+  --type-overline-ls: 1px;
+  --type-brand: 400 12px/14.4px "Nunito Sans", sans-serif;
+  --type-brand-ls: 0px;
+  --type-plateu: 700 10px/15.7px "Nunito Sans", sans-serif;
+  --type-plateu-ls: 0px;
+  --type-cardlabel: 500 10px/12px "Nunito Sans", sans-serif;
+  --type-cardlabel-ls: 0.45px;
+  --type-exchange: 400 10px/16px "Nunito Sans", sans-serif;
+  --type-exchange-ls: 1px;
+  --type-tag: 700 7px/10.99px "Nunito Sans", sans-serif;
+  --type-tag-ls: 1px;
+  --type-plateu-120: 700 10px/12px "Nunito Sans", sans-serif;
+  --type-plateu-120-ls: 0.15px;
+  --type-t10-regular: 400 10px/15.7px "Nunito Sans", sans-serif;
+  --type-t10-regular-ls: 0px;
+  --type-t12-bold-caps: 700 12px/18.84px "Nunito Sans", sans-serif;
+  --type-t12-bold-caps-ls: 1px;
+  --type-subtitle1-175: 700 16px/28px "Nunito Sans", sans-serif;
+  --type-subtitle1-175-ls: 0.15px;
+  --type-t9-regular: 400 9px/10.8px "Nunito Sans", sans-serif;
+  --type-t9-regular-ls: 0.45px;
+  --type-t20-semibold: 600 20px/24px "Nunito Sans", sans-serif;
+  --type-t20-semibold-ls: 0px;
+  --type-subtitle1-120: 700 16px/19.2px "Nunito Sans", sans-serif;
+  --type-subtitle1-120-ls: 0px;
+  --type-button-143: 700 14px/20.02px "Nunito Sans", sans-serif;
+  --type-button-143-ls: 0.15px;
+  --type-sum-text-175: 400 14px/24.5px "Nunito Sans", sans-serif;
+  --type-sum-text-175-ls: 0.15px;
+  --type-t10-regular-caps: 400 10px/12px "Nunito Sans", sans-serif;
+  --type-t10-regular-caps-ls: 0.9px;
+  --type-t18-semibold: 600 18px/21.6px "Nunito Sans", sans-serif;
+  --type-t18-semibold-ls: 0px;
+  --type-subtitle1-125: 700 16px/20px "Nunito Sans", sans-serif;
+  --type-subtitle1-125-ls: 0px;
+  --type-t14-bold-caps: 700 14px/21.98px "Nunito Sans", sans-serif;
+  --type-t14-bold-caps-ls: 1px;
+  --type-sum-text-143: 400 14px/20.02px "Nunito Sans", sans-serif;
+  --type-sum-text-143-ls: 0.15px;
+  --type-t14-extrabold-caps: 800 14px/16.8px "Nunito Sans", sans-serif;
+  --type-t14-extrabold-caps-ls: 0.5px;
+  --type-t13-semibold: 600 13px/15.6px "Nunito Sans", sans-serif;
+  --type-t13-semibold-ls: 0px;
+  --type-t21-bold: 700 21px/25.2px "Nunito Sans", sans-serif;
+  --type-t21-bold-ls: 0px;
+  --type-body1-120: 400 16px/19.2px "Nunito Sans", sans-serif;
+  --type-body1-120-ls: 0px;
+  --type-subtitle1-160: 700 16px/25.6px "Nunito Sans", sans-serif;
+  --type-subtitle1-160-ls: 0.15px;
+  --type-desc-text-167: 600 12px/20px "Nunito Sans", sans-serif;
+  --type-desc-text-167-ls: 0.4px;
+  --type-t18-black: 900 18px/21.6px "Nunito Sans", sans-serif;
+  --type-t18-black-ls: 0px;
+  --type-brand-167: 400 12px/20px "Nunito Sans", sans-serif;
+  --type-brand-167-ls: 0.4px;
+  --type-body1-150: 400 16px/24px "Nunito Sans", sans-serif;
+  --type-body1-150-ls: 0.15px;
+  --type-brand-200: 400 12px/24px "Nunito Sans", sans-serif;
+  --type-brand-200-ls: 0.4px;
+  --type-product-text-157: 600 14px/22px "Nunito Sans", sans-serif;
+  --type-product-text-157-ls: 0.4px;
+  --type-sum-text-150: 400 14px/21px "Nunito Sans", sans-serif;
+  --type-sum-text-150-ls: 0.15px;
+  --type-t10-light-caps: 300 10px/15.7px "Nunito Sans", sans-serif;
+  --type-t10-light-caps-ls: 0px;
+  --type-t8-regular: 400 8px/9.6px "Nunito Sans", sans-serif;
+  --type-t8-regular-ls: 0.45px;
+  --type-t20-regular: 400 20px/24px "Nunito Sans", sans-serif;
+  --type-t20-regular-ls: -0.5px;
+  --type-sum-total: 700 14px/21px "Nunito Sans", sans-serif;
+  --type-sum-total-ls: 0.15px;
+  --type-brand-140: 400 12px/16.8px "Nunito Sans", sans-serif;
+  --type-brand-140-ls: 0.15px;
+  --type-t12-bold-caps-120: 700 12px/14.4px "Nunito Sans", sans-serif;
+  --type-t12-bold-caps-120-ls: 0.6px;
+  --type-t9-regular-143: 400 9px/12.87px "Nunito Sans", sans-serif;
+  --type-t9-regular-143-ls: 0.15px;
+  --type-h6-280: 700 20px/56.02px "Nunito Sans", sans-serif;
+  --type-h6-280-ls: 0px;
+  --type-price-120: 900 16px/19.2px "Nunito Sans", sans-serif;
+  --type-price-120-ls: 0px;
+  --type-t12-bold-caps-133: 700 12px/16px "Nunito Sans", sans-serif;
+  --type-t12-bold-caps-133-ls: 0.6px;
+  --type-t15-black: 900 15px/18px "Nunito Sans", sans-serif;
+  --type-t15-black-ls: 0px;
+  --type-t22-black: 900 22px/26.4px "Nunito Sans", sans-serif;
+  --type-t22-black-ls: 0px;
+  --type-t18-regular: 400 18px/21.6px "Nunito Sans", sans-serif;
+  --type-t18-regular-ls: 0px;
+  --type-t9-bold-caps: 700 9px/10.8px "Nunito Sans", sans-serif;
+  --type-t9-bold-caps-ls: 0.45px;
+  --type-t14-medium-italic: italic 500 14px/21px "Nunito Sans", sans-serif;
+  --type-t14-medium-italic-ls: 0.15px;
+  --type-h6-130: 700 20px/26px "Nunito Sans", sans-serif;
+  --type-h6-130-ls: 0.4px;
+  --type-t20-extrabold: 800 20px/24px "Nunito Sans", sans-serif;
+  --type-t20-extrabold-ls: 0px;
+  --type-t10-medium-caps: 500 10px/15.7px "Nunito Sans", sans-serif;
+  --type-t10-medium-caps-ls: 2px;
+  --type-t8-black-caps: 900 8px/12px "Nunito Sans", sans-serif;
+  --type-t8-black-caps-ls: 0px;
+  --type-t18-extrabold: 800 18px/24px "Nunito Sans", sans-serif;
+  --type-t18-extrabold-ls: 0px;
+  --type-t11-bold: 700 11px/13.2px "Nunito Sans", sans-serif;
+  --type-t11-bold-ls: 0px;
+  --type-t10-light-caps-220: 300 10px/22px "Nunito Sans", sans-serif;
+  --type-t10-light-caps-220-ls: 0.4px;
+  --type-t15-bold: 700 15px/18px "Nunito Sans", sans-serif;
+  --type-t15-bold-ls: 0px;
+  --type-t40-bold: 700 40px/48px "Nunito Sans", sans-serif;
+  --type-t40-bold-ls: 0px;
+  --type-t20-black: 900 20px/32px "Nunito Sans", sans-serif;
+  --type-t20-black-ls: 0.15px;
+  --type-t9-extrabold: 800 9px/10.8px "Nunito Sans", sans-serif;
+  --type-t9-extrabold-ls: 0.45px;
+  --type-t11-regular: 400 11px/13.2px "Nunito Sans", sans-serif;
+  --type-t11-regular-ls: 0px;
+  --type-t12-regular-italic: italic 400 12px/14.4px "Nunito Sans", sans-serif;
+  --type-t12-regular-italic-ls: 0px;
+  --type-t17-bold: 700 17px/20.4px "Nunito Sans", sans-serif;
+  --type-t17-bold-ls: 0px;
+  --type-brand-133: 400 12px/16px "Nunito Sans", sans-serif;
+  --type-brand-133-ls: 0px;
+  --type-button-129: 700 14px/18px "Nunito Sans", sans-serif;
+  --type-button-129-ls: 0px;
+  --type-plateu-240: 700 10px/24px "Nunito Sans", sans-serif;
+  --type-plateu-240-ls: 0.09px;
+  --type-price-sm-169: 400 13px/22px "Nunito Sans", sans-serif;
+  --type-price-sm-169-ls: 0.4px;
+  --type-t11-bold-132: 700 11px/14.52px "Nunito Sans", sans-serif;
+  --type-t11-bold-132-ls: 0px;
+  --type-t26-extrabold: 800 26px/31.2px "Nunito Sans", sans-serif;
+  --type-t26-extrabold-ls: 0px;
+  --type-t15-regular: 400 15px/18px "Nunito Sans", sans-serif;
+  --type-t15-regular-ls: 0px;
+  --type-t22-bold: 700 22px/26.4px "Nunito Sans", sans-serif;
+  --type-t22-bold-ls: 0px;
+  --type-t22-regular: 400 22px/26.4px "Nunito Sans", sans-serif;
+  --type-t22-regular-ls: 0px;
+  --type-t15-regular-145: 400 15px/21.75px "Nunito Sans", sans-serif;
+  --type-t15-regular-145-ls: 0px;
+  --type-t56-black: 900 56px/67.2px "Nunito Sans", sans-serif;
+  --type-t56-black-ls: 0px;
+  --type-t14-bold: 700 14px/14px "Nunito Sans", sans-serif;
+  --type-t14-bold-ls: 0px;
+  --type-t22-extrabold: 800 22px/27.5px "Nunito Sans", sans-serif;
+  --type-t22-extrabold-ls: 0px;
+  --type-t11-black: 900 11px/13.2px "Nunito Sans", sans-serif;
+  --type-t11-black-ls: 0px;
+  --type-t15-bold-100: 700 15px/15px "Nunito Sans", sans-serif;
+  --type-t15-bold-100-ls: 0px;
+  --type-t24-black: 900 24px/44px "Nunito Sans", sans-serif;
+  --type-t24-black-ls: 0px;
+  --type-t24-black-115: 900 24px/27.6px "Nunito Sans", sans-serif;
+  --type-t24-black-115-ls: 0px;
+  --type-t24-extrabold: 800 24px/30px "Nunito Sans", sans-serif;
+  --type-t24-extrabold-ls: 0px;
+  --type-t8-medium: 500 8px/12.8px "Nunito Sans", sans-serif;
+  --type-t8-medium-ls: 0.15px;
+  --type-t56-black-106: 900 56px/59.36px "Nunito Sans", sans-serif;
+  --type-t56-black-106-ls: 0px;
+  --type-t44-black: 900 44px/52.8px "Nunito Sans", sans-serif;
+  --type-t44-black-ls: 0px;
+  --type-t40-black: 900 40px/46px "Nunito Sans", sans-serif;
+  --type-t40-black-ls: -0.5px;
+  --type-t13-bold-caps: 700 13px/15.6px "Nunito Sans", sans-serif;
+  --type-t13-bold-caps-ls: 0.6px;
+  --type-t92-regular: 400 92px/92px "Nunito Sans", sans-serif;
+  --type-t92-regular-ls: 0px;
+  --type-t30-black: 900 30px/34.5px "Nunito Sans", sans-serif;
+  --type-t30-black-ls: 0px;
+  --type-t14-semibold: 600 14px/16.8px "Nunito Sans", sans-serif;
+  --type-t14-semibold-ls: 0px;
+}/light-bg` → --{semantic}-bg ·
      `{semantic}/main` → --{semantic}-main · `{semantic}/text-dark` → --{semantic}-text.
      Todo valor de soporte se consume por token, nunca hardcodeado.
   ─────────────────────────────────────────────────────── */
@@ -298,11 +516,8 @@ body {
 }
 
 .token-body1 {
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: 0.15px;
+  font: var(--type-body1-150);
+  letter-spacing: var(--type-body1-150-ls);
 }
 
 .token-caption {
@@ -314,11 +529,8 @@ body {
 }
 
 .token-button-sm {
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.75;
-  letter-spacing: 0.4px;
+  font: var(--type-button-sm);
+  letter-spacing: var(--type-button-sm-ls);
 }
 
 .token-code,
@@ -637,12 +849,10 @@ body {
 }
 
 .input-dinamic {
+  font: var(--type-body1-150);
+  letter-spacing: var(--type-body1-150-ls);
   box-sizing: border-box;
   padding: 0 16px;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  letter-spacing: 0.15px;
-  line-height: 1.5;
 }
 
 .input-dinamic-empty {
@@ -728,14 +938,11 @@ body {
 }
 
 .payment-method-copy {
+  font: var(--type-subtitle1-175);
+  letter-spacing: var(--type-subtitle1-175-ls);
   flex: 1;
   min-width: 0;
   color: var(--primary-base);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.75;
-  letter-spacing: 0.15px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1137,16 +1344,14 @@ body {
 }
 
 .slider-bubble {
+  font: var(--type-subtitle1-120);
+  letter-spacing: var(--type-subtitle1-120-ls);
   z-index: 3;
   bottom: calc(100% - 2px);
   padding: 10px 14px;
   border-radius: 999px;
   background: var(--primary-light);
   color: var(--primary-main);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.2;
   white-space: nowrap;
   transform: translate(-50%, 6px) scale(0.85);
   transform-origin: bottom center;
@@ -1567,6 +1772,9 @@ body {
 }
 
 .chip-ds-new-item {
+  font: var(--type-tag);
+  letter-spacing: var(--type-tag-ls);
+  text-transform: uppercase;
   width: 45px;
   min-width: 45px;
   min-height: 15px;
@@ -1576,12 +1784,6 @@ body {
   background: var(--secondary-main);
   color: var(--white);
   justify-content: center;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 7px;
-  font-weight: 700;
-  line-height: 1.57;
-  letter-spacing: 1px;
-  text-transform: uppercase;
   box-shadow:
     0 2px 1px -1px var(--black-a20),
     0 1px 1px 0 var(--black-a14),
@@ -2185,14 +2387,10 @@ body {
 }
 
 .token-h6 {
+  font: var(--type-h6);
+  letter-spacing: var(--type-h6-ls);
   margin: 0;
   color: var(--primary-main);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 1.6;
-  letter-spacing: 0.15px;
 }
 
 .token-brand {
@@ -2973,12 +3171,9 @@ body {
 /* El precio de venta va siempre en morado; la rebaja la marca el de
    lista tachado en aqua oscuro al lado. */
 .token-price-tag-plp {
+  font: var(--type-price);
+  letter-spacing: var(--type-price-ls);
   color: var(--primary-main);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 900;
-  line-height: 157%;
-  letter-spacing: 0.5px;
 }
 
 /* Sin precio tachado al lado, el precio es uno normal: mismo morado. */
@@ -3096,12 +3291,9 @@ body {
 }
 
 .token-price-tag-cart {
+  font: var(--type-price);
+  letter-spacing: var(--type-price-ls);
   color: var(--primary-main);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 900;
-  line-height: 157%;
-  letter-spacing: 0.5px;
 }
 
 .token-price-cart {
@@ -3177,11 +3369,8 @@ body {
 }
 
 .token-exchange {
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 10px;
-  font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: 0.9px;
+  font: var(--type-t10-regular-caps);
+  letter-spacing: var(--type-t10-regular-caps-ls);
   text-transform: uppercase;
   color: var(--primary-main);
 }
@@ -3215,50 +3404,35 @@ body {
 }
 
 .summary-label {
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.75;
-  letter-spacing: 0.15px;
+  font: var(--type-sum-text-175);
+  letter-spacing: var(--type-sum-text-175-ls);
   color: var(--primary-main);
 }
 
 .summary-label-strong {
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.75;
-  letter-spacing: 0.15px;
+  font: var(--type-subtitle1-175);
+  letter-spacing: var(--type-subtitle1-175-ls);
   color: var(--primary-main);
 }
 
 /* Rebaja en el resumen: el de lista tachado en aqua oscuro, con la
    letra de la resta de OKY Cash, y lo que se paga en morado. */
 .summary-value-old {
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.75;
-  letter-spacing: 0.15px;
+  font: var(--type-sum-text-175);
+  letter-spacing: var(--type-sum-text-175-ls);
   text-decoration: line-through;
   color: var(--secondary-dark);
 }
 
 .summary-value-new {
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.75;
-  letter-spacing: 0.15px;
+  font: var(--type-subtitle1-175);
+  letter-spacing: var(--type-subtitle1-175-ls);
   color: var(--primary-main);
 }
 
 .summary-value-success {
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.43;
-  letter-spacing: 0.15px;
+  font: var(--type-sum-text-143);
+  letter-spacing: var(--type-sum-text-143-ls);
   color: var(--secondary-dark);
 }
 
@@ -3289,6 +3463,8 @@ body {
 }
 
 .summary-savings-row {
+  font: var(--type-subtitle1);
+  letter-spacing: var(--type-subtitle1-ls);
   height: 32px;
   border-top: 1px solid var(--disable-main);
   display: flex;
@@ -3296,11 +3472,6 @@ body {
   justify-content: center;
   gap: 4px;
   color: var(--secondary-dark);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.43;
-  letter-spacing: 0.15px;
 }
 
 .summary-savings-row .fa-solid {
@@ -3380,15 +3551,12 @@ body {
 }
 
 .promo-code-copy {
+  font: var(--type-subtitle1-175);
+  letter-spacing: var(--type-subtitle1-175-ls);
   flex: 1;
   min-width: 0;
   margin: 0;
   color: var(--secondary-dark);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.75;
-  letter-spacing: 0.15px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3531,26 +3699,20 @@ body {
 }
 
 .dual-title {
+  font: var(--type-h6);
+  letter-spacing: var(--type-h6-ls);
   margin: 0;
   color: var(--text-primary);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.6;
-  letter-spacing: 0.15px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .dual-subtitle {
+  font: var(--type-body1);
+  letter-spacing: var(--type-body1-ls);
   margin: -2px 0 0;
   color: var(--disable-text);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.43;
-  letter-spacing: 0.15px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3674,6 +3836,8 @@ body {
 }
 
 .discount-ribbon .discount-ribbon-text {
+  font: var(--type-subtitle1-160);
+  letter-spacing: var(--type-subtitle1-160-ls);
   text-decoration: none;
   white-space: nowrap;
   position: relative;
@@ -3681,12 +3845,6 @@ body {
   color: var(--discount-ribbon-text);
   text-align: center;
   font-feature-settings: 'liga' off, 'clig' off;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 1.6;
-  letter-spacing: 0.15px;
 }
 
 /* Type variant — marketing tactic */
@@ -4806,6 +4964,8 @@ body {
 }
 
 .middle-card-currency {
+  font: var(--type-subtitle2);
+  letter-spacing: var(--type-subtitle2-ls);
   width: 12px;
   height: 30px;
   margin-top: 6px;
@@ -4813,11 +4973,6 @@ body {
   align-items: center;
   justify-content: center;
   color: var(--primary-base);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.57;
-  letter-spacing: 0.1px;
 }
 
 .middle-card-molecule.is-egift .middle-card-currency {
@@ -4825,13 +4980,10 @@ body {
 }
 
 .middle-card-amount {
+  font: var(--type-h2);
+  letter-spacing: var(--type-h2-ls);
   margin: 0;
   color: var(--primary-base);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 60px;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.5px;
 }
 
 .middle-card-product-figure {
@@ -5595,6 +5747,8 @@ body {
 }
 
 .prime-card-clarita-bubble {
+  font: var(--type-t11-bold-132);
+  letter-spacing: var(--type-t11-bold-132-ls);
   position: relative;
   margin: 0;
   /* Se ciñe a su texto. Con un ancho máximo el globo se quedaba con
@@ -5618,10 +5772,6 @@ body {
      que delatar. */
   box-shadow: 0 5px 16px rgba(48, 12, 92, 0.16);
   color: var(--primary-main);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.32;
   /* Las dos líneas centradas entre sí: en bandera, la corta dejaba un
      escalón a la derecha que se leía como un hueco. */
   text-align: center;
@@ -5933,14 +6083,11 @@ body {
 }
 
 .modal-bullet-list {
+  font: var(--type-body1);
+  letter-spacing: var(--type-body1-ls);
   margin: 0;
   padding-left: 24px;
   color: var(--primary-main);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.43;
-  letter-spacing: 0.15px;
 }
 
 .modal-bullet-list li + li {
@@ -6223,23 +6370,17 @@ body {
 }
 
 .modal-important-title {
+  font: var(--type-h4);
+  letter-spacing: var(--type-h4-ls);
   margin: 0;
   color: var(--white);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1.235;
-  letter-spacing: 0.25px;
 }
 
 .modal-important-description {
+  font: var(--type-body1-150);
+  letter-spacing: var(--type-body1-150-ls);
   margin: 0;
   color: var(--white);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: 0.15px;
 }
 
 .modal-important-hero {
@@ -6708,13 +6849,10 @@ body {
 
 
 .reminder-card-merchant {
+  font: var(--type-desc-text-167);
+  letter-spacing: var(--type-desc-text-167-ls);
   margin: 0;
   color: var(--info-text);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 20px;
-  letter-spacing: 0.4px;
 }
 
 
@@ -7411,22 +7549,16 @@ body {
 }
 
 .modal-detail-title {
+  font: var(--type-button-143);
+  letter-spacing: var(--type-button-143-ls);
   margin: 0;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.43;
-  letter-spacing: 0.15px;
   color: var(--primary-base);
 }
 
 .modal-detail-note {
+  font: var(--type-brand-167);
+  letter-spacing: var(--type-brand-167-ls);
   margin: 0;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 20px;
-  letter-spacing: 0.4px;
   color: var(--text-secondary);
 }
 
@@ -7492,14 +7624,11 @@ body {
 }
 
 .toast-banner-info .toast-banner-message {
+  font: var(--type-body1);
+  letter-spacing: var(--type-body1-ls);
   white-space: normal;
   overflow: visible;
   text-overflow: clip;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.43;
-  letter-spacing: 0.15px;
   color: var(--info-text);
 }
 
@@ -8461,27 +8590,24 @@ body {
 
 /* ── "Online" bajo el brand item (PDP) ──────────────────── */
 .oky-flow-brand-online {
+  font: var(--type-t10-regular);
+  letter-spacing: var(--type-t10-regular-ls);
   /* Los canales de canje se quedan —dicen algo—, pero pagaban 28px de
      aire entre el logo y la card que hacían falta abajo: sin ellos el
      campo del monto no entraba en el fold. Se le descuentan 8px arriba
      y 8 abajo al hueco de la pila, más los 12 de su propio padding. */
   margin: -8px 0 -8px;
   padding-bottom: 0;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 10px;
-  font-weight: 400;
-  line-height: 1.57;
   text-align: center;
   color: var(--primary-base);
 }
 
 /* ── Nota legal del PDP Nike ────────────────────────────── */
 .oky-flow-legal {
+  font: var(--type-t10-regular);
+  letter-spacing: var(--type-t10-regular-ls);
   width: 309px;
   margin: 0 auto;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 10px;
-  line-height: 1.57;
   color: var(--primary-base);
 }
 
@@ -8642,6 +8768,8 @@ body {
 }
 
 .oky-flow-voucher-badge {
+  font: var(--type-price-sm-169);
+  letter-spacing: var(--type-price-sm-169-ls);
   position: absolute;
   right: 13px;
   top: 13px;
@@ -8652,10 +8780,6 @@ body {
   border: 1px solid var(--primary-base);
   border-radius: 8px;
   background: var(--white);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 13px;
-  line-height: 22px;
-  letter-spacing: 0.4px;
   color: var(--primary-base);
 }
 
@@ -9203,6 +9327,8 @@ body {
 
 /* fila "Agregar tarjeta crédito/débito" */
 .oky-flow-addcard {
+  font: var(--type-subtitle1);
+  letter-spacing: var(--type-subtitle1-ls);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -9212,11 +9338,6 @@ body {
   border: 0;
   background: none;
   cursor: pointer;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.43;
-  letter-spacing: 0.15px;
   color: var(--secondary-main);
   text-align: left;
 }
@@ -9295,38 +9416,30 @@ body {
 }
 
 .oky-flow-timeline-name {
+  font: var(--type-subtitle1-175);
+  letter-spacing: var(--type-subtitle1-175-ls);
   flex: 1 1 auto;
   min-width: 0;
   margin: 0;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.75;
-  letter-spacing: 0.15px;
   color: var(--text-primary);
 }
 
 .oky-flow-timeline-time {
+  font: var(--type-body1-150);
+  letter-spacing: var(--type-body1-150-ls);
   margin: 0;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  letter-spacing: 0.15px;
   color: var(--text-secondary);
 }
 
 .oky-flow-wait-footer {
+  font: var(--type-subtitle1-175);
+  letter-spacing: var(--type-subtitle1-175-ls);
   flex: 0 0 80px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   border-top: 1px solid var(--border-main);
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.75;
-  letter-spacing: 0.15px;
   color: var(--text-secondary);
 }
 
@@ -9634,11 +9747,9 @@ body {
 }
 
 .oky-flow-home-title {
+  font: var(--type-t22-black);
+  letter-spacing: var(--type-t22-black-ls);
   margin: 0;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 22px;
-  font-weight: 900;
-  line-height: 1.2;
   color: var(--primary-main);
 }
 
@@ -12812,11 +12923,8 @@ button.tactic-offer {
 /* Y el rótulo con la misma letra que el de OKY Cash —Nunito Sans 14/400—:
    son dos líneas del mismo desglose y se leen como pareja. */
 .oky-flow-feerow > :first-child {
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.43;
-  letter-spacing: 0.15px;
+  font: var(--type-sum-text-143);
+  letter-spacing: var(--type-sum-text-143-ls);
   color: var(--secondary-dark);
 }
 
@@ -14476,11 +14584,8 @@ button.tactic-offer {
 }
 
 .oky-flow-contact-name {
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.6;
-  letter-spacing: 0.15px;
+  font: var(--type-h6);
+  letter-spacing: var(--type-h6-ls);
   color: var(--text-primary);
 }
 
@@ -14619,6 +14724,9 @@ button.tactic-offer {
 }
 
 .oky-flow-wallet-seg-item {
+  font: var(--type-t12-bold-caps-133);
+  letter-spacing: var(--type-t12-bold-caps-133-ls);
+  text-transform: uppercase;
   box-sizing: border-box;
   flex: 1 1 0;
   min-width: 0;
@@ -14635,12 +14743,6 @@ button.tactic-offer {
   text-align: center;
   border-radius: 9px;
   cursor: pointer;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 16px;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
   color: var(--black-a42);
   transition: background 160ms ease, color 160ms ease;
 }
@@ -16301,15 +16403,14 @@ img.oky-flow-method-mark {
 /* El saldo vence a los 6 meses de ganarlo. Una línea chica y centrada
    bajo la tarjeta: se lee al pasar y no compite con el saldo. */
 .oky-flow-cash-expiry {
+  font: var(--type-brand-133);
+  letter-spacing: var(--type-brand-133-ls);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   width: 100%;
   margin: -6px 0 0;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 12px;
-  line-height: 16px;
   color: var(--text-muted);
   text-align: center;
 }
@@ -16367,11 +16468,9 @@ img.oky-flow-method-mark {
 }
 
 .oky-flow-cash-empty-title {
+  font: var(--type-t18-extrabold);
+  letter-spacing: var(--type-t18-extrabold-ls);
   margin: 0;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 24px;
   color: var(--ink-purple-dark);
 }
 

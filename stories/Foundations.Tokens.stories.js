@@ -426,3 +426,164 @@ export const OkyTokens = {
     return el;
   },
 };
+
+// Tipografía OKY: los valores viven en :root de mars.css (--type-*), medidos
+// del Figma de la épica. Aquí solo va el nombre del text style en MARS y si
+// el token lleva mayúsculas (la variable `font` no incluye text-transform).
+const OKY_TYPE = {
+  "h1": ["H1", false],
+  "h2": ["H2", false],
+  "h3": ["H3", false],
+  "h4": ["H4", false],
+  "h5": ["H5", false],
+  "h6": ["H6", false],
+  "code": ["CODE", true],
+  "button-lg": ["buttonLg", false],
+  "price": ["price", false],
+  "subtitle1": ["subtitle1", false],
+  "body1": ["body1", false],
+  "button": ["button", false],
+  "price-tag": ["priceTag", false],
+  "subtitle2": ["subtitle2", false],
+  "product-text": ["productText", false],
+  "summary-highlight": ["summaryHighlight", false],
+  "sum-text": ["SumText", false],
+  "button-sm": ["buttonSm", false],
+  "price-sm": ["priceSm", false],
+  "caption": ["caption", false],
+  "desc-text": ["descText", false],
+  "overline": ["OVERLINE", true],
+  "brand": ["Brand", false],
+  "plateu": ["PLATEU", false],
+  "cardlabel": ["CARDLABEL", false],
+  "exchange": ["EXCHANGE", true],
+  "tag": ["TAG", true],
+  "plateu-120": ["PLATEU-120", false],
+  "t10-regular": ["t10-regular", false],
+  "t12-bold-caps": ["t12-bold-caps", true],
+  "subtitle1-175": ["subtitle1-175", false],
+  "t9-regular": ["t9-regular", false],
+  "t20-semibold": ["t20-semibold", false],
+  "subtitle1-120": ["subtitle1-120", false],
+  "button-143": ["button-143", false],
+  "sum-text-175": ["SumText-175", false],
+  "t10-regular-caps": ["t10-regular-caps", true],
+  "t18-semibold": ["t18-semibold", false],
+  "subtitle1-125": ["subtitle1-125", false],
+  "t14-bold-caps": ["t14-bold-caps", true],
+  "sum-text-143": ["SumText-143", false],
+  "t14-extrabold-caps": ["t14-extrabold-caps", true],
+  "t13-semibold": ["t13-semibold", false],
+  "t21-bold": ["t21-bold", false],
+  "body1-120": ["body1-120", false],
+  "subtitle1-160": ["subtitle1-160", false],
+  "desc-text-167": ["descText-167", false],
+  "t18-black": ["t18-black", false],
+  "brand-167": ["Brand-167", false],
+  "body1-150": ["body1-150", false],
+  "brand-200": ["Brand-200", false],
+  "product-text-157": ["productText-157", false],
+  "sum-text-150": ["SumText-150", false],
+  "t10-light-caps": ["t10-light-caps", true],
+  "t8-regular": ["t8-regular", false],
+  "t20-regular": ["t20-regular", false],
+  "sum-total": ["sumTotal", false],
+  "brand-140": ["Brand-140", false],
+  "t12-bold-caps-120": ["t12-bold-caps-120", true],
+  "t9-regular-143": ["t9-regular-143", false],
+  "h6-280": ["H6-280", false],
+  "price-120": ["price-120", false],
+  "t12-bold-caps-133": ["t12-bold-caps-133", true],
+  "t15-black": ["t15-black", false],
+  "t22-black": ["t22-black", false],
+  "t18-regular": ["t18-regular", false],
+  "t9-bold-caps": ["t9-bold-caps", true],
+  "t14-medium-italic": ["t14-medium-italic", false],
+  "h6-130": ["H6-130", false],
+  "t20-extrabold": ["t20-extrabold", false],
+  "t10-medium-caps": ["t10-medium-caps", true],
+  "t8-black-caps": ["t8-black-caps", true],
+  "t18-extrabold": ["t18-extrabold", false],
+  "t11-bold": ["t11-bold", false],
+  "t10-light-caps-220": ["t10-light-caps-220", true],
+  "t15-bold": ["t15-bold", false],
+  "t40-bold": ["t40-bold", false],
+  "t20-black": ["t20-black", false],
+  "t9-extrabold": ["t9-extrabold", false],
+  "t11-regular": ["t11-regular", false],
+  "t12-regular-italic": ["t12-regular-italic", false],
+  "t17-bold": ["t17-bold", false],
+  "brand-133": ["Brand-133", false],
+  "button-129": ["button-129", false],
+  "plateu-240": ["PLATEU-240", false],
+  "price-sm-169": ["priceSm-169", false],
+  "t11-bold-132": ["t11-bold-132", false],
+  "t26-extrabold": ["t26-extrabold", false],
+  "t15-regular": ["t15-regular", false],
+  "t22-bold": ["t22-bold", false],
+  "t22-regular": ["t22-regular", false],
+  "t15-regular-145": ["t15-regular-145", false],
+  "t56-black": ["t56-black", false],
+  "t14-bold": ["t14-bold", false],
+  "t22-extrabold": ["t22-extrabold", false],
+  "t11-black": ["t11-black", false],
+  "t15-bold-100": ["t15-bold-100", false],
+  "t24-black": ["t24-black", false],
+  "t24-black-115": ["t24-black-115", false],
+  "t24-extrabold": ["t24-extrabold", false],
+  "t8-medium": ["t8-medium", false],
+  "t56-black-106": ["t56-black-106", false],
+  "t44-black": ["t44-black", false],
+  "t40-black": ["t40-black", false],
+  "t13-bold-caps": ["t13-bold-caps", true],
+  "t92-regular": ["t92-regular", false],
+  "t30-black": ["t30-black", false],
+  "t14-semibold": ["t14-semibold", false]
+};
+
+function rootTypeTokens() {
+  const out = [];
+  for (const sheet of Array.from(document.styleSheets)) {
+    let rules;
+    try { rules = sheet.cssRules; } catch (e) { continue; }
+    for (const rule of Array.from(rules || [])) {
+      if (rule.selectorText !== ":root") continue;
+      for (const prop of Array.from(rule.style)) {
+        const m = prop.match(/^--type-(.+?)$/);
+        if (!m || m[1].endsWith("-ls")) continue;
+        const css = m[1];
+        out.push({ css, font: rule.style.getPropertyValue(prop).trim(), ls: rule.style.getPropertyValue(`--type-${css}-ls`).trim() });
+      }
+    }
+  }
+  return out;
+}
+
+export const OkyTypography = {
+  name: "OKY Tipografía (Storybook = Figma)",
+  render: () => {
+    const el = document.createElement("div");
+    el.className = "mars-story";
+    const tokens = rootTypeTokens();
+    el.innerHTML = `
+      <h2 class="mars-section-title">OKY Tipografía · ${tokens.length} tokens</h2>
+      <p class="mars-subtitle">Fuente de la verdad: las variables <code>--type-*</code> en <code>:root</code> de <code>mars.css</code>, medidas del Figma de la épica OKY Cash. En MARS son los text styles «OKY/…» con los mismos valores. Uso: <code>font: var(--type-x); letter-spacing: var(--type-x-ls);</code> y <code>text-transform: uppercase</code> en los que dicen MAYÚSCULAS.</p>
+      <div style="overflow-x:auto"><table class="mars-token-table">
+        <thead><tr><th>Muestra</th><th>CSS</th><th>Figma</th><th>Valor</th></tr></thead>
+        <tbody>
+          ${tokens
+            .map((t) => {
+              const [figma, upper] = OKY_TYPE[t.css] || [t.css, false];
+              return `<tr>
+                <td style="font:var(--type-${t.css});letter-spacing:var(--type-${t.css}-ls);${upper ? "text-transform:uppercase;" : ""}color:var(--primary-main);white-space:nowrap">${Number(t.font.match(/(\d+(?:\.\d+)?)px\//)[1]) >= 30 ? "OKY Cash" : "Gana $0.25 de OKY Cash"}</td>
+                <td><code>--type-${t.css}</code></td>
+                <td><code>OKY/${figma}</code></td>
+                <td><code>${t.font} · ls ${t.ls}${upper ? " · MAYÚSCULAS" : ""}</code></td>
+              </tr>`;
+            })
+            .join("")}
+        </tbody>
+      </table></div>`;
+    return el;
+  },
+};
