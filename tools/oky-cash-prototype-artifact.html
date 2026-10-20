@@ -17805,6 +17805,9 @@ img.oky-flow-method-mark {
   --oky-cash-plata: linear-gradient(180deg, var(--surface-card) 0%, var(--surface-card-end) 30%, var(--white) 44%, var(--grey-400) 73.1%, var(--surface-card) 100%);
   --oky-cash-plata-rim: linear-gradient(180deg, var(--white) 0%, var(--grey-400) 50%, var(--grey-600) 100%);
   --oky-cash-plata-bevel: inset 0 2px 1px var(--white), inset 0 -2px 2px var(--separator-border);
+  /* El aqua de --tier-base-bg tal cual: las clases de estilo redefinen
+     --tier-base-bg, así que el texto de Aqua Oscuro lee esta copia. */
+  --oky-cash-tier-base-bg: var(--tier-base-bg);
 }
 
 .is-estilo-aqua {
@@ -17815,7 +17818,7 @@ img.oky-flow-method-mark {
 
 .is-estilo-aqua-oscuro {
   --estilo-bg: var(--secondary-dark);
-  --estilo-ink: var(--white);
+  --estilo-ink: var(--oky-cash-tier-base-bg);
   --estilo-notch: var(--oky-cash-dark);
 }
 
