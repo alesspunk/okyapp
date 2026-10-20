@@ -71,7 +71,154 @@ body { margin:0; padding:24px; background:#eceef2; display:flex; justify-content
 
   /* ── Colores de soporte ───────────────────────────────
      Fuente de verdad: tokens del archivo Figma "7500 - UX Handoff".
-     Mapeo Figma → CSS: `{semantic
+     Mapeo Figma → CSS: `{semantic}/light-bg` → --{semantic}-bg ·
+     `{semantic}/main` → --{semantic}-main · `{semantic}/text-dark` → --{semantic}-text.
+     Todo valor de soporte se consume por token, nunca hardcodeado.
+  ─────────────────────────────────────────────────────── */
+
+  /* Semantic — Success */
+  --success-bg: #edf7ed;
+  --success-light: #7bc67e;
+  --success-main: #4caf50;
+  --success-dark: #3b873e;
+  --success-text: #1e4620;
+
+  /* Semantic — Warning */
+  --warning-bg: #fff5e5;
+  --warning-light: #faab5c;
+  --warning-main: #ff9800;
+  --warning-dark: #f57c00;
+  --warning-text: #663d00;
+
+  /* Semantic — Error */
+  --error-bg: #feeceb;
+  --error-light: #f88078;
+  --error-main: #f44336;
+  --error-dark: #e31b0c;
+  --error-text: #621b16;
+
+  /* Semantic — Info */
+  --info-bg: #e9f5fe;
+  --info-light: #64b6f7;
+  --info-main: #2196f3;
+  --info-dark: #0b79d0;
+  --info-text: #0d3c61;
+  /* Tokens de OKY Cash (19/10): cada color de las piezas de OKY Cash
+     tiene nombre; MARS los tiene igual en la colección «OKY Tokens». */
+  --black: #000000;
+  --primary-text-dark: #6a0bd0; /* avatar de «Para mí» (detrás del emoji); en Figma primary/text-dark */
+  --primary-text-dark-a20: rgba(106, 11, 208, 0.2);
+  --primary-surface: #f2ecfa;
+  --avatar-contact-bg: #e9d4ff; /* avatar de contacto (Para otros) e iniciales de la tienda */
+  --aqua-bright: #09b4b0;
+  --aqua-dark: #0f6b63;
+  --oky-cash-darker: #003633;
+  --oky-cash-ink: #21514d;
+  --highlight-surface-light: #f3fffe;
+  --ink-purple-dark: #301a47;
+  --text-muted: #575963;
+  --text-muted-light: #7a6d8f;
+  --icon-muted: #8e8e99;
+  --grey-400: #bdbdbd;
+  --grey-600: #757575;
+  --divider-solid: #d6d6d6;
+  --border-input: #c4c4c4;
+  --border-purple-soft: #d9cdee;
+  --border-purple-hover: #cdbfe6;
+  --border-info-soft: #d0def3;
+  --surface-track: #f0f0f0;
+  --surface-pressed: #ececf1;
+  --surface-card: #f1f2f5;
+  --surface-card-light: #fcfcfc;
+  --surface-card-end: #eceff8; /* final de Card Bottom */
+  --success-600: #43a047;
+  --campaign-orange: #e2711d;
+  --discovery-orange: #ff9019;
+  --pile-front: #959695;
+  --secondary-selected: rgba(32, 243, 229, 0.08);
+  --card-default-bg: #d5d7da;
+  --card-saldo-from: #ac6fee;
+  --card-turquesa-from: #0ab5b1;
+  --card-turquesa-to: #109794;
+  --card-burbujas-from: #7334ae;
+  --card-burbujas-to: #c4a1e5;
+  --card-morado-oky: #5a289b;
+  --brand-visa: #1a1f71;
+  --brand-mastercard-red: #eb001b;
+  --brand-mastercard-orange: #f79e1b;
+  --brand-yayo-ink: #10325c;
+  --illu-checker: #17171b;
+  --illu-coin-1: #8d8da1;
+  --illu-coin-2: #a9a9bb;
+  --illu-coin-3: #d9d9e4;
+  --illu-coin-4: #fdfdff;
+  --illu-count-red: #ff453a;
+  --illu-count-amber: #ffc400;
+  --illu-count-green: #3ddc84;
+  --device-frame: #16161a;
+  --device-frame-edge: #35353c;
+  --black-a04: rgba(0, 0, 0, 0.04);
+  --black-a06: rgba(0, 0, 0, 0.06);
+  --black-a08: rgba(0, 0, 0, 0.08);
+  --black-a10: rgba(0, 0, 0, 0.1);
+  --black-a14: rgba(0, 0, 0, 0.14);
+  --black-a16: rgba(0, 0, 0, 0.16);
+  --black-a18: rgba(0, 0, 0, 0.18);
+  --black-a20: rgba(0, 0, 0, 0.2);
+  --black-a24: rgba(0, 0, 0, 0.24);
+  --black-a30: rgba(0, 0, 0, 0.3);
+  --black-a35: rgba(0, 0, 0, 0.35);
+  --black-a42: rgba(0, 0, 0, 0.42);
+  --black-a45: rgba(0, 0, 0, 0.45);
+  --black-a50: rgba(0, 0, 0, 0.5);
+  --black-a62: rgba(0, 0, 0, 0.62);
+  --white-a0: rgba(255, 255, 255, 0);
+  --white-a08: rgba(255, 255, 255, 0.08);
+  --white-a10: rgba(255, 255, 255, 0.1);
+  --white-a12: rgba(255, 255, 255, 0.12);
+  --white-a16: rgba(255, 255, 255, 0.16);
+  --white-a25: rgba(255, 255, 255, 0.25);
+  --white-a62: rgba(255, 255, 255, 0.62);
+  --white-a75: rgba(255, 255, 255, 0.75);
+  --white-a88: rgba(255, 255, 255, 0.88);
+  --white-a92: rgba(255, 255, 255, 0.92);
+  --scrim-45: rgba(16, 16, 16, 0.45);
+  --scrim-72: rgba(16, 16, 16, 0.72);
+  --shadow-purple-a16: rgba(16, 4, 36, 0.16);
+  --shadow-purple-a18: rgba(16, 4, 36, 0.18);
+  --shadow-purple-a30: rgba(16, 4, 36, 0.3);
+  --shadow-purple-a45: rgba(16, 4, 36, 0.45);
+  --shadow-purple-a55: rgba(16, 4, 36, 0.55);
+  --primary-main-a06: rgba(65, 0, 136, 0.06);
+  --primary-main-a16: rgba(65, 0, 136, 0.16);
+  --primary-main-a18: rgba(65, 0, 136, 0.18);
+  --primary-base-a18: rgba(85, 37, 136, 0.18);
+  --primary-dark-a34: rgba(58, 8, 112, 0.34);
+  --aqua-bright-a18: rgba(9, 180, 176, 0.18);
+  --discovery-orange-a0: rgba(255, 144, 25, 0);
+  /* Marcas (texto de Tactic Strips) y anotaciones del archivo de Figma
+     (doc/*: no son UI, pero comparten nombre en los dos lados). */
+  --brand-tigo-blue: #012771;
+  --brand-claro-red: #830100;
+  --doc-text: #262633;
+  --doc-text-muted: #666673;
+  --doc-warning-text: #731414;
+  --doc-warning-border: #e54d4d;
+  --doc-warning-bg: #ffeded;
+  --doc-note-bg: #fffadb;
+  /* Selección morada y colores de sistema iOS (barra y switch). */
+  --primary-selected: rgba(134, 32, 243, 0.08);
+  --device-ios-fill: rgba(120, 120, 128, 0.16);
+  --device-ios-green: #34c759;
+  --doc-connector: #ff0000;
+  --doc-flow-bg: #f9f7fd;
+  --doc-flow-border: rgba(112, 74, 163, 0.36);
+  --doc-flow-title: #4f2185;
+  --doc-surface: #e5e3ed;
+  --doc-success: #339e6b;
+  --doc-success-bg: #c7f0cc;
+  --doc-accent-dark: #0b6e66;
+  --doc-orange: #b4520a;
   /* ── Tipografía OKY · tokens medidos de Figma (MARS «OKY/…») ── */
   --type-h1: 700 96px/112.03px "Nunito Sans", sans-serif;
   --type-h1-ls: -1.5px;
@@ -289,154 +436,6 @@ body { margin:0; padding:24px; background:#eceef2; display:flex; justify-content
   --type-t30-black-ls: 0px;
   --type-t14-semibold: 600 14px/16.8px "Nunito Sans", sans-serif;
   --type-t14-semibold-ls: 0px;
-}/light-bg` → --{semantic}-bg ·
-     `{semantic}/main` → --{semantic}-main · `{semantic}/text-dark` → --{semantic}-text.
-     Todo valor de soporte se consume por token, nunca hardcodeado.
-  ─────────────────────────────────────────────────────── */
-
-  /* Semantic — Success */
-  --success-bg: #edf7ed;
-  --success-light: #7bc67e;
-  --success-main: #4caf50;
-  --success-dark: #3b873e;
-  --success-text: #1e4620;
-
-  /* Semantic — Warning */
-  --warning-bg: #fff5e5;
-  --warning-light: #faab5c;
-  --warning-main: #ff9800;
-  --warning-dark: #f57c00;
-  --warning-text: #663d00;
-
-  /* Semantic — Error */
-  --error-bg: #feeceb;
-  --error-light: #f88078;
-  --error-main: #f44336;
-  --error-dark: #e31b0c;
-  --error-text: #621b16;
-
-  /* Semantic — Info */
-  --info-bg: #e9f5fe;
-  --info-light: #64b6f7;
-  --info-main: #2196f3;
-  --info-dark: #0b79d0;
-  --info-text: #0d3c61;
-  /* Tokens de OKY Cash (19/10): cada color de las piezas de OKY Cash
-     tiene nombre; MARS los tiene igual en la colección «OKY Tokens». */
-  --black: #000000;
-  --primary-text-dark: #6a0bd0; /* avatar de «Para mí» (detrás del emoji); en Figma primary/text-dark */
-  --primary-text-dark-a20: rgba(106, 11, 208, 0.2);
-  --primary-surface: #f2ecfa;
-  --avatar-contact-bg: #e9d4ff; /* avatar de contacto (Para otros) e iniciales de la tienda */
-  --aqua-bright: #09b4b0;
-  --aqua-dark: #0f6b63;
-  --oky-cash-darker: #003633;
-  --oky-cash-ink: #21514d;
-  --highlight-surface-light: #f3fffe;
-  --ink-purple-dark: #301a47;
-  --text-muted: #575963;
-  --text-muted-light: #7a6d8f;
-  --icon-muted: #8e8e99;
-  --grey-400: #bdbdbd;
-  --grey-600: #757575;
-  --divider-solid: #d6d6d6;
-  --border-input: #c4c4c4;
-  --border-purple-soft: #d9cdee;
-  --border-purple-hover: #cdbfe6;
-  --border-info-soft: #d0def3;
-  --surface-track: #f0f0f0;
-  --surface-pressed: #ececf1;
-  --surface-card: #f1f2f5;
-  --surface-card-light: #fcfcfc;
-  --surface-card-end: #eceff8; /* final de Card Bottom */
-  --success-600: #43a047;
-  --campaign-orange: #e2711d;
-  --discovery-orange: #ff9019;
-  --pile-front: #959695;
-  --secondary-selected: rgba(32, 243, 229, 0.08);
-  --card-default-bg: #d5d7da;
-  --card-saldo-from: #ac6fee;
-  --card-turquesa-from: #0ab5b1;
-  --card-turquesa-to: #109794;
-  --card-burbujas-from: #7334ae;
-  --card-burbujas-to: #c4a1e5;
-  --card-morado-oky: #5a289b;
-  --brand-visa: #1a1f71;
-  --brand-mastercard-red: #eb001b;
-  --brand-mastercard-orange: #f79e1b;
-  --brand-yayo-ink: #10325c;
-  --illu-checker: #17171b;
-  --illu-coin-1: #8d8da1;
-  --illu-coin-2: #a9a9bb;
-  --illu-coin-3: #d9d9e4;
-  --illu-coin-4: #fdfdff;
-  --illu-count-red: #ff453a;
-  --illu-count-amber: #ffc400;
-  --illu-count-green: #3ddc84;
-  --device-frame: #16161a;
-  --device-frame-edge: #35353c;
-  --black-a04: rgba(0, 0, 0, 0.04);
-  --black-a06: rgba(0, 0, 0, 0.06);
-  --black-a08: rgba(0, 0, 0, 0.08);
-  --black-a10: rgba(0, 0, 0, 0.1);
-  --black-a14: rgba(0, 0, 0, 0.14);
-  --black-a16: rgba(0, 0, 0, 0.16);
-  --black-a18: rgba(0, 0, 0, 0.18);
-  --black-a20: rgba(0, 0, 0, 0.2);
-  --black-a24: rgba(0, 0, 0, 0.24);
-  --black-a30: rgba(0, 0, 0, 0.3);
-  --black-a35: rgba(0, 0, 0, 0.35);
-  --black-a42: rgba(0, 0, 0, 0.42);
-  --black-a45: rgba(0, 0, 0, 0.45);
-  --black-a50: rgba(0, 0, 0, 0.5);
-  --black-a62: rgba(0, 0, 0, 0.62);
-  --white-a0: rgba(255, 255, 255, 0);
-  --white-a08: rgba(255, 255, 255, 0.08);
-  --white-a10: rgba(255, 255, 255, 0.1);
-  --white-a12: rgba(255, 255, 255, 0.12);
-  --white-a16: rgba(255, 255, 255, 0.16);
-  --white-a25: rgba(255, 255, 255, 0.25);
-  --white-a62: rgba(255, 255, 255, 0.62);
-  --white-a75: rgba(255, 255, 255, 0.75);
-  --white-a88: rgba(255, 255, 255, 0.88);
-  --white-a92: rgba(255, 255, 255, 0.92);
-  --scrim-45: rgba(16, 16, 16, 0.45);
-  --scrim-72: rgba(16, 16, 16, 0.72);
-  --shadow-purple-a16: rgba(16, 4, 36, 0.16);
-  --shadow-purple-a18: rgba(16, 4, 36, 0.18);
-  --shadow-purple-a30: rgba(16, 4, 36, 0.3);
-  --shadow-purple-a45: rgba(16, 4, 36, 0.45);
-  --shadow-purple-a55: rgba(16, 4, 36, 0.55);
-  --primary-main-a06: rgba(65, 0, 136, 0.06);
-  --primary-main-a16: rgba(65, 0, 136, 0.16);
-  --primary-main-a18: rgba(65, 0, 136, 0.18);
-  --primary-base-a18: rgba(85, 37, 136, 0.18);
-  --primary-dark-a34: rgba(58, 8, 112, 0.34);
-  --aqua-bright-a18: rgba(9, 180, 176, 0.18);
-  --discovery-orange-a0: rgba(255, 144, 25, 0);
-  /* Marcas (texto de Tactic Strips) y anotaciones del archivo de Figma
-     (doc/*: no son UI, pero comparten nombre en los dos lados). */
-  --brand-tigo-blue: #012771;
-  --brand-claro-red: #830100;
-  --doc-text: #262633;
-  --doc-text-muted: #666673;
-  --doc-warning-text: #731414;
-  --doc-warning-border: #e54d4d;
-  --doc-warning-bg: #ffeded;
-  --doc-note-bg: #fffadb;
-  /* Selección morada y colores de sistema iOS (barra y switch). */
-  --primary-selected: rgba(134, 32, 243, 0.08);
-  --device-ios-fill: rgba(120, 120, 128, 0.16);
-  --device-ios-green: #34c759;
-  --doc-connector: #ff0000;
-  --doc-flow-bg: #f9f7fd;
-  --doc-flow-border: rgba(112, 74, 163, 0.36);
-  --doc-flow-title: #4f2185;
-  --doc-surface: #e5e3ed;
-  --doc-success: #339e6b;
-  --doc-success-bg: #c7f0cc;
-  --doc-accent-dark: #0b6e66;
-  --doc-orange: #b4520a;
 }
 
 * {
