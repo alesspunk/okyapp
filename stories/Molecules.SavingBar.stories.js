@@ -1,4 +1,4 @@
-import { CASH_BAR_KINDS, renderCashSavingBar } from "./_shared/okyCashParts";
+import { CASH_BAR_KINDS, OKY_CASH_ESTILOS, renderCashSavingBar } from "./_shared/okyCashParts";
 
 /* ─────────────────────────────────────────────────────────
    Molecules / Saving Bar
@@ -145,5 +145,22 @@ export const OkyCash = {
   render: () => `
     <div style="display:flex;flex-direction:column;gap:16px">
       ${CASH_BAR_KINDS.map((kind) => `<div class="mars-label">${kind}</div>${renderCashSavingBar({ kind })}`).join("")}
+    </div>`,
+};
+
+/* Los cinco estilos de OKY Cash (MARS · Estilo) en la base de la PDP y
+   del checkout. Ahorro GT es descuento: queda aqua. */
+export const OkyCashEstilos = {
+  name: "OKY Cash · Estilos",
+  render: () => `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${OKY_CASH_ESTILOS.map(
+        (estilo) => `
+          <div class="mars-label">${estilo}</div>
+          ${renderCashSavingBar({ kind: "Base · PDP", estilo })}
+          ${renderCashSavingBar({ kind: "Base · Checkout", estilo })}`,
+      ).join("")}
+      <div class="mars-label">Ahorro GT · descuento, queda aqua</div>
+      ${renderCashSavingBar({ kind: "Ahorro GT" })}
     </div>`,
 };

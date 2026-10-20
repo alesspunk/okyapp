@@ -5,7 +5,7 @@
    Recibo (Header en blanco) · Icono (botón redondo del recibo)
 ───────────────────────────────────────────────────────── */
 
-import { renderCashPill } from "./_shared/okyCashParts";
+import { OKY_CASH_ESTILOS, renderCashPill } from "./_shared/okyCashParts";
 
 export default {
   title: "Molecules/OKY Cash Pill",
@@ -27,8 +27,9 @@ export default {
     tipo: { control: "inline-radio", options: ["OKY Cash", "Recibo"], description: "Recibo: blanca con borde, abre el recibo." },
     text: { control: "text", description: "Texto de la variante Dock." },
     balance: { control: { type: "number", min: 0, step: 0.01 }, description: "Saldo disponible de la variante Header." },
+    estilo: { control: "inline-radio", options: OKY_CASH_ESTILOS, description: "Estilo de OKY Cash (exploración 20/10, MARS · Estilo). Aqua es como se ve hoy; el aqua claro queda para descuento.", if: { arg: "tipo", eq: "OKY Cash" } },
   },
-  args: { size: "Dock", tipo: "OKY Cash", text: "$5.00 en OKY Cash", balance: 5.25 },
+  args: { size: "Dock", tipo: "OKY Cash", text: "$5.00 en OKY Cash", balance: 5.25, estilo: "Aqua" },
 };
 
 export const Playground = { render: (args) => renderCashPill(args) };
@@ -42,5 +43,23 @@ export const Variants = {
       ${renderCashPill({ size: "Header", balance: 5.25 })}
       ${renderCashPill({ size: "Header", tipo: "Recibo", text: "+$0.25 en OKY Cash" })}
       ${renderCashPill({ size: "Icono", tipo: "Recibo" })}
+    </div>`,
+};
+
+/* Los cinco estilos de OKY Cash en los cuatro estados (MARS: tabla
+   «Exploración · Pastilla OKY Cash»). */
+export const Estilos = {
+  name: "OKY Cash · Estilos",
+  parameters: { controls: { disable: true } },
+  render: () => `
+    <div style="display:grid;grid-template-columns:110px repeat(4,auto);gap:16px 20px;align-items:center;justify-content:start">
+      ${OKY_CASH_ESTILOS.map(
+        (estilo) => `
+          <div class="mars-label">${estilo}</div>
+          ${renderCashPill({ size: "Dock", text: "+$0.25 en OKY Cash", estilo })}
+          ${renderCashPill({ size: "Dock", text: "OKY Cash, explora", estilo })}
+          ${renderCashPill({ size: "Header", balance: 5.25, estilo })}
+          ${renderCashPill({ size: "Dock", text: "$5.00 en OKY Cash", estilo })}`,
+      ).join("")}
     </div>`,
 };

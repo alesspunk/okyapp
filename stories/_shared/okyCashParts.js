@@ -81,9 +81,20 @@ export function renderNewDot() {
 
 /* ── Moléculas ──────────────────────────────────────────── */
 
-export function renderBalanceStrip({ balance = 5 } = {}) {
+/* ── OKY Cash · Estilo (exploración 20/10) ───────────────
+   Los cinco estilos de OKY Cash de MARS (propiedad «Estilo»). El aqua
+   claro queda para descuento; mientras se decide, cada componente de
+   OKY Cash acepta uno con la clase is-estilo-* (ver mars.css). Sin
+   estilo, el componente se ve como hasta hoy (aqua). */
+export const OKY_CASH_ESTILOS = ["Aqua", "Aqua Oscuro", "Oscuro", "Dark Night", "Plata"];
+
+export function estiloClass(estilo) {
+  return estilo ? ` is-estilo-${estilo.toLowerCase().replace(/\s+/g, "-")}` : "";
+}
+
+export function renderBalanceStrip({ balance = 5, estilo } = {}) {
   return `
-    <button class="oky-flow-cash-strip" type="button">
+    <button class="oky-flow-cash-strip${estiloClass(estilo)}" type="button">
       <img src="oky-cash-coin.png" alt="" />
       <span class="oky-flow-cash-strip-copy">
         <span class="oky-flow-cash-strip-amount"><span>$</span><strong>${Number(balance).toFixed(2)}</strong></span>
@@ -95,7 +106,7 @@ export function renderBalanceStrip({ balance = 5 } = {}) {
 
 /* La pastilla de saldo: flotante (dock) en homes y wallet, y en la
    cabecera de la poscompra con lo disponible. */
-export function renderCashPill({ size = "Dock", tipo = "OKY Cash", text = "$5.00 en OKY Cash", balance = 5.25 } = {}) {
+export function renderCashPill({ size = "Dock", tipo = "OKY Cash", text = "$5.00 en OKY Cash", balance = 5.25, estilo } = {}) {
   /* Recibo (MARS · Tipo=Recibo): la misma pastilla en blanco con borde,
      para abrir el recibo de la compra. Icono: solo el botón redondo
      del recibo, que cuelga a la derecha de la pastilla de saldo. */
@@ -111,14 +122,14 @@ export function renderCashPill({ size = "Dock", tipo = "OKY Cash", text = "$5.00
   }
   if (size === "Header") {
     return `
-      <button class="oky-flow-purchase-badge is-cash" type="button" aria-label="${money(balance)} disponible en OKY Cash">
+      <button class="oky-flow-purchase-badge is-cash${estiloClass(estilo)}" type="button" aria-label="${money(balance)} disponible en OKY Cash">
         <img src="oky-cash-coin.png" alt="" />
         <span>${money(balance)} <span class="oky-flow-purchase-badge-note">disponible</span></span>
       </button>`;
   }
   return `
     <div class="oky-flow-cashdock" style="position:static;transform:none;opacity:1">
-      <button class="oky-flow-purchase-badge is-cash is-wallet" type="button"><span>${text}</span></button>
+      <button class="oky-flow-purchase-badge is-cash is-wallet${estiloClass(estilo)}" type="button"><span>${text}</span></button>
     </div>`;
 }
 
@@ -263,7 +274,7 @@ export function renderPayGroup(rows = ["OKY Cash", "Visa"], { balance = 5 } = {}
    Como en la actividad de Tu billetera: la History Card de OKY Cash y,
    debajo, el panel que abre «Con qué lo ganaste» / «En qué lo usaste».
    Lo usado suma también el costo por servicio (OKYC-EXP-044). */
-export function renderCashMovement({ positive = true, open = false, date = "15 / OCT / 2026", order = "Orden #11112442", lines } = {}) {
+export function renderCashMovement({ positive = true, open = false, date = "15 / OCT / 2026", order = "Orden #11112442", lines, estilo } = {}) {
   const items =
     lines ||
     (positive
@@ -282,7 +293,7 @@ export function renderCashMovement({ positive = true, open = false, date = "15 /
     amount: `${positive ? "+" : "-"} ${money(total)}`,
     amountTone: positive ? "credit" : "debit",
     meta: { type: "order", note: order },
-    chip: positive ? { label: "Ganado", tone: "success" } : { label: "Usado", tone: "neutral" },
+    chip: positive ? { label: "Ganado", tone: "success", className: estiloClass(estilo).trim() } : { label: "Usado", tone: "neutral" },
   });
   return `
     <div class="oky-flow-order has-panel${open ? " is-open" : ""}" style="width:328px">
@@ -380,7 +391,7 @@ export function okyCashCardData(findPaymentCard, { design = "black", balance = 5
    sprint junto con el cronómetro. */
 export const CASH_BAR_KINDS = ["Base · PDP", "Base · Checkout", "Ahorro GT"];
 
-export function renderCashSavingBar({ kind = "Base · PDP", amount = 2.55 } = {}) {
+export function renderCashSavingBar({ kind = "Base · PDP", amount = 2.55, estilo } = {}) {
   if (kind === "Ahorro GT") {
     return `<div class="oky-flow-savingbar" style="position:static;width:360px"><div class="oky-flow-savebar is-bar"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(amount)}</div></div>`;
   }
@@ -390,7 +401,7 @@ export function renderCashSavingBar({ kind = "Base · PDP", amount = 2.55 } = {}
     : `Compra y gana <strong>${money(amount)}</strong> en <strong>OKY Cash</strong>`;
   return `
     <div class="oky-flow-savingbar" style="position:static;width:360px">
-      <div class="saving-bar is-oky-cash">
+      <div class="saving-bar is-oky-cash${estiloClass(estilo)}">
         ${pdp ? `<button class="saving-bar-info" type="button" aria-label="Qué es OKY Cash"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button>` : ""}
         <div class="saving-bar-copy"><span>${copy}</span></div>
       </div>

@@ -1,4 +1,6 @@
-const TYPE_OPTIONS = ["Por tiempo", "Finito", "Normal", "Por temporada", "OKY"];
+import { OKY_CASH_ESTILOS, estiloClass } from "./_shared/okyCashParts";
+
+const TYPE_OPTIONS = ["Por tiempo", "Finito", "Normal", "Por temporada", "OKY", "OKY Cash"];
 
 const TYPE_META = {
   "Por tiempo": {
@@ -26,12 +28,20 @@ const TYPE_META = {
     text: "Para la persona que quieres",
     className: "super-ribbon-type-oky",
   },
+  /* OKY Cash: el mismo ribbon con el estilo de OKY Cash (MARS ·
+     Estilo). Normal queda aqua para el descuento. */
+  "OKY Cash": {
+    icon: "fa-tags",
+    text: "Super Deals",
+    className: "super-ribbon-type-oky-cash",
+  },
 };
 
-function buildRibbon({ type, text, icon }) {
+function buildRibbon({ type, text, icon, estilo }) {
   const meta = TYPE_META[type];
+  const cls = meta.className + (type === "OKY Cash" ? estiloClass(estilo || "Aqua") : "");
   return `
-    <div class="super-ribbon ${meta.className}">
+    <div class="super-ribbon ${cls}">
       <span class="super-ribbon-icon"><i class="fa-solid ${icon || meta.icon}"></i></span>
       <span class="super-ribbon-text">${text || meta.text}</span>
     </div>`;
@@ -58,6 +68,7 @@ export const DocsPlayground = {
     type: "Por tiempo",
     text: "",
     icon: "",
+    estilo: "Aqua",
   },
   argTypes: {
     type: {
@@ -73,6 +84,13 @@ export const DocsPlayground = {
     icon: {
       control: "text",
       description: "Override opcional del ícono FA (ej. `fa-clock`); vacío usa ícono por defecto.",
+    },
+    estilo: {
+      name: "Estilo",
+      control: { type: "inline-radio" },
+      options: OKY_CASH_ESTILOS,
+      if: { arg: "type", eq: "OKY Cash" },
+      description: "Solo Type=OKY Cash: estilo de OKY Cash (exploración 20/10, MARS · Estilo). Normal (aqua) queda para descuento.",
     },
   },
   render: (args) => `
@@ -98,5 +116,14 @@ export const TypeMatrix = {
   render: () => `
     <div class="mars-story" style="display:flex;flex-direction:column;gap:12px;align-items:flex-start;">
       ${TYPE_OPTIONS.map((type) => buildRibbon({ type })).join("")}
+    </div>`,
+};
+
+export const OkyCashEstilos = {
+  name: "OKY Cash · Estilos",
+  parameters: { controls: { disable: true } },
+  render: () => `
+    <div class="mars-story" style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;">
+      ${OKY_CASH_ESTILOS.map((estilo) => buildRibbon({ type: "OKY Cash", estilo })).join("")}
     </div>`,
 };

@@ -213,7 +213,7 @@ function renderChip(chip) {
      la palabra: tener la misma flecha dos veces en la misma fila no
      añadía nada. */
   return `
-    <span class="history-card-chip is-${chip.tone}">
+    <span class="history-card-chip is-${chip.tone}${chip.className ? ` ${chip.className}` : ""}">
       ${
         chip.icon
           ? `<span class="history-card-chip-icon">

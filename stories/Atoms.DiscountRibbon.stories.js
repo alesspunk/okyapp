@@ -1,4 +1,6 @@
-const TYPE_OPTIONS = ["Normal", "Por tiempo", "Finito", "Por temporada", "OKY"];
+import { OKY_CASH_ESTILOS, estiloClass } from "./_shared/okyCashParts";
+
+const TYPE_OPTIONS = ["Normal", "Por tiempo", "Finito", "Por temporada", "OKY", "OKY Cash"];
 
 function typeClass(type) {
   return `discount-ribbon-type-${type
@@ -8,8 +10,10 @@ function typeClass(type) {
     .replace(/[\u0300-\u036f]/g, "")}`;
 }
 
-function buildRibbon({ tipo, type, label, size }) {
-  const typeToken = typeClass(type);
+function buildRibbon({ tipo, type, label, size, estilo }) {
+  /* Type=OKY Cash: el «Gana X%» de OKY Cash, con su estilo (MARS ·
+     Estilo). Normal queda aqua para el descuento. */
+  const typeToken = typeClass(type) + (type === "OKY Cash" ? estiloClass(estilo || "Aqua") : "");
 
   if (tipo === "Wrap") {
     return `
@@ -48,6 +52,7 @@ export const DocsPlayground = {
     type: "Normal",
     size: "Default",
     label: "25% OFF",
+    estilo: "Aqua",
   },
   argTypes: {
     tipo: {
@@ -72,6 +77,13 @@ export const DocsPlayground = {
     label: {
       control: "text",
       description: "Texto del badge (ej. `25% OFF`).",
+    },
+    estilo: {
+      name: "Estilo",
+      control: { type: "inline-radio" },
+      options: OKY_CASH_ESTILOS,
+      if: { arg: "type", eq: "OKY Cash" },
+      description: "Solo Type=OKY Cash: estilo de OKY Cash (exploración 20/10, MARS · Estilo). Normal (aqua) queda para descuento.",
     },
   },
   render: (args) => `
@@ -142,5 +154,28 @@ export const TypeMatrix = {
           `).join("")}
         </div>
       </div>
+    </div>`,
+};
+
+export const OkyCashEstilos = {
+  name: "OKY Cash · Estilos",
+  parameters: { controls: { disable: true } },
+  render: () => `
+    <div class="mars-story" style="display:flex;flex-direction:column;gap:20px;">
+      ${["List", "Wrap"]
+        .map(
+          (tipo) => `
+            <div>
+              <div class="mars-label" style="margin-bottom:8px;">Tipo = ${tipo} · Type = OKY Cash</div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;">
+                ${OKY_CASH_ESTILOS.map((estilo) => `
+                  <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+                    ${buildRibbon({ tipo, type: "OKY Cash", label: "Gana 5%", size: "Default", estilo })}
+                    <span style="font-size:11px;color:var(--text-secondary)">${estilo}</span>
+                  </div>`).join("")}
+              </div>
+            </div>`,
+        )
+        .join("")}
     </div>`,
 };

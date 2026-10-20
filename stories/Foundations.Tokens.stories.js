@@ -538,7 +538,10 @@ const OKY_TYPE = {
   "t13-bold-caps": ["t13-bold-caps", true],
   "t92-regular": ["t92-regular", false],
   "t30-black": ["t30-black", false],
-  "t14-semibold": ["t14-semibold", false]
+  "t14-semibold": ["t14-semibold", false],
+  "button-160": ["button-160", false],
+  "h6-120": ["H6-120", false],
+  "t13-bold": ["t13-bold", false]
 };
 
 function rootTypeTokens() {

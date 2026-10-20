@@ -13,7 +13,7 @@ import {
   resolveHistoryCard,
 } from "./_shared/historyCards";
 
-import { renderCashMovement } from "./_shared/okyCashParts";
+import { OKY_CASH_ESTILOS, renderCashMovement } from "./_shared/okyCashParts";
 export default {
   title: "Molecules/History Card",
   tags: ["autodocs"],
@@ -165,5 +165,15 @@ export const OkyCashMovement = {
       ${renderCashMovement({ positive: true, open: true })}
       ${renderCashMovement({ positive: false, open: false, order: "Orden #11112443" })}
       ${renderCashMovement({ positive: false, open: true, order: "Orden #11112443" })}
+    </div>`,
+};
+
+/* El chip «Ganado» en los cinco estilos de OKY Cash (MARS · Estilo).
+   «Usado» queda gris. */
+export const OkyCashMovementEstilos = {
+  name: "OKY Cash · Movimiento · Estilos",
+  render: () => `
+    <div style="display:flex;flex-direction:column;gap:16px">
+      ${OKY_CASH_ESTILOS.map((estilo) => `<div class="mars-label">${estilo}</div>${renderCashMovement({ positive: true, open: false, estilo })}`).join("")}
     </div>`,
 };
