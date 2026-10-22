@@ -2679,7 +2679,7 @@ function screenCheckout(state) {
             </div>
           </div>
           <div class="summary-cta-row">
-            <button class="btn btn-primary summary-btn" data-action="pay" type="button"${checkoutCard || toCard <= 0 ? "" : " disabled"}>Comprar</button>
+            ${checkoutBuyButton(checkoutCard, toCard)}
           </div>
         </div>
       </div>
@@ -2716,11 +2716,22 @@ function screenCheckout(state) {
           <span class="summary-label-strong">TOTAL</span>
           <span class="summary-label-strong">${money(toCard)}</span>
         </div>
-        <button class="btn btn-primary summary-btn" data-action="pay" type="button"${checkoutCard || toCard <= 0 ? "" : " disabled"}>Comprar</button>
+        ${checkoutBuyButton(checkoutCard, toCard)}
       </div>
     </div>
     ${navbar("", state)}
   `;
+}
+
+/* El botón del checkout no se deshabilita sin tarjeta: dice «Proceder
+   al pago» y lleva a los métodos de pago, donde se agrega la primera.
+   Primer cobra esa primera tarjeta al guardarla, así que de ahí ya no
+   se vuelve al checkout. */
+function checkoutBuyButton(checkoutCard, toCard) {
+  if (checkoutCard || toCard <= 0) {
+    return `<button class="btn btn-primary summary-btn" data-action="pay" type="button">Comprar</button>`;
+  }
+  return `<button class="btn btn-primary summary-btn" data-action="open-methods" type="button">Proceder al pago</button>`;
 }
 
 /* ── Métodos de pago (99105:41588) ──────────────────────── */
@@ -2746,11 +2757,17 @@ function screenMethods(state) {
          compra: así el botón de pagar no se pierde. */ ""}
     ${timer ? cashSoloSeg(state, state.methodsTab === "cash" ? "cash" : "methods") : ""}
     ${timer && state.methodsTab === "cash" ? okyCashActivity(state) : cashSoloMethods(state, { charge: timer ? due : 0 })}
-    <div class="oky-flow-cta-bar">
+    ${/* Sin tarjetas y con algo que cobrar, el botón del vacío ya agrega
+         y paga: un «Ir a pagar» apagado abajo solo confundía. */ ""}
+    ${
+      !canPay && !selectedCardOf(state)
+        ? ""
+        : `<div class="oky-flow-cta-bar">
       <button class="btn btn-primary btn-large" data-action="confirm-methods" type="button"${canPay ? "" : " disabled"}>
         ${ctaLabel}
       </button>
-    </div>
+    </div>`
+    }
     ${navbar("", state)}
   `;
 }
@@ -4373,14 +4390,16 @@ function addCardButton() {
 
 /* Sin tarjetas guardadas: la misma pieza que los vacíos del wallet y de
    OKY Cash, con la tarjeta dorada y un botón que agrega la primera. */
-function methodsEmpty() {
+function methodsEmpty(charge = 0) {
+  /* Viniendo de una compra, la primera tarjeta se cobra al guardarla
+     (Primer), y el botón lo avisa con el monto. */
   return `
     <div class="oky-flow-cash-empty is-wallet is-methods">
       <span class="oky-flow-cash-empty-art"><img src="oky-card-3d.png" alt="" /></span>
       <h2 class="oky-flow-cash-empty-title">Aún no tienes tarjetas</h2>
       <p class="oky-flow-cash-empty-note">Agrega una tarjeta de crédito o débito para pagar tus compras.</p>
       <button class="btn btn-primary btn-large oky-flow-cash-empty-cta" data-action="add-card" type="button">
-        Agregar tarjeta crédito/débito
+        ${charge > 0 ? `Agregar y pagar - ${money(charge)}` : "Agregar tarjeta crédito/débito"}
       </button>
     </div>
   `;
@@ -4396,7 +4415,7 @@ function cashSoloMethods(state, { charge = 0 } = {}) {
      pago o una secundaria. Solo una es para pago, y se cambia desde los
      tres puntos con "Marcar como tarjeta para pago". */
   const selected = selectedCardOf(state);
-  if (!selected) return `<div class="oky-flow-section" style="gap:8px">${methodsEmpty()}</div>`;
+  if (!selected) return `<div class="oky-flow-section" style="gap:8px">${methodsEmpty(charge)}</div>`;
   const top = methodTopCard(state, selected);
   return `
     <div class="oky-flow-section" style="gap:8px">
@@ -8465,11 +8484,19 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          botón no hace nada más. */
       const missing = CARDS.find((c) => !state.savedCards.includes(c.key));
       if (!missing) return;
+      const firstCard = savedCards(state).length === 0;
       state.savedCards = [...state.savedCards, missing.key];
       state.selectedCard = missing.key;
       /* La primera que se guarda es la de pago; las siguientes llegan
          como secundarias. */
       if (!savedCards(state).some((c) => c.key === state.defaultCard)) state.defaultCard = missing.key;
+      /* Primer cobra la primera tarjeta al guardarla: en medio de una
+         compra se paga aquí mismo, sin volver al checkout. */
+      if (firstCard && state.screen === "methods" && orderDue(state) > 0) {
+        go("processing", {}, { push: false });
+        setTimeout(completePurchase, 1400);
+        return;
+      }
       return render({ keepScroll: true });
     }
 
