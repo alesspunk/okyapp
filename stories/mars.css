@@ -17975,3 +17975,1154 @@ img.oky-flow-method-mark {
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Yayo × OKY — Beneficiario (IO8QZtZquMn8QpXRSDy2Tt · Beneficiario)
+   Lo que el prototipo de Yayo necesita y el sistema no tenía: la
+   tarjeta de marca, el toast de solicitud en verde y las piezas del
+   login con OTP. Todo lo demás (header Yayo, modal Centered, Small,
+   History Card, Reminder Card, menú, hojas) se reutiliza tal cual.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Payment Card / Yayo Brand (1:12722): degradado angular de la marca
+   con su brillo diagonal encima y el logo blanco al centro. */
+.payment-card-molecule.is-yayo-brand {
+  --payment-card-w: 342px;
+  --payment-card-h: 216px;
+  --payment-card-bg: conic-gradient(from 270deg at 50% 50%, #ff2b4e 0%, #e0357e 12%, #b040c8 24%,
+      #9a5bff 29%, #6a35c8 40%, #4b2e8a 50%, #2a2a2e 62%, #8e4a5c 75%, #c2344a 87%, #ff2b4e 100%);
+  --payment-card-border: var(--white);
+  box-shadow: 0 12px 28px rgba(28, 8, 51, 0.35);
+}
+
+.payment-card-molecule.is-yayo-brand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 45%, rgba(0, 0, 0, 0.12) 100%);
+}
+
+.payment-card-molecule.is-yayo-brand .payment-card-header {
+  height: 79px;
+  padding-top: 2px;
+}
+
+.payment-card-molecule.is-yayo-brand .payment-card-brand {
+  min-width: 0;
+}
+
+/* La Q va pegada a la cifra, como en el diseño. */
+.payment-card-molecule.is-yayo-brand .payment-card-amount {
+  display: inline-flex;
+  align-items: flex-start;
+}
+
+.payment-card-molecule.is-yayo-brand .payment-card-amount-currency {
+  padding-top: 6px;
+  font-size: 18px;
+}
+
+.payment-card-molecule.is-yayo-brand .payment-card-amount-value {
+  font-size: 36px;
+}
+
+.payment-card-art.is-yayo-logo {
+  left: 50%;
+  top: 50%;
+  width: 185px;
+  height: 32px;
+  transform: translate(-50%, -50%);
+}
+
+.payment-card-art.is-yayo-logo img {
+  object-fit: contain;
+}
+
+/* Toast de solicitud de pago en verde (Yayo × OKY): misma anatomía del
+   Payment Request, con los tokens de success en vez de info. */
+.toast-banner-info.is-success {
+  background: var(--success-bg);
+}
+
+.toast-banner-info.is-success .toast-banner-message,
+.toast-banner-info.is-success .toast-banner-amount,
+.toast-banner-info.is-success .toast-banner-close {
+  color: var(--success-text);
+}
+
+.toast-banner-info.is-success .toast-banner-icon {
+  color: var(--success-main);
+}
+
+/* ── Marco del prototipo ─────────────────────────────────── */
+.yayo-flow .oky-flow-scroll {
+  padding-bottom: 24px;
+}
+
+.yayo-flow-screen {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Login ───────────────────────────────────────────────── */
+.yayo-flow-login {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 var(--oky-gutter) 24px;
+}
+
+.yayo-flow-login-logo {
+  display: flex;
+  justify-content: center;
+  padding: 58px 0 0;
+}
+
+.yayo-flow-login-logo {
+  align-items: center;
+  gap: 10px;
+}
+
+.yayo-flow-login-wordmark {
+  width: 134px;
+  height: 32px;
+}
+
+.yayo-flow-login-x {
+  font-size: 16px;
+  font-weight: 800;
+  color: #212328;
+}
+
+.yayo-flow-login-oky {
+  width: 102px;
+  height: 49px;
+  object-fit: contain;
+}
+
+/* El hueco del aviso queda reservado: cerrar el toast no sube los
+   campos, y entre el logo y "País" quedan los 155px del diseño. */
+.yayo-flow-login-slot {
+  height: 155px;
+  box-sizing: border-box;
+  padding-top: 30px;
+}
+
+.yayo-flow-login-toast {
+  animation: yayo-flow-drop 360ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.yayo-flow-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.yayo-flow-select {
+  position: relative;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  border: 1px solid var(--border-main);
+  border-radius: 16px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.yayo-flow-select .input-label {
+  left: 12px;
+}
+
+.yayo-flow-select .flag-atom {
+  flex: 0 0 auto;
+}
+
+.yayo-flow-select-caret {
+  margin-left: auto;
+  color: var(--text-secondary);
+}
+
+.yayo-flow-phone .input-field {
+  font-weight: 700;
+  color: var(--primary-base);
+  letter-spacing: 0.5px;
+}
+
+.yayo-flow-phone.is-typing .input-field {
+  border-color: var(--primary-base);
+  box-shadow: 0 0 0 1px var(--primary-base);
+}
+
+.yayo-flow-hint {
+  margin: -10px 4px -6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.yayo-flow-login-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 20px 0 24px;
+}
+
+.yayo-flow-login-actions .btn {
+  width: 100%;
+}
+
+.yayo-flow-terms {
+  margin-top: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 0 8px;
+  color: var(--primary-base);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.yayo-flow-terms-check {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  background: var(--primary-base);
+  color: var(--white);
+  font-size: 11px;
+}
+
+.yayo-flow-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ── Hojas blancas (método de entrega, filtro) ───────────── */
+.yayo-flow-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 121;
+  box-sizing: border-box;
+  padding: 24px 8px 20px;
+  border-radius: 24px 24px 0 0;
+  background: var(--white);
+  color: var(--primary-base);
+  animation: oky-flow-sheet-up 360ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.yayo-flow-sheet-title {
+  margin: 0 0 12px;
+  padding: 0 16px;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.yayo-flow-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--primary-base);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.yayo-flow-option:active {
+  background: var(--primary-a08, rgba(85, 37, 136, 0.08));
+}
+
+.yayo-flow-option img {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.yayo-flow-option-go {
+  margin-left: auto;
+  font-size: 18px;
+}
+
+/* El modal Small se sube encima de la hoja de fondo. */
+.yayo-flow .modal-sheet {
+  z-index: 121;
+}
+
+/* Como el diseño (1:12578): título centrado, campo a todo el ancho con
+   la lupa a la izquierda y sin línea sobre los botones. */
+.yayo-flow-otp .modal-sheet-header {
+  padding: 12px 12px 8px;
+}
+
+.yayo-flow-otp-spacer {
+  flex: 0 0 40px;
+}
+
+.yayo-flow-otp .modal-sheet-header-main {
+  text-align: center;
+}
+
+.yayo-flow-otp .modal-sheet-title {
+  font-size: 20px;
+  color: var(--primary-base);
+}
+
+.yayo-flow-otp .modal-sheet-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-base);
+}
+
+.yayo-flow-otp .modal-small-content {
+  flex-direction: column;
+}
+
+.yayo-flow-otp .modal-small-footer {
+  border-top: 0;
+  padding-bottom: 24px;
+}
+
+.yayo-flow-otp-field {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-main);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.yayo-flow-otp-field span {
+  font-size: 18px;
+}
+
+.yayo-flow-otp-field.has-value {
+  border-color: var(--primary-base);
+  box-shadow: 0 0 0 1px var(--primary-base);
+  color: var(--primary-base);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 4px;
+}
+
+.yayo-flow-otp-icon {
+  position: absolute;
+  left: 16px;
+  font-size: 22px;
+  color: var(--text-secondary);
+}
+
+.yayo-flow-otp-note {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* Aviso del sistema con el código: baja desde arriba, como una
+   notificación de iOS, y tocarlo rellena el campo. */
+.yayo-flow-notif {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 20px;
+  background: rgba(245, 245, 247, 0.96);
+  box-shadow: 0 10px 30px rgba(16, 4, 36, 0.28);
+  color: #111;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  animation: yayo-flow-drop 420ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.yayo-flow-notif img {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.yayo-flow-notif-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.yayo-flow-notif-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.yayo-flow-notif-head span:last-child {
+  font-weight: 400;
+  color: #6b6b70;
+}
+
+.yayo-flow-notif-body {
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+@keyframes yayo-flow-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Botón ocupado: el spinner reemplaza la etiqueta sin cambiar el alto. */
+.yayo-flow-busy {
+  pointer-events: none;
+}
+
+.yayo-flow-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: yayo-flow-spin 700ms linear infinite;
+}
+
+@keyframes yayo-flow-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Passkey: un Face ID de mentira, sobre la pantalla. */
+.yayo-flow-passkey {
+  position: absolute;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--back-drop);
+  animation: oky-flow-sheet-fade 200ms ease-out both;
+}
+
+.yayo-flow-passkey-card {
+  width: 160px;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 28px;
+  background: rgba(245, 245, 247, 0.96);
+  color: #111;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.yayo-flow-passkey-card i {
+  font-size: 56px;
+  color: var(--success-main);
+  animation: yayo-flow-pop 600ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+/* ── Home ────────────────────────────────────────────────── */
+.yayo-flow-home {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px var(--oky-gutter) 0;
+}
+
+.yayo-flow-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.yayo-flow-requests {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: yayo-flow-drop 320ms ease-out both;
+}
+
+.yayo-flow-pending {
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--white);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.14);
+}
+
+.yayo-flow-pending .yayo-flow-amount {
+  border-radius: 16px 16px 0 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.yayo-flow-pending .super-ribbon.is-attached {
+  border-radius: 0;
+}
+
+.yayo-flow-pending-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.yayo-flow-pending-actions .action-circle {
+  justify-content: center;
+  padding: 10px 8px;
+  border-radius: 0;
+}
+
+.yayo-flow-pending-actions .action-circle + .action-circle {
+  border-left: 1px solid var(--black-a06);
+}
+
+.yayo-flow-card {
+  display: flex;
+  justify-content: center;
+  margin: 0 -8px;
+}
+
+.yayo-flow-card .payment-card-molecule.is-counting .payment-card-amount-value {
+  animation: yayo-flow-tick 260ms ease-out;
+}
+
+@keyframes yayo-flow-tick {
+  from {
+    opacity: 0.6;
+  }
+}
+
+.yayo-flow-activity-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.yayo-flow-activity-head .btn {
+  gap: 8px;
+}
+
+.yayo-flow-group {
+  margin: 4px 0 -4px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--primary-base);
+}
+
+.yayo-flow-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.yayo-flow-list .history-card-molecule.is-new {
+  animation: yayo-flow-arrive 700ms cubic-bezier(0.2, 1, 0.3, 1) both;
+}
+
+@keyframes yayo-flow-arrive {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.96);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+  60% {
+    opacity: 1;
+    box-shadow: 0 0 0 6px rgba(76, 175, 80, 0.18);
+  }
+  100% {
+    transform: none;
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
+.yayo-flow-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 24px 12px;
+  text-align: center;
+}
+
+.yayo-flow-empty .icon-avatar {
+  width: 64px;
+  height: 64px;
+  font-size: 28px;
+}
+
+.yayo-flow-empty-title {
+  margin: 8px 0 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary-base);
+}
+
+.yayo-flow-empty-note {
+  margin: 0;
+  max-width: 260px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+/* La cuenta atrás avisa en rojo el último minuto. */
+.super-ribbon-type-vence.is-urgent .super-ribbon-countdown-value {
+  color: var(--error-main);
+}
+
+/* ── Solicitud de pago (modal Centered) ──────────────────── */
+.yayo-flow-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 130;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.yayo-flow-modal .modal-molecule-backdrop {
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  animation: oky-flow-sheet-fade 240ms ease-out both;
+}
+
+/* Monto de la solicitud en verde, con la cuenta atrás pegada debajo
+   (1:16043). El detalle queda como tarjeta suelta. */
+.amount-summary.is-success {
+  --amount-summary-border: rgba(76, 175, 80, 0.22);
+  background: var(--success-bg);
+}
+
+.amount-summary.is-success .amount-display {
+  color: var(--success-text);
+}
+
+.yayo-flow-amount {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px 0 var(--black-a10);
+}
+
+.yayo-flow-amount .amount-summary {
+  border-radius: 16px 16px 0 0;
+  box-shadow: none;
+}
+
+.yayo-flow-amount .super-ribbon.is-attached {
+  border-radius: 0 0 16px 16px;
+}
+
+.yayo-flow-modal .modal-detail-rows {
+  border-radius: 16px;
+}
+
+.yayo-flow-modal .modal-sheet.is-centered .modal-detail-logo img {
+  border-radius: 6px;
+}
+
+/* ── Aprobado: la animación de marca ─────────────────────────
+   El degradado de la tarjeta Yayo se abre en círculo desde el botón
+   que se tocó, la llave entra girando y "se cierra" con un pulso, cae
+   el confeti y, debajo, el monto y el comercio. Al terminar, el home
+   descuenta el saldo y la nueva actividad entra destacada. */
+.yayo-flow-approve {
+  position: absolute;
+  inset: 0;
+  z-index: 210;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
+  color: var(--white);
+  text-align: center;
+}
+
+.yayo-flow-approve-burst {
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(from 270deg at 50% 50%, #ff2b4e 0%, #e0357e 12%, #b040c8 24%, #9a5bff 29%,
+      #6a35c8 40%, #4b2e8a 50%, #2a2a2e 62%, #8e4a5c 75%, #c2344a 87%, #ff2b4e 100%);
+  clip-path: circle(0 at var(--x, 50%) var(--y, 70%));
+  animation: yayo-flow-burst 700ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.yayo-flow-approve-burst::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.2) 70%);
+}
+
+@keyframes yayo-flow-burst {
+  to {
+    clip-path: circle(150% at var(--x, 50%) var(--y, 70%));
+  }
+}
+
+.yayo-flow-approve-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.yayo-flow-approve-mark {
+  position: relative;
+  z-index: 2;
+  width: 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.yayo-flow-approve-mark img {
+  width: 132px;
+  height: auto;
+  filter: drop-shadow(0 8px 18px rgba(16, 4, 36, 0.35));
+  animation: yayo-flow-key 900ms 380ms cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+
+.yayo-flow-approve-ring {
+  position: absolute;
+  inset: 0;
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  opacity: 0;
+  animation: yayo-flow-ring 900ms 1000ms ease-out both;
+}
+
+.yayo-flow-approve-ring.is-late {
+  animation-delay: 1250ms;
+}
+
+@keyframes yayo-flow-key {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-160deg);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.08) rotate(8deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes yayo-flow-ring {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+.yayo-flow-approve-title,
+.yayo-flow-approve-amount,
+.yayo-flow-approve-note {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  animation: yayo-flow-rise 480ms ease-out both;
+}
+
+.yayo-flow-approve-title {
+  margin-top: 8px;
+  font-size: 32px;
+  font-weight: 800;
+  animation-delay: 900ms;
+}
+
+.yayo-flow-approve-amount {
+  font-size: 22px;
+  font-weight: 800;
+  animation-delay: 1050ms;
+}
+
+.yayo-flow-approve-note {
+  font-size: 14px;
+  opacity: 0.85;
+  animation-delay: 1150ms;
+}
+
+.yayo-flow-approve.is-leaving {
+  animation: yayo-flow-leave 420ms ease-in forwards;
+}
+
+@keyframes yayo-flow-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes yayo-flow-leave {
+  to {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes yayo-flow-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+/* ── Rechazar: "¿Estás seguro?" ───────────────────────────── */
+.yayo-flow-reject .oky-flow-sheet-title {
+  margin-top: 36px;
+}
+
+.yayo-flow-reject-note {
+  margin: 12px 8px 0;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--white);
+}
+
+.yayo-flow-reject-art {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.yayo-flow-reject-art::before,
+.yayo-flow-reject-art::after {
+  content: "";
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.yayo-flow-reject-art::before {
+  height: 92%;
+}
+
+.yayo-flow-reject-art::after {
+  height: 70%;
+}
+
+.yayo-flow-reject-art img {
+  position: relative;
+  z-index: 1;
+  height: 82%;
+  width: auto;
+}
+
+.yayo-flow-reject .btn {
+  width: 100%;
+}
+
+/* ── Menú ───────────────────────────────────────────────── */
+.yayo-flow .oky-flow-menu-head {
+  justify-content: flex-end;
+}
+
+/* ── Pantallas del menú ──────────────────────────────────── */
+.yayo-flow-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px var(--oky-gutter) 24px;
+}
+
+.yayo-flow-profile-device {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 16px;
+  border: 1px solid var(--border-main);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px var(--black-a08);
+  color: var(--primary-base);
+}
+
+.yayo-flow-profile-device > i {
+  font-size: 22px;
+}
+
+.yayo-flow-profile-device p {
+  margin: 0;
+}
+
+.yayo-flow-profile-device-name {
+  font-weight: 800;
+}
+
+.yayo-flow-profile-device-note {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.yayo-flow-profile-device .btn {
+  margin-left: auto;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: var(--error-main);
+}
+
+.yayo-flow-terms-list {
+  margin: 0;
+  padding: 8px 4px 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--primary-base);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+/* Ayuda: los tres canales y el chat. */
+.yayo-flow-help {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(800px - 44px - 56px);
+}
+
+.yayo-flow-help-channels {
+  display: flex;
+  justify-content: space-around;
+  margin: 8px var(--oky-gutter) 16px;
+  padding: 16px 8px;
+  border-radius: 24px;
+  background: var(--white);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+}
+
+.yayo-flow-help-channel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: none;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.yayo-flow-help-channel img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.yayo-flow-help-channel.is-on span {
+  padding: 2px 10px;
+  border: 1px solid #f5b400;
+  border-radius: 999px;
+}
+
+.yayo-flow-chat-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--primary-main);
+  color: var(--white);
+  font-weight: 800;
+}
+
+.yayo-flow-chat-bar img {
+  width: 28px;
+}
+
+.yayo-flow-chat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7ee03b;
+}
+
+.yayo-flow-chat {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px;
+  background: #f4f4f6;
+}
+
+.yayo-flow-bubble {
+  max-width: 78%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #e4e4e8;
+  color: #222;
+  font-size: 14px;
+  line-height: 1.35;
+  animation: yayo-flow-rise 260ms ease-out both;
+}
+
+.yayo-flow-bubble.is-me {
+  align-self: flex-end;
+  background: var(--primary-base);
+  color: var(--white);
+}
+
+.yayo-flow-bubble-time {
+  margin: -4px 0 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.yayo-flow-chat-input {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--primary-main);
+}
+
+.yayo-flow-chat-input input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: var(--white);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.yayo-flow-chat-input input::placeholder {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.yayo-flow-chat-input button {
+  border: 0;
+  background: none;
+  color: var(--white);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Compartir: la hoja del sistema, tal cual el diseño. */
+.yayo-flow-share {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 121;
+  animation: oky-flow-sheet-up 360ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.yayo-flow-share img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.yayo-flow-share-close {
+  position: absolute;
+  top: 2%;
+  right: 3%;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Toast suelto, arriba de todo. */
+.yayo-flow-toast {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 56px;
+  z-index: 205;
+  animation: yayo-flow-drop 320ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yayo-flow-approve-burst {
+    animation: none;
+    clip-path: none;
+  }
+
+  .yayo-flow-approve-mark img,
+  .yayo-flow-approve-ring,
+  .yayo-flow-approve-title,
+  .yayo-flow-approve-amount,
+  .yayo-flow-approve-note,
+  .yayo-flow-list .history-card-molecule.is-new {
+    animation: none;
+  }
+}

@@ -25,6 +25,9 @@ for (const name of ['mars.css', 'Organisms.Carrusel.template.js']) {
 }
 fs.cpSync(path.join(root, 'prototypes'), path.join(output, 'prototypes'), { recursive: true });
 fs.unlinkSync(path.join(output, demo));
+// El demo local de Yayo también es un duplicado de prototypes/yayo/.
+const yayoDemo = path.join(output, 'yayo-prototype-demo.html');
+if (fs.existsSync(yayoDemo)) fs.unlinkSync(yayoDemo);
 
 // Keep the standalone prototype intact and publish the web alternative beside it.
 const { buildWebPrototype } = require('./build-oky-prototype-web.cjs');

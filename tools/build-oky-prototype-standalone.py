@@ -123,30 +123,16 @@ MODULES = [
     "okyCashParts", "okyCashPrototype",
 ]
 
+# El prototipo de Yayo × OKY (beneficiario) es independiente: lleva solo
+# los módulos que usa y sale a su propia carpeta de Vercel.
+YAYO_MODULES = [
+    "flag", "paymentCards", "historyCards",
+    "lottieLight", "okyConfettiAnimation", "yayoPrototype",
+]
+
 def load_module(name):
     with open(os.path.join(ROOT, "stories", "_shared", name + ".js"), encoding="utf-8") as f:
         return f.read()
-
-chunks = ["var __mods = {};"]
-for name in MODULES:
-    text = load_module(name)
-
-    exports = re.findall(r'(?m)^export\s+(?:function|const|let|var)\s+([A-Za-z0-9_$]+)', text)
-
-    imports = []
-    for names, dep in re.findall(r'(?m)^import\s*\{([^}]*)\}\s*from\s*"\./([A-Za-z0-9_$]+)(?:\.js)?";', text):
-        wanted = [n.strip() for n in names.split(",") if n.strip()]
-        imports.append(f'  var {{ {", ".join(wanted)} }} = __mods["{dep}"];')
-    text = re.sub(r'(?m)^import\s*\{[^}]*\}\s*from\s*"\.[^"]*";\n', '', text)
-    text = re.sub(r'(?m)^export\s+(function|const|let|var)\s', r'\1 ', text)
-
-    body = "\n".join(imports) + "\n" + text
-    returned = ", ".join(exports)
-    chunks.append(
-        f'__mods["{name}"] = (function () {{\n{body}\n  return {{ {returned} }};\n}})();'
-    )
-
-bundle = "\n\n".join(chunks)
 
 # El átomo Flag apunta a /flagpack/4x3/<iso>.svg. El paquete flagpack
 # vive en node_modules, que aquí no existe, así que los SVG que usa el
@@ -164,48 +150,73 @@ _flags = {
     for iso, asset in FLAGPACK.items()
     if os.path.exists(os.path.join(IMAGES, asset))
 }
-if _flags:
-    # El src se arma con un template literal, así que se sustituye la
-    # expresión entera por una búsqueda en la tabla.
-    table = ", ".join(f'"{iso}": "{uri}"' for iso, uri in _flags.items())
-    bundle = bundle.replace(
-        'const src = `/flagpack/4x3/${country.alpha2.toLowerCase()}.svg`;',
-        'var __FLAGS = {' + table + '};\n'
-        '  const src = __FLAGS[country.alpha2.toLowerCase()] '
-        '|| `/flagpack/4x3/${country.alpha2.toLowerCase()}.svg`;',
-    )
 
-# ── 3. Imágenes → data URIs ───────────────────────────────
-# Nombres entre comillas y también los que van dentro de un url(...)
-# de CSS inline, como el fondo a sangre de un diseño de tarjeta.
 # Arte que solo vive en las variantes de catálogo de Storybook y que el
 # prototipo no dibuja nunca. Inlinearlo costaba 1,6 MB del archivo y el
 # Artifact no admite más de 16.
 CATALOG_ONLY = {"plp-cajita-feliz.webp"}
 
-names = set(re.findall(r'["\']([A-Za-z0-9_.\-]+\.(?:png|svg|webp|jpe?g))["\']', bundle))
-names |= set(re.findall(r'url\(([A-Za-z0-9_.\-]+\.(?:png|svg|webp|jpe?g))\)', bundle))
-missing = []
-for name in sorted(names - CATALOG_ONLY):
-    disk = os.path.join(IMAGES, name)
-    if not os.path.exists(disk):
-        missing.append(name)
-        continue
-    uri = data_uri(disk)
-    bundle = (
-        bundle.replace(f'"{name}"', f'"{uri}"')
-        .replace(f"'{name}'", f"'{uri}'")
-        .replace(f"url({name})", f"url({uri})")
-    )
-if missing:
-    raise SystemExit("Missing image assets: " + ", ".join(missing))
+def build_bundle(modules):
+    chunks = ["var __mods = {};"]
+    for name in modules:
+        text = load_module(name)
 
-html = f"""<!doctype html>
+        exports = re.findall(r'(?m)^export\s+(?:function|const|let|var)\s+([A-Za-z0-9_$]+)', text)
+
+        imports = []
+        for names, dep in re.findall(r'(?m)^import\s*\{([^}]*)\}\s*from\s*"\./([A-Za-z0-9_$]+)(?:\.js)?";', text):
+            wanted = [n.strip() for n in names.split(",") if n.strip()]
+            imports.append(f'  var {{ {", ".join(wanted)} }} = __mods["{dep}"];')
+        text = re.sub(r'(?m)^import\s*\{[^}]*\}\s*from\s*"\.[^"]*";\n', '', text)
+        text = re.sub(r'(?m)^export\s+(function|const|let|var)\s', r'\1 ', text)
+
+        body = "\n".join(imports) + "\n" + text
+        returned = ", ".join(exports)
+        chunks.append(
+            f'__mods["{name}"] = (function () {{\n{body}\n  return {{ {returned} }};\n}})();'
+        )
+
+    bundle = "\n\n".join(chunks)
+
+    if _flags:
+        # El src se arma con un template literal, así que se sustituye la
+        # expresión entera por una búsqueda en la tabla.
+        table = ", ".join(f'"{iso}": "{uri}"' for iso, uri in _flags.items())
+        bundle = bundle.replace(
+            'const src = `/flagpack/4x3/${country.alpha2.toLowerCase()}.svg`;',
+            'var __FLAGS = {' + table + '};\n'
+            '  const src = __FLAGS[country.alpha2.toLowerCase()] '
+            '|| `/flagpack/4x3/${country.alpha2.toLowerCase()}.svg`;',
+        )
+
+    # ── 3. Imágenes → data URIs ───────────────────────────────
+    # Nombres entre comillas y también los que van dentro de un url(...)
+    # de CSS inline, como el fondo a sangre de un diseño de tarjeta.
+    names = set(re.findall(r'["\']([A-Za-z0-9_.\-]+\.(?:png|svg|webp|jpe?g))["\']', bundle))
+    names |= set(re.findall(r'url\(([A-Za-z0-9_.\-]+\.(?:png|svg|webp|jpe?g))\)', bundle))
+    missing = []
+    for name in sorted(names - CATALOG_ONLY):
+        disk = os.path.join(IMAGES, name)
+        if not os.path.exists(disk):
+            missing.append(name)
+            continue
+        uri = data_uri(disk)
+        bundle = (
+            bundle.replace(f'"{name}"', f'"{uri}"')
+            .replace(f"'{name}'", f"'{uri}'")
+            .replace(f"url({name})", f"url({uri})")
+        )
+    if missing:
+        raise SystemExit("Missing image assets: " + ", ".join(missing))
+    return bundle, names
+
+def page(bundle, mount, title):
+    return f"""<!doctype html>
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>OKY Cash — Prototipo</title>
+<title>{title}</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:wght@300..900&display=swap" rel="stylesheet" />
 <style>
 {chr(10).join(fa_css)}
@@ -227,11 +238,16 @@ body {{ margin:0; padding:24px; background:#eceef2; display:flex; justify-conten
 <div id="oky-app"></div>
 <script>
 {bundle}
-__mods["okyCashPrototype"].mountOkyCashPrototype(document.getElementById("oky-app"), {{ userType: "first-time" }});
+{mount}
 </script>
 </body>
 </html>
 """
+
+bundle, names = build_bundle(MODULES)
+OKY_MOUNT = '__mods["okyCashPrototype"].mountOkyCashPrototype(document.getElementById("oky-app"), { userType: "first-time" });'
+
+html = page(bundle, OKY_MOUNT, "OKY Cash — Prototipo")
 
 out = os.path.join(IMAGES, "oky-cash-prototype-demo.html")
 open(out, "w", encoding="utf-8").write(html)
@@ -257,7 +273,7 @@ body {{ margin:0; padding:24px; background:#eceef2; display:flex; justify-conten
 <div id="oky-app"></div>
 <script>
 {bundle}
-__mods["okyCashPrototype"].mountOkyCashPrototype(document.getElementById("oky-app"), {{ userType: "first-time" }});
+{OKY_MOUNT}
 </script>
 """
 art_out = os.path.join(ROOT, "tools", "oky-cash-prototype-artifact.html")
@@ -270,3 +286,19 @@ vercel_out = os.path.join(ROOT, "prototypes", "oky-cash", "index.html")
 os.makedirs(os.path.dirname(vercel_out), exist_ok=True)
 open(vercel_out, "w", encoding="utf-8").write(html)
 print(f"wrote {vercel_out}  ({len(html)/1024/1024:.1f} MB)")
+
+# ── 4. Yayo × OKY ─────────────────────────────────────────
+# Demo en images/ para verlo con el servidor local y la copia de Vercel
+# en prototypes/yayo/ (se publica en /yayo).
+yayo_bundle, yayo_names = build_bundle(YAYO_MODULES)
+yayo_html = page(
+    yayo_bundle,
+    '__mods["yayoPrototype"].mountYayoPrototype(document.getElementById("oky-app"));',
+    "Yayo × OKY — Prototipo",
+)
+yayo_demo = os.path.join(IMAGES, "yayo-prototype-demo.html")
+open(yayo_demo, "w", encoding="utf-8").write(yayo_html)
+yayo_vercel = os.path.join(ROOT, "prototypes", "yayo", "index.html")
+os.makedirs(os.path.dirname(yayo_vercel), exist_ok=True)
+open(yayo_vercel, "w", encoding="utf-8").write(yayo_html)
+print(f"wrote {yayo_vercel}  ({len(yayo_html)/1024/1024:.1f} MB), {len(yayo_names)} images")

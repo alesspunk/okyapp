@@ -65,6 +65,18 @@
       "destination": "/prototypes/oky-cash/index.html"
     },
     {
+      "source": "/yayo",
+      "destination": "/prototypes/yayo/index.html"
+    },
+    {
+      "source": "/prototypes/yayo",
+      "destination": "/prototypes/yayo/index.html"
+    },
+    {
+      "source": "/yayo-prototype-demo.html",
+      "destination": "/prototypes/yayo/index.html"
+    },
+    {
       "source": "/images/:path*",
       "destination": "/:path*"
     },

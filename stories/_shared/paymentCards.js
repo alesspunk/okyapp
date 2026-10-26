@@ -55,6 +55,23 @@ export const PAYMENT_CARD_VARIANTS = [
     recommendation:
       "La card gris del sistema con el wordmark de Yayo y tinta navy. El patrón sube a 38% de opacidad porque sobre gris claro casi no se ve al 12%.",
   },
+  /* La tarjeta del rediseño de Yayo × OKY (Beneficiario, 1:12722):
+     degradado angular de marca, saldo arriba a la derecha y el logo
+     blanco al centro. Sin pie: la card no navega ni vence. El fondo y
+     el brillo viven en el CSS de `is-yayo-brand`. */
+  {
+    path: "Molecule/Payment Card/Yayo Brand",
+    key: "yayo-brand",
+    id: "1:12722",
+    brand: null,
+    balance: { currency: "Q", value: "380.00", label: "disponible" },
+    pattern: null,
+    art: "yayo-logo-white.svg",
+    artClass: "is-yayo-logo",
+    showFooter: false,
+    recommendation:
+      "Yayo × OKY: degradado angular de la marca con brillo, saldo arriba a la derecha y el logo blanco centrado. Es la tarjeta del home del beneficiario.",
+  },
   {
     path: "Molecule/Payment Card/Saldo OKY",
     key: "saldo-oky",

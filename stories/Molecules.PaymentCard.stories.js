@@ -21,7 +21,7 @@ import { CARD_DESIGNS, okyCashCardData } from "./_shared/okyCashParts";
    la derecha y el vencimiento a la izquierda—, igual que en Tu
    billetera (okyCashCardData). Solo cambia aquí: paymentCards.js lo
    comparte el prototipo y se deja como está. */
-const ORDER = ["visa", "mastercard", "yayo", "saldo-oky", "oky-cash-black", "oky-cash-teal"];
+const ORDER = ["visa", "mastercard", "yayo", "yayo-brand", "saldo-oky", "oky-cash-black", "oky-cash-teal"];
 const STORY_VARIANTS = ORDER.map((key) => PAYMENT_CARD_VARIANTS.find((v) => v.key === key))
   .filter(Boolean)
   .map((v) =>
