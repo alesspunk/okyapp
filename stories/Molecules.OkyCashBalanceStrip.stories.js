@@ -13,7 +13,7 @@ export default {
       description: {
         component:
           "**OKY Cash Balance Strip** es la tira de saldo de las homes de USA y Guatemala: la moneda, el saldo y el " +
-          "botón **Explora**. Solo sale con saldo: sin OKY Cash no se muestra. Tocarla abre Tu billetera › OKY Cash. " +
+          "botón **Explora**. Solo sale con saldo: sin OKY Cash no se muestra. Tocarla abre Mi billetera › OKY Cash. " +
           "MARS: `OKY Cash / Balance Strip` · Prototipo: `.oky-flow-cash-strip`.",
       },
     },

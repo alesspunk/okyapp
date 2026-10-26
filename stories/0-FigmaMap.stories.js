@@ -26,7 +26,7 @@ const FIGMA_MAP = [
   { mars: "Sheet / Elige el país", node: "8367:207397", story: "/story/molecules-modal--oky-cash-sheets", label: "Molecules/Modal › OKY Cash · Hojas", estado: "igual" },
   { mars: "Sheet / Cambiar país", node: "8367:207406", story: "/story/molecules-modal--oky-cash-sheets", label: "Molecules/Modal › OKY Cash · Hojas", estado: "igual" },
   { mars: "Wallet / Pestañas v3", node: "8367:207065", story: "/docs/molecules-segmented-tabs--docs", label: "Molecules/Segmented Tabs › Mis compras", estado: "igual" },
-  { mars: "Wallet / Pestañas · Tu billetera", node: "8367:207084", story: "/docs/molecules-segmented-tabs--docs", label: "Molecules/Segmented Tabs › Tu billetera", estado: "igual" },
+  { mars: "Wallet / Pestañas · Mi billetera", node: "8367:207084", story: "/docs/molecules-segmented-tabs--docs", label: "Molecules/Segmented Tabs › Mi billetera", estado: "igual" },
   { mars: "Wallet / Estado vacío", node: "8367:207199", story: "/docs/molecules-empty-state--docs", label: "Molecules/Empty State", estado: "diferencias", nota: "Storybook: OKY Cash y Métodos de pago. Gift Cards, OKY Vales y Servicios son de la variante 1 (legacy)." },
   { mars: "Wallet / Punto Nuevo", node: "8367:207185", story: "/story/atoms-chips--voucher-badge", label: "Atoms/Chips › Insignia de vale · Punto Nuevo", estado: "igual" },
   { mars: "Wallet / Insignia de vale", node: "8367:207187", story: "/story/atoms-chips--voucher-badge", label: "Atoms/Chips › Insignia de vale · Punto Nuevo", estado: "igual" },

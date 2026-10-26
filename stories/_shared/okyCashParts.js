@@ -138,7 +138,7 @@ const SEG_TABS = {
     { key: "mio", label: "Para mí", icon: EMOJI_SELF, emoji: true },
     { key: "otros", label: "Para otros", icon: EMOJI_OTHERS, emoji: true },
   ],
-  "Tu billetera": [
+  "Mi billetera": [
     { key: "cash", label: "OKY Cash", icon: `<img class="oky-flow-wallet-seg-icon" src="oky-cash-coin.png" alt="" />` },
     { key: "methods", label: "Métodos de pago", icon: `<img class="oky-flow-wallet-seg-icon" src="oky-card-3d.png" alt="" />` },
   ],
@@ -148,7 +148,7 @@ export const SEG_KINDS = Object.keys(SEG_TABS);
 
 export function renderSegTabs({ kind = "Mis compras", active = 0, decision = false } = {}) {
   const tabs = SEG_TABS[kind] || SEG_TABS["Mis compras"];
-  const cls = decision ? " is-decision" : kind === "Tu billetera" ? " is-cash-solo" : "";
+  const cls = decision ? " is-decision" : kind === "Mi billetera" ? " is-cash-solo" : "";
   return `
     <section class="oky-flow-wallet-seg${cls}" role="tablist" aria-label="${kind}" style="width:328px">
       ${tabs
@@ -271,7 +271,7 @@ export function renderPayGroup(rows = ["OKY Cash", "Visa"], { balance = 5 } = {}
 }
 
 /* ── Movimiento de OKY Cash con su desglose ──────────────
-   Como en la actividad de Tu billetera: la History Card de OKY Cash y,
+   Como en la actividad de Mi billetera: la History Card de OKY Cash y,
    debajo, el panel que abre «Con qué lo ganaste» / «En qué lo usaste».
    Lo usado suma también el costo por servicio (OKYC-EXP-044). */
 export function renderCashMovement({ positive = true, open = false, date = "15 / OCT / 2026", order = "Orden #11112442", lines, estilo } = {}) {

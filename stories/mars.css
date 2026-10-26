@@ -14298,6 +14298,17 @@ button.tactic-offer {
   cursor: pointer;
 }
 
+/* Variante 3 (/miscompras, /timer): OKY Cash quedó en Aqua Oscuro
+   (decisión del 23/10), fondo secondary/dark y texto blanco como la
+   Pastilla de MARS. El «Vas ahorrando» de Guatemala es ahorro, no
+   OKY Cash, y se queda en su aqua. */
+.oky-flow-frame.is-cash-aqua-oscuro .oky-flow-purchase-badge.is-cash:not(.is-ahorro) {
+  /* Por variable y no por color directo: la animación de llegada
+     termina en --tier-base-bg. */
+  --tier-base-bg: var(--secondary-dark);
+  --tier-base-text: var(--white);
+}
+
 .oky-flow-purchase-badge.is-cash img {
   width: 22px;
   height: 24px;

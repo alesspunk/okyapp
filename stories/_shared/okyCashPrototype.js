@@ -1239,7 +1239,7 @@ function cashDock(state, opts = {}) {
      grande a la vez. */
   return `
     <div class="oky-flow-cashdock${opts.hidden ? " is-hidden" : ""}">
-      <button class="oky-flow-purchase-badge is-cash is-wallet" data-action="nav:okycash" type="button">
+      <button class="oky-flow-purchase-badge is-cash is-wallet${text.startsWith("Vas ahorrando") ? " is-ahorro" : ""}" data-action="nav:okycash" type="button">
         <span>${text}</span>
       </button>
     </div>
@@ -2580,7 +2580,7 @@ function screenCheckout(state) {
           <span class="oky-flow-pay-amount">${money(state.okyCashBalance)}</span>
           <img class="oky-flow-pay-icon is-coin" src="oky-cash-coin.png" alt="" />
           ${/* Los tres puntos vuelven: llevan a ver el disponible. En la
-               variante 3 abren Tu billetera en la pestaña de OKY Cash, y en
+               variante 3 abren Mi billetera en la pestaña de OKY Cash, y en
                las demás, la pestaña de OKY Cash del wallet (nav:okycash ya
                decide cuál). Atrás regresa al checkout. Marcar o desmarcar
                sigue siendo aquí, con el check. */ ""}
@@ -2736,7 +2736,7 @@ function checkoutBuyButton(checkoutCard, toCard) {
 
 /* ── Métodos de pago (99105:41588) ──────────────────────── */
 function screenMethods(state) {
-  /* La misma pantalla que Métodos de pago de Tu billetera: la tarjeta de
+  /* La misma pantalla que Métodos de pago de Mi billetera: la tarjeta de
      pago arriba y la lista para elegir, sin la card de OKY Cash ni su
      fila —OKY Cash se marca en el checkout—. Lo único que cambia
      viniendo de una compra es el botón de abajo, que vuelve a pagar. */
@@ -2752,7 +2752,7 @@ function screenMethods(state) {
   const ctaLabel = V3_ROUTE ? "Ir a pagar" : split ? `Pago con tarjeta - ${money(due)}` : `Ir a pagar - ${money(due)}`;
   return `
     ${statusBar()}
-    ${titledHeader(timer ? "Tu billetera" : "Métodos de pago")}
+    ${titledHeader(timer ? "Mi billetera" : "Métodos de pago")}
     ${/* La pestaña de OKY Cash se mira aquí mismo, sin salir de la
          compra: así el botón de pagar no se pierde. */ ""}
     ${timer ? cashSoloSeg(state, state.methodsTab === "cash" ? "cash" : "methods") : ""}
@@ -4456,7 +4456,7 @@ function screenCashSolo(state) {
     ${statusBar()}
     ${/* Un solo título para las dos mitades: la pantalla es la
          billetera; el selector dice cuál de las dos se está mirando. */ ""}
-    ${titledHeader("Tu billetera")}
+    ${titledHeader("Mi billetera")}
     ${cashSoloSeg(state)}
     ${methods ? cashSoloMethods(state) : okyCashActivity(state)}
     ${navbar("okycash", state)}
@@ -6502,7 +6502,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const keptScroll = keepScroll ? (root.querySelector(".oky-flow-scroll") || {}).scrollTop || 0 : 0;
 
     root.innerHTML = `
-      <div class="oky-flow-frame${state.claritaMuted ? " is-clarita-muted" : ""}${TEST_FEATURES.cardClarita ? "" : " is-no-card-clarita"}">
+      <div class="oky-flow-frame${V3_ROUTE ? " is-cash-aqua-oscuro" : ""}${state.claritaMuted ? " is-clarita-muted" : ""}${TEST_FEATURES.cardClarita ? "" : " is-no-card-clarita"}">
         <div class="oky-flow-scroll ${scrollClass(state)}">
           ${renderScreen(state)}
         </div>

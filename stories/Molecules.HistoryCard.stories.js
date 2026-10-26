@@ -154,7 +154,7 @@ export const StatusChips = {
 };
 
 /* ── OKY Cash / Movimiento (sprint 20/10) ─────────────────
-   La fila de OKY Cash de Tu billetera con su panel plegable:
+   La fila de OKY Cash de Mi billetera con su panel plegable:
    «Con qué lo ganaste» (ganado) / «En qué lo usaste» (usado). Al
    usarlo, el desglose incluye el costo por servicio. */
 export const OkyCashMovement = {
