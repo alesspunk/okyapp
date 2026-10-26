@@ -14325,7 +14325,8 @@ button.tactic-offer {
   --discount-ribbon-notch: var(--oky-cash-dark);
 }
 
-.oky-flow-frame.is-cash-aqua-oscuro .oky-flow-cash-strip .oky-flow-cash-strip-amount {
+.oky-flow-frame.is-cash-aqua-oscuro .oky-flow-cash-strip .oky-flow-cash-strip-amount,
+.oky-flow-frame.is-cash-aqua-oscuro .oky-flow-cash-strip .oky-flow-cash-strip-label {
   color: var(--white);
 }
 

@@ -4138,7 +4138,7 @@ function okyCashActivity(state) {
      parecía pero no era la pieza. */
   const badgeFor = (positive) =>
     positive
-      ? { src: "oky-activity-up.png", tone: "up" }
+      ? { src: V3_ROUTE ? "oky-activity-up-aqua-oscuro.png" : "oky-activity-up.png", tone: "up" }
       : { src: "oky-activity-down.png", tone: "down" };
 
   const historyRow = ({ date, amount, order, positive }) =>
