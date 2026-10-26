@@ -116,10 +116,10 @@ export const GUA_HOME_MARKUP = `
                   <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="pollo-granjero.webp" alt="Pollo Granjero logo" /></div>
                   <p class="token-brand homecard-tile-name">Pollo Granjero</p>
                 </article>
-                <article class="homecard-tile is-live" data-action="open-guapdp" data-product="gua-ihop"
+                <article class="homecard-tile is-live" data-action="open-guapdp" data-product="gua-yayo"
                   role="button" tabindex="0">
-                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="ihop.webp" alt="iHop logo" /></div>
-                  <p class="token-brand homecard-tile-name">iHop</p>
+                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="yayo.webp" alt="Yayo logo" /></div>
+                  <p class="token-brand homecard-tile-name">Yayo</p>
                 </article>
 
               </div>

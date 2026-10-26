@@ -984,13 +984,18 @@ const GUA_BRANDS = [
   /* La clave sigue diciendo "claro" de cuando este vale era de Claro;
      se cambiaron de sitio las dos marcas. */
   { key: "gua-claro", label: "Tigo", art: "tigo.webp", bg: "#00377b" },
+  /* Yayo se compra como cualquier vale de monto; lo que cambia es que
+     se recarga: los envíos se suman en el mismo vale del teléfono. No
+     es comida, así que no paga costo por servicio ni saca "Agrega más,
+     paga menos". */
+  { key: "gua-yayo", label: "Yayo", art: "yayo.webp", cardTitle: "OKY Vale Recargable", service: false, telco: true },
 ];
 
 GUA_BRANDS.forEach((brand) => {
   PRODUCTS[brand.key] = {
     ...brand,
     /* La card enseña qué es; el carrito, de quién es. */
-    cardTitle: "OKY Vale",
+    cardTitle: brand.cardTitle || "OKY Vale",
     cartTitle: `OKY Vale ${brand.label}`,
     hero: brand.art,
     /* Blanco salvo que la marca traiga el suyo: el arte de Tigo es su
@@ -1006,7 +1011,7 @@ GUA_BRANDS.forEach((brand) => {
     country: "gua",
     wallet: "vales",
     quetzal: true,
-    service: true,
+    service: brand.service !== false,
     legal: false,
   };
 });
@@ -4553,6 +4558,7 @@ const SEARCH_CATALOG = {
     { key: "gua-claro", label: "Tigo", art: "tigo.webp", action: "open-guapdp", product: "gua-claro", tags: "recarga recargas internet celular" },
     { key: "gua-ihop", label: "IHOP", art: "ihop.webp", action: "open-guapdp", product: "gua-ihop", tags: "comida desayuno" },
     { key: "gua-dominos", label: "Domino's", art: "dominos.png", action: "open-guapdp", product: "gua-dominos", tags: "comida pizza" },
+    { key: "gua-yayo", label: "Yayo", art: "yayo.webp", action: "open-guapdp", product: "gua-yayo", tags: "vale recargable tienda tendero" },
   ].map((brand) => ({ ...brand, tags: `${brand.tags} guatemala gt` })),
 };
 
@@ -5214,7 +5220,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
         : "url"
       : section0 === "servicios"
         ? "servicio"
-        : card.key === "tigo"
+        : card.key === "tigo" || card.telco
           ? "tigo"
           : "vale";
   const bottomOfVoucher =
@@ -5256,6 +5262,19 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               bottomExpiry: "",
               bottomButtonLabel: "Ayuda",
             }
+          : /* Yayo tampoco: el saldo se carga al vale atado al teléfono
+               de quien lo recibe, así que se enseña a quién y a qué
+               número, como en una recarga. */
+            card.telco
+            ? {
+                bottomVariantPath: "Molecule/Bottom Card/Telco",
+                bottomLines: [
+                  { label: "Para quién es", value: GUA_RECIPIENT.name, copyable: false },
+                  { label: "Número", value: GUA_RECIPIENT.phone, copyable: false },
+                ],
+                bottomExpiry: "",
+                bottomButtonLabel: "Ayuda",
+              }
           : /* Y el vale de una marca sí lleva código, pero uno solo: las
                tres credenciales eran las de una gift card
                internacional. */
@@ -5362,7 +5381,8 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
                  enlace arriba y va centrado. */
               topFooterRightLabel: section0 === "gift" ? "Brand Disclaimer" : "",
               middleCardPath: "Molecule/Middle Card/Amount",
-              middleTitle: kind,
+              /* Yayo se llama como en su PDP: "OKY Vale Recargable". */
+              middleTitle: card.telco ? card.cardTitle : kind,
               /* Y el pie del medio dice lo que toca en cada uno: la gift
                  card de USA no se muestra en caja —lo único que hay que
                  abrir son las instrucciones de canje, que es además la
