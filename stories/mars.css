@@ -14309,6 +14309,32 @@ button.tactic-offer {
   --tier-base-text: var(--white);
 }
 
+/* El resto de piezas de OKY Cash en la variante 3, con el mismo par:
+   ribbons «Gana X%», saving bar, Super Deals, la tira del saldo, el
+   «Gana X%» de las marcas y el chip «Ganado» del historial. Los «% OFF»
+   y las barras de ahorro de Guatemala (.oky-flow-savebar) son descuento
+   y se quedan en aqua. */
+.oky-flow-frame.is-cash-aqua-oscuro .discount-ribbon.is-tier-base:not(.is-ahorro),
+.oky-flow-frame.is-cash-aqua-oscuro .saving-bar.is-oky-cash:not(.is-tier-promo):not(.is-ending),
+.oky-flow-frame.is-cash-aqua-oscuro .super-ribbon-type-normal,
+.oky-flow-frame.is-cash-aqua-oscuro .oky-flow-brand-rate,
+.oky-flow-frame.is-cash-aqua-oscuro .oky-flow-cash-strip,
+.oky-flow-frame.is-cash-aqua-oscuro .oky-flow-history .history-card-chip.is-success {
+  --tier-base-bg: var(--secondary-dark);
+  --tier-base-text: var(--white);
+  --discount-ribbon-notch: var(--oky-cash-dark);
+}
+
+.oky-flow-frame.is-cash-aqua-oscuro .oky-flow-cash-strip .oky-flow-cash-strip-amount {
+  color: var(--white);
+}
+
+/* El monto ganado va sobre la card blanca: el blanco de la pastilla no
+   se leería, así que se queda en el teal oscuro. */
+.oky-flow-frame.is-cash-aqua-oscuro .oky-flow-history .history-card-amount.is-credit {
+  color: var(--oky-cash-dark);
+}
+
 .oky-flow-purchase-badge.is-cash img {
   width: 22px;
   height: 24px;
@@ -16247,6 +16273,59 @@ img.oky-flow-method-mark {
   line-height: 1;
   color: var(--white);
   filter: drop-shadow(0 2px 8px var(--black-a45));
+}
+
+/* Recorrido de F00-FT: título grande y la línea de apoyo debajo. */
+.oky-flow-tour-title {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--white);
+  text-shadow: 0 2px 10px var(--black-a50);
+}
+
+.oky-flow-tour-label.is-sub {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* Remate del recorrido automático (F00-FT-08): «Compra y gana» en
+   blanco sobre la home atenuada y la moneda girando debajo. */
+.oky-flow-tourflag.is-coin {
+  justify-content: center;
+}
+
+.oky-flow-tourflag.is-coin .oky-flow-tourflag-backdrop {
+  animation-duration: 2400ms;
+}
+
+.oky-flow-tourcoin {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  animation: oky-flow-ready-in 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.oky-flow-tourcoin-title {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  color: var(--white);
+  text-shadow: 0 10px 30px var(--black-a50);
+}
+
+.oky-flow-tourcoin-coin {
+  display: block;
+  width: 150px;
+  height: 150px;
 }
 
 .oky-flow-tour-label {

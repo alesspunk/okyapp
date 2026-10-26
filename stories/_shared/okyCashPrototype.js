@@ -223,8 +223,11 @@ const SHARE_ICON = IS_IOS ? SHARE_ICON_IOS : SHARE_ICON_ANDROID;
      (McDonald's). Apagado, todo va a precio regular: sin tachado ni
      "% OFF"; el ahorro que queda es el del costo por servicio. */
 const TEST_FEATURES = {
-  /* En /timer vuelven Clarita y su recorrido en la home de USA. */
-  usaGuide: TIMER_ROUTE,
+  /* Clarita ya no sale en ningún apartado (26/10). En /timer el
+     recorrido de la home de USA arranca solo, al pasar la pared de
+     banderas, como en el flujo First Timer de 7600 (F00-FT-04 → 08). */
+  usaGuide: false,
+  usaTour: TIMER_ROUTE,
   spookyTimer: TIMER_ROUTE,
   /* El relevo del ribbon y el aviso en la barra al teclear un monto de
      otro tramo. Solo en /timer, que es donde existe el tramo del 20%. */
@@ -237,7 +240,7 @@ const TEST_FEATURES = {
   walletSeed: false,
   /* Clarita en la card del vale ("¿Necesitas ayuda con el canje?"),
      en gift cards y OKY Vales. Fuera de /timer no sale. */
-  cardClarita: TIMER_ROUTE,
+  cardClarita: false,
   /* El código promocional del carrito de Guatemala ("verano26"), que
      desplaza al OKY Cash. En la versión actual la píldora se ve pero
      tocarla no hace nada. */
@@ -1450,8 +1453,8 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
    sino Clarita, así que aquí solo queda contar la historia —dónde
    aparece lo que compras y dónde ver lo que ganas. */
 const TOUR_STEPS = [
-  { target: ".header-icon-bitmap-wallet-wrap", label: "Compra Gift Cards y encuéntralas aquí" },
-  { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Mira cuánto OKY Cash ganas" },
+  { target: ".header-icon-bitmap-wallet-wrap", title: "Mis Compras", label: "Encuentra tus Gift Cards comprados" },
+  { target: ".oky-flow-navbar [data-action='nav:okycash']", title: "OKY Cash", label: "Encuentra tu OKY Cash ganado" },
 ];
 
 /* El recorrido de la gift card de USA: lo abre Clarita desde la propia
@@ -1519,6 +1522,8 @@ const TOUR_READY_MS = 900;
 const TOUR_COUNT_MS = 520;
 const TOUR_COUNT_LIGHTS = { 3: "is-red", 2: "is-amber", 1: "is-green" };
 const TOUR_FLAG_MS = 1600;
+/* Lo que se queda «Compra y gana» con la moneda girando (/timer). */
+const TOUR_COIN_MS = 2400;
 /* Lo que dura el estallido del final. Es un golpe, no una lluvia. */
 const TOUR_CONFETTI_MS = 1200;
 
@@ -1577,11 +1582,14 @@ function tourOverlay(state) {
      una copia— y encima solo van la flecha y la línea. Se toca donde
      sea para pasar. */
   return `
-    <div class="oky-flow-tour" data-action="tour-next" role="dialog" aria-modal="true" aria-label="${step.label}">
+    <div class="oky-flow-tour" data-action="tour-next" role="dialog" aria-modal="true" aria-label="${step.title ? `${step.title}: ` : ""}${step.label}">
       <span class="oky-flow-tour-hole" aria-hidden="true"></span>
       <div class="oky-flow-tour-call">
         <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
-        <p class="oky-flow-tour-label">${step.label}</p>
+        <div class="oky-flow-tour-text">
+          ${step.title ? `<p class="oky-flow-tour-title">${step.title}</p>` : ""}
+          <p class="oky-flow-tour-label${step.title ? " is-sub" : ""}">${step.label}</p>
+        </div>
       </div>
     </div>
   `;
@@ -1659,6 +1667,19 @@ function tourCountdown() {
 }
 
 function tourFlag() {
+  /* En el recorrido automático (/timer) el remate es el de F00-FT-08:
+     «Compra y gana» sobre la home atenuada y la moneda girando. */
+  if (TEST_FEATURES.usaTour) {
+    return `
+      <div class="oky-flow-tourflag is-coin" aria-hidden="true">
+        <span class="oky-flow-tourflag-backdrop"></span>
+        <div class="oky-flow-tourcoin" role="status">
+          <p class="oky-flow-tourcoin-title">Compra y gana</p>
+          <span class="oky-flow-tourcoin-coin" data-role="tour-coin"></span>
+        </div>
+      </div>
+    `;
+  }
   return `
     <div class="oky-flow-tourflag" aria-hidden="true">
       <span class="oky-flow-tourflag-backdrop"></span>
@@ -2249,7 +2270,7 @@ function cartDrawer(state) {
                   /* Donde USA enseña lo que gana, Guatemala enseña lo
                      que rebaja: el mismo sitio y el mismo cintillo. */
                   product.was
-                    ? `<span class="discount-ribbon discount-ribbon-list is-tier-base">
+                    ? `<span class="discount-ribbon is-ahorro discount-ribbon-list is-tier-base">
                         <span class="discount-ribbon-text token-price-percent">${Math.round((1 - product.price / product.was) * 100)}% OFF</span>
                       </span>`
                     : tier.rate
@@ -2449,7 +2470,7 @@ function screenCheckout(state) {
         ${
           product.was
             ? `<div class="middle-card-ribbon-slot">
-                <div class="discount-ribbon discount-ribbon-wrap is-tier-base">
+                <div class="discount-ribbon is-ahorro discount-ribbon-wrap is-tier-base">
                   <span class="discount-ribbon-text token-price-percent">${Math.round((1 - product.price / product.was) * 100)}% OFF</span>
                 </div>
               </div>`
@@ -4854,7 +4875,7 @@ function screenPlp(state) {
           </div>
           ${
             off
-              ? `<div class="discount-ribbon discount-ribbon-list is-tier-base">
+              ? `<div class="discount-ribbon is-ahorro discount-ribbon-list is-tier-base">
                   <span class="discount-ribbon-text token-price-percent">${off}% OFF</span>
                 </div>`
               : ""
@@ -4931,7 +4952,7 @@ function screenFoodPdp(state) {
                wrap ribbon del checkout. */
             product.was
               ? `<div class="middle-card-ribbon-slot">
-                  <div class="discount-ribbon discount-ribbon-wrap is-tier-base">
+                  <div class="discount-ribbon is-ahorro discount-ribbon-wrap is-tier-base">
                     <span class="discount-ribbon-text token-price-percent">${Math.round((1 - product.price / product.was) * 100)}% OFF</span>
                   </div>
                 </div>`
@@ -6292,6 +6313,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   let winAnimation = null;
   let flagAnimation = null;
   let coinAnimation = null;
+  let tourCoinAnimation = null;
   let confettiAnimation = null;
   let webviewTimer = null;
   /* Cuándo arrancó "Ganaste": a los 7 s la pastilla de la cabecera ya
@@ -6490,6 +6512,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       coinAnimation.destroy();
       coinAnimation = null;
     }
+    if (tourCoinAnimation) {
+      tourCoinAnimation.destroy();
+      tourCoinAnimation = null;
+    }
 
     /* La promo que se quedó esperando fuera de la home arranca en
        cuanto se vuelve, con el mismo respiro que tras la presentación:
@@ -6611,6 +6637,21 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       });
       if (!play) coinAnimation.goToAndStop(0, true);
       coinHost.parentElement.classList.add("is-ready");
+    }
+
+    /* La moneda del remate del recorrido gira en bucle mientras dura;
+       con movimiento reducido se queda quieta. */
+    const tourCoinHost = root.querySelector("[data-role='tour-coin']");
+    if (tourCoinHost) {
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      tourCoinAnimation = lottie.loadAnimation({
+        container: tourCoinHost,
+        renderer: "svg",
+        loop: !reduce,
+        autoplay: !reduce,
+        animationData: OKY_COIN_FLIP,
+      });
+      if (reduce) tourCoinAnimation.goToAndStop(0, true);
     }
 
     /* Lluvia de banderas del folder (/miscompras): una sola pasada. */
@@ -6906,7 +6947,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const after = root.querySelector(".oky-flow-scroll");
     if (after && y > 0) after.scrollTop = y;
 
-    armHelp();
+    if (TEST_FEATURES.usaGuide) armHelp();
 
     /* Primero la home vuelve arriba —que se vea el camino— y ya en la
        portada pregunta, que es lo que da pie a la cuenta atrás. */
@@ -6976,6 +7017,19 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      re-render, para que el fondo atenuado no parpadee. El de la
      banderola arranca ya encendido y toma el relevo sin corte. */
   function startFinish() {
+    /* Recorrido automático: sin cuenta atrás, «Compra y gana» con la
+       moneda y la home queda lista para que arranque el reloj. */
+    if (TEST_FEATURES.usaTour) {
+      state.tourFlag = true;
+      render();
+      tourFlagTimer = setTimeout(() => {
+        state.tourFlag = false;
+        cancelPromoIdle();
+        armPromoIdle(PROMO_AFTER_FLAG_MS);
+        render();
+      }, TOUR_COIN_MS);
+      return;
+    }
     state.tourCount = true;
     render();
 
@@ -7176,7 +7230,22 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         dropFlagWall();
       }, FLAG_WALL_MS);
     }
-    if (firstUsa) {
+    if (firstUsa && TEST_FEATURES.usaTour) {
+      /* Sin Clarita: el recorrido entra solo cuando la pared de
+         banderas termina (F00-FT-04 → F00-FT-06). El reloj espera al
+         final del recorrido. */
+      clearTimeout(introTimer);
+      cancelPromoIdle();
+      introTimer = setTimeout(() => {
+        state.flagIntro = null;
+        dropFlagWall();
+        if (state.screen !== "home" || state.country !== "usa" || state.tourSeen) return render();
+        state.tourDeck = "home";
+        state.tourStep = 0;
+        render();
+        placeTour();
+      }, FLAG_WALL_MS);
+    } else if (firstUsa) {
       clearTimeout(introTimer);
       /* El recorrido entra en cuanto la pared cruza, sin esperar a las
          rezagadas. Va por DOM y no por render: una pasada de render
