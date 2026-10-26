@@ -18634,6 +18634,19 @@ img.oky-flow-method-mark {
   color: var(--text-secondary);
 }
 
+/* Íconos rellenos del diseño (tienda, calendario): la tienda de una
+   solicitud rechazada o vencida va en gris, como el resto de la card. */
+.yayo-flow .icon-avatar.is-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.yayo-flow .icon-avatar.is-art.is-muted img {
+  filter: grayscale(1);
+  opacity: 0.75;
+}
+
 /* La cuenta atrás avisa en rojo el último minuto. */
 .super-ribbon-type-vence.is-urgent .super-ribbon-countdown-value {
   color: var(--error-main);
@@ -22558,6 +22571,76 @@ function htmlToElement(html) {
   return { money, EMOJI_SELF, EMOJI_OTHERS, phoneFrame, renderScrollHint, renderVoucherBadge, renderStatusToast, renderSectionHead, renderNewDot, OKY_CASH_ESTILOS, estiloClass, renderBalanceStrip, renderCashPill, SEG_KINDS, renderSegTabs, renderTourCallout, renderWebviewBar, EMPTY_KINDS, renderEmptyState, PAY_ROWS, renderPayGroup, renderCashMovement, CARD_DESIGNS, okyCashCardData, CASH_BAR_KINDS, renderCashSavingBar, CART_QTY_STATES, renderCartQty, SHARE_ICON_IOS, SHARE_ICON_ANDROID, SHEET_KINDS, renderCountryRow, renderSheet, mountLottie, htmlToElement };
 })();
 
+__mods["yayoInbox"] = (function () {
+
+/* ─────────────────────────────────────────────────────────
+   Buzón de recargas Yayo, entre los dos prototipos.
+
+   Comprar el OKY Vale Recargable de Yayo en /miscompras (GUA) deja la
+   recarga aquí, y /yayo la recibe: al instante si está abierto en otra
+   pestaña, o la próxima vez que se abra. No hay backend: los dos
+   prototipos comparten el almacenamiento del navegador porque viven en
+   el mismo origen (okyapp.vercel.app, o localhost en local). Por eso
+   solo funciona en el mismo navegador.
+───────────────────────────────────────────────────────── */
+
+const KEY = "oky-yayo-inbox";
+const CHANNEL = "oky-yayo";
+
+function read() {
+  try {
+    const list = JSON.parse(window.localStorage.getItem(KEY) || "[]");
+    return Array.isArray(list) ? list : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function write(list) {
+  try {
+    window.localStorage.setItem(KEY, JSON.stringify(list));
+  } catch (error) {
+    /* Sin almacenamiento (ventana privada, previews) la recarga se pierde
+       y el prototipo de compra sigue igual. */
+  }
+}
+
+/* /miscompras: deja la recarga en el buzón y avisa a las pestañas abiertas. */
+function sendYayoTopup({ amount, phone }) {
+  const entry = { id: `t-${Date.now()}-${Math.round(Math.random() * 1e4)}`, amount, phone, at: Date.now() };
+  write([...read(), entry]);
+  try {
+    const channel = new BroadcastChannel(CHANNEL);
+    channel.postMessage("topup");
+    channel.close();
+  } catch (error) {
+    /* El evento storage de las otras pestañas también avisa. */
+  }
+}
+
+/* /yayo: saca lo que haya en el buzón (y lo vacía). */
+function takeYayoTopups() {
+  const list = read();
+  if (list.length) write([]);
+  return list;
+}
+
+/* /yayo: llama a onArrive cada vez que llega algo nuevo. */
+function listenYayoTopups(onArrive) {
+  window.addEventListener("storage", (event) => {
+    if (event.key === KEY && event.newValue && event.newValue !== "[]") onArrive();
+  });
+  try {
+    const channel = new BroadcastChannel(CHANNEL);
+    channel.onmessage = () => onArrive();
+  } catch (error) {
+    /* Sin BroadcastChannel queda el evento storage. */
+  }
+}
+
+  return { sendYayoTopup, takeYayoTopups, listenYayoTopups };
+})();
+
 __mods["okyCashPrototype"] = (function () {
   var { findPaymentCard, renderPaymentCard } = __mods["paymentCards"];
   var { CARD_DESIGNS } = __mods["okyCashParts"];
@@ -22572,6 +22655,7 @@ __mods["okyCashPrototype"] = (function () {
   var { OKY_FLAGS_US, OKY_FLAGS_GT } = __mods["okyFlagsAnimation"];
   var { OKY_COIN_FLIP } = __mods["okyCoinFlipAnimation"];
   var { OKY_CONFETTI } = __mods["okyConfettiAnimation"];
+  var { sendYayoTopup } = __mods["yayoInbox"];
 /* ─────────────────────────────────────────────────────────
    OKY Cash — Prototipo clickable end-to-end
    Pages/OKY Cash/Prototype
@@ -30676,6 +30760,12 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         };
         state.purchases.push(purchase);
         state.lastOrder.push(purchase);
+      }
+
+      /* La recarga de Yayo le llega al beneficiario en /yayo, si está
+         abierto en este mismo navegador (o la próxima vez que se abra). */
+      if (item.productKey === "gua-yayo" && item.quetzales) {
+        sendYayoTopup({ amount: item.quetzales * units, phone: GUA_RECIPIENT.phone });
       }
 
       /* El movimiento del historial sigue siendo uno por marca y orden:

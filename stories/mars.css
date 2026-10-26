@@ -18619,6 +18619,19 @@ img.oky-flow-method-mark {
   color: var(--text-secondary);
 }
 
+/* Íconos rellenos del diseño (tienda, calendario): la tienda de una
+   solicitud rechazada o vencida va en gris, como el resto de la card. */
+.yayo-flow .icon-avatar.is-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.yayo-flow .icon-avatar.is-art.is-muted img {
+  filter: grayscale(1);
+  opacity: 0.75;
+}
+
 /* La cuenta atrás avisa en rojo el último minuto. */
 .super-ribbon-type-vence.is-urgent .super-ribbon-countdown-value {
   color: var(--error-main);

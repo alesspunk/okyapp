@@ -28,8 +28,10 @@ import { findHistoryCard, renderHistoryCard } from "./historyCards";
 import { renderFlag } from "./flag";
 import { lottie } from "./lottieLight";
 import { OKY_CONFETTI } from "./okyConfettiAnimation";
+import { listenYayoTopups, takeYayoTopups } from "./yayoInbox";
 
-const PHONE = "6284 8092";
+/* El mismo beneficiario al que /miscompras le manda el vale de Yayo. */
+const PHONE = "6578 8744";
 const OTP = "991222";
 const REQUEST = {
   amount: 380,
@@ -86,6 +88,7 @@ function createInitialState() {
     chat: [],
     helpChannel: "correo",
     seq: 4784,
+    credits: 0,
   };
 }
 
@@ -361,23 +364,29 @@ function pendingRequestCard(state) {
 
 const FILTERS = [
   { key: "todos", label: "Todos" },
+  { key: "acreditado", label: "Recargas" },
   { key: "aprobado", label: "Aprobados" },
   { key: "rechazado", label: "Rechazados" },
   { key: "vencido", label: "Vencidos" },
 ];
 
 function historyEntry(entry, isNew) {
-  const approved = entry.status === "aprobado";
+  const approved = entry.status === "aprobado" || entry.status === "acreditado";
+  const credit = entry.status === "acreditado";
   const base = findHistoryCard(approved ? "Molecule/History Card/Yayo Approved" : "Molecule/History Card/Yayo Rejected");
-  const chip = approved
+  const chip = credit
+    ? { label: "Acreditado", tone: "success", icon: "fa-circle-check" }
+    : approved
     ? base.chip
     : entry.status === "vencido"
       ? { label: "Vencida", tone: "neutral", icon: "fa-clock" }
       : base.chip;
   const html = renderHistoryCard({
     ...base,
+    /* Los íconos rellenos del diseño (1:16261) en vez del glifo de línea. */
+    icon: { src: "yayo-avatar-store.png" },
     date: dateLabel(entry.at),
-    amount: approved ? `-${quetzal(entry.amount)}` : quetzal(entry.amount),
+    amount: credit ? `+${quetzal(entry.amount)}` : approved ? `-${quetzal(entry.amount)}` : quetzal(entry.amount),
     meta: { ...base.meta, brand: entry.merchant, note: `ID: ${entry.id}` },
     chip,
   });
@@ -404,7 +413,7 @@ function activityBlock(state) {
            <p class="yayo-flow-empty-note">Prueba con otro filtro o búsqueda.</p>
          </div>`
     : `<div class="yayo-flow-empty">
-         <span class="icon-avatar" aria-hidden="true"><i class="fa-light fa-store"></i></span>
+         <span class="icon-avatar is-art" aria-hidden="true"><img src="yayo-avatar-store.png" alt="" /></span>
          <p class="yayo-flow-empty-title">Aún no tienes actividad</p>
          <p class="yayo-flow-empty-note">Aquí verás los pagos que apruebes o rechaces en las tiendas.</p>
        </div>`;
@@ -483,7 +492,7 @@ function requestModal(state) {
           <div class="modal-detail-list">
             <div class="modal-detail-rows">
               <div class="modal-detail-row">
-                <span class="icon-avatar is-small" aria-hidden="true"><i class="fa-light fa-store"></i></span>
+                <span class="icon-avatar is-small is-art" aria-hidden="true"><img src="yayo-avatar-store.png" alt="" /></span>
                 <div class="modal-detail-copy">
                   <p class="modal-detail-title">${r.merchant}</p>
                   <p class="modal-detail-note">ID: ${r.id}</p>
@@ -492,7 +501,7 @@ function requestModal(state) {
               </div>
               <hr class="modal-detail-divider" />
               <div class="modal-detail-row">
-                <span class="icon-avatar is-small" aria-hidden="true"><i class="fa-light fa-calendar"></i></span>
+                <span class="icon-avatar is-small is-art" aria-hidden="true"><img src="yayo-avatar-calendar.png" alt="" /></span>
                 <div class="modal-detail-copy">
                   <p class="modal-detail-title">${dateLabel(r.receivedAt)}&nbsp; -&nbsp; ${timeLabel(r.receivedAt)}</p>
                 </div>
@@ -675,6 +684,7 @@ function screenTerms() {
     "Un pago aprobado no se puede revertir desde la app; para cualquier reclamo contacta a la tienda o a Ayuda.",
     "Nunca compartas el código que te enviamos para ingresar. OKY no te lo pedirá por ningún medio.",
     "Los vales solo se pueden utilizar en las tiendas afiliadas a Yayo.",
+    "Las recargas que te envían por OKY se suman al mismo vale y las ves en tu actividad.",
     "Consulta tu saldo y tu actividad en cualquier momento desde el inicio de la app.",
   ];
   return `
@@ -1024,6 +1034,30 @@ export function mountYayoPrototype(root) {
     }, 1100);
   }
 
+  /* Recargas que llegaron desde /miscompras (vale Yayo de GUA). Con
+     sesión se acreditan al momento; en el login esperan a que se entre. */
+  function receiveTopups() {
+    if (!state.loggedIn) return;
+    const list = takeYayoTopups();
+    if (!list.length) return;
+    const total = list.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+    list.forEach((t) => {
+      state.credits += 1;
+      addActivity({
+        status: "acreditado",
+        amount: Number(t.amount) || 0,
+        merchant: "Acreditación de saldo",
+        id: `AC-${String(1000 + state.credits).slice(-4)}`,
+      });
+    });
+    state.balance += total;
+    if (state.screen !== "home" && state.screen !== "activity") state.screen = "home";
+    state.menuOpen = false;
+    /* El toast admite 30 caracteres: con Q1,000.00 queda justo. */
+    showToast(`Recibiste ${quetzal(total)} de recarga`, { tone: "success", icon: "fa-circle-check" });
+    later(() => animateBalance(state.balance), 250);
+  }
+
   function enterHome() {
     state.loggedIn = true;
     state.sheet = null;
@@ -1038,6 +1072,7 @@ export function mountYayoPrototype(root) {
       addActivity({ status: "vencido", amount: r.amount, merchant: r.merchant, id: `VX-${r.id.split("-")[1]}` });
     }
     render();
+    receiveTopups();
     /* La solicitud que avisaba el login se abre sola al entrar. */
     if (state.request) {
       later(() => {
@@ -1258,6 +1293,8 @@ export function mountYayoPrototype(root) {
       el.click();
     }
   });
+
+  listenYayoTopups(receiveTopups);
 
   root.addEventListener("submit", (event) => {
     if (!event.target.matches("[data-role='chat-form']")) return;

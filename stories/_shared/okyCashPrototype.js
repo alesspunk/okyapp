@@ -57,6 +57,7 @@ import { OKY_CASH_WIN_ANIMATION } from "./okyCashWinAnimation";
 import { OKY_FLAGS_US, OKY_FLAGS_GT } from "./okyFlagsAnimation";
 import { OKY_COIN_FLIP } from "./okyCoinFlipAnimation";
 import { OKY_CONFETTI } from "./okyConfettiAnimation";
+import { sendYayoTopup } from "./yayoInbox";
 
 /* ── Catálogo ────────────────────────────────────────────── */
 
@@ -8115,6 +8116,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         };
         state.purchases.push(purchase);
         state.lastOrder.push(purchase);
+      }
+
+      /* La recarga de Yayo le llega al beneficiario en /yayo, si está
+         abierto en este mismo navegador (o la próxima vez que se abra). */
+      if (item.productKey === "gua-yayo" && item.quetzales) {
+        sendYayoTopup({ amount: item.quetzales * units, phone: GUA_RECIPIENT.phone });
       }
 
       /* El movimiento del historial sigue siendo uno por marca y orden:

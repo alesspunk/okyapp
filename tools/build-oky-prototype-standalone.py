@@ -120,14 +120,14 @@ MODULES = [
     # aplanado con sus webp en data URI: el HTML suelto reproduce la
     # animación sin pedir nada por red.
     "lottieLight", "okyCashWinAnimation", "okyFlagsAnimation", "okyCoinFlipAnimation", "okyConfettiAnimation",
-    "okyCashParts", "okyCashPrototype",
+    "okyCashParts", "yayoInbox", "okyCashPrototype",
 ]
 
 # El prototipo de Yayo × OKY (beneficiario) es independiente: lleva solo
 # los módulos que usa y sale a su propia carpeta de Vercel.
 YAYO_MODULES = [
     "flag", "paymentCards", "historyCards",
-    "lottieLight", "okyConfettiAnimation", "yayoPrototype",
+    "lottieLight", "okyConfettiAnimation", "yayoInbox", "yayoPrototype",
 ]
 
 def load_module(name):
