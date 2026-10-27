@@ -562,6 +562,7 @@ export function resolveCardBottom(args = {}) {
        dice quien dibuja la pantalla: desde el acuse de compra la card no
        vive en los params, así que adivinarlo desde el estado sacaba el
        recorrido de otra clase de vale. */
+    showClarita: args.showClarita === true,
     claritaAction: args.claritaAction || "",
     claritaDeck: args.claritaDeck || "",
     whatsappImage: args.whatsappImage?.trim() || "whatsapp-icon-card-bottom.png",
@@ -597,7 +598,10 @@ export function renderCardBottom(card) {
             <div class="prime-card-bottom-side">
               <div class="prime-card-bottom-expiry">${card.expiry || "&nbsp;"}</div>
               <div class="prime-card-bottom-button-slot">
-                ${renderClarita(card.claritaAction, card.claritaDeck)}
+                ${/* Clarita queda escondida en todas las variantes hasta
+                     nuevo aviso (27/10, antes de pasar a desarrollo); se
+                     vuelve a encender con showClarita: true. */ ""}
+                ${card.showClarita === true ? renderClarita(card.claritaAction, card.claritaDeck) : ""}
               </div>
             </div>
           `

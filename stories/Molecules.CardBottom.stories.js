@@ -27,7 +27,8 @@ export default {
           "Usa el surface token **Card Bottom**, conserva el mismo shadow **PDP Card**, mantiene ancho PDP (`342px`) y reutiliza `fa-icon-card-use` para acciones tipo copy. " +
           "Incluye las variantes vistas en Figma: **Default**, **OKY Vales**, **Code + Firma**, **With Bar Code**, **With QR Code**, **Code + BAR CODE + PIN**, **BAR CODE + Code + PIN**, **Oh Gif Card**, **Gift Card**, **Telco** y las 5 de **USA (OKY Cash)** (Gift Card USA y Código + PIN chico/normal, con y sin barcode). " +
           "El botón lateral usa el asset local `whatsapp-icon-card-bottom.png` y permite switch para mostrar label o dejarlo solo con icono. " +
-          "Los valores de credenciales usan el token tipográfico **CODE** con `Inter` desde Google Fonts, tracking `2px` y `slashed zero` activo.",
+          "Los valores de credenciales usan el token tipográfico **CODE** con `Inter` desde Google Fonts, tracking `2px` y `slashed zero` activo. " +
+          "**Clarita está escondida en todas las variantes** (27/10); se puede volver a mostrar con `showClarita: true`.",
       },
     },
   },
