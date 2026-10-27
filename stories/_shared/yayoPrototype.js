@@ -418,6 +418,9 @@ function activityBlock(state) {
          <p class="yayo-flow-empty-note">Aquí verás los pagos que apruebes o rechaces en las tiendas.</p>
        </div>`;
   const filterLabel = (FILTERS.find((f) => f.key === state.filter) || FILTERS[0]).label;
+  /* Sin actividad no hay nada que filtrar ni buscar: queda solo el
+     estado vacío, sin la etiqueta. */
+  if (!state.activity.length) return list;
   return `
     <div class="yayo-flow-activity-head">
       <p class="yayo-flow-label">Actividad</p>
@@ -1219,9 +1222,11 @@ export function mountYayoPrototype(root) {
       state.sheet = "reject";
       return render();
     }
+    /* Arrepentirse de rechazar no vuelve al modal: la solicitud queda
+       minimizada arriba del saldo, con su cuenta atrás. */
     if (action === "cancel-reject") {
       state.sheet = null;
-      state.requestOpen = !!state.request;
+      state.requestOpen = false;
       return render();
     }
     if (action === "confirm-reject") return confirmReject();
