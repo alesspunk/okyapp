@@ -34,7 +34,7 @@ const STORY_VARIANTS = ORDER.map((key) => PAYMENT_CARD_VARIANTS.find((v) => v.ke
           editAction: "",
           expiry: { label: "Vencimiento", value: "24 / FEB / 2027" },
           recommendation:
-            "OKY Cash (Tu billetera): saldo disponible arriba a la derecha, vencimiento abajo a la izquierda (solo con saldo) y el lápiz abajo a la derecha, que abre el selector de diseño. Sin «Ver actividad»: tocar la tarjeta baja al último movimiento.",
+            "OKY Cash (Mi billetera): saldo disponible arriba a la derecha, vencimiento abajo a la izquierda (solo con saldo) y el lápiz abajo a la derecha, que abre el selector de diseño. Sin «Ver actividad»: tocar la tarjeta baja al último movimiento.",
         }
       : v,
   );
@@ -294,7 +294,7 @@ export const Customization = {
 };
 
 /* ── OKY Cash · los 5 diseños (sprint 20/10) ──────────────
-   La tarjeta de OKY Cash de Tu billetera: saldo arriba, vencimiento
+   La tarjeta de OKY Cash de Mi billetera: saldo arriba, vencimiento
    abajo (solo con saldo) y el lápiz a la derecha, que abre el
    selector de diseño. Tocar la tarjeta baja al último movimiento. */
 export const OkyCashDesigns = {

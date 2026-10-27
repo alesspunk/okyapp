@@ -113,7 +113,7 @@ export const PAYMENT_CARD_VARIANTS = [
     cta: { label: "Ver actividad", icon: "fa-arrow-right" },
     editIcon: "payment-card-edit.svg",
     recommendation:
-      "OKY Cash negra · «Lo que va, vuelve»: el arte final de Nicky va a sangre, debajo del contenido, y deja libres las cuatro esquinas (nombre, saldo, vencimiento y lápiz). En Tu billetera el lápiz va abajo a la derecha y el vencimiento a la izquierda (solo con saldo).",
+      "OKY Cash negra · «Lo que va, vuelve»: el arte final de Nicky va a sangre, debajo del contenido, y deja libres las cuatro esquinas (nombre, saldo, vencimiento y lápiz). En Mi billetera el lápiz va abajo a la derecha y el vencimiento a la izquierda (solo con saldo).",
   },
   {
     path: "Molecule/Payment Card/OKY Cash Teal",

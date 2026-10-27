@@ -223,8 +223,11 @@ const SHARE_ICON = IS_IOS ? SHARE_ICON_IOS : SHARE_ICON_ANDROID;
      (McDonald's). Apagado, todo va a precio regular: sin tachado ni
      "% OFF"; el ahorro que queda es el del costo por servicio. */
 const TEST_FEATURES = {
-  /* En /timer vuelven Clarita y su recorrido en la home de USA. */
-  usaGuide: TIMER_ROUTE,
+  /* Clarita ya no sale en ningún apartado (26/10). En /timer el
+     recorrido de la home de USA arranca solo, al pasar la pared de
+     banderas, como en el flujo First Timer de 7600 (F00-FT-04 → 08). */
+  usaGuide: false,
+  usaTour: TIMER_ROUTE,
   spookyTimer: TIMER_ROUTE,
   /* El relevo del ribbon y el aviso en la barra al teclear un monto de
      otro tramo. Solo en /timer, que es donde existe el tramo del 20%. */
@@ -237,7 +240,7 @@ const TEST_FEATURES = {
   walletSeed: false,
   /* Clarita en la card del vale ("¿Necesitas ayuda con el canje?"),
      en gift cards y OKY Vales. Fuera de /timer no sale. */
-  cardClarita: TIMER_ROUTE,
+  cardClarita: false,
   /* El código promocional del carrito de Guatemala ("verano26"), que
      desplaza al OKY Cash. En la versión actual la píldora se ve pero
      tocarla no hace nada. */
@@ -1239,7 +1242,7 @@ function cashDock(state, opts = {}) {
      grande a la vez. */
   return `
     <div class="oky-flow-cashdock${opts.hidden ? " is-hidden" : ""}">
-      <button class="oky-flow-purchase-badge is-cash is-wallet" data-action="nav:okycash" type="button">
+      <button class="oky-flow-purchase-badge is-cash is-wallet${text.startsWith("Vas ahorrando") ? " is-ahorro" : ""}" data-action="nav:okycash" type="button">
         <span>${text}</span>
       </button>
     </div>
@@ -1450,8 +1453,8 @@ function savingBar(cashback, tier, copy, { ending = false, settled = false, time
    sino Clarita, así que aquí solo queda contar la historia —dónde
    aparece lo que compras y dónde ver lo que ganas. */
 const TOUR_STEPS = [
-  { target: ".header-icon-bitmap-wallet-wrap", label: "Compra Gift Cards y encuéntralas aquí" },
-  { target: ".oky-flow-navbar [data-action='nav:okycash']", label: "Mira cuánto OKY Cash ganas" },
+  { target: ".header-icon-bitmap-wallet-wrap", title: "Mis Compras", label: "Encuentra tus Gift Cards comprados" },
+  { target: ".oky-flow-navbar [data-action='nav:okycash']", title: "OKY Cash", label: "Encuentra tu OKY Cash ganado" },
 ];
 
 /* El recorrido de la gift card de USA: lo abre Clarita desde la propia
@@ -1519,6 +1522,8 @@ const TOUR_READY_MS = 900;
 const TOUR_COUNT_MS = 520;
 const TOUR_COUNT_LIGHTS = { 3: "is-red", 2: "is-amber", 1: "is-green" };
 const TOUR_FLAG_MS = 1600;
+/* Lo que se queda «Compra y gana» con la moneda girando (/timer). */
+const TOUR_COIN_MS = 2400;
 /* Lo que dura el estallido del final. Es un golpe, no una lluvia. */
 const TOUR_CONFETTI_MS = 1200;
 
@@ -1577,11 +1582,14 @@ function tourOverlay(state) {
      una copia— y encima solo van la flecha y la línea. Se toca donde
      sea para pasar. */
   return `
-    <div class="oky-flow-tour" data-action="tour-next" role="dialog" aria-modal="true" aria-label="${step.label}">
+    <div class="oky-flow-tour" data-action="tour-next" role="dialog" aria-modal="true" aria-label="${step.title ? `${step.title}: ` : ""}${step.label}">
       <span class="oky-flow-tour-hole" aria-hidden="true"></span>
       <div class="oky-flow-tour-call">
         <i class="fa-solid fa-arrow-up oky-flow-tour-arrow" aria-hidden="true"></i>
-        <p class="oky-flow-tour-label">${step.label}</p>
+        <div class="oky-flow-tour-text">
+          ${step.title ? `<p class="oky-flow-tour-title">${step.title}</p>` : ""}
+          <p class="oky-flow-tour-label${step.title ? " is-sub" : ""}">${step.label}</p>
+        </div>
       </div>
     </div>
   `;
@@ -1659,6 +1667,19 @@ function tourCountdown() {
 }
 
 function tourFlag() {
+  /* En el recorrido automático (/timer) el remate es el de F00-FT-08:
+     «Compra y gana» sobre la home atenuada y la moneda girando. */
+  if (TEST_FEATURES.usaTour) {
+    return `
+      <div class="oky-flow-tourflag is-coin" aria-hidden="true">
+        <span class="oky-flow-tourflag-backdrop"></span>
+        <div class="oky-flow-tourcoin" role="status">
+          <p class="oky-flow-tourcoin-title">Compra y gana</p>
+          <span class="oky-flow-tourcoin-coin" data-role="tour-coin"></span>
+        </div>
+      </div>
+    `;
+  }
   return `
     <div class="oky-flow-tourflag" aria-hidden="true">
       <span class="oky-flow-tourflag-backdrop"></span>
@@ -2001,7 +2022,7 @@ function screenHome(state) {
 
       <section class="homecard-organism homecard-organism-photo oky-flow-apparel">
         <header class="homecard-header">
-          <h3 class="token-h6 homecard-title">Deportes &amp; Apparel</h3>
+          <h3 class="token-h6 homecard-title">Deportes</h3>
           <div class="discount-ribbon discount-ribbon-wrap is-tier-base oky-flow-apparel-ribbon">
             <span class="discount-ribbon-text token-price-percent">Gana hasta ${Math.max(
               ...STYLE_CARDS.map((c) => BRANDS[c.key].rate),
@@ -2249,7 +2270,7 @@ function cartDrawer(state) {
                   /* Donde USA enseña lo que gana, Guatemala enseña lo
                      que rebaja: el mismo sitio y el mismo cintillo. */
                   product.was
-                    ? `<span class="discount-ribbon discount-ribbon-list is-tier-base">
+                    ? `<span class="discount-ribbon is-ahorro discount-ribbon-list is-tier-base">
                         <span class="discount-ribbon-text token-price-percent">${Math.round((1 - product.price / product.was) * 100)}% OFF</span>
                       </span>`
                     : tier.rate
@@ -2449,7 +2470,7 @@ function screenCheckout(state) {
         ${
           product.was
             ? `<div class="middle-card-ribbon-slot">
-                <div class="discount-ribbon discount-ribbon-wrap is-tier-base">
+                <div class="discount-ribbon is-ahorro discount-ribbon-wrap is-tier-base">
                   <span class="discount-ribbon-text token-price-percent">${Math.round((1 - product.price / product.was) * 100)}% OFF</span>
                 </div>
               </div>`
@@ -2580,7 +2601,7 @@ function screenCheckout(state) {
           <span class="oky-flow-pay-amount">${money(state.okyCashBalance)}</span>
           <img class="oky-flow-pay-icon is-coin" src="oky-cash-coin.png" alt="" />
           ${/* Los tres puntos vuelven: llevan a ver el disponible. En la
-               variante 3 abren Tu billetera en la pestaña de OKY Cash, y en
+               variante 3 abren Mi billetera en la pestaña de OKY Cash, y en
                las demás, la pestaña de OKY Cash del wallet (nav:okycash ya
                decide cuál). Atrás regresa al checkout. Marcar o desmarcar
                sigue siendo aquí, con el check. */ ""}
@@ -2679,7 +2700,7 @@ function screenCheckout(state) {
             </div>
           </div>
           <div class="summary-cta-row">
-            <button class="btn btn-primary summary-btn" data-action="pay" type="button"${checkoutCard || toCard <= 0 ? "" : " disabled"}>Comprar</button>
+            ${checkoutBuyButton(checkoutCard, toCard)}
           </div>
         </div>
       </div>
@@ -2716,16 +2737,27 @@ function screenCheckout(state) {
           <span class="summary-label-strong">TOTAL</span>
           <span class="summary-label-strong">${money(toCard)}</span>
         </div>
-        <button class="btn btn-primary summary-btn" data-action="pay" type="button"${checkoutCard || toCard <= 0 ? "" : " disabled"}>Comprar</button>
+        ${checkoutBuyButton(checkoutCard, toCard)}
       </div>
     </div>
     ${navbar("", state)}
   `;
 }
 
+/* El botón del checkout no se deshabilita sin tarjeta: dice «Proceder
+   al pago» y lleva a los métodos de pago, donde se agrega la primera.
+   Primer cobra esa primera tarjeta al guardarla, así que de ahí ya no
+   se vuelve al checkout. */
+function checkoutBuyButton(checkoutCard, toCard) {
+  if (checkoutCard || toCard <= 0) {
+    return `<button class="btn btn-primary summary-btn" data-action="pay" type="button">Comprar</button>`;
+  }
+  return `<button class="btn btn-primary summary-btn" data-action="open-methods" type="button">Proceder al pago</button>`;
+}
+
 /* ── Métodos de pago (99105:41588) ──────────────────────── */
 function screenMethods(state) {
-  /* La misma pantalla que Métodos de pago de Tu billetera: la tarjeta de
+  /* La misma pantalla que Métodos de pago de Mi billetera: la tarjeta de
      pago arriba y la lista para elegir, sin la card de OKY Cash ni su
      fila —OKY Cash se marca en el checkout—. Lo único que cambia
      viniendo de una compra es el botón de abajo, que vuelve a pagar. */
@@ -2741,16 +2773,22 @@ function screenMethods(state) {
   const ctaLabel = V3_ROUTE ? "Ir a pagar" : split ? `Pago con tarjeta - ${money(due)}` : `Ir a pagar - ${money(due)}`;
   return `
     ${statusBar()}
-    ${titledHeader(timer ? "Tu billetera" : "Métodos de pago")}
+    ${titledHeader(timer ? "Mi billetera" : "Métodos de pago")}
     ${/* La pestaña de OKY Cash se mira aquí mismo, sin salir de la
          compra: así el botón de pagar no se pierde. */ ""}
     ${timer ? cashSoloSeg(state, state.methodsTab === "cash" ? "cash" : "methods") : ""}
     ${timer && state.methodsTab === "cash" ? okyCashActivity(state) : cashSoloMethods(state, { charge: timer ? due : 0 })}
-    <div class="oky-flow-cta-bar">
+    ${/* Sin tarjetas y con algo que cobrar, el botón del vacío ya agrega
+         y paga: un «Ir a pagar» apagado abajo solo confundía. */ ""}
+    ${
+      !canPay && !selectedCardOf(state)
+        ? ""
+        : `<div class="oky-flow-cta-bar">
       <button class="btn btn-primary btn-large" data-action="confirm-methods" type="button"${canPay ? "" : " disabled"}>
         ${ctaLabel}
       </button>
-    </div>
+    </div>`
+    }
     ${navbar("", state)}
   `;
 }
@@ -4100,7 +4138,7 @@ function okyCashActivity(state) {
      parecía pero no era la pieza. */
   const badgeFor = (positive) =>
     positive
-      ? { src: "oky-activity-up.png", tone: "up" }
+      ? { src: V3_ROUTE ? "oky-activity-up-aqua-oscuro.png" : "oky-activity-up.png", tone: "up" }
       : { src: "oky-activity-down.png", tone: "down" };
 
   const historyRow = ({ date, amount, order, positive }) =>
@@ -4373,14 +4411,16 @@ function addCardButton() {
 
 /* Sin tarjetas guardadas: la misma pieza que los vacíos del wallet y de
    OKY Cash, con la tarjeta dorada y un botón que agrega la primera. */
-function methodsEmpty() {
+function methodsEmpty(charge = 0) {
+  /* Viniendo de una compra, la primera tarjeta se cobra al guardarla
+     (Primer), y el botón lo avisa con el monto. */
   return `
     <div class="oky-flow-cash-empty is-wallet is-methods">
       <span class="oky-flow-cash-empty-art"><img src="oky-card-3d.png" alt="" /></span>
       <h2 class="oky-flow-cash-empty-title">Aún no tienes tarjetas</h2>
       <p class="oky-flow-cash-empty-note">Agrega una tarjeta de crédito o débito para pagar tus compras.</p>
       <button class="btn btn-primary btn-large oky-flow-cash-empty-cta" data-action="add-card" type="button">
-        Agregar tarjeta crédito/débito
+        ${charge > 0 ? `Agregar y pagar - ${money(charge)}` : "Agregar tarjeta crédito/débito"}
       </button>
     </div>
   `;
@@ -4396,7 +4436,7 @@ function cashSoloMethods(state, { charge = 0 } = {}) {
      pago o una secundaria. Solo una es para pago, y se cambia desde los
      tres puntos con "Marcar como tarjeta para pago". */
   const selected = selectedCardOf(state);
-  if (!selected) return `<div class="oky-flow-section" style="gap:8px">${methodsEmpty()}</div>`;
+  if (!selected) return `<div class="oky-flow-section" style="gap:8px">${methodsEmpty(charge)}</div>`;
   const top = methodTopCard(state, selected);
   return `
     <div class="oky-flow-section" style="gap:8px">
@@ -4437,7 +4477,7 @@ function screenCashSolo(state) {
     ${statusBar()}
     ${/* Un solo título para las dos mitades: la pantalla es la
          billetera; el selector dice cuál de las dos se está mirando. */ ""}
-    ${titledHeader("Tu billetera")}
+    ${titledHeader("Mi billetera")}
     ${cashSoloSeg(state)}
     ${methods ? cashSoloMethods(state) : okyCashActivity(state)}
     ${navbar("okycash", state)}
@@ -4835,7 +4875,7 @@ function screenPlp(state) {
           </div>
           ${
             off
-              ? `<div class="discount-ribbon discount-ribbon-list is-tier-base">
+              ? `<div class="discount-ribbon is-ahorro discount-ribbon-list is-tier-base">
                   <span class="discount-ribbon-text token-price-percent">${off}% OFF</span>
                 </div>`
               : ""
@@ -4912,7 +4952,7 @@ function screenFoodPdp(state) {
                wrap ribbon del checkout. */
             product.was
               ? `<div class="middle-card-ribbon-slot">
-                  <div class="discount-ribbon discount-ribbon-wrap is-tier-base">
+                  <div class="discount-ribbon is-ahorro discount-ribbon-wrap is-tier-base">
                     <span class="discount-ribbon-text token-price-percent">${Math.round((1 - product.price / product.was) * 100)}% OFF</span>
                   </div>
                 </div>`
@@ -6273,6 +6313,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   let winAnimation = null;
   let flagAnimation = null;
   let coinAnimation = null;
+  let tourCoinAnimation = null;
   let confettiAnimation = null;
   let webviewTimer = null;
   /* Cuándo arrancó "Ganaste": a los 7 s la pastilla de la cabecera ya
@@ -6471,6 +6512,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       coinAnimation.destroy();
       coinAnimation = null;
     }
+    if (tourCoinAnimation) {
+      tourCoinAnimation.destroy();
+      tourCoinAnimation = null;
+    }
 
     /* La promo que se quedó esperando fuera de la home arranca en
        cuanto se vuelve, con el mismo respiro que tras la presentación:
@@ -6483,7 +6528,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const keptScroll = keepScroll ? (root.querySelector(".oky-flow-scroll") || {}).scrollTop || 0 : 0;
 
     root.innerHTML = `
-      <div class="oky-flow-frame${state.claritaMuted ? " is-clarita-muted" : ""}${TEST_FEATURES.cardClarita ? "" : " is-no-card-clarita"}">
+      <div class="oky-flow-frame${V3_ROUTE ? " is-cash-aqua-oscuro" : ""}${state.claritaMuted ? " is-clarita-muted" : ""}${TEST_FEATURES.cardClarita ? "" : " is-no-card-clarita"}">
         <div class="oky-flow-scroll ${scrollClass(state)}">
           ${renderScreen(state)}
         </div>
@@ -6592,6 +6637,21 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       });
       if (!play) coinAnimation.goToAndStop(0, true);
       coinHost.parentElement.classList.add("is-ready");
+    }
+
+    /* La moneda del remate del recorrido gira en bucle mientras dura;
+       con movimiento reducido se queda quieta. */
+    const tourCoinHost = root.querySelector("[data-role='tour-coin']");
+    if (tourCoinHost) {
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      tourCoinAnimation = lottie.loadAnimation({
+        container: tourCoinHost,
+        renderer: "svg",
+        loop: !reduce,
+        autoplay: !reduce,
+        animationData: OKY_COIN_FLIP,
+      });
+      if (reduce) tourCoinAnimation.goToAndStop(0, true);
     }
 
     /* Lluvia de banderas del folder (/miscompras): una sola pasada. */
@@ -6887,7 +6947,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const after = root.querySelector(".oky-flow-scroll");
     if (after && y > 0) after.scrollTop = y;
 
-    armHelp();
+    if (TEST_FEATURES.usaGuide) armHelp();
 
     /* Primero la home vuelve arriba —que se vea el camino— y ya en la
        portada pregunta, que es lo que da pie a la cuenta atrás. */
@@ -6957,6 +7017,19 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      re-render, para que el fondo atenuado no parpadee. El de la
      banderola arranca ya encendido y toma el relevo sin corte. */
   function startFinish() {
+    /* Recorrido automático: sin cuenta atrás, «Compra y gana» con la
+       moneda y la home queda lista para que arranque el reloj. */
+    if (TEST_FEATURES.usaTour) {
+      state.tourFlag = true;
+      render();
+      tourFlagTimer = setTimeout(() => {
+        state.tourFlag = false;
+        cancelPromoIdle();
+        armPromoIdle(PROMO_AFTER_FLAG_MS);
+        render();
+      }, TOUR_COIN_MS);
+      return;
+    }
     state.tourCount = true;
     render();
 
@@ -7157,7 +7230,22 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         dropFlagWall();
       }, FLAG_WALL_MS);
     }
-    if (firstUsa) {
+    if (firstUsa && TEST_FEATURES.usaTour) {
+      /* Sin Clarita: el recorrido entra solo cuando la pared de
+         banderas termina (F00-FT-04 → F00-FT-06). El reloj espera al
+         final del recorrido. */
+      clearTimeout(introTimer);
+      cancelPromoIdle();
+      introTimer = setTimeout(() => {
+        state.flagIntro = null;
+        dropFlagWall();
+        if (state.screen !== "home" || state.country !== "usa" || state.tourSeen) return render();
+        state.tourDeck = "home";
+        state.tourStep = 0;
+        render();
+        placeTour();
+      }, FLAG_WALL_MS);
+    } else if (firstUsa) {
       clearTimeout(introTimer);
       /* El recorrido entra en cuanto la pared cruza, sin esperar a las
          rezagadas. Va por DOM y no por render: una pasada de render
@@ -8465,11 +8553,19 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          botón no hace nada más. */
       const missing = CARDS.find((c) => !state.savedCards.includes(c.key));
       if (!missing) return;
+      const firstCard = savedCards(state).length === 0;
       state.savedCards = [...state.savedCards, missing.key];
       state.selectedCard = missing.key;
       /* La primera que se guarda es la de pago; las siguientes llegan
          como secundarias. */
       if (!savedCards(state).some((c) => c.key === state.defaultCard)) state.defaultCard = missing.key;
+      /* Primer cobra la primera tarjeta al guardarla: en medio de una
+         compra se paga aquí mismo, sin volver al checkout. */
+      if (firstCard && state.screen === "methods" && orderDue(state) > 0) {
+        go("processing", {}, { push: false });
+        setTimeout(completePurchase, 1400);
+        return;
+      }
       return render({ keepScroll: true });
     }
 
