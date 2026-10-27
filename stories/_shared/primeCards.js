@@ -194,6 +194,72 @@ export const CARD_BOTTOM_VARIANTS = [
     buttonLabel: "Ayuda",
     recommendation: "Recomendado: código, URL con su CTA de pegar, y el de ayuda en outlined abajo a la derecha.",
   },
+  /* USA (OKY Cash) · código + PIN, sin fecha y sin Clarita (MARS
+     «Card / Bottom · USA (OKY Cash)», 8784:39420). Dos tamaños de código:
+     el chico (OKY/CODE · Small, 14px) deja meter hasta 24 caracteres en
+     grupos de 5; el normal (OKY/CODE, 20px) es para códigos cortos. */
+  {
+    path: "Molecule/Bottom Card/USA · Código + Barcode + PIN · Chico",
+    key: "usa-code-barcode-pin-small",
+    id: "8784:39358",
+    lines: [
+      { label: "Código", value: "X00OO MMDFR AX00O OMMDF RAX0", copyable: true, size: "small" },
+      { label: "PIN", value: "7025", copyable: true },
+    ],
+    content: [
+      { type: "line", line: { label: "Código", value: "X00OO MMDFR AX00O OMMDF RAX0", copyable: true, size: "small" } },
+      { type: "media", media: { type: "bar-code", src: "bottom-card-barcode-purple.png", alt: "Barcode credential" } },
+      { type: "line", line: { label: "PIN", value: "7025", copyable: true } },
+    ],
+    expiry: "",
+    showButton: false,
+    buttonLabel: "Ayuda",
+    recommendation: "Recomendado: código largo de hasta 24 caracteres, en grupos de 5, con el token chico. Barcode 224x40 y PIN. Sin fecha y sin Clarita.",
+  },
+  {
+    path: "Molecule/Bottom Card/USA · Código + Barcode + PIN · Normal",
+    key: "usa-code-barcode-pin-normal",
+    id: "8784:39374",
+    lines: [
+      { label: "Código", value: "X00OOMMDFRA", copyable: true },
+      { label: "PIN", value: "7025", copyable: true },
+    ],
+    content: [
+      { type: "line", line: { label: "Código", value: "X00OOMMDFRA", copyable: true } },
+      { type: "media", media: { type: "bar-code", src: "bottom-card-barcode-purple.png", alt: "Barcode credential" } },
+      { type: "line", line: { label: "PIN", value: "7025", copyable: true } },
+    ],
+    expiry: "",
+    showButton: false,
+    buttonLabel: "Ayuda",
+    recommendation: "Recomendado: código corto (hasta ~15 caracteres) con el token CODE de siempre. Barcode 224x40 y PIN. Sin fecha y sin Clarita.",
+  },
+  {
+    path: "Molecule/Bottom Card/USA · Código + PIN · Chico",
+    key: "usa-code-pin-small",
+    id: "8784:39390",
+    lines: [
+      { label: "Código", value: "X00OO MMDFR AX00O OMMDF RAX0", copyable: true, size: "small" },
+      { label: "PIN", value: "7025", copyable: true },
+    ],
+    expiry: "",
+    showButton: false,
+    buttonLabel: "Ayuda",
+    recommendation: "Recomendado: como la de barcode, pero sin barcode. Código largo con el token chico y PIN.",
+  },
+  {
+    path: "Molecule/Bottom Card/USA · Código + PIN · Normal",
+    key: "usa-code-pin-normal",
+    id: "8784:39405",
+    lines: [
+      { label: "Código", value: "X00OOMMDFRA", copyable: true },
+      { label: "PIN", value: "7025", copyable: true },
+    ],
+    expiry: "",
+    showButton: false,
+    buttonLabel: "Ayuda",
+    recommendation: "Recomendado: código corto con el token CODE de siempre y PIN, sin barcode.",
+  },
   {
     path: "Molecule/Bottom Card/Telco",
     key: "telco",
@@ -285,7 +351,7 @@ function renderBottomLine(line) {
         <span class="prime-card-bottom-line-label">${line.label}</span>
         ${line.copyable ? renderCopyIcon(line.value) : ""}
       </div>
-      <p class="prime-card-bottom-line-value token-code">${line.value}</p>
+      <p class="prime-card-bottom-line-value token-code${line.size === "small" ? " is-small" : ""}">${line.value}</p>
     </div>
   `;
 }
@@ -489,7 +555,9 @@ export function resolveCardBottom(args = {}) {
     expiry: typeof args.expiry === "string" ? args.expiry.trim() : base.expiry,
     buttonLabel: args.buttonLabel?.trim() || base.buttonLabel,
     showButtonLabel: typeof args.showButtonLabel === "boolean" ? args.showButtonLabel : true,
-    showButton: typeof args.showButton === "boolean" ? args.showButton : true,
+    /* Las variantes de USA nacen sin columna de ayuda (ni fecha ni
+       Clarita); el resto la trae salvo que se pida lo contrario. */
+    showButton: typeof args.showButton === "boolean" ? args.showButton : base.showButton !== false,
     /* Clarita abre el recorrido de la card donde lo haya, y cuál es lo
        dice quien dibuja la pantalla: desde el acuse de compra la card no
        vive en los params, así que adivinarlo desde el estado sacaba el

@@ -5435,6 +5435,33 @@ body {
   letter-spacing: 0.8px;
 }
 
+/* USA (OKY Cash) · código + PIN, sin columna de ayuda: las líneas usan
+   todo el ancho. El token chico (OKY/CODE · Small en MARS) es el mismo
+   trazo del CODE a 14px, para códigos de hasta 24 caracteres. */
+.card-bottom-molecule[class*="is-usa-code-"] .prime-card-bottom-line,
+.card-bottom-molecule[class*="is-usa-code-"] .prime-card-bottom-line-value {
+  width: 100%;
+  max-width: 100%;
+}
+
+.card-bottom-molecule.is-usa-code-barcode-pin-small .prime-card-bottom-media,
+.card-bottom-molecule.is-usa-code-barcode-pin-normal .prime-card-bottom-media {
+  width: 224px;
+  height: 40px;
+}
+
+.card-bottom-molecule.is-usa-code-barcode-pin-small .prime-card-bottom-media img,
+.card-bottom-molecule.is-usa-code-barcode-pin-normal .prime-card-bottom-media img {
+  object-fit: fill;
+}
+
+.prime-card-bottom-line-value.is-small {
+  min-height: 18px;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.8px;
+}
+
 /* La gift card de USA: una sola línea de código y el CTA de ayuda
    outlined, sin fecha que reservar a la derecha (101310:7431). */
 .card-bottom-molecule.is-gift-card-usa .prime-card-bottom-line-value {

@@ -25,7 +25,7 @@ export default {
         component:
           "**Bottom Card** es la molécula hermana de `Middle Card` para credenciales, códigos y soporte. " +
           "Usa el surface token **Card Bottom**, conserva el mismo shadow **PDP Card**, mantiene ancho PDP (`342px`) y reutiliza `fa-icon-card-use` para acciones tipo copy. " +
-          "Incluye las variantes vistas en Figma: **Default**, **OKY Vales**, **Code + Firma**, **With Bar Code**, **With QR Code**, **Code + BAR CODE + PIN**, **BAR CODE + Code + PIN**, **Oh Gif Card**, **Gift Card** y **Telco**. " +
+          "Incluye las variantes vistas en Figma: **Default**, **OKY Vales**, **Code + Firma**, **With Bar Code**, **With QR Code**, **Code + BAR CODE + PIN**, **BAR CODE + Code + PIN**, **Oh Gif Card**, **Gift Card**, **Telco** y las 5 de **USA (OKY Cash)** (Gift Card USA y Código + PIN chico/normal, con y sin barcode). " +
           "El botón lateral usa el asset local `whatsapp-icon-card-bottom.png` y permite switch para mostrar label o dejarlo solo con icono. " +
           "Los valores de credenciales usan el token tipográfico **CODE** con `Inter` desde Google Fonts, tracking `2px` y `slashed zero` activo.",
       },
@@ -105,6 +105,42 @@ export const Variants = {
     <div class="mars-story">
       <div class="prime-card-grid">
         ${CARD_BOTTOM_VARIANTS.map((card) => renderReferenceItem({ ...card, showButtonLabel: true, whatsappImage: "whatsapp-icon-card-bottom.png" })).join("")}
+      </div>
+    </div>
+  `,
+};
+
+/* Las 5 de USA (OKY Cash), igual que el set de MARS «Card / Bottom · USA
+   (OKY Cash)» (8784:39420): ninguna lleva fecha ni Clarita. */
+const USA_BOTTOM_PATHS = [
+  "Molecule/Bottom Card/Gift Card USA",
+  "Molecule/Bottom Card/USA · Código + Barcode + PIN · Chico",
+  "Molecule/Bottom Card/USA · Código + Barcode + PIN · Normal",
+  "Molecule/Bottom Card/USA · Código + PIN · Chico",
+  "Molecule/Bottom Card/USA · Código + PIN · Normal",
+];
+
+export const UsaOkyCash = {
+  name: "USA (OKY Cash)",
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          "Las 5 variantes de USA (OKY Cash), como en MARS «Card / Bottom · USA (OKY Cash)». Ninguna lleva fecha de vencimiento ni Clarita. " +
+          "**Código + URL** es la gift card de siempre con «Abrir URL». **Código + PIN** viene en dos tamaños de código: **Chico** usa el token " +
+          "`CODE · Small` (14px, tracking 0.8px) y acepta hasta 24 caracteres en grupos de 5; **Normal** usa el `CODE` de siempre (20px, 2px) para códigos cortos. " +
+          "Cada tamaño existe con y sin código de barras (224x40).",
+      },
+    },
+  },
+  render: () => `
+    <div class="mars-story">
+      <div class="prime-card-grid">
+        ${USA_BOTTOM_PATHS.map((path) => {
+          const card = findCardBottom(path);
+          return renderReferenceItem({ ...card, expiry: "", showButton: false, showButtonLabel: true, whatsappImage: "whatsapp-icon-card-bottom.png" });
+        }).join("")}
       </div>
     </div>
   `,
