@@ -739,15 +739,68 @@ function screenHelp(state) {
   `;
 }
 
+/* Con `action`, el toast es el Fat Toast con acción de MARS (Yayo x OKY
+   17:5129): texto, un enlace a la derecha y la X para cerrarlo. */
 function toastLayer(state) {
   if (!state.toast) return "";
   const t = state.toast;
   return `
     <div class="yayo-flow-toast">
-      <article class="toast-banner toast-banner-${t.tone}">
+      <article class="toast-banner toast-banner-${t.tone}${t.action ? " has-action" : ""}">
         <span class="fa-icon toast-banner-icon icon-main-${t.tone}" aria-hidden="true"><i class="fa-regular ${t.icon}"></i></span>
         <p class="toast-banner-message">${t.text}</p>
+        ${
+          t.action
+            ? `<button class="toast-banner-action" data-action="${t.action.action}" type="button">${t.action.label}</button>
+               <button class="toast-banner-close" data-action="close-toast" type="button" aria-label="Cerrar">
+                 <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+               </button>`
+            : ""
+        }
       </article>
+    </div>
+  `;
+}
+
+/* El permiso de cámara del sistema (iOS), la primera vez que se
+   escanea. */
+function cameraAlert() {
+  return `
+    <div class="yayo-flow-alert-scrim">
+      <div class="yayo-flow-alert" role="alertdialog" aria-modal="true" aria-label="Permiso de cámara">
+        <div class="yayo-flow-alert-copy">
+          <p class="yayo-flow-alert-title">“OKY” quiere acceder a la cámara</p>
+          <p class="yayo-flow-alert-body">La usamos para escanear el QR de la tienda y que apruebes tus pagos.</p>
+        </div>
+        <div class="yayo-flow-alert-actions">
+          <button data-action="camera-deny" type="button">No permitir</button>
+          <button data-action="camera-allow" type="button">Permitir</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* El escáner: visor con esquinas y una línea que barre. Lee solo el QR
+   del tendero a los pocos segundos. */
+function scannerOverlay() {
+  return `
+    <div class="yayo-flow-scanner" role="dialog" aria-modal="true" aria-label="Escanear QR">
+      <header class="yayo-flow-scanner-head">
+        <button class="yayo-flow-scanner-close" data-action="close-scanner" type="button" aria-label="Cerrar">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <span>Escanear QR</span>
+        <span class="yayo-flow-scanner-close" aria-hidden="true"></span>
+      </header>
+      <div class="yayo-flow-scanner-view">
+        <span class="yayo-flow-scanner-corner is-tl"></span>
+        <span class="yayo-flow-scanner-corner is-tr"></span>
+        <span class="yayo-flow-scanner-corner is-bl"></span>
+        <span class="yayo-flow-scanner-corner is-br"></span>
+        <span class="yayo-flow-scanner-line"></span>
+      </div>
+      <p class="yayo-flow-scanner-hint">Apunta al código QR de la tienda</p>
     </div>
   `;
 }
@@ -761,6 +814,7 @@ export function mountYayoPrototype(root) {
   let notifTimer = 0;
   let toastTimer = 0;
   let countTimer = 0;
+  let scanTimer = 0;
   let confetti = null;
   const timers = new Set();
 
@@ -866,6 +920,8 @@ export function mountYayoPrototype(root) {
         ${state.passkey ? passkeyOverlay() : ""}
         ${state.menuOpen ? menuSheet() : ""}
         ${state.approving ? approveOverlay(state) : ""}
+        ${state.scanning ? scannerOverlay() : ""}
+        ${state.cameraAsk ? cameraAlert() : ""}
         ${toastLayer(state)}
       </div>
     `;
@@ -920,9 +976,9 @@ export function mountYayoPrototype(root) {
     render();
   }
 
-  function showToast(text, { tone = "success", icon = "fa-circle-check", ms = 2600 } = {}) {
+  function showToast(text, { tone = "success", icon = "fa-circle-check", ms = 2600, action = null } = {}) {
     clearTimeout(toastTimer);
-    state.toast = { text, tone, icon };
+    state.toast = { text, tone, icon, action };
     render();
     toastTimer = later(() => {
       state.toast = null;
@@ -1139,6 +1195,31 @@ export function mountYayoPrototype(root) {
     }, (reducedMotion() ? 1200 : APPROVE_MS) + 400);
   }
 
+  /* Escanear el QR del tendero genera su solicitud de pago (así nace en
+     Yayo). Si ya hay una pendiente, se abre esa. */
+  function openScanner() {
+    state.menuOpen = false;
+    state.scanning = true;
+    render();
+    clearTimeout(scanTimer);
+    scanTimer = later(() => {
+      state.scanning = false;
+      if (!state.request) {
+        const now = new Date();
+        state.request = {
+          amount: 120,
+          merchant: "Abarrotería Viper",
+          id: "TP-4790",
+          receivedAt: now,
+          expiresAt: now.getTime() + requestWindow() * 1000,
+        };
+      }
+      state.screen = "home";
+      state.requestOpen = true;
+      render();
+    }, 2600);
+  }
+
   function confirmReject() {
     const r = state.request;
     state.sheet = null;
@@ -1238,8 +1319,41 @@ export function mountYayoPrototype(root) {
       state.menuOpen = false;
       return render();
     }
+    /* El QR del header: con la cámara ya permitida abre el escáner; si
+       no, el toast ofrece permitirla. */
     if (action === "scan") {
-      return showToast("Escanea el QR de la tienda", { tone: "warning", icon: "fa-qrcode", ms: 2000 });
+      if (state.cameraGranted) return openScanner();
+      return showToast("Escanea el QR", {
+        tone: "warning",
+        icon: "fa-qrcode",
+        ms: 7000,
+        action: { label: "Permitir", action: "camera-ask" },
+      });
+    }
+    if (action === "close-toast") {
+      clearTimeout(toastTimer);
+      state.toast = null;
+      return render();
+    }
+    if (action === "camera-ask") {
+      clearTimeout(toastTimer);
+      state.toast = null;
+      state.cameraAsk = true;
+      return render();
+    }
+    if (action === "camera-deny") {
+      state.cameraAsk = false;
+      return render();
+    }
+    if (action === "camera-allow") {
+      state.cameraAsk = false;
+      state.cameraGranted = true;
+      return openScanner();
+    }
+    if (action === "close-scanner") {
+      clearTimeout(scanTimer);
+      state.scanning = false;
+      return render();
     }
     if (action === "share") {
       state.menuOpen = false;

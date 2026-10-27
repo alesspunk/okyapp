@@ -19114,12 +19114,186 @@ img.oky-flow-method-mark {
   cursor: pointer;
 }
 
+/* Toast con acción (Fat Toast · warning con «Action», 17:5129): el texto
+   se encoge, a la derecha el enlace y la X. */
+.toast-banner.has-action {
+  padding-right: 8px;
+}
+
+.toast-banner.has-action .toast-banner-message {
+  flex: 1 1 auto;
+}
+
+.toast-banner-action {
+  flex: 0 0 auto;
+  padding: 4px 5px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+}
+
+.yayo-flow-toast .toast-banner {
+  width: 100%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.toast-banner-warning .toast-banner-action,
+.toast-banner-warning .toast-banner-close {
+  color: var(--warning-text);
+}
+
+/* Permiso de cámara (alerta del sistema). */
+.yayo-flow-alert-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 220;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  animation: oky-flow-sheet-fade 200ms ease-out both;
+}
+
+.yayo-flow-alert {
+  width: 270px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: rgba(242, 242, 247, 0.97);
+  color: #000;
+  text-align: center;
+  font-family: -apple-system, "SF Pro Text", "Nunito Sans", sans-serif;
+  animation: yayo-flow-pop 240ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}
+
+.yayo-flow-alert-copy {
+  padding: 19px 16px 15px;
+}
+
+.yayo-flow-alert-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.yayo-flow-alert-body {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.yayo-flow-alert-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 0.5px solid rgba(60, 60, 67, 0.3);
+}
+
+.yayo-flow-alert-actions button {
+  height: 44px;
+  border: 0;
+  background: none;
+  color: #007aff;
+  font: inherit;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.yayo-flow-alert-actions button + button {
+  border-left: 0.5px solid rgba(60, 60, 67, 0.3);
+  font-weight: 600;
+}
+
+/* Escáner de QR. */
+.yayo-flow-scanner {
+  position: absolute;
+  inset: 0;
+  z-index: 215;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  background: radial-gradient(circle at 50% 45%, #3a3a40 0%, #141417 70%);
+  color: var(--white);
+  animation: oky-flow-sheet-fade 220ms ease-out both;
+}
+
+.yayo-flow-scanner-head {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 52px 16px 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.yayo-flow-scanner-close {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: none;
+  color: var(--white);
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.yayo-flow-scanner-view {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  margin-top: 60px;
+}
+
+.yayo-flow-scanner-corner {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border: 4px solid var(--white);
+  border-radius: 6px;
+}
+
+.yayo-flow-scanner-corner.is-tl { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+.yayo-flow-scanner-corner.is-tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+.yayo-flow-scanner-corner.is-bl { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+.yayo-flow-scanner-corner.is-br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+
+.yayo-flow-scanner-line {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 14px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--success-light);
+  box-shadow: 0 0 12px var(--success-light);
+  animation: yayo-flow-scan 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes yayo-flow-scan {
+  to {
+    top: calc(100% - 16px);
+  }
+}
+
+.yayo-flow-scanner-hint {
+  margin: 0;
+  font-size: 15px;
+  opacity: 0.85;
+}
+
 /* Toast suelto, arriba de todo. */
 .yayo-flow-toast {
   position: absolute;
   left: 16px;
   right: 16px;
-  top: 56px;
+  /* Debajo del header, como en Figma (Estados del prototipo, 27/10). */
+  top: 108px;
   z-index: 205;
   animation: yayo-flow-drop 320ms ease-out both;
 }
