@@ -28,6 +28,9 @@ fs.unlinkSync(path.join(output, demo));
 // El demo local de Yayo también es un duplicado de prototypes/yayo/.
 const yayoDemo = path.join(output, 'yayo-prototype-demo.html');
 if (fs.existsSync(yayoDemo)) fs.unlinkSync(yayoDemo);
+// Y el de /historial, de prototypes/historial/.
+const historialDemo = path.join(output, 'historial-prototype-demo.html');
+if (fs.existsSync(historialDemo)) fs.unlinkSync(historialDemo);
 
 // Keep the standalone prototype intact and publish the web alternative beside it.
 const { buildWebPrototype } = require('./build-oky-prototype-web.cjs');

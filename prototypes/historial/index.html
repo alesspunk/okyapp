@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Historial · OKY — Prototipo</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+/* ─────────────────────────────────────────────────────────
+   /historial · prototipo navegable del Historial de OKY
+   Fuente: 7700 › Historial › «FLUJO · Historial por sección»
+   (104459:26167). Cada pantalla es la exportación a 2x de Figma;
+   tocar la pantalla avanza al siguiente paso del carril.
+───────────────────────────────────────────────────────── */
+:root {
+  --primary: #552588;
+  --primary-ink: #2e1152;
+  --ink: #2e2440;
+  --muted: #736b80;
+  --line: #e6e0ef;
+  --soft: #f6f2fc;
+  --bg: #eceef2;
+  --white: #ffffff;
+  --aqua-dark: #057a73;
+  --aqua-light: #a8faf5;
+  --band-cash: #057a73;
+  --band-gift: #1a70f5;
+  --band-vales: #552588;
+  --band-serv: #e07b00;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  font-family: "Nunito Sans", system-ui, sans-serif;
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+}
+button { font: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--aqua-dark); outline-offset: 2px; }
+
+.app {
+  min-height: 100%;
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) auto minmax(260px, 340px);
+  gap: 40px;
+  justify-content: center;
+  align-items: start;
+  padding: 32px 24px;
+}
+
+/* ── Panel de flujos ─────────────────────────────────── */
+.panel {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 24px 20px;
+  max-height: calc(100vh - 64px);
+  overflow: auto;
+  position: sticky;
+  top: 32px;
+}
+.panel-eyebrow { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .8px; color: var(--primary); text-transform: uppercase; }
+.panel h1 { margin: 6px 0 4px; font-size: 26px; font-weight: 900; color: var(--primary-ink); }
+.panel-sub { margin: 0 0 20px; font-size: 14px; line-height: 1.45; color: var(--muted); }
+.band { margin-top: 18px; }
+.band-title {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0 0 8px; font-size: 13px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase;
+}
+.band-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.lane {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px; margin: 0 0 6px; border-radius: 14px; border: 1px solid var(--line);
+  background: var(--white); text-align: left; color: var(--ink);
+}
+.lane:hover { border-color: #cdbfe6; background: var(--soft); }
+.lane.is-active { border-color: var(--primary); background: var(--soft); box-shadow: inset 3px 0 0 var(--primary); }
+.lane-name { font-size: 15px; font-weight: 700; line-height: 1.3; }
+.lane-count { font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+
+/* ── Teléfono ────────────────────────────────────────── */
+.stage { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.phone {
+  width: 380px; height: 820px; padding: 10px;
+  border-radius: 52px; background: #15111d;
+  box-shadow: 0 30px 60px rgba(46, 17, 82, .22), 0 0 0 2px #2a2236 inset;
+}
+.screen {
+  position: relative; width: 360px; height: 800px; border-radius: 42px; overflow: hidden; background: var(--white);
+}
+.scroller {
+  width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: none; cursor: pointer;
+}
+.scroller::-webkit-scrollbar { display: none; }
+.scroller img { display: block; width: 360px; height: auto; user-select: none; -webkit-user-drag: none; }
+.scroller img.is-in { animation: enter 260ms cubic-bezier(.2, .8, .2, 1); }
+.scroller img.is-back { animation: enter-back 260ms cubic-bezier(.2, .8, .2, 1); }
+@keyframes enter { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes enter-back { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+
+.tap-hint {
+  position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%);
+  padding: 8px 14px; border-radius: 999px; background: rgba(46, 17, 82, .86); color: var(--white);
+  font-size: 13px; font-weight: 700; white-space: nowrap; pointer-events: none; transition: opacity 400ms;
+}
+.tap-hint.is-hidden { opacity: 0; }
+
+.end {
+  position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  padding: 32px; text-align: center; background: rgba(255, 255, 255, .94); backdrop-filter: blur(6px);
+}
+.end.is-open { display: flex; }
+.end-badge { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--aqua-light); color: var(--primary); font-size: 30px; font-weight: 900; }
+.end h2 { margin: 4px 0 0; font-size: 22px; font-weight: 900; color: var(--primary-ink); }
+.end p { margin: 0; font-size: 15px; line-height: 1.45; color: var(--muted); }
+.btn { width: 100%; max-width: 260px; padding: 12px 18px; border-radius: 999px; border: 2px solid var(--primary); font-weight: 800; font-size: 16px; }
+.btn-primary { background: var(--primary); color: var(--white); }
+.btn-outlined { background: var(--white); color: var(--primary); }
+
+.controls { display: flex; align-items: center; gap: 12px; }
+.ctrl {
+  width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--white);
+  color: var(--primary); font-size: 20px; font-weight: 900; display: grid; place-items: center;
+}
+.ctrl:disabled { opacity: .35; cursor: default; }
+.dots { display: flex; gap: 6px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; border: 0; padding: 0; background: #d9cdee; }
+.dot.is-on { background: var(--primary); width: 22px; border-radius: 6px; }
+
+/* ── Ficha del paso ──────────────────────────────────── */
+.info {
+  background: var(--white); border: 1px solid var(--line); border-radius: 24px; padding: 24px 22px;
+  position: sticky; top: 32px;
+}
+.info-band { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--white); }
+.info h2 { margin: 14px 0 2px; font-size: 22px; font-weight: 900; color: var(--primary-ink); line-height: 1.2; }
+.info-step { margin: 0 0 14px; font-size: 14px; font-weight: 700; color: var(--muted); }
+.info-code { display: inline-block; padding: 3px 9px; border-radius: 8px; background: var(--soft); color: var(--primary); font-weight: 800; font-size: 13px; }
+.info-title { margin: 10px 0 0; font-size: 17px; font-weight: 700; line-height: 1.4; }
+.info-note { margin: 16px 0 0; padding: 12px 14px; border-radius: 14px; background: #e6fbf9; color: #05524d; font-size: 14px; line-height: 1.45; }
+.info-keys { margin: 18px 0 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.info-keys kbd { padding: 1px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--soft); font-family: inherit; font-weight: 700; }
+.mobile-flows { display: none; }
+
+/* ── Móvil: el teléfono es la pantalla ───────────────── */
+@media (max-width: 1100px) {
+  .app { grid-template-columns: auto; padding: 16px; }
+  .panel, .info { position: static; max-height: none; }
+  .info { order: 3; max-width: 380px; }
+  .panel { order: 2; max-width: 380px; }
+}
+@media (max-width: 640px) {
+  body { background: var(--white); }
+  .app { padding: 0; gap: 0; }
+  .phone { width: 100vw; height: 100dvh; padding: 0; border-radius: 0; box-shadow: none; background: var(--white); }
+  .screen { width: 100vw; height: 100dvh; border-radius: 0; }
+  .scroller img { width: 100vw; }
+  .controls { position: fixed; left: 0; right: 0; bottom: 0; justify-content: center; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-top: 1px solid var(--line); z-index: 5; }
+  .tap-hint { bottom: 110px; }
+  .mobile-flows { display: grid; }
+  .panel, .info { display: none; }
+  .panel.is-sheet { display: block; position: fixed; inset: auto 0 0 0; max-height: 80dvh; border-radius: 24px 24px 0 0; z-index: 10; box-shadow: 0 -20px 40px rgba(0,0,0,.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroller img.is-in, .scroller img.is-back { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="panel" id="panel" aria-label="Flujos del historial">
+    <p class="panel-eyebrow">OKY · Prototipo</p>
+    <h1>Historial por sección</h1>
+    <p class="panel-sub">Elige un flujo. Toca la pantalla o usa las flechas para avanzar. Las pantallas vienen de Figma (7700 › Historial).</p>
+    <div id="bands"></div>
+  </nav>
+
+  <main class="stage">
+    <div class="phone">
+      <div class="screen">
+        <div class="scroller" id="scroller" role="button" tabindex="0" aria-label="Siguiente pantalla">
+          <img id="shot" alt="" />
+        </div>
+        <div class="tap-hint" id="hint">Toca la pantalla para seguir</div>
+        <div class="end" id="end" role="dialog" aria-modal="true" aria-labelledby="end-title">
+          <div class="end-badge" aria-hidden="true">✓</div>
+          <h2 id="end-title">Fin del flujo</h2>
+          <p id="end-sub"></p>
+          <button class="btn btn-primary" id="end-next" type="button">Siguiente flujo</button>
+          <button class="btn btn-outlined" id="end-again" type="button">Ver de nuevo</button>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="ctrl" id="prev" type="button" aria-label="Paso anterior">‹</button>
+      <div class="dots" id="dots"></div>
+      <button class="ctrl" id="next" type="button" aria-label="Paso siguiente">›</button>
+      <button class="ctrl mobile-flows" id="open-flows" type="button" aria-label="Elegir flujo">☰</button>
+    </div>
+  </main>
+
+  <aside class="info" aria-live="polite">
+    <span class="info-band" id="info-band"></span>
+    <h2 id="info-lane"></h2>
+    <p class="info-step" id="info-step"></p>
+    <span class="info-code" id="info-code"></span>
+    <p class="info-title" id="info-title"></p>
+    <p class="info-note" id="info-note" hidden></p>
+    <p class="info-keys">Atajos: <kbd>→</kbd> siguiente · <kbd>←</kbd> anterior · <kbd>Esc</kbd> volver al inicio del flujo</p>
+  </aside>
+</div>
+
+<script>
+/* Las pantallas son las de la sección 104459:26167 del 7700, exportadas a 2x. */
+const IMG = (k) => `/historial-screens/${k}.jpg`;
+
+const S = {
+  C01: ["HIS-C01", "Historial · OKY Cash"],
+  C02: ["HIS-C02", "Movimiento Ganado abierto · Con qué lo ganaste"],
+  C03: ["HIS-C03", "Movimiento Usado abierto · En qué lo usaste"],
+  PUS30: ["PUS-30", "Detalle de la compra · con OKY Cash ganado"],
+  PUS34: ["PUS-34", "Recibo en HTML · con OKY Cash"],
+  V01b: ["HIS-V01", "Historial · OKY Vales"],
+  PGT16a: ["PGT-16", "Detalle de la compra · reembolso en OKY Cash"],
+  PGT19a: ["PGT-19", "Recibo en HTML · OKY Cash usado"],
+  PGT17: ["PGT-17", "⋮ Opciones · recarga Tigo fallida"],
+  PGT18: ["PGT-18", "Recarga Tigo fallida abierta · sello Compra fallida"],
+  G01: ["HIS-G01", "Historial · Gift Cards"],
+  PUS11: ["PUS-11", "Detalle de la compra · 2+ exitosas"],
+  PUS13: ["PUS-13", "Recibo en HTML · 2+ exitosas"],
+  PUS14: ["PUS-14", "⋮ Opciones · gift card (Marcar como usada)"],
+  PUS12: ["PUS-12", "Gift card abierta"],
+  PUS23: ["PUS-23", "Detalle de la compra · mixta"],
+  PUS27: ["PUS-27", "Recibo en HTML · mixta"],
+  PUS35a: ["PUS-35", "¿Qué pasó? · gift card fallida"],
+  G03: ["HIS-G03", "⋮ Opciones · gift card fallida (IKEA)"],
+  PUS36: ["PUS-36", "Gift card IKEA fallida abierta · sello Compra fallida"],
+  PUS20: ["PUS-20", "Detalle de la compra · 1 fallida · reembolso a tarjeta"],
+  G02: ["HIS-G02", "⋮ Opciones · gift card fallida (IKEA)"],
+  PUS21: ["PUS-21", "Gift card IKEA fallida abierta · sello Compra fallida"],
+  PUS35b: ["PUS-35", "¿Qué pasó? · gift card fallida"],
+  V01: ["HIS-V01", "Historial · OKY Vales"],
+  PGT03: ["PGT-03", "Detalle de la compra · código promocional"],
+  PGT03b: ["PGT-03b", "⋮ Opciones del vale · Pertutti"],
+  PGT05: ["PGT-05", "Vale Pertutti abierto desde Historial"],
+  PGT04: ["PGT-04", "Recibo en HTML · descuento"],
+  PGT07: ["PGT-07", "Detalle de la compra · 2+ vales"],
+  V02: ["HIS-V02", "⋮ Opciones del vale"],
+  V03: ["HIS-V03", "Vale Walmart · Canjeado"],
+  V04: ["HIS-V04", "Vale Starbucks · Expirado"],
+  V06: ["HIS-V06", "Vale de monto Cemaco · Sin tiempo real"],
+  V07: ["HIS-V07", "⋮ Opciones · producto agotado"],
+  V08: ["HIS-V08", "Vale Pollo Granjero · Agotado · Ver similares"],
+  PGT12: ["PGT-12", "Detalle de la compra · todas fallidas"],
+  PGT13: ["PGT-13", "Vale fallido abierto · sello Compra fallida"],
+  PGT25: ["PGT-25", "¿Qué pasó? · transacción en proceso"],
+  PGT16b: ["PGT-16", "Detalle de la compra · mixta · reembolso en OKY Cash"],
+  V09: ["HIS-V09", "⋮ Opciones · recarga Tigo en proceso"],
+  V05: ["HIS-V05", "Recarga Tigo · En proceso"],
+  PGT19b: ["PGT-19", "Recibo en HTML · mixta"],
+  V10: ["HIS-V10", "⋮ Opciones · recarga acreditada (menú desbloqueado)"],
+  V11: ["HIS-V11", "Recarga Tigo · Acreditada"],
+  S01: ["HIS-S01", "Historial · Servicios"],
+  PGT22: ["PGT-22", "Detalle del pago · EEGSA"],
+  S03: ["HIS-S03", "⋮ Opciones del pago · EEGSA"],
+  S04: ["HIS-S04", "Vale del pago · EEGSA · recordatorio encendido"],
+  S02: ["HIS-S02", "Recibo del pago de servicio · EEGSA"],
+  PGT23: ["PGT-23", "Pago fallido · ¿Qué pasó?"],
+  PGT28: ["PGT-28", "¿Qué pasó? · Corregir y reintentar"],
+};
+
+const NOTES = {
+  V08: "«Ver similares» abre la categoría madre del producto, no la PLP de la marca.",
+  S04: "El toggle «Recordatorio de pago» se apaga y se enciende desde el vale.",
+  V11: "La recarga sale de «En proceso»: el menú ⋮ se desbloquea y la card cambia a Acreditada.",
+  PUS14: "Solo las gift cards se marcan como usadas.",
+  V06: "Marca de GT sin estado en tiempo real: toast warning.",
+};
+
+const BANDS = [
+  { name: "OKY Cash · USA", color: "var(--band-cash)", lanes: [
+    { name: "Ganaste OKY Cash", steps: ["C01", "C02", "PUS30", "PUS34"] },
+    { name: "Usaste OKY Cash · reembolso", steps: ["C01", "C03", "V01b", "PGT16a", "PGT19a", "PGT17", "PGT18"] },
+  ]},
+  { name: "Gift Cards · USA", color: "var(--band-gift)", lanes: [
+    { name: "Compra exitosa", steps: ["G01", "PUS11", "PUS13", "PUS14", "PUS12"] },
+    { name: "Una fallida · mixta", steps: ["G01", "PUS23", "PUS27", "PUS35a", "G03", "PUS36"] },
+    { name: "Gift card fallida · reembolso a tarjeta", steps: ["G01", "PUS20", "G02", "PUS21", "PUS35b"] },
+  ]},
+  { name: "OKY Vales · Guatemala", color: "var(--band-vales)", lanes: [
+    { name: "Código promocional", steps: ["V01", "PGT03", "PGT03b", "PGT05", "PGT04"] },
+    { name: "2+ vales", steps: ["V01", "PGT07", "V02", "V03", "V04", "V06"] },
+    { name: "Producto agotado", steps: ["V01", "PGT07", "V07", "V08"] },
+    { name: "Todas fallidas", steps: ["V01", "PGT12", "PGT13", "PGT25"] },
+    { name: "Mixta · recarga en proceso → acreditada", steps: ["V01", "PGT16b", "V09", "V05", "PGT19b", "V10", "V11"] },
+  ]},
+  { name: "Servicios · Guatemala", color: "var(--band-serv)", lanes: [
+    { name: "Pago exitoso", steps: ["S01", "PGT22", "S03", "S04", "S02"] },
+    { name: "Pago fallido", steps: ["S01", "PGT23", "PGT28"] },
+  ]},
+];
+
+const LANES = BANDS.flatMap((b, bi) => b.lanes.map((l, li) => ({ ...l, band: b, id: `${bi + 1}-${li + 1}` })));
+const $ = (id) => document.getElementById(id);
+let lane = 0, step = 0, hintShown = true;
+
+function renderPanel() {
+  $("bands").innerHTML = BANDS.map((b) => `
+    <section class="band">
+      <h3 class="band-title" style="color:${b.color}"><span class="band-dot" style="background:${b.color}"></span>${b.name}</h3>
+      ${b.lanes.map((l) => {
+        const i = LANES.findIndex((x) => x.name === l.name && x.band === b);
+        return `<button class="lane${i === lane ? " is-active" : ""}" data-lane="${i}" type="button">
+          <span class="lane-name">${l.name}</span><span class="lane-count">${l.steps.length} pantallas</span></button>`;
+      }).join("")}
+    </section>`).join("");
+}
+
+function preload(k) { if (k) { const i = new Image(); i.src = IMG(k); } }
+
+function render(dir = 0) {
+  const L = LANES[lane], k = L.steps[step], [code, title] = S[k];
+  const img = $("shot");
+  img.src = IMG(k);
+  img.alt = `${code} · ${title}`;
+  img.classList.remove("is-in", "is-back"); void img.offsetWidth;
+  if (dir) img.classList.add(dir > 0 ? "is-in" : "is-back");
+  $("scroller").scrollTop = 0;
+  $("end").classList.remove("is-open");
+  $("prev").disabled = step === 0;
+  $("dots").innerHTML = L.steps.map((_, i) => `<button class="dot${i === step ? " is-on" : ""}" data-step="${i}" type="button" aria-label="Paso ${i + 1}"></button>`).join("");
+  const band = $("info-band"); band.textContent = L.band.name; band.style.background = L.band.color;
+  $("info-lane").textContent = L.name;
+  $("info-step").textContent = `Paso ${step + 1} de ${L.steps.length}`;
+  $("info-code").textContent = code;
+  $("info-title").textContent = title;
+  const note = NOTES[k]; $("info-note").hidden = !note; $("info-note").textContent = note || "";
+  document.querySelectorAll(".lane").forEach((b) => b.classList.toggle("is-active", Number(b.dataset.lane) === lane));
+  history.replaceState(null, "", `#${L.id}-${step + 1}`);
+  preload(L.steps[step + 1]);
+}
+
+function next() {
+  const L = LANES[lane];
+  if (hintShown) { $("hint").classList.add("is-hidden"); hintShown = false; }
+  if (step < L.steps.length - 1) { step++; render(1); return; }
+  const nl = LANES[lane + 1];
+  $("end-sub").textContent = nl ? `Sigue: ${nl.band.name} · ${nl.name}` : "Recorriste todos los flujos del historial.";
+  $("end-next").textContent = nl ? "Siguiente flujo" : "Empezar de nuevo";
+  $("end").classList.add("is-open");
+}
+function prev() { if (step > 0) { step--; render(-1); } }
+function goLane(i) { lane = i; step = 0; render(1); $("panel").classList.remove("is-sheet"); }
+
+$("scroller").addEventListener("click", next);
+$("scroller").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); next(); } });
+$("next").addEventListener("click", next);
+$("prev").addEventListener("click", prev);
+$("end-next").addEventListener("click", () => goLane(lane + 1 < LANES.length ? lane + 1 : 0));
+$("end-again").addEventListener("click", () => goLane(lane));
+$("open-flows").addEventListener("click", () => $("panel").classList.toggle("is-sheet"));
+$("bands").addEventListener("click", (e) => { const b = e.target.closest(".lane"); if (b) goLane(Number(b.dataset.lane)); });
+$("dots").addEventListener("click", (e) => { const d = e.target.closest(".dot"); if (d) { const s = Number(d.dataset.step); const dir = s > step ? 1 : -1; step = s; render(dir); } });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight") next();
+  else if (e.key === "ArrowLeft") prev();
+  else if (e.key === "Escape") { step = 0; render(-1); }
+});
+
+/* #banda-carril-paso, por ejemplo #3-2-4 */
+const m = location.hash.match(/^#(\d+)-(\d+)(?:-(\d+))?$/);
+if (m) {
+  const i = LANES.findIndex((l) => l.id === `${m[1]}-${m[2]}`);
+  if (i >= 0) { lane = i; step = Math.min(Math.max(Number(m[3] || 1) - 1, 0), LANES[i].steps.length - 1); }
+}
+renderPanel();
+render();
+</script>
+</body>
+</html>
