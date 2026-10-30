@@ -17512,36 +17512,32 @@ img.oky-flow-method-mark {
   gap: 16px;
 }
 
-.oky-webview-card {
-  height: 230px;
-  border-radius: 20px;
-  padding: 22px 24px;
-  background: url(oky-card-design-black.png) center 70% / 85% no-repeat #000;
-}
-
-.oky-webview-card span {
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--white);
-}
-
-.oky-webview-landing h2 {
-  margin: 4px 0 0;
-  font-family: "Nunito Sans", sans-serif;
-  font-size: 30px;
-  font-weight: 800;
-  color: var(--primary-base);
+/* Landing de OKY Cash (PDP-16, Pages 3.0): ciclo ilustrado, párrafo y
+   tres datos con círculo aqua, como «Lo que va, vuelve». */
+.oky-webview-cycle {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 22px;
 }
 
 .oky-webview-landing p {
   margin: 0;
-  font-size: 17px;
-  line-height: 1.6;
-  color: #6b6b78;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--black);
 }
 
-.oky-webview-steps {
+.oky-webview-landing b,
+.oky-webview-intro strong {
+  font-weight: 700;
+}
+
+.oky-webview-landing .is-cash {
+  color: var(--secondary-dark);
+}
+
+.oky-webview-facts {
   list-style: none;
   margin: 0 0 8px;
   padding: 0;
@@ -17550,25 +17546,31 @@ img.oky-flow-method-mark {
   gap: 14px;
 }
 
-.oky-webview-steps li {
+.oky-webview-facts li {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.oky-webview-facts strong {
+  display: block;
   font-size: 16px;
   font-weight: 700;
+  line-height: 1.4;
   color: var(--primary-base);
 }
 
-.oky-webview-steps li span {
+.oky-webview-fact-icon {
   flex: none;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--tier-base-bg);
-  color: var(--oky-cash-darker);
+  background: var(--secondary-light);
+  color: var(--primary-base);
+  font-size: 14px;
 }
 
 .oky-webview-error {

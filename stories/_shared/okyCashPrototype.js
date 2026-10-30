@@ -1125,8 +1125,8 @@ function earnedCashback(state) {
    Lo que abre la (i) de la barra de la PDP de USA: un navegador dentro
    de la app con la landing de okyapp.com/oky-cash. Carga con esqueleto
    y barra de progreso, y si no hay conexión muestra el error con
-   Reintentar. La landing es ficticia: el contenido final está por
-   escribir. */
+   Reintentar. La landing sigue PDP-16 de Pages 3.0 (30/10): el ciclo
+   Compras → Ganas → Lo usas, el párrafo y tres datos con su ícono. */
 function webviewSheet(state) {
   const { phase, fresh } = state.webview;
   const body =
@@ -1149,14 +1149,17 @@ function webviewSheet(state) {
             <button class="btn btn-outlined btn-large" data-action="close-webview" type="button">Volver a OKY Cash</button>
           </div>`
         : `<article class="oky-webview-landing">
-            <div class="oky-webview-card"><span>OKY Cash</span></div>
-            <h2>Lo que va, vuelve</h2>
-            <p>Cada gift card que compras en USA te devuelve OKY Cash. Úsalo para pagar tu próxima compra.</p>
-            <ol class="oky-webview-steps">
-              <li><span>1</span>Compra una gift card en USA</li>
-              <li><span>2</span>Gana un porcentaje en OKY Cash</li>
-              <li><span>3</span>Úsalo en tu próxima compra</li>
-            </ol>
+            <img class="oky-webview-cycle" src="oky-cash-landing-ciclo.png"
+              alt="Compras gift cards para USA y Canadá, ganas OKY Cash y lo usas en USA, Canadá y LATAM" />
+            <p class="oky-webview-intro"><strong class="is-cash">OKY Cash</strong> es el saldo a favor que ganas al comprar gift cards de <strong>USA</strong> en <strong>OKY</strong>. Úsalo como método de pago en toda la app: <strong>USA</strong>, <strong>Canadá</strong> y <strong>LATAM</strong>.</p>
+            <ul class="oky-webview-facts">
+              <li><span class="oky-webview-fact-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+                <div><strong>Vence en 180 días</strong><p>Cada compra nueva en <b>USA</b> o <b>Canadá</b> reinicia el plazo.</p></div></li>
+              <li><span class="oky-webview-fact-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+                <div><strong>Se reparte entre tus gift cards</strong><p>Si compras más de una, tu <b class="is-cash">OKY Cash</b> se distribuye por igual entre todas.</p></div></li>
+              <li><span class="oky-webview-fact-icon"><i class="fa-solid fa-ban" aria-hidden="true"></i></span>
+                <div><strong>No aplica en telecomunicaciones</strong><p>No se puede usar en pagos de telecomunicaciones.</p></div></li>
+            </ul>
             <button class="btn btn-primary btn-large" data-action="close-webview" type="button">Explorar gift cards</button>
           </article>`;
   return `
@@ -2154,8 +2157,8 @@ function screenPdp(state) {
                 </div>
               </div>
               <div class="middle-card-footer">
-                <span class="middle-card-footer-start">Redemption Instructions</span>
-                <span class="middle-card-footer-end">Terms &amp; Conditions</span>
+                <span class="middle-card-footer-start">Terms &amp; Conditions</span>
+                <span class="middle-card-footer-end">Redemption Instructions</span>
               </div>
             </div>
             <div class="oky-flow-ribbon-slot">
@@ -4144,7 +4147,7 @@ function okyCashActivity(state) {
      parecía pero no era la pieza. */
   const badgeFor = (positive) =>
     positive
-      ? { src: V3_ROUTE ? "oky-activity-up-aqua-oscuro.png" : "oky-activity-up.png", tone: "up" }
+      ? { src: "oky-activity-up-aqua-oscuro.png", tone: "up" }
       : { src: "oky-activity-down.png", tone: "down" };
 
   const historyRow = ({ date, amount, order, positive }) =>
