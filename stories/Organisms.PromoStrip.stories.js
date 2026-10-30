@@ -77,7 +77,7 @@ export default {
         component:
           "Organismo **Promo Strip** en dos variantes de layout: **Single** y **Double** (MARS 7295:52034). " +
           "Título con «Ver más» y divisor punteado; cada marca lleva imagen, nombre y, debajo del nombre, el chip " +
-          "**Gana X%** a todo el ancho en el aqua de OKY Cash (`--tier-base-bg` / `--tier-base-text`). " +
+          "**Gana X%** a todo el ancho en Aqua Oscuro, el color de OKY Cash (`--secondary-dark` / `--white`, MARS 30/10). " +
           "Prototipo: `.oky-flow-brand-card` · `.oky-flow-brand-rate`.",
       },
     },

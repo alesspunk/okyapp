@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────────────────────
    Molecules / History Card
-   7 variantes de historial: Pago de servicios · OKY Cash ·
-   Recargas de saldo · Yayo Aprobado · Yayo Rechazado ·
+   9 variantes de historial: Pago de servicios · OKY Cash ·
+   Recargas de saldo · Yayo Pago aprobado · Recarga · Vencida · Rechazada ·
    Giftcards archivadas · OKY Vales
 ───────────────────────────────────────────────────────── */
 
@@ -25,7 +25,7 @@ export default {
           "radio `20px` y shadow `card-shadow`, con el **ícono Font Awesome a la izquierda** dentro del avatar " +
           "circular de `41px`. " +
           "Tiene dos anatomías: **row** (avatar + fecha/monto + fila meta) para Pago de servicios, OKY Cash, " +
-          "Recargas y los dos estados de Yayo; y **order** (header con iniciales + divider + lista de ítems) " +
+          "Recargas y los cuatro estados de Yayo; y **order** (header con iniciales + divider + lista de ítems) " +
           "para Giftcards archivadas y OKY Vales. " +
           "Tipografía Nunito Sans en todas las variantes, alineada a los tokens `Summary Total` (Bold 14/1.43/0.15) y " +
           "`Summary Text` (Regular 14/1.75/0.15) del DS. " +
@@ -100,7 +100,7 @@ export const Variants = {
     controls: { disable: true },
     docs: {
       description: {
-        story: "Las 7 variantes de historial. Las dos últimas usan la anatomía `order` con lista de ítems.",
+        story: "Las 9 variantes de historial (con los 4 estados de Yayo). Las dos últimas usan la anatomía `order` con lista de ítems.",
       },
     },
   },
@@ -127,27 +127,17 @@ export const StatusChips = {
     docs: {
       description: {
         story:
-          "El chip de estado toma su color de los tokens de soporte: `is-success` usa " +
-          "`--success-bg` / `--success-text` / `--success-main`, e `is-error` usa " +
-          "`--error-bg` / `--error-text` / `--error-main`. El ícono siempre es Font Awesome Solid.",
+          "El chip de estado va **sin ícono** (decisión del equipo, 29/10): solo texto y color de los tokens de soporte. " +
+          "`is-success` usa `--success-bg` / `--success-text` e `is-error` usa `--error-bg` / `--error-text`.",
       },
     },
   },
   render: () => `
     <div class="mars-story">
       <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
-        <span class="history-card-chip is-success">
-          <span class="history-card-chip-icon"><i class="fa-solid fa-circle-check"></i></span>
-          Acreditado
-        </span>
-        <span class="history-card-chip is-success">
-          <span class="history-card-chip-icon"><i class="fa-solid fa-circle-check"></i></span>
-          Aprobado
-        </span>
-        <span class="history-card-chip is-error">
-          <span class="history-card-chip-icon"><i class="fa-solid fa-circle-xmark"></i></span>
-          Rechazada
-        </span>
+        <span class="history-card-chip is-success">Acreditado</span>
+        <span class="history-card-chip is-success">Pago aprobado</span>
+        <span class="history-card-chip is-error">Rechazada</span>
       </div>
     </div>
   `,

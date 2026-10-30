@@ -14352,6 +14352,15 @@ button.tactic-offer {
   --discount-ribbon-notch: var(--oky-cash-dark);
 }
 
+/* MARS 30/10: el Promo Strip y el Home Card · Photo Driven traen su
+   «Gana X%» en Aqua Oscuro de fábrica, también fuera del prototipo. */
+.promo-strip-organism .oky-flow-brand-rate,
+.homecard-header-ribbon {
+  --tier-base-bg: var(--secondary-dark);
+  --tier-base-text: var(--white);
+  --discount-ribbon-notch: var(--oky-cash-dark);
+}
+
 .oky-flow-frame.is-cash-aqua-oscuro .oky-flow-cash-strip .oky-flow-cash-strip-amount,
 .oky-flow-frame.is-cash-aqua-oscuro .oky-flow-cash-strip .oky-flow-cash-strip-label {
   color: var(--white);
@@ -18622,11 +18631,11 @@ img.oky-flow-method-mark {
    card entera; el chip va sin ícono y alineado a la derecha. Figma usa
    Lato en el nombre y el ID, pero el prototipo no carga Lato (Lato
    SemiBold ni existe en Google Fonts), así que se queda en Nunito Sans. */
-.yayo-flow-list .history-card-brand {
+.history-card-molecule[class*="is-yayo-"] .history-card-brand {
   color: var(--success-text);
 }
 
-.yayo-flow-list .history-card-chip.is-yayo {
+.history-card-molecule[class*="is-yayo-"] .history-card-chip.is-yayo {
   padding: 0 10px;
 }
 
