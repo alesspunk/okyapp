@@ -181,7 +181,7 @@ function screenLogin(state) {
     ${statusBar()}
     <section class="yayo-flow-screen">
       <div class="yayo-flow-login">
-        <div class="yayo-flow-login-logo" role="img" aria-label="Yayo × OKY">
+        <div class="yayo-flow-login-logo" role="img" aria-label="yayo × OKY">
           <img class="yayo-flow-login-wordmark" src="yayo-wordmark-dark.svg" alt="" />
           <span class="yayo-flow-login-x" aria-hidden="true">x</span>
           <img class="yayo-flow-login-oky" src="oky-contenedor.png" alt="" />
@@ -302,7 +302,7 @@ function codeNotification(state) {
   const body =
     state.channel === "call"
       ? `Llamada de OKY: tu código es ${OTP.split("").join(" ")}`
-      : `OKY: ${OTP} es tu código para ingresar a Yayo. No lo compartas.`;
+      : `OKY: ${OTP} es tu código para ingresar a yayo. No lo compartas.`;
   return `
     <button class="yayo-flow-notif" data-action="fill-otp" type="button" aria-label="Usar el código ${OTP}">
       <img src="${channel.art}" alt="" />
@@ -370,25 +370,29 @@ const FILTERS = [
   { key: "vencido", label: "Vencidos" },
 ];
 
+/* Las 4 tarjetas de actividad de Figma (43:13087 Pago aprobado,
+   43:13088 Recarga, 43:13089 Vencida, 43:13090 Rechazado). Cada estado
+   tiñe la card entera: avatar, fecha, nombre, ID, monto y chip. El chip
+   va sin ícono (decisión del equipo) y el nombre siempre arriba del ID. */
+const ACTIVITY_LOOK = {
+  aprobado: { key: "yayo-aprobado", avatar: "yayo-avatar-store.png", chip: "Pago aprobado", sign: "-" },
+  acreditado: { key: "yayo-recarga", avatar: "yayo-avatar-phone.png", chip: "Recarga", sign: "+" },
+  vencido: { key: "yayo-vencida", avatar: "yayo-avatar-store-expired.png", chip: "Vencida", sign: "" },
+  rechazado: { key: "yayo-rechazada", avatar: "yayo-avatar-store-rejected.png", chip: "Rechazada", sign: "" },
+};
+
 function historyEntry(entry, isNew) {
-  const approved = entry.status === "aprobado" || entry.status === "acreditado";
-  const credit = entry.status === "acreditado";
-  const base = findHistoryCard(approved ? "Molecule/History Card/Yayo Approved" : "Molecule/History Card/Yayo Rejected");
-  const chip = credit
-    ? { label: "Acreditado", tone: "success", icon: "fa-circle-check" }
-    : approved
-    ? base.chip
-    : entry.status === "vencido"
-      ? { label: "Vencida", tone: "neutral", icon: "fa-clock" }
-      : base.chip;
+  const look = ACTIVITY_LOOK[entry.status] || ACTIVITY_LOOK.aprobado;
+  const base = findHistoryCard("Molecule/History Card/Yayo Approved");
   const html = renderHistoryCard({
     ...base,
-    /* Los íconos rellenos del diseño (1:16261) en vez del glifo de línea. */
-    icon: { src: "yayo-avatar-store.png" },
+    key: look.key,
+    icon: { src: look.avatar },
     date: dateLabel(entry.at),
-    amount: credit ? `+${quetzal(entry.amount)}` : approved ? `-${quetzal(entry.amount)}` : quetzal(entry.amount),
-    meta: { ...base.meta, brand: entry.merchant, note: `ID: ${entry.id}` },
-    chip,
+    amount: `${look.sign}${quetzal(entry.amount)}`,
+    amountTone: undefined,
+    meta: { type: "stack", brand: entry.merchant, note: `ID: ${entry.id}` },
+    chip: { label: look.chip, tone: "yayo" },
   });
   return isNew ? html.replace('class="history-card-molecule', 'class="history-card-molecule is-new') : html;
 }
@@ -500,7 +504,7 @@ function requestModal(state) {
                   <p class="modal-detail-title">${r.merchant}</p>
                   <p class="modal-detail-note">ID: ${r.id}</p>
                 </div>
-                <span class="modal-detail-logo"><img src="yayo.webp" alt="Yayo" /></span>
+                <span class="modal-detail-logo"><img src="yayo.webp" alt="yayo" /></span>
               </div>
               <hr class="modal-detail-divider" />
               <div class="modal-detail-row">
@@ -686,7 +690,7 @@ function screenTerms() {
     "Cada solicitud de pago de una tienda vence a los 15 minutos. Si vence o la rechazas, no se descuenta nada.",
     "Un pago aprobado no se puede revertir desde la app; para cualquier reclamo contacta a la tienda o a Ayuda.",
     "Nunca compartas el código que te enviamos para ingresar. OKY no te lo pedirá por ningún medio.",
-    "Los vales solo se pueden utilizar en las tiendas afiliadas a Yayo.",
+    "Los vales solo se pueden utilizar en las tiendas afiliadas a yayo.",
     "Las recargas que te envían por OKY se suman al mismo vale y las ves en tu actividad.",
     "Consulta tu saldo y tu actividad en cualquier momento desde el inicio de la app.",
   ];
@@ -1105,7 +1109,8 @@ export function mountYayoPrototype(root) {
       addActivity({
         status: "acreditado",
         amount: Number(t.amount) || 0,
-        merchant: "Acreditación de saldo",
+        /* Quien manda la recarga desde OKY, como en la card Recarga (43:13088). */
+        merchant: "José Pérez",
         id: `AC-${String(1000 + state.credits).slice(-4)}`,
       });
     });
@@ -1190,6 +1195,9 @@ export function mountYayoPrototype(root) {
       state.balance = Math.max(0, state.balance - r.amount);
       addActivity({ status: "aprobado", amount: r.amount, merchant: r.merchant, id });
       if (state.screen !== "home") state.screen = "home";
+      /* Fat Toast Success de REC-1 (24:5955): monto entero sin centavos. */
+      const short = Number.isInteger(r.amount) ? `Q${r.amount.toLocaleString("en-US")}` : quetzal(r.amount);
+      showToast(`Pago aprobado por ${short}`, { tone: "success", icon: "fa-circle-check" });
       render();
       later(() => animateBalance(state.balance), 250);
     }, (reducedMotion() ? 1200 : APPROVE_MS) + 400);

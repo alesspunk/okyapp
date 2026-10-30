@@ -989,7 +989,7 @@ const GUA_BRANDS = [
      se recarga: los envíos se suman en el mismo vale del teléfono. No
      es comida, así que no paga costo por servicio ni saca "Agrega más,
      paga menos". */
-  { key: "gua-yayo", label: "Yayo", art: "yayo.webp", cardTitle: "OKY Vale Recargable", service: false, telco: true },
+  { key: "gua-yayo", label: "yayo", art: "yayo.webp", cardTitle: "OKY Vale Recargable", service: false, telco: true },
 ];
 
 GUA_BRANDS.forEach((brand) => {
@@ -4559,7 +4559,7 @@ const SEARCH_CATALOG = {
     { key: "gua-claro", label: "Tigo", art: "tigo.webp", action: "open-guapdp", product: "gua-claro", tags: "recarga recargas internet celular" },
     { key: "gua-ihop", label: "IHOP", art: "ihop.webp", action: "open-guapdp", product: "gua-ihop", tags: "comida desayuno" },
     { key: "gua-dominos", label: "Domino's", art: "dominos.png", action: "open-guapdp", product: "gua-dominos", tags: "comida pizza" },
-    { key: "gua-yayo", label: "Yayo", art: "yayo.webp", action: "open-guapdp", product: "gua-yayo", tags: "vale recargable tienda tendero" },
+    { key: "gua-yayo", label: "yayo", art: "yayo.webp", action: "open-guapdp", product: "gua-yayo", tags: "vale recargable tienda tendero" },
   ].map((brand) => ({ ...brand, tags: `${brand.tags} guatemala gt` })),
 };
 

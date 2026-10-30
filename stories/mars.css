@@ -18616,6 +18616,69 @@ img.oky-flow-method-mark {
   }
 }
 
+/* Tarjetas de actividad (Figma 43:13087–43:13090): cada estado tiñe la
+   card entera; el chip va sin ícono y alineado a la derecha. Figma usa
+   Lato en el nombre y el ID, pero el prototipo no carga Lato (Lato
+   SemiBold ni existe en Google Fonts), así que se queda en Nunito Sans. */
+.yayo-flow-list .history-card-brand {
+  color: var(--success-text);
+}
+
+.yayo-flow-list .history-card-chip.is-yayo {
+  padding: 0 10px;
+}
+
+.history-card-molecule.is-yayo-aprobado .history-card-chip {
+  background: var(--success-bg);
+  border-color: var(--success-bg);
+  color: var(--success-text);
+}
+
+.history-card-molecule.is-yayo-recarga .history-card-amount {
+  color: var(--success-text);
+}
+
+/* Morado de la chip Recarga: no hay token, sale de la card 43:13088. */
+.history-card-molecule.is-yayo-recarga .history-card-chip {
+  background: var(--avatar-contact-bg);
+  border-color: var(--avatar-contact-bg);
+  color: #8a3be7;
+}
+
+.history-card-molecule.is-yayo-vencida .history-card-date,
+.history-card-molecule.is-yayo-vencida .history-card-amount,
+.history-card-molecule.is-yayo-vencida .history-card-brand,
+.history-card-molecule.is-yayo-vencida .history-card-note {
+  color: var(--text-secondary);
+}
+
+.history-card-molecule.is-yayo-vencida .history-card-amount,
+.history-card-molecule.is-yayo-rechazada .history-card-amount {
+  text-decoration: line-through;
+}
+
+.history-card-molecule.is-yayo-vencida .history-card-chip {
+  background: var(--disable-main);
+  border-color: var(--disable-main);
+  color: #616161;
+}
+
+.history-card-molecule.is-yayo-rechazada .history-card-date,
+.history-card-molecule.is-yayo-rechazada .history-card-brand,
+.history-card-molecule.is-yayo-rechazada .history-card-note {
+  color: var(--error-text);
+}
+
+.history-card-molecule.is-yayo-rechazada .history-card-amount {
+  color: var(--error-main);
+}
+
+.history-card-molecule.is-yayo-rechazada .history-card-chip {
+  background: var(--error-bg);
+  border-color: var(--error-bg);
+  color: var(--error-text);
+}
+
 .yayo-flow-empty {
   display: flex;
   flex-direction: column;
