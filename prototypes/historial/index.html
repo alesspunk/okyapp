@@ -269,6 +269,10 @@ const S = {
   S02: ["HIS-S02", "Recibo del pago de servicio · EEGSA"],
   PGT23: ["PGT-23", "Pago fallido · ¿Qué pasó?"],
   PGT28: ["PGT-28", "¿Qué pasó? · Corregir y reintentar"],
+  C00: ["HIS-C00", "Historial · OKY Cash · vacío"],
+  G00: ["HIS-G00", "Historial · Gift Cards · vacío"],
+  V00: ["HIS-V00", "Historial · OKY Vales · vacío"],
+  S00: ["HIS-S00", "Historial · Servicios · vacío"],
 };
 
 const NOTES = {
@@ -277,6 +281,10 @@ const NOTES = {
   V11: "La recarga sale de «En proceso»: el menú ⋮ se desbloquea y la card cambia a Acreditada.",
   PUS14: "Solo las gift cards se marcan como usadas.",
   V06: "Marca de GT sin estado en tiempo real: toast warning.",
+  C00: "Sin compras no hay nada que filtrar ni buscar: la pestaña muestra solo el estado vacío (MARS «Wallet / Estado vacío»).",
+  G00: "Mismo componente de Mi billetera, con el copy del historial.",
+  V00: "Mismo componente de Mi billetera, con el copy del historial.",
+  S00: "Mismo componente de Mi billetera, con el copy del historial.",
 };
 
 const BANDS = [
@@ -299,6 +307,9 @@ const BANDS = [
   { name: "Servicios · Guatemala", color: "var(--band-serv)", lanes: [
     { name: "Pago exitoso", steps: ["S01", "PGT22", "S03", "S04", "S02"] },
     { name: "Pago fallido", steps: ["S01", "PGT23", "PGT28"] },
+  ]},
+  { name: "Estados vacíos", color: "var(--muted)", lanes: [
+    { name: "Sin compras · las 4 pestañas", steps: ["C00", "G00", "V00", "S00"] },
   ]},
 ];
 
