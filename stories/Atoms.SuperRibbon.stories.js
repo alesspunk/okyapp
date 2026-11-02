@@ -39,7 +39,7 @@ const TYPE_META = {
 
 function buildRibbon({ type, text, icon, estilo }) {
   const meta = TYPE_META[type];
-  const cls = meta.className + (type === "OKY Cash" ? estiloClass(estilo || "Aqua") : "");
+  const cls = meta.className + (type === "OKY Cash" ? estiloClass(estilo || "Aqua Oscuro") : "");
   return `
     <div class="super-ribbon ${cls}">
       <span class="super-ribbon-icon"><i class="fa-solid ${icon || meta.icon}"></i></span>
@@ -68,7 +68,7 @@ export const DocsPlayground = {
     type: "Por tiempo",
     text: "",
     icon: "",
-    estilo: "Aqua",
+    estilo: "Aqua Oscuro",
   },
   argTypes: {
     type: {
@@ -90,7 +90,7 @@ export const DocsPlayground = {
       control: { type: "inline-radio" },
       options: OKY_CASH_ESTILOS,
       if: { arg: "type", eq: "OKY Cash" },
-      description: "Solo Type=OKY Cash: estilo de OKY Cash (exploración 20/10, MARS · Estilo). Normal (aqua) queda para descuento.",
+      description: "Solo Type=OKY Cash: estilo de OKY Cash (MARS · Estilo). Aqua Oscuro ganó el 23/10 y es el de fábrica; Normal (aqua) queda para descuento.",
     },
   },
   render: (args) => `

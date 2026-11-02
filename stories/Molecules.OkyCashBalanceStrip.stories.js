@@ -20,9 +20,9 @@ export default {
   },
   argTypes: {
     balance: { control: { type: "number", min: 0, step: 0.01 }, description: "Saldo disponible de OKY Cash." },
-    estilo: { control: "inline-radio", options: OKY_CASH_ESTILOS, description: "Estilo de OKY Cash (exploración 20/10, MARS · Estilo). Aqua es como se ve hoy; el aqua claro queda para descuento." },
+    estilo: { control: "inline-radio", options: OKY_CASH_ESTILOS, description: "Estilo de OKY Cash (MARS · Estilo). Aqua Oscuro ganó el 23/10 y es el de fábrica; el aqua claro queda para descuento." },
   },
-  args: { balance: 5, estilo: "Aqua" },
+  args: { balance: 5, estilo: "Aqua Oscuro" },
 };
 
 export const Playground = {

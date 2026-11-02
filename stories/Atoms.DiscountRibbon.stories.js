@@ -13,7 +13,7 @@ function typeClass(type) {
 function buildRibbon({ tipo, type, label, size, estilo }) {
   /* Type=OKY Cash: el «Gana X%» de OKY Cash, con su estilo (MARS ·
      Estilo). Normal queda aqua para el descuento. */
-  const typeToken = typeClass(type) + (type === "OKY Cash" ? estiloClass(estilo || "Aqua") : "");
+  const typeToken = typeClass(type) + (type === "OKY Cash" ? estiloClass(estilo || "Aqua Oscuro") : "");
 
   if (tipo === "Wrap") {
     return `
@@ -52,7 +52,7 @@ export const DocsPlayground = {
     type: "Normal",
     size: "Default",
     label: "25% OFF",
-    estilo: "Aqua",
+    estilo: "Aqua Oscuro",
   },
   argTypes: {
     tipo: {
@@ -83,7 +83,7 @@ export const DocsPlayground = {
       control: { type: "inline-radio" },
       options: OKY_CASH_ESTILOS,
       if: { arg: "type", eq: "OKY Cash" },
-      description: "Solo Type=OKY Cash: estilo de OKY Cash (exploración 20/10, MARS · Estilo). Normal (aqua) queda para descuento.",
+      description: "Solo Type=OKY Cash: estilo de OKY Cash (MARS · Estilo). Aqua Oscuro ganó el 23/10 y es el de fábrica; Normal (aqua) queda para descuento.",
     },
   },
   render: (args) => `
