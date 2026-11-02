@@ -38,7 +38,13 @@ const REQUEST = {
   merchant: "Tienda Don Juan",
   id: "TP-4784",
 };
-const START_BALANCE = 380;
+/* Saldo con el que arranca la sesión. ?saldo=20 lo baja para probar el
+   edge case «No tiene fondo» (1:16303) con la solicitud de Q380. */
+function startBalance() {
+  const raw = new URLSearchParams(window.location.search).get("saldo");
+  const n = Number(raw);
+  return raw !== null && raw !== "" && Number.isFinite(n) && n >= 0 ? n : 380;
+}
 const DEFAULT_WINDOW_S = 15 * 60;
 const APPROVE_MS = 2900;
 
@@ -76,8 +82,9 @@ function createInitialState() {
     passkey: false,
     request: { ...REQUEST, receivedAt: now, expiresAt: now.getTime() + requestWindow() * 1000 },
     requestOpen: false,
-    balance: START_BALANCE,
-    shownBalance: START_BALANCE,
+    balance: startBalance(),
+    shownBalance: startBalance(),
+    refreshing: false,
     activity: [],
     newId: null,
     approving: null,
@@ -171,6 +178,36 @@ function countdownRibbon(state, { attached = false, label = "La solicitud vence 
       </span>
     </div>
   `;
+}
+
+/* La solicitud pide más de lo que hay: no se puede aprobar hasta que
+   llegue saldo. */
+function shortOfFunds(state) {
+  return !!state.request && state.request.amount > state.balance;
+}
+
+/* Edge case «No tiene fondo» (1:16303): en lugar de la cuenta atrás, el
+   saldo que hay en rojo y «Refrescar» para volver a consultarlo. La
+   solicitud sigue venciendo a su hora aunque el reloj no se vea. */
+function fundsRibbon(state) {
+  return `
+    <div class="super-ribbon super-ribbon-type-saldo is-attached">
+      <span class="super-ribbon-icon"><i class="fa-solid ${state.refreshing ? "fa-rotate-right fa-spin" : "fa-dollar-sign"}" aria-hidden="true"></i></span>
+      <span class="super-ribbon-text">Saldo disponible: ${quetzal(state.balance)}</span>
+      <button class="yayo-flow-refresh" data-action="refresh-balance" type="button"${state.refreshing ? " disabled" : ""}>
+        ${state.refreshing ? "Refrescando…" : "Refrescar"}
+      </button>
+    </div>
+  `;
+}
+
+function approveButton(state, { stacked = false } = {}) {
+  const off = shortOfFunds(state);
+  return `
+    <button class="action-circle${stacked ? " is-stacked is-large" : ""} is-approve${off ? " is-disabled" : ""}" data-action="approve" type="button"${off ? " disabled" : ""}>
+      <span class="action-circle-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+      <span class="action-circle-label">${stacked ? "Aprobar Pago" : "Aprobar pago"}</span>
+    </button>`;
 }
 
 /* ── Login ───────────────────────────────────────────────── */
@@ -346,17 +383,14 @@ function pendingRequestCard(state) {
             <span class="amount-display-value">${plain(r.amount)}</span>
           </p>
         </div>
-        ${countdownRibbon(state, { attached: true })}
+        ${shortOfFunds(state) ? fundsRibbon(state) : countdownRibbon(state, { attached: true })}
       </div>
       <div class="yayo-flow-pending-actions">
         <button class="action-circle is-reject" data-action="reject" type="button">
           <span class="action-circle-icon"><i class="fa-solid fa-xmark" aria-hidden="true"></i></span>
           <span class="action-circle-label">Rechazar</span>
         </button>
-        <button class="action-circle is-approve" data-action="approve" type="button">
-          <span class="action-circle-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
-          <span class="action-circle-label">Aprobar pago</span>
-        </button>
+        ${approveButton(state)}
       </div>
     </article>
   `;
@@ -481,7 +515,7 @@ function requestModal(state) {
         <div class="modal-centered-body">
           <div class="modal-sheet-header">
             <div class="modal-sheet-header-main">
-              <h3 class="modal-sheet-title is-regular">Solicitud de pago</h3>
+              <h3 class="modal-sheet-title is-regular">${shortOfFunds(state) ? "Saldo insuficiente" : "Solicitud de pago"}</h3>
             </div>
             <button class="header-icon modal-sheet-close" data-action="minimize" type="button" aria-label="Minimizar">
               <span class="fa-icon fa-icon-lg" aria-hidden="true"><i class="fa-light fa-chevron-down"></i></span>
@@ -494,7 +528,7 @@ function requestModal(state) {
                 <span class="amount-display-value">${plain(r.amount)}</span>
               </p>
             </div>
-            ${countdownRibbon(state, { attached: true })}
+            ${shortOfFunds(state) ? fundsRibbon(state) : countdownRibbon(state, { attached: true })}
           </div>
           <div class="modal-detail-list">
             <div class="modal-detail-rows">
@@ -524,10 +558,7 @@ function requestModal(state) {
             </button>
           </div>
           <div class="modal-centered-action">
-            <button class="action-circle is-stacked is-large is-approve" data-action="approve" type="button">
-              <span class="action-circle-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
-              <span class="action-circle-label">Aprobar Pago</span>
-            </button>
+            ${approveButton(state, { stacked: true })}
           </div>
         </div>
       </section>
@@ -1012,6 +1043,7 @@ export function mountYayoPrototype(root) {
     if (!r) return;
     state.request = null;
     state.requestOpen = false;
+    state.refreshing = false;
     if (state.sheet === "reject") state.sheet = null;
     if (state.loggedIn) {
       addActivity({ status: "vencido", amount: r.amount, merchant: r.merchant, id: `VX-${r.id.split("-")[1]}` });
@@ -1101,8 +1133,12 @@ export function mountYayoPrototype(root) {
      sesión se acreditan al momento; en el login esperan a que se entre. */
   function receiveTopups() {
     if (!state.loggedIn) return;
-    const list = takeYayoTopups();
+    creditTopups(takeYayoTopups());
+  }
+
+  function creditTopups(list) {
     if (!list.length) return;
+    state.refreshing = false;
     const total = list.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
     list.forEach((t) => {
       state.credits += 1;
@@ -1174,7 +1210,9 @@ export function mountYayoPrototype(root) {
 
   function approve(button) {
     const r = state.request;
-    if (!r || state.approving) return;
+    /* Sin saldo suficiente no pasa: el botón va apagado y, por si acaso,
+       aquí tampoco. */
+    if (!r || state.approving || shortOfFunds(state)) return;
     const frame = root.querySelector(".oky-flow-frame");
     const fr = frame.getBoundingClientRect();
     const br = button ? button.getBoundingClientRect() : null;
@@ -1201,6 +1239,25 @@ export function mountYayoPrototype(root) {
       render();
       later(() => animateBalance(state.balance), 250);
     }, (reducedMotion() ? 1200 : APPROVE_MS) + 400);
+  }
+
+  /* «Refrescar» vuelve a consultar el saldo mientras la solicitud siga
+     viva. Si desde /miscompras llegó una recarga, entra esa; si no,
+     llega la de José Pérez por el monto de la solicitud, como en el
+     flujo de Figma (Refrescar → 1:12651). Al alcanzar, el modal vuelve
+     a «Solicitud de pago» con su cuenta atrás y Aprobar se enciende. */
+  function refreshBalance() {
+    if (!state.request || state.refreshing) return;
+    state.refreshing = true;
+    render();
+    later(() => {
+      if (!state.request) {
+        state.refreshing = false;
+        return render();
+      }
+      const list = takeYayoTopups();
+      creditTopups(list.length ? list : [{ amount: state.request.amount }]);
+    }, reducedMotion() ? 300 : 1200);
   }
 
   /* Escanear el QR del tendero genera su solicitud de pago (así nace en
@@ -1305,6 +1362,7 @@ export function mountYayoPrototype(root) {
       return render();
     }
     if (action === "approve") return approve(el);
+    if (action === "refresh-balance") return refreshBalance();
     if (action === "reject") {
       if (!state.request) return;
       state.requestOpen = false;

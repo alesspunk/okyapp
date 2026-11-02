@@ -18748,6 +18748,58 @@ img.oky-flow-method-mark {
   opacity: 0.75;
 }
 
+/* Edge case «No tiene fondo» (1:16303): el ribbon de la solicitud pasa
+   a rojo con el saldo que hay y «Refrescar» a la derecha. */
+.super-ribbon-type-saldo {
+  --super-ribbon-bg: var(--error-bg);
+  --super-ribbon-text: var(--error-text);
+  justify-content: flex-start;
+}
+
+.super-ribbon-type-saldo .super-ribbon-icon i {
+  color: var(--error-main);
+}
+
+.super-ribbon-type-saldo .super-ribbon-text {
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+.yayo-flow-refresh {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--error-text);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.15px;
+  cursor: pointer;
+}
+
+.yayo-flow-refresh:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.yayo-flow-refresh:focus-visible {
+  outline: 2px solid var(--error-main);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Aprobar apagado mientras no alcance el saldo: círculo gris y etiqueta
+   en texto deshabilitado, como en 1:16303. */
+.action-circle.is-approve.is-disabled {
+  color: var(--disable-text);
+  cursor: default;
+}
+
+.action-circle.is-approve.is-disabled .action-circle-icon {
+  background: var(--disable-main);
+  box-shadow: none;
+}
+
 /* La cuenta atrás avisa en rojo el último minuto. */
 .super-ribbon-type-vence.is-urgent .super-ribbon-countdown-value {
   color: var(--error-main);
