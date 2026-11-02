@@ -17903,58 +17903,19 @@ img.oky-flow-method-mark {
   background: var(--secondary-dark);
 }
 
-/* ── OKY Cash · Estilo (exploración 20/10) ────────────────
-   El aqua claro queda para descuento (Guatemala). Mientras se decide
-   el color propio de OKY Cash, cada componente de OKY Cash acepta uno
-   de los cinco estilos de MARS (propiedad «Estilo»): Aqua, Aqua
-   Oscuro, Oscuro, Dark Night y Plata. Cada estilo es una clase que
-   redefine las variables que el componente ya usa, así el resto del
-   CSS no cambia. Componentes: Pastilla, Balance Strip, Saving Bar,
-   Discount Ribbon (Type=OKY Cash), Super Ribbon (OKY Cash) y el chip
-   «Ganado» de Movimiento. */
-:root {
-  /* Oscuro: el degradado del organismo OKY Cash Win, de abajo hacia arriba. */
-  --oky-cash-oscuro: linear-gradient(0deg, var(--secondary-dark) 59%, var(--oky-cash-dark) 91%);
-  /* Plata: el plata de la moneda, con el brillo al centro. */
-  --oky-cash-plata: linear-gradient(180deg, var(--surface-card) 0%, var(--surface-card-end) 30%, var(--white) 44%, var(--grey-400) 73.1%, var(--surface-card) 100%);
-  --oky-cash-plata-rim: linear-gradient(180deg, var(--white) 0%, var(--grey-400) 50%, var(--grey-600) 100%);
-  --oky-cash-plata-bevel: inset 0 2px 1px var(--white), inset 0 -2px 2px var(--separator-border);
-  /* El aqua de --tier-base-bg tal cual: las clases de estilo redefinen
-     --tier-base-bg, así que el texto de Aqua Oscuro lee esta copia. */
-  --oky-cash-tier-base-bg: var(--tier-base-bg);
-}
-
-.is-estilo-aqua {
-  --estilo-bg: var(--secondary-light);
-  --estilo-ink: var(--oky-cash-dark);
-  --estilo-notch: var(--secondary-dark);
-}
-
-/* Aqua Oscuro ganó para OKY Cash (23/10): fondo secondary/dark y texto
-   blanco, como la Pastilla de MARS. El #A8FAF5 de la exploración no
-   llegaba al contraste mínimo (4.37:1); el blanco da 5.20:1. */
+/* ── OKY Cash · Aqua Oscuro ──────────────────────────────
+   Aqua Oscuro ganó para OKY Cash el 23/10: fondo secondary/dark y texto
+   blanco, como la Pastilla de MARS (5.20:1 de contraste). El aqua claro
+   queda para descuento (Guatemala). La clase redefine las variables que
+   cada componente ya usa, así el resto del CSS no cambia. Componentes:
+   Pastilla, Balance Strip, Saving Bar, Discount Ribbon (Type=OKY Cash),
+   Super Ribbon (OKY Cash) y el chip «Ganado» de Movimiento. Los otros
+   estilos de la exploración (Aqua, Oscuro, Dark Night, Plata) salieron
+   de Storybook el 2/11. */
 .is-estilo-aqua-oscuro {
   --estilo-bg: var(--secondary-dark);
   --estilo-ink: var(--white);
   --estilo-notch: var(--oky-cash-dark);
-}
-
-.is-estilo-oscuro {
-  --estilo-bg: var(--oky-cash-oscuro);
-  --estilo-ink: var(--white);
-  --estilo-notch: var(--oky-cash-darker);
-}
-
-.is-estilo-dark-night {
-  --estilo-bg: var(--black);
-  --estilo-ink: var(--secondary-light);
-  --estilo-notch: var(--grey-600);
-}
-
-.is-estilo-plata {
-  --estilo-bg: var(--oky-cash-plata);
-  --estilo-ink: var(--primary-main);
-  --estilo-notch: var(--grey-600);
 }
 
 /* Lo que lee cada componente: la pastilla, la tira y la saving bar
@@ -17982,39 +17943,6 @@ img.oky-flow-method-mark {
   background: var(--estilo-bg);
   border-color: transparent;
   color: var(--estilo-ink);
-}
-
-/* Oscuro lleva borde secondary/main por dentro, como el stroke de MARS. */
-.is-estilo-oscuro:is(.oky-flow-purchase-badge, .oky-flow-cash-strip, .saving-bar, .super-ribbon, .history-card-chip, .discount-ribbon-list) {
-  outline: 1.5px solid var(--secondary-main);
-  outline-offset: -1.5px;
-}
-
-/* Plata lleva el canto metálico (claro arriba, grey/600 abajo) y el
-   bisel: brillo blanco arriba y sombra abajo, para que no flote. */
-.is-estilo-plata:is(.oky-flow-purchase-badge, .oky-flow-cash-strip, .super-ribbon, .history-card-chip) {
-  position: relative;
-}
-
-.is-estilo-plata:is(.oky-flow-purchase-badge, .oky-flow-cash-strip, .super-ribbon, .history-card-chip)::before,
-.is-estilo-plata:is(.oky-flow-purchase-badge, .oky-flow-cash-strip, .super-ribbon, .history-card-chip)::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.is-estilo-plata:is(.oky-flow-purchase-badge, .oky-flow-cash-strip, .super-ribbon, .history-card-chip)::before {
-  box-shadow: var(--oky-cash-plata-bevel);
-}
-
-.is-estilo-plata:is(.oky-flow-purchase-badge, .oky-flow-cash-strip, .super-ribbon, .history-card-chip)::after {
-  padding: 1.5px;
-  background: var(--oky-cash-plata-rim);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
 
 /* ═══════════════════════════════════════════════════════════
