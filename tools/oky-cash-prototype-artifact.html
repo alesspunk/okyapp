@@ -18548,6 +18548,51 @@ img.oky-flow-method-mark {
   animation: yayo-flow-drop 320ms ease-out both;
 }
 
+/* Carrusel de solicitudes (1:12928). Sale hasta los bordes de la
+   pantalla para que asome la siguiente sin cortarle la sombra. */
+.yayo-flow-request-track {
+  display: flex;
+  flex-direction: column;
+}
+
+.yayo-flow-request-track.is-multi {
+  flex-direction: row;
+  gap: 12px;
+  margin: -12px calc(var(--oky-gutter) * -1) -24px;
+  padding: 12px var(--oky-gutter) 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 var(--oky-gutter);
+  scrollbar-width: none;
+}
+
+.yayo-flow-request-track.is-multi::-webkit-scrollbar {
+  display: none;
+}
+
+.yayo-flow-request-track.is-multi > .yayo-flow-pending {
+  flex: 0 0 calc(100% - 24px);
+  scroll-snap-align: start;
+}
+
+.yayo-flow-request-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.yayo-flow-request-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--disable-main);
+  transition: background-color 200ms ease;
+}
+
+.yayo-flow-request-dot.is-on {
+  background: var(--primary-main);
+}
+
 .yayo-flow-pending {
   overflow: hidden;
   border-radius: 16px;

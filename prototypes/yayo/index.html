@@ -18555,6 +18555,51 @@ img.oky-flow-method-mark {
   animation: yayo-flow-drop 320ms ease-out both;
 }
 
+/* Carrusel de solicitudes (1:12928). Sale hasta los bordes de la
+   pantalla para que asome la siguiente sin cortarle la sombra. */
+.yayo-flow-request-track {
+  display: flex;
+  flex-direction: column;
+}
+
+.yayo-flow-request-track.is-multi {
+  flex-direction: row;
+  gap: 12px;
+  margin: -12px calc(var(--oky-gutter) * -1) -24px;
+  padding: 12px var(--oky-gutter) 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 var(--oky-gutter);
+  scrollbar-width: none;
+}
+
+.yayo-flow-request-track.is-multi::-webkit-scrollbar {
+  display: none;
+}
+
+.yayo-flow-request-track.is-multi > .yayo-flow-pending {
+  flex: 0 0 calc(100% - 24px);
+  scroll-snap-align: start;
+}
+
+.yayo-flow-request-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.yayo-flow-request-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--disable-main);
+  transition: background-color 200ms ease;
+}
+
+.yayo-flow-request-dot.is-on {
+  background: var(--primary-main);
+}
+
 .yayo-flow-pending {
   overflow: hidden;
   border-radius: 16px;
@@ -20530,12 +20575,29 @@ const REQUEST = {
   merchant: "Tienda Don Juan",
   id: "TP-4784",
 };
-/* Saldo con el que arranca la sesión. ?saldo=20 lo baja para probar el
-   edge case «No tiene fondo» (1:16303) con la solicitud de Q380. */
+/* Caso «Multiples» (1:12928): al entrar ya hay dos solicitudes en el
+   carrusel. La segunda vence después que la primera. ?solicitudes=1
+   vuelve al caso de una sola. */
+const MORE_REQUESTS = [{ amount: 200, merchant: "Abarrotería Viper", id: "TP-4785" }];
+
+function requestCount() {
+  const raw = Number(new URLSearchParams(window.location.search).get("solicitudes"));
+  return Number.isInteger(raw) && raw >= 1 ? Math.min(raw, 1 + MORE_REQUESTS.length) : 1 + MORE_REQUESTS.length;
+}
+
+function initialRequests(now) {
+  return [REQUEST, ...MORE_REQUESTS]
+    .slice(0, requestCount())
+    .map((r, i) => ({ ...r, receivedAt: now, expiresAt: now.getTime() + requestWindow() * (i + 1) * 1000 }));
+}
+/* Saldo con el que arranca la sesión: Q500 alcanza para cada solicitud
+   por separado, y al aprobar la de Q380 la de Q200 se queda corta.
+   ?saldo=20 lo baja para probar el edge case «No tiene fondo» (1:16303)
+   desde el principio. */
 function startBalance() {
   const raw = new URLSearchParams(window.location.search).get("saldo");
   const n = Number(raw);
-  return raw !== null && raw !== "" && Number.isFinite(n) && n >= 0 ? n : 380;
+  return raw !== null && raw !== "" && Number.isFinite(n) && n >= 0 ? n : 500;
 }
 const DEFAULT_WINDOW_S = 15 * 60;
 const APPROVE_MS = 2900;
@@ -20572,7 +20634,10 @@ function createInitialState() {
     channel: "whatsapp",
     notif: false,
     passkey: false,
-    request: { ...REQUEST, receivedAt: now, expiresAt: now.getTime() + requestWindow() * 1000 },
+    requests: initialRequests(now),
+    focusId: null,
+    scans: 0,
+    trackIndex: 0,
     requestOpen: false,
     balance: startBalance(),
     shownBalance: startBalance(),
@@ -20653,20 +20718,26 @@ function requestToast(amount, { action = "close-login-toast" } = {}) {
   `;
 }
 
-function secondsLeft(state) {
-  if (!state.request) return 0;
-  return Math.max(0, Math.ceil((state.request.expiresAt - Date.now()) / 1000));
+/* La solicitud en la que se está: la del modal, o la que se acaba de
+   tocar en el carrusel. Si ya no está, la primera que queda. */
+function currentRequest(state) {
+  return state.requests.find((r) => r.id === state.focusId) || state.requests[0] || null;
+}
+
+function secondsLeft(r) {
+  if (!r) return 0;
+  return Math.max(0, Math.ceil((r.expiresAt - Date.now()) / 1000));
 }
 
 /* Super Ribbon `vence`: el mismo del modal y de la Reminder Card. */
-function countdownRibbon(state, { attached = false, label = "La solicitud vence en" } = {}) {
-  const left = secondsLeft(state);
+function countdownRibbon(r, { attached = false, label = "La solicitud vence en" } = {}) {
+  const left = secondsLeft(r);
   return `
     <div class="super-ribbon super-ribbon-type-vence${attached ? " is-attached" : ""}${left <= 60 ? " is-urgent" : ""}">
       <span class="super-ribbon-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
       <span class="super-ribbon-text super-ribbon-countdown">
         <span class="super-ribbon-countdown-label">${label}</span>
-        <span class="super-ribbon-countdown-value" data-role="countdown">${clock(left)}</span>
+        <span class="super-ribbon-countdown-value" data-role="countdown" data-id="${r.id}">${clock(left)}</span>
       </span>
     </div>
   `;
@@ -20674,29 +20745,29 @@ function countdownRibbon(state, { attached = false, label = "La solicitud vence 
 
 /* La solicitud pide más de lo que hay: no se puede aprobar hasta que
    llegue saldo. */
-function shortOfFunds(state) {
-  return !!state.request && state.request.amount > state.balance;
+function shortOfFunds(state, r = currentRequest(state)) {
+  return !!r && r.amount > state.balance;
 }
 
 /* Edge case «No tiene fondo» (1:16303): en lugar de la cuenta atrás, el
    saldo que hay en rojo y «Refrescar» para volver a consultarlo. La
    solicitud sigue venciendo a su hora aunque el reloj no se vea. */
-function fundsRibbon(state) {
+function fundsRibbon(state, r) {
   return `
     <div class="super-ribbon super-ribbon-type-saldo is-attached">
       <span class="super-ribbon-icon"><i class="fa-solid ${state.refreshing ? "fa-rotate-right fa-spin" : "fa-dollar-sign"}" aria-hidden="true"></i></span>
       <span class="super-ribbon-text">Saldo disponible: ${quetzal(state.balance)}</span>
-      <button class="yayo-flow-refresh" data-action="refresh-balance" type="button"${state.refreshing ? " disabled" : ""}>
+      <button class="yayo-flow-refresh" data-action="refresh-balance" data-id="${r.id}" type="button"${state.refreshing ? " disabled" : ""}>
         ${state.refreshing ? "Refrescando…" : "Refrescar"}
       </button>
     </div>
   `;
 }
 
-function approveButton(state, { stacked = false } = {}) {
-  const off = shortOfFunds(state);
+function approveButton(state, r, { stacked = false } = {}) {
+  const off = shortOfFunds(state, r);
   return `
-    <button class="action-circle${stacked ? " is-stacked is-large" : ""} is-approve${off ? " is-disabled" : ""}" data-action="approve" type="button"${off ? " disabled" : ""}>
+    <button class="action-circle${stacked ? " is-stacked is-large" : ""} is-approve${off ? " is-disabled" : ""}" data-action="approve" data-id="${r.id}" type="button"${off ? " disabled" : ""}>
       <span class="action-circle-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
       <span class="action-circle-label">${stacked ? "Aprobar Pago" : "Aprobar pago"}</span>
     </button>`;
@@ -20717,8 +20788,8 @@ function screenLogin(state) {
         </div>
         <div class="yayo-flow-login-slot">
           ${
-            state.loginToast && state.request
-              ? `<div class="yayo-flow-login-toast">${requestToast(state.request.amount)}</div>`
+            state.loginToast && state.requests.length
+              ? `<div class="yayo-flow-login-toast">${requestToast(state.requests[0].amount)}</div>`
               : ""
           }
         </div>
@@ -20864,25 +20935,24 @@ function balanceCard(state) {
 /* La solicitud minimizada en el home (1:12651): el mismo bloque de
    monto con cuenta atrás del modal y, debajo, las dos acciones del
    átomo Action Circle en su forma en línea. Tocar el monto la reabre. */
-function pendingRequestCard(state) {
-  const r = state.request;
+function pendingRequestCard(state, r) {
   return `
     <article class="yayo-flow-pending">
-      <div class="yayo-flow-amount" data-action="open-request" role="button" tabindex="0" aria-label="Ver la solicitud de pago">
+      <div class="yayo-flow-amount" data-action="open-request" data-id="${r.id}" role="button" tabindex="0" aria-label="Ver la solicitud de pago">
         <div class="amount-summary is-success">
           <p class="amount-display is-hero">
             <span class="amount-display-currency">Q</span>
             <span class="amount-display-value">${plain(r.amount)}</span>
           </p>
         </div>
-        ${shortOfFunds(state) ? fundsRibbon(state) : countdownRibbon(state, { attached: true })}
+        ${shortOfFunds(state, r) ? fundsRibbon(state, r) : countdownRibbon(r, { attached: true })}
       </div>
       <div class="yayo-flow-pending-actions">
-        <button class="action-circle is-reject" data-action="reject" type="button">
+        <button class="action-circle is-reject" data-action="reject" data-id="${r.id}" type="button">
           <span class="action-circle-icon"><i class="fa-solid fa-xmark" aria-hidden="true"></i></span>
           <span class="action-circle-label">Rechazar</span>
         </button>
-        ${approveButton(state)}
+        ${approveButton(state, r)}
       </div>
     </article>
   `;
@@ -20968,18 +21038,38 @@ function activityBlock(state) {
   `;
 }
 
+/* Varias solicitudes por resolver (1:12928): carrusel horizontal que
+   asoma la siguiente, con puntos debajo. Con una sola, la tarjeta sola. */
+function requestCarousel(state) {
+  const list = state.requests;
+  const many = list.length > 1;
+  const at = Math.min(state.trackIndex, list.length - 1);
+  return `
+    <div class="yayo-flow-requests">
+      <p class="yayo-flow-label">Solicitudes de pago</p>
+      <div class="yayo-flow-request-track${many ? " is-multi" : ""}" data-role="request-track">
+        ${list.map((r) => pendingRequestCard(state, r)).join("")}
+      </div>
+      ${
+        many
+          ? `<div class="yayo-flow-request-dots" aria-hidden="true">
+               ${list.map((r, i) => `<span class="yayo-flow-request-dot${i === at ? " is-on" : ""}"></span>`).join("")}
+             </div>`
+          : ""
+      }
+    </div>
+  `;
+}
+
 function screenHome(state) {
-  const pending = state.request && !state.requestOpen;
+  const pending = state.requests.length && !state.requestOpen;
   return `
     ${statusBar()}
     ${yayoHeader()}
     <section class="yayo-flow-home">
       ${
         pending
-          ? `<div class="yayo-flow-requests">
-               <p class="yayo-flow-label">Solicitudes de pago</p>
-               ${pendingRequestCard(state)}
-             </div>`
+          ? requestCarousel(state)
           : ""
       }
       <div class="yayo-flow-card" data-role="balance-card">${balanceCard(state)}</div>
@@ -20998,7 +21088,7 @@ function screenActivity(state) {
 
 /* Modal Centered (Molecules/Modal · Centered, 99140:45084). */
 function requestModal(state) {
-  const r = state.request;
+  const r = currentRequest(state);
   return `
     <div class="yayo-flow-modal">
       <button class="modal-molecule-backdrop" data-action="minimize" type="button" aria-label="Minimizar la solicitud"></button>
@@ -21007,7 +21097,7 @@ function requestModal(state) {
         <div class="modal-centered-body">
           <div class="modal-sheet-header">
             <div class="modal-sheet-header-main">
-              <h3 class="modal-sheet-title is-regular">${shortOfFunds(state) ? "Saldo insuficiente" : "Solicitud de pago"}</h3>
+              <h3 class="modal-sheet-title is-regular">${shortOfFunds(state, r) ? "Saldo insuficiente" : "Solicitud de pago"}</h3>
             </div>
             <button class="header-icon modal-sheet-close" data-action="minimize" type="button" aria-label="Minimizar">
               <span class="fa-icon fa-icon-lg" aria-hidden="true"><i class="fa-light fa-chevron-down"></i></span>
@@ -21020,7 +21110,7 @@ function requestModal(state) {
                 <span class="amount-display-value">${plain(r.amount)}</span>
               </p>
             </div>
-            ${shortOfFunds(state) ? fundsRibbon(state) : countdownRibbon(state, { attached: true })}
+            ${shortOfFunds(state, r) ? fundsRibbon(state, r) : countdownRibbon(r, { attached: true })}
           </div>
           <div class="modal-detail-list">
             <div class="modal-detail-rows">
@@ -21044,13 +21134,13 @@ function requestModal(state) {
         </div>
         <div class="modal-centered-actions">
           <div class="modal-centered-action">
-            <button class="action-circle is-stacked is-large is-reject" data-action="reject" type="button">
+            <button class="action-circle is-stacked is-large is-reject" data-action="reject" data-id="${r.id}" type="button">
               <span class="action-circle-icon"><i class="fa-solid fa-xmark" aria-hidden="true"></i></span>
               <span class="action-circle-label">Rechazar</span>
             </button>
           </div>
           <div class="modal-centered-action">
-            ${approveButton(state, { stacked: true })}
+            ${approveButton(state, r, { stacked: true })}
           </div>
         </div>
       </section>
@@ -21441,7 +21531,7 @@ function mountYayoPrototype(root) {
     root.innerHTML = `
       <div class="oky-flow-frame yayo-flow">
         <div class="oky-flow-scroll">${screenHtml()}</div>
-        ${state.screen === "home" && state.request && state.requestOpen && !state.sheet ? requestModal(state) : ""}
+        ${state.screen === "home" && currentRequest(state) && state.requestOpen && !state.sheet ? requestModal(state) : ""}
         ${sheetHtml()}
         ${state.notif && state.sheet === "otp" ? codeNotification(state) : ""}
         ${state.passkey ? passkeyOverlay() : ""}
@@ -21457,6 +21547,25 @@ function mountYayoPrototype(root) {
     const newScroller = root.querySelector(".oky-flow-scroll");
     if (newScroller && state.keepScroll) newScroller.scrollTop = keptScroll;
     state.keepScroll = false;
+
+    /* El carrusel de solicitudes vuelve a la tarjeta donde iba y los
+       puntos siguen al deslizar. */
+    const track = root.querySelector("[data-role='request-track'].is-multi");
+    if (track) {
+      const cards = track.children;
+      const step = cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : 1;
+      track.scrollLeft = state.trackIndex * step;
+      track.addEventListener(
+        "scroll",
+        () => {
+          const i = Math.min(cards.length - 1, Math.round(track.scrollLeft / step));
+          if (i === state.trackIndex) return;
+          state.trackIndex = i;
+          root.querySelectorAll(".yayo-flow-request-dot").forEach((d, k) => d.classList.toggle("is-on", k === i));
+        },
+        { passive: true }
+      );
+    }
 
     if (focusId) {
       const el = root.querySelector(`#${focusId}`);
@@ -21519,30 +21628,39 @@ function mountYayoPrototype(root) {
   function tick() {
     clearInterval(tickTimer);
     tickTimer = setInterval(() => {
-      if (!state.request) return;
-      const left = secondsLeft(state);
+      if (!state.requests.length) return;
       root.querySelectorAll("[data-role='countdown']").forEach((n) => {
+        const left = secondsLeft(state.requests.find((r) => r.id === n.dataset.id));
         n.textContent = clock(left);
         const ribbon = n.closest(".super-ribbon");
         if (ribbon) ribbon.classList.toggle("is-urgent", left <= 60);
       });
-      if (left <= 0) expireRequest();
+      state.requests.filter((r) => secondsLeft(r) <= 0).forEach(expireRequest);
     }, 1000);
   }
 
-  function expireRequest() {
-    const r = state.request;
+  /* Saca la solicitud de la lista; si era la del modal, el modal se cierra. */
+  function dropRequest(r) {
+    const wasCurrent = currentRequest(state) === r;
+    state.requests = state.requests.filter((x) => x !== r);
+    state.trackIndex = Math.min(state.trackIndex, Math.max(0, state.requests.length - 1));
+    if (wasCurrent) {
+      state.focusId = null;
+      state.requestOpen = false;
+    }
+    return wasCurrent;
+  }
+
+  function expireRequest(r) {
     if (!r) return;
-    state.request = null;
-    state.requestOpen = false;
-    state.refreshing = false;
-    if (state.sheet === "reject") state.sheet = null;
+    if (dropRequest(r) && state.sheet === "reject") state.sheet = null;
+    if (!state.requests.length) state.refreshing = false;
     if (state.loggedIn) {
       addActivity({ status: "vencido", amount: r.amount, merchant: r.merchant, id: `VX-${r.id.split("-")[1]}` });
       showToast("La solicitud de pago venció", { tone: "warning", icon: "fa-clock" });
     } else {
-      state.pendingExpired = r;
-      state.loginToast = false;
+      state.pendingExpired = [...(state.pendingExpired || []), r];
+      state.loginToast = state.requests.length > 0;
       render();
     }
   }
@@ -21659,16 +21777,18 @@ function mountYayoPrototype(root) {
     state.history = [];
     state.screen = "home";
     if (state.pendingExpired) {
-      const r = state.pendingExpired;
+      state.pendingExpired.forEach((r) =>
+        addActivity({ status: "vencido", amount: r.amount, merchant: r.merchant, id: `VX-${r.id.split("-")[1]}` })
+      );
       state.pendingExpired = null;
-      addActivity({ status: "vencido", amount: r.amount, merchant: r.merchant, id: `VX-${r.id.split("-")[1]}` });
     }
     render();
     receiveTopups();
     /* La solicitud que avisaba el login se abre sola al entrar. */
-    if (state.request) {
+    if (state.requests.length) {
       later(() => {
-        if (state.screen === "home" && state.request && !state.sheet && !state.menuOpen) {
+        if (state.screen === "home" && state.requests.length && !state.sheet && !state.menuOpen) {
+          state.focusId = state.requests[0].id;
           state.requestOpen = true;
           render();
         }
@@ -21701,10 +21821,10 @@ function mountYayoPrototype(root) {
   }
 
   function approve(button) {
-    const r = state.request;
+    const r = state.requests.find((x) => x.id === (button && button.dataset.id)) || currentRequest(state);
     /* Sin saldo suficiente no pasa: el botón va apagado y, por si acaso,
        aquí tampoco. */
-    if (!r || state.approving || shortOfFunds(state)) return;
+    if (!r || state.approving || shortOfFunds(state, r)) return;
     const frame = root.querySelector(".oky-flow-frame");
     const fr = frame.getBoundingClientRect();
     const br = button ? button.getBoundingClientRect() : null;
@@ -21712,7 +21832,7 @@ function mountYayoPrototype(root) {
     const x = br ? (br.left + br.width / 2 - fr.left) / scale : 180;
     const y = br ? (br.top + br.height / 2 - fr.top) / scale : 560;
     const id = `AP-${String(++state.seq)}`;
-    state.request = null;
+    dropRequest(r);
     state.requestOpen = false;
     state.approving = { x: Math.round(x), y: Math.round(y), amount: r.amount, merchant: r.merchant, id };
     render();
@@ -21738,22 +21858,23 @@ function mountYayoPrototype(root) {
      llega la de José Pérez por el monto de la solicitud, como en el
      flujo de Figma (Refrescar → 1:12651). Al alcanzar, el modal vuelve
      a «Solicitud de pago» con su cuenta atrás y Aprobar se enciende. */
-  function refreshBalance() {
-    if (!state.request || state.refreshing) return;
+  function refreshBalance(id) {
+    const r = state.requests.find((x) => x.id === id) || currentRequest(state);
+    if (!r || state.refreshing) return;
     state.refreshing = true;
     render();
     later(() => {
-      if (!state.request) {
+      if (!state.requests.includes(r)) {
         state.refreshing = false;
         return render();
       }
       const list = takeYayoTopups();
-      creditTopups(list.length ? list : [{ amount: state.request.amount }]);
+      creditTopups(list.length ? list : [{ amount: r.amount }]);
     }, reducedMotion() ? 300 : 1200);
   }
 
   /* Escanear el QR del tendero genera su solicitud de pago (así nace en
-     Yayo). Si ya hay una pendiente, se abre esa. */
+     Yayo). Cada escaneo suma una nueva al carrusel y la abre. */
   function openScanner() {
     state.menuOpen = false;
     state.scanning = true;
@@ -21761,16 +21882,16 @@ function mountYayoPrototype(root) {
     clearTimeout(scanTimer);
     scanTimer = later(() => {
       state.scanning = false;
-      if (!state.request) {
-        const now = new Date();
-        state.request = {
-          amount: 120,
-          merchant: "Abarrotería Viper",
-          id: "TP-4790",
-          receivedAt: now,
-          expiresAt: now.getTime() + requestWindow() * 1000,
-        };
-      }
+      const now = new Date();
+      const scanned = {
+        amount: 120,
+        merchant: "Abarrotería Viper",
+        id: `TP-${4790 + state.scans++}`,
+        receivedAt: now,
+        expiresAt: now.getTime() + requestWindow() * 1000,
+      };
+      state.requests.push(scanned);
+      state.focusId = scanned.id;
       state.screen = "home";
       state.requestOpen = true;
       render();
@@ -21778,11 +21899,10 @@ function mountYayoPrototype(root) {
   }
 
   function confirmReject() {
-    const r = state.request;
+    const r = currentRequest(state);
     state.sheet = null;
     if (!r) return render();
-    state.request = null;
-    state.requestOpen = false;
+    dropRequest(r);
     addActivity({ status: "rechazado", amount: r.amount, merchant: r.merchant, id: `RX-${r.id.split("-")[1]}` });
     state.screen = "home";
     showToast("Rechazaste la solicitud", { tone: "error", icon: "fa-circle-xmark" });
@@ -21845,7 +21965,8 @@ function mountYayoPrototype(root) {
       return render();
     }
     if (action === "open-request") {
-      if (!state.request) return;
+      if (!state.requests.length) return;
+      if (el.dataset.id) state.focusId = el.dataset.id;
       state.requestOpen = true;
       return render();
     }
@@ -21854,9 +21975,10 @@ function mountYayoPrototype(root) {
       return render();
     }
     if (action === "approve") return approve(el);
-    if (action === "refresh-balance") return refreshBalance();
+    if (action === "refresh-balance") return refreshBalance(el.dataset.id);
     if (action === "reject") {
-      if (!state.request) return;
+      if (!state.requests.length) return;
+      if (el.dataset.id) state.focusId = el.dataset.id;
       state.requestOpen = false;
       state.sheet = "reject";
       return render();
@@ -21926,7 +22048,7 @@ function mountYayoPrototype(root) {
       state.phone = "";
       state.otp = "";
       state.requestOpen = false;
-      state.loginToast = !!state.request;
+      state.loginToast = state.requests.length > 0;
       state.screen = "login";
       return render();
     }
