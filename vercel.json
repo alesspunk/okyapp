@@ -85,6 +85,14 @@
       "destination": "/prototypes/yayo/index.html"
     },
     {
+      "source": "/accesibilidad",
+      "destination": "/prototypes/accesibilidad/index.html"
+    },
+    {
+      "source": "/prototypes/accesibilidad",
+      "destination": "/prototypes/accesibilidad/index.html"
+    },
+    {
       "source": "/yayo-prototype-demo.html",
       "destination": "/prototypes/yayo/index.html"
     },

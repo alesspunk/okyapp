@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accesibilidad de OKY Cash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,800;6..12,900&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root {
+  --bg: #f7f5fa;
+  --surface: #ffffff;
+  --ink: #241433;
+  --ink-soft: #5d5269;
+  --line: #e4dfea;
+  --primary: #552588;
+  --aqua: #e8fbf8;
+  --aqua-dark: #057a73;
+  --crit-bg: #fde8ea; --crit: #b3122a;
+  --high-bg: #fff1dc; --high: #9a5300;
+  --mid-bg: #fff8cf; --mid: #6f5d00;
+  --low-bg: #e9eefc; --low: #2b4bb0;
+  --ok-bg: #e3f6ec; --ok: #0f7a43;
+  --rule-bg: #f0e8fa; --rule: #552588;
+  --code-bg: #f1edf6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15101b; --surface: #1f1828; --ink: #f1ecf6; --ink-soft: #b3a8bf; --line: #362c42;
+    --primary: #c7a6ee; --aqua: #0f3431; --aqua-dark: #6fe3d6;
+    --crit-bg: #3d1419; --crit: #ff8f9d; --high-bg: #3a2610; --high: #ffbf6e;
+    --mid-bg: #34300f; --mid: #e8d86a; --low-bg: #18234a; --low: #9db2ff;
+    --ok-bg: #0f3122; --ok: #7fe0aa; --rule-bg: #2c1f3d; --rule: #c7a6ee; --code-bg: #2a2234;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15101b; --surface: #1f1828; --ink: #f1ecf6; --ink-soft: #b3a8bf; --line: #362c42;
+  --primary: #c7a6ee; --aqua: #0f3431; --aqua-dark: #6fe3d6;
+  --crit-bg: #3d1419; --crit: #ff8f9d; --high-bg: #3a2610; --high: #ffbf6e;
+  --mid-bg: #34300f; --mid: #e8d86a; --low-bg: #18234a; --low: #9db2ff;
+  --ok-bg: #0f3122; --ok: #7fe0aa; --rule-bg: #2c1f3d; --rule: #c7a6ee; --code-bg: #2a2234;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 400 16px/1.55 "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+main { max-width: 960px; margin: 0 auto; padding: 48px 20px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 2.75rem); font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; }
+h2 { font-size: 1.375rem; font-weight: 900; }
+h3 { font-size: 1.0625rem; font-weight: 800; }
+p { margin: 0; max-width: 68ch; }
+code, .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; font-size: 0.85em; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+.eyebrow { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--primary); }
+header { display: grid; gap: 14px; }
+.lede { font-size: 1.125rem; color: var(--ink-soft); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.875rem; color: var(--ink-soft); }
+.meta strong { color: var(--ink); font-weight: 800; }
+
+.tally { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.tally div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 2px; }
+.tally b { font-size: 1.75rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.tally span { font-size: 0.8125rem; color: var(--ink-soft); font-weight: 600; }
+.tally .is-crit b { color: var(--crit); } .tally .is-high b { color: var(--high); }
+.tally .is-mid b { color: var(--mid); } .tally .is-low b { color: var(--low); }
+
+section { display: grid; gap: 18px; }
+.section-head { display: grid; gap: 6px; }
+.section-head p { color: var(--ink-soft); }
+
+.chip { display: inline-flex; align-items: center; font-size: 0.6875rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.chip.crit { background: var(--crit-bg); color: var(--crit); }
+.chip.high { background: var(--high-bg); color: var(--high); }
+.chip.mid { background: var(--mid-bg); color: var(--mid); }
+.chip.low { background: var(--low-bg); color: var(--low); }
+.chip.ok { background: var(--ok-bg); color: var(--ok); }
+.chip.rule { background: var(--rule-bg); color: var(--rule); }
+
+.finding { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px 22px 20px; display: grid; gap: 14px; }
+.finding-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.finding-top .wcag { font-size: 0.8125rem; color: var(--ink-soft); font-weight: 600; }
+.where { display: flex; flex-wrap: wrap; gap: 6px; }
+.where span { font-size: 0.8125rem; font-weight: 700; background: var(--code-bg); border-radius: 6px; padding: 2px 8px; }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; }
+.pair h4 { margin: 0 0 4px; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); font-weight: 800; }
+.pair p { font-size: 0.9375rem; }
+
+.swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.swatch { border-radius: 10px; padding: 14px; display: grid; gap: 6px; font-weight: 800; font-size: 0.75rem; border: 1px solid var(--line); }
+.swatch .sample { font-size: 1rem; }
+.swatch .ratio { font-family: "JetBrains Mono", monospace; font-size: 0.75rem; font-weight: 600; }
+.sw-now { background: #057a73; color: #a8faf5; }
+.sw-fix1 { background: #05776f; color: #a8faf5; }
+.sw-fix2 { background: #057a73; color: #ffffff; }
+
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+table { border-collapse: collapse; width: 100%; min-width: 780px; font-size: 0.875rem; }
+th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 0.6875rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); font-weight: 800; background: var(--bg); position: sticky; top: 0; }
+tr:last-child td { border-bottom: 0; }
+td .comp { font-weight: 800; display: block; }
+td .story { font-size: 0.75rem; color: var(--ink-soft); }
+td.num { font-variant-numeric: tabular-nums; }
+
+.list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.list li { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; font-size: 0.9375rem; }
+.list li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; margin-top: 8px; background: var(--ok); }
+.list.is-gap li::before { background: var(--ink-soft); }
+.steps { counter-reset: s; display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 10px; font-size: 0.9375rem; }
+.steps li::before { content: counter(s); width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: var(--surface); font-weight: 900; font-size: 0.75rem; display: grid; place-items: center; margin-top: 1px; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; }
+.note { font-size: 0.8125rem; color: var(--ink-soft); }
+footer { font-size: 0.8125rem; color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 18px; }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <span class="eyebrow">OKY · Storybook MARS · Auditoría</span>
+  <h1>Accesibilidad de OKY Cash</h1>
+  <p class="lede">Revisión de los 9 componentes de OKY Cash en Storybook: lector de pantalla, contraste, tamaño de letra, ancho de pantalla y movimiento reducido.</p>
+  <div class="meta">
+    <span><strong>Fecha</strong> 2 nov 2026</span>
+    <span><strong>Fuente</strong> okyapp.vercel.app (Storybook publicado)</span>
+    <span><strong>Norma</strong> WCAG 2.2 A / AA</span>
+    <span><strong>Motor</strong> axe-core 4.10.2 + pruebas propias</span>
+  </div>
+</header>
+
+<div class="tally" role="list" aria-label="Resumen de hallazgos">
+  <div role="listitem"><b>9</b><span>componentes revisados</span></div>
+  <div role="listitem" class="is-crit"><b>1</b><span>crítico</span></div>
+  <div role="listitem" class="is-high"><b>2</b><span>altos</span></div>
+  <div role="listitem" class="is-mid"><b>4</b><span>medios</span></div>
+  <div role="listitem" class="is-low"><b>1</b><span>bajo</span></div>
+</div>
+
+<section aria-labelledby="h-findings">
+  <div class="section-head">
+    <h2 id="h-findings">Hallazgos</h2>
+    <p>Ordenados por gravedad. Cada uno dice dónde pasa, qué le pasa a la persona y cómo se arregla.</p>
+  </div>
+
+  <article class="finding">
+    <div class="finding-top"><span class="chip crit">Crítico</span><h3>La casilla de OKY Cash no existe para el lector de pantalla</h3><span class="wcag">WCAG 4.1.2 Nombre, función, valor · 2.1.1 Teclado</span></div>
+    <div class="where"><span>Payment Method Row</span></div>
+    <div class="pair">
+      <div><h4>Qué pasa</h4><p>La fila es un <code>div</code> sin rol y no recibe foco. La casilla es un <code>span</code> oculto con <code>aria-hidden</code> y los tres puntos también están ocultos. VoiceOver lee «OKY Cash, $10.00» como texto: no sabe que se puede marcar, si está marcada ni que hay un menú. axe no lo detecta porque nada está marcado como interactivo.</p></div>
+      <div><h4>Arreglo</h4><p>La fila de OKY Cash debe ser una casilla real: rol <code>checkbox</code>, foco y estado (<code>aria-checked</code>), con un nombre como «Usar OKY Cash, saldo $10.00». Al marcarla se anuncia el nuevo total. Los tres puntos, un botón con nombre: «Más opciones de OKY Cash».</p></div>
+    </div>
+  </article>
+
+  <article class="finding">
+    <div class="finding-top"><span class="chip high">Alto</span><h3>El estilo Aqua Oscuro no alcanza el contraste mínimo</h3><span class="wcag">WCAG 1.4.3 Contraste mínimo</span></div>
+    <div class="where"><span>Balance Strip</span><span>Saving Bar</span><span>Super Ribbon</span><span>Discount Ribbon</span></div>
+    <div class="pair">
+      <div><h4>Qué pasa</h4><p>El texto <code>#A8FAF5</code> sobre <code>#057A73</code> da 4.37:1 y el mínimo para texto normal es 4.5:1. Falla en «OKY Cash» (12px), «Gana $2.55 de OKY Cash» (16px), «Super Deals» (12px) y «Gana 5%» (16px). Es el estilo que ganó para OKY Cash, así que se repite en toda la app.</p></div>
+      <div><h4>Arreglo</h4><p>Bastan dos tonos más oscuros de fondo, <code>#05776F</code> (4.56:1), sin cambiar el texto; casi no se nota. La otra opción es texto blanco sobre el fondo actual (5.20:1). Se cambia una vez en el token y llega a los cuatro componentes.</p></div>
+    </div>
+    <div class="swatches">
+      <div class="swatch sw-now"><span>Hoy</span><span class="sample">Gana $2.55 de OKY Cash</span><span class="ratio">#A8FAF5 / #057A73 · 4.37:1 ✕</span></div>
+      <div class="swatch sw-fix1"><span>Opción 1 · fondo</span><span class="sample">Gana $2.55 de OKY Cash</span><span class="ratio">#A8FAF5 / #05776F · 4.56:1 ✓</span></div>
+      <div class="swatch sw-fix2"><span>Opción 2 · texto</span><span class="sample">Gana $2.55 de OKY Cash</span><span class="ratio">#FFFFFF / #057A73 · 5.20:1 ✓</span></div>
+    </div>
+  </article>
+
+  <article class="finding">
+    <div class="finding-top"><span class="chip high">Alto</span><h3>«Ganaste» no se puede cerrar sin tocar la pantalla</h3><span class="wcag">WCAG 2.1.1 Teclado</span></div>
+    <div class="where"><span>OKY Cash Win</span></div>
+    <div class="pair">
+      <div><h4>Qué pasa</h4><p>Lo bueno: el aviso tiene <code>role="status"</code> y el lector anuncia «Ganaste $X en OKY Cash». Pero «Toca para continuar» es toda la pantalla, un <code>div</code> que no recibe foco. Con VoiceOver, teclado o control por botón no hay nada que activar: hay que esperar los ~7 s.</p></div>
+      <div><h4>Arreglo</h4><p>Un botón real «Continuar», que puede verse como hoy, y que el foco caiga en él al abrir la animación. Tocar cualquier parte sigue cerrando.</p></div>
+    </div>
+  </article>
+
+  <article class="finding">
+    <div class="finding-top"><span class="chip mid">Medio</span><h3>Ningún texto crece con el tamaño de letra del sistema</h3><span class="wcag">WCAG 1.4.4 · Dynamic Type en la app nativa</span></div>
+    <div class="where"><span>Los 9 componentes</span></div>
+    <div class="pair">
+      <div><h4>Qué pasa</h4><p>Con la letra base del navegador al 200%, ninguno de los textos medidos cambió: todo está en píxeles fijos (de 10 a 56px). En web el zoom del navegador lo compensa, así que no es una falla de WCAG por sí sola; pero en la app nativa es justo lo que hace Dynamic Type, y hoy no hay ninguna regla de cómo deben crecer.</p></div>
+      <div><h4>Arreglo</h4><p>En Storybook, pasar la escala tipográfica de los tokens a <code>rem</code>. En la app nativa, usar los estilos de texto de cada plataforma para que respondan a Dynamic Type y a la letra de Android. Y dejarlo escrito en los criterios.</p></div>
+    </div>
+  </article>
+
+  <article class="finding">
+    <div class="finding-top"><span class="chip mid">Medio</span><h3>La animación de monedas ignora «Reducir movimiento»</h3><span class="wcag">WCAG 2.3.3 · ajuste del sistema</span></div>
+    <div class="where"><span>OKY Cash Win</span></div>
+    <div class="pair">
+      <div><h4>Qué pasa</h4><p>Con «Reducir movimiento» activo, el texto entra al instante, pero la caída de monedas (Lottie) se reproduce completa. La moneda del navbar y el confeti sí se detienen (OKYC-EXP-138), así que es incoherente. El Super Ribbon, el Discount Ribbon y la Saving Bar sí respetan el ajuste.</p></div>
+      <div><h4>Arreglo</h4><p>Con el ajuste activo, mostrar la pila de monedas quieta en su último cuadro y pasar directo a la pastilla aqua.</p></div>
+    </div>
+  </article>
+
+  <article class="finding">
+    <div class="finding-top"><span class="chip mid">Medio</span><h3>La Saving Bar corta su texto con más espaciado</h3><span class="wcag">WCAG 1.4.12 Espaciado del texto</span></div>
+    <div class="where"><span>Saving Bar</span></div>
+    <div class="pair">
+      <div><h4>Qué pasa</h4><p>Con el espaciado de la prueba WCAG (interlineado 1.5, letras +0.12em, palabras +0.16em), «Gana $2.55 de OKY Cash» y «Compra y gana $2.55 en OKY Cash» se recortan: la barra no deja que el texto crezca.</p></div>
+      <div><h4>Arreglo</h4><p>Que la barra crezca con su texto (alto mínimo en vez de alto fijo) y que el texto pueda pasar a dos líneas.</p></div>
+    </div>
+  </article>
+
+  <article class="finding">
+    <div class="finding-top"><span class="chip mid">Medio</span><h3>Nombres repetidos o confusos al oído</h3><span class="wcag">WCAG 2.4.6 Encabezados y etiquetas</span></div>
+    <div class="where"><span>Payment Card</span><span>Wallet Section</span><span>Balance Strip</span></div>
+    <div class="pair">
+      <div><h4>Qué pasa</h4><p>Cada tarjeta tiene un botón «Editar» igual: en una lista de cinco no se sabe cuál es cuál. Las pestañas de Wallet Section se leen «2 Comprados (3)», porque el puntito de novedades se pega al nombre. El Balance Strip se lee de corrido, «$5.00 OKY Cash Explora».</p></div>
+      <div><h4>Arreglo</h4><p>«Editar tarjeta Lo que va, vuelve». «Comprados, 3, 2 nuevos». «Ver OKY Cash, saldo $5.00».</p></div>
+    </div>
+  </article>
+
+  <article class="finding">
+    <div class="finding-top"><span class="chip low">Bajo</span><h3>Letra de 10px y contraste por revisar a mano</h3><span class="wcag">WCAG 1.4.3</span></div>
+    <div class="where"><span>Payment Card</span><span>Saving Bar</span><span>Ribbons</span></div>
+    <div class="pair">
+      <div><h4>Qué pasa</h4><p>La Payment Card usa textos de 10px. Además axe no pudo medir 46 textos porque van sobre arte de tarjeta, imágenes o degradados (25 en Payment Card, 12 en Saving Bar, 7 en Discount Ribbon y 2 en Super Ribbon).</p></div>
+      <div><h4>Arreglo</h4><p>Subir el mínimo a 12px y medir esos textos a mano, sobre el punto más claro del arte o del degradado.</p></div>
+    </div>
+  </article>
+
+  <article class="finding">
+    <div class="finding-top"><span class="chip rule">Criterio</span><h3>La regla de 184px fijos de la pastilla choca con la letra grande</h3><span class="wcag">OKYC-EXP-082 · 098</span></div>
+    <div class="where"><span>OKY Cash Pill en la poscompra</span></div>
+    <div class="pair">
+      <div><h4>Qué pasa</h4><p>El componente sí crece: con «$1,250.00 disponible» y letra al 130% llega a 213px sin cortarse. El riesgo está en el criterio, que fija la pastilla en 184px en la cabecera de la poscompra.</p></div>
+      <div><h4>Arreglo</h4><p>Cambiar el criterio a «184px de ancho mínimo; crece con el texto».</p></div>
+    </div>
+  </article>
+</section>
+
+<section aria-labelledby="h-comp">
+  <div class="section-head">
+    <h2 id="h-comp">Por componente</h2>
+    <p>Lo que encontró axe, lo que leería el lector de pantalla, si la letra crece, si el componente se adapta a 240px y si respeta «Reducir movimiento».</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Componente</th><th>axe</th><th>Lector de pantalla</th><th>Letra</th><th>Ancho</th><th>Movimiento</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="comp">OKY Cash Pill</span><span class="story">Variants</span></td><td class="num">0 fallas</td><td>Bien: «$5.25 disponible en OKY Cash», «Ver recibo»</td><td>Fija (14–15px)</td><td>Crece con el texto</td><td>Sin animación</td><td><span class="chip ok">Pasa</span></td></tr>
+        <tr><td><span class="comp">Balance Strip</span><span class="story">OKY Cash · Estilos</span></td><td class="num">1 contraste</td><td>Se lee de corrido: «$5.00 OKY Cash Explora»</td><td>Fija (12–21px)</td><td>Se adapta</td><td>Sin animación</td><td><span class="chip high">Alto</span></td></tr>
+        <tr><td><span class="comp">Saving Bar</span><span class="story">OKY Cash · Estilos</span></td><td class="num">6 contraste</td><td>Bien: botón «Qué es OKY Cash»</td><td>Fija (12–16px)</td><td>Se adapta · corta con más espaciado</td><td>Respeta</td><td><span class="chip high">Alto</span></td></tr>
+        <tr><td><span class="comp">Payment Method Row</span><span class="story">Variants</span></td><td class="num">0 fallas</td><td>No: la casilla y el menú están ocultos</td><td>Fija (12–16px)</td><td>Se adapta</td><td>Sin animación</td><td><span class="chip crit">Crítico</span></td></tr>
+        <tr><td><span class="comp">Payment Card</span><span class="story">OKY Cash · Diseños</span></td><td class="num">0 fallas · 25 por revisar</td><td>«Editar» repetido en cada tarjeta</td><td>Fija (10–30px)</td><td>Se adapta</td><td>Sin animación</td><td><span class="chip mid">Medio</span></td></tr>
+        <tr><td><span class="comp">Wallet Section</span><span class="story">Variants</span></td><td class="num">0 fallas</td><td>Confuso: «2 Comprados (3)»</td><td>Fija (11–13px)</td><td>Sin confirmar: no se encogió en la prueba</td><td>Sin animación</td><td><span class="chip mid">Medio</span></td></tr>
+        <tr><td><span class="comp">OKY Cash Win</span><span class="story">Playground</span></td><td class="num">0 fallas · 4 por revisar</td><td>Anuncia «Ganaste…», pero no hay botón para cerrar</td><td>Fija (13–56px)</td><td>Lienzo de 360×800</td><td>Texto sí · Lottie no</td><td><span class="chip high">Alto</span></td></tr>
+        <tr><td><span class="comp">Super Ribbon</span><span class="story">OKY Cash · Estilos</span></td><td class="num">1 contraste</td><td>Texto decorativo, se lee bien</td><td>Fija (12px)</td><td>Crece con el texto</td><td>Respeta</td><td><span class="chip high">Alto</span></td></tr>
+        <tr><td><span class="comp">Discount Ribbon</span><span class="story">OKY Cash · Estilos</span></td><td class="num">1 contraste</td><td>Texto decorativo, se lee bien</td><td>Fija (11–16px)</td><td>Se adapta</td><td>Respeta</td><td><span class="chip high">Alto</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">«axe» cuenta solo el componente; los rótulos grises de la historia de Storybook quedaron fuera. «Por revisar» son textos sobre imagen o degradado que axe no puede medir.</p>
+</section>
+
+<div class="cols">
+  <section aria-labelledby="h-ok">
+    <h2 id="h-ok">Lo que ya está bien</h2>
+    <ul class="list">
+      <li>La pastilla tiene nombres claros para el lector en todas sus variantes.</li>
+      <li>«Ganaste» se anuncia sola gracias a <code>role="status"</code>.</li>
+      <li>Ninguna imagen está sin texto alternativo; las decorativas llevan <code>alt=""</code>.</li>
+      <li>La Saving Bar y los ribbons respetan «Reducir movimiento».</li>
+      <li>La pastilla, el Balance Strip, la Saving Bar, la fila de pago, la Payment Card y los ribbons se adaptan a 240px sin desbordarse.</li>
+      <li>El teal <code>#057A73</code> sobre aqua claro <code>#E8FBF8</code> da 4.85:1 y pasa.</li>
+    </ul>
+  </section>
+  <section aria-labelledby="h-gap">
+    <h2 id="h-gap">Lo que esta auditoría no cubre</h2>
+    <ul class="list is-gap">
+      <li>La app nativa: VoiceOver, TalkBack y Dynamic Type hay que probarlos en el teléfono.</li>
+      <li>Los 46 textos sobre imagen o degradado, que se miden a mano.</li>
+      <li>Las pantallas completas del prototipo; aquí solo se revisaron los componentes.</li>
+      <li>El Storybook publicado puede ir atrás de los últimos commits.</li>
+    </ul>
+  </section>
+</div>
+
+<section aria-labelledby="h-next">
+  <h2 id="h-next">Siguientes pasos</h2>
+  <ol class="steps">
+    <li>Oscurecer el fondo Aqua Oscuro a <code>#05776F</code> en el token de MARS. Arregla cuatro componentes de una vez.</li>
+    <li>Rehacer la fila de OKY Cash del método de pago como casilla real, con nombre, foco y estado.</li>
+    <li>Agregar el botón «Continuar» y la versión quieta para «Reducir movimiento» en «Ganaste».</li>
+    <li>Escribir un criterio de accesibilidad por componente: qué lee, cómo crece y qué hace sin animación.</li>
+    <li>Cambiar la regla de la pastilla a 184px de ancho mínimo.</li>
+  </ol>
+</section>
+
+<footer>
+  Método: axe-core 4.10.2 con las reglas WCAG 2.0, 2.1 y 2.2 A/AA y buenas prácticas, sobre cada historia de Storybook. Pruebas propias: letra base al 200%, espaciado de texto WCAG 1.4.12, contenedor a 240px y a 320px, cobertura de <code>prefers-reduced-motion</code> en el CSS y semántica de los elementos interactivos. La conducta del Lottie se verificó en el código del prototipo.
+</footer>
+
+</main>
+</body>
+</html>
