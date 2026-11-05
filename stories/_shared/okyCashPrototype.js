@@ -681,6 +681,9 @@ function createInitialState(userType) {
     /* Código promocional aplicado a la orden (solo Guatemala), lo que
        se está tecleando en el modal y si el último intento falló. */
     promo: null,
+    /* OKY Cash que se desmarcó solo porque el código cubrió el total:
+       al quitar el código se vuelve a marcar. */
+    cashOffByPromo: false,
     promoOpen: false,
     promoDraft: "",
     promoError: false,
@@ -1072,12 +1075,18 @@ const promoValue = (code) => PROMO_CODES[String(code || "").trim().toLowerCase()
 /* Lo que pide el carrito antes de cualquier descuento de pago. */
 const cartGross = (state) => cartSubtotal(state) + cartServiceFee(state);
 
-/* Lo que rebaja el código. Nunca deja el total en negativo. Convive
-   con OKY Cash: primero baja el código y el saldo cubre lo que queda. */
+/* Lo que rebaja el código. Convive con OKY Cash, pero el saldo va
+   primero: el código solo cubre lo que el saldo deja. Si entre los dos
+   pasan del total, el código se aplica en parte (nunca deja el total
+   en negativo). */
 function appliedPromo(state) {
   if (!state.promo) return 0;
-  return Math.min(promoValue(state.promo), cartGross(state));
+  return Math.min(promoValue(state.promo), Math.max(cartGross(state) - orderCash(state), 0));
 }
+
+/* Lo que el saldo puede cubrir de la orden. Se mide contra el total
+   antes del código porque OKY Cash se consume primero. */
+const cashCap = (state) => Math.min(state.okyCashBalance, cartGross(state));
 
 const cartTotal = (state) => Math.max(cartGross(state) - appliedPromo(state), 0);
 const cartCashback = (state) =>
@@ -1086,7 +1095,7 @@ const cartCashback = (state) =>
 /* Saldo que se va a aplicar a esta orden. */
 function appliedOkyCash(state) {
   if (!state.okyCashEnabled) return 0;
-  return clamp(state.okyCashApplied, 0, Math.min(state.okyCashBalance, cartTotal(state)));
+  return clamp(state.okyCashApplied, 0, cashCap(state));
 }
 
 /* Lo que esta orden le quita al saldo de OKY Cash y lo que acaba
@@ -1095,7 +1104,7 @@ function appliedOkyCash(state) {
    calculara por su cuenta, acabarían discrepando. */
 function orderCash(state) {
   if (!state.okyCashEnabled) return 0;
-  return Math.min(state.okyCashApplied || state.okyCashBalance, cartTotal(state), state.okyCashBalance);
+  return Math.min(state.okyCashApplied || state.okyCashBalance, cashCap(state));
 }
 
 const orderDue = (state) => Math.max(cartTotal(state) - orderCash(state), 0);
@@ -5045,10 +5054,9 @@ function promoRow(state) {
    aunque el saldo sea cero, para que marcarla siempre haga algo
    visible. */
 function cashRow(state) {
-  /* Los dos descuentos restan a la vez: primero el código y el saldo
-     cubre lo que queda. Si el código ya cubre todo, no hay nada que
-     restar con OKY Cash y la línea no sale (un «-$0.00» se leía como
-     error); el saldo queda intacto para la próxima. */
+  /* Los dos descuentos restan a la vez: primero el saldo y el código
+     cubre lo que queda. Si no hay nada que restar con OKY Cash, la
+     línea no sale (un «-$0.00» se leía como error). */
   if (state.okyCashEnabled && appliedPromo(state) > 0 && orderCash(state) <= 0) return "";
   return state.okyCashEnabled
     ? `<div class="summary-row is-discount">
@@ -7886,7 +7894,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        casilla de la fila real llega marcada. */
     if (state.cashNoticePick && !state.okyCashEnabled) {
       state.okyCashEnabled = true;
-      state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
+      state.okyCashApplied = cashCap(state);
     }
     state.cashNoticePick = false;
     render({ keepScroll: true });
@@ -8152,6 +8160,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.okyCashEnabled = false;
     state.okyCashApplied = 0;
     state.promo = null;
+    state.cashOffByPromo = false;
     state.history = [];
     go("success", {}, { push: false });
   }
@@ -8445,6 +8454,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.okyCashEnabled = false;
       state.okyCashApplied = 0;
       state.promo = null;
+      state.cashOffByPromo = false;
       return goCountry(target);
     }
     if (action === "nav:wallet") {
@@ -8778,6 +8788,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         state.okyCashEnabled = false;
         state.okyCashApplied = 0;
         state.promo = null;
+        state.cashOffByPromo = false;
         if (state.screen === "checkout" || state.screen === "methods") {
           return go(market === "gua" ? "homegua" : "home");
         }
@@ -8800,10 +8811,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "toggle-okycash") {
       const turningOn = !state.okyCashEnabled;
-      /* El código y OKY Cash conviven: marcar OKY Cash ya no borra el
-         código; el saldo cubre lo que queda después del código. */
+      /* El código y OKY Cash conviven: marcar OKY Cash no borra el
+         código. El saldo va primero y el código cubre lo que quede.
+         Marcarla o desmarcarla a mano es decisión de la persona: el
+         código ya no la vuelve a marcar al quitarse. */
       state.okyCashEnabled = turningOn;
-      state.okyCashApplied = turningOn ? Math.min(state.okyCashBalance, cartTotal(state)) : 0;
+      state.cashOffByPromo = false;
+      state.okyCashApplied = turningOn ? cashCap(state) : 0;
       /* Se queda donde estaba: marcar una casilla y saltar arriba no
          dejaba ver que se había marcado. */
       render({ keepScroll: true });
@@ -8838,9 +8852,18 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.promoOpen = false;
       state.promoDraft = "";
       state.promoError = false;
-      /* El código ya no desplaza al OKY Cash: conviven, y el saldo se
-         recalcula sobre el total que deja el código. */
-      if (state.okyCashEnabled) state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
+      /* El código no desplaza al OKY Cash: conviven y el saldo se
+         consume primero. La excepción es cuando el código solo ya cubre
+         todo el total: ahí OKY Cash se desmarca (no tiene nada que
+         pagar y el saldo queda intacto) y se recuerda para volver a
+         marcarlo si se quita el código. */
+      if (state.okyCashEnabled && promoValue(state.promo) >= cartGross(state)) {
+        state.okyCashEnabled = false;
+        state.okyCashApplied = 0;
+        state.cashOffByPromo = true;
+      } else if (state.okyCashEnabled) {
+        state.okyCashApplied = cashCap(state);
+      }
       render();
       burstConfetti(".oky-flow-promo");
       return;
@@ -8848,7 +8871,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "clear-promo") {
       state.promo = null;
-      if (state.okyCashEnabled) state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
+      /* Si el código había desmarcado OKY Cash, al quitarlo vuelve. */
+      if (state.cashOffByPromo) {
+        state.okyCashEnabled = true;
+        state.cashOffByPromo = false;
+      }
+      if (state.okyCashEnabled) state.okyCashApplied = cashCap(state);
       return render();
     }
 
@@ -8905,7 +8933,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
 
       /* El saldo aplicado se recalcula: el total acaba de moverse. */
-      if (state.okyCashEnabled) state.okyCashApplied = Math.min(state.okyCashBalance, cartTotal(state));
+      if (state.okyCashEnabled) state.okyCashApplied = cashCap(state);
 
       /* La promesa del ahorro se cuenta una vez, cuando empieza a
          valer: al entrar el primer producto. */
