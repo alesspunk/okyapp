@@ -37,8 +37,8 @@ export const MIDDLE_CARD_VARIANTS = [
     titleImageAlt: "Brand logo",
     currency: "$",
     amount: "10",
-    leftLabel: "In Store, Online",
-    rightLabel: "Redemption Instructions",
+    leftLabel: "In store, Online",
+    rightLabel: "Redemption instructions",
     image: "",
     recommendation:
       "Recomendado: usar logo horizontal en el header superior cuando la marca necesite mayor presencia visual que un título de texto.",
@@ -80,8 +80,8 @@ export const MIDDLE_CARD_VARIANTS = [
     title: "Brand Name eGift Card",
     currency: "$",
     amount: "10",
-    leftLabel: "In Store, Online",
-    rightLabel: "Redemption Instructions",
+    leftLabel: "In store, Online",
+    rightLabel: "Redemption instructions",
     image: "",
     recommendation:
       'Recomendado: título máx. 21 caracteres ("Brand Name eGift Card") · monto máx. 2 dígitos para esta composición.',

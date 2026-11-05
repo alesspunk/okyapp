@@ -1,4 +1,9 @@
-import { renderCardOrganism, resolveCardOrganismArgs as resolveArgs } from "./_shared/cardOrganism";
+import {
+  CARD_RESPONSIVE_OPTIONS,
+  CARD_RESPONSIVE_WIDTHS,
+  renderCardOrganism,
+  resolveCardOrganismArgs as resolveArgs,
+} from "./_shared/cardOrganism";
 import { DISCOUNT_RIBBON_TYPES, MIDDLE_CARD_PATHS } from "./_shared/middleCard";
 import { CARD_BOTTOM_PATHS, CARD_TOP_PATHS } from "./_shared/primeCards";
 
@@ -17,6 +22,12 @@ export default {
     },
   },
   argTypes: {
+    responsive: {
+      control: "select",
+      options: CARD_RESPONSIVE_OPTIONS,
+      description:
+        "Tamaño del master New Card en MARS: iPhone SE 312 · iPhone 13/14 342 (base) · iPhone 16 Pro 354 · iPhone 16 Max 392. Solo cambia el ancho.",
+    },
     topVariantPath: {
       control: "select",
       options: CARD_TOP_PATHS,
@@ -99,6 +110,7 @@ export default {
 export const DocsPlayground = {
   name: "Docs Playground",
   args: {
+    responsive: "iPhone 13/14",
     topVariantPath: "Molecule/Top Card/Gift Card",
     middleCardPath: "Molecule/Middle Card/eGift Card",
     bottomVariantPath: "Molecule/Bottom Card/Gift Card",
@@ -107,8 +119,8 @@ export const DocsPlayground = {
     middleTitle: "Target eGift Card",
     middleCurrency: "$",
     middleAmount: "40",
-    middleLeftLabel: "Online, In Store",
-    middleRightLabel: "Redemption Instructions",
+    middleLeftLabel: "Online, In store",
+    middleRightLabel: "Redemption instructions",
     middleShowDiscountRibbon: false,
     middleDiscountRibbonType: "Normal",
     middleDiscountRibbonLabel: "25% OFF",
@@ -131,12 +143,53 @@ export const DocsPlayground = {
             ? `<div class="mars-label">Top: ${resolved.top.path} · Middle: ${resolved.middle.path} · Bottom: ${resolved.bottom.path}</div>`
             : ""
         }
-        <div class="card-organism-story-shell">
+        <div class="card-organism-story-shell" style="width:auto">
           ${renderCardOrganism(args)}
         </div>
       </div>
     `;
   },
+};
+
+/* Las cuatro variantes de tamaño de MARS lado a lado, con la misma
+   gift card, para ver cómo se estira cada una. */
+export const Responsive = {
+  name: "Responsive",
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          "Variantes de tamaño del master **New Card** en MARS (propiedad `Responsive`). Solo cambia el ancho; el alto lo pone el contenido. 342 px es la base.",
+      },
+    },
+  },
+  render: () => `
+    <div class="mars-story">
+      <div class="mars-label">Responsive · New Card (MARS)</div>
+      <div class="card-organism-responsive-row">
+        ${CARD_RESPONSIVE_OPTIONS.map(
+          (size) => `
+          <div class="card-organism-responsive-item">
+            <div class="mars-label">${size} · ${CARD_RESPONSIVE_WIDTHS[size]} px</div>
+            ${renderCardOrganism({
+              responsive: size,
+              topVariantPath: "Molecule/Top Card/Gift Card",
+              middleCardPath: "Molecule/Middle Card/eGift Card",
+              middleTitle: "Target eGift Card",
+              middleCurrency: "$",
+              middleAmount: "40",
+              middleLeftLabel: "Online, In store",
+              middleRightLabel: "Redemption instructions",
+              bottomVariantPath: "Molecule/Bottom Card/Gift Card",
+              bottomShowButtonLabel: true,
+              bottomButtonLabel: "Help",
+            })}
+          </div>`,
+        ).join("")}
+      </div>
+    </div>
+  `,
 };
 
 export const GiftCardFlow = {
@@ -154,8 +207,8 @@ export const GiftCardFlow = {
           middleTitle: "Target eGift Card",
           middleCurrency: "$",
           middleAmount: "40",
-          middleLeftLabel: "Online, In Store",
-          middleRightLabel: "Redemption Instructions",
+          middleLeftLabel: "Online, In store",
+          middleRightLabel: "Redemption instructions",
           bottomVariantPath: "Molecule/Bottom Card/Gift Card",
           bottomShowButtonLabel: true,
           bottomButtonLabel: "Help",
@@ -207,8 +260,8 @@ export const MixedFlow = {
           middleTitle: "Amazon eGift Card",
           middleCurrency: "$",
           middleAmount: "25",
-          middleLeftLabel: "Online, In Store",
-          middleRightLabel: "Redemption Instructions",
+          middleLeftLabel: "Online, In store",
+          middleRightLabel: "Redemption instructions",
           bottomVariantPath: "Molecule/Bottom Card/Default",
           bottomShowButtonLabel: true,
           bottomButtonLabel: "Ayuda",

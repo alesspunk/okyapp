@@ -203,8 +203,8 @@ export const DocsPlayground = {
     cardTitle: "Amazon eGift Card",
     currency: "$",
     amount: "10",
-    leftLabel: "In Store, Online",
-    rightLabel: "Redemption Instructions",
+    leftLabel: "In store, Online",
+    rightLabel: "Redemption instructions",
     cardImage: "middle-card-vale-de-producto.png",
     showDiscountRibbon: false,
     discountRibbonType: "Normal",
@@ -247,8 +247,8 @@ export const Default = {
           cardTitle: "Amazon eGift Card",
           currency: "$",
           amount: "10",
-          leftLabel: "In Store, Online",
-          rightLabel: "Redemption Instructions",
+          leftLabel: "In store, Online",
+          rightLabel: "Redemption instructions",
           showDiscountRibbon: false,
         })}
       </div>

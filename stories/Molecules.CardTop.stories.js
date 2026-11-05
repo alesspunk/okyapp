@@ -89,8 +89,8 @@ export const DocsPlayground = {
     heroAlt: "Target gift card",
     flagImage: "usa-flag.png",
     flagAlt: "USA flag",
-    footerLeftLabel: "Terms & Conditions",
-    footerRightLabel: "Brand Disclaimer",
+    footerLeftLabel: "Terms & conditions",
+    footerRightLabel: "Brand disclaimer",
     showMeta: true,
   },
   render: (args) => {

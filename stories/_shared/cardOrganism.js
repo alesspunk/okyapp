@@ -25,6 +25,17 @@ import {
   resolveCardTop,
 } from "./primeCards";
 
+/* Tamaños del master New Card en MARS (propiedad `Responsive`).
+   Solo cambia el ancho; el alto lo pone el contenido. Sin
+   `responsive` el organismo queda como siempre (342 como tope). */
+export const CARD_RESPONSIVE_WIDTHS = {
+  "iPhone SE": 312,
+  "iPhone 13/14": 342,
+  "iPhone 16 Pro": 354,
+  "iPhone 16 Max": 392,
+};
+export const CARD_RESPONSIVE_OPTIONS = Object.keys(CARD_RESPONSIVE_WIDTHS);
+
 export function resolveCardOrganismArgs(args = {}) {
   const topBase = findCardTop(args.topVariantPath);
   const middleBase = findMiddleCard(args.middleCardPath);
@@ -89,9 +100,13 @@ export function resolveCardOrganismArgs(args = {}) {
 
 export function renderCardOrganism(args = {}) {
   const resolved = resolveCardOrganismArgs(args);
+  const width = CARD_RESPONSIVE_WIDTHS[args.responsive];
+  const sizing = width
+    ? ` data-responsive="${args.responsive}" style="--card-organism-width:${width}px"`
+    : "";
 
   return `
-    <section class="card-organism" aria-label="Card organism">
+    <section class="card-organism"${sizing} aria-label="Card organism">
       <div class="card-organism-stack">
         <div class="card-organism-part card-organism-part-top">
           ${renderCardTop(resolved.top)}

@@ -2167,7 +2167,7 @@ function screenPdp(state) {
               </div>
               <div class="middle-card-footer">
                 <span class="middle-card-footer-start">Terms &amp; Conditions</span>
-                <span class="middle-card-footer-end">Redemption Instructions</span>
+                <span class="middle-card-footer-end">Redemption instructions</span>
               </div>
             </div>
             <div class="oky-flow-ribbon-slot">
@@ -4960,7 +4960,7 @@ function screenFoodPdp(state) {
               </div>
             </div>
             <div class="middle-card-footer">
-              <span class="middle-card-footer-start">¿Qué Incluye?</span>
+              <span class="middle-card-footer-start">¿Qué incluye?</span>
               <span class="middle-card-footer-end">Como Canjear</span>
             </div>
           </div>
@@ -5387,11 +5387,11 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               topBrandLabel: card.label,
               topHeroImage: card.art,
               topHeroAlt: card.label,
-              topFooterLeftLabel: "Terms & Conditions",
+              topFooterLeftLabel: "Terms & conditions",
               /* El brand disclaimer es de la gift card de marca
                  estadounidense; el vale de Latinoamérica lleva un solo
                  enlace arriba y va centrado. */
-              topFooterRightLabel: section0 === "gift" ? "Brand Disclaimer" : "",
+              topFooterRightLabel: section0 === "gift" ? "Brand disclaimer" : "",
               middleCardPath: "Molecule/Middle Card/Amount",
               /* Yayo se llama como en su PDP: "OKY Vale Recargable". */
               middleTitle: card.telco ? card.cardTitle : kind,
@@ -5404,7 +5404,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               bottomClaritaAction: "card-tour",
               bottomClaritaDeck: voucherDeck,
               ...(section0 === "gift"
-                ? { middleSingleLabel: "Redemption Instructions" }
+                ? { middleSingleLabel: "Redemption instructions" }
                 : section0 === "servicios"
                   ? { middleSingleLabel: `#${digitsOf(`${bottomSeed}-orden`, 12)}` }
                   : {}),

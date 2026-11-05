@@ -5941,6 +5941,32 @@ body {
   border-top-color: var(--border-main);
 }
 
+/* Con un tamaño de MARS elegido, la card toma ese ancho y sus tres
+   piezas lo llenan (sin el tope de 342 de cada molécula). */
+.card-organism[data-responsive] {
+  width: var(--card-organism-width);
+  max-width: 100%;
+  flex: none;
+}
+
+.card-organism[data-responsive] .prime-card-shell,
+.card-organism[data-responsive] .middle-card-shell {
+  width: 100%;
+}
+
+.card-organism-responsive-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.card-organism-responsive-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .card-organism-story-shell {
   width: min(360px, 100%);
   display: flex;

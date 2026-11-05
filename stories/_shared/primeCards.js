@@ -25,8 +25,8 @@ export const CARD_TOP_VARIANTS = [
     heroImage: "target.webp",
     heroAlt: "Target gift card",
     flagCode: "USA",
-    footerLeftLabel: "Terms & Conditions",
-    footerRightLabel: "Brand Disclaimer",
+    footerLeftLabel: "Terms & conditions",
+    footerRightLabel: "Brand disclaimer",
     recommendation:
       'Recomendado: brand label corto centrado (base: "Target") y dos CTAs inferiores en una sola línea.',
   },
@@ -294,17 +294,17 @@ function renderCopyIcon(value) {
   `;
 }
 
+/* Las esquinas del vale van en minúsculas (sentence case) y sin el
+   icono de enlace: así quedó el master New Card en MARS (05/11). */
 function renderTopFooter(card) {
   if (card.footerRightLabel) {
     return `
       <div class="prime-card-top-footer is-split">
         <span class="prime-card-top-footer-link is-left">
           <span class="prime-card-top-footer-text">${card.footerLeftLabel}</span>
-          ${renderLinkIcon()}
         </span>
         <span class="prime-card-top-footer-link is-right">
           <span class="prime-card-top-footer-text">${card.footerRightLabel}</span>
-          ${renderLinkIcon()}
         </span>
       </div>
     `;
@@ -314,7 +314,6 @@ function renderTopFooter(card) {
     <div class="prime-card-top-footer is-single">
       <span class="prime-card-top-footer-link is-single">
         <span class="prime-card-top-footer-text">${card.footerLeftLabel}</span>
-        ${renderLinkIcon()}
       </span>
     </div>
   `;
