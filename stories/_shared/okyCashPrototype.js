@@ -1084,6 +1084,13 @@ function appliedPromo(state) {
   return Math.min(promoValue(state.promo), Math.max(cartGross(state) - orderCash(state), 0));
 }
 
+/* Si al marcar OKY Cash el saldo cubre todo, el código queda en $0:
+   ya no rebaja nada, así que sale de la orden y su cintillo deja de
+   verse en el carrito. Si todavía cubre una parte, se queda. */
+function dropUnusedPromo(state) {
+  if (state.promo && state.okyCashEnabled && appliedPromo(state) <= 0) state.promo = null;
+}
+
 /* Lo que el saldo puede cubrir de la orden. Se mide contra el total
    antes del código porque OKY Cash se consume primero. */
 const cashCap = (state) => Math.min(state.okyCashBalance, cartGross(state));
@@ -7895,6 +7902,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (state.cashNoticePick && !state.okyCashEnabled) {
       state.okyCashEnabled = true;
       state.okyCashApplied = cashCap(state);
+      dropUnusedPromo(state);
     }
     state.cashNoticePick = false;
     render({ keepScroll: true });
@@ -8818,6 +8826,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.okyCashEnabled = turningOn;
       state.cashOffByPromo = false;
       state.okyCashApplied = turningOn ? cashCap(state) : 0;
+      if (turningOn) dropUnusedPromo(state);
       /* Se queda donde estaba: marcar una casilla y saltar arriba no
          dejaba ver que se había marcado. */
       render({ keepScroll: true });
