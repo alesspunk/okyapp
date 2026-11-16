@@ -20338,6 +20338,71 @@ img.oky-flow-method-mark {
   align-items: stretch;
 }
 
+/* Las Reminder Cards arrancan a 16px del borde: el scroll-snap alineaba
+   la primera al canto y se comía el padding del viewport. */
+.oky-flow-svc-reminders .reminder-carousel-viewport {
+  scroll-padding-inline: 16px;
+}
+
+/* Espera de la consulta de saldo: la hoja de «No cerrar app», encima de
+   la pantalla en la que se tocó. */
+.oky-flow-svc-wait-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+}
+
+.oky-flow-svc-wait {
+  z-index: 121;
+  height: auto;
+  padding-bottom: 24px;
+}
+
+.oky-flow-svc-wait-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 24px 32px;
+}
+
+.oky-flow-svc-wait-logo {
+  display: inline-flex;
+  width: 111px;
+  height: 70px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line-divider, #e0e0e0);
+  background: var(--white);
+  animation: oky-flow-svc-pulse 1.2s ease-in-out infinite;
+}
+
+.oky-flow-svc-wait-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.oky-flow-svc-wait-corr {
+  margin: 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-main);
+}
+
+@keyframes oky-flow-svc-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(65, 0, 136, 0.28); transform: scale(1); }
+  50% { box-shadow: 0 0 0 12px rgba(65, 0, 136, 0); transform: scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-svc-wait-logo,
+  .oky-flow-svc-wait .oky-flow-spinner {
+    animation: none;
+  }
+}
+
 @font-face {
   font-family: "FA Free Solid Fallback";
   font-style: normal;

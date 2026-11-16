@@ -1338,17 +1338,18 @@ function titledHeader(title, { trailing = "", trailingAction = "", trailingHtml 
 }
 
 /* Header del PDP/Checkout: atrás + carrito con su contador. */
-function productHeader(state, { backAction = "back", title = "", small = false } = {}) {
+function productHeader(state, { backAction = "back", title = "", small = false, cart = true } = {}) {
   const count = state.cart.length;
   return `
     <header class="oky-flow-header">
       ${backButton(backAction)}
       <span class="oky-flow-title${small ? " is-small" : ""}"${title ? "" : ' aria-hidden="true"'}>${title}</span>
-      <button class="header-icon header-icon-bitmap header-icon-bitmap-cart" data-action="open-cart"
+      ${cart ? "" : `<span class="oky-flow-header-icon" aria-hidden="true"></span>`}
+      ${cart ? `<button class="header-icon header-icon-bitmap header-icon-bitmap-cart" data-action="open-cart"
         type="button" aria-label="Carrito">
         <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="Cart-3d-icon.png" alt="" />
         ${count ? `<span class="header-icon-indicator-dot${beaconOf(state) === "cart" ? " is-pulsing" : ""}"></span>` : ""}
-      </button>
+      </button>` : ""}
     </header>
   `;
 }
@@ -4574,14 +4575,18 @@ const CATEGORY_PAGES = {
       product: key,
     })),
   },
-  /* Pagar Servicios (home GT). Arriba se acumulan los recordatorios de
-     todas las marcas (99105:14138); solo EEGSA está activa. */
+  /* Pagar Servicios (home GT): la misma Category Page que Comida y
+     Recargas. Solo EEGSA está activa; las demás acompañan. Los pagos de
+     servicios van solos, así que aquí no hay carrito. */
   servicios: {
     title: "Pagar Servicios",
-    section: "Electricidad",
-    reminders: true,
+    section: "Proveedores",
+    noCart: true,
     brands: [
       { key: "eegsa", label: "EEGSA", art: "eggsa.webp", action: "open-eegsa" },
+      { key: "tigohogar", label: "Tigo Residencial", art: "tigo.webp" },
+      { key: "empagua", label: "Empagua", art: "empagua.svg" },
+      { key: "clarohogar", label: "Claro Residencial", art: "claro.png" },
     ],
   },
   recargas: {
@@ -4731,15 +4736,13 @@ function screenCategory(state) {
 
   return `
     ${statusBar()}
-    ${productHeader(state, { title: page.title })}
+    ${productHeader(state, { title: page.title, cart: !page.noCart })}
 
     <div class="oky-flow-section oky-flow-category">
       <div class="input-wrapper" style="width:100%" data-action="open-search" role="button">
         <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
         <input class="input-field search-input search-input-empty" value="" placeholder="Buscar marcas" readonly tabindex="-1" />
       </div>
-
-      ${page.reminders ? svcReminderCarousel(state, svcActive(state)) : ""}
 
       <section class="homecard-organism">
         <header class="homecard-header">
@@ -6383,6 +6386,8 @@ function screenDecision() {
 const SVC_BILL_AFTER = 25;
 const SVC_CYCLE = 30;
 const SVC_CORR_RE = /^\d{10}$/;
+/* Lo que tarda la consulta en el prototipo. */
+const SVC_LOADING_MS = 1800;
 
 /* Tres cuentas de EEGSA con su historial mensual (lo más reciente
    primero). `ago` son los días desde el último pago; el contacto es el
@@ -6422,13 +6427,14 @@ const SVC_ACCOUNTS = [
 const SVC_NEW_BILL = 212.75;
 
 /* Los filtros de la actividad: pagos mensuales, así que el rango más
-   corto es de 45 días (con un mes casi siempre se ve uno solo). */
+   corto es de 45 días (con un mes casi siempre se ve uno solo). Por
+   defecto, el último año: «todo el historial» era lo mismo. */
 const SVC_PERIODS = [
   { key: "45", label: "Últimos 45 días", days: 45 },
   { key: "90", label: "Últimos 3 meses", days: 90 },
   { key: "180", label: "Últimos 6 meses", days: 180 },
-  { key: "365", label: "Último año", days: 365 },
 ];
+const SVC_DEFAULT_PERIOD = { key: "", label: "Último año", days: 365 };
 
 /* «Hoy», «Ayer» o «Hace N días»: recién pagado no se lee «Hace 0 días». */
 const svcAgo = (days) => (days <= 0 ? "Hoy" : days === 1 ? "Ayer" : `Hace ${days} días`);
@@ -6453,7 +6459,6 @@ function svcInitialState() {
     accounts,
     payments,
     corrInput: "",
-    corrError: "",
     /* Filtro de la actividad: período y/o un número. */
     filter: { period: "", corr: "" },
     /* La consulta en curso: { corr, q, isNew }. */
@@ -6496,9 +6501,9 @@ function svcDueCount(state) {
 
 function svcFiltered(state) {
   const { period, corr } = state.svc.filter;
-  const def = SVC_PERIODS.find((p) => p.key === period);
+  const def = SVC_PERIODS.find((p) => p.key === period) || SVC_DEFAULT_PERIOD;
   return state.svc.payments
-    .filter((p) => !def || p.ago <= def.days)
+    .filter((p) => p.ago <= def.days)
     .filter((p) => !corr || p.corr === corr)
     .sort((a, b) => a.ago - b.ago);
 }
@@ -6598,7 +6603,8 @@ function svcPaymentRow(p) {
           type: "brand",
           logo: "eggsa.webp",
           logoAlt: "EEGSA",
-          brand: `#${p.corr}`,
+          /* El número ya va de encabezado del grupo. */
+          brand: "EEGSA",
           secondaryAmount: quetzalOf(p.q).replace(".00", ""),
         },
       })}
@@ -6616,10 +6622,11 @@ function svcActivity(state) {
       </div>
     `;
   }
-  /* Por mes, igual que la actividad de OKY Cash. */
+  /* Por número correlativo (99105:13960): cada cuenta con sus pagos,
+     primero la que se pagó más recientemente. */
   const groups = [];
   list.forEach((p) => {
-    const label = monthGroup(p.ago);
+    const label = `#${p.corr}`;
     let g = groups.find((x) => x.label === label);
     if (!g) groups.push((g = { label, items: [] }));
     g.items.push(p);
@@ -6636,13 +6643,6 @@ function svcActivity(state) {
     .join("");
 }
 
-function svcCorrHelp(state) {
-  const typed = state.svc.corrInput;
-  if (state.svc.corrError) return `<i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> ${state.svc.corrError}`;
-  if (typed && !SVC_CORR_RE.test(typed)) return `${typed.length}/10 dígitos`;
-  return "Son 10 dígitos. Están arriba a la derecha de tu factura.";
-}
-
 /* ── Pantalla de EEGSA (99105:14130 + 99105:13960) ──────── */
 function screenEegsa(state) {
   const svc = state.svc;
@@ -6653,7 +6653,7 @@ function screenEegsa(state) {
 
   return `
     ${statusBar()}
-    ${productHeader(state, { backAction: "back" })}
+    ${productHeader(state, { backAction: "back", cart: false })}
 
     <div class="oky-flow-stack-center oky-flow-svc">
       ${svcBrandItem()}
@@ -6663,9 +6663,8 @@ function screenEegsa(state) {
         <input id="oky-corr" class="input-field input-dinamic oky-flow-promo-input ${typed ? "input-dinamic-hasvalue" : "input-dinamic-empty"}"
           type="text" inputmode="numeric" maxlength="10" autocomplete="off" value="${escapeHtml(typed)}"
           placeholder="Número correlativo" data-action="input-corr"
-          aria-labelledby="oky-corr-label" aria-describedby="oky-corr-help" />
+          aria-labelledby="oky-corr-label" />
       </div>
-      <p class="oky-flow-svc-help${svc.corrError ? " is-error" : ""}" id="oky-corr-help" data-role="corr-help">${svcCorrHelp(state)}</p>
     </div>
 
     ${eegsaReminders.length ? `<div class="oky-flow-svc-reminders">${svcReminderCarousel(state, eegsaReminders)}</div>` : ""}
@@ -6708,10 +6707,9 @@ function screenEegsa(state) {
 function screenSvcConsulta(state) {
   const cur = state.svc.current;
   const acc = state.svc.accounts[cur.corr];
-  const contact = acc ? contactByName(acc.contact) : null;
   return `
     ${statusBar()}
-    ${productHeader(state, { backAction: "back" })}
+    ${productHeader(state, { backAction: "back", cart: false })}
 
     <div class="oky-flow-stack-center">
       ${svcBrandItem()}
@@ -6728,18 +6726,13 @@ function screenSvcConsulta(state) {
                   </div>
                 </div>
               </div>
-              <div class="middle-card-footer">
+              <div class="middle-card-footer is-single">
                 <span class="middle-card-footer-single">#${cur.corr}</span>
               </div>
             </div>
           </article>
         </section>
       </div>
-      <p class="oky-flow-svc-help">${
-        contact
-          ? `La última vez le pagaste a <strong>${escapeHtml(contact.name)}</strong>. Lo verás en el pago.`
-          : "Número nuevo: al pagarlo lo guardamos y te recordamos el próximo."
-      }</p>
     </div>
 
     <div class="oky-flow-dock is-no-bar">
@@ -6796,6 +6789,50 @@ function svcReminderSwitch(state, corr, label) {
   `;
 }
 
+/* La consulta tarda (va a la API de EEGSA): la misma hoja de espera de
+   «No cerrar app», con el logo que late y el spinner de siempre. Sale en
+   los tres casos: con factura, al día y número nuevo. */
+function svcLoadingLayer(state) {
+  return `
+    <div class="modal-molecule-backdrop oky-flow-svc-wait-backdrop"></div>
+    <section class="oky-flow-wait oky-flow-svc-wait" role="status" aria-live="polite">
+      <h2 class="oky-flow-wait-title">Consultando tu saldo</h2>
+      <div class="oky-flow-svc-wait-body">
+        <span class="oky-flow-svc-wait-logo"><img src="eggsa.webp" alt="EEGSA" /></span>
+        <p class="oky-flow-svc-wait-corr">#${state.svcLoading.corr}</p>
+      </div>
+      <div class="oky-flow-wait-footer">
+        <img class="oky-flow-spinner" src="oky-spinner.svg" alt="" />
+        <span>Consultando con EEGSA…</span>
+      </div>
+    </section>
+  `;
+}
+
+/* Con productos en el carrito: el mismo modal morado de cambiar de
+   país. Los pagos de servicios van solos. */
+function svcCartSheet() {
+  return `
+    <div class="oky-flow-country-backdrop" aria-hidden="true"></div>
+    <section class="oky-flow-country" role="dialog" aria-modal="true" aria-labelledby="oky-svccart-title">
+      <button class="oky-flow-country-close" data-action="svccart-stay" type="button" aria-label="Cerrar">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <h2 class="oky-flow-country-title" id="oky-svccart-title">Tienes productos en el carrito</h2>
+      <p class="oky-flow-country-note">Los pagos de servicios van solos. Para seguir, borramos tu carrito.</p>
+      <div class="oky-flow-country-art" aria-hidden="true">
+        <img src="Cart-3d-icon.png" alt="" />
+      </div>
+      <div class="oky-flow-country-actions">
+        <button class="btn btn-large oky-flow-country-primary" data-action="svccart-checkout" type="button">
+          Completar Compra
+        </button>
+        <button class="oky-flow-country-link" data-action="svccart-clear" type="button">Borrar carrito</button>
+      </div>
+    </section>
+  `;
+}
+
 /* Hoja de filtros de la actividad: la misma de Mis compras. */
 function svcFilterSheet(state) {
   const option = (key, label, on) => `
@@ -6817,8 +6854,8 @@ function svcFilterSheet(state) {
         </button>
       </header>
       <div class="oky-flow-filter-list" role="radiogroup">
-        ${option("", "Todo el historial", !period)}
         ${SVC_PERIODS.map((p) => option(p.key, p.label, period === p.key)).join("")}
+        ${option("", SVC_DEFAULT_PERIOD.label, !period)}
       </div>
     </section>
   `;
@@ -7161,6 +7198,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
             : ""
         }
         ${state.countrySheet ? countrySheet(state) : ""}
+        ${state.svcCartGate ? svcCartSheet() : ""}
+        ${state.svcLoading ? svcLoadingLayer(state) : ""}
         ${state.marketSheet ? marketSheet(state) : ""}
         ${state.savingsSheet ? savingsSheet() : ""}
         ${
@@ -8568,6 +8607,26 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.pillArrive = false;
   }
 
+  /* La consulta va a la API de EEGSA y no es instantánea. */
+  let svcLoadingTimer = 0;
+
+  function svcStartPay() {
+    const cur = state.svc.current;
+    const acc = state.svc.accounts[cur.corr];
+    const contact = acc ? contactByName(acc.contact) : null;
+    if (contact) {
+      state.recipient = contact.name;
+      state.recipientPhone = contact.phone;
+      state.recipientMarket = "gua";
+    }
+    state.amounts.eegsa = cur.q;
+    state.cart = state.cart
+      .filter((item) => item.productKey !== "eegsa")
+      .concat({ productKey: "eegsa", amount: toUsd(cur.q), cashback: 0, quetzales: cur.q, corr: cur.corr });
+    state.checkoutIndex = state.cart.length - 1;
+    return go("checkout");
+  }
+
   function goBack() {
     const prev = state.history.pop();
     if (!prev) return go(homeOfCountry(), {}, { push: false });
@@ -9658,7 +9717,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     /* ── Pago de servicios · EEGSA ── */
     if (action === "open-eegsa") {
-      state.svc.corrError = "";
       return go("eegsa");
     }
 
@@ -9670,40 +9728,61 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        solo. Con factura nueva se ve el saldo; si todavía no toca,
        «¡Estás al día!». */
     if (action === "svc-consult" || action === "svc-consult-typed") {
+      if (state.svcLoading) return;
       const corr = action === "svc-consult" ? el.dataset.corr : state.svc.corrInput.trim();
-      if (!SVC_CORR_RE.test(corr || "")) {
-        state.svc.corrError = "El número correlativo tiene 10 dígitos.";
-        return render({ keepScroll: true });
-      }
-      state.svc.corrError = "";
-      const acc = state.svc.accounts[corr];
-      if (acc && svcStatus(state, corr).kind === "aldia") {
-        state.sheet = { type: "svcaldia", key: corr };
-        return render({ keepScroll: true });
-      }
+      if (!SVC_CORR_RE.test(corr || "")) return;
       state.sheet = null;
-      state.svc.current = { corr, q: acc ? acc.nextBill : SVC_NEW_BILL, isNew: !acc };
-      return go("svcconsulta");
+      state.svcLoading = { corr };
+      render({ keepScroll: true });
+      clearTimeout(svcLoadingTimer);
+      svcLoadingTimer = setTimeout(() => {
+        state.svcLoading = null;
+        const acc = state.svc.accounts[corr];
+        if (acc && svcStatus(state, corr).kind === "aldia") {
+          state.sheet = { type: "svcaldia", key: corr };
+          return render({ keepScroll: true });
+        }
+        state.svc.current = { corr, q: acc ? acc.nextBill : SVC_NEW_BILL, isNew: !acc };
+        go("svcconsulta");
+      }, SVC_LOADING_MS);
+      return;
     }
 
     /* De la consulta al checkout de siempre, con el contacto al que se
-       le pagó la última vez. */
+       le pagó la última vez. Con otros productos en el carrito, primero
+       el modal morado. */
     if (action === "svc-pay") {
-      const cur = state.svc.current;
-      if (!cur) return;
-      const acc = state.svc.accounts[cur.corr];
-      const contact = acc ? contactByName(acc.contact) : null;
-      if (contact) {
-        state.recipient = contact.name;
-        state.recipientPhone = contact.phone;
-        state.recipientMarket = "gua";
+      if (!state.svc.current) return;
+      if (state.cart.some((item) => item.productKey !== "eegsa")) {
+        state.svcCartGate = { next: "pay" };
+        return render({ keepScroll: true });
       }
-      state.amounts.eegsa = cur.q;
-      state.cart = state.cart
-        .filter((item) => item.productKey !== "eegsa")
-        .concat({ productKey: "eegsa", amount: toUsd(cur.q), cashback: 0, quetzales: cur.q, corr: cur.corr });
-      state.checkoutIndex = state.cart.length - 1;
+      return svcStartPay();
+    }
+
+    if (action === "svccart-stay") {
+      state.svcCartGate = null;
+      return render({ keepScroll: true });
+    }
+
+    if (action === "svccart-checkout") {
+      state.svcCartGate = null;
+      state.cart = state.cart.filter((item) => item.productKey !== "eegsa");
+      state.checkoutIndex = 0;
       return go("checkout");
+    }
+
+    if (action === "svccart-clear") {
+      const next = (state.svcCartGate || {}).next;
+      state.svcCartGate = null;
+      state.cart = [];
+      state.savingsSheet = false;
+      state.okyCashEnabled = false;
+      state.okyCashApplied = 0;
+      state.promo = null;
+      state.cashOffByPromo = false;
+      if (next === "pay") return svcStartPay();
+      return go("category", { category: "servicios" });
     }
 
     if (action === "svc-toggle" || action === "svc-ask-off") {
@@ -9762,6 +9841,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "open-category") {
+      /* Pagar Servicios no convive con el carrito: con productos dentro
+         se pregunta antes de entrar. */
+      if (el.dataset.category === "servicios" && state.cart.some((item) => item.productKey !== "eegsa")) {
+        state.svcCartGate = { next: "category" };
+        return render({ keepScroll: true });
+      }
       return go("category", { category: el.dataset.category || "recargas" });
     }
 
@@ -10288,17 +10373,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const digits = corrInput.value.replace(/\D/g, "").slice(0, 10);
       if (digits !== corrInput.value) corrInput.value = digits;
       state.svc.corrInput = digits;
-      state.svc.corrError = "";
       const has = digits.length > 0;
       corrInput.classList.toggle("input-dinamic-hasvalue", has);
       corrInput.classList.toggle("input-dinamic-empty", !has);
       const label = root.querySelector("#oky-corr-label");
       if (label) label.classList.toggle("is-floating", has);
-      const help = root.querySelector("[data-role='corr-help']");
-      if (help) {
-        help.innerHTML = svcCorrHelp(state);
-        help.classList.remove("is-error");
-      }
       const cta = root.querySelector("[data-role='corr-cta']");
       if (cta) cta.disabled = !SVC_CORR_RE.test(digits);
       return;
