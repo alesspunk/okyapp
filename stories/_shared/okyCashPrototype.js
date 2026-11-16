@@ -6393,6 +6393,8 @@ const SVC_CYCLE = 30;
 const SVC_CORR_RE = /^\d{10}$/;
 /* Lo que tarda la consulta en el prototipo. */
 const SVC_LOADING_MS = 1800;
+/* Pagos por tanda en cada grupo de la actividad. */
+const SVC_PAGE = 5;
 
 /* Tres cuentas de EEGSA con su historial mensual (lo más reciente
    primero). `ago` son los días desde el último pago; el contacto es el
@@ -6475,6 +6477,10 @@ function svcInitialState() {
     filter: { order: "", period: "", corr: "" },
     /* La consulta en curso: { corr, q, isNew }. */
     current: null,
+    /* Acordeón de la actividad: un solo grupo abierto (null = el
+       primero; "" = ninguno) y cuántos pagos enseña cada uno. */
+    openGroup: null,
+    shown: {},
   };
 }
 
@@ -6668,15 +6674,43 @@ function svcActivity(state) {
     if (!g) groups.push((g = { label, items: [] }));
     g.items.push(p);
   });
+  /* Acordeón como las secciones de Mis compras: un solo grupo abierto a
+     la vez, y de cada uno se ven 5 pagos; «Ver más» trae 5 más. */
+  const openLabel = state.svc.openGroup == null ? groups[0].label : state.svc.openGroup;
   return groups
-    .map(
-      (g) => `
-      <div class="oky-flow-history-group">
-        <h2 class="oky-flow-history-label">${g.label}</h2>
-        ${g.items.map((p) => svcPaymentRow(p, { byDate })).join("")}
+    .map((g) => {
+      const open = g.label === openLabel;
+      const shown = state.svc.shown[g.label] || SVC_PAGE;
+      const visible = g.items.slice(0, shown);
+      return `
+      <div class="oky-flow-history-group oky-flow-svc-group">
+        <button class="oky-flow-section-head is-tappable oky-flow-svc-group-head" data-action="svc-toggle-group"
+          data-group="${g.label}" type="button" aria-expanded="${open}">
+          <span class="oky-flow-section-head-label oky-flow-history-label">${g.label}</span>
+          <span class="oky-flow-section-head-meta">
+            <span class="oky-flow-section-count">(${g.items.length})</span>
+            <i class="fa-solid fa-chevron-down oky-flow-section-caret" aria-hidden="true"></i>
+          </span>
+        </button>
+        <div class="oky-flow-section-body ${open ? "" : "is-collapsed"}">
+          <div>
+            <div class="oky-flow-svc-group-list">
+              ${visible.map((p) => svcPaymentRow(p, { byDate })).join("")}
+            </div>
+            ${
+              g.items.length > visible.length
+                ? `<div class="oky-flow-stack-more">
+                    <button class="btn btn-primary btn-small" data-action="svc-more" data-group="${g.label}" type="button">
+                      Ver más
+                    </button>
+                  </div>`
+                : ""
+            }
+          </div>
+        </div>
       </div>
-    `,
-    )
+    `;
+    })
     .join("");
 }
 
@@ -9858,6 +9892,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const corr = el.dataset.corr || (state.sheet || {}).key;
       state.sheet = null;
       state.svc.filter = { order: "", period: "", corr };
+      state.svc.openGroup = null;
       if (state.screen !== "eegsa") return go("eegsa");
       return render({ keepScroll: true });
     }
@@ -9874,6 +9909,21 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
+    if (action === "svc-toggle-group") {
+      const group = el.dataset.group;
+      const firstHead = root.querySelector("[data-action='svc-toggle-group']");
+      const current = state.svc.openGroup == null ? firstHead && firstHead.dataset.group : state.svc.openGroup;
+      /* Abrir uno cierra el que estaba; tocar el abierto lo cierra. */
+      state.svc.openGroup = current === group ? "" : group;
+      return render({ keepScroll: true });
+    }
+
+    if (action === "svc-more") {
+      const group = el.dataset.group;
+      state.svc.shown = { ...state.svc.shown, [group]: (state.svc.shown[group] || SVC_PAGE) + SVC_PAGE };
+      return render({ keepScroll: true });
+    }
+
     if (action === "svc-open-filter") {
       state.sheet = { type: "svcfilter" };
       return render({ keepScroll: true });
@@ -9884,11 +9934,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "svc-pick-filter") {
       const field = el.dataset.field === "order" ? "order" : "period";
       state.svc.filter = { ...state.svc.filter, [field]: el.dataset.value || "" };
+      state.svc.openGroup = null;
       return render({ keepScroll: true });
     }
 
     if (action === "svc-clear-filter") {
       state.svc.filter = { order: "", period: "", corr: "" };
+      state.svc.openGroup = null;
       return render({ keepScroll: true });
     }
 

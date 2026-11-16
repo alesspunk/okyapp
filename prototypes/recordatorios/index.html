@@ -20480,6 +20480,64 @@ button.carrusel-dot:focus-visible {
   outline-offset: 2px;
 }
 
+/* Acordeón de la actividad de EEGSA: la cabecera plegable de Mis compras
+   con el rótulo morado de los grupos del historial. */
+.oky-flow-svc-group {
+  gap: 0;
+}
+
+.oky-flow-svc-group-head {
+  width: 100%;
+  height: 40px;
+  padding-left: 0;
+}
+
+.oky-flow-svc-group-head .oky-flow-history-label {
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.oky-flow-svc-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.oky-flow-svc-activity {
+  gap: 8px;
+}
+
+.oky-flow-svc-group-head {
+  justify-content: space-between;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line-divider, rgba(0, 0, 0, 0.12));
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.oky-flow-svc-group-head .oky-flow-section-count {
+  color: var(--disable-text);
+}
+
+.oky-flow-svc-group-head .oky-flow-section-head-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.oky-flow-svc-group-head .oky-flow-section-caret {
+  color: var(--primary-main);
+}
+
+.oky-flow-svc-group-head:focus-visible {
+  outline: 2px solid var(--primary-main);
+  outline-offset: 2px;
+}
+
 @font-face {
   font-family: "FA Free Solid Fallback";
   font-style: normal;
