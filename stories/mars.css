@@ -20206,3 +20206,112 @@ img.oky-flow-method-mark {
 }
 .rec-demo-link.is-on { border-color: var(--primary-main); color: var(--primary-main); }
 @media (max-width: 640px) { .rec-demo { display: none; } }
+
+/* ── /miscompras · Pago de servicios (EEGSA) con recordatorios ──
+   Solo pegamento de layout: las piezas son las de siempre (brand item,
+   input dinámico, Reminder Card y su carrusel, History Card, filtro de
+   Mis compras, summary box). */
+.oky-flow-svc-help {
+  margin: -8px 0 0;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--disable-text);
+  text-align: left;
+}
+
+.oky-flow-stack-center > .oky-flow-svc-help {
+  display: block;
+}
+
+.oky-flow-svc-help.is-error {
+  color: var(--error-main);
+}
+
+.oky-flow-svc-help strong {
+  color: var(--primary-main);
+  font-weight: 800;
+}
+
+.oky-flow-svc-reminders {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* En la Category Page el carrusel va a sangre: la sección ya trae su
+   margen y las cards de 328 tienen que asomar la siguiente. */
+.oky-flow-category > .reminder-carousel {
+  width: auto;
+  margin: 0 calc(var(--oky-gutter) * -1);
+}
+
+.oky-flow-svc-filter {
+  padding-top: 16px;
+}
+
+.oky-flow-svc-activity {
+  gap: 20px;
+}
+
+.oky-flow-svc-pay {
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.oky-flow-svc-pay:focus-visible {
+  outline: 2px solid var(--primary-main);
+  outline-offset: 2px;
+}
+
+.oky-flow-svc-empty {
+  padding: 24px 0;
+  text-align: center;
+  font-family: "Nunito Sans", sans-serif;
+}
+
+.oky-flow-svc-empty-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--primary-main);
+}
+
+.oky-flow-svc-empty-note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--disable-text);
+}
+
+.oky-flow-svc-list {
+  gap: 12px;
+}
+
+.oky-flow-svc-list .reminder-card-molecule {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.oky-flow-svc-menu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--primary-main);
+}
+
+.oky-flow-category > .reminder-carousel,
+.oky-flow-svc-activity > .oky-flow-history-group,
+.oky-flow-svc-pay {
+  align-self: stretch;
+}
+
+.oky-flow-svc-pay > .history-card-molecule {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.oky-flow-svc-list {
+  align-items: stretch;
+}

@@ -47,6 +47,7 @@
 import { findPaymentCard, renderPaymentCard } from "./paymentCards";
 import { CARD_DESIGNS } from "./okyCashParts";
 import { renderHistoryCard } from "./historyCards";
+import { findReminderCard, renderReminderCard, renderReminderCarousel } from "./reminderCards";
 import { renderDiscoveryHeader } from "./discoveryHeader";
 import { renderCardOrganism } from "./cardOrganism";
 import { renderClaritaPet } from "./primeCards";
@@ -676,6 +677,8 @@ function createInitialState(userType) {
     cart: [],
     cartOpen: false,
     checkoutIndex: 0,
+    /* Pago de servicios: cuentas de EEGSA, sus pagos y la consulta. */
+    svc: svcInitialState(),
     okyCashEnabled: false,
     okyCashApplied: 0,
     /* Código promocional aplicado a la orden (solo Guatemala), lo que
@@ -1019,6 +1022,29 @@ GUA_BRANDS.forEach((brand) => {
     legal: false,
   };
 });
+
+/* EEGSA, el pago de servicios de Guatemala. No tiene PDP: su pantalla es
+   la de los recordatorios y el monto lo pone la consulta. La card dice lo
+   que es, un pago de servicio; paga costo por servicio como el resto de
+   Guatemala y no da OKY Cash. Se guarda en Mis compras › Servicios. */
+PRODUCTS.eegsa = {
+  key: "eegsa",
+  label: "EEGSA",
+  art: "eggsa.webp",
+  hero: "eggsa.webp",
+  bg: "#ffffff",
+  cardTitle: "Pago de servicio",
+  cartTitle: "Pago de servicio EEGSA",
+  min: 1,
+  max: 5000,
+  rate: 0,
+  noCashback: true,
+  country: "gua",
+  wallet: "servicios",
+  quetzal: true,
+  service: true,
+  legal: false,
+};
 
 /* Cuántas unidades del carrito pagan costo por servicio: la comida y
    los vales de monto de Guatemala. Las recargas de Tigo no, ni nada de
@@ -1393,6 +1419,8 @@ const MENU_ITEMS = [
      en Light caía a otro glifo. */
   { label: "OKY Cash", icon: "coins", style: "solid", action: "nav:okycash" },
   { label: "Métodos de Pago", icon: "credit-card", action: "menu:methods" },
+  /* Menú › Recordatorios (7500 · 99105:14317). */
+  { label: "Recordatorios", icon: "calendar-check", action: "menu:reminders" },
   { label: "Notificaciones", icon: "bell" },
   { label: "Historial", icon: "clock-rotate-left" },
   { label: "Contactos", icon: "address-book", action: "open-contacts" },
@@ -4546,6 +4574,16 @@ const CATEGORY_PAGES = {
       product: key,
     })),
   },
+  /* Pagar Servicios (home GT). Arriba se acumulan los recordatorios de
+     todas las marcas (99105:14138); solo EEGSA está activa. */
+  servicios: {
+    title: "Pagar Servicios",
+    section: "Electricidad",
+    reminders: true,
+    brands: [
+      { key: "eegsa", label: "EEGSA", art: "eggsa.webp", action: "open-eegsa" },
+    ],
+  },
   recargas: {
     title: "Recargar el Móvil",
     section: "Operadores",
@@ -4700,6 +4738,8 @@ function screenCategory(state) {
         <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
         <input class="input-field search-input search-input-empty" value="" placeholder="Buscar marcas" readonly tabindex="-1" />
       </div>
+
+      ${page.reminders ? svcReminderCarousel(state, svcActive(state)) : ""}
 
       <section class="homecard-organism">
         <header class="homecard-header">
@@ -5216,6 +5256,13 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
   const id = unitId(card.key, slot);
   const shared = state.sharedVouchers.includes(id);
   const archived = state.archivedVouchers.includes(id);
+  /* El correlativo de un pago de servicio: con él va el interruptor del
+     recordatorio, en la poscompra y en Mis compras. */
+  const svcPurchase =
+    state.params.id && purchase
+      ? purchase
+      : state.purchases.find((x) => x.productKey === card.key && unitOfPurchase(state, x) === slot);
+  const svcCorr = (svcPurchase && svcPurchase.corr) || "";
 
   /* La parte de abajo de una gift card de USA: código corto en dos de
      cada tres, y barcode con PIN en la restante.
@@ -5348,7 +5395,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           : /* En /miscompras, los vales de Para mí comparten desde la
                esquina de arriba (el ícono de compartir del sistema): hace
                lo mismo que «Mandale foto» de Para otros. */
-            V3_ROUTE && state.params.deck === "v3mio" && !archived
+            (V3_ROUTE && state.params.deck === "v3mio" && !archived) || (V3_ROUTE && svcCorr)
             ? titledHeader(title, {
                 trailingHtml: `<button class="oky-flow-header-icon oky-flow-header-share" data-action="send-photo"
                   data-label="${headerBrand}" data-id="${id}" type="button" aria-label="Compartir el vale">
@@ -5413,7 +5460,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               ...(section0 === "gift"
                 ? { middleSingleLabel: "Redemption instructions" }
                 : section0 === "servicios"
-                  ? { middleSingleLabel: `#${digitsOf(`${bottomSeed}-orden`, 12)}` }
+                  ? { middleSingleLabel: svcCorr ? `#${svcCorr}` : `#${digitsOf(`${bottomSeed}-orden`, 12)}` }
                   : {}),
               /* El vale de Guatemala se canjea en quetzales, así que
                  es lo que lleva escrito; los dólares se quedaron en el
@@ -5528,9 +5575,17 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
         </button>
       </div>`
       }
+      ${
+        /* Pago de servicio: un solo interruptor, el del recordatorio. En
+           la poscompra sale junto a «Mandale foto»; en Mis compras
+           compartir se va arriba a la derecha (SRV-01 / SRV-06). */
+        svcCorr && !fromOrder
+          ? svcReminderSwitch(state, svcCorr, asPurchase ? "Te recordaremos el próximo pago" : "Recordatorio de pago")
+          : ""
+      }
     </div>
     ${asPurchase ? purchaseFoot(state, headerBrand, id) : ""}
-    ${fromOrder ? orderVoucherFoot(orderMarket, headerBrand, id) : asPurchase || !V3_ROUTE || state.params.deck !== "v3comp" ? "" : sendPhotoBar(headerBrand, id)}
+    ${fromOrder ? orderVoucherFoot(orderMarket, headerBrand, id) : asPurchase || svcCorr || !V3_ROUTE || state.params.deck !== "v3comp" ? "" : sendPhotoBar(headerBrand, id)}
     ${navbar("", state)}
     ${asPurchase ? purchaseOverlays(state, { celebrate, cashWin }) : ""}
   `;
@@ -5646,6 +5701,38 @@ function screenCardDesign(state) {
      pero en móvil es un blanco de 24px arriba del todo: el par de
      botones deja las dos decisiones al alcance del pulgar. */
 const CONFIRM_SHEETS = {
+  /* SRV-02 / SRV-07: apagar el recordatorio de una cuenta. La salida
+     principal es mantenerlo. */
+  svcoff: {
+    art: "oky-campana-3d.png",
+    title: "¿Apagar este recordatorio?",
+    note: (state) => {
+      const acc = state.svc.accounts[state.sheet.key] || {};
+      return `Ya no te avisaremos cuando llegue la factura de ${escapeHtml(acc.alias || "")} (#${acc.corr}). Puedes volver a encenderlo desde Recordatorios.`;
+    },
+    confirm: "Mantener activo",
+    dismiss: "Apagar recordatorio",
+    action: "close-sheet",
+    dismissAction: "svc-off-confirm",
+  },
+  /* Edge case de la consulta: todavía no hay factura nueva. */
+  svcaldia: {
+    art: "oky-check-3d.png",
+    title: "¡Estás al día!",
+    note: (state) => {
+      const corr = state.sheet.key;
+      const acc = state.svc.accounts[corr] || {};
+      const st = svcStatus(state, corr);
+      const next = acc.reminder
+        ? ` Te avisamos el ${svcShort(-st.notifyIn)}, cuando llegue la próxima factura.`
+        : "";
+      return `Consultamos #${corr} con EEGSA y no hay saldo pendiente. ${svcAgo(st.last.ago)} pagaste ${quetzalOf(st.last.q)}.${next}`;
+    },
+    confirm: "Entendido",
+    dismiss: "Ver pagos de este número",
+    action: "close-sheet",
+    dismissAction: "svc-see-payments",
+  },
   deletecard: {
     /* La tarjeta con el basurero (7600 · Design assets 102700:1195), como
        CASH-28; el basurero solo se queda en la fila «Eliminar» del menú. */
@@ -5795,7 +5882,7 @@ function confirmSheet(state) {
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
       <h2 class="oky-flow-sheet-title">${sheet.title}</h2>
-      ${sheet.note ? `<p class="oky-flow-sheet-note">${sheet.note}</p>` : ""}
+      ${sheet.note ? `<p class="oky-flow-sheet-note">${typeof sheet.note === "function" ? sheet.note(state) : sheet.note}</p>` : ""}
       <div class="oky-flow-sheet-art">
         ${
           /* La mayoría de las hojas traen su ilustración 3D; la del
@@ -6272,6 +6359,490 @@ function screenDecision() {
   `;
 }
 
+/* ── Pago de servicios · EEGSA con recordatorios (solo GT) ─────
+   Se suma al flujo aprobado de /miscompras, no lo reemplaza: todo lo
+   que se ve son piezas que ya estaban —brand item, middle card,
+   summary box, checkout, poscompra, Mis compras— y lo único nuevo son
+   los recordatorios (7500 · 99101:20347) y el pago de servicios de
+   7600 (103018:45517).
+
+   · Home GT › Pagar Servicios abre la Category Page de servicios: arriba
+     se juntan los recordatorios de todas las marcas (99105:14138).
+   · EEGSA no abre una PDP: abre su pantalla con el número correlativo,
+     los recordatorios y la actividad (99105:14130 / 13960).
+   · Tocar un recordatorio o un pago hecho consulta solo (99105:13972).
+     Con factura nueva se ve el saldo (99105:14896) y se sigue al
+     checkout de siempre con el contacto de la última vez. Sin factura,
+     «¡Estás al día!»: no hay nada que hacer.
+   · El recordatorio es de la cuenta (correlativo), no del pago: apagarlo
+     en la poscompra, en Mis compras o en Recordatorios lo apaga en
+     todos. Nace encendido al pagar (opt-in al adquirir, SRV-01).
+   En GT no se gana OKY Cash: nada de copy de cashback aquí. */
+
+/* Días desde el último pago a partir de los que ya hay factura nueva. */
+const SVC_BILL_AFTER = 25;
+const SVC_CYCLE = 30;
+const SVC_CORR_RE = /^\d{10}$/;
+
+/* Tres cuentas de EEGSA con su historial mensual (lo más reciente
+   primero). `ago` son los días desde el último pago; el contacto es el
+   de la agenda, así el checkout lo reusa tal cual. */
+const SVC_ACCOUNTS = [
+  {
+    corr: "0011900222",
+    alias: "Luz de Daniel Paz",
+    contact: "Daniel Paz",
+    reminder: true,
+    ago: 27,
+    amounts: [302, 309.6, 301.25, 284, 279.4, 288.1, 296.75, 302, 291.5, 287],
+    nextBill: 296.4,
+  },
+  {
+    corr: "0011900471",
+    alias: "Luz de Marisol",
+    contact: "Marisol",
+    reminder: true,
+    ago: 9,
+    amounts: [325, 333.1, 340.2, 325, 319.5, 327, 331.8, 325, 322.4, 318],
+    nextBill: 318.2,
+  },
+  {
+    corr: "0011900588",
+    alias: "Luz de Wendy",
+    contact: "Wendy",
+    /* Se apagó al pagar (opt-out): vive en «Apagados». */
+    reminder: false,
+    ago: 19,
+    amounts: [144, 147.75, 144, 150.3, 141.2, 144, 139.5],
+    nextBill: 151,
+  },
+];
+
+/* Lo que trae la consulta de un número que no está guardado. */
+const SVC_NEW_BILL = 212.75;
+
+/* Los filtros de la actividad: pagos mensuales, así que el rango más
+   corto es de 45 días (con un mes casi siempre se ve uno solo). */
+const SVC_PERIODS = [
+  { key: "45", label: "Últimos 45 días", days: 45 },
+  { key: "90", label: "Últimos 3 meses", days: 90 },
+  { key: "180", label: "Últimos 6 meses", days: 180 },
+  { key: "365", label: "Último año", days: 365 },
+];
+
+/* «Hoy», «Ayer» o «Hace N días»: recién pagado no se lee «Hace 0 días». */
+const svcAgo = (days) => (days <= 0 ? "Hoy" : days === 1 ? "Ayer" : `Hace ${days} días`);
+
+const quetzalOf = (q) => `Q${(Number(q) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+/* "11 / DIC": la fecha corta de la consulta y del aviso. */
+function svcShort(agoDays) {
+  const d = new Date();
+  d.setDate(d.getDate() - agoDays);
+  return `${String(d.getDate()).padStart(2, "0")} / ${MONTHS_SHORT[d.getMonth()]}`;
+}
+
+function svcInitialState() {
+  const accounts = {};
+  const payments = [];
+  SVC_ACCOUNTS.forEach((a) => {
+    accounts[a.corr] = { corr: a.corr, alias: a.alias, contact: a.contact, reminder: a.reminder, nextBill: a.nextBill };
+    a.amounts.forEach((q, i) => payments.push({ id: `${a.corr}-${i}`, corr: a.corr, ago: a.ago + i * SVC_CYCLE, q }));
+  });
+  return {
+    accounts,
+    payments,
+    corrInput: "",
+    corrError: "",
+    /* Filtro de la actividad: período y/o un número. */
+    filter: { period: "", corr: "" },
+    /* La consulta en curso: { corr, q, isNew }. */
+    current: null,
+  };
+}
+
+function svcLastPayment(state, corr) {
+  return state.svc.payments.filter((p) => p.corr === corr).sort((a, b) => a.ago - b.ago)[0] || null;
+}
+
+/* El estado sale del último pago: «due» ya hay factura que pagar;
+   «aldia» todavía no toca. */
+function svcStatus(state, corr) {
+  const last = svcLastPayment(state, corr);
+  if (!last) return { kind: "due", last: null, notifyIn: 0 };
+  return {
+    kind: last.ago >= SVC_BILL_AFTER ? "due" : "aldia",
+    last,
+    /* Cuántos días faltan para el aviso (negativo: ya pasó). */
+    notifyIn: SVC_BILL_AFTER - last.ago,
+  };
+}
+
+/* Recordatorios encendidos, primero lo que ya toca pagar. */
+function svcActive(state) {
+  return Object.values(state.svc.accounts)
+    .filter((a) => a.reminder && svcLastPayment(state, a.corr))
+    .sort((a, b) => {
+      const sa = svcStatus(state, a.corr);
+      const sb = svcStatus(state, b.corr);
+      if (sa.kind !== sb.kind) return sa.kind === "due" ? -1 : 1;
+      return sa.notifyIn - sb.notifyIn;
+    });
+}
+
+function svcDueCount(state) {
+  return svcActive(state).filter((a) => svcStatus(state, a.corr).kind === "due").length;
+}
+
+function svcFiltered(state) {
+  const { period, corr } = state.svc.filter;
+  const def = SVC_PERIODS.find((p) => p.key === period);
+  return state.svc.payments
+    .filter((p) => !def || p.ago <= def.days)
+    .filter((p) => !corr || p.corr === corr)
+    .sort((a, b) => a.ago - b.ago);
+}
+
+function svcFilterLabel(state) {
+  const { period, corr } = state.svc.filter;
+  const parts = [];
+  if (period) parts.push(SVC_PERIODS.find((p) => p.key === period).label);
+  if (corr) parts.push(`#${corr}`);
+  return parts.join(" · ") || "Actividad";
+}
+
+/* ── Reminder Card de MARS (99105:14325, With Brand) ──────
+   Se pinta con el mismo renderer de Storybook y aquí solo se le cuelgan
+   las acciones. El CTA es el del componente, «Ver saldo», y consulta
+   solo: ya no hay «Ver detalle» → «Consultar». */
+function svcReminderData(state, acc) {
+  const st = svcStatus(state, acc.corr);
+  const last = st.last;
+  const base = findReminderCard("Molecule/Reminder Card/With Brand");
+  const body = !acc.reminder
+    ? `Apagado. ${svcAgo(last.ago)} pagaste ${quetzalOf(last.q)} en electricidad.`
+    : st.kind === "due"
+      ? `${svcAgo(last.ago)} pagaste ${quetzalOf(last.q)} en electricidad.`
+      : `${svcAgo(last.ago)} pagaste ${quetzalOf(last.q)}. Te avisamos el ${svcShort(-st.notifyIn)}.`;
+  return {
+    ...base,
+    title: escapeHtml(acc.alias),
+    body,
+    brand: { src: "eggsa.webp", alt: "EEGSA" },
+    ctaLabel: acc.reminder ? "Ver saldo" : "Activar",
+    showMenu: acc.reminder,
+    showCta: true,
+  };
+}
+
+/* Le cuelga las acciones a las cards ya pintadas, en orden: cada
+   reemplazo toma la primera card que todavía no tiene la suya. */
+function svcWire(html, accounts) {
+  let out = html;
+  accounts.forEach((acc) => {
+    if (acc.reminder) {
+      out = out.replace(
+        'class="reminder-card-menu" type="button" aria-label="Más opciones"',
+        `class="reminder-card-menu" data-action="svc-menu" data-corr="${acc.corr}" type="button" aria-label="Opciones de ${escapeHtml(acc.alias)}"`,
+      );
+    }
+    out = out.replace(
+      'reminder-card-cta" type="button"',
+      `reminder-card-cta" data-action="${acc.reminder ? "svc-consult" : "svc-on"}" data-corr="${acc.corr}" type="button"`,
+    );
+  });
+  return out;
+}
+
+function svcReminderCard(state, acc) {
+  return svcWire(renderReminderCard(svcReminderData(state, acc)), [acc]);
+}
+
+/* Carrusel de recordatorios (99105:14130), el organismo de Storybook. */
+function svcReminderCarousel(state, accounts) {
+  if (!accounts.length) return "";
+  return svcWire(
+    renderReminderCarousel(accounts.map((acc) => svcReminderData(state, acc)), { label: "Recordatorios" }),
+    accounts,
+  );
+}
+
+/* Brand item de EEGSA: el mismo átomo del PDP y del checkout. */
+function svcBrandItem() {
+  return `
+    <div class="oky-flow-brand-slot">
+      <section class="brand-item-atom is-with-label" aria-label="EEGSA">
+        <p class="brand-item-label token-product-text">EEGSA</p>
+        <div class="brand-item-frame">
+          <div class="brand-item-base"><img src="${PRODUCTS.eegsa.art}" alt="EEGSA" /></div>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+/* Fila de pago hecho: la History Card «Service Payment» (99105:47460).
+   Toda la fila consulta el saldo de ese número (99105:13972). */
+function svcPaymentRow(p) {
+  return `
+    <div class="oky-flow-svc-pay" data-action="svc-consult" data-corr="${p.corr}" role="button" tabindex="0"
+      aria-label="Pago del ${stamp(p.ago)} por ${quetzalOf(p.q)}. Consultar el saldo de ${p.corr}">
+      ${renderHistoryCard({
+        key: "service-payment",
+        id: "99105:13972",
+        layout: "row",
+        icon: { glyph: "fa-lightbulb", weight: "fa-regular" },
+        date: stamp(p.ago),
+        amount: money(toUsd(p.q) + serviceFeeOf(1)),
+        meta: {
+          type: "brand",
+          logo: "eggsa.webp",
+          logoAlt: "EEGSA",
+          brand: `#${p.corr}`,
+          secondaryAmount: quetzalOf(p.q).replace(".00", ""),
+        },
+      })}
+    </div>
+  `;
+}
+
+function svcActivity(state) {
+  const list = svcFiltered(state);
+  if (!list.length) {
+    return `
+      <div class="oky-flow-svc-empty">
+        <p class="oky-flow-svc-empty-title">No hay pagos en este rango</p>
+        <p class="oky-flow-svc-empty-note">Prueba con un período más largo o quita el filtro.</p>
+      </div>
+    `;
+  }
+  /* Por mes, igual que la actividad de OKY Cash. */
+  const groups = [];
+  list.forEach((p) => {
+    const label = monthGroup(p.ago);
+    let g = groups.find((x) => x.label === label);
+    if (!g) groups.push((g = { label, items: [] }));
+    g.items.push(p);
+  });
+  return groups
+    .map(
+      (g) => `
+      <div class="oky-flow-history-group">
+        <h2 class="oky-flow-history-label">${g.label}</h2>
+        ${g.items.map(svcPaymentRow).join("")}
+      </div>
+    `,
+    )
+    .join("");
+}
+
+function svcCorrHelp(state) {
+  const typed = state.svc.corrInput;
+  if (state.svc.corrError) return `<i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> ${state.svc.corrError}`;
+  if (typed && !SVC_CORR_RE.test(typed)) return `${typed.length}/10 dígitos`;
+  return "Son 10 dígitos. Están arriba a la derecha de tu factura.";
+}
+
+/* ── Pantalla de EEGSA (99105:14130 + 99105:13960) ──────── */
+function screenEegsa(state) {
+  const svc = state.svc;
+  const typed = svc.corrInput;
+  const valid = SVC_CORR_RE.test(typed);
+  const filterOn = !!(svc.filter.period || svc.filter.corr);
+  const eegsaReminders = svcActive(state);
+
+  return `
+    ${statusBar()}
+    ${productHeader(state, { backAction: "back" })}
+
+    <div class="oky-flow-stack-center oky-flow-svc">
+      ${svcBrandItem()}
+      <div class="input-wrapper" style="width:100%">
+        <label id="oky-corr-label" class="input-label input-label-dinamic oky-flow-promo-label${typed ? " is-floating" : ""}"
+          for="oky-corr">Número correlativo</label>
+        <input id="oky-corr" class="input-field input-dinamic oky-flow-promo-input ${typed ? "input-dinamic-hasvalue" : "input-dinamic-empty"}"
+          type="text" inputmode="numeric" maxlength="10" autocomplete="off" value="${escapeHtml(typed)}"
+          placeholder="Número correlativo" data-action="input-corr"
+          aria-labelledby="oky-corr-label" aria-describedby="oky-corr-help" />
+      </div>
+      <p class="oky-flow-svc-help${svc.corrError ? " is-error" : ""}" id="oky-corr-help" data-role="corr-help">${svcCorrHelp(state)}</p>
+    </div>
+
+    ${eegsaReminders.length ? `<div class="oky-flow-svc-reminders">${svcReminderCarousel(state, eegsaReminders)}</div>` : ""}
+
+    <div class="oky-flow-wallet-filter oky-flow-svc-filter">
+      ${
+        filterOn
+          ? `<button class="oky-flow-wallet-filter-label is-tappable" data-action="svc-open-filter" type="button">${svcFilterLabel(state)}</button>`
+          : `<span class="oky-flow-wallet-filter-label">Actividad</span>`
+      }
+      ${
+        filterOn
+          ? `<button class="btn btn-primary btn-small oky-flow-filter-btn is-on" data-action="svc-clear-filter" type="button">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i>&nbsp;Quitar filtro
+            </button>`
+          : `<button class="btn btn-outlined btn-small oky-flow-filter-btn" data-action="svc-open-filter" type="button">
+              <i class="fa-solid fa-sliders" aria-hidden="true"></i>&nbsp;Filtrar
+            </button>`
+      }
+    </div>
+    <div class="oky-flow-section oky-flow-svc-activity">${svcActivity(state)}</div>
+
+    <div class="oky-flow-dock is-no-bar">
+      <div class="summary-box summary-box-compact" data-flow="products" data-step="pdp">
+        <div class="summary-card">
+          <div class="summary-cta-row">
+            <button class="btn btn-primary summary-btn" data-action="svc-consult-typed" data-role="corr-cta"
+              type="button" ${valid ? "" : "disabled"}>Consultar saldo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${navbar("", state)}
+  `;
+}
+
+/* ── Consulta (99105:14896) ──────────────────────────────
+   La anatomía del PDP de Guatemala: brand item, middle card de monto y
+   el summary box acoplado abajo. El monto lo pone EEGSA, no se teclea. */
+function screenSvcConsulta(state) {
+  const cur = state.svc.current;
+  const acc = state.svc.accounts[cur.corr];
+  const contact = acc ? contactByName(acc.contact) : null;
+  return `
+    ${statusBar()}
+    ${productHeader(state, { backAction: "back" })}
+
+    <div class="oky-flow-stack-center">
+      ${svcBrandItem()}
+      <div>
+        <section class="middle-card-shell is-pdp" aria-label="${PRODUCTS.eegsa.cardTitle}">
+          <article class="middle-card-molecule is-amount">
+            <div class="middle-card-content">
+              <div class="middle-card-main">
+                <p class="middle-card-title">${PRODUCTS.eegsa.cardTitle}</p>
+                <div class="middle-card-center">
+                  <div class="middle-card-value">
+                    <span class="middle-card-currency">Q</span>
+                    <p class="middle-card-amount">${bigQuetzal(cur.q)}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="middle-card-footer">
+                <span class="middle-card-footer-single">#${cur.corr}</span>
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+      <p class="oky-flow-svc-help">${
+        contact
+          ? `La última vez le pagaste a <strong>${escapeHtml(contact.name)}</strong>. Lo verás en el pago.`
+          : "Número nuevo: al pagarlo lo guardamos y te recordamos el próximo."
+      }</p>
+    </div>
+
+    <div class="oky-flow-dock is-no-bar">
+      <div class="summary-box summary-box-compact" data-flow="products" data-step="pdp">
+        <div class="summary-card">
+          <div class="summary-card-body">
+            <div class="summary-row">
+              <span class="summary-label-strong">Subtotal</span>
+              <span class="summary-label-strong">${money(toUsd(cur.q))}</span>
+            </div>
+          </div>
+          <div class="summary-cta-row">
+            <button class="btn btn-primary summary-btn" data-action="svc-pay" type="button">Pagar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${navbar("", state)}
+  `;
+}
+
+/* ── Menú › Recordatorios (99105:14317) ─────────────────── */
+function screenSvcReminders(state) {
+  const on = svcActive(state);
+  const off = Object.values(state.svc.accounts).filter((a) => !a.reminder && svcLastPayment(state, a.corr));
+  return `
+    ${statusBar()}
+    ${titledHeader("Recordatorios")}
+    <div class="oky-flow-section oky-flow-svc-list">
+      <h2 class="oky-flow-history-label">ACTIVOS</h2>
+      ${
+        on.length
+          ? on.map((a) => svcReminderCard(state, a)).join("")
+          : `<p class="oky-flow-svc-help">No tienes recordatorios activos. Se encienden al pagar un servicio.</p>`
+      }
+      ${off.length ? `<h2 class="oky-flow-history-label">APAGADOS</h2>${off.map((a) => svcReminderCard(state, a)).join("")}` : ""}
+    </div>
+    ${navbar("", state)}
+  `;
+}
+
+/* El interruptor del recordatorio: el mismo de «Marcar como usado». */
+function svcReminderSwitch(state, corr, label) {
+  const acc = state.svc.accounts[corr];
+  if (!acc) return "";
+  return `
+    <div class="oky-flow-voucher-actions is-single">
+      <button class="oky-flow-switch${acc.reminder ? " is-on" : ""}" data-action="svc-toggle" data-corr="${corr}"
+        type="button" role="switch" aria-checked="${acc.reminder}">
+        <span class="oky-flow-switch-label">${label}</span>
+        <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
+      </button>
+    </div>
+  `;
+}
+
+/* Hoja de filtros de la actividad: la misma de Mis compras. */
+function svcFilterSheet(state) {
+  const option = (key, label, on) => `
+      <button class="oky-flow-filter-option${on ? " is-on" : ""}" data-action="svc-pick-filter"
+        data-period="${key}" type="button" role="radio" aria-checked="${on}">
+        <span class="oky-flow-radio" aria-hidden="true"></span>
+        <span class="oky-flow-filter-option-label">${label}</span>
+      </button>
+    `;
+  const period = state.svc.filter.period;
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-sheet is-filter" role="dialog" aria-modal="true" aria-label="Filtrar pagos">
+      <div class="oky-flow-sheet-grab" aria-hidden="true"></div>
+      <header class="oky-flow-filter-head">
+        <h2 class="oky-flow-filter-title">Filtrar</h2>
+        <button class="oky-flow-sheet-close is-dark" data-action="close-sheet" type="button" aria-label="Cerrar">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </header>
+      <div class="oky-flow-filter-list" role="radiogroup">
+        ${option("", "Todo el historial", !period)}
+        ${SVC_PERIODS.map((p) => option(p.key, p.label, period === p.key)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+/* El ⋮ de la Reminder Card: la hoja corta del menú de la tarjeta. */
+function svcMenuSheet(state) {
+  const acc = state.svc.accounts[state.sheet.key];
+  const row = (action, icon, label) => `
+    <button class="oky-flow-cardmenu-row" data-action="${action}" data-corr="${acc.corr}" type="button">
+      <span class="oky-flow-cardmenu-icon oky-flow-svc-menu-icon"><i class="fa-regular fa-${icon}" aria-hidden="true"></i></span>
+      <span class="oky-flow-cardmenu-label">${label}</span>
+      <i class="fa-solid fa-chevron-right oky-flow-cardmenu-go" aria-hidden="true"></i>
+    </button>`;
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-cardmenu" role="dialog" aria-modal="true" aria-label="Opciones de ${escapeHtml(acc.alias)}">
+      <p class="oky-flow-cardmenu-title">${escapeHtml(acc.alias)}</p>
+      ${row("svc-see-payments", "file-lines", "Ver pagos de este número")}
+      ${row("svc-ask-off", "bell-slash", "Apagar recordatorio")}
+    </section>
+  `;
+}
+
 /* ── Router ─────────────────────────────────────────────── */
 
 /* Hueco inferior por pantalla. La navbar (56px) ya está contada
@@ -6300,6 +6871,7 @@ function scrollClass(state) {
      ahorrado; sin ella el resumen baja a ras de la navbar y el hueco
      de abajo es menor. */
   if (state.screen === "guapdp") return cartSavings(state) > 0 ? "has-dock" : "has-dock-no-bar";
+  if (state.screen === "eegsa" || state.screen === "svcconsulta") return "has-dock-no-bar";
   /* El acuse ya no lleva barra abajo: su hueco es el de la navbar y
      nada más. */
   /* El acuse vuelve a llevar su botón abajo (Avísale a tu familiar o
@@ -6342,6 +6914,9 @@ function renderScreen(state) {
     case "foodpdp": return screenFoodPdp(state);
     case "voucher": return screenVoucher(state);
     case "decision": return screenDecision();
+    case "eegsa": return screenEegsa(state);
+    case "svcconsulta": return screenSvcConsulta(state);
+    case "svcreminders": return screenSvcReminders(state);
     default: return screenHome(state);
   }
 }
@@ -6576,7 +7151,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           state.sheet
             ? state.sheet.type === "filter"
               ? filterSheet(state)
-              : state.sheet.type === "cardmenu"
+              : state.sheet.type === "svcfilter"
+                ? svcFilterSheet(state)
+                : state.sheet.type === "svcmenu"
+                  ? svcMenuSheet(state)
+                  : state.sheet.type === "cardmenu"
                 ? cardMenuSheet(state)
                 : confirmSheet(state)
             : ""
@@ -8132,6 +8711,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           date: stamp(0),
           /* Para quién fue: decide la pestaña de la variante 3. */
           forSelf: purchaseIsForSelf(state, item.productKey),
+          /* Un pago de servicio guarda su correlativo: de él cuelga el
+             recordatorio. */
+          ...(item.corr ? { corr: item.corr } : {}),
         };
         state.purchases.push(purchase);
         state.lastOrder.push(purchase);
@@ -8159,6 +8741,29 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           value: itemEarned,
         });
       }
+    });
+
+    /* El pago de servicio entra a la actividad de EEGSA. Un número
+       nuevo nace con el recordatorio encendido (opt-in al pagar, SRV-01);
+       uno que ya existía conserva lo que se haya decidido. */
+    state.cart.forEach((item) => {
+      if (!item.corr) return;
+      const svc = state.svc;
+      if (!svc.accounts[item.corr]) {
+        const who = recipientOf(state);
+        svc.accounts[item.corr] = {
+          corr: item.corr,
+          /* Por número y no por contacto: Daniel Paz ya tiene su cuenta y
+             dos «Luz de Daniel Paz» no se distinguen. */
+          alias: `Luz #${item.corr}`,
+          contact: who.name,
+          reminder: true,
+          nextBill: SVC_NEW_BILL,
+        };
+      }
+      svc.payments.push({ id: `${item.corr}-${Date.now()}`, corr: item.corr, ago: 0, q: item.quetzales });
+      svc.current = null;
+      svc.corrInput = "";
     });
 
     state.okyCashBalance = state.okyCashBalance - used + earned;
@@ -8779,6 +9384,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (inCart) state.amounts[key] = inCart.quetzales != null ? inCart.quetzales : inCart.amount;
       /* Tigo se edita desde su slider, no desde el campo de monto. */
       if (key === "tigo") return go("tigopdp");
+      if (key === "eegsa") return state.svc.current ? go("svcconsulta") : go("eegsa");
       if ((PRODUCTS[key] || {}).quetzal) return go("guapdp", { product: key });
       return go("pdp", { product: key });
     }
@@ -9048,6 +9654,111 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         input.focus();
       }
       return;
+    }
+
+    /* ── Pago de servicios · EEGSA ── */
+    if (action === "open-eegsa") {
+      state.svc.corrError = "";
+      return go("eegsa");
+    }
+
+    if (action === "menu:reminders") {
+      return leavePurchase("svcreminders");
+    }
+
+    /* Tocar un recordatorio, un pago hecho o «Consultar saldo» consulta
+       solo. Con factura nueva se ve el saldo; si todavía no toca,
+       «¡Estás al día!». */
+    if (action === "svc-consult" || action === "svc-consult-typed") {
+      const corr = action === "svc-consult" ? el.dataset.corr : state.svc.corrInput.trim();
+      if (!SVC_CORR_RE.test(corr || "")) {
+        state.svc.corrError = "El número correlativo tiene 10 dígitos.";
+        return render({ keepScroll: true });
+      }
+      state.svc.corrError = "";
+      const acc = state.svc.accounts[corr];
+      if (acc && svcStatus(state, corr).kind === "aldia") {
+        state.sheet = { type: "svcaldia", key: corr };
+        return render({ keepScroll: true });
+      }
+      state.sheet = null;
+      state.svc.current = { corr, q: acc ? acc.nextBill : SVC_NEW_BILL, isNew: !acc };
+      return go("svcconsulta");
+    }
+
+    /* De la consulta al checkout de siempre, con el contacto al que se
+       le pagó la última vez. */
+    if (action === "svc-pay") {
+      const cur = state.svc.current;
+      if (!cur) return;
+      const acc = state.svc.accounts[cur.corr];
+      const contact = acc ? contactByName(acc.contact) : null;
+      if (contact) {
+        state.recipient = contact.name;
+        state.recipientPhone = contact.phone;
+        state.recipientMarket = "gua";
+      }
+      state.amounts.eegsa = cur.q;
+      state.cart = state.cart
+        .filter((item) => item.productKey !== "eegsa")
+        .concat({ productKey: "eegsa", amount: toUsd(cur.q), cashback: 0, quetzales: cur.q, corr: cur.corr });
+      state.checkoutIndex = state.cart.length - 1;
+      return go("checkout");
+    }
+
+    if (action === "svc-toggle" || action === "svc-ask-off") {
+      const acc = state.svc.accounts[el.dataset.corr];
+      if (!acc) return;
+      if (acc.reminder) {
+        state.sheet = { type: "svcoff", key: acc.corr };
+        return render({ keepScroll: true });
+      }
+      acc.reminder = true;
+      state.sheet = null;
+      return render({ keepScroll: true });
+    }
+
+    if (action === "svc-on") {
+      const acc = state.svc.accounts[el.dataset.corr];
+      if (acc) acc.reminder = true;
+      state.sheet = null;
+      return render({ keepScroll: true });
+    }
+
+    if (action === "svc-off-confirm") {
+      const acc = state.svc.accounts[(state.sheet || {}).key];
+      if (acc) acc.reminder = false;
+      state.sheet = null;
+      return render({ keepScroll: true });
+    }
+
+    if (action === "svc-menu") {
+      state.sheet = { type: "svcmenu", key: el.dataset.corr };
+      return render({ keepScroll: true });
+    }
+
+    if (action === "svc-see-payments") {
+      const corr = el.dataset.corr || (state.sheet || {}).key;
+      state.sheet = null;
+      state.svc.filter = { period: "", corr };
+      if (state.screen !== "eegsa") return go("eegsa");
+      return render({ keepScroll: true });
+    }
+
+    if (action === "svc-open-filter") {
+      state.sheet = { type: "svcfilter" };
+      return render({ keepScroll: true });
+    }
+
+    if (action === "svc-pick-filter") {
+      state.svc.filter = { ...state.svc.filter, period: el.dataset.period || "" };
+      state.sheet = null;
+      return render({ keepScroll: true });
+    }
+
+    if (action === "svc-clear-filter") {
+      state.svc.filter = { period: "", corr: "" };
+      return render({ keepScroll: true });
     }
 
     if (action === "open-category") {
@@ -9570,6 +10281,29 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   }
 
   root.addEventListener("input", (event) => {
+    /* El correlativo se repinta a mano, como el código promo: un render
+       completo recrearía el input y se perdería el foco. */
+    const corrInput = event.target.closest("[data-action='input-corr']");
+    if (corrInput) {
+      const digits = corrInput.value.replace(/\D/g, "").slice(0, 10);
+      if (digits !== corrInput.value) corrInput.value = digits;
+      state.svc.corrInput = digits;
+      state.svc.corrError = "";
+      const has = digits.length > 0;
+      corrInput.classList.toggle("input-dinamic-hasvalue", has);
+      corrInput.classList.toggle("input-dinamic-empty", !has);
+      const label = root.querySelector("#oky-corr-label");
+      if (label) label.classList.toggle("is-floating", has);
+      const help = root.querySelector("[data-role='corr-help']");
+      if (help) {
+        help.innerHTML = svcCorrHelp(state);
+        help.classList.remove("is-error");
+      }
+      const cta = root.querySelector("[data-role='corr-cta']");
+      if (cta) cta.disabled = !SVC_CORR_RE.test(digits);
+      return;
+    }
+
     const searchInput = event.target.closest("[data-action='input-search']");
     if (searchInput) {
       state.searchQuery = searchInput.value;

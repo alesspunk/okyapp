@@ -120,7 +120,7 @@ MODULES = [
     # aplanado con sus webp en data URI: el HTML suelto reproduce la
     # animación sin pedir nada por red.
     "lottieLight", "okyCashWinAnimation", "okyFlagsAnimation", "okyCoinFlipAnimation", "okyConfettiAnimation",
-    "okyCashParts", "yayoInbox", "okyCashPrototype",
+    "okyCashParts", "yayoInbox", "reminderCards", "okyCashPrototype",
 ]
 
 # El prototipo de Yayo × OKY (beneficiario) es independiente: lleva solo

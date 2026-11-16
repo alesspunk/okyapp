@@ -46,7 +46,8 @@ export const GUA_HOME_MARKUP = `
                 <div class="tile-icon"><img src="recargar-guate.png" alt="Recargar el Móvil" /></div>
                 <div class="tile-label">Recargar<br />el Móvil</div>
               </div>
-              <div class="service-tile">
+              <div class="service-tile is-live" data-action="open-category" data-category="servicios"
+                role="button" tabindex="0">
                 <div class="tile-icon"><img src="servicios.webp" alt="Pagar Servicios" /></div>
                 <div class="tile-label">Pagar<br />Servicios</div>
               </div>
