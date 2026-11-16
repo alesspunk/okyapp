@@ -6536,7 +6536,8 @@ function svcFilterLabel(state) {
   const parts = [];
   if (order) parts.push(SVC_ORDERS.find((o) => o.key === order).label);
   if (period) parts.push(SVC_PERIODS.find((p) => p.key === period).label);
-  if (corr) parts.push(`#${corr}`);
+  /* El número ya va en el grupo de abajo: aquí, de quién es la cuenta. */
+  if (corr) parts.push((state.svc.accounts[corr] || {}).alias || `#${corr}`);
   return parts.join(" · ") || "Actividad";
 }
 
@@ -6686,7 +6687,9 @@ function svcActivity(state) {
       <div class="oky-flow-history-group oky-flow-svc-group">
         <button class="oky-flow-section-head is-tappable oky-flow-svc-group-head" data-action="svc-toggle-group"
           data-group="${g.label}" type="button" aria-expanded="${open}">
-          <span class="oky-flow-section-head-label oky-flow-history-label">${g.label}</span>
+          <span class="oky-flow-section-head-label oky-flow-history-label">
+            <i class="fa-regular ${byDate ? "fa-calendar" : "fa-lightbulb"}" aria-hidden="true"></i>${g.label}
+          </span>
           <span class="oky-flow-section-head-meta">
             <span class="oky-flow-section-count">(${g.items.length})</span>
             <i class="fa-solid fa-chevron-down oky-flow-section-caret" aria-hidden="true"></i>

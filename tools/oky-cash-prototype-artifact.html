@@ -20479,16 +20479,7 @@ button.carrusel-dot:focus-visible {
   gap: 0;
 }
 
-.oky-flow-svc-group-head {
-  width: 100%;
-  height: 40px;
-  padding-left: 0;
-}
 
-.oky-flow-svc-group-head .oky-flow-history-label {
-  font-size: 14px;
-  letter-spacing: 0.5px;
-}
 
 .oky-flow-svc-group-list {
   display: flex;
@@ -20501,16 +20492,6 @@ button.carrusel-dot:focus-visible {
   gap: 8px;
 }
 
-.oky-flow-svc-group-head {
-  justify-content: space-between;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-bottom: 1px solid var(--line-divider, rgba(0, 0, 0, 0.12));
-  background: none;
-  cursor: pointer;
-  text-align: left;
-}
 
 .oky-flow-svc-group-head .oky-flow-section-count {
   color: var(--disable-text);
@@ -20522,13 +20503,72 @@ button.carrusel-dot:focus-visible {
   gap: 8px;
 }
 
-.oky-flow-svc-group-head .oky-flow-section-caret {
-  color: var(--primary-main);
+
+
+/* Cabeceras de los grupos de EEGSA: la misma fila-botón con la que Mis
+   compras separaba Activos de Archivados (56px, borde y esquinas de
+   14px). Abierta, borde morado suave y fondo gris claro: plegadas no se
+   funden unas con otras. */
+.oky-flow-svc-group-head {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: space-between;
+  gap: 12px;
+  height: auto;
+  min-height: 56px;
+  margin: 0;
+  padding: 0 14px 0 16px;
+  border: 1px solid var(--border-main);
+  border-radius: 14px;
+  background: var(--white);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background 160ms ease-out,
+    border-color 160ms ease-out;
+}
+
+.oky-flow-svc-group-head[aria-expanded="true"] {
+  border-color: var(--border-purple-soft);
+  background: var(--background);
+}
+
+.oky-flow-svc-group-head:hover {
+  border-color: var(--border-purple-hover);
+}
+
+.oky-flow-svc-group-head:active {
+  background: var(--surface-pressed);
 }
 
 .oky-flow-svc-group-head:focus-visible {
   outline: 2px solid var(--primary-main);
   outline-offset: 2px;
+}
+
+.oky-flow-svc-group-head .oky-flow-history-label {
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.oky-flow-svc-group-head .oky-flow-section-head-label i {
+  font-size: 16px;
+  color: var(--icon-muted);
+}
+
+.oky-flow-svc-group-list {
+  padding-top: 12px;
+}
+
+.oky-flow-svc-group + .oky-flow-svc-group {
+  margin-top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-svc-group-head {
+    transition: none;
+  }
 }
 
 @font-face {
@@ -30911,7 +30951,8 @@ function svcFilterLabel(state) {
   const parts = [];
   if (order) parts.push(SVC_ORDERS.find((o) => o.key === order).label);
   if (period) parts.push(SVC_PERIODS.find((p) => p.key === period).label);
-  if (corr) parts.push(`#${corr}`);
+  /* El número ya va en el grupo de abajo: aquí, de quién es la cuenta. */
+  if (corr) parts.push((state.svc.accounts[corr] || {}).alias || `#${corr}`);
   return parts.join(" · ") || "Actividad";
 }
 
@@ -31061,7 +31102,9 @@ function svcActivity(state) {
       <div class="oky-flow-history-group oky-flow-svc-group">
         <button class="oky-flow-section-head is-tappable oky-flow-svc-group-head" data-action="svc-toggle-group"
           data-group="${g.label}" type="button" aria-expanded="${open}">
-          <span class="oky-flow-section-head-label oky-flow-history-label">${g.label}</span>
+          <span class="oky-flow-section-head-label oky-flow-history-label">
+            <i class="fa-regular ${byDate ? "fa-calendar" : "fa-lightbulb"}" aria-hidden="true"></i>${g.label}
+          </span>
           <span class="oky-flow-section-head-meta">
             <span class="oky-flow-section-count">(${g.items.length})</span>
             <i class="fa-solid fa-chevron-down oky-flow-section-caret" aria-hidden="true"></i>
