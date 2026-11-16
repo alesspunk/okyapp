@@ -6414,9 +6414,29 @@ const SVC_ACCOUNTS = [
     alias: "Luz de Marisol",
     contact: "Marisol",
     reminder: true,
-    ago: 9,
+    ago: 26,
     amounts: [325, 333.1, 340.2, 325, 319.5, 327, 331.8, 325, 322.4, 318],
     nextBill: 318.2,
+  },
+  {
+    corr: "0011900633",
+    alias: "Luz de Aracely",
+    contact: "Aracely",
+    reminder: true,
+    ago: 29,
+    amounts: [188.5, 192, 185.25, 190.4, 196, 183.7, 189],
+    nextBill: 201.35,
+  },
+  /* Al día: no sale arriba en EEGSA, pero su pago en la actividad y su
+     tarjeta en Menú › Recordatorios dan «¡Estás al día!». */
+  {
+    corr: "0011900714",
+    alias: "Luz de Byron",
+    contact: "Byron",
+    reminder: true,
+    ago: 8,
+    amounts: [256, 249.8, 261.3, 252, 247.5, 258.9],
+    nextBill: 251.2,
   },
   {
     corr: "0011900588",
@@ -6481,8 +6501,6 @@ function svcInitialState() {
        primero; "" = ninguno) y cuántos pagos enseña cada uno. */
     openGroup: null,
     shown: {},
-    /* Los recordatorios se pliegan si se quiere ganar espacio. */
-    remindersOpen: true,
   };
 }
 
@@ -6617,31 +6635,6 @@ function svcPaintDots(carousel, index) {
   });
 }
 
-/* Recordatorios plegables: la misma cabecera de los grupos de la
-   actividad. Plegados siguen diciendo cuántos hay y si alguno ya toca. */
-function svcRemindersBlock(state, accounts) {
-  const open = state.svc.remindersOpen !== false;
-  const due = accounts.filter((a) => svcStatus(state, a.corr).kind === "due").length;
-  return `
-    <div class="oky-flow-svc-reminders-block">
-      <button class="oky-flow-section-head is-tappable oky-flow-svc-group-head oky-flow-svc-rem-head"
-        data-action="svc-toggle-reminders" type="button" aria-expanded="${open}">
-        <span class="oky-flow-section-head-label oky-flow-history-label">
-          <i class="fa-regular fa-bell" aria-hidden="true"></i>Recordatorios
-        </span>
-        <span class="oky-flow-section-head-meta">
-          ${due ? `<span class="oky-flow-svc-due">${due} por pagar</span>` : ""}
-          <span class="oky-flow-section-count">(${accounts.length})</span>
-          <i class="fa-solid fa-chevron-down oky-flow-section-caret" aria-hidden="true"></i>
-        </span>
-      </button>
-      <div class="oky-flow-section-body ${open ? "" : "is-collapsed"}">
-        <div><div class="oky-flow-svc-reminders">${svcReminderCarousel(state, accounts)}</div></div>
-      </div>
-    </div>
-  `;
-}
-
 /* Brand item de EEGSA: el mismo átomo del PDP y del checkout. */
 function svcBrandItem() {
   return `
@@ -6760,7 +6753,9 @@ function screenEegsa(state) {
   const typed = svc.corrInput;
   const valid = SVC_CORR_RE.test(typed);
   const filterOn = svcFilterOn(state);
-  const eegsaReminders = svcActive(state);
+  /* Aquí solo los que ya tienen factura: lo que hay que pagar. Los que
+     están al día viven en Menú › Recordatorios hasta que les toque. */
+  const eegsaReminders = svcActive(state).filter((a) => svcStatus(state, a.corr).kind === "due");
 
   return `
     ${statusBar()}
@@ -6770,10 +6765,10 @@ function screenEegsa(state) {
       ${svcBrandItem()}
       <div class="input-wrapper oky-flow-svc-field" style="width:100%">
         <label id="oky-corr-label" class="input-label input-label-dinamic oky-flow-promo-label${typed ? " is-floating" : ""}"
-          for="oky-corr">Número correlativo</label>
+          for="oky-corr">${typed ? "Número correlativo" : "Ingresar número correlativo"}</label>
         <input id="oky-corr" class="input-field input-dinamic oky-flow-promo-input ${typed ? "input-dinamic-hasvalue" : "input-dinamic-empty"}"
           type="text" inputmode="numeric" maxlength="10" autocomplete="off" value="${escapeHtml(typed)}"
-          placeholder="Número correlativo" data-action="input-corr"
+          placeholder="Ingresar número correlativo" data-action="input-corr"
           aria-labelledby="oky-corr-label" />
         ${/* Consultar va dentro del campo, como un «ir»: sin barra flotante
              encima de la actividad. Se apaga hasta tener los 10 dígitos. */ ""}
@@ -6784,7 +6779,7 @@ function screenEegsa(state) {
       </div>
     </div>
 
-    ${eegsaReminders.length ? svcRemindersBlock(state, eegsaReminders) : ""}
+    ${eegsaReminders.length ? `<div class="oky-flow-svc-reminders">${svcReminderCarousel(state, eegsaReminders)}</div>` : ""}
 
     <div class="oky-flow-wallet-filter oky-flow-svc-filter">
       ${
@@ -9949,11 +9944,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
-    if (action === "svc-toggle-reminders") {
-      state.svc.remindersOpen = state.svc.remindersOpen === false;
-      return render({ keepScroll: true });
-    }
-
     if (action === "svc-toggle-group") {
       const group = el.dataset.group;
       const firstHead = root.querySelector("[data-action='svc-toggle-group']");
@@ -10578,7 +10568,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       corrInput.classList.toggle("input-dinamic-hasvalue", has);
       corrInput.classList.toggle("input-dinamic-empty", !has);
       const label = root.querySelector("#oky-corr-label");
-      if (label) label.classList.toggle("is-floating", has);
+      if (label) {
+        label.classList.toggle("is-floating", has);
+        /* Vacío invita a escribir; flotando, nombra el dato. */
+        label.textContent = has ? "Número correlativo" : "Ingresar número correlativo";
+      }
       const cta = root.querySelector("[data-role='corr-cta']");
       if (cta) cta.disabled = !SVC_CORR_RE.test(digits);
       return;
