@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────────────────────
    Reminder Card (Molecule)
    Figma: 99105:14325 (card) · 99105:14130 (carousel en pantalla)
-   Variantes: Default · With Brand · With Channels
+   Variantes: Default · With Brand · Mini · With Channels
 ───────────────────────────────────────────────────────── */
 
 export const REMINDER_CARD_VARIANTS = [
@@ -31,6 +31,22 @@ export const REMINDER_CARD_VARIANTS = [
     pills: [],
     recommendation:
       "Recomendado: logo del proveedor 71x45 a la izquierda del contexto; usar cuando el recordatorio viene de una marca reconocible.",
+  },
+  {
+    path: "Molecule/Reminder Card/Mini",
+    key: "mini",
+    kind: "mini",
+    id: "",
+    title: "Luz de Daniel Paz",
+    body: "Hace 27 días · Q302.00",
+    ctaLabel: "Ver saldo",
+    brand: {
+      src: "eggsa.png",
+      alt: "EEGSA",
+    },
+    pills: [],
+    recommendation:
+      "Versión compacta (una sola fila, ~68px) para el carrusel de la pantalla de la marca: logo, título, contexto en una línea, CTA chico y menú. La completa se queda para la lista de Recordatorios.",
   },
   {
     path: "Molecule/Reminder Card/With Channels",
@@ -209,9 +225,38 @@ function renderApprovalCard(card) {
   `;
 }
 
+/* Variante Mini: lo mismo que With Brand en una sola fila. Mismo
+   surface, borde y menú; el CTA pasa a btn-small. */
+function renderMiniCard(card) {
+  return `
+    <article class="reminder-card-molecule is-mini" data-pen-id="${card.id}">
+      ${
+        card.brand?.src
+          ? `<div class="reminder-card-brand reminder-card-mini-brand">
+              <img src="${card.brand.src}" alt="${card.brand.alt || ""}" />
+            </div>`
+          : ""
+      }
+      <div class="reminder-card-mini-main">
+        <h3 class="reminder-card-title">${card.title}</h3>
+        <p class="reminder-card-body">${card.body}</p>
+      </div>
+      ${
+        card.showCta === false
+          ? ""
+          : `<button class="btn btn-primary btn-small reminder-card-cta" type="button">${card.ctaLabel}</button>`
+      }
+      ${renderMenu(card)}
+    </article>
+  `;
+}
+
 export function renderReminderCard(card) {
   if (card.kind === "approval") {
     return renderApprovalCard(card);
+  }
+  if (card.kind === "mini") {
+    return renderMiniCard(card);
   }
 
   return `

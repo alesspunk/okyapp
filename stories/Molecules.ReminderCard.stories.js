@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────────────────────
    Molecules / Reminder Card
    Figma: 99105:14325 (card) · 99105:14130 (pantalla con carrusel)
-   Variantes: Default · With Brand · Yayo Approval
+   Variantes: Default · With Brand · Mini · Yayo Approval
    (With Channels existe pero está oculta)
 ───────────────────────────────────────────────────────── */
 
@@ -24,7 +24,8 @@ export default {
           "**Reminder Card** es la molécula de recordatorio de pago recurrente (agua, luz, telco). " +
           "Usa el surface token **$Info BG** (`--info-bg`), borde `--border-main`, radio `16px` y ancho `328px`. " +
           "Incluye las variantes de Figma: **Default** (título + contexto + CTA), " +
-          "**With Brand** (logo del proveedor a 71x45, a sangre) y " +
+          "**With Brand** (logo del proveedor a 71x45, a sangre), " +
+          "**Mini** (With Brand en una sola fila, ~68px, para el carrusel de la pantalla de la marca) y " +
           "**Yayo Approval** (variante prima del flujo Yayo: monto + comercio, chip de countdown y doble acción " +
           "rechazar/aprobar; radio `20px` y shadow *Plateu*). " +
           "La variante **With Channels** (pills de canal y proveedor) está implementada pero **oculta** " +

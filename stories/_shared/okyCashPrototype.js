@@ -6555,8 +6555,8 @@ function svcFilterLabel(state) {
   const { period, corr } = state.svc.filter;
   const parts = [];
   if (period) parts.push(SVC_PERIODS.find((p) => p.key === period).label);
-  /* El número ya va en el grupo de abajo: aquí, de quién es la cuenta. */
-  if (corr) parts.push((state.svc.accounts[corr] || {}).alias || `#${corr}`);
+  /* El grupo de abajo ya dice nombre y número: aquí solo qué se filtró. */
+  if (corr) parts.push("Solo esta cuenta");
   return parts.join(" · ") || "Actividad";
 }
 
@@ -6564,10 +6564,21 @@ function svcFilterLabel(state) {
    Se pinta con el mismo renderer de Storybook y aquí solo se le cuelgan
    las acciones. El CTA es el del componente, «Ver saldo», y consulta
    solo: ya no hay «Ver detalle» → «Consultar». */
-function svcReminderData(state, acc) {
+function svcReminderData(state, acc, { mini = false } = {}) {
   const st = svcStatus(state, acc.corr);
   const last = st.last;
-  const base = findReminderCard("Molecule/Reminder Card/With Brand");
+  const base = findReminderCard(mini ? "Molecule/Reminder Card/Mini" : "Molecule/Reminder Card/With Brand");
+  if (mini) {
+    return {
+      ...base,
+      title: escapeHtml(acc.alias),
+      body: `${svcAgo(last.ago)} · ${quetzalOf(last.q)}`,
+      brand: { src: "eggsa.webp", alt: "EEGSA" },
+      ctaLabel: acc.reminder ? "Ver saldo" : "Activar",
+      showMenu: acc.reminder,
+      showCta: true,
+    };
+  }
   const body = !acc.reminder
     ? `Apagado. ${svcAgo(last.ago)} pagaste ${quetzalOf(last.q)} en electricidad.`
     : st.kind === "due"
@@ -6611,7 +6622,8 @@ function svcReminderCard(state, acc) {
 function svcReminderCarousel(state, accounts) {
   if (!accounts.length) return "";
   let html = svcWire(
-    renderReminderCarousel(accounts.map((acc) => svcReminderData(state, acc)), { label: "Recordatorios" }),
+    /* En la pantalla de la marca va la Mini: una fila, menos alto. */
+    renderReminderCarousel(accounts.map((acc) => svcReminderData(state, acc, { mini: true })), { label: "Recordatorios" }),
     accounts,
   );
   /* Los puntos del organismo son de adorno; aquí llevan a su card, que
@@ -6670,7 +6682,7 @@ function svcBrandItem() {
 
 /* Fila de pago hecho: la History Card «Service Payment» (99105:47460).
    Toda la fila consulta el saldo de ese número (99105:13972). */
-function svcPaymentRow(p, { byDate = false } = {}) {
+function svcPaymentRow(p, { byDate = false, alias = "" } = {}) {
   return `
     <div class="oky-flow-svc-pay" data-action="svc-consult" data-corr="${p.corr}" role="button" tabindex="0"
       aria-label="Pago del ${stamp(p.ago)} por ${quetzalOf(p.q)}. Consultar el saldo de ${p.corr}">
@@ -6685,8 +6697,9 @@ function svcPaymentRow(p, { byDate = false } = {}) {
           type: "brand",
           logo: "eggsa.webp",
           logoAlt: "EEGSA",
-          /* Agrupado por número, el número ya va de encabezado. */
-          brand: byDate ? `#${p.corr}` : "EEGSA",
+          /* Por número, la cuenta ya va de encabezado; por fecha, se dice
+             de quién es el pago por su nombre, no por su número. */
+          brand: byDate ? escapeHtml(alias || `#${p.corr}`) : "EEGSA",
           secondaryAmount: quetzalOf(p.q).replace(".00", ""),
         },
       })}
@@ -6704,16 +6717,31 @@ function svcActivity(state) {
       </div>
     `;
   }
-  /* Por número correlativo (99105:13960): cada cuenta con sus pagos,
-     primero la que se pagó más recientemente. Por fecha, por mes. */
+  /* Por número correlativo (99105:13960): cada cuenta con sus pagos.
+     Primero lo que hay que pagar —el mismo orden del carrusel—, después
+     lo que está al día y al final lo apagado. Por fecha, por mes. */
   const byDate = !!state.svc.filter.period;
   const groups = [];
   list.forEach((p) => {
     const label = byDate ? monthGroup(p.ago) : `#${p.corr}`;
     let g = groups.find((x) => x.label === label);
-    if (!g) groups.push((g = { label, items: [] }));
+    if (!g) groups.push((g = { label, corr: p.corr, items: [] }));
     g.items.push(p);
   });
+  if (!byDate) {
+    const rank = (corr) => {
+      const acc = state.svc.accounts[corr] || {};
+      if (!acc.reminder) return 2;
+      return svcStatus(state, corr).kind === "due" ? 0 : 1;
+    };
+    const recent = (g) => Math.min(...g.items.map((p) => p.ago));
+    /* Entre los por pagar, primero el más atrasado, como el carrusel. */
+    groups.sort((a, b) => {
+      const r = rank(a.corr) - rank(b.corr);
+      if (r) return r;
+      return rank(a.corr) === 0 ? recent(b) - recent(a) : recent(a) - recent(b);
+    });
+  }
   /* Acordeón como las secciones de Mis compras: un solo grupo abierto a
      la vez. De cada uno asoman 2 pagos; el segundo se desvanece para
      decir que hay más, y «Ver todos (N)» trae el resto de una vez. */
@@ -6730,7 +6758,15 @@ function svcActivity(state) {
         <button class="oky-flow-section-head is-tappable oky-flow-svc-group-head" data-action="svc-toggle-group"
           data-group="${g.label}" type="button" aria-expanded="${open}">
           <span class="oky-flow-section-head-label oky-flow-history-label">
-            <i class="fa-regular ${byDate ? "fa-calendar" : "fa-lightbulb"}" aria-hidden="true"></i>${g.label}
+            <i class="fa-regular ${byDate ? "fa-calendar" : "fa-lightbulb"}" aria-hidden="true"></i>${
+              byDate
+                ? g.label
+                : /* El nombre es lo que se reconoce; el número, debajo. */
+                  `<span class="oky-flow-svc-group-title">
+                    <span class="oky-flow-svc-group-name">${escapeHtml((state.svc.accounts[g.corr] || {}).alias || g.label)}</span>
+                    <span class="oky-flow-svc-group-corr">${g.label}</span>
+                  </span>`
+            }
           </span>
           <span class="oky-flow-section-head-meta">
             <span class="oky-flow-section-count">(${g.items.length})</span>
@@ -6740,7 +6776,7 @@ function svcActivity(state) {
         <div class="oky-flow-section-body ${open ? "" : "is-collapsed"}">
           <div>
             <div class="oky-flow-svc-group-list${more && !all ? " is-peek" : ""}${all && state.svc.justOpened === g.label ? " is-revealed" : ""}">
-              ${visible.map((p) => svcPaymentRow(p, { byDate })).join("")}
+              ${visible.map((p) => svcPaymentRow(p, { byDate, alias: (state.svc.accounts[p.corr] || {}).alias })).join("")}
             </div>
             ${
               more
