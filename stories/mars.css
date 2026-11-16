@@ -20555,3 +20555,76 @@ button.carrusel-dot:focus-visible {
     transition: none;
   }
 }
+
+/* «Ver todos» en los grupos de EEGSA: asoman 2 pagos y el segundo se
+   desvanece hacia abajo (peek + fade), que es lo que dice que hay más.
+   El botón se monta un poco sobre el fundido para leerse como su final. */
+.oky-flow-svc-group-list.is-peek > .oky-flow-svc-pay:last-child {
+  -webkit-mask-image: linear-gradient(to bottom, #000 35%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 35%, transparent 100%);
+}
+
+.oky-flow-svc-more {
+  position: relative;
+  z-index: 1;
+  margin-top: -28px;
+}
+
+.oky-flow-svc-more.is-all {
+  margin-top: 0;
+}
+
+/* Los que llegan con «Ver todos» entran con un fundido corto. */
+.oky-flow-svc-group-list.is-revealed > .oky-flow-svc-pay:nth-child(n + 3) {
+  animation: oky-flow-svc-reveal 260ms ease-out both;
+}
+
+.oky-flow-svc-group-list.is-revealed > .oky-flow-svc-pay:nth-child(4) { animation-delay: 30ms; }
+.oky-flow-svc-group-list.is-revealed > .oky-flow-svc-pay:nth-child(5) { animation-delay: 60ms; }
+.oky-flow-svc-group-list.is-revealed > .oky-flow-svc-pay:nth-child(n + 6) { animation-delay: 90ms; }
+
+@keyframes oky-flow-svc-reveal {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-svc-group-list.is-revealed > .oky-flow-svc-pay {
+    animation: none;
+  }
+}
+
+/* Recordatorios plegables en EEGSA: la cabecera va con el margen de la
+   pantalla y el carrusel sigue a sangre. El rótulo propio del organismo
+   sobra, ya lo dice la cabecera. */
+.oky-flow-svc-reminders-block {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 16px;
+}
+
+.oky-flow-svc-rem-head {
+  width: calc(100% - (var(--oky-gutter) * 2));
+  margin: 0 var(--oky-gutter);
+}
+
+.oky-flow-svc-reminders-block .reminder-carousel-head {
+  display: none;
+}
+
+.oky-flow-svc-reminders-block .oky-flow-svc-reminders {
+  margin-top: 4px;
+}
+
+.oky-flow-svc-due {
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+}

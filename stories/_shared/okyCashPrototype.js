@@ -6393,8 +6393,8 @@ const SVC_CYCLE = 30;
 const SVC_CORR_RE = /^\d{10}$/;
 /* Lo que tarda la consulta en el prototipo. */
 const SVC_LOADING_MS = 1800;
-/* Pagos por tanda en cada grupo de la actividad. */
-const SVC_PAGE = 5;
+/* Pagos que asoman en cada grupo antes de «Ver todos». */
+const SVC_PEEK = 2;
 
 /* Tres cuentas de EEGSA con su historial mensual (lo más reciente
    primero). `ago` son los días desde el último pago; el contacto es el
@@ -6481,6 +6481,8 @@ function svcInitialState() {
        primero; "" = ninguno) y cuántos pagos enseña cada uno. */
     openGroup: null,
     shown: {},
+    /* Los recordatorios se pliegan si se quiere ganar espacio. */
+    remindersOpen: true,
   };
 }
 
@@ -6615,6 +6617,31 @@ function svcPaintDots(carousel, index) {
   });
 }
 
+/* Recordatorios plegables: la misma cabecera de los grupos de la
+   actividad. Plegados siguen diciendo cuántos hay y si alguno ya toca. */
+function svcRemindersBlock(state, accounts) {
+  const open = state.svc.remindersOpen !== false;
+  const due = accounts.filter((a) => svcStatus(state, a.corr).kind === "due").length;
+  return `
+    <div class="oky-flow-svc-reminders-block">
+      <button class="oky-flow-section-head is-tappable oky-flow-svc-group-head oky-flow-svc-rem-head"
+        data-action="svc-toggle-reminders" type="button" aria-expanded="${open}">
+        <span class="oky-flow-section-head-label oky-flow-history-label">
+          <i class="fa-regular fa-bell" aria-hidden="true"></i>Recordatorios
+        </span>
+        <span class="oky-flow-section-head-meta">
+          ${due ? `<span class="oky-flow-svc-due">${due} por pagar</span>` : ""}
+          <span class="oky-flow-section-count">(${accounts.length})</span>
+          <i class="fa-solid fa-chevron-down oky-flow-section-caret" aria-hidden="true"></i>
+        </span>
+      </button>
+      <div class="oky-flow-section-body ${open ? "" : "is-collapsed"}">
+        <div><div class="oky-flow-svc-reminders">${svcReminderCarousel(state, accounts)}</div></div>
+      </div>
+    </div>
+  `;
+}
+
 /* Brand item de EEGSA: el mismo átomo del PDP y del checkout. */
 function svcBrandItem() {
   return `
@@ -6676,13 +6703,16 @@ function svcActivity(state) {
     g.items.push(p);
   });
   /* Acordeón como las secciones de Mis compras: un solo grupo abierto a
-     la vez, y de cada uno se ven 5 pagos; «Ver más» trae 5 más. */
+     la vez. De cada uno asoman 2 pagos; el segundo se desvanece para
+     decir que hay más, y «Ver todos (N)» trae el resto de una vez. */
   const openLabel = state.svc.openGroup == null ? groups[0].label : state.svc.openGroup;
   return groups
     .map((g) => {
       const open = g.label === openLabel;
-      const shown = state.svc.shown[g.label] || SVC_PAGE;
-      const visible = g.items.slice(0, shown);
+      /* «Ver pagos de este número» pidió una sola cuenta: se ve todo. */
+      const all = !!state.svc.filter.corr || state.svc.shown[g.label] === "all";
+      const visible = all ? g.items : g.items.slice(0, SVC_PEEK);
+      const more = !state.svc.filter.corr && g.items.length > SVC_PEEK;
       return `
       <div class="oky-flow-history-group oky-flow-svc-group">
         <button class="oky-flow-section-head is-tappable oky-flow-svc-group-head" data-action="svc-toggle-group"
@@ -6697,15 +6727,22 @@ function svcActivity(state) {
         </button>
         <div class="oky-flow-section-body ${open ? "" : "is-collapsed"}">
           <div>
-            <div class="oky-flow-svc-group-list">
+            <div class="oky-flow-svc-group-list${more && !all ? " is-peek" : ""}${all && state.svc.justOpened === g.label ? " is-revealed" : ""}">
               ${visible.map((p) => svcPaymentRow(p, { byDate })).join("")}
             </div>
             ${
-              g.items.length > visible.length
-                ? `<div class="oky-flow-stack-more">
-                    <button class="btn btn-primary btn-small" data-action="svc-more" data-group="${g.label}" type="button">
-                      Ver más
-                    </button>
+              more
+                ? `<div class="oky-flow-stack-more oky-flow-svc-more${all ? " is-all" : ""}">
+                    ${
+                      all
+                        ? `<button class="btn btn-outlined btn-small" data-action="svc-less" data-group="${g.label}" type="button">
+                            Ver menos
+                          </button>`
+                        : `<button class="btn btn-primary btn-small" data-action="svc-more" data-group="${g.label}" type="button"
+                            aria-label="Ver todos los pagos de ${g.label} (${g.items.length})">
+                            Ver todos (${g.items.length})
+                          </button>`
+                    }
                   </div>`
                 : ""
             }
@@ -6747,7 +6784,7 @@ function screenEegsa(state) {
       </div>
     </div>
 
-    ${eegsaReminders.length ? `<div class="oky-flow-svc-reminders">${svcReminderCarousel(state, eegsaReminders)}</div>` : ""}
+    ${eegsaReminders.length ? svcRemindersBlock(state, eegsaReminders) : ""}
 
     <div class="oky-flow-wallet-filter oky-flow-svc-filter">
       ${
@@ -9912,6 +9949,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
+    if (action === "svc-toggle-reminders") {
+      state.svc.remindersOpen = state.svc.remindersOpen === false;
+      return render({ keepScroll: true });
+    }
+
     if (action === "svc-toggle-group") {
       const group = el.dataset.group;
       const firstHead = root.querySelector("[data-action='svc-toggle-group']");
@@ -9923,8 +9965,33 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "svc-more") {
       const group = el.dataset.group;
-      state.svc.shown = { ...state.svc.shown, [group]: (state.svc.shown[group] || SVC_PAGE) + SVC_PAGE };
-      return render({ keepScroll: true });
+      state.svc.shown = { ...state.svc.shown, [group]: "all" };
+      /* Solo los recién llegados entran con fundido, y una sola vez. */
+      state.svc.justOpened = group;
+      render({ keepScroll: true });
+      state.svc.justOpened = null;
+      /* El foco va al primero de los nuevos: con teclado o lector se
+         sigue leyendo donde se quedó. */
+      const heads = [...root.querySelectorAll("[data-action='svc-toggle-group']")];
+      const head = heads.find((h) => h.dataset.group === group);
+      const rows = head ? head.closest(".oky-flow-svc-group").querySelectorAll(".oky-flow-svc-pay") : [];
+      if (rows[SVC_PEEK]) rows[SVC_PEEK].focus({ preventScroll: true });
+      return;
+    }
+
+    if (action === "svc-less") {
+      const group = el.dataset.group;
+      const { [group]: _drop, ...rest } = state.svc.shown;
+      state.svc.shown = rest;
+      render({ keepScroll: true });
+      /* Al plegarse la lista, la cabecera del grupo queda a la vista. */
+      const head = [...root.querySelectorAll("[data-action='svc-toggle-group']")].find((h) => h.dataset.group === group);
+      if (head) {
+        const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        head.scrollIntoView({ block: "nearest", behavior: reduce ? "auto" : "smooth" });
+        head.focus({ preventScroll: true });
+      }
+      return;
     }
 
     if (action === "svc-open-filter") {
