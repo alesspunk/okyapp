@@ -97,6 +97,18 @@
       "destination": "/prototypes/yayo/index.html"
     },
     {
+      "source": "/recordatorios",
+      "destination": "/prototypes/recordatorios/index.html"
+    },
+    {
+      "source": "/prototypes/recordatorios",
+      "destination": "/prototypes/recordatorios/index.html"
+    },
+    {
+      "source": "/recordatorios-prototype-demo.html",
+      "destination": "/prototypes/recordatorios/index.html"
+    },
+    {
       "source": "/images/:path*",
       "destination": "/:path*"
     },

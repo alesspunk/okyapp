@@ -130,6 +130,9 @@ YAYO_MODULES = [
     "lottieLight", "okyConfettiAnimation", "yayoInbox", "yayoPrototype",
 ]
 
+# /recordatorios (pagos a servicios EEGSA, solo GT): también va suelto.
+REC_MODULES = ["flag", "historyCards", "recordatoriosPrototype"]
+
 def load_module(name):
     with open(os.path.join(ROOT, "stories", "_shared", name + ".js"), encoding="utf-8") as f:
         return f.read()
@@ -302,3 +305,19 @@ yayo_vercel = os.path.join(ROOT, "prototypes", "yayo", "index.html")
 os.makedirs(os.path.dirname(yayo_vercel), exist_ok=True)
 open(yayo_vercel, "w", encoding="utf-8").write(yayo_html)
 print(f"wrote {yayo_vercel}  ({len(yayo_html)/1024/1024:.1f} MB), {len(yayo_names)} images")
+
+# ── 5. Recordatorios de pago · EEGSA ──────────────────────
+# Mismo esquema que Yayo: demo en images/ y copia de Vercel en
+# prototypes/recordatorios/ (se publica en /recordatorios).
+rec_bundle, rec_names = build_bundle(REC_MODULES)
+rec_html = page(
+    rec_bundle,
+    '__mods["recordatoriosPrototype"].mountRecordatoriosPrototype(document.getElementById("oky-app"));',
+    "Recordatorios EEGSA · OKY — Prototipo",
+)
+rec_demo = os.path.join(IMAGES, "recordatorios-prototype-demo.html")
+open(rec_demo, "w", encoding="utf-8").write(rec_html)
+rec_vercel = os.path.join(ROOT, "prototypes", "recordatorios", "index.html")
+os.makedirs(os.path.dirname(rec_vercel), exist_ok=True)
+open(rec_vercel, "w", encoding="utf-8").write(rec_html)
+print(f"wrote {rec_vercel}  ({len(rec_html)/1024/1024:.1f} MB), {len(rec_names)} images")

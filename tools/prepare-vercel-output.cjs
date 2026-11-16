@@ -31,6 +31,9 @@ if (fs.existsSync(yayoDemo)) fs.unlinkSync(yayoDemo);
 // Y el de /historial, de prototypes/historial/.
 const historialDemo = path.join(output, 'historial-prototype-demo.html');
 if (fs.existsSync(historialDemo)) fs.unlinkSync(historialDemo);
+// Y el de /recordatorios, de prototypes/recordatorios/.
+const recordatoriosDemo = path.join(output, 'recordatorios-prototype-demo.html');
+if (fs.existsSync(recordatoriosDemo)) fs.unlinkSync(recordatoriosDemo);
 
 // Keep the standalone prototype intact and publish the web alternative beside it.
 const { buildWebPrototype } = require('./build-oky-prototype-web.cjs');
