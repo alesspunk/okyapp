@@ -1339,13 +1339,13 @@ function titledHeader(title, { trailing = "", trailingAction = "", trailingHtml 
 }
 
 /* Header del PDP/Checkout: atrás + carrito con su contador. */
-function productHeader(state, { backAction = "back", title = "", small = false, cart = true } = {}) {
+function productHeader(state, { backAction = "back", title = "", small = false, cart = true, bell = false } = {}) {
   const count = state.cart.length;
   return `
     <header class="oky-flow-header">
       ${backButton(backAction)}
       <span class="oky-flow-title${small ? " is-small" : ""}"${title ? "" : ' aria-hidden="true"'}>${title}</span>
-      ${cart ? "" : `<span class="oky-flow-header-icon" aria-hidden="true"></span>`}
+      ${cart ? "" : bell ? svcBell(state) : `<span class="oky-flow-header-icon" aria-hidden="true"></span>`}
       ${cart ? `<button class="header-icon header-icon-bitmap header-icon-bitmap-cart" data-action="open-cart"
         type="button" aria-label="Carrito">
         <img class="header-icon-bitmap-image header-icon-bitmap-cart-image" src="Cart-3d-icon.png" alt="" />
@@ -4743,7 +4743,7 @@ function screenCategory(state) {
 
   return `
     ${statusBar()}
-    ${productHeader(state, { title: page.title, cart: !page.noCart })}
+    ${productHeader(state, { title: page.title, cart: !page.noCart, bell: !!page.noCart })}
 
     <div class="oky-flow-section oky-flow-category">
       <div class="input-wrapper" style="width:100%" data-action="open-search" role="button">
@@ -6460,15 +6460,12 @@ const SVC_PERIODS = [
   { key: "45", label: "Últimos 45 días", days: 45 },
   { key: "90", label: "Últimos 3 meses", days: 90 },
   { key: "180", label: "Últimos 6 meses", days: 180 },
+  { key: "365", label: "Último año", days: 365 },
 ];
-const SVC_DEFAULT_PERIOD = { key: "", label: "Último año", days: 365 };
+/* Sin rango elegido: el último año, agrupado por número correlativo
+   (99105:13960). Elegir un rango agrupa por mes. */
+const SVC_DEFAULT_PERIOD = { key: "", label: "Por número correlativo", days: 365 };
 
-/* Cómo se agrupa la actividad. Por defecto, por número correlativo
-   (99105:13960); por fecha, por mes como la actividad de OKY Cash. */
-const SVC_ORDERS = [
-  { key: "", label: "Por número correlativo" },
-  { key: "fecha", label: "Por fecha de pago" },
-];
 
 /* «Hoy», «Ayer» o «Hace N días»: recién pagado no se lee «Hace 0 días». */
 const svcAgo = (days) => (days <= 0 ? "Hoy" : days === 1 ? "Ayer" : `Hace ${days} días`);
@@ -6493,14 +6490,17 @@ function svcInitialState() {
     accounts,
     payments,
     corrInput: "",
-    /* Filtro de la actividad: orden, período y/o un número. */
-    filter: { order: "", period: "", corr: "" },
+    /* Filtro de la actividad: rango y/o un número. */
+    filter: { period: "", corr: "" },
     /* La consulta en curso: { corr, q, isNew }. */
     current: null,
-    /* Acordeón de la actividad: un solo grupo abierto (null = el
-       primero; "" = ninguno) y cuántos pagos enseña cada uno. */
+    /* Acordeón de la actividad: siempre un grupo abierto (null = el
+       primero) y si alguno ya enseña todos sus pagos. */
     openGroup: null,
     shown: {},
+    /* Los por pagar que ya se vieron en Recordatorios: lo que no esté
+       aquí enciende el punto rojo de la campana. */
+    seenDue: [],
   };
 }
 
@@ -6547,14 +6547,13 @@ function svcFiltered(state) {
 }
 
 function svcFilterOn(state) {
-  const { order, period, corr } = state.svc.filter;
-  return !!(order || period || corr);
+  const { period, corr } = state.svc.filter;
+  return !!(period || corr);
 }
 
 function svcFilterLabel(state) {
-  const { order, period, corr } = state.svc.filter;
+  const { period, corr } = state.svc.filter;
   const parts = [];
-  if (order) parts.push(SVC_ORDERS.find((o) => o.key === order).label);
   if (period) parts.push(SVC_PERIODS.find((p) => p.key === period).label);
   /* El número ya va en el grupo de abajo: aquí, de quién es la cuenta. */
   if (corr) parts.push((state.svc.accounts[corr] || {}).alias || `#${corr}`);
@@ -6635,6 +6634,26 @@ function svcPaintDots(carousel, index) {
   });
 }
 
+/* La campana de la cabecera de servicios: el Header Icon de MARS con el
+   punto rojo del carrito. Lleva a Recordatorios; el punto se enciende
+   si hay alguno por pagar que todavía no se vio. */
+function svcDueCorrs(state) {
+  return svcActive(state)
+    .filter((a) => svcStatus(state, a.corr).kind === "due")
+    .map((a) => a.corr);
+}
+
+function svcBell(state) {
+  const unseen = svcDueCorrs(state).filter((c) => !state.svc.seenDue.includes(c)).length;
+  return `
+    <button class="header-icon oky-flow-svc-bell" data-action="svc-open-reminders" type="button"
+      aria-label="Recordatorios${unseen ? `, ${unseen} nuevo${unseen > 1 ? "s" : ""}` : ""}">
+      <i class="fa-solid fa-bell" aria-hidden="true"></i>
+      ${unseen ? `<span class="header-icon-indicator-dot"></span>` : ""}
+    </button>
+  `;
+}
+
 /* Brand item de EEGSA: el mismo átomo del PDP y del checkout. */
 function svcBrandItem() {
   return `
@@ -6687,7 +6706,7 @@ function svcActivity(state) {
   }
   /* Por número correlativo (99105:13960): cada cuenta con sus pagos,
      primero la que se pagó más recientemente. Por fecha, por mes. */
-  const byDate = state.svc.filter.order === "fecha";
+  const byDate = !!state.svc.filter.period;
   const groups = [];
   list.forEach((p) => {
     const label = byDate ? monthGroup(p.ago) : `#${p.corr}`;
@@ -6759,7 +6778,7 @@ function screenEegsa(state) {
 
   return `
     ${statusBar()}
-    ${productHeader(state, { backAction: "back", cart: false })}
+    ${productHeader(state, { backAction: "back", cart: false, bell: true })}
 
     <div class="oky-flow-stack-center oky-flow-svc">
       ${svcBrandItem()}
@@ -6811,7 +6830,7 @@ function screenSvcConsulta(state) {
   const acc = state.svc.accounts[cur.corr];
   return `
     ${statusBar()}
-    ${productHeader(state, { backAction: "back", cart: false })}
+    ${productHeader(state, { backAction: "back", cart: false, bell: true })}
 
     <div class="oky-flow-stack-center">
       ${svcBrandItem()}
@@ -6858,6 +6877,8 @@ function screenSvcConsulta(state) {
 
 /* ── Menú › Recordatorios (99105:14317) ─────────────────── */
 function screenSvcReminders(state) {
+  /* Abrir la lista es haberlos visto: se apaga el punto de la campana. */
+  state.svc.seenDue = Array.from(new Set([...state.svc.seenDue, ...svcDueCorrs(state)]));
   const on = svcActive(state);
   const off = Object.values(state.svc.accounts).filter((a) => !a.reminder && svcLastPayment(state, a.corr));
   return `
@@ -6899,14 +6920,19 @@ function svcLoadingLayer(state) {
     <div class="modal-molecule-backdrop oky-flow-svc-wait-backdrop"></div>
     <section class="oky-flow-wait oky-flow-svc-wait" role="status" aria-live="polite">
       <h2 class="oky-flow-wait-title">Consultando tu saldo</h2>
-      <div class="oky-flow-svc-wait-body">
-        <span class="oky-flow-svc-wait-logo"><img src="eggsa.webp" alt="EEGSA" /></span>
-        <p class="oky-flow-svc-wait-corr">#${state.svcLoading.corr}</p>
+      <div class="oky-flow-svc-scan" aria-hidden="true" style="--svc-ms:${SVC_LOADING_MS}ms">
+        <span class="oky-flow-svc-scan-ring"></span>
+        <span class="oky-flow-svc-scan-ring"></span>
+        <span class="oky-flow-svc-scan-ring"></span>
+        <span class="oky-flow-svc-scan-core"><i class="fa-solid fa-bolt"></i></span>
       </div>
-      <div class="oky-flow-wait-footer">
-        <img class="oky-flow-spinner" src="oky-spinner.svg" alt="" />
-        <span>Consultando con EEGSA…</span>
-      </div>
+      <p class="oky-flow-svc-wait-corr">EEGSA · #${state.svcLoading.corr}</p>
+      <ol class="oky-flow-svc-steps" style="--svc-ms:${SVC_LOADING_MS}ms">
+        <li style="--i:0">Conectando con EEGSA</li>
+        <li style="--i:1">Buscando tu factura</li>
+        <li style="--i:2">Calculando tu saldo</li>
+      </ol>
+      <div class="oky-flow-svc-progress" style="--svc-ms:${SVC_LOADING_MS}ms"><span></span></div>
     </section>
   `;
 }
@@ -6923,13 +6949,14 @@ function svcCartSheet() {
       <h2 class="oky-flow-country-title" id="oky-svccart-title">Tienes productos en el carrito</h2>
       <p class="oky-flow-country-note">Los servicios se pagan solos.</p>
       <div class="oky-flow-country-art" aria-hidden="true">
-        <img src="Cart-3d-icon.png" alt="" />
+        <img src="oky-cart-savings.png" alt="" />
       </div>
       <div class="oky-flow-country-actions">
         <button class="btn btn-large oky-flow-country-primary" data-action="svccart-checkout" type="button">
           Completar Compra
         </button>
-        <button class="oky-flow-country-link" data-action="svccart-clear" type="button">Borrar carrito</button>
+        ${/* Pagar el servicio vacía el carrito: el botón dice lo que se logra. */ ""}
+        <button class="oky-flow-country-link" data-action="svccart-clear" type="button">Pagar servicio</button>
       </div>
     </section>
   `;
@@ -6944,7 +6971,7 @@ function svcFilterSheet(state) {
         <span class="oky-flow-filter-option-label">${label}</span>
       </button>
     `;
-  const { period, order } = state.svc.filter;
+  const { period } = state.svc.filter;
   return `
     <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
     <section class="oky-flow-sheet is-filter" role="dialog" aria-modal="true" aria-label="Filtrar pagos">
@@ -6955,14 +6982,9 @@ function svcFilterSheet(state) {
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
       </header>
-      <p class="oky-flow-svc-filter-group" id="svc-order-title">Ordenar</p>
-      <div class="oky-flow-filter-list" role="radiogroup" aria-labelledby="svc-order-title">
-        ${SVC_ORDERS.map((o) => option(o.key, o.label, (order || "") === o.key, "order")).join("")}
-      </div>
-      <p class="oky-flow-svc-filter-group" id="svc-period-title">Período</p>
-      <div class="oky-flow-filter-list" role="radiogroup" aria-labelledby="svc-period-title">
-        ${SVC_PERIODS.map((p) => option(p.key, p.label, period === p.key)).join("")}
+      <div class="oky-flow-filter-list" role="radiogroup">
         ${option("", SVC_DEFAULT_PERIOD.label, !period)}
+        ${SVC_PERIODS.map((p) => option(p.key, p.label, period === p.key)).join("")}
       </div>
     </section>
   `;
@@ -7284,6 +7306,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     const keptScroll = keepScroll ? (root.querySelector(".oky-flow-scroll") || {}).scrollTop || 0 : 0;
+    /* El carrusel de recordatorios también se rehace: sin esto, tocar
+       «Ver saldo» en la tercera card la devolvía a la primera detrás de
+       la espera. */
+    const keptCarousel = keepScroll ? (root.querySelector(".reminder-carousel-viewport") || {}).scrollLeft || 0 : 0;
 
     root.innerHTML = `
       <div class="oky-flow-frame${V3_ROUTE ? " is-cash-aqua-oscuro" : ""}${state.claritaMuted ? " is-clarita-muted" : ""}${TEST_FEATURES.cardClarita ? "" : " is-no-card-clarita"}">
@@ -7332,6 +7358,26 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (keptScroll > 0) {
       const kept = root.querySelector(".oky-flow-scroll");
       if (kept) kept.scrollTop = keptScroll;
+    }
+    /* Volviendo a EEGSA desde la consulta, la pantalla queda donde se
+       dejó: el scroll y la card del carrusel. */
+    const memo = !keepScroll && state.screen === "eegsa" ? state.svc.scrollMemo : null;
+    if (memo) state.svc.scrollMemo = null;
+    const carouselLeft = keptCarousel || (memo ? memo.left : 0);
+    if (memo && memo.top) {
+      const page = root.querySelector(".oky-flow-scroll");
+      if (page) page.scrollTop = memo.top;
+    }
+    if (carouselLeft > 0) {
+      const viewport = root.querySelector(".reminder-carousel-viewport");
+      if (viewport) {
+        viewport.scrollLeft = carouselLeft;
+        const cards = viewport.querySelectorAll(".reminder-card-molecule");
+        const step = cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft || 1 : 1;
+        const max = viewport.scrollWidth - viewport.clientWidth;
+        const index = carouselLeft >= max - 2 ? cards.length - 1 : Math.round(carouselLeft / step);
+        svcPaintDots(viewport.closest(".reminder-carousel"), Math.min(index, cards.length - 1));
+      }
     }
 
     /* La búsqueda abre con el teclado listo, el cursor al final de lo
@@ -8688,6 +8734,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   function go(screen, params = {}, { push = true, market = true } = {}) {
     if (market && guardMarket(screen)) return;
+    /* Al salir de EEGSA se recuerda dónde estaba, para volver ahí. */
+    if (state.screen === "eegsa" && screen !== "eegsa") {
+      state.svc.scrollMemo = {
+        top: (root.querySelector(".oky-flow-scroll") || {}).scrollTop || 0,
+        left: (root.querySelector(".reminder-carousel-viewport") || {}).scrollLeft || 0,
+      };
+    }
     if (push) state.history.push({ screen: state.screen, params: state.params });
     state.screen = screen;
     state.params = params;
@@ -9824,10 +9877,12 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     /* ── Pago de servicios · EEGSA ── */
     if (action === "open-eegsa") {
+      /* Entrar de nuevo desde la categoría empieza arriba. */
+      state.svc.scrollMemo = null;
       return go("eegsa");
     }
 
-    if (action === "menu:reminders") {
+    if (action === "menu:reminders" || action === "svc-open-reminders") {
       return leavePurchase("svcreminders");
     }
 
@@ -9926,7 +9981,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "svc-see-payments") {
       const corr = el.dataset.corr || (state.sheet || {}).key;
       state.sheet = null;
-      state.svc.filter = { order: "", period: "", corr };
+      state.svc.filter = { period: "", corr };
       state.svc.openGroup = null;
       if (state.screen !== "eegsa") return go("eegsa");
       return render({ keepScroll: true });
@@ -9948,8 +10003,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const group = el.dataset.group;
       const firstHead = root.querySelector("[data-action='svc-toggle-group']");
       const current = state.svc.openGroup == null ? firstHead && firstHead.dataset.group : state.svc.openGroup;
-      /* Abrir uno cierra el que estaba; tocar el abierto lo cierra. */
-      state.svc.openGroup = current === group ? "" : group;
+      /* Siempre hay uno abierto: abrir otro cierra el que estaba, y
+         tocar el abierto no hace nada. */
+      if (current === group) return;
+      state.svc.openGroup = group;
       return render({ keepScroll: true });
     }
 
@@ -9989,17 +10046,18 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return render({ keepScroll: true });
     }
 
-    /* Dos grupos en la hoja: se queda abierta al elegir y se cierra
-       con la X. */
+    /* Elegir cierra la hoja, como el filtro de Mis compras: si se queda
+       abierta, cada repintado la vuelve a animar y parece que se abre
+       otra vez. */
     if (action === "svc-pick-filter") {
-      const field = el.dataset.field === "order" ? "order" : "period";
-      state.svc.filter = { ...state.svc.filter, [field]: el.dataset.value || "" };
+      state.svc.filter = { ...state.svc.filter, period: el.dataset.value || "" };
       state.svc.openGroup = null;
+      state.sheet = null;
       return render({ keepScroll: true });
     }
 
     if (action === "svc-clear-filter") {
-      state.svc.filter = { order: "", period: "", corr: "" };
+      state.svc.filter = { period: "", corr: "" };
       state.svc.openGroup = null;
       return render({ keepScroll: true });
     }
