@@ -3022,7 +3022,9 @@ function screenProcessing(state) {
   /* En la ventana del Double Dash el timeline es lo que ya se está
      pagando; lo agregado se ve abajo, en su card. */
   const rows = (dash ? state.cart.slice(0, dash.base) : state.cart).map((item, i) => ({
-    name: dash && item.corr && state.svc.accounts[item.corr] ? escapeHtml(state.svc.accounts[item.corr].alias) : PRODUCTS[item.productKey].label,
+    /* Un pago de servicio se nombra como su cuenta («Luz de Marisol»),
+       haya o no Double Dash: es lo que la persona reconoce. */
+    name: item.corr && state.svc.accounts[item.corr] ? escapeHtml(state.svc.accounts[item.corr].alias) : PRODUCTS[item.productKey].label,
     time: `7:1${8 + i} PM`,
   }));
 
