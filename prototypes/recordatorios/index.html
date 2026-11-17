@@ -21069,6 +21069,28 @@ button.carrusel-dot:focus-visible {
 /* ── Reminder Card · variante Mini ───────────────────────
    With Brand en una sola fila (~68px): logo, título y contexto, CTA
    chico y menú. Para el carrusel de la pantalla de la marca. */
+/* Recordatorios › Apagados: la card en disable (gris, sin sombra, logo
+   apagado). El CTA «Activar» conserva su morado. */
+.oky-flow-svc-off {
+  display: contents;
+}
+
+.oky-flow-svc-off .reminder-card-molecule {
+  background: var(--background);
+  border-color: var(--divider);
+  box-shadow: none;
+}
+
+.oky-flow-svc-off .reminder-card-title,
+.oky-flow-svc-off .reminder-card-body {
+  color: var(--disable-text);
+}
+
+.oky-flow-svc-off .reminder-card-brand img {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
 .reminder-card-molecule.is-mini {
   min-height: 0;
   flex-direction: row;

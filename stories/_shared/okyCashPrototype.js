@@ -6758,7 +6758,7 @@ function svcReminderData(state, acc, { mini = false } = {}) {
     return {
       ...base,
       title: escapeHtml(acc.alias),
-      body: `${svcAgo(last.ago)} · ${quetzalOf(last.q)}`,
+      body: `${svcAgo(last.ago)} pagaste ${quetzalOf(last.q)}`,
       /* Sin logo: en el home de EEGSA la marca ya está grande arriba y
          todos los recordatorios son suyos; el espacio queda para el
          nombre y el monto. */
@@ -7125,7 +7125,14 @@ function screenSvcReminders(state) {
           ? on.map((a) => svcReminderCard(state, a)).join("")
           : `<p class="oky-flow-svc-help">No tienes recordatorios activos. Se encienden al pagar un servicio.</p>`
       }
-      ${off.length ? `<h2 class="oky-flow-history-label">APAGADOS</h2>${off.map((a) => svcReminderCard(state, a)).join("")}` : ""}
+      ${
+        /* Los apagados se ven deshabilitados; solo «Activar» queda en
+           morado, que es lo que se puede hacer con ellos. */
+        off.length
+          ? `<h2 class="oky-flow-history-label">APAGADOS</h2>
+             <div class="oky-flow-svc-off">${off.map((a) => svcReminderCard(state, a)).join("")}</div>`
+          : ""
+      }
     </div>
     ${navbar("", state)}
   `;
@@ -7238,7 +7245,13 @@ function svcMenuSheet(state) {
     <section class="oky-flow-cardmenu" role="dialog" aria-modal="true" aria-label="Opciones de ${escapeHtml(acc.alias)}">
       <p class="oky-flow-cardmenu-title">${escapeHtml(acc.alias)}</p>
       ${row("svc-see-payments", "file-lines", "Ver pagos de este número")}
-      ${row("svc-ask-off", "bell-slash", "Apagar recordatorio")}
+      ${
+        /* En el home de EEGSA el ⋮ no apaga: lleva a Recordatorios, que
+           es donde se administran (mismo icono que en el Menú). */
+        state.screen === "eegsa"
+          ? row("svc-open-reminders", "calendar-check", "Ver recordatorios")
+          : row("svc-ask-off", "bell-slash", "Apagar recordatorio")
+      }
     </section>
   `;
 }
@@ -10161,6 +10174,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "menu:reminders" || action === "svc-open-reminders") {
+      state.sheet = null;
       return leavePurchase("svcreminders");
     }
 
