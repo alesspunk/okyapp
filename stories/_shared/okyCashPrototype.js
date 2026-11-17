@@ -701,6 +701,9 @@ function createInitialState(userType) {
        "Tus compras" al terminar de pagar. No acumula. */
     lastOrder: [],
     lastEarned: 0,
+    /* La ventana del Double Dash (OA-561) mientras «No cerrar app»:
+       { start, base, baseTotal, corr, closing }. */
+    dash: null,
     /* Historial de ejemplo. Las entradas de una misma orden van juntas y
        en orden, que es como las agrupa la pantalla: las órdenes con más
        de un movimiento traen su desglose por marca detrás del toque. */
@@ -2854,10 +2857,152 @@ function screenMethods(state) {
   `;
 }
 
+/* ── Double Dash · OA-561 (fase 1: GT y pago de servicios) ──
+   Mientras «No cerrar app» procesa un pago de EEGSA, la orden queda
+   abierta un rato para sumarle cosas en un toque: el otro recibo que
+   los recordatorios ya saben que está por pagar (pagas la luz de
+   Aracely y de una vez la de Daniel) y 2–3 productos de GT para la
+   misma persona. El tiempo vive dentro del botón, como el «Looks good»
+   de Uber Eats: la barra se llena sola y «Listo» deja avanzar antes.
+   Un solo cobro al cerrarse la ventana (opción A): lo agregado entra a
+   la misma orden, al recibo y al Historial. Solo en /miscompras.
+   ?dash=SEG cambia la ventana para demos; ?dash=0 la apaga. */
+const DASH_WINDOW_MS = (() => {
+  const raw = new URLSearchParams(typeof location === "undefined" ? "" : location.search).get("dash");
+  if (raw === null || raw === "" || Number.isNaN(Number(raw))) return 20000;
+  return Math.max(0, Number(raw)) * 1000;
+})();
+
+/* Cross-selling: vales de monto (logo + «Vale QX») y comida con foto.
+   Mismos filtros que OA-554: de GT, con stock y que no estén ya en la
+   orden. Se enseñan hasta 3. */
+const DASH_PICKS = [
+  { key: "gua-pollocampero", q: 50 },
+  { key: "mcd-cajita" },
+  { key: "gua-dominos", q: 75 },
+  { key: "gua-burgerking", q: 50 },
+];
+
+function dashEligible(state) {
+  if (!MISCOMPRAS_ROUTE || DASH_WINDOW_MS <= 0 || !state.cart.length) return false;
+  return (
+    state.cart.some((item) => item.productKey === "eegsa") &&
+    state.cart.every((item) => (PRODUCTS[item.productKey] || {}).country === "gua")
+  );
+}
+
+/* El primer recibo por pagar que no va ya en esta orden. */
+function dashReminderCorr(state) {
+  const inOrder = state.cart.map((item) => item.corr).filter(Boolean);
+  return svcDueCorrs(state).find((corr) => !inOrder.includes(corr)) || "";
+}
+
+function dashPicks(state) {
+  const base = state.cart.slice(0, state.dash.base).map((item) => item.productKey);
+  return DASH_PICKS.filter((p) => PRODUCTS[p.key] && !base.includes(p.key)).slice(0, 3);
+}
+
+/* Lo que cuesta un pick: el vale en dólares o el precio del producto. */
+const dashPickUsd = (pick) => (pick.q ? toUsd(pick.q) : PRODUCTS[pick.key].price);
+
+const dashHas = (state, test) => state.cart.some((item, i) => i >= state.dash.base && test(item));
+
+/* «0:14»: la cuenta del botón. */
+function dashClock(msLeft) {
+  const s = Math.max(0, Math.ceil(msLeft / 1000));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
+function dashOffers(state) {
+  const dash = state.dash;
+  const acc = dash.corr ? state.svc.accounts[dash.corr] : null;
+  const accIn = acc && dashHas(state, (item) => item.corr === acc.corr);
+  const who = (recipientOf(state).name || "").split(" ")[0];
+  const picks = dashPicks(state);
+  return `
+    <div class="oky-dash-body">
+      <p class="oky-dash-overline">Aún estás a tiempo</p>
+      ${
+        acc
+          ? `
+      <div class="oky-dash-bill${accIn ? " is-added" : ""}">
+        <div class="oky-dash-bill-logo"><img src="${PRODUCTS.eegsa.art}" alt="" /></div>
+        <div class="oky-dash-bill-text">
+          <p class="oky-dash-bill-title">${escapeHtml(acc.alias)}</p>
+          <p class="oky-dash-bill-sub">${accIn ? `Se suma · ${quetzalOf(acc.nextBill)}` : `Por pagar · ${quetzalOf(acc.nextBill)}`}</p>
+        </div>
+        <button class="btn ${accIn ? "btn-outlined" : "btn-primary"} btn-medium oky-dash-bill-cta" data-action="dash-bill"
+          type="button" aria-pressed="${accIn ? "true" : "false"}"
+          aria-label="${accIn ? `Quitar ${escapeHtml(acc.alias)}` : `Pagar ${escapeHtml(acc.alias)}, ${quetzalOf(acc.nextBill)}`}">
+          ${accIn ? `<i class="fa-solid fa-check" aria-hidden="true"></i> Agregado` : "Pagar"}
+        </button>
+      </div>`
+          : ""
+      }
+      ${
+        picks.length
+          ? `
+      <p class="oky-dash-overline">Agrégale algo${who ? ` a ${escapeHtml(who)}` : ""}</p>
+      <div class="oky-dash-picks">
+        ${picks
+          .map((pick) => {
+            const product = PRODUCTS[pick.key];
+            const on = dashHas(state, (item) => item.productKey === pick.key);
+            const title = product.label;
+            return `
+          <article class="oky-dash-pick${on ? " is-added" : ""}${product.food ? " is-photo" : ""}">
+            <div class="oky-dash-pick-media"><img src="${product.art}" alt="" /></div>
+            ${pick.q ? `<span class="oky-dash-pick-chip">Vale Q${bigQuetzal(pick.q)}</span>` : ""}
+            <p class="oky-dash-pick-title">${escapeHtml(title)}</p>
+            <p class="oky-dash-pick-price">${money(dashPickUsd(pick))}</p>
+            <button class="btn ${on ? "btn-primary" : "btn-outlined"} btn-small oky-dash-pick-cta" data-action="dash-pick"
+              data-product="${pick.key}" type="button" aria-pressed="${on ? "true" : "false"}"
+              aria-label="${on ? "Quitar" : "Agregar"} ${escapeHtml(title)}${pick.q ? ` de Q${bigQuetzal(pick.q)}` : ""}">
+              ${on ? `<i class="fa-solid fa-check" aria-hidden="true"></i> Agregado` : "Agregar"}
+            </button>
+          </article>`;
+          })
+          .join("")}
+      </div>`
+          : ""
+      }
+    </div>
+  `;
+}
+
+/* El pie de la ventana: cuánto se suma y el botón con el tiempo. La
+   barra se dibuja con una animación CSS que arranca atrasada lo que ya
+   pasó, así que repintar al agregar algo no la reinicia. */
+function dashFooter(state) {
+  const dash = state.dash;
+  const elapsed = Math.min(Date.now() - dash.start, DASH_WINDOW_MS);
+  const added = state.cart.length - dash.base;
+  const delta = Math.max(cartTotal(state) - dash.baseTotal, 0);
+  return `
+    <div class="oky-dash-footer">
+      <p class="oky-dash-sum" id="oky-dash-sum">${
+        added
+          ? `Se suma a tu pago <strong>+${money(delta)}</strong>`
+          : "Lo que agregues se cobra en el mismo pago"
+      }</p>
+      <button class="btn btn-primary btn-large oky-dash-cta" data-action="dash-done" type="button"
+        aria-describedby="oky-dash-sum"
+        style="--dash-ms:${DASH_WINDOW_MS}ms;--dash-at:-${elapsed}ms">
+        <span class="oky-dash-cta-fill" aria-hidden="true"></span>
+        <span class="oky-dash-cta-label">${added ? "Listo, pagar todo" : "Listo"}</span>
+        <span class="oky-dash-cta-time" aria-hidden="true">${dashClock(DASH_WINDOW_MS - elapsed)}</span>
+      </button>
+    </div>
+  `;
+}
+
 /* ── Processing (99140:56017) ───────────────────────────── */
 function screenProcessing(state) {
-  const rows = state.cart.map((item, i) => ({
-    name: PRODUCTS[item.productKey].label,
+  const dash = state.dash;
+  /* En la ventana del Double Dash el timeline es lo que ya se está
+     pagando; lo agregado se ve abajo, en su card. */
+  const rows = (dash ? state.cart.slice(0, dash.base) : state.cart).map((item, i) => ({
+    name: dash && item.corr && state.svc.accounts[item.corr] ? escapeHtml(state.svc.accounts[item.corr].alias) : PRODUCTS[item.productKey].label,
     time: `7:1${8 + i} PM`,
   }));
 
@@ -2866,7 +3011,7 @@ function screenProcessing(state) {
     ${titledHeader("")}
     <div class="modal-molecule-backdrop" style="position:absolute;inset:0;z-index:15"></div>
 
-    <section class="oky-flow-wait">
+    <section class="oky-flow-wait${dash ? " is-dash" : ""}">
       <h2 class="oky-flow-wait-title">No cerrar app</h2>
       <div class="oky-flow-timeline">
         ${rows
@@ -2881,10 +3026,15 @@ function screenProcessing(state) {
           )
           .join("")}
       </div>
-      <div class="oky-flow-wait-footer">
+      ${dash ? dashOffers(state) : ""}
+      ${
+        dash && !dash.closing
+          ? dashFooter(state)
+          : `<div class="oky-flow-wait-footer">
         <img class="oky-flow-spinner" src="oky-spinner.svg" alt="" />
         <span>Redireccionando…</span>
-      </div>
+      </div>`
+      }
     </section>
   `;
 }
@@ -8805,6 +8955,43 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
   /* La consulta va a la API de EEGSA y no es instantánea. */
   let svcLoadingTimer = 0;
+  let dashTimer = 0;
+
+  /* Pagar: «No cerrar app» y, a los 1.4 s, la poscompra. Con un pago de
+     EEGSA en GT (solo /miscompras) la orden queda abierta la ventana del
+     Double Dash y se cobra todo junto al cerrarse. */
+  function startProcessing() {
+    clearInterval(dashTimer);
+    if (!dashEligible(state)) {
+      state.dash = null;
+      go("processing", {}, { push: false });
+      setTimeout(completePurchase, 1400);
+      return;
+    }
+    state.dash = { start: Date.now(), base: state.cart.length, baseTotal: cartTotal(state), corr: "", closing: false };
+    state.dash.corr = dashReminderCorr(state);
+    go("processing", {}, { push: false });
+    dashTimer = setInterval(() => {
+      if (!state.dash || state.screen !== "processing") return clearInterval(dashTimer);
+      const left = DASH_WINDOW_MS - (Date.now() - state.dash.start);
+      if (left <= 0) return closeDash();
+      const time = root.querySelector(".oky-dash-cta-time");
+      if (time) time.textContent = dashClock(left);
+    }, 250);
+  }
+
+  /* Se acabó el tiempo o tocó «Listo»: el spinner de siempre y un solo
+     cobro con todo lo agregado. */
+  function closeDash() {
+    clearInterval(dashTimer);
+    if (!state.dash || state.dash.closing) return;
+    state.dash.closing = true;
+    render({ keepScroll: true });
+    setTimeout(() => {
+      state.dash = null;
+      completePurchase();
+    }, 1000);
+  }
 
   function svcStartPay() {
     const cur = state.svc.current;
@@ -9470,9 +9657,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* Primer cobra la primera tarjeta al guardarla: en medio de una
          compra se paga aquí mismo, sin volver al checkout. */
       if (firstCard && state.screen === "methods" && orderDue(state) > 0) {
-        go("processing", {}, { push: false });
-        setTimeout(completePurchase, 1400);
-        return;
+        return startProcessing();
       }
       return render({ keepScroll: true });
     }
@@ -10479,10 +10664,38 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* Un segundo toque mientras corre el procesamiento duplicaría
          la compra. */
       if (state.screen === "processing") return;
-      go("processing", {}, { push: false });
-      setTimeout(completePurchase, 1400);
-      return;
+      return startProcessing();
     }
+
+    /* Double Dash: el recibo por pagar entra y sale de la orden con un
+       toque; lo mismo cada producto. Lo agregado va detrás de lo que ya
+       se estaba pagando (state.dash.base). */
+    if (action === "dash-bill" || action === "dash-pick") {
+      const dash = state.dash;
+      if (!dash || dash.closing) return;
+      const extra = (test) => state.cart.findIndex((item, i) => i >= dash.base && test(item));
+      if (action === "dash-bill") {
+        const acc = state.svc.accounts[dash.corr];
+        if (!acc) return;
+        const at = extra((item) => item.corr === acc.corr);
+        if (at >= 0) state.cart.splice(at, 1);
+        else state.cart.push({ productKey: "eegsa", amount: toUsd(acc.nextBill), cashback: 0, quetzales: acc.nextBill, corr: acc.corr });
+      } else {
+        const pick = DASH_PICKS.find((p) => p.key === el.dataset.product);
+        if (!pick) return;
+        const at = extra((item) => item.productKey === pick.key);
+        if (at >= 0) state.cart.splice(at, 1);
+        else
+          state.cart.push(
+            pick.q
+              ? { productKey: pick.key, amount: toUsd(pick.q), cashback: 0, quetzales: pick.q }
+              : { productKey: pick.key, amount: PRODUCTS[pick.key].price, cashback: 0, qty: 1 },
+          );
+      }
+      return render({ keepScroll: true });
+    }
+
+    if (action === "dash-done") return closeDash();
 
     if (action === "dismiss-celebration") {
       clearTimeout(celebrationTimer);
