@@ -2956,16 +2956,17 @@ function dashOffers(state) {
     const accounts = dash.corrs.map((corr) => state.svc.accounts[corr]).filter(Boolean);
     return `
     <div class="oky-dash-body">
-      <p class="oky-dash-overline">Estás a tiempo, agrega algo más</p>
+      <p class="oky-dash-overline">También tienes por pagar</p>
       ${accounts.map((acc) => dashBillRow(state, acc)).join("")}
     </div>
   `;
   }
-  /* El mismo encabezado que en servicios: los dos casos se leen igual. */
+  /* Con productos el encabezado dice qué pasa al agregar: entra a la
+     misma orden y se cobra junto. */
   const picks = dashPicks(state);
   return `
     <div class="oky-dash-body">
-      <p class="oky-dash-overline">Estás a tiempo, agrega algo más</p>
+      <p class="oky-dash-overline">Súmalo a tu orden</p>
       <div class="oky-dash-picks">
         ${picks
           .map((pick) => {
@@ -3068,7 +3069,11 @@ function screenProcessing(state) {
       ${
         /* En el Double Dash el título vende (bien chapín), solo. */
         dash
-          ? `<h2 class="oky-flow-wait-title">Ya que estás, ¿algo más?</h2>`
+          ? `<h2 class="oky-flow-wait-title">${
+              /* Con servicios no se vende nada: son recibos que ya tiene
+                 pendientes, así que se pregunta por pagarlos. */
+              dash.mode === "svc" ? "¿Pagas todo de una vez?" : "Ya que estás, ¿algo más?"
+            }</h2>`
           :`<h2 class="oky-flow-wait-title">No cerrar app</h2>`
       }
       <div class="oky-flow-timeline">
