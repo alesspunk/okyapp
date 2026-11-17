@@ -9524,8 +9524,11 @@ body {
    La misma hoja de «No cerrar app», un poco más alta (535 → 620) solo
    mientras la orden sigue abierta. Debajo del timeline: el recibo por
    pagar, 2–3 productos y el botón con el tiempo adentro (Uber Eats). */
+/* Más alto para que quepan productos + barra de ahorro sin scroll, y
+   relativo a la pantalla: en 800 mide 736 y en Android Small (640) baja
+   a 576. Lo recomendado y el pie nunca se encogen: cede el timeline. */
 .oky-flow-wait.is-dash {
-  height: 620px;
+  height: min(736px, calc(100% - 64px));
 }
 
 .oky-flow-wait.is-dash .oky-flow-wait-title {
@@ -9679,26 +9682,34 @@ body {
   transition: border-color 0.2s, background 0.2s;
 }
 
-/* Logo de marca contenido sobre blanco; foto de producto a sangre. */
+/* La media va alineada a la izquierda en un alto fijo (64): el arte de
+   un vale de monto en proporción de tarjeta y la foto de un producto
+   en 1:1. Las dos con borde gris y redondeadas, para que se vean
+   parejas aunque sean distintas. */
 .oky-dash-pick-media {
   height: 64px;
-  border-radius: 8px;
-  background: var(--white);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .oky-dash-pick-media img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 88px;
+  height: auto;
+  aspect-ratio: 1.6;
+  object-fit: cover;
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+  background: var(--white);
 }
 
 .oky-dash-pick.is-photo .oky-dash-pick-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 64px;
+  height: 64px;
+  aspect-ratio: 1;
 }
 
 .oky-dash-pick-chip {
