@@ -1056,13 +1056,18 @@ PRODUCTS.eegsa = {
 const cartServiceCount = (state) =>
   state.cart.reduce((n, item) => n + ((PRODUCTS[item.productKey] || {}).service ? item.qty || 1 : 0), 0);
 
-const cartServiceFee = (state) => serviceFeeOf(cartServiceCount(state));
+/* Un pago de servicio (EEGSA) cuesta $2.99 de servicio, sin rebaja:
+   la escalera de «agrega más, paga menos» es de la comida y los vales,
+   así que aquí no hay tachado ni ahorro en aqua. */
+const isSvcCart = (state) => isServicePayment(state.cart.map((item) => item.productKey));
+const cartServiceFee = (state) => (isSvcCart(state) ? SERVICE_FEE_UNIT : serviceFeeOf(cartServiceCount(state)));
+const cartServiceFeeList = (state) => (isSvcCart(state) ? SERVICE_FEE_UNIT : serviceFeeList(cartServiceCount(state)));
 
 /* Lo ahorrado en esta orden: lo que se deja de pagar en costo por
    servicio más los descuentos de precio de cada producto. */
 function cartSavings(state) {
   const n = cartServiceCount(state);
-  const onFee = serviceFeeList(n) - serviceFeeOf(n);
+  const onFee = isSvcCart(state) ? 0 : serviceFeeList(n) - serviceFeeOf(n);
   const onPrice = state.cart.reduce((sum, item) => {
     const product = PRODUCTS[item.productKey] || {};
     return sum + (product.was ? (product.was - product.price) * (item.qty || 1) : 0);
@@ -2427,9 +2432,9 @@ function cartDrawer(state) {
               </div>
               ${
                 cartServiceCount(state)
-                  ? `<div class="summary-row oky-flow-feerow">
+                  ? `<div class="summary-row oky-flow-feerow${isSvcCart(state) ? " is-plain" : ""}">
                       <span>Costo por servicio</span>
-                      <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartServiceCount(state)))}</span>
+                      <span>${dealAmount(cartServiceFee(state), cartServiceFeeList(state))}</span>
                     </div>`
                   : ""
               }
@@ -2554,7 +2559,7 @@ function screenCheckout(state) {
   return `
     <div class="oky-flow-page">
     ${statusBar()}
-    ${productHeader(state)}
+    ${/* Pagando un servicio no hay carrito que mirar: fuera el icono. */ productHeader(state, { cart: !isSvcCart(state) })}
 
     <div class="oky-flow-section">
       ${
@@ -2726,9 +2731,9 @@ function screenCheckout(state) {
                    </div>
                    ${
                      cartServiceCount(state)
-                       ? `<div class="summary-row oky-flow-feerow">
+                       ? `<div class="summary-row oky-flow-feerow${isSvcCart(state) ? " is-plain" : ""}">
                            <span>Costo por servicio</span>
-                           <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartServiceCount(state)))}</span>
+                           <span>${dealAmount(cartServiceFee(state), cartServiceFeeList(state))}</span>
                          </div>`
                        : ""
                    }
@@ -2743,9 +2748,9 @@ function screenCheckout(state) {
                      </div>
                      ${
                        cartServiceCount(state)
-                         ? `<div class="summary-row oky-flow-feerow">
+                         ? `<div class="summary-row oky-flow-feerow${isSvcCart(state) ? " is-plain" : ""}">
                              <span>Costo por servicio</span>
-                             <span>${dealAmount(cartServiceFee(state), serviceFeeList(cartServiceCount(state)))}</span>
+                             <span>${dealAmount(cartServiceFee(state), cartServiceFeeList(state))}</span>
                            </div>`
                          : ""
                      }
@@ -2859,17 +2864,17 @@ function screenMethods(state) {
 
 /* ── Double Dash · OA-561 (fase 1: GT y pago de servicios) ──
    Mientras «No cerrar app» procesa un pago de EEGSA, la orden queda
-   abierta un rato para sumarle cosas en un toque: el otro recibo que
-   los recordatorios ya saben que está por pagar (pagas la luz de
-   Aracely y de una vez la de Daniel) y 2–3 productos de GT para la
-   misma persona. El tiempo vive dentro del botón, como el «Looks good»
+   abierta un rato para sumarle cosas en un toque. Con un pago de
+   servicio: los otros recibos que los recordatorios ya saben que están
+   por pagar (pagas la luz de Aracely y de una vez la de Daniel). Con
+   vales o productos de GT: 2–3 productos para la misma persona. El tiempo vive dentro del botón, como el «Looks good»
    de Uber Eats: la barra se llena sola y «Listo» deja avanzar antes.
    Un solo cobro al cerrarse la ventana (opción A): lo agregado entra a
    la misma orden, al recibo y al Historial. Solo en /miscompras.
    ?dash=SEG cambia la ventana para demos; ?dash=0 la apaga. */
 const DASH_WINDOW_MS = (() => {
   const raw = new URLSearchParams(typeof location === "undefined" ? "" : location.search).get("dash");
-  if (raw === null || raw === "" || Number.isNaN(Number(raw))) return 20000;
+  if (raw === null || raw === "" || Number.isNaN(Number(raw))) return 25000;
   return Math.max(0, Number(raw)) * 1000;
 })();
 
@@ -2878,29 +2883,38 @@ const DASH_WINDOW_MS = (() => {
    orden. Se enseñan hasta 3. */
 const DASH_PICKS = [
   { key: "gua-pollocampero", q: 50 },
-  { key: "mcd-cajita" },
+  /* Con precio anterior: así se ve cómo luce un producto en oferta. */
+  { key: "mcd-cajita", was: 6.5 },
   { key: "gua-dominos", q: 75 },
   { key: "gua-burgerking", q: 50 },
 ];
 
-function dashEligible(state) {
-  if (!MISCOMPRAS_ROUTE || DASH_WINDOW_MS <= 0 || !state.cart.length) return false;
-  return (
-    state.cart.some((item) => item.productKey === "eegsa") &&
-    state.cart.every((item) => (PRODUCTS[item.productKey] || {}).country === "gua")
-  );
+/* Dos casos, nunca juntos (la pantalla con los dos era mucho):
+   · Pagas un servicio (EEGSA) → solo los otros recibos por pagar.
+   · Compras vales o productos de GT, sin servicio → solo productos.
+   Si en ese caso no hay nada que ofrecer, queda el «No cerrar app» de
+   siempre. */
+const DASH_MAX_BILLS = 3;
+
+function dashModeOf(state) {
+  if (!MISCOMPRAS_ROUTE || DASH_WINDOW_MS <= 0 || !state.cart.length) return "";
+  if (!state.cart.every((item) => (PRODUCTS[item.productKey] || {}).country === "gua")) return "";
+  if (state.cart.some((item) => item.productKey === "eegsa")) return dashBillCorrs(state).length ? "svc" : "";
+  return dashPicksFor(state.cart).length ? "shop" : "";
 }
 
-/* El primer recibo por pagar que no va ya en esta orden. */
-function dashReminderCorr(state) {
+/* Los recibos por pagar que no van ya en esta orden. */
+function dashBillCorrs(state) {
   const inOrder = state.cart.map((item) => item.corr).filter(Boolean);
-  return svcDueCorrs(state).find((corr) => !inOrder.includes(corr)) || "";
+  return svcDueCorrs(state).filter((corr) => !inOrder.includes(corr)).slice(0, DASH_MAX_BILLS);
 }
 
-function dashPicks(state) {
-  const base = state.cart.slice(0, state.dash.base).map((item) => item.productKey);
-  return DASH_PICKS.filter((p) => PRODUCTS[p.key] && !base.includes(p.key)).slice(0, 3);
+function dashPicksFor(cart) {
+  const inOrder = cart.map((item) => item.productKey);
+  return DASH_PICKS.filter((p) => PRODUCTS[p.key] && !inOrder.includes(p.key)).slice(0, 3);
 }
+
+const dashPicks = (state) => dashPicksFor(state.cart.slice(0, state.dash.base));
 
 /* Lo que cuesta un pick: el vale en dólares o el precio del producto. */
 const dashPickUsd = (pick) => (pick.q ? toUsd(pick.q) : PRODUCTS[pick.key].price);
@@ -2913,18 +2927,9 @@ function dashClock(msLeft) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
-function dashOffers(state) {
-  const dash = state.dash;
-  const acc = dash.corr ? state.svc.accounts[dash.corr] : null;
-  const accIn = acc && dashHas(state, (item) => item.corr === acc.corr);
-  const who = (recipientOf(state).name || "").split(" ")[0];
-  const picks = dashPicks(state);
+function dashBillRow(state, acc) {
+  const accIn = dashHas(state, (item) => item.corr === acc.corr);
   return `
-    <div class="oky-dash-body">
-      <p class="oky-dash-overline">Todavía vas a tiempo</p>
-      ${
-        acc
-          ? `
       <div class="oky-dash-bill${accIn ? " is-added" : ""}">
         <div class="oky-dash-bill-logo"><img src="${PRODUCTS.eegsa.art}" alt="" /></div>
         <div class="oky-dash-bill-text">
@@ -2932,17 +2937,32 @@ function dashOffers(state) {
           <p class="oky-dash-bill-sub">${accIn ? `Se suma · ${quetzalOf(acc.nextBill)}` : `Por pagar · ${quetzalOf(acc.nextBill)}`}</p>
         </div>
         <button class="btn ${accIn ? "btn-outlined" : "btn-primary"} btn-medium oky-dash-bill-cta" data-action="dash-bill"
-          type="button" aria-pressed="${accIn ? "true" : "false"}"
+          data-corr="${acc.corr}" type="button" aria-pressed="${accIn ? "true" : "false"}"
           aria-label="${accIn ? `Quitar ${escapeHtml(acc.alias)}` : `Pagar ${escapeHtml(acc.alias)}, ${quetzalOf(acc.nextBill)}`}">
           ${accIn ? `<i class="fa-solid fa-check" aria-hidden="true"></i> Agregado` : "Pagar"}
         </button>
-      </div>`
-          : ""
-      }
-      ${
-        picks.length
-          ? `
-      <p class="oky-dash-overline">Agrégale algo${who ? ` a ${escapeHtml(who)}` : ""}</p>
+      </div>`;
+}
+
+function dashOffers(state) {
+  const dash = state.dash;
+  if (dash.mode === "svc") {
+    const accounts = dash.corrs.map((corr) => state.svc.accounts[corr]).filter(Boolean);
+    return `
+    <div class="oky-dash-body">
+      <p class="oky-dash-overline">Todavía vas a tiempo</p>
+      ${accounts.map((acc) => dashBillRow(state, acc)).join("")}
+    </div>
+  `;
+  }
+  /* Para mí no lleva nombre: «Agrega algo más». */
+  const first = state.cart[0];
+  const forSelf = first && purchaseIsForSelf(state, first.productKey);
+  const who = forSelf ? "" : (recipientOf(state).name || "").split(" ")[0];
+  const picks = dashPicks(state);
+  return `
+    <div class="oky-dash-body">
+      <p class="oky-dash-overline">${who ? `Agrégale algo a ${escapeHtml(who)}` : "Agrega algo más"}</p>
       <div class="oky-dash-picks">
         ${picks
           .map((pick) => {
@@ -2954,7 +2974,9 @@ function dashOffers(state) {
             <div class="oky-dash-pick-media"><img src="${product.art}" alt="" /></div>
             ${pick.q ? `<span class="oky-dash-pick-chip">Vale Q${bigQuetzal(pick.q)}</span>` : ""}
             <p class="oky-dash-pick-title">${escapeHtml(title)}</p>
-            <p class="oky-dash-pick-price">${money(dashPickUsd(pick))}</p>
+            <p class="oky-dash-pick-price">${money(dashPickUsd(pick))}${
+              pick.was ? `<span class="oky-dash-pick-was"><span class="sr-only">antes </span>${money(pick.was)}</span>` : ""
+            }</p>
             <button class="btn ${on ? "btn-primary" : "btn-outlined"} btn-small oky-dash-pick-cta" data-action="dash-pick"
               data-product="${pick.key}" type="button" aria-pressed="${on ? "true" : "false"}"
               aria-label="${on ? "Quitar" : "Agregar"} ${escapeHtml(title)}${pick.q ? ` de Q${bigQuetzal(pick.q)}` : ""}">
@@ -2963,9 +2985,7 @@ function dashOffers(state) {
           </article>`;
           })
           .join("")}
-      </div>`
-          : ""
-      }
+      </div>
     </div>
   `;
 }
@@ -6739,7 +6759,10 @@ function svcReminderData(state, acc, { mini = false } = {}) {
       ...base,
       title: escapeHtml(acc.alias),
       body: `${svcAgo(last.ago)} · ${quetzalOf(last.q)}`,
-      brand: { src: "eggsa.webp", alt: "EEGSA" },
+      /* Sin logo: en el home de EEGSA la marca ya está grande arriba y
+         todos los recordatorios son suyos; el espacio queda para el
+         nombre y el monto. */
+      brand: null,
       ctaLabel: acc.reminder ? "Ver saldo" : "Activar",
       showMenu: acc.reminder,
       showCta: true,
@@ -6858,9 +6881,11 @@ function svcPaymentRow(p, { byDate = false, alias = "" } = {}) {
         key: "service-payment",
         id: "99105:13972",
         layout: "row",
-        icon: { glyph: "fa-lightbulb", weight: "fa-regular" },
+        /* El foco en 3D (el de la pestaña Servicios), como el arte de las
+           cards de actividad de yayo. */
+        icon: { src: "servicios.webp" },
         date: stamp(p.ago),
-        amount: money(toUsd(p.q) + serviceFeeOf(1)),
+        amount: money(toUsd(p.q) + SERVICE_FEE_UNIT),
         meta: {
           type: "brand",
           logo: "eggsa.webp",
@@ -6927,7 +6952,7 @@ function svcActivity(state) {
         <button class="oky-flow-section-head is-tappable oky-flow-svc-group-head" data-action="svc-toggle-group"
           data-group="${g.label}" type="button" aria-expanded="${open}">
           <span class="oky-flow-section-head-label oky-flow-history-label">
-            <i class="fa-regular ${byDate ? "fa-calendar" : "fa-lightbulb"}" aria-hidden="true"></i>${
+            ${/* Por número no lleva icono: el foco ya va en cada card. */ byDate ? `<i class="fa-regular fa-calendar" aria-hidden="true"></i>` : ""}${
               byDate
                 ? g.label
                 : /* El nombre es lo que se reconoce; el número, debajo. */
@@ -7033,6 +7058,10 @@ function screenEegsa(state) {
 function screenSvcConsulta(state) {
   const cur = state.svc.current;
   const acc = state.svc.accounts[cur.corr];
+  /* El título es el mismo del recordatorio de esa cuenta («Luz de
+     Aracely»), para que se lea como la misma cosa. Un número nuevo, sin
+     cuenta guardada, sigue diciendo «Electricidad». */
+  const cardTitle = acc ? escapeHtml(acc.alias) : PRODUCTS.eegsa.cardTitle;
   return `
     ${statusBar()}
     ${productHeader(state, { backAction: "back", cart: false, bell: true })}
@@ -7040,11 +7069,11 @@ function screenSvcConsulta(state) {
     <div class="oky-flow-stack-center">
       ${svcBrandItem()}
       <div>
-        <section class="middle-card-shell is-pdp" aria-label="${PRODUCTS.eegsa.cardTitle}">
+        <section class="middle-card-shell is-pdp" aria-label="${cardTitle}">
           <article class="middle-card-molecule is-amount">
             <div class="middle-card-content">
               <div class="middle-card-main">
-                <p class="middle-card-title">${PRODUCTS.eegsa.cardTitle}</p>
+                <p class="middle-card-title">${cardTitle}</p>
                 <div class="middle-card-center">
                   <div class="middle-card-value">
                     <span class="middle-card-currency">Q</span>
@@ -7071,7 +7100,7 @@ function screenSvcConsulta(state) {
             </div>
           </div>
           <div class="summary-cta-row">
-            <button class="btn btn-primary summary-btn" data-action="svc-pay" type="button">Pagar</button>
+            <button class="btn btn-primary summary-btn" data-action="svc-pay" type="button">Ir a pagar</button>
           </div>
         </div>
       </div>
@@ -8981,14 +9010,21 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      Double Dash y se cobra todo junto al cerrarse. */
   function startProcessing() {
     clearInterval(dashTimer);
-    if (!dashEligible(state)) {
+    const mode = dashModeOf(state);
+    if (!mode) {
       state.dash = null;
       go("processing", {}, { push: false });
       setTimeout(completePurchase, 1400);
       return;
     }
-    state.dash = { start: Date.now(), base: state.cart.length, baseTotal: cartTotal(state), corr: "", closing: false };
-    state.dash.corr = dashReminderCorr(state);
+    state.dash = {
+      start: Date.now(),
+      base: state.cart.length,
+      baseTotal: cartTotal(state),
+      mode,
+      corrs: mode === "svc" ? dashBillCorrs(state) : [],
+      closing: false,
+    };
     go("processing", {}, { push: false });
     dashTimer = setInterval(() => {
       if (!state.dash || state.screen !== "processing") return clearInterval(dashTimer);
@@ -10695,7 +10731,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (!dash || dash.closing) return;
       const extra = (test) => state.cart.findIndex((item, i) => i >= dash.base && test(item));
       if (action === "dash-bill") {
-        const acc = state.svc.accounts[dash.corr];
+        const acc = dash.corrs.includes(el.dataset.corr) ? state.svc.accounts[el.dataset.corr] : null;
         if (!acc) return;
         const at = extra((item) => item.corr === acc.corr);
         if (at >= 0) state.cart.splice(at, 1);

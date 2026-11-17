@@ -9663,7 +9663,7 @@ body {
   font: var(--type-caption);
   letter-spacing: var(--type-caption-ls);
   margin: 0;
-  color: var(--text-primary);
+  color: var(--primary-main);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -9675,7 +9675,15 @@ body {
   font: var(--type-subtitle2);
   letter-spacing: var(--type-subtitle2-ls);
   margin: auto 0 0;
-  color: var(--text-primary);
+  font-weight: 800;
+  color: var(--primary-main);
+}
+
+/* Precio anterior tachado, como en el carrito: aqua oscuro, mismo peso. */
+.oky-dash-pick-was {
+  margin-left: 6px;
+  color: var(--secondary-dark);
+  text-decoration: line-through;
 }
 
 .oky-dash-pick-cta {
@@ -13219,6 +13227,12 @@ button.tactic-offer {
 /* Los dos importes del par van con la misma letra y peso en todas las
    filas del resumen: en Subtotal heredaban la letra del rótulo y se
    veían más gordos que los del costo por servicio. */
+/* Pago de servicio: $2.99 sin rebaja, en morado como el subtotal. */
+.oky-flow-feerow.is-plain,
+.oky-flow-feerow.is-plain > :first-child {
+  color: var(--primary-main);
+}
+
 .oky-flow-fee-now,
 .oky-flow-fee-was {
   font-family: "Nunito Sans", sans-serif;
