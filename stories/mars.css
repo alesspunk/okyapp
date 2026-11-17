@@ -9627,6 +9627,13 @@ body {
   white-space: nowrap;
 }
 
+/* El monto del recibo siempre en morado y bold, como el precio de los
+   productos sugeridos. */
+.oky-dash-bill-amount {
+  font-weight: 800;
+  color: var(--primary-main);
+}
+
 .oky-dash-bill-cta {
   flex: 0 0 auto;
   min-width: 96px;
