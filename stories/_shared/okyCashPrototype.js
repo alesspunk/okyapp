@@ -2998,6 +2998,7 @@ function dashFooter(state) {
   const elapsed = Math.min(Date.now() - dash.start, DASH_WINDOW_MS);
   const added = state.cart.length - dash.base;
   const delta = Math.max(cartTotal(state) - dash.baseTotal, 0);
+  const capped = dash.mode === "shop" && added > 0 && cartServiceCount(state) >= SERVICE_FEE_STEPS.length;
   return `
     <div class="oky-dash-footer">
       <p class="oky-dash-sum" id="oky-dash-sum">${
@@ -3005,8 +3006,16 @@ function dashFooter(state) {
           ? `Se suma a tu pago <strong>+${money(delta)}</strong>`
           : "Lo que agregues se cobra en el mismo pago"
       }</p>
+      ${
+        /* Con productos, si lo agregado lleva la orden al tope del costo
+           por servicio, se dice en una línea: ya no paga más de $2.99. */
+        capped
+          ? `<p class="oky-dash-cap" id="oky-dash-cap"><i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+              Llegaste al tope: pagas máximo ${money(SERVICE_FEE_UNIT)} de servicio</p>`
+          : ""
+      }
       <button class="btn btn-primary btn-large oky-dash-cta" data-action="dash-done" type="button"
-        aria-describedby="oky-dash-sum"
+        aria-describedby="oky-dash-sum${capped ? " oky-dash-cap" : ""}"
         style="--dash-ms:${DASH_WINDOW_MS}ms;--dash-at:-${elapsed}ms">
         <span class="oky-dash-cta-fill" aria-hidden="true"></span>
         <span class="oky-dash-cta-label">${added ? "Listo, pagar todo" : "Listo"}</span>
@@ -3019,13 +3028,14 @@ function dashFooter(state) {
 /* ── Processing (99140:56017) ───────────────────────────── */
 function screenProcessing(state) {
   const dash = state.dash;
-  /* En la ventana del Double Dash el timeline es lo que ya se está
-     pagando; lo agregado se ve abajo, en su card. */
-  const rows = (dash ? state.cart.slice(0, dash.base) : state.cart).map((item, i) => ({
+  /* El timeline es todo lo que se va a pagar: en el Double Dash, lo que
+     se agrega abajo entra aquí como un check más y sale si se quita. */
+  const rows = state.cart.map((item, i) => ({
+    key: item.corr || item.productKey,
     /* Un pago de servicio se nombra como su cuenta («Luz de Marisol»),
        haya o no Double Dash: es lo que la persona reconoce. */
     name: item.corr && state.svc.accounts[item.corr] ? escapeHtml(state.svc.accounts[item.corr].alias) : PRODUCTS[item.productKey].label,
-    time: `7:1${8 + i} PM`,
+    time: `7:${String(18 + i).padStart(2, "0")} PM`,
   }));
 
   return `
@@ -3046,7 +3056,7 @@ function screenProcessing(state) {
         ${rows
           .map(
             (row) => `
-          <div class="oky-flow-timeline-row">
+          <div class="oky-flow-timeline-row${dash && dash.justAdded === row.key ? " is-new" : ""}">
             <img class="oky-flow-timeline-icon" src="oky-check-3d.png" alt="" />
             <p class="oky-flow-timeline-name">${row.name}</p>
             <p class="oky-flow-timeline-time">${row.time}</p>
@@ -6615,14 +6625,15 @@ const SVC_ACCOUNTS = [
     amounts: [188.5, 192, 185.25, 190.4, 196, 183.7, 189],
     nextBill: 201.35,
   },
-  /* Al día: no sale arriba en EEGSA, pero su pago en la actividad y su
-     tarjeta en Menú › Recordatorios dan «¡Estás al día!». */
+  /* Apagado pero ya le toca pagar: vive en «Apagados» y, al tocar
+     «Activar», aparece arriba en el home de EEGSA (cumple el umbral de
+     SVC_BILL_AFTER). */
   {
     corr: "0011900714",
     alias: "Luz de Byron",
     contact: "Byron",
-    reminder: true,
-    ago: 8,
+    reminder: false,
+    ago: 26,
     amounts: [256, 249.8, 261.3, 252, 247.5, 258.9],
     nextBill: 251.2,
   },
@@ -6630,7 +6641,8 @@ const SVC_ACCOUNTS = [
     corr: "0011900588",
     alias: "Luz de Wendy",
     contact: "Wendy",
-    /* Se apagó al pagar (opt-out): vive en «Apagados». */
+    /* Se apagó al pagar (opt-out): vive en «Apagados». Está al día, así
+       que su pago en la actividad da «¡Estás al día!». */
     reminder: false,
     ago: 19,
     amounts: [144, 147.75, 144, 150.3, 141.2, 144, 139.5],
@@ -10752,6 +10764,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         const at = extra((item) => item.corr === acc.corr);
         if (at >= 0) state.cart.splice(at, 1);
         else state.cart.push({ productKey: "eegsa", amount: toUsd(acc.nextBill), cashback: 0, quetzales: acc.nextBill, corr: acc.corr });
+        dash.justAdded = at >= 0 ? null : acc.corr;
       } else {
         const pick = DASH_PICKS.find((p) => p.key === el.dataset.product);
         if (!pick) return;
@@ -10763,8 +10776,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
               ? { productKey: pick.key, amount: toUsd(pick.q), cashback: 0, quetzales: pick.q }
               : { productKey: pick.key, amount: PRODUCTS[pick.key].price, cashback: 0, qty: 1 },
           );
+        dash.justAdded = at >= 0 ? null : pick.key;
       }
-      return render({ keepScroll: true });
+      render({ keepScroll: true });
+      /* Solo el recién llegado entra con fundido, y a la vista. */
+      const fresh = root.querySelector(".oky-flow-timeline-row.is-new");
+      if (fresh) fresh.scrollIntoView({ block: "nearest" });
+      dash.justAdded = null;
+      return;
     }
 
     if (action === "dash-done") return closeDash();
