@@ -9758,17 +9758,30 @@ body {
   color: var(--text-primary);
 }
 
-/* Tope del costo por servicio: una línea chica en el aqua de ahorro. */
+/* Tope del costo por servicio: una pastilla en el aqua de ahorro, con
+   lo que se ahorra en bold, para que se note. */
 .oky-dash-cap {
-  font: var(--type-caption);
-  letter-spacing: var(--type-caption-ls);
-  margin: -4px 0 0;
-  text-align: center;
+  align-self: center;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--highlight-surface);
+  font: var(--type-subtitle2);
+  letter-spacing: var(--type-subtitle2-ls);
+  white-space: nowrap;
   color: var(--highlight-text);
 }
 
 .oky-dash-cap i {
-  margin-right: 4px;
+  margin-right: 6px;
+}
+
+.oky-dash-cap strong {
+  font-weight: 800;
 }
 
 /* En el modal, nombres largos en una línea y la hora sin partir. */
@@ -28133,6 +28146,8 @@ function dashFooter(state) {
   const added = state.cart.length - dash.base;
   const delta = Math.max(cartTotal(state) - dash.baseTotal, 0);
   const capped = dash.mode === "shop" && added > 0 && cartServiceCount(state) >= SERVICE_FEE_STEPS.length;
+  /* Lo que costaría el servicio a $2.99 por producto, menos el tope. */
+  const feeSaved = serviceFeeList(cartServiceCount(state)) - cartServiceFee(state);
   return `
     <div class="oky-dash-footer">
       <p class="oky-dash-sum" id="oky-dash-sum">${
@@ -28144,8 +28159,8 @@ function dashFooter(state) {
         /* Con productos, si lo agregado lleva la orden al tope del costo
            por servicio, se dice en una línea: ya no paga más de $2.99. */
         capped
-          ? `<p class="oky-dash-cap" id="oky-dash-cap"><i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-              Llegaste al tope: pagas máximo ${money(SERVICE_FEE_UNIT)} de servicio</p>`
+          ? `<p class="oky-dash-cap" id="oky-dash-cap"><i class="fa-solid fa-tag" aria-hidden="true"></i>
+              Llegaste al tope · <strong>Ahorras ${money(feeSaved)}</strong> en servicio</p>`
           : ""
       }
       <button class="btn btn-primary btn-large oky-dash-cta" data-action="dash-done" type="button"

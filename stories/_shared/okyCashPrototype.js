@@ -2999,6 +2999,8 @@ function dashFooter(state) {
   const added = state.cart.length - dash.base;
   const delta = Math.max(cartTotal(state) - dash.baseTotal, 0);
   const capped = dash.mode === "shop" && added > 0 && cartServiceCount(state) >= SERVICE_FEE_STEPS.length;
+  /* Lo que costaría el servicio a $2.99 por producto, menos el tope. */
+  const feeSaved = serviceFeeList(cartServiceCount(state)) - cartServiceFee(state);
   return `
     <div class="oky-dash-footer">
       <p class="oky-dash-sum" id="oky-dash-sum">${
@@ -3010,8 +3012,8 @@ function dashFooter(state) {
         /* Con productos, si lo agregado lleva la orden al tope del costo
            por servicio, se dice en una línea: ya no paga más de $2.99. */
         capped
-          ? `<p class="oky-dash-cap" id="oky-dash-cap"><i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-              Llegaste al tope: pagas máximo ${money(SERVICE_FEE_UNIT)} de servicio</p>`
+          ? `<p class="oky-dash-cap" id="oky-dash-cap"><i class="fa-solid fa-tag" aria-hidden="true"></i>
+              Llegaste al tope · <strong>Ahorras ${money(feeSaved)}</strong> en servicio</p>`
           : ""
       }
       <button class="btn btn-primary btn-large oky-dash-cta" data-action="dash-done" type="button"
