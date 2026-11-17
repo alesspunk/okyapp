@@ -2997,23 +2997,18 @@ function dashFooter(state) {
   const dash = state.dash;
   const elapsed = Math.min(Date.now() - dash.start, DASH_WINDOW_MS);
   const added = state.cart.length - dash.base;
-  const delta = Math.max(cartTotal(state) - dash.baseTotal, 0);
   const capped = dash.mode === "shop" && added > 0 && cartServiceCount(state) >= SERVICE_FEE_STEPS.length;
-  /* Lo que costaría el servicio a $2.99 por producto, menos el tope. */
-  const feeSaved = serviceFeeList(cartServiceCount(state)) - cartServiceFee(state);
   return `
     <div class="oky-dash-footer">
-      <p class="oky-dash-sum" id="oky-dash-sum">${
-        added
-          ? `Se suma a tu pago <strong>+${money(delta)}</strong>`
-          : "Lo que agregues se cobra en el mismo pago"
-      }</p>
+      ${/* El total que se va a cobrar, no lo que se suma: así no hay que
+           hacer cuentas. Ya descuenta lo pagado con OKY Cash. */ ""}
+      <p class="oky-dash-sum" id="oky-dash-sum">Total a pagar <strong>${money(orderDue(state))}</strong></p>
       ${
         /* Con productos, si lo agregado lleva la orden al tope del costo
-           por servicio, se dice en una línea: ya no paga más de $2.99. */
+           por servicio, sale la barra de ahorro del checkout con el mismo
+           copy y el mismo cálculo: «¡Ahorro total! $X». */
         capped
-          ? `<p class="oky-dash-cap" id="oky-dash-cap"><i class="fa-solid fa-tag" aria-hidden="true"></i>
-              Llegaste al tope · <strong>Ahorras ${money(feeSaved)}</strong> en servicio</p>`
+          ? `<div class="oky-flow-savebar is-bar oky-dash-savebar" id="oky-dash-cap"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(orderSavings(state))}</div>`
           : ""
       }
       <button class="btn btn-primary btn-large oky-dash-cta" data-action="dash-done" type="button"

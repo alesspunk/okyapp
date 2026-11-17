@@ -9736,30 +9736,12 @@ body {
   color: var(--text-primary);
 }
 
-/* Tope del costo por servicio: una pastilla en el aqua de ahorro, con
-   lo que se ahorra en bold, para que se note. */
-.oky-dash-cap {
-  align-self: center;
-  display: block;
-  width: fit-content;
-  max-width: 100%;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: var(--highlight-surface);
-  font: var(--type-subtitle2);
-  letter-spacing: var(--type-subtitle2-ls);
-  white-space: nowrap;
-  color: var(--highlight-text);
-}
-
-.oky-dash-cap i {
-  margin-right: 6px;
-}
-
-.oky-dash-cap strong {
-  font-weight: 800;
+/* Tope del costo por servicio: la barra de ahorro del checkout, a
+   sangre de borde a borde del modal, justo encima de «Listo». */
+.oky-dash-footer .oky-dash-savebar {
+  align-self: stretch;
+  width: auto;
+  margin: 0 -16px;
 }
 
 /* En el modal, nombres largos en una línea y la hora sin partir. */
