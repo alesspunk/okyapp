@@ -9825,6 +9825,46 @@ body {
   opacity: 0.8;
 }
 
+/* Pausa/play: un círculo chico y discreto en el extremo derecho del
+   CTA, dentro de su morado. El área de toque es de 32 (pasa el mínimo
+   de 24 de WCAG 2.5.8) y el CTA le deja sitio para que el reloj no
+   quede debajo. */
+.oky-dash-cta-wrap {
+  position: relative;
+}
+
+.oky-dash-cta-wrap .oky-dash-cta {
+  padding-right: 48px;
+  padding-left: 48px;
+}
+
+.oky-dash-cta-pause {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--white-a16);
+  color: var(--white);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.oky-dash-cta-pause:focus-visible {
+  outline: 2px solid var(--white);
+  outline-offset: -2px;
+}
+
+.oky-dash-cta-wrap.is-paused .oky-dash-cta-fill {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .oky-dash-cta-fill {
     display: none;

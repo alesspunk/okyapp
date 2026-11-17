@@ -9825,6 +9825,46 @@ body {
   opacity: 0.8;
 }
 
+/* Pausa/play: un círculo chico y discreto en el extremo derecho del
+   CTA, dentro de su morado. El área de toque es de 32 (pasa el mínimo
+   de 24 de WCAG 2.5.8) y el CTA le deja sitio para que el reloj no
+   quede debajo. */
+.oky-dash-cta-wrap {
+  position: relative;
+}
+
+.oky-dash-cta-wrap .oky-dash-cta {
+  padding-right: 48px;
+  padding-left: 48px;
+}
+
+.oky-dash-cta-pause {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--white-a16);
+  color: var(--white);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.oky-dash-cta-pause:focus-visible {
+  outline: 2px solid var(--white);
+  outline-offset: -2px;
+}
+
+.oky-dash-cta-wrap.is-paused .oky-dash-cta-fill {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .oky-dash-cta-fill {
     display: none;
@@ -25850,6 +25890,7 @@ function createInitialState(userType) {
     /* La ventana del Double Dash (OA-561) mientras «No cerrar app»:
        { start, base, baseTotal, corr, closing }. */
     dash: null,
+    dashSkip: false,
     /* Historial de ejemplo. Las entradas de una misma orden van juntas y
        en orden, que es como las agrupa la pantalla: las órdenes con más
        de un movimiento traen su desglose por marca detrás del toque. */
@@ -28067,6 +28108,11 @@ const dashPickUsd = (pick) => (pick.q ? toUsd(pick.q) : PRODUCTS[pick.key].price
 
 const dashHas = (state, test) => state.cart.some((item, i) => i >= state.dash.base && test(item));
 
+/* Lo que ya corrió de la ventana; en pausa se queda donde se pausó. */
+function dashElapsed(dash) {
+  return Math.min((dash.pausedAt || Date.now()) - dash.start, DASH_WINDOW_MS);
+}
+
 /* «0:14»: la cuenta del botón. */
 function dashClock(msLeft) {
   const s = Math.max(0, Math.ceil(msLeft / 1000));
@@ -28096,7 +28142,7 @@ function dashOffers(state) {
     const accounts = dash.corrs.map((corr) => state.svc.accounts[corr]).filter(Boolean);
     return `
     <div class="oky-dash-body">
-      <p class="oky-dash-overline">Todavía vas a tiempo</p>
+      <p class="oky-dash-overline">Todavía vas a tiempo, agrega algo más</p>
       ${accounts.map((acc) => dashBillRow(state, acc)).join("")}
     </div>
   `;
@@ -28105,7 +28151,7 @@ function dashOffers(state) {
   const picks = dashPicks(state);
   return `
     <div class="oky-dash-body">
-      <p class="oky-dash-overline">Todavía vas a tiempo</p>
+      <p class="oky-dash-overline">Todavía vas a tiempo, agrega algo más</p>
       <div class="oky-dash-picks">
         ${picks
           .map((pick) => {
@@ -28138,7 +28184,8 @@ function dashOffers(state) {
    pasó, así que repintar al agregar algo no la reinicia. */
 function dashFooter(state) {
   const dash = state.dash;
-  const elapsed = Math.min(Date.now() - dash.start, DASH_WINDOW_MS);
+  const elapsed = dashElapsed(dash);
+  const paused = Boolean(dash.pausedAt);
   const added = state.cart.length - dash.base;
   const capped = dash.mode === "shop" && added > 0 && cartServiceCount(state) >= SERVICE_FEE_STEPS.length;
   return `
@@ -28158,13 +28205,23 @@ function dashFooter(state) {
           ? `<div class="oky-flow-savebar is-bar oky-dash-savebar" id="oky-dash-cap"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(orderSavings(state))}</div>`
           : ""
       }
-      <button class="btn btn-primary btn-large oky-dash-cta" data-action="dash-done" type="button"
-        aria-describedby="oky-dash-sum${capped ? " oky-dash-cap" : ""}"
-        style="--dash-ms:${DASH_WINDOW_MS}ms;--dash-at:-${elapsed}ms">
-        <span class="oky-dash-cta-fill" aria-hidden="true"></span>
-        <span class="oky-dash-cta-label">${added ? "Listo, pagar todo" : "Listo"}</span>
-        <span class="oky-dash-cta-time" aria-hidden="true">${dashClock(DASH_WINDOW_MS - elapsed)}</span>
-      </button>
+      ${/* Pausa/play va encima del CTA, en su extremo derecho, como
+           hermano y no adentro (un botón no puede llevar otro botón).
+           Solo esa área pausa o reanuda; el resto del CTA sigue siendo
+           «Listo». */ ""}
+      <div class="oky-dash-cta-wrap${paused ? " is-paused" : ""}">
+        <button class="btn btn-primary btn-large oky-dash-cta" data-action="dash-done" type="button"
+          aria-describedby="oky-dash-sum${capped ? " oky-dash-cap" : ""}"
+          style="--dash-ms:${DASH_WINDOW_MS}ms;--dash-at:-${elapsed}ms">
+          <span class="oky-dash-cta-fill" aria-hidden="true"></span>
+          <span class="oky-dash-cta-label">${added ? "Listo, pagar todo" : "Listo"}</span>
+          <span class="oky-dash-cta-time" aria-hidden="true">${dashClock(DASH_WINDOW_MS - elapsed)}</span>
+        </button>
+        <button class="oky-dash-cta-pause" data-action="dash-pause" type="button"
+          aria-label="${paused ? "Reanudar el tiempo" : "Pausar el tiempo"}">
+          <i class="fa-solid ${paused ? "fa-play" : "fa-pause"}" aria-hidden="true"></i>
+        </button>
+      </div>
     </div>
   `;
 }
@@ -28185,7 +28242,10 @@ function screenProcessing(state) {
   return `
     ${statusBar()}
     ${titledHeader("")}
-    <div class="modal-molecule-backdrop" style="position:absolute;inset:0;z-index:15"></div>
+    <div class="modal-molecule-backdrop" style="position:absolute;inset:0;z-index:15"${
+      /* En el Double Dash, tocar fuera regresa al checkout con lo agregado. */
+      dash && !dash.closing ? ` data-action="dash-back"` : ""
+    }></div>
 
     <section class="oky-flow-wait${dash ? " is-dash" : ""}">
       ${
@@ -34179,7 +34239,8 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      Double Dash y se cobra todo junto al cerrarse. */
   function startProcessing() {
     clearInterval(dashTimer);
-    const mode = dashModeOf(state);
+    /* Si ya lo cerró tocando fuera, al volver a pagar no se insiste. */
+    const mode = state.dashSkip ? "" : dashModeOf(state);
     if (!mode) {
       state.dash = null;
       go("processing", {}, { push: false });
@@ -34197,6 +34258,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     go("processing", {}, { push: false });
     dashTimer = setInterval(() => {
       if (!state.dash || state.screen !== "processing") return clearInterval(dashTimer);
+      if (state.dash.pausedAt) return;
       const left = DASH_WINDOW_MS - (Date.now() - state.dash.start);
       if (left <= 0) return closeDash();
       const time = root.querySelector(".oky-dash-cta-time");
@@ -34289,6 +34351,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        vacía aquí mismo, así que el latido se muda solo, pero queda
        dicho para cuando vuelva a entrar algo al carrito. */
     state.beacon = "wallet";
+    state.dashSkip = false;
     /* El acuse abre por el primero de la orden. */
     state.orderIndex = 0;
     const total = cartTotal(state);
@@ -35929,6 +35992,36 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "dash-done") return closeDash();
+
+    /* Pausa/play del Double Dash: al pausar se congela el reloj y la
+       barra; al reanudar, el inicio se corre lo que duró la pausa. */
+    if (action === "dash-pause") {
+      const dash = state.dash;
+      if (!dash || dash.closing) return;
+      if (dash.pausedAt) {
+        dash.start += Date.now() - dash.pausedAt;
+        dash.pausedAt = 0;
+      } else {
+        dash.pausedAt = Date.now();
+      }
+      render({ keepScroll: true });
+      const again = root.querySelector(".oky-dash-cta-pause");
+      if (again) again.focus();
+      return;
+    }
+
+    /* Tocar fuera del Double Dash: no se cobra y se vuelve al checkout.
+       Lo agregado ya está en el carrito, así que el checkout lo enseña
+       con los totales al día; se abre en lo primero que se agregó. */
+    if (action === "dash-back") {
+      const dash = state.dash;
+      if (!dash || dash.closing) return;
+      clearInterval(dashTimer);
+      state.checkoutIndex = state.cart.length > dash.base ? dash.base : 0;
+      state.dash = null;
+      state.dashSkip = true;
+      return go("checkout", {}, { push: false, market: false });
+    }
 
     if (action === "dismiss-celebration") {
       clearTimeout(celebrationTimer);
