@@ -9645,6 +9645,7 @@ body {
   border-radius: 12px;
   background: var(--white);
   min-width: 0;
+  cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
 }
 
@@ -9839,8 +9840,10 @@ body {
   outline-offset: -2px;
 }
 
+/* En pausa la barra no anima: queda fija en lo que ya corrió. */
 .oky-dash-cta-wrap.is-paused .oky-dash-cta-fill {
-  animation-play-state: paused;
+  animation: none;
+  transform: scaleX(var(--dash-p, 0));
 }
 
 @media (prefers-reduced-motion: reduce) {

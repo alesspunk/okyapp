@@ -2956,7 +2956,7 @@ function dashOffers(state) {
     const accounts = dash.corrs.map((corr) => state.svc.accounts[corr]).filter(Boolean);
     return `
     <div class="oky-dash-body">
-      <p class="oky-dash-overline">Todavía vas a tiempo, agrega algo más</p>
+      <p class="oky-dash-overline">Estás a tiempo, agrega algo más</p>
       ${accounts.map((acc) => dashBillRow(state, acc)).join("")}
     </div>
   `;
@@ -2965,7 +2965,7 @@ function dashOffers(state) {
   const picks = dashPicks(state);
   return `
     <div class="oky-dash-body">
-      <p class="oky-dash-overline">Todavía vas a tiempo, agrega algo más</p>
+      <p class="oky-dash-overline">Estás a tiempo, agrega algo más</p>
       <div class="oky-dash-picks">
         ${picks
           .map((pick) => {
@@ -2973,7 +2973,10 @@ function dashOffers(state) {
             const on = dashHas(state, (item) => item.productKey === pick.key);
             const title = product.label;
             return `
-          <article class="oky-dash-pick${on ? " is-added" : ""}${product.food ? " is-photo" : ""}">
+          ${/* Toda la card agrega (o quita), no solo el botón. El botón
+               sigue siendo el control para teclado y lector de pantalla. */ ""}
+          <article class="oky-dash-pick${on ? " is-added" : ""}${product.food ? " is-photo" : ""}"
+            data-action="dash-pick" data-product="${pick.key}">
             <div class="oky-dash-pick-media"><img src="${product.art}" alt="" /></div>
             ${pick.q ? `<span class="oky-dash-pick-chip">Vale Q${bigQuetzal(pick.q)}</span>` : ""}
             <p class="oky-dash-pick-title">${escapeHtml(title)}</p>
@@ -3026,7 +3029,7 @@ function dashFooter(state) {
       <div class="oky-dash-cta-wrap${paused ? " is-paused" : ""}">
         <button class="btn btn-primary btn-large oky-dash-cta" data-action="dash-done" type="button"
           aria-describedby="oky-dash-sum${capped ? " oky-dash-cap" : ""}"
-          style="--dash-ms:${DASH_WINDOW_MS}ms;--dash-at:-${elapsed}ms">
+          style="--dash-ms:${DASH_WINDOW_MS}ms;--dash-at:-${elapsed}ms;--dash-p:${elapsed / DASH_WINDOW_MS}">
           <span class="oky-dash-cta-fill" aria-hidden="true"></span>
           <span class="oky-dash-cta-label">${added ? "Listo, pagar todo" : "Listo"}</span>
           <span class="oky-dash-cta-time" aria-hidden="true">${dashClock(DASH_WINDOW_MS - elapsed)}</span>
@@ -10818,9 +10821,19 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       } else {
         dash.pausedAt = Date.now();
       }
-      render({ keepScroll: true });
-      const again = root.querySelector(".oky-dash-cta-pause");
-      if (again) again.focus();
+      /* Sin repintar: la barra se congela justo donde va. En pausa queda
+         fija en --dash-p; al reanudar, la animación arranca desde ese
+         mismo punto (--dash-at), así que no salta ni vuelve al inicio. */
+      const paused = Boolean(dash.pausedAt);
+      const elapsed = dashElapsed(dash);
+      const cta = root.querySelector(".oky-dash-cta");
+      if (cta) {
+        cta.style.setProperty("--dash-at", `-${elapsed}ms`);
+        cta.style.setProperty("--dash-p", String(elapsed / DASH_WINDOW_MS));
+      }
+      el.closest(".oky-dash-cta-wrap")?.classList.toggle("is-paused", paused);
+      el.setAttribute("aria-label", paused ? "Reanudar el tiempo" : "Pausar el tiempo");
+      el.innerHTML = `<i class="fa-solid ${paused ? "fa-play" : "fa-pause"}" aria-hidden="true"></i>`;
       return;
     }
 
