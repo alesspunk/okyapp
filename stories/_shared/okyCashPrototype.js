@@ -3043,12 +3043,10 @@ function screenProcessing(state) {
 
     <section class="oky-flow-wait${dash ? " is-dash" : ""}">
       ${
-        /* En el Double Dash el título vende (bien chapín) y la línea de
-           abajo promete el pago y explica la pausa: se cobra al terminar. */
+        /* En el Double Dash el título vende (bien chapín), solo. */
         dash
-          ? `<h2 class="oky-flow-wait-title">Ya que estás, ¿algo más?</h2>
-      <p class="oky-dash-subtitle">Tu pago sale al terminar.</p>`
-          : `<h2 class="oky-flow-wait-title">No cerrar app</h2>`
+          ? `<h2 class="oky-flow-wait-title">Ya que estás, ¿algo más?</h2>`
+          :`<h2 class="oky-flow-wait-title">No cerrar app</h2>`
       }
       <div class="oky-flow-timeline">
         ${rows

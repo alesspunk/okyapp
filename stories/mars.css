@@ -9509,18 +9509,6 @@ body {
   height: min(736px, calc(100% - 64px));
 }
 
-.oky-flow-wait.is-dash .oky-flow-wait-title {
-  padding-bottom: 0;
-}
-
-.oky-dash-subtitle {
-  font: var(--type-body1-120);
-  letter-spacing: var(--type-body1-120-ls);
-  margin: 0;
-  padding: 0 24px 8px;
-  color: var(--text-secondary);
-}
-
 /* Lo que ya se paga (los checks verdes) arriba y llenando el alto; lo
    recomendado abajo, pegado a «Listo». */
 .oky-flow-wait.is-dash .oky-flow-timeline {
@@ -9684,6 +9672,11 @@ body {
   background: var(--white);
 }
 
+/* La foto 1:1 de un producto va centrada en su container. */
+.oky-dash-pick.is-photo .oky-dash-pick-media {
+  justify-content: center;
+}
+
 .oky-dash-pick.is-photo .oky-dash-pick-media img {
   width: 64px;
   height: 64px;
@@ -9711,6 +9704,12 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 2.5em;
+}
+
+/* Un producto fijo («Cajita Feliz de Nuggets de Pollo») se lee
+   completo: hasta 3 líneas, sin «…» mientras quepa. */
+.oky-dash-pick.is-photo .oky-dash-pick-title {
+  -webkit-line-clamp: 3;
 }
 
 .oky-dash-pick-price {
