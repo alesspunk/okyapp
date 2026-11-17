@@ -9521,6 +9521,18 @@ body {
   height: 620px;
 }
 
+.oky-flow-wait.is-dash .oky-flow-wait-title {
+  padding-bottom: 0;
+}
+
+.oky-dash-subtitle {
+  font: var(--type-body1-120);
+  letter-spacing: var(--type-body1-120-ls);
+  margin: 0;
+  padding: 0 24px 8px;
+  color: var(--text-secondary);
+}
+
 .oky-flow-wait.is-dash .oky-flow-timeline {
   flex: 0 0 auto;
   padding-bottom: 4px;
@@ -20802,7 +20814,7 @@ button.carrusel-dot:focus-visible {
   }
 }
 
-/* «Ver todos» en los grupos de EEGSA: asoman 2 pagos y el segundo se
+/* «Ver todos» en los grupos de EEGSA: asoman 3 pagos y el tercero se
    desvanece hacia abajo (peek + fade), que es lo que dice que hay más.
    El botón se monta un poco sobre el fundido para leerse como su final. */
 .oky-flow-svc-group-list.is-peek > .oky-flow-svc-pay:last-child {
@@ -27950,7 +27962,7 @@ function dashOffers(state) {
   const picks = dashPicks(state);
   return `
     <div class="oky-dash-body">
-      <p class="oky-dash-overline">Aún estás a tiempo</p>
+      <p class="oky-dash-overline">Todavía vas a tiempo</p>
       ${
         acc
           ? `
@@ -28041,7 +28053,14 @@ function screenProcessing(state) {
     <div class="modal-molecule-backdrop" style="position:absolute;inset:0;z-index:15"></div>
 
     <section class="oky-flow-wait${dash ? " is-dash" : ""}">
-      <h2 class="oky-flow-wait-title">No cerrar app</h2>
+      ${
+        /* En el Double Dash el título vende (bien chapín) y el aviso de
+           no cerrar baja a una línea: el pago sigue en proceso. */
+        dash
+          ? `<h2 class="oky-flow-wait-title">¡Aprovechá de una vez!</h2>
+      <p class="oky-dash-subtitle">Tu pago va en camino, no cerrés la app.</p>`
+          : `<h2 class="oky-flow-wait-title">No cerrar app</h2>`
+      }
       <div class="oky-flow-timeline">
         ${rows
           .map(
@@ -30504,7 +30523,16 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
         section0 === "servicios"
         ? {
             bottomVariantPath: "Molecule/Bottom Card/OKY Vales",
-            bottomLines: [{ label: "ID de pago", value: digitsOf(bottomSeed, 15), copyable: true }],
+            /* Con dos pagos de la misma marca (el Double Dash junta la
+               luz de Aracely y la de Daniel) el ID solo no los distingue:
+               primero a quién se le pagó y después el ID, en el formato
+               de dos valores de yayo. */
+            bottomLines: [
+              ...(svcCorr && state.svc.accounts[svcCorr]
+                ? [{ label: "Beneficiario", value: escapeHtml(state.svc.accounts[svcCorr].contact), copyable: false }]
+                : []),
+              { label: "ID de pago", value: digitsOf(bottomSeed, 15), copyable: true },
+            ],
             bottomExpiry: "",
             bottomButtonLabel: "Ayuda",
           }
@@ -31573,7 +31601,7 @@ const SVC_CORR_RE = /^\d{10}$/;
 /* Lo que tarda la consulta en el prototipo. */
 const SVC_LOADING_MS = 1800;
 /* Pagos que asoman en cada grupo antes de «Ver todos». */
-const SVC_PEEK = 2;
+const SVC_PEEK = 3;
 
 /* Tres cuentas de EEGSA con su historial mensual (lo más reciente
    primero). `ago` son los días desde el último pago; el contacto es el
@@ -31805,6 +31833,8 @@ function svcReminderCarousel(state, accounts) {
     renderReminderCarousel(accounts.map((acc) => svcReminderData(state, acc, { mini: true })), { label: "Recordatorios" }),
     accounts,
   );
+  /* Con un solo recordatorio no hay a dónde moverse: fuera los puntos. */
+  if (accounts.length === 1) html = html.replace(/<div class="carrusel-dots-wrap">[\s\S]*?<\/div>\s*<\/div>/, "");
   /* Los puntos del organismo son de adorno; aquí llevan a su card, que
      con mouse no hay otra forma de ver la segunda. */
   let i = 0;
@@ -31921,13 +31951,14 @@ function svcActivity(state) {
       return rank(a.corr) === 0 ? recent(b) - recent(a) : recent(a) - recent(b);
     });
   }
-  /* Acordeón como las secciones de Mis compras: un solo grupo abierto a
-     la vez. De cada uno asoman 2 pagos; el segundo se desvanece para
-     decir que hay más, y «Ver todos (N)» trae el resto de una vez. */
-  const openLabel = state.svc.openGroup == null ? groups[0].label : state.svc.openGroup;
+  /* Acordeón libre: cada grupo se abre y se cierra por su cuenta. Al
+     entrar (o al cambiar el filtro) arranca abierto solo el primero.
+     De cada uno asoman 3 pagos; el tercero se desvanece para decir que
+     hay más, y «Ver todos (N)» trae el resto de una vez. */
+  const openLabels = state.svc.openGroup == null ? [groups[0].label] : state.svc.openGroup;
   return groups
     .map((g) => {
-      const open = g.label === openLabel;
+      const open = openLabels.includes(g.label);
       /* «Ver pagos de este número» pidió una sola cuenta: se ve todo. */
       const all = !!state.svc.filter.corr || state.svc.shown[g.label] === "all";
       const visible = all ? g.items : g.items.slice(0, SVC_PEEK);
@@ -35129,6 +35160,8 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "open-eegsa") {
       /* Entrar de nuevo desde la categoría empieza arriba. */
       state.svc.scrollMemo = null;
+      /* …y con solo el primer grupo abierto. */
+      state.svc.openGroup = null;
       return go("eegsa");
     }
 
@@ -35252,11 +35285,10 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "svc-toggle-group") {
       const group = el.dataset.group;
       const firstHead = root.querySelector("[data-action='svc-toggle-group']");
-      const current = state.svc.openGroup == null ? firstHead && firstHead.dataset.group : state.svc.openGroup;
-      /* Siempre hay uno abierto: abrir otro cierra el que estaba, y
-         tocar el abierto no hace nada. */
-      if (current === group) return;
-      state.svc.openGroup = group;
+      const current = state.svc.openGroup == null ? (firstHead ? [firstHead.dataset.group] : []) : state.svc.openGroup;
+      /* Cada grupo se abre y se cierra por su cuenta; los demás se
+         quedan como estaban. */
+      state.svc.openGroup = current.includes(group) ? current.filter((g) => g !== group) : [...current, group];
       return render({ keepScroll: true });
     }
 
