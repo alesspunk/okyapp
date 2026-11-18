@@ -10188,25 +10188,25 @@ body {
   opacity: 0.8;
 }
 
-/* Pausa/play: un círculo chico y discreto en el extremo derecho del
-   CTA, dentro de su morado. El área de toque es de 32 (pasa el mínimo
-   de 24 de WCAG 2.5.8) y el CTA le deja sitio para que el reloj no
-   quede debajo. */
+/* Pausa/play: un círculo discreto en el extremo derecho del CTA, dentro
+   de su morado. El CTA le deja sitio para que el reloj no quede debajo. */
 .oky-dash-cta-wrap {
   position: relative;
 }
 
 .oky-dash-cta-wrap .oky-dash-cta {
-  padding-right: 48px;
-  padding-left: 48px;
+  padding-right: 56px;
+  padding-left: 56px;
 }
 
+/* 40 px de círculo (antes 32) en un CTA de 48: más área de toque para
+   no pausar por accidente al apuntarle a «Listo». */
 .oky-dash-cta-pause {
   position: absolute;
   top: 50%;
-  right: 8px;
-  width: 32px;
-  height: 32px;
+  right: 4px;
+  width: 40px;
+  height: 40px;
   transform: translateY(-50%);
   display: grid;
   place-items: center;
@@ -10215,7 +10215,7 @@ body {
   border-radius: 50%;
   background: var(--white-a16);
   color: var(--white);
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
 }
 
