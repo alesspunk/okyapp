@@ -28828,7 +28828,8 @@ function screenMethods(state) {
    ?dash=SEG cambia la ventana para demos; ?dash=0 la apaga. */
 const DASH_WINDOW_MS = (() => {
   const raw = new URLSearchParams(typeof location === "undefined" ? "" : location.search).get("dash");
-  if (raw === null || raw === "" || Number.isNaN(Number(raw))) return 25000;
+  /* 30 s: con 25 quedaba muy poco para leer la lista y decidir. */
+  if (raw === null || raw === "" || Number.isNaN(Number(raw))) return 30000;
   return Math.max(0, Number(raw)) * 1000;
 })();
 
@@ -37334,14 +37335,17 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "dash-back") return dashBack();
     if (action === "dash-mini") return dashMini();
     if (action === "dash-full") return dashFull();
-    if (action === "dash-pay-one" || action === "dash-pay-all") {
+    if (action === "dash-pay-one") {
       const dash = state.dash;
       if (!dash || dash.closing) return;
-      /* «Pagar uno solo»: fuera lo que se sumó, se paga lo de antes. */
-      if (action === "dash-pay-one") state.cart.splice(dash.base);
+      /* «Pagar uno solo»: fuera lo que se sumó y de vuelta al modal
+         completo con el tiempo desde cero. Se paga al terminar el tiempo
+         o con «Listo». */
+      state.cart.splice(dash.base);
       dash.mini = false;
+      dash.start = Date.now();
       dash.pausedAt = 0;
-      return closeDash();
+      return render({ keepScroll: true });
     }
 
     if (action === "dismiss-celebration") {
