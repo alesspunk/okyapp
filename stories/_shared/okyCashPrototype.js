@@ -2473,7 +2473,10 @@ function cartDrawer(state) {
                      sitio va la cantidad, del mismo tamaño. */
                   product.food
                     ? cartQty(product, item.qty || 1, state.qtyOpen === item.productKey)
-                    : `<button class="oky-flow-cart-edit" data-action="edit-item" data-product="${item.productKey}"
+                    : /* Un recibo no se edita: el monto lo pone la factura. */
+                      item.corr
+                      ? ""
+                      : `<button class="oky-flow-cart-edit" data-action="edit-item" data-product="${item.productKey}"
                         type="button" aria-label="Cambiar el monto de ${product.label}">
                         <i class="fa-solid fa-pencil" aria-hidden="true"></i>
                       </button>`
@@ -2481,7 +2484,7 @@ function cartDrawer(state) {
               </div>
               <div class="oky-flow-cart-body">
                 <span class="oky-flow-cart-copy">
-                  <p class="oky-flow-cart-title">${product.cartTitle || product.cardTitle}</p>
+                  <p class="oky-flow-cart-title">${item.corr ? `${svcCheckoutTitle(state, item.corr)} · ${quetzalOf(item.quetzales)}` : product.cartTitle || product.cardTitle}</p>
                   <p class="oky-flow-cart-price${product.was ? " is-deal" : ""}">
                     ${money(item.amount * (item.qty || 1))}
                     ${
@@ -2491,8 +2494,10 @@ function cartDrawer(state) {
                     }
                   </p>
                 </span>
-                <button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"
-                  type="button" aria-label="Quitar ${product.label}">
+                <button class="oky-flow-cart-trash" data-action="remove-item" data-product="${item.productKey}"${
+                  item.corr ? ` data-corr="${item.corr}"` : ""
+                }
+                  type="button" aria-label="Quitar ${item.corr ? svcCheckoutTitle(state, item.corr) : product.label}">
                   <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
                 </button>
               </div>
@@ -2701,7 +2706,8 @@ function screenCheckout(state) {
   return `
     <div class="oky-flow-page">
     ${statusBar()}
-    ${/* Pagando un servicio no hay carrito que mirar: fuera el icono. */ productHeader(state, { cart: !isSvcCart(state) })}
+    ${/* El carrito vuelve también en pagos de servicios: con varios
+         recibos (el Double Dash) se puede quitar uno antes de pagar. */ productHeader(state)}
 
     <div class="oky-flow-section">
       ${
@@ -10575,7 +10581,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* El mercado se decide por lo que hay en el carrito, así que hay
          que preguntarlo antes de vaciarlo. */
       const market = orderCountry(state);
-      state.cart = state.cart.filter((item) => item.productKey !== el.dataset.product);
+      /* Con varios recibos de EEGSA se quita solo el tocado (por su
+         correlativo), no todos los de la marca. */
+      state.cart = el.dataset.corr
+        ? state.cart.filter((item) => item.corr !== el.dataset.corr)
+        : state.cart.filter((item) => item.productKey !== el.dataset.product);
       state.checkoutIndex = clamp(state.checkoutIndex, 0, Math.max(state.cart.length - 1, 0));
       if (!state.cart.length) {
         /* Sin nada que pagar el checkout no tiene de qué hablar: se
