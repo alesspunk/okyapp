@@ -499,8 +499,14 @@ function unitOfPurchase(state, purchase) {
    vive en Para mí. Los demás servicios y recargas —Claro se guarda con
    los vales, pero es una recarga— van siempre a "Para otros" mientras
    no tengan el suyo. */
-function purchaseIsForSelf(state, productKey) {
+function purchaseIsForSelf(state, productKey, corr = "") {
   if (productKey === "eegsa") {
+    /* Cada recibo es de quien es su cuenta, no del destinatario de la
+       orden: en el Double Dash se juntan «Mi luz» y la de Aracely, y
+       cada una va a su pestaña. Un número nuevo todavía no tiene cuenta:
+       ese sí lo decide lo elegido en «Para mí / Para otros». */
+    const acc = corr && state.svc.accounts[corr];
+    if (acc) return svcMine(acc);
     const who = recipientOf(state);
     return Boolean(who.self) || who.name === USA_RECIPIENT.name;
   }
@@ -1185,9 +1191,9 @@ function earnedCashback(state) {
    y barra de progreso, y si no hay conexión muestra el error con
    Reintentar. La landing sigue PDP-16 de Pages 3.0 (30/10): el ciclo
    Compras → Ganas → Lo usas, el párrafo y tres datos con su ícono. */
-/* El recibo del header (receipt de FA Pro, regular): SVG porque el
+/* El recibo del header (receipt de FA Pro, light, como en 7600): SVG porque el
    prototipo suelto solo trae los glifos de Free. */
-const RECEIPT_SVG = `<svg viewBox="0 0 384 512" width="20" height="26" fill="currentColor" aria-hidden="true" focusable="false"><path d="M39.6 5.8C32.5 -0.3 22.5 -1.7 14 2.2C5.5 6.1 0 14.6 0 24V488C0 497.4 5.5 505.9 14 509.8C22.5 513.7 32.5 512.3 39.6 506.2L80 471.6L120.4 506.2C129.4 513.9 142.7 513.9 151.6 506.2L192 471.6L232.4 506.2C241.4 513.9 254.7 513.9 263.6 506.2L304 471.6L344.4 506.2C351.5 512.3 361.5 513.7 370 509.8C378.5 505.9 384 497.4 384 488V24C384 14.6 378.5 6.1 370 2.2C361.5 -1.7 351.5 -0.3 344.4 5.8L304 40.4L263.6 5.8C254.6 -1.9 241.3 -1.9 232.4 5.8L192 40.4L151.6 5.8C142.6 -1.9 129.3 -1.9 120.4 5.8L80 40.4L39.6 5.8ZM48 435.8V76.2L64.4 90.2C73.4 97.9 86.7 97.9 95.6 90.2L136 55.6L176.4 90.2C185.4 97.9 198.7 97.9 207.6 90.2L248 55.6L288.4 90.2C297.4 97.9 310.7 97.9 319.6 90.2L336 76.2V435.8L319.6 421.8C310.6 414.1 297.3 414.1 288.4 421.8L248 456.4L207.6 421.8C198.6 414.1 185.3 414.1 176.4 421.8L136 456.4L95.6 421.8C86.6 414.1 73.3 414.1 64.4 421.8L48 435.8ZM120 144C106.7 144 96 154.7 96 168C96 181.3 106.7 192 120 192H264C277.3 192 288 181.3 288 168C288 154.7 277.3 144 264 144H120ZM120 320C106.7 320 96 330.7 96 344C96 357.3 106.7 368 120 368H264C277.3 368 288 357.3 288 344C288 330.7 277.3 320 264 320H120ZM96 256C96 269.3 106.7 280 120 280H264C277.3 280 288 269.3 288 256C288 242.7 277.3 232 264 232H120C106.7 232 96 242.7 96 256Z"/></svg>`;
+const RECEIPT_SVG = `<svg viewBox="0 0 384 512" width="20" height="26" fill="currentColor" aria-hidden="true" focusable="false"><path d="M26.5 4C21.8 -0.2 15.1 -1.2 9.4 1.4C3.7 4 1.5e-05 9.7 1.5e-05 16V496C1.5e-05 502.3 3.7 508 9.4 510.6C15.1 513.2 21.8 512.2 26.5 508.1L79.2 462L124.6 507.4C130.8 513.6 141 513.6 147.2 507.4L192 462.6L236.7 507.3C242.9 513.5 253.1 513.5 259.3 507.3L304.7 461.9L357.5 508C362.2 512.1 368.9 513.1 374.6 510.5C380.3 507.9 384 502.2 384 495.9V15.9C384 9.6 380.3 3.9 374.6 1.3C368.9 -1.3 362.2 -0.2 357.5 4L304.7 50.1L259.3 4.7C253.1 -1.5 242.9 -1.5 236.7 4.7L192 49.4L147.3 4.7C141.1 -1.5 130.9 -1.5 124.7 4.7L79.3 50.1L26.5 4ZM32 460.7V51.3L69.5 84C75.8 89.5 85.4 89.2 91.3 83.3L136 38.6L180.7 83.3C186.9 89.5 197.1 89.5 203.3 83.3L248 38.6L292.7 83.3C298.7 89.3 308.2 89.6 314.5 84L352 51.3V460.8L314.5 428C308.2 422.5 298.6 422.8 292.7 428.7L248 473.4L203.3 428.7C197.1 422.5 186.9 422.5 180.7 428.7L136 473.4L91.3 428.7C85.3 422.7 75.8 422.4 69.5 428L32 460.7ZM96 144C87.2 144 80 151.2 80 160C80 168.8 87.2 176 96 176H288C296.8 176 304 168.8 304 160C304 151.2 296.8 144 288 144H96ZM80 352C80 360.8 87.2 368 96 368H288C296.8 368 304 360.8 304 352C304 343.2 296.8 336 288 336H96C87.2 336 80 343.2 80 352ZM96 240C87.2 240 80 247.2 80 256C80 264.8 87.2 272 96 272H288C296.8 272 304 264.8 304 256C304 247.2 296.8 240 288 240H96Z"/></svg>`;
 
 /* «18 / NOV / 2026 - 14:55hrs (CST)», como el recibo de 7600. */
 function receiptStamp(at) {
@@ -3322,14 +3328,10 @@ function purchaseHeader(state) {
 
       ${
         /* Solo en pagos de servicios, por ahora: el recibo (7600 ·
-           102195:136567) abre la factura en un webview, porque vive en
-           una URL externa. */
+           102195:136567) lleva siempre al detalle del pago. La factura se
+           abre desde ahí, con file-arrow-down, cuando algo salió. */
         isServicePayment(state.lastOrder.map((p) => p.productKey)) && state.lastReceipt
-          ? /* Fallido no hay factura que bajar: el recibo lleva al
-               detalle del pago, con el reembolso. */
-            svcFailed(state)
-            ? `<button class="oky-flow-header-icon oky-flow-purchase-invoice" data-action="svc-pay-detail" type="button" aria-label="Ver detalle del pago">${RECEIPT_SVG}</button>`
-            : `<button class="oky-flow-header-icon oky-flow-purchase-invoice" data-action="open-invoice" type="button" aria-label="Ver factura">${RECEIPT_SVG}</button>`
+          ? `<button class="oky-flow-header-icon oky-flow-purchase-invoice" data-action="svc-pay-detail" type="button" aria-label="Ver detalle del pago">${RECEIPT_SVG}</button>`
           : `<span class="oky-flow-header-icon oky-flow-header-spacer" aria-hidden="true"></span>`
       }
     </header>
@@ -3548,7 +3550,7 @@ function screenPurchasesMixed(state, { celebrate = false, cashWin = false } = {}
         ${hasNewVouchers(state) ? `<span class="header-icon-indicator-dot"></span>` : ""}
       </button>
       <h1 class="oky-flow-mixed-title">${V3_ROUTE ? "Mis compras" : "Tus compras"}</h1>
-      <button class="oky-flow-header-icon oky-flow-purchase-invoice" data-action="open-invoice" type="button" aria-label="Ver factura">${RECEIPT_SVG}</button>
+      <button class="oky-flow-header-icon oky-flow-purchase-invoice" data-action="svc-pay-detail" type="button" aria-label="Ver detalle de la compra">${RECEIPT_SVG}</button>
     </header>
     <div class="oky-flow-section">
       <section class="plateu-molecule is-static is-default oky-flow-order-plateu" role="tablist" aria-label="Estado de los pagos">
@@ -3584,7 +3586,7 @@ function screenPurchasesMixed(state, { celebrate = false, cashWin = false } = {}
     </div>
     <div class="oky-flow-cta-bar is-order-voucher oky-flow-paydetail-bar">
       <button class="btn btn-primary btn-large oky-flow-paydetail-help" type="button">
-        <img src="whatsapp.png" alt="" /> Ayuda
+        <img src="oky-whatsapp-ayuda.png" alt="" /> Ayuda
       </button>
       <button class="btn btn-outlined btn-large" data-action="svc-pay-detail" type="button">Ver detalle</button>
     </div>
@@ -5863,7 +5865,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
             : titledHeader(title)
     }
     <div class="oky-flow-section is-voucher${asPurchase ? " is-purchase" : ""}${failed ? " is-failed" : ""}">
-      <div class="oky-flow-card-carousel${archived ? " is-redeemed is-archived" : shared ? " is-redeemed" : ""}">
+      <div class="oky-flow-card-carousel${failed ? " is-failed-card" : archived ? " is-redeemed is-archived" : shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
         /* Un vale de producto no es una gift card y el sistema ya
            tiene su anatomía (82513:86915): arriba el logo de la marca
@@ -7205,26 +7207,36 @@ function svcBell(state) {
    Quién, cuándo y cuánto; la marca con la equis roja; y el reembolso a
    la tarjeta en verde. Sin factura: el pago no se hizo. «Ver historial»
    todavía no lleva a ningún lado. */
-function screenSvcPayDetail(state) {
+function payDetailSheet(state) {
   const r = state.lastReceipt || {};
   /* Mixto (102195:138069): todos los de la orden, los fallidos con la
      equis y en gris, y el reembolso solo de lo que falló (el costo por
      servicio se cobró por los que sí salieron). Todo fallido: el
      reembolso es todo lo cobrado. */
+  /* Tres casos: todo bien (102195:136480: la fecha, el total sumado de
+     todos, la factura y cada pago), todo mal (102195:137800: sin
+     factura, con reembolso) y mixto (102195:138069). */
   const mixed = orderMixed(state);
-  const rows = mixed ? state.lastOrder : state.lastOrder.filter((p) => p.failed);
+  const allFailed = svcFailed(state);
+  const allOk = !mixed && !allFailed;
+  const rows = allFailed ? state.lastOrder.filter((p) => p.failed) : state.lastOrder;
   const failedRows = state.lastOrder.filter((p) => p.failed);
   const first = rows[0] || {};
   const acc = state.svc.accounts[first.corr] || {};
   const refund = failedRows.reduce((sum, p) => sum + p.amount, 0) + (mixed ? 0 : r.fee || 0);
   /* Arriba, lo autorizado en la orden; abajo, lo que se devuelve. */
-  const paid = mixed ? r.paid || 0 : refund;
+  const paid = allFailed ? refund : r.paid || 0;
   const who = [...new Set(rows.map((p) => (state.svc.accounts[p.corr] || {}).contact).filter(Boolean))].join(", ");
+  /* Es una hoja encima de la poscompra, no otra pantalla: sube al
+     abrirse y el chevron la minimiza, que baja y deja ver lo de atrás. */
   return `
+    <section class="oky-paydetail-sheet${state.payDetail && state.payDetail.closing ? " is-closing" : ""}${
+      state.payDetail && state.payDetail.fresh ? " is-fresh" : ""
+    }" role="dialog" aria-modal="true" aria-labelledby="oky-paydetail-title">
     ${statusBar()}
     <header class="oky-flow-paydetail-head">
-      <h1>${mixed ? "Detalle de la compra" : "Detalle del pago"}</h1>
-      <button class="oky-flow-header-icon" data-action="back" type="button" aria-label="Cerrar el detalle">
+      <h1 id="oky-paydetail-title">${mixed ? "Detalle de la compra" : "Detalle del pago"}</h1>
+      <button class="oky-flow-header-icon" data-action="paydetail-min" type="button" aria-label="Minimizar el detalle">
         <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
       </button>
     </header>
@@ -7232,13 +7244,14 @@ function screenSvcPayDetail(state) {
       <article class="oky-flow-paydetail-card">
         <div class="oky-flow-paydetail-top">
           <div>
-            <p class="oky-flow-paydetail-who">${escapeHtml(who || acc.contact || r.recipient || "")}</p>
+            ${allOk ? "" : `<p class="oky-flow-paydetail-who">${escapeHtml(who || acc.contact || r.recipient || "")}</p>`}
             <p class="oky-flow-paydetail-date">${stamp(0)}</p>
           </div>
           <p class="oky-flow-paydetail-amount">${money(paid)}</p>
           ${
-            /* Con algo procesado sí hay factura: el ícono de descarga. */
-            mixed
+            /* Con algo procesado sí hay factura: file-arrow-down la abre
+               en el webview. Todo fallido no tiene. */
+            !allFailed
               ? `<button class="oky-flow-paydetail-invoice" data-action="open-invoice" type="button" aria-label="Ver factura">
             <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
           </button>`
@@ -7254,25 +7267,29 @@ function screenSvcPayDetail(state) {
             ${p.failed ? `<span class="oky-flow-paydetail-x" aria-label="Falló"><i class="fa-solid fa-xmark" aria-hidden="true"></i></span>` : ""}
           </span>
           <div>
-            <p class="oky-flow-paydetail-brand">EEGSA${mixed ? ` · ${escapeHtml((state.svc.accounts[p.corr] || {}).alias || "")}` : ""}</p>
+            <p class="oky-flow-paydetail-brand">EEGSA${rows.length > 1 ? ` · ${escapeHtml((state.svc.accounts[p.corr] || {}).alias || "")}` : ""}</p>
             <p class="oky-flow-paydetail-what">Pago a servicios por ${quetzalOf(p.quetzales)}</p>
           </div>
         </div>`,
           )
           .join("")}
-        <div class="oky-flow-paydetail-refund">
+        ${
+          failedRows.length
+            ? `<div class="oky-flow-paydetail-refund">
           <span><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Reembolso a tu tarjeta</span>
           <strong>${money(refund)}</strong>
-        </div>
+        </div>`
+            : ""
+        }
       </article>
     </div>
-    <div class="oky-flow-cta-bar is-order-voucher oky-flow-paydetail-bar">
+    <div class="oky-flow-cta-bar is-order-voucher oky-flow-paydetail-bar is-in-sheet">
       <button class="btn btn-primary btn-large oky-flow-paydetail-help" type="button">
-        <img src="whatsapp.png" alt="" /> Ayuda
+        <img src="oky-whatsapp-ayuda.png" alt="" /> Ayuda
       </button>
       <button class="btn btn-outlined btn-large is-inert" type="button" aria-disabled="true">Ver historial</button>
     </div>
-    ${navbar("", state)}
+    </section>
   `;
 }
 
@@ -7758,7 +7775,6 @@ function renderScreen(state) {
     case "voucher": return screenVoucher(state);
     case "decision": return screenDecision();
     case "eegsa": return screenEegsa(state);
-    case "svcpaydetail": return screenSvcPayDetail(state);
     case "svcconsulta": return screenSvcConsulta(state);
     case "svcreminders": return screenSvcReminders(state);
     default: return screenHome(state);
@@ -8029,6 +8045,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         ${state.tourFlag ? tourFlag() : ""}
         ${state.tourConfetti ? `<div class="oky-flow-burst" data-role="tour-confetti"></div>` : ""}
         ${state.menuOpen ? menuSheet() : ""}
+        ${state.payDetail ? payDetailSheet(state) : ""}
         ${state.webview ? webviewSheet(state) : ""}
       </div>
     `;
@@ -9425,6 +9442,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.cartOpen = false;
     state.menuOpen = false;
     state.headerCollapsed = false;
+    state.payDetail = null;
     /* Primera llegada al checkout con saldo sin usar: se avisa una vez. */
     if (screen === "checkout" && !state.cashNoticeSeen && state.okyCashBalance > 0 && !state.okyCashEnabled) {
       state.cashNoticeSeen = true;
@@ -9679,7 +9697,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           used: i === 0 && u === 0 ? used : 0,
           date: stamp(0),
           /* Para quién fue: decide la pestaña de la variante 3. */
-          forSelf: purchaseIsForSelf(state, item.productKey),
+          forSelf: purchaseIsForSelf(state, item.productKey, item.corr),
           /* Un pago de servicio guarda su correlativo: de él cuelga el
              recordatorio. */
           ...(item.corr ? { corr: item.corr } : {}),
@@ -9755,6 +9773,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.promo = null;
     state.cashOffByPromo = false;
     state.history = [];
+    /* Si todo falló (la luz de Byron sola) no hay nada que celebrar: va
+       directo a la poscompra fallida. La celebración queda para cuando
+       algo sí salió, también en la orden mixta. */
+    if (svcFailed(state)) return go("purchases", {}, { push: false });
     go("success", {}, { push: false });
   }
 
@@ -11260,7 +11282,27 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.svc.scrollMemo = null;
       return go("eegsa");
     }
-    if (action === "svc-pay-detail") return go("svcpaydetail");
+    if (action === "svc-pay-detail") {
+      state.payDetail = { closing: false, fresh: true };
+      render({ keepScroll: true });
+      state.payDetail.fresh = false;
+      return;
+    }
+    if (action === "paydetail-min") {
+      if (!state.payDetail || state.payDetail.closing) return;
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduce) {
+        state.payDetail = null;
+        return render({ keepScroll: true });
+      }
+      state.payDetail.closing = true;
+      render({ keepScroll: true });
+      setTimeout(() => {
+        state.payDetail = null;
+        render({ keepScroll: true });
+      }, 260);
+      return;
+    }
     if (action === "order-tab") {
       state.orderTab = el.dataset.tab === "fallidas" ? "fallidas" : "exitosas";
       return render({ keepScroll: true });
