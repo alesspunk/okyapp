@@ -2602,6 +2602,14 @@ function cartDrawer(state) {
   `;
 }
 
+/* El título de un recibo en el checkout. */
+function svcCheckoutTitle(state, corr) {
+  const acc = state.svc.accounts[corr];
+  if (acc) return escapeHtml(acc.alias);
+  const who = recipientOf(state);
+  return who.self || who.name === USA_RECIPIENT.name ? "Mi luz" : escapeHtml(`Luz de ${who.name}`);
+}
+
 /* ── Checkout (99105:31768) ─────────────────────────────── */
 function screenCheckout(state) {
   const total = cartTotal(state);
@@ -2615,7 +2623,12 @@ function screenCheckout(state) {
   /* En Guatemala el destinatario lo pone la orden y no se toca. En USA
      sale de la agenda, y el número es el del contacto elegido: lo que
      se lee aquí y lo que se lee en la agenda no pueden discrepar. */
-  const recipient = recipientOf(state);
+  /* En un pago de servicio, «¿Para quién es?» sigue a la card que se
+     ve: con varios recibos en la orden (el Double Dash) cada uno es de
+     su cuenta, y al pasar el carrusel cambia. */
+  const activeItem = state.cart[active] || {};
+  const activeAcc = activeItem.corr ? state.svc.accounts[activeItem.corr] : null;
+  const recipient = (activeAcc && (svcMine(activeAcc) ? CONTACTS.find((c) => c.self) : contactByName(activeAcc.contact))) || recipientOf(state);
   /* Cada vale lleva su propio porcentaje en el wrap ribbon, igual que
      en el PDP: con el reloj en pausa aquí dentro, el 20% de Nike no se
      convierte en 5% mientras se ajusta el pago. */
@@ -2624,7 +2637,11 @@ function screenCheckout(state) {
     const itemTier = getTier(item.amount, product, state.promoLive);
     /* Lo que no es una gift card dice lo que es: un paquete de internet
        no se anuncia como gift card. */
-    const itemTitle = product.wallet ? product.cardTitle : "Gift Card";
+    /* Un pago de servicio se titula con su cuenta («Luz de Aracely»),
+       como en la consulta y el recordatorio: con varios recibos en la
+       orden (el Double Dash) se distingue de quién es cada uno. Un número
+       nuevo aún no tiene cuenta: se nombra con quien va a recibirlo. */
+    const itemTitle = item.corr ? svcCheckoutTitle(state, item.corr) : product.wallet ? product.cardTitle : "Gift Card";
     return `
     <section class="middle-card-shell is-checkout">
       <article class="middle-card-molecule is-egift">
