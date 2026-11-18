@@ -8439,6 +8439,301 @@ body {
   font-weight: 700;
 }
 
+/* Pago fallido (F08-44): el toast en rojo, con «¿Qué pasó?» a la derecha. */
+.oky-flow-toast.is-error {
+  background: var(--error-bg);
+  color: var(--error-text);
+  gap: 8px;
+  padding: 0 12px;
+  font-size: 15px;
+}
+
+.oky-flow-toast.is-error i {
+  color: var(--error-main);
+  font-size: 18px;
+}
+
+.oky-flow-toast-link {
+  margin-left: auto;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--error-text);
+  cursor: pointer;
+}
+
+/* El monto del pago fallido en gris: no se cobró. */
+.oky-flow-section.is-failed .middle-card-title,
+.oky-flow-section.is-failed .middle-card-currency,
+.oky-flow-section.is-failed .middle-card-amount {
+  color: rgba(0, 0, 0, 0.38);
+}
+
+/* ── Poscompra mixta (102454:16653) ─────────────────────── */
+.oky-flow-header.is-mixed {
+  justify-content: space-between;
+}
+
+.oky-flow-mixed-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary-base);
+}
+
+/* El plateau de MARS (tarjeta blanca con sombra) con las dos pestañas
+   repartidas, como en 102454:16653. */
+/* Aquí sí con sombra (en el wallet va plano): en 102454:16653 es una
+   tarjeta flotante sobre la pila. */
+.oky-flow-frame .plateu-molecule.oky-flow-order-plateu {
+  align-self: stretch;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  background: var(--white);
+  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.17);
+}
+
+.oky-flow-order-plateu .plateu-track.is-static {
+  justify-content: space-around;
+  align-items: center;
+  padding: 16px 20px 14px;
+}
+
+.oky-flow-order-plateu .plateu-item {
+  flex: 0 0 auto;
+  min-width: 80px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  gap: 6px;
+}
+
+.oky-flow-order-plateu .plateu-item.is-on .plateu-icon-wrap {
+  transform: translateY(-3px);
+}
+
+.oky-flow-voucher-badge .is-failed {
+  color: var(--error-main);
+}
+
+/* En el detalle mixto, lo que falló va en gris. */
+.oky-flow-paydetail-item.is-failed .oky-flow-paydetail-what,
+.oky-flow-paydetail-item.is-failed .oky-flow-paydetail-brand {
+  color: rgba(0, 0, 0, 0.38);
+}
+
+.oky-flow-paydetail-item + .oky-flow-paydetail-item {
+  border-top: 1px dashed var(--divider);
+}
+
+.oky-flow-paydetail-invoice {
+  margin-left: 12px;
+  padding: 4px;
+  border: 0;
+  background: none;
+  color: var(--primary-base);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.oky-flow-paydetail-top {
+  gap: 4px;
+}
+
+.oky-flow-paydetail-top > div {
+  flex: 1 1 auto;
+}
+
+/* Factura mixta: el aviso del cargo temporal y lo no procesado. */
+.oky-invoice-hold {
+  display: flex;
+  gap: 10px;
+  margin: 4px -8px 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #e5f6fd;
+  color: #014361;
+  font-size: 11px;
+}
+
+.oky-invoice-hold p {
+  margin: 0;
+}
+
+.oky-invoice-hold strong {
+  font-size: 12px;
+}
+
+.oky-invoice-hold i {
+  margin-top: 2px;
+  color: #0288d1;
+}
+
+.oky-invoice-block.is-failed .oky-invoice-row {
+  color: rgba(0, 0, 0, 0.38);
+}
+
+.oky-invoice-chip {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #e5f6fd;
+  color: #014361;
+  font-size: 10px;
+}
+
+/* ── Detalle del pago (102195:137800) ───────────────────── */
+.oky-flow-paydetail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 12px 24px;
+}
+
+.oky-flow-paydetail-head h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary-base);
+}
+
+.oky-flow-paydetail {
+  padding: 4px 16px 24px;
+}
+
+.oky-flow-paydetail-card {
+  padding: 12px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.23);
+  border-radius: 16px;
+  background: var(--white);
+}
+
+.oky-flow-paydetail-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--divider);
+}
+
+.oky-flow-paydetail-top p {
+  margin: 0;
+}
+
+.oky-flow-paydetail-who {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.oky-flow-paydetail-date {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary-base);
+}
+
+.oky-flow-paydetail-amount {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary-base);
+}
+
+.oky-flow-paydetail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.oky-flow-paydetail-item p {
+  margin: 0;
+}
+
+.oky-flow-paydetail-logo {
+  position: relative;
+  flex: 0 0 auto;
+  width: 70px;
+  height: 44px;
+  border: 1px solid var(--divider);
+  border-radius: 6px;
+  background: var(--white);
+}
+
+.oky-flow-paydetail-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.oky-flow-paydetail-x {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--error-main);
+  color: var(--white);
+  font-size: 10px;
+}
+
+.oky-flow-paydetail-brand {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.oky-flow-paydetail-what {
+  font-size: 13px;
+  color: var(--primary-base);
+}
+
+.oky-flow-paydetail-refund {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: var(--primary-dark, #23005a);
+}
+
+.oky-flow-paydetail-refund i {
+  margin-right: 8px;
+  color: #1976d2;
+}
+
+.oky-flow-paydetail-refund strong {
+  color: #2e9e4f;
+}
+
+/* Dos botones en la barra: siempre 50/50. */
+.oky-flow-paydetail-bar {
+  display: flex;
+  gap: 8px;
+}
+
+.oky-flow-paydetail-bar .btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.oky-flow-cta-bar.is-order-voucher .btn.oky-flow-paydetail-help {
+  background: var(--primary-base);
+  color: var(--white);
+}
+
+.oky-flow-paydetail-help img {
+  width: 22px;
+  height: 22px;
+  margin-right: 6px;
+}
+
 .oky-flow-toast.is-success {
   background: var(--success-bg);
   color: var(--success-text);
@@ -17921,6 +18216,150 @@ img.oky-flow-method-mark {
   to {
     background-position: -200% 0;
   }
+}
+
+/* ── Factura de servicios en el webview (7600 · 102195:139643) ──
+   El papel del recibo sobre el morado, con el borde de abajo picado.
+   El OKY Cash va como el «Descuento» del recibo: aqua claro. */
+.oky-webview.is-invoice .oky-webview-body {
+  background: var(--primary-base);
+  padding: 16px 16px 32px;
+}
+
+.oky-invoice {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.oky-invoice-head {
+  margin: 0 8px;
+  padding: 18px 16px 14px;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #4b0094 0%, #a46be6 100%);
+  text-align: center;
+}
+
+.oky-invoice-head img {
+  display: block;
+  height: 34px;
+  margin: 0 auto 4px;
+}
+
+/* «Yes,» en naranja y «tú puedes.» en blanco, como la marca. */
+.oky-invoice-head p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffb547;
+}
+
+.oky-invoice-head p span {
+  color: var(--white);
+}
+
+.oky-invoice-paper {
+  margin: -24px 0 0;
+  padding: 12px 20px 28px;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f1f4 100%);
+  border-radius: 4px;
+  color: #202020;
+  font-size: 12px;
+  line-height: 16px;
+  /* El borde picado de abajo, como el papel de una caja. */
+  -webkit-mask: radial-gradient(6px at 50% 100%, #0000 98%, #000) 50% / 12px 100%;
+  mask: radial-gradient(6px at 50% 100%, #0000 98%, #000) 50% / 12px 100%;
+}
+
+.oky-invoice-tag {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--primary-base);
+}
+
+.oky-invoice-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px dashed var(--divider);
+}
+
+.oky-invoice-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.oky-invoice-row span:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.oky-invoice-section {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.oky-invoice-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.oky-invoice-note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.oky-invoice-row.is-cash {
+  margin: 0 -6px;
+  padding: 2px 6px;
+  background: var(--highlight-surface);
+  color: var(--secondary-dark);
+  font-weight: 700;
+}
+
+.oky-invoice-row.is-total {
+  font-weight: 800;
+}
+
+.oky-invoice-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--divider);
+  font-size: 11px;
+  color: var(--primary-base);
+  text-align: center;
+}
+
+.oky-invoice-foot p {
+  margin: 0;
+}
+
+.oky-invoice-thanks {
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.oky-invoice-foot img {
+  height: 26px;
+  margin: 2px 0 4px;
+}
+
+/* «Volver» en blanco sobre el morado, como en 7600. */
+.oky-invoice-back.btn {
+  margin: 0 32px;
+  background: var(--white);
+  color: var(--primary-base);
 }
 
 .oky-webview-landing {

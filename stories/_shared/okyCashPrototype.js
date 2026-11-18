@@ -1185,8 +1185,117 @@ function earnedCashback(state) {
    y barra de progreso, y si no hay conexión muestra el error con
    Reintentar. La landing sigue PDP-16 de Pages 3.0 (30/10): el ciclo
    Compras → Ganas → Lo usas, el párrafo y tres datos con su ícono. */
+/* El recibo del header (receipt de FA Pro, regular): SVG porque el
+   prototipo suelto solo trae los glifos de Free. */
+const RECEIPT_SVG = `<svg viewBox="0 0 384 512" width="20" height="26" fill="currentColor" aria-hidden="true" focusable="false"><path d="M39.6 5.8C32.5 -0.3 22.5 -1.7 14 2.2C5.5 6.1 0 14.6 0 24V488C0 497.4 5.5 505.9 14 509.8C22.5 513.7 32.5 512.3 39.6 506.2L80 471.6L120.4 506.2C129.4 513.9 142.7 513.9 151.6 506.2L192 471.6L232.4 506.2C241.4 513.9 254.7 513.9 263.6 506.2L304 471.6L344.4 506.2C351.5 512.3 361.5 513.7 370 509.8C378.5 505.9 384 497.4 384 488V24C384 14.6 378.5 6.1 370 2.2C361.5 -1.7 351.5 -0.3 344.4 5.8L304 40.4L263.6 5.8C254.6 -1.9 241.3 -1.9 232.4 5.8L192 40.4L151.6 5.8C142.6 -1.9 129.3 -1.9 120.4 5.8L80 40.4L39.6 5.8ZM48 435.8V76.2L64.4 90.2C73.4 97.9 86.7 97.9 95.6 90.2L136 55.6L176.4 90.2C185.4 97.9 198.7 97.9 207.6 90.2L248 55.6L288.4 90.2C297.4 97.9 310.7 97.9 319.6 90.2L336 76.2V435.8L319.6 421.8C310.6 414.1 297.3 414.1 288.4 421.8L248 456.4L207.6 421.8C198.6 414.1 185.3 414.1 176.4 421.8L136 456.4L95.6 421.8C86.6 414.1 73.3 414.1 64.4 421.8L48 435.8ZM120 144C106.7 144 96 154.7 96 168C96 181.3 106.7 192 120 192H264C277.3 192 288 181.3 288 168C288 154.7 277.3 144 264 144H120ZM120 320C106.7 320 96 330.7 96 344C96 357.3 106.7 368 120 368H264C277.3 368 288 357.3 288 344C288 330.7 277.3 320 264 320H120ZM96 256C96 269.3 106.7 280 120 280H264C277.3 280 288 269.3 288 256C288 242.7 277.3 232 264 232H120C106.7 232 96 242.7 96 256Z"/></svg>`;
+
+/* «18 / NOV / 2026 - 14:55hrs (CST)», como el recibo de 7600. */
+function receiptStamp(at) {
+  const d = new Date(at);
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${String(d.getDate()).padStart(2, "0")} / ${MONTHS_SHORT[d.getMonth()]} / ${d.getFullYear()} - ${hh}:${mm}hrs (CST)`;
+}
+
+/* ── Factura de un pago de servicios (webview) ─────────────
+   Sigue el recibo de 7600 (102195:139643) con los datos de servicios:
+   cada recibo con su cuenta, correlativo y número de transacción, el
+   costo por servicio y lo cobrado. Es una página ficticia de
+   okyapp.com: la factura real vivirá en una URL externa. */
+function invoiceBody(state) {
+  const r = state.lastReceipt;
+  const all = state.lastOrder.filter((p) => p.corr);
+  const rows = all.filter((p) => !p.failed);
+  const notDone = all.filter((p) => p.failed);
+  /* Lo cobrado es solo lo procesado; lo que falló se autorizó y se
+     libera (el aviso de «Cargo temporal autorizado»). */
+  const processed = rows.reduce((sum, p) => sum + p.amount, 0);
+  const charged = Math.max(processed + r.fee - r.used, 0);
+  const acc = (corr) => state.svc.accounts[corr] || {};
+  const line = (k, v, cls = "") => `<div class="oky-invoice-row${cls}"><span>${k}</span><span>${v}</span></div>`;
+  return `
+    <article class="oky-invoice">
+      <header class="oky-invoice-head">
+        <img src="logo-oky-white.svg" alt="OKY" />
+        <p>Yes, <span>tú puedes.</span></p>
+      </header>
+      <div class="oky-invoice-paper">
+        <p class="oky-invoice-tag">Hecho por latinos para latinos</p>
+        <div class="oky-invoice-block">
+          ${line("Fecha", receiptStamp(r.at))}
+          ${line("Orden", `#${r.order}`)}
+        </div>
+        <div class="oky-invoice-block">
+          ${line("Remitente", "Mi número")}
+          ${line("Teléfono", USA_RECIPIENT.phone)}
+          ${line("Método de pago", escapeHtml(r.card))}
+        </div>
+        ${
+          notDone.length
+            ? `<div class="oky-invoice-hold" role="note">
+          <i class="fa-solid fa-building-columns" aria-hidden="true"></i>
+          <div>
+            <p><strong>Cargo temporal autorizado: ${money(r.paid)}</strong></p>
+            <p>Este cargo puede mostrarse en tu estado de cuenta y se ajustará automáticamente.</p>
+          </div>
+        </div>`
+            : ""
+        }
+        <div class="oky-invoice-block">
+          <p class="oky-invoice-section">Pagos de servicios procesados:</p>
+          ${rows
+            .map(
+              (p, i) => `
+          <div class="oky-invoice-item">
+            ${line(`EEGSA · ${escapeHtml(acc(p.corr).alias || "Electricidad")}`, quetzalOf(p.quetzales))}
+            <p class="oky-invoice-note">Correlativo #${p.corr}</p>
+            <p class="oky-invoice-note">Quien recibe: ${escapeHtml(acc(p.corr).contact || r.recipient)}</p>
+            <p class="oky-invoice-note">No. de transacción ${r.tx}${i}</p>
+          </div>`,
+            )
+            .join("")}
+        </div>
+        ${
+          notDone.length
+            ? `<div class="oky-invoice-block is-failed">
+          <p class="oky-invoice-section">Pagos de servicios NO procesados:</p>
+          ${notDone
+            .map(
+              (p) => `
+          <div class="oky-invoice-item">
+            ${line(`EEGSA · ${escapeHtml(acc(p.corr).alias || "Electricidad")}`, quetzalOf(p.quetzales))}
+            <p class="oky-invoice-note">Correlativo #${p.corr}</p>
+            <span class="oky-invoice-chip">Pago fallido - No cobrado</span>
+          </div>`,
+            )
+            .join("")}
+        </div>`
+            : ""
+        }
+        <div class="oky-invoice-block">
+          <p class="oky-invoice-section">Resumen:</p>
+          ${line(`${rows.length} ${rows.length === 1 ? "Pago de servicio procesado" : "Pagos de servicio procesados"}:`, money(processed))}
+          ${line("Costo por servicio:", money(r.fee))}
+          ${r.used > 0 ? line("OKY Cash:", `-${money(r.used)}`, " is-cash") : ""}
+          ${line("TOTAL FINAL COBRADO:", money(charged), " is-total")}
+          <p class="oky-invoice-note">Tipo de cambio: Q ${GUA_RATE.toFixed(2)}</p>
+        </div>
+        <footer class="oky-invoice-foot">
+          <p class="oky-invoice-thanks">Agradecemos tu confianza</p>
+          <img src="logo-oky.svg" alt="OKY" />
+          <p>www.okyapp.com</p>
+          <p>soporte@okyapp.com</p>
+          <p><strong>Consultas: 1 (888) 423 0471</strong></p>
+        </footer>
+      </div>
+      <button class="btn btn-primary btn-large oky-invoice-back" data-action="close-webview" type="button">Volver</button>
+    </article>
+  `;
+}
+
 function webviewSheet(state) {
   const { phase, fresh } = state.webview;
+  const invoice = state.webview.kind === "invoice";
   const body =
     phase === "loading"
       ? `<div class="oky-webview-skeleton" aria-hidden="true">
@@ -1204,9 +1313,11 @@ function webviewSheet(state) {
             <h2>No pudimos cargar la página</h2>
             <p>Revisa tu conexión e inténtalo de nuevo. Tu saldo y tus vales no cambian.</p>
             <button class="btn btn-primary btn-large" data-action="reload-webview" type="button">Reintentar</button>
-            <button class="btn btn-outlined btn-large" data-action="close-webview" type="button">Volver a OKY Cash</button>
+            <button class="btn btn-outlined btn-large" data-action="close-webview" type="button">${invoice ? "Volver" : "Volver a OKY Cash"}</button>
           </div>`
-        : `<article class="oky-webview-landing">
+        : invoice
+          ? invoiceBody(state)
+          : `<article class="oky-webview-landing">
             <img class="oky-webview-cycle" src="oky-cash-landing-ciclo.png"
               alt="Compras gift cards para USA y Canadá, ganas OKY Cash y lo usas en USA, Canadá y LATAM" />
             <p class="oky-webview-intro"><strong class="is-cash">OKY Cash</strong> es el saldo a favor que ganas al comprar gift cards de <strong>USA</strong> en <strong>OKY</strong>. Úsalo como método de pago en toda la app: <strong>USA</strong>, <strong>Canadá</strong> y <strong>LATAM</strong>.</p>
@@ -1221,15 +1332,16 @@ function webviewSheet(state) {
             <button class="btn btn-primary btn-large" data-action="close-webview" type="button">Explorar gift cards</button>
           </article>`;
   return `
-    <div class="oky-webview${fresh ? " is-fresh" : ""}" role="dialog" aria-modal="true" aria-label="OKY Cash · okyapp.com">
+    <div class="oky-webview${fresh ? " is-fresh" : ""}${invoice ? " is-invoice" : ""}" role="dialog" aria-modal="true"
+      aria-label="${invoice ? "Factura · okyapp.com" : "OKY Cash · okyapp.com"}">
       ${statusBar()}
       <header class="oky-webview-bar">
         <button class="oky-webview-icon" data-action="close-webview" type="button" aria-label="Cerrar">
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
         <div class="oky-webview-title">
-          <strong>OKY Cash</strong>
-          <span><i class="fa-solid fa-lock" aria-hidden="true"></i>okyapp.com/oky-cash</span>
+          <strong>${invoice ? "Factura" : "OKY Cash"}</strong>
+          <span><i class="fa-solid fa-lock" aria-hidden="true"></i>${invoice ? `okyapp.com/factura/${state.lastReceipt.order}` : "okyapp.com/oky-cash"}</span>
         </div>
         <button class="oky-webview-icon" data-action="reload-webview" type="button" aria-label="Recargar">
           <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
@@ -3162,6 +3274,12 @@ function purchaseFoot(state, brand = "", id = "") {
    recibo ni casa: la casa ya está en la navbar. A la derecha queda un
    hueco del ancho del icono para que la píldora siga centrada, que es
    donde la espera la animación de "Ganaste". */
+/* La poscompra de un pago de servicio que falló (la demo de Byron). */
+const svcFailed = (state) => state.lastOrder.length > 0 && state.lastOrder.every((p) => p.failed);
+/* Orden mixta: varios pagos y alguno falló (Byron + los que se sumaron
+   en el Double Dash). La poscompra se parte en Exitosas / Fallidas. */
+const orderMixed = (state) => state.lastOrder.some((p) => p.failed) && state.lastOrder.some((p) => !p.failed);
+
 function purchaseHeader(state) {
   const earned = state.lastEarned > 0;
   return `
@@ -3185,7 +3303,15 @@ function purchaseHeader(state) {
                    ganó; lo que queda arriba es con cuánto se cuenta. */ ""}
               <span>${money(state.okyCashBalance)} <span class="oky-flow-purchase-badge-note">disponible</span></span>
             </button>`
-          : /* Sin OKY Cash ganado (Guatemala, o una compra que no da
+          : svcFailed(state)
+            ? /* Pago fallido (F08-44): el toast en rojo con «¿Qué pasó?»,
+                 que abre el mismo modal que el botón de abajo. */
+              `<div class="oky-flow-toast is-error is-header" role="alert">
+              <i class="fa-regular fa-circle-xmark" aria-hidden="true"></i>
+              <span>Pago fallido</span>
+              <button class="oky-flow-toast-link" data-action="svc-what" type="button">¿Qué pasó?</button>
+            </div>`
+            : /* Sin OKY Cash ganado (Guatemala, o una compra que no da
                cashback), en el mismo sitio va el toast de compra
                exitosa. Los dos nunca conviven. */
             `<div class="oky-flow-toast is-success is-header" role="status">
@@ -3194,7 +3320,18 @@ function purchaseHeader(state) {
             </div>`
       }
 
-      <span class="oky-flow-header-icon oky-flow-header-spacer" aria-hidden="true"></span>
+      ${
+        /* Solo en pagos de servicios, por ahora: el recibo (7600 ·
+           102195:136567) abre la factura en un webview, porque vive en
+           una URL externa. */
+        isServicePayment(state.lastOrder.map((p) => p.productKey)) && state.lastReceipt
+          ? /* Fallido no hay factura que bajar: el recibo lleva al
+               detalle del pago, con el reembolso. */
+            svcFailed(state)
+            ? `<button class="oky-flow-header-icon oky-flow-purchase-invoice" data-action="svc-pay-detail" type="button" aria-label="Ver detalle del pago">${RECEIPT_SVG}</button>`
+            : `<button class="oky-flow-header-icon oky-flow-purchase-invoice" data-action="open-invoice" type="button" aria-label="Ver factura">${RECEIPT_SVG}</button>`
+          : `<span class="oky-flow-header-icon oky-flow-header-spacer" aria-hidden="true"></span>`
+      }
     </header>
   `;
 }
@@ -3331,6 +3468,10 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
      hamburguesas de la misma marca son una card en la pila, y tocarla
      abría lo único que había. Desde el vale se pasan las tres con el
      carrusel. */
+  /* Orden mixta (7600 · 102454:16653): primero se entregan y se
+     celebran las exitosas; las fallidas quedan en su pestaña. */
+  if (orderMixed(state)) return screenPurchasesMixed(state, { celebrate, cashWin });
+
   if (byBrand.length === 1) {
     /* Cuál de los de la orden se está mirando lo lleva el estado y no
        este render: la pantalla sigue siendo "Tus compras", así que los
@@ -3376,6 +3517,77 @@ function screenPurchases(state, { celebrate = false, cashWin = false } = {}) {
     </div>
 
     ${/* La pila no lleva pie: el botón es del vale suelto. */ ""}
+    ${navbar("", state)}
+    ${purchaseOverlays(state, { celebrate, cashWin })}
+  `;
+}
+
+/* ── Poscompra mixta: plateau Exitosas / Fallidas ─────────
+   Solo cuando la orden lleva más de un pago y alguno falló (en la
+   demo, la luz de Byron). Arriba el título y el recibo; el plateau
+   parte la orden; abajo «Ayuda» y «Ver detalle». */
+function screenPurchasesMixed(state, { celebrate = false, cashWin = false } = {}) {
+  const tab = state.orderTab === "fallidas" ? "fallidas" : "exitosas";
+  const items = state.lastOrder.filter((p) => (tab === "fallidas" ? p.failed : !p.failed));
+  const piles = [];
+  items.forEach((p) => {
+    const brand = brandKeyOf(p.productKey);
+    const found = piles.find((b) => b.brandKey === brand);
+    if (found) found.count += 1;
+    else piles.push({ key: p.productKey, id: p.id, count: 1, ...PRODUCTS[p.productKey], brandKey: brand });
+  });
+  const tabs = [
+    { key: "exitosas", label: "Exitosas", icon: "oky-plateu-exitosas.png" },
+    { key: "fallidas", label: "Fallidas", icon: "oky-plateu-fallidas.png" },
+  ];
+  return `
+    ${statusBar()}
+    <header class="oky-flow-header is-purchase is-mixed">
+      <button class="oky-flow-header-icon oky-flow-purchase-wallet" data-action="nav:wallet" type="button" aria-label="${WALLET_NAME}">
+        <img src="${WALLET_ICON}" alt="" />
+        ${hasNewVouchers(state) ? `<span class="header-icon-indicator-dot"></span>` : ""}
+      </button>
+      <h1 class="oky-flow-mixed-title">${V3_ROUTE ? "Mis compras" : "Tus compras"}</h1>
+      <button class="oky-flow-header-icon oky-flow-purchase-invoice" data-action="open-invoice" type="button" aria-label="Ver factura">${RECEIPT_SVG}</button>
+    </header>
+    <div class="oky-flow-section">
+      <section class="plateu-molecule is-static is-default oky-flow-order-plateu" role="tablist" aria-label="Estado de los pagos">
+        <div class="plateu-track is-static">
+          ${tabs
+            .map(
+              (t) => `
+          <button class="plateu-item${t.key === tab ? " is-on" : ""}" type="button" role="tab"
+            data-action="order-tab" data-tab="${t.key}" aria-selected="${t.key === tab}">
+            <div class="plateu-icon-wrap"><img class="plateu-icon" src="${t.icon}" alt="" /></div>
+            ${t.key === tab ? `<span class="plateu-chip is-outlined">${t.label}</span>` : `<span class="plateu-label">${t.label}</span>`}
+          </button>`,
+            )
+            .join("")}
+        </div>
+      </section>
+      <div class="oky-flow-stack">
+        ${piles
+          .map((v) => {
+            const mark = stackMark(v);
+            return `
+        <button class="oky-flow-voucher${v.count > 1 ? " has-pile" : ""}${tab === "fallidas" ? " is-failed" : ""}" style="background:${mark.bg};border-color:${mark.bg}"
+          data-action="open-purchase" data-id="${v.id}" type="button">
+          ${voucherPile(v.count)}
+          <img src="${mark.art}" alt="${v.label}" />
+          <span class="oky-flow-voucher-badge">${v.count}${
+            tab === "fallidas" ? `<i class="fa-solid fa-circle-xmark is-failed" aria-hidden="true"></i>` : `<i class="fa-solid fa-circle-check" aria-hidden="true"></i>`
+          }</span>
+        </button>`;
+          })
+          .join("")}
+      </div>
+    </div>
+    <div class="oky-flow-cta-bar is-order-voucher oky-flow-paydetail-bar">
+      <button class="btn btn-primary btn-large oky-flow-paydetail-help" type="button">
+        <img src="whatsapp.png" alt="" /> Ayuda
+      </button>
+      <button class="btn btn-outlined btn-large" data-action="svc-pay-detail" type="button">Ver detalle</button>
+    </div>
     ${navbar("", state)}
     ${purchaseOverlays(state, { celebrate, cashWin })}
   `;
@@ -5429,9 +5641,14 @@ function savingsSheet() {
    Misma pantalla desde "Tus compras" (por id de compra) y desde
    Mi wallet (por marca): en ambos casos el organismo Card. */
 function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin = false } = {}) {
-  const purchase = state.params.id
-    ? state.purchases.find((p) => p.id === state.params.id)
-    : state.purchases.filter((p) => p.productKey === state.params.key).slice(-1)[0];
+  /* Un pago fallido no queda en Mis compras: la poscompra lo lee de la
+     orden recién pagada. */
+  const failedPurchase = asPurchase && svcFailed(state) ? state.lastOrder[0] : null;
+  const purchase =
+    failedPurchase ||
+    (state.params.id
+      ? state.purchases.find((p) => p.id === state.params.id) || state.lastOrder.find((p) => p.id === state.params.id)
+      : state.purchases.filter((p) => p.productKey === state.params.key).slice(-1)[0]);
 
   /* Dos mazos según de dónde se entre: con id, los vales de la orden
      recién pagada; con key, todas las gift cards del wallet. Los dos
@@ -5471,7 +5688,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
      compra de esa marca: con dos vales de Nike, el archivado seguía
      enseñando lo que costó el recién comprado. */
   const amount =
-    state.params.id && purchase
+    (failedPurchase || state.params.id) && purchase
       ? purchase.amount
       : entry && entry.amount != null
         ? entry.amount
@@ -5488,10 +5705,13 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
   /* El correlativo de un pago de servicio: con él va el interruptor del
      recordatorio, en la poscompra y en Mis compras. */
   const svcPurchase =
-    state.params.id && purchase
+    failedPurchase || (state.params.id && purchase)
       ? purchase
       : state.purchases.find((x) => x.productKey === card.key && unitOfPurchase(state, x) === slot);
   const svcCorr = (svcPurchase && svcPurchase.corr) || "";
+  /* Pago fallido (F08-44): sello rojo en vez de los datos, el monto en
+     gris, sin recordatorio y abajo «¿Qué pasó?». */
+  const failed = (asPurchase || !!state.params.id) && !!(purchase && purchase.failed);
 
   /* La parte de abajo de una gift card de USA: código corto en dos de
      cada tres, y barcode con PIN en la restante.
@@ -5629,7 +5849,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
       asPurchase
         ? purchaseHeader(state)
         : fromOrder
-          ? orderVoucherHeader()
+          ? orderVoucherHeader({ failed, service: !!svcCorr })
           : /* En /miscompras, los vales de Para mí comparten desde la
                esquina de arriba (el ícono de compartir del sistema): hace
                lo mismo que «Mandale foto» de Para otros. */
@@ -5642,7 +5862,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               })
             : titledHeader(title)
     }
-    <div class="oky-flow-section is-voucher${asPurchase ? " is-purchase" : ""}">
+    <div class="oky-flow-section is-voucher${asPurchase ? " is-purchase" : ""}${failed ? " is-failed" : ""}">
       <div class="oky-flow-card-carousel${archived ? " is-redeemed is-archived" : shared ? " is-redeemed" : ""}">
       ${renderCardOrganism({
         /* Un vale de producto no es una gift card y el sistema ya
@@ -5714,7 +5934,18 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
            uso— pero en gris y con su propio sello: compartido es algo
            que se dio, archivado es algo que se guardó. Archivado manda
            sobre compartido, que es la decisión más reciente. */
-        ...(archived
+        ...(failed
+          ? {
+              bottomLines: [],
+              bottomShowButton: false,
+              bottomMedia: {
+                type: "stamp",
+                src: "oky-stamp-pago-fallido.webp",
+                alt: "Pago fallido",
+                caption: `ID de transacción #${digitsOf(bottomSeed, 12)}`,
+              },
+            }
+          : archived
           ? {
               bottomLines: [],
               bottomShowButton: false,
@@ -5817,13 +6048,21 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
         /* Pago de servicio: un solo interruptor, el del recordatorio. En
            la poscompra sale junto a «Mandale foto»; en Mis compras
            compartir se va arriba a la derecha (SRV-01 / SRV-06). */
-        svcCorr && !fromOrder
+        svcCorr && !fromOrder && !failed
           ? svcReminderSwitch(state, svcCorr, asPurchase ? "Te recordaremos el próximo pago" : "Recordatorio de pago")
           : ""
       }
     </div>
-    ${asPurchase ? purchaseFoot(state, headerBrand, id) : ""}
-    ${fromOrder ? orderVoucherFoot(orderMarket, headerBrand, id) : asPurchase || svcCorr || !V3_ROUTE || state.params.deck !== "v3comp" ? "" : sendPhotoBar(headerBrand, id)}
+    ${
+      failed
+        ? `<div class="oky-flow-cta-bar is-order-voucher">
+      <button class="btn btn-outlined btn-large" data-action="svc-what" type="button">¿Qué pasó?</button>
+    </div>`
+        : asPurchase
+          ? purchaseFoot(state, headerBrand, id)
+          : ""
+    }
+    ${failed ? "" : fromOrder ? orderVoucherFoot(orderMarket, headerBrand, id) : asPurchase || svcCorr || !V3_ROUTE || state.params.deck !== "v3comp" ? "" : sendPhotoBar(headerBrand, id)}
     ${navbar("", state)}
     ${asPurchase ? purchaseOverlays(state, { celebrate, cashWin }) : ""}
   `;
@@ -5831,13 +6070,21 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
 
 /* Cabecera del vale abierto desde la pila de la poscompra: el toast de
    compra exitosa (Fat Toast de MARS) y la X que devuelve a la pila. */
-function orderVoucherHeader() {
+function orderVoucherHeader({ failed = false, service = false } = {}) {
   return `
     <header class="oky-flow-header is-order-voucher">
-      <div class="oky-flow-toast is-success" role="status">
+      ${
+        failed
+          ? `<div class="oky-flow-toast is-error" role="alert">
+        <i class="fa-regular fa-circle-xmark" aria-hidden="true"></i>
+        <span>Pago fallido</span>
+        <button class="oky-flow-toast-link" data-action="svc-what" type="button">¿Qué pasó?</button>
+      </div>`
+          : `<div class="oky-flow-toast is-success" role="status">
         <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-        <span>Compra exitosa</span>
-      </div>
+        <span>${service ? "Pago exitoso" : "Compra exitosa"}</span>
+      </div>`
+      }
       <button class="oky-flow-header-icon oky-flow-toast-close" data-action="close-order-voucher"
         type="button" aria-label="Volver a ${V3_ROUTE ? "Mis compras" : "Tus compras"}">
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -5939,6 +6186,16 @@ function screenCardDesign(state) {
      pero en móvil es un blanco de 24px arriba del todo: el par de
      botones deja las dos decisiones al alcance del pulgar. */
 const CONFIRM_SHEETS = {
+  /* ¿Qué pasó? de un pago de servicio fallido (7600 · F08-48 / PGT-28):
+     un dato incorrecto. «Corregir datos» vuelve al campo del número. */
+  svcfail: {
+    art: "oky-revisa-datos-3d.webp",
+    title: "Revisa la información",
+    note: "Parece que hay un dato incorrecto. Revísalo, corrígelo y vuelve a intentarlo.",
+    confirm: "Corregir datos",
+    dismiss: "Cancelar",
+    action: "svc-fix",
+  },
   /* SRV-02 / SRV-07: apagar el recordatorio de una cuenta. La salida
      principal es mantenerlo. */
   svcoff: {
@@ -6680,6 +6937,11 @@ const SVC_ACCOUNTS = [
   },
 ];
 
+/* Demo con dev: el pago de la luz de Byron siempre falla (7600 · F08-44,
+   F08-48 y su detalle). Su recordatorio sigue apagado y, como no se
+   pagó, ni entra a la actividad ni a Mis compras: se reembolsa. */
+const SVC_FAIL_CORR = "0011900714";
+
 /* Lo que trae la consulta de un número que no está guardado. */
 const SVC_NEW_BILL = 212.75;
 
@@ -6923,6 +7185,11 @@ function svcDueCorrs(state) {
    SVG porque el prototipo suelto solo trae los glifos de Free. */
 const BELL_RING_SVG = `<svg class="oky-flow-svc-bell-icon" viewBox="0 0 512 512" width="24" height="24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M256 0C238.3 0 224 14.3 224 32V51.2C151 66 96 130.6 96 208V226.8C96 273.8 78.7 319.2 47.5 354.4L40.1 362.7C31.7 372.1 29.7 385.6 34.8 397.1C39.9 408.6 51.4 416 64 416H448C460.6 416 472 408.6 477.2 397.1C482.4 385.6 480.3 372.1 471.9 362.7L464.5 354.4C433.3 319.2 416 273.9 416 226.8V208C416 130.6 361 66 288 51.2V32C288 14.3 273.7 0 256 0ZM301.3 493.3C313.3 481.3 320 465 320 448H256H192C192 465 198.7 481.3 210.7 493.3C222.7 505.3 239 512 256 512C273 512 289.3 505.3 301.3 493.3ZM113.4 15.4C104.3 5.8 89.1 5.4 79.5 14.6C30.5 61.2 0 127.1 0 200C0 213.3 10.7 224 24 224C37.3 224 48 213.3 48 200C48 140.7 72.8 87.3 112.6 49.4C122.2 40.3 122.6 25.1 113.4 15.5ZM113.4 15.4ZM399.4 49.4C439.2 87.3 464 140.7 464 200C464 213.3 474.7 224 488 224C501.3 224 512 213.3 512 200C512 127.1 481.5 61.2 432.6 14.6C423 5.5 407.8 5.8 398.7 15.4C389.6 25 389.9 40.2 399.5 49.3ZM399.4 49.4Z"/></svg>`;
 
+/* La lupa sobre el edificio (landmark-magnifying-glass de FA Pro,
+   solid): consultar un número, no «siguiente». SVG por lo mismo que la
+   campana. */
+const LANDMARK_SEARCH_SVG = `<svg class="oky-flow-svc-go-icon" viewBox="0 0 640 512" width="22" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M448 288C425.2 288 403.6 283.2 384 274.7V416H344V249.6C335.1 242 327 233.4 320 224H280V416H232V224H168V416H128V224H64V420.3C63.4 420.6 62.8 421 62.2 421.4L14.2 453.4C2.5 461.2 -2.8 475.8 1.3 489.3C5.4 502.8 17.9 512 32 512H480C494.1 512 506.5 502.8 510.6 489.3C514.7 475.8 509.5 461.2 497.7 453.4L449.7 421.4C449.1 421 448.5 420.7 447.9 420.3L448 288ZM32 192H301.3C292.7 172.4 288 150.8 288 128C288 91.9 300 58.6 320.1 31.8L271.9 4.2C262.1 -1.4 250 -1.4 240.1 4.2L68.4 102.4L64 104V104.9L16.1 132.2C3.5 139.4 -2.7 154.2 1 168.2C4.7 182.2 17.5 192 32 192ZM448 48.1C476.6 48.1 503 63.3 517.3 88.1C531.6 112.9 531.6 143.3 517.3 168.1C503 192.9 476.6 208.1 448 208.1C419.4 208.1 393 192.9 378.7 168.1C364.4 143.3 364.4 112.9 378.7 88.1C393 63.3 419.4 48.1 448 48.1ZM448 48.1ZM448 256.1C474.7 256.1 499.4 247.9 519.9 234L599 313.1C608.4 322.5 623.6 322.5 632.9 313.1C642.2 303.7 642.3 288.5 632.9 279.2L553.8 200.1C567.8 179.6 575.9 154.8 575.9 128.2C575.9 57.5 518.6 0.2 447.9 0.2C377.2 0.2 319.9 57.5 319.9 128.2C319.9 198.9 377.2 256.2 447.9 256.2ZM448 256.1Z"/></svg>`;
+
 function svcBell(state) {
   const unseen = svcDueCorrs(state).filter((c) => !state.svc.seenDue.includes(c)).length;
   return `
@@ -6931,6 +7198,81 @@ function svcBell(state) {
       ${BELL_RING_SVG}
       ${unseen ? `<span class="header-icon-indicator-dot"></span>` : ""}
     </button>
+  `;
+}
+
+/* ── Detalle del pago fallido (7600 · 102195:137800) ─────────
+   Quién, cuándo y cuánto; la marca con la equis roja; y el reembolso a
+   la tarjeta en verde. Sin factura: el pago no se hizo. «Ver historial»
+   todavía no lleva a ningún lado. */
+function screenSvcPayDetail(state) {
+  const r = state.lastReceipt || {};
+  /* Mixto (102195:138069): todos los de la orden, los fallidos con la
+     equis y en gris, y el reembolso solo de lo que falló (el costo por
+     servicio se cobró por los que sí salieron). Todo fallido: el
+     reembolso es todo lo cobrado. */
+  const mixed = orderMixed(state);
+  const rows = mixed ? state.lastOrder : state.lastOrder.filter((p) => p.failed);
+  const failedRows = state.lastOrder.filter((p) => p.failed);
+  const first = rows[0] || {};
+  const acc = state.svc.accounts[first.corr] || {};
+  const refund = failedRows.reduce((sum, p) => sum + p.amount, 0) + (mixed ? 0 : r.fee || 0);
+  /* Arriba, lo autorizado en la orden; abajo, lo que se devuelve. */
+  const paid = mixed ? r.paid || 0 : refund;
+  const who = [...new Set(rows.map((p) => (state.svc.accounts[p.corr] || {}).contact).filter(Boolean))].join(", ");
+  return `
+    ${statusBar()}
+    <header class="oky-flow-paydetail-head">
+      <h1>${mixed ? "Detalle de la compra" : "Detalle del pago"}</h1>
+      <button class="oky-flow-header-icon" data-action="back" type="button" aria-label="Cerrar el detalle">
+        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div class="oky-flow-paydetail">
+      <article class="oky-flow-paydetail-card">
+        <div class="oky-flow-paydetail-top">
+          <div>
+            <p class="oky-flow-paydetail-who">${escapeHtml(who || acc.contact || r.recipient || "")}</p>
+            <p class="oky-flow-paydetail-date">${stamp(0)}</p>
+          </div>
+          <p class="oky-flow-paydetail-amount">${money(paid)}</p>
+          ${
+            /* Con algo procesado sí hay factura: el ícono de descarga. */
+            mixed
+              ? `<button class="oky-flow-paydetail-invoice" data-action="open-invoice" type="button" aria-label="Ver factura">
+            <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
+          </button>`
+              : ""
+          }
+        </div>
+        ${rows
+          .map(
+            (p) => `
+        <div class="oky-flow-paydetail-item${p.failed ? " is-failed" : ""}">
+          <span class="oky-flow-paydetail-logo">
+            <img src="${PRODUCTS.eegsa.art}" alt="" />
+            ${p.failed ? `<span class="oky-flow-paydetail-x" aria-label="Falló"><i class="fa-solid fa-xmark" aria-hidden="true"></i></span>` : ""}
+          </span>
+          <div>
+            <p class="oky-flow-paydetail-brand">EEGSA${mixed ? ` · ${escapeHtml((state.svc.accounts[p.corr] || {}).alias || "")}` : ""}</p>
+            <p class="oky-flow-paydetail-what">Pago a servicios por ${quetzalOf(p.quetzales)}</p>
+          </div>
+        </div>`,
+          )
+          .join("")}
+        <div class="oky-flow-paydetail-refund">
+          <span><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Reembolso a tu tarjeta</span>
+          <strong>${money(refund)}</strong>
+        </div>
+      </article>
+    </div>
+    <div class="oky-flow-cta-bar is-order-voucher oky-flow-paydetail-bar">
+      <button class="btn btn-primary btn-large oky-flow-paydetail-help" type="button">
+        <img src="whatsapp.png" alt="" /> Ayuda
+      </button>
+      <button class="btn btn-outlined btn-large is-inert" type="button" aria-disabled="true">Ver historial</button>
+    </div>
+    ${navbar("", state)}
   `;
 }
 
@@ -7107,11 +7449,11 @@ function screenEegsa(state) {
           type="text" inputmode="numeric" maxlength="10" autocomplete="off" value="${escapeHtml(typed)}"
           placeholder="Ingresar número correlativo" data-action="input-corr"
           aria-labelledby="oky-corr-label" />
-        ${/* Consultar va dentro del campo, como un «ir»: sin barra flotante
+        ${/* Consultar va dentro del campo, como una búsqueda: sin barra flotante
              encima de la actividad. Se apaga hasta tener los 10 dígitos. */ ""}
         <button class="oky-flow-svc-go" data-action="svc-consult-typed" data-role="corr-cta" type="button"
           aria-label="Consultar saldo" ${valid ? "" : "disabled"}>
-          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          ${LANDMARK_SEARCH_SVG}
         </button>
       </div>
     </div>
@@ -7416,6 +7758,7 @@ function renderScreen(state) {
     case "voucher": return screenVoucher(state);
     case "decision": return screenDecision();
     case "eegsa": return screenEegsa(state);
+    case "svcpaydetail": return screenSvcPayDetail(state);
     case "svcconsulta": return screenSvcConsulta(state);
     case "svcreminders": return screenSvcReminders(state);
     default: return screenHome(state);
@@ -9232,6 +9575,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        dicho para cuando vuelva a entrar algo al carrito. */
     state.beacon = "wallet";
     state.dashSkip = false;
+    state.orderTab = "exitosas";
     /* El acuse abre por el primero de la orden. */
     state.orderIndex = 0;
     const total = cartTotal(state);
@@ -9246,6 +9590,22 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     /* Un número por orden, no por vale. */
     state.orderSeq += 1;
     const order = `Orden #${11112440 + state.orderSeq}`;
+    /* Lo que necesita la factura, antes de vaciar el carrito. */
+    {
+      const subtotal = state.cart.reduce((sum, item) => sum + item.amount * (item.qty || 1), 0);
+      const card = selectedCardOf(state);
+      state.lastReceipt = {
+        order: 11112440 + state.orderSeq,
+        at: Date.now(),
+        subtotal,
+        fee: Math.max(total - subtotal, 0),
+        used,
+        paid: total - used,
+        card: card ? `${card.brand} **** ${card.last4}` : "Tarjeta de débito",
+        recipient: recipientOf(state).name,
+        tx: `70257${String(Date.now()).slice(-6)}`,
+      };
+    }
 
     /* Lo que se pagó con saldo también es un movimiento: sin esta
        línea el saldo bajaba y el historial no lo explicaba. */
@@ -9323,8 +9683,11 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           /* Un pago de servicio guarda su correlativo: de él cuelga el
              recordatorio. */
           ...(item.corr ? { corr: item.corr } : {}),
+          ...(item.corr === SVC_FAIL_CORR ? { failed: true } : {}),
         };
-        state.purchases.push(purchase);
+        /* Un pago fallido no deja vale: se ve en la poscompra y se
+           reembolsa, pero no queda en Mis compras. */
+        if (!purchase.failed) state.purchases.push(purchase);
         state.lastOrder.push(purchase);
       }
 
@@ -9358,6 +9721,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.cart.forEach((item) => {
       if (!item.corr) return;
       const svc = state.svc;
+      /* El fallido no se paga: ni actividad ni cambios en la cuenta (el
+         recordatorio de Byron se queda apagado). */
+      if (item.corr === SVC_FAIL_CORR) {
+        svc.current = null;
+        svc.corrInput = "";
+        return;
+      }
       if (!svc.accounts[item.corr]) {
         const who = recipientOf(state);
         svc.accounts[item.corr] = {
@@ -10810,15 +11180,17 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "confirm-methods") return goBack();
 
-    if (action === "open-webview" || action === "reload-webview") {
+    if (action === "open-webview" || action === "reload-webview" || action === "open-invoice") {
       clearTimeout(webviewTimer);
-      state.webview = { phase: "loading", fresh: action === "open-webview" && !state.webview };
+      /* La factura usa el mismo webview; recargar no cambia de página. */
+      const kind = action === "open-invoice" ? "invoice" : action === "reload-webview" ? (state.webview || {}).kind : "";
+      state.webview = { phase: "loading", fresh: action !== "reload-webview" && !state.webview, kind };
       render({ keepScroll: true });
       /* Un respiro de carga, como una página de verdad. Sin conexión,
          el error. */
       webviewTimer = setTimeout(() => {
         if (!state.webview) return;
-        state.webview = { phase: navigator.onLine === false ? "error" : "ready", fresh: false };
+        state.webview = { phase: navigator.onLine === false ? "error" : "ready", fresh: false, kind: state.webview.kind };
         render({ keepScroll: true });
       }, 900);
       return;
@@ -10873,6 +11245,26 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "dash-done") return closeDash();
+
+    /* Demo del pago fallido (Byron): el modal, corregir y el detalle. */
+    if (action === "svc-what") {
+      state.sheet = { type: "svcfail", key: (state.lastOrder.find((p) => p.failed) || {}).corr || "" };
+      return render({ keepScroll: true });
+    }
+    if (action === "svc-fix") {
+      const corr = (state.sheet || {}).key || "";
+      state.sheet = null;
+      /* De vuelta al campo del número, con el que falló ya escrito para
+         corregirlo. */
+      state.svc.corrInput = corr;
+      state.svc.scrollMemo = null;
+      return go("eegsa");
+    }
+    if (action === "svc-pay-detail") return go("svcpaydetail");
+    if (action === "order-tab") {
+      state.orderTab = el.dataset.tab === "fallidas" ? "fallidas" : "exitosas";
+      return render({ keepScroll: true });
+    }
 
     /* Pausa/play del Double Dash: al pausar se congela el reloj y la
        barra; al reanudar, el inicio se corre lo que duró la pausa. */
