@@ -25692,10 +25692,16 @@ function unitOfPurchase(state, purchase) {
   return demo + Math.max(at, 0);
 }
 
-/* Para quién fue la compra: lo marca el destinatario del pago. Los
-   servicios y recargas —Claro se guarda con los vales, pero es una
-   recarga— van siempre a "Para otros" mientras no tengan su flujo. */
+/* Para quién fue la compra: lo marca el destinatario del pago. La luz
+   (EEGSA) ya tiene su flujo: la que se paga «Para mí» —la de «Mi luz»—
+   vive en Para mí. Los demás servicios y recargas —Claro se guarda con
+   los vales, pero es una recarga— van siempre a "Para otros" mientras
+   no tengan el suyo. */
 function purchaseIsForSelf(state, productKey) {
+  if (productKey === "eegsa") {
+    const who = recipientOf(state);
+    return Boolean(who.self) || who.name === USA_RECIPIENT.name;
+  }
   if (((PRODUCTS[productKey] || {}).wallet || "gift") === "servicios") return false;
   if (categoryOf(productKey) === "servicios") return false;
   const who = recipientOf(state);
