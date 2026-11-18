@@ -8506,6 +8506,18 @@ body {
   color: rgba(0, 0, 0, 0.38);
 }
 
+/* Mixta: lo que salió a color y en morado; lo que falló, el logo
+   desaturado y el texto en gris. */
+.oky-flow-paydetail.is-mixed .oky-flow-paydetail-item:not(.is-failed) .oky-flow-paydetail-brand,
+.oky-flow-paydetail.is-mixed .oky-flow-paydetail-item:not(.is-failed) .oky-flow-paydetail-what {
+  color: var(--primary-base);
+}
+
+.oky-flow-paydetail.is-mixed .oky-flow-paydetail-item.is-failed .oky-flow-paydetail-logo img {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
 .oky-flow-paydetail-item + .oky-flow-paydetail-item {
   border-top: 1px dashed var(--divider);
 }

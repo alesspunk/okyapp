@@ -6051,7 +6051,12 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
            la poscompra sale junto a «Mandale foto»; en Mis compras
            compartir se va arriba a la derecha (SRV-01 / SRV-06). */
         svcCorr && !fromOrder && !failed
-          ? svcReminderSwitch(state, svcCorr, asPurchase ? "Te recordaremos el próximo pago" : "Recordatorio de pago")
+          ? !asPurchase && V3_ROUTE && state.params.deck === "v3mio"
+            ? /* En Para mí un pago de servicio también se marca como
+                 usado, igual que una gift card: dos interruptores en una
+                 fila, con copy en primera persona y de todos los días. */
+              svcSelfSwitches(state, svcCorr, card.key, slot, archived)
+            : svcReminderSwitch(state, svcCorr, asPurchase ? "Te recordaremos el próximo pago" : "Recuérdame pagar")
           : ""
       }
     </div>
@@ -6274,11 +6279,16 @@ const CONFIRM_SHEETS = {
   },
   archive: {
     art: "oky-archive-hands.png",
-    title: V3_ROUTE ? "¿Ya la usaste?" : "¿Deseas guardarla?",
-    note: V3_ROUTE
-      ? "La pasamos a la sección de usados sin perderla: la encuentras ahí cuando quieras."
-      : "La quitamos de en medio sin perderla: la encuentras cuando quieras en la sección de guardados.",
-    confirm: V3_ROUTE ? "Sí, ya la usé" : "Guardar",
+    /* Un pago de servicio es «el pago»: en masculino, como su
+       interruptor «Ya lo usé». La gift card sigue en femenino. */
+    title: (state) => (V3_ROUTE ? (state.sheet.key === "eegsa" ? "¿Ya lo usaste?" : "¿Ya la usaste?") : "¿Deseas guardarla?"),
+    note: (state) =>
+      V3_ROUTE
+        ? state.sheet.key === "eegsa"
+          ? "Lo pasamos a la sección de usados sin perderlo: lo encuentras ahí cuando quieras."
+          : "La pasamos a la sección de usados sin perderla: la encuentras ahí cuando quieras."
+        : "La quitamos de en medio sin perderla: la encuentras cuando quieras en la sección de guardados.",
+    confirm: (state) => (V3_ROUTE ? (state.sheet.key === "eegsa" ? "Sí, ya lo usé" : "Sí, ya la usé") : "Guardar"),
     dismiss: "Ahora no",
     action: "confirm-archive",
   },
@@ -6340,6 +6350,9 @@ function filterSheet(state) {
   `;
 }
 
+/* Un texto de hoja puede depender del estado (p. ej. «la» / «lo»). */
+const sheetText = (value, state) => (typeof value === "function" ? value(state) : value);
+
 function confirmSheet(state) {
   const sheet = CONFIRM_SHEETS[state.sheet.type];
   if (!sheet) return "";
@@ -6372,12 +6385,12 @@ function confirmSheet(state) {
   }
   return `
     <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
-    <section class="oky-flow-sheet is-${state.sheet.type}" role="dialog" aria-modal="true" aria-label="${sheet.title}">
+    <section class="oky-flow-sheet is-${state.sheet.type}" role="dialog" aria-modal="true" aria-label="${sheetText(sheet.title, state)}">
       <button class="oky-flow-sheet-close" data-action="close-sheet" type="button" aria-label="Cerrar">
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
-      <h2 class="oky-flow-sheet-title">${sheet.title}</h2>
-      ${sheet.note ? `<p class="oky-flow-sheet-note">${typeof sheet.note === "function" ? sheet.note(state) : sheet.note}</p>` : ""}
+      <h2 class="oky-flow-sheet-title">${sheetText(sheet.title, state)}</h2>
+      ${sheet.note ? `<p class="oky-flow-sheet-note">${sheetText(sheet.note, state)}</p>` : ""}
       <div class="oky-flow-sheet-art">
         ${
           /* La mayoría de las hojas traen su ilustración 3D; la del
@@ -6391,7 +6404,7 @@ function confirmSheet(state) {
       <div class="oky-flow-sheet-actions">
         <button class="oky-flow-sheet-confirm" data-action="${sheet.action}" data-key="${state.sheet.key}"
           data-unit="${state.sheet.unit || 0}" type="button">
-          ${sheet.confirm}
+          ${sheetText(sheet.confirm, state)}
         </button>
         <button class="oky-flow-sheet-dismiss" data-action="${sheet.dismissAction || "close-sheet"}" type="button">${sheet.dismiss}</button>
       </div>
@@ -7219,7 +7232,10 @@ function payDetailSheet(state) {
   const mixed = orderMixed(state);
   const allFailed = svcFailed(state);
   const allOk = !mixed && !allFailed;
-  const rows = allFailed ? state.lastOrder.filter((p) => p.failed) : state.lastOrder;
+  /* En la mixta, primero lo que salió y al final lo que falló. */
+  const rows = allFailed
+    ? state.lastOrder.filter((p) => p.failed)
+    : [...state.lastOrder.filter((p) => !p.failed), ...state.lastOrder.filter((p) => p.failed)];
   const failedRows = state.lastOrder.filter((p) => p.failed);
   const first = rows[0] || {};
   const acc = state.svc.accounts[first.corr] || {};
@@ -7240,7 +7256,7 @@ function payDetailSheet(state) {
         <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
       </button>
     </header>
-    <div class="oky-flow-paydetail">
+    <div class="oky-flow-paydetail${mixed ? " is-mixed" : ""}">
       <article class="oky-flow-paydetail-card">
         <div class="oky-flow-paydetail-top">
           <div>
@@ -7586,6 +7602,27 @@ function screenSvcReminders(state) {
 }
 
 /* El interruptor del recordatorio: el mismo de «Marcar como usado». */
+/* Para mí: «Ya lo usé» (el mismo marcar como usado de las gift cards) y
+   «Recuérdame pagar» (el recordatorio), lado a lado. */
+function svcSelfSwitches(state, corr, key, slot, archived) {
+  const acc = state.svc.accounts[corr];
+  if (!acc) return "";
+  return `
+    <div class="oky-flow-voucher-actions is-pair">
+      <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
+        data-key="${key}" data-unit="${slot}" type="button" role="switch" aria-checked="${archived}">
+        <span class="oky-flow-switch-label">Ya lo usé</span>
+        <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
+      </button>
+      <button class="oky-flow-switch${acc.reminder ? " is-on" : ""}" data-action="svc-toggle" data-corr="${corr}"
+        type="button" role="switch" aria-checked="${acc.reminder}">
+        <span class="oky-flow-switch-label">Recuérdame pagar</span>
+        <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
+      </button>
+    </div>
+  `;
+}
+
 function svcReminderSwitch(state, corr, label) {
   const acc = state.svc.accounts[corr];
   if (!acc) return "";
