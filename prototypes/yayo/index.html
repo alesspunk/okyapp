@@ -9889,7 +9889,14 @@ body {
 /* Más alto para que quepan productos + barra de ahorro sin scroll, y
    relativo a la pantalla: en 800 mide 736 y en Android Small (640) baja
    a 576. Lo recomendado y el pie nunca se encogen: cede el timeline. */
+/* El checkout de fondo trae su dock (z 80) y su navbar (z 90): el
+   velo y el modal van por encima de todo eso. */
+.modal-molecule-backdrop.is-dash-backdrop {
+  z-index: 100 !important;
+}
+
 .oky-flow-wait.is-dash {
+  z-index: 101;
   height: min(736px, calc(100% - 64px));
   touch-action: pan-y;
 }

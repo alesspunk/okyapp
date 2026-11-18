@@ -3199,9 +3199,13 @@ function screenProcessing(state) {
   }));
 
   return `
-    ${statusBar()}
-    ${titledHeader("")}
-    <div class="modal-molecule-backdrop" style="position:absolute;inset:0;z-index:15"${
+    ${
+      /* El Double Dash (completo o mini, servicios o vales) se ve siempre
+         encima del checkout, no de una pantalla en blanco: detrás queda
+         el checkout real, con lo agregado ya en su carrusel y su total. */
+      dash ? `<div class="oky-dash-behind" aria-hidden="true" inert>${screenCheckout(state)}</div>` : `${statusBar()}${titledHeader("")}`
+    }
+    <div class="modal-molecule-backdrop${dash ? " is-dash-backdrop" : ""}" style="position:absolute;inset:0;z-index:15"${
       /* En el Double Dash, tocar fuera regresa al checkout con lo agregado. */
       dash && !dash.closing ? ` data-action="dash-back"` : ""
     }></div>
@@ -3253,12 +3257,11 @@ function screenProcessing(state) {
 }
 
 /* El mini del Double Dash: lo que queda al deslizar hacia abajo. Una
-   pregunta, el total y dos salidas lado a lado (50/50). El tiempo va en
-   pausa. Fuera o otro deslizamiento abajo → checkout; arriba → el
-   modal completo, todavía en pausa. */
+   pregunta, el total y dos salidas lado a lado (50/50): «Ir atrás» y
+   «Pagar uno solo». El tiempo va en pausa. Fuera o otro deslizamiento
+   abajo → checkout; arriba → el modal completo, y el tiempo sigue. */
 function dashMiniSheet(state) {
   const dash = state.dash;
-  const added = state.cart.length - dash.base;
   const svc = dash.mode === "svc";
   return `
     <section class="oky-flow-wait is-dash is-mini" role="dialog" aria-modal="true" aria-labelledby="oky-dash-mini-title">
@@ -3266,8 +3269,10 @@ function dashMiniSheet(state) {
       <h2 class="oky-dash-mini-title" id="oky-dash-mini-title">¿Seguro que quieres volver?</h2>
       <p class="oky-dash-mini-note"><i class="fa-solid fa-pause" aria-hidden="true"></i> Tiempo en pausa · TOTAL ${money(orderDue(state))}</p>
       <div class="oky-dash-mini-actions">
-        <button class="btn btn-outlined btn-large" data-action="dash-pay-one" type="button">${svc ? "Pagar uno solo" : "Solo mi compra"}</button>
-        <button class="btn btn-primary btn-large" data-action="dash-pay-all" type="button">${svc ? "Pagar todos" : "Pagar todo"}${added ? ` (${state.cart.length})` : ""}</button>
+        ${/* Izquierda, secundaria: ir atrás (al checkout con lo agregado).
+             Derecha, primaria: pagar solo lo de antes, sin lo agregado. */ ""}
+        <button class="btn btn-outlined btn-large" data-action="dash-back" type="button">Ir atrás</button>
+        <button class="btn btn-primary btn-large" data-action="dash-pay-one" type="button">${svc ? "Pagar uno solo" : "Solo mi compra"}</button>
       </div>
     </section>
   `;
@@ -9604,10 +9609,15 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     render({ keepScroll: true });
   }
 
-  /* Del mini al modal completo: sigue en pausa; play lo reanuda. */
+  /* Del mini al modal completo: el tiempo sigue corriendo desde donde
+     quedó (no vuelve a empezar). */
   function dashFull() {
     const dash = state.dash;
     if (!dash || dash.closing) return;
+    if (dash.pausedAt) {
+      dash.start += Date.now() - dash.pausedAt;
+      dash.pausedAt = 0;
+    }
     dash.mini = false;
     render({ keepScroll: true });
   }
