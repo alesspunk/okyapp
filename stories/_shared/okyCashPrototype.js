@@ -3206,7 +3206,16 @@ function screenProcessing(state) {
       dash && !dash.closing ? ` data-action="dash-back"` : ""
     }></div>
 
+    ${dash && dash.mini && !dash.closing ? dashMiniSheet(state) : `
     <section class="oky-flow-wait${dash ? " is-dash" : ""}">
+      ${
+        /* La barrita gris (como las hojas de iOS): dice que se puede
+           deslizar hacia abajo. Deslizar o tocarla encoge el modal al
+           mini, con el tiempo en pausa. */
+        dash && !dash.closing
+          ? `<button class="oky-dash-grabber" data-action="dash-mini" type="button" aria-label="Minimizar"><span aria-hidden="true"></span></button>`
+          : ""
+      }
       ${
         /* En el Double Dash el título vende (bien chapín), solo. */
         dash
@@ -3239,6 +3248,27 @@ function screenProcessing(state) {
         <span>Redireccionando…</span>
       </div>`
       }
+    </section>`}
+  `;
+}
+
+/* El mini del Double Dash: lo que queda al deslizar hacia abajo. Una
+   pregunta, el total y dos salidas lado a lado (50/50). El tiempo va en
+   pausa. Fuera o otro deslizamiento abajo → checkout; arriba → el
+   modal completo, todavía en pausa. */
+function dashMiniSheet(state) {
+  const dash = state.dash;
+  const added = state.cart.length - dash.base;
+  const svc = dash.mode === "svc";
+  return `
+    <section class="oky-flow-wait is-dash is-mini" role="dialog" aria-modal="true" aria-labelledby="oky-dash-mini-title">
+      <button class="oky-dash-grabber" data-action="dash-full" type="button" aria-label="Ver más"><span aria-hidden="true"></span></button>
+      <h2 class="oky-dash-mini-title" id="oky-dash-mini-title">¿Seguro que quieres volver?</h2>
+      <p class="oky-dash-mini-note"><i class="fa-solid fa-pause" aria-hidden="true"></i> Tiempo en pausa · TOTAL ${money(orderDue(state))}</p>
+      <div class="oky-dash-mini-actions">
+        <button class="btn btn-outlined btn-large" data-action="dash-pay-one" type="button">${svc ? "Pagar uno solo" : "Solo mi compra"}</button>
+        <button class="btn btn-primary btn-large" data-action="dash-pay-all" type="button">${svc ? "Pagar todos" : "Pagar todo"}${added ? ` (${state.cart.length})` : ""}</button>
+      </div>
     </section>
   `;
 }
@@ -9553,6 +9583,95 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }, 250);
   }
 
+  /* Fuera del Double Dash (tocar fuera, la barrita o deslizar hacia
+     abajo): no se cobra y se vuelve al checkout con lo agregado. */
+  function dashBack() {
+    const dash = state.dash;
+    if (!dash || dash.closing) return;
+    clearInterval(dashTimer);
+    state.checkoutIndex = state.cart.length > dash.base ? dash.base : 0;
+    state.dash = null;
+    state.dashSkip = true;
+    go("checkout", {}, { push: false, market: false });
+  }
+
+  /* Al mini: el modal se encoge y el tiempo se pausa. */
+  function dashMini() {
+    const dash = state.dash;
+    if (!dash || dash.closing) return;
+    if (!dash.pausedAt) dash.pausedAt = Date.now();
+    dash.mini = true;
+    render({ keepScroll: true });
+  }
+
+  /* Del mini al modal completo: sigue en pausa; play lo reanuda. */
+  function dashFull() {
+    const dash = state.dash;
+    if (!dash || dash.closing) return;
+    dash.mini = false;
+    render({ keepScroll: true });
+  }
+
+  /* Los gestos de la hoja. En el modal completo, deslizar abajo desde la
+     barrita o el título lo encoge al mini. En el mini, abajo vuelve al
+     checkout y arriba abre otra vez el completo. */
+  let dashDrag = null;
+  root.addEventListener("pointerdown", (event) => {
+    if (!state.dash || state.dash.closing) return;
+    const mini = !!state.dash.mini;
+    const grip = mini
+      ? !event.target.closest("button:not(.oky-dash-grabber)") && event.target.closest(".oky-flow-wait.is-mini")
+      : event.target.closest(".oky-dash-grabber, .oky-flow-wait.is-dash .oky-flow-wait-title");
+    if (!grip) return;
+    const sheet = grip.closest(".oky-flow-wait");
+    dashDrag = { y: event.clientY, dy: 0, sheet, moved: false, mini };
+    sheet.style.transition = "none";
+  });
+  window.addEventListener("pointermove", (event) => {
+    if (!dashDrag) return;
+    const raw = event.clientY - dashDrag.y;
+    /* Hacia arriba solo en el mini, y con resistencia. */
+    dashDrag.dy = dashDrag.mini ? (raw < 0 ? raw / 3 : raw) : Math.max(0, raw);
+    if (Math.abs(raw) > 4) dashDrag.moved = true;
+    dashDrag.raw = raw;
+    dashDrag.sheet.style.transform = `translateY(${dashDrag.dy}px)`;
+  });
+  ["pointerup", "pointercancel"].forEach((type) =>
+    window.addEventListener(type, () => {
+      if (!dashDrag) return;
+      const { dy, sheet, moved, mini } = dashDrag;
+      const raw = dashDrag.raw || 0;
+      dashDrag = null;
+      /* Un deslizamiento no es además un toque en la barrita. Solo el
+         click que llega pegado al soltar; si no llega, no se arrastra al
+         siguiente toque (p. ej. «Pagar todos»). */
+      if (moved) {
+        dashSuppressClick = true;
+        setTimeout(() => {
+          dashSuppressClick = false;
+        }, 0);
+      }
+      if (mini && raw > 60) return dashBack();
+      if (mini && raw < -40) return dashFull();
+      if (!mini && dy > 90) return dashMini();
+      {
+      sheet.style.transition = "transform 220ms cubic-bezier(0.32, 0.72, 0, 1)";
+      sheet.style.transform = "";
+      }
+    }),
+  );
+  let dashSuppressClick = false;
+  root.addEventListener(
+    "click",
+    (event) => {
+      if (!dashSuppressClick) return;
+      dashSuppressClick = false;
+      event.stopPropagation();
+      event.preventDefault();
+    },
+    true,
+  );
+
   /* Se acabó el tiempo o tocó «Listo»: el spinner de siempre y un solo
      cobro con todo lo agregado. */
   function closeDash() {
@@ -11392,14 +11511,17 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     /* Tocar fuera del Double Dash: no se cobra y se vuelve al checkout.
        Lo agregado ya está en el carrito, así que el checkout lo enseña
        con los totales al día; se abre en lo primero que se agregó. */
-    if (action === "dash-back") {
+    if (action === "dash-back") return dashBack();
+    if (action === "dash-mini") return dashMini();
+    if (action === "dash-full") return dashFull();
+    if (action === "dash-pay-one" || action === "dash-pay-all") {
       const dash = state.dash;
       if (!dash || dash.closing) return;
-      clearInterval(dashTimer);
-      state.checkoutIndex = state.cart.length > dash.base ? dash.base : 0;
-      state.dash = null;
-      state.dashSkip = true;
-      return go("checkout", {}, { push: false, market: false });
+      /* «Pagar uno solo»: fuera lo que se sumó, se paga lo de antes. */
+      if (action === "dash-pay-one") state.cart.splice(dash.base);
+      dash.mini = false;
+      dash.pausedAt = 0;
+      return closeDash();
     }
 
     if (action === "dismiss-celebration") {

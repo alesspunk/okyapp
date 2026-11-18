@@ -9891,6 +9891,90 @@ body {
    a 576. Lo recomendado y el pie nunca se encogen: cede el timeline. */
 .oky-flow-wait.is-dash {
   height: min(736px, calc(100% - 64px));
+  touch-action: pan-y;
+}
+
+/* La barrita gris de arriba (estilo iOS): 36×5, radio completo. El
+   botón es más alto que la barra para que sea fácil de tomar. */
+.oky-dash-grabber {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 20px;
+  margin: 0 0 -8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: grab;
+  touch-action: none;
+}
+
+.oky-dash-grabber span {
+  width: 36px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.oky-flow-wait.is-dash .oky-flow-wait-title {
+  touch-action: none;
+}
+
+/* El mini del Double Dash: alto según su contenido, pregunta, total en
+   pausa y dos botones 50/50. Entra subiendo desde abajo. */
+.oky-flow-wait.is-dash.is-mini {
+  height: auto;
+  padding: 0 16px 24px;
+  touch-action: none;
+  animation: oky-dash-mini-in 260ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes oky-dash-mini-in {
+  from {
+    transform: translateY(40%);
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oky-flow-wait.is-dash.is-mini {
+    animation: none;
+  }
+}
+
+.oky-dash-mini-title {
+  margin: 16px 0 4px;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 28px;
+  color: var(--primary-base);
+  text-align: center;
+}
+
+.oky-dash-mini-note {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.oky-dash-mini-note i {
+  margin-right: 4px;
+  font-size: 11px;
+}
+
+.oky-dash-mini-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.oky-dash-mini-actions .btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 /* Lo que ya se paga (los checks verdes) arriba y llenando el alto; lo
