@@ -21235,6 +21235,11 @@ button.carrusel-dot:focus-visible {
   line-height: 20px;
 }
 
+.reminder-card-title-icon {
+  margin-right: 6px;
+  font-size: 0.9em;
+}
+
 .reminder-card-molecule.is-mini .reminder-card-body {
   font-size: 13px;
   line-height: 18px;
@@ -25125,7 +25130,13 @@ function renderMiniCard(card) {
           : ""
       }
       <div class="reminder-card-mini-main">
-        <h3 class="reminder-card-title">${card.title}</h3>
+        <h3 class="reminder-card-title">${
+          /* Ícono opcional a la izquierda del título (el de Menú ›
+             Recordatorios), decorativo: el título ya lo dice. */
+          card.titleIcon
+            ? `<i class="fa-regular fa-${card.titleIcon} reminder-card-title-icon" aria-hidden="true"></i>`
+            : ""
+        }${card.title}</h3>
         <p class="reminder-card-body">${card.body}</p>
       </div>
       ${
@@ -31935,10 +31946,37 @@ function svcStatus(state, corr) {
 }
 
 /* Recordatorios encendidos, primero lo que ya toca pagar. */
+/* La cuenta de luz propia: la que se pagó eligiendo «Para mí». */
+const svcMine = (acc) => !!acc && acc.contact === USA_RECIPIENT.name;
+
+/* Los nombres de las cuentas. Las tuyas son «Mi luz»; las de otra
+   persona, «Luz de» + su nombre. Cuando hay más de una de la misma
+   persona (o varias tuyas), cada una suma los últimos 4 dígitos del
+   correlativo, que es el dato que trae la factura: «Mi luz ·1234». */
+function svcRelabel(svc) {
+  const byOwner = {};
+  Object.values(svc.accounts).forEach((acc) => {
+    (byOwner[acc.contact] = byOwner[acc.contact] || []).push(acc);
+  });
+  Object.values(byOwner).forEach((list) => {
+    list.forEach((acc) => {
+      const mine = svcMine(acc);
+      /* Un nombre puesto a mano (los de ejemplo) se respeta mientras
+         sea la única cuenta de esa persona. */
+      const base = mine ? "Mi luz" : acc.alias && !acc.alias.startsWith("Luz #") ? acc.alias.replace(/ ·\d{4}$/, "") : `Luz de ${acc.contact}`;
+      acc.alias = list.length > 1 ? `${base} ·${acc.corr.slice(-4)}` : base;
+    });
+  });
+}
+
 function svcActive(state) {
   return Object.values(state.svc.accounts)
     .filter((a) => a.reminder && svcLastPayment(state, a.corr))
     .sort((a, b) => {
+      /* Las tuyas primero: es lo que más se revisa. */
+      const ma = svcMine(a) ? 0 : 1;
+      const mb = svcMine(b) ? 0 : 1;
+      if (ma !== mb) return ma - mb;
       const sa = svcStatus(state, a.corr);
       const sb = svcStatus(state, b.corr);
       if (sa.kind !== sb.kind) return sa.kind === "due" ? -1 : 1;
@@ -31985,6 +32023,8 @@ function svcReminderData(state, acc, { mini = false } = {}) {
     return {
       ...base,
       title: escapeHtml(acc.alias),
+      /* El mismo ícono de Menú › Recordatorios, junto al nombre. */
+      titleIcon: "calendar-check",
       body: `${svcAgo(last.ago)} pagaste ${quetzalOf(last.q)}`,
       /* Sin logo: en el home de EEGSA la marca ya está grande arriba y
          todos los recordatorios son suyos; el espacio queda para el
@@ -32073,12 +32113,16 @@ function svcDueCorrs(state) {
     .map((a) => a.corr);
 }
 
+/* La campana con sonido (bell-ring de Font Awesome Pro, solid). Va como
+   SVG porque el prototipo suelto solo trae los glifos de Free. */
+const BELL_RING_SVG = `<svg class="oky-flow-svc-bell-icon" viewBox="0 0 512 512" width="24" height="24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M256 0C238.3 0 224 14.3 224 32V51.2C151 66 96 130.6 96 208V226.8C96 273.8 78.7 319.2 47.5 354.4L40.1 362.7C31.7 372.1 29.7 385.6 34.8 397.1C39.9 408.6 51.4 416 64 416H448C460.6 416 472 408.6 477.2 397.1C482.4 385.6 480.3 372.1 471.9 362.7L464.5 354.4C433.3 319.2 416 273.9 416 226.8V208C416 130.6 361 66 288 51.2V32C288 14.3 273.7 0 256 0ZM301.3 493.3C313.3 481.3 320 465 320 448H256H192C192 465 198.7 481.3 210.7 493.3C222.7 505.3 239 512 256 512C273 512 289.3 505.3 301.3 493.3ZM113.4 15.4C104.3 5.8 89.1 5.4 79.5 14.6C30.5 61.2 0 127.1 0 200C0 213.3 10.7 224 24 224C37.3 224 48 213.3 48 200C48 140.7 72.8 87.3 112.6 49.4C122.2 40.3 122.6 25.1 113.4 15.5ZM113.4 15.4ZM399.4 49.4C439.2 87.3 464 140.7 464 200C464 213.3 474.7 224 488 224C501.3 224 512 213.3 512 200C512 127.1 481.5 61.2 432.6 14.6C423 5.5 407.8 5.8 398.7 15.4C389.6 25 389.9 40.2 399.5 49.3ZM399.4 49.4Z"/></svg>`;
+
 function svcBell(state) {
   const unseen = svcDueCorrs(state).filter((c) => !state.svc.seenDue.includes(c)).length;
   return `
     <button class="header-icon oky-flow-svc-bell" data-action="svc-open-reminders" type="button"
       aria-label="Recordatorios${unseen ? `, ${unseen} nuevo${unseen > 1 ? "s" : ""}` : ""}">
-      <i class="fa-solid fa-bell" aria-hidden="true"></i>
+      ${BELL_RING_SVG}
       ${unseen ? `<span class="header-icon-indicator-dot"></span>` : ""}
     </button>
   `;
@@ -32156,7 +32200,11 @@ function svcActivity(state) {
     };
     const recent = (g) => Math.min(...g.items.map((p) => p.ago));
     /* Entre los por pagar, primero el más atrasado, como el carrusel. */
+    const mine = (corr) => (svcMine(state.svc.accounts[corr]) ? 0 : 1);
     groups.sort((a, b) => {
+      /* Las tuyas primero, igual que en el carrusel. */
+      const m = mine(a.corr) - mine(b.corr);
+      if (m) return m;
       const r = rank(a.corr) - rank(b.corr);
       if (r) return r;
       return rank(a.corr) === 0 ? recent(b) - recent(a) : recent(a) - recent(b);
@@ -34304,6 +34352,14 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       .filter((item) => item.productKey !== "eegsa")
       .concat({ productKey: "eegsa", amount: toUsd(cur.q), cashback: 0, quetzales: cur.q, corr: cur.corr });
     state.checkoutIndex = state.cart.length - 1;
+    /* Un número correlativo nuevo no tiene a quién pagársele todavía, y
+       es común pagarse la luz a uno mismo: se pregunta con la misma hoja
+       de USA, «Para mí» / «Para otros». Los números que ya existen
+       siguen con el contacto de la última vez, sin preguntar. */
+    if (!acc) {
+      state.sheet = { type: "decision", svc: true };
+      return render();
+    }
     return go("checkout");
   }
 
@@ -34505,6 +34561,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       svc.current = null;
       svc.corrInput = "";
     });
+    svcRelabel(state.svc);
 
     state.okyCashBalance = state.okyCashBalance - used + earned;
     state.lastEarned = earned;
@@ -34745,7 +34802,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       /* La agenda abre con el radio puesto en quien ya es destinatario,
          para que se vea de dónde se parte. */
       /* Elegir «Para otros» en la pregunta reinicia la cuenta de «Para mí». */
-      if (state.sheet && state.sheet.type === "decision") state.selfStreak = 0;
+      if (state.sheet && state.sheet.type === "decision" && !state.sheet.svc) state.selfStreak = 0;
       state.sheet = null;
       const lista = contactsOf(state);
       state.contactPick = (lista.find((c) => c.name === recipientOf(state).name) || lista[0]).key;
@@ -36101,10 +36158,13 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "decision-self") {
+      const svcSheet = Boolean(state.sheet && state.sheet.svc);
       state.sheet = null;
-      state.selfStreak = (state.selfStreak || 0) + 1;
+      /* La racha de «Para mí» es de las compras de USA: pagarse la luz
+         no la mueve. */
+      if (!svcSheet) state.selfStreak = (state.selfStreak || 0) + 1;
       state.recipient = "Para mí";
-      state.recipientMarket = "usa";
+      state.recipientMarket = svcSheet ? "gua" : "usa";
       /* push:false deja el modal fuera del historial: "atrás" desde el
          checkout vuelve al PDP, no al modal. */
       return go("checkout", {}, { push: false });

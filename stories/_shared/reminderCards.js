@@ -238,7 +238,13 @@ function renderMiniCard(card) {
           : ""
       }
       <div class="reminder-card-mini-main">
-        <h3 class="reminder-card-title">${card.title}</h3>
+        <h3 class="reminder-card-title">${
+          /* Ícono opcional a la izquierda del título (el de Menú ›
+             Recordatorios), decorativo: el título ya lo dice. */
+          card.titleIcon
+            ? `<i class="fa-regular fa-${card.titleIcon} reminder-card-title-icon" aria-hidden="true"></i>`
+            : ""
+        }${card.title}</h3>
         <p class="reminder-card-body">${card.body}</p>
       </div>
       ${
