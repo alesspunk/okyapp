@@ -21266,6 +21266,13 @@ button.carrusel-dot:focus-visible {
   min-width: 0;
 }
 
+/* El emoji de Para mí / Para otros en la cabecera del grupo. */
+.oky-flow-svc-group-emoji {
+  flex: 0 0 auto;
+  display: inline-flex;
+  font-size: 28px;
+}
+
 .oky-flow-svc-group-name {
   font-size: 15px;
   line-height: 20px;
@@ -32218,7 +32225,14 @@ function svcActivity(state) {
         <button class="oky-flow-section-head is-tappable oky-flow-svc-group-head" data-action="svc-toggle-group"
           data-group="${g.label}" type="button" aria-expanded="${open}">
           <span class="oky-flow-section-head-label oky-flow-history-label">
-            ${/* Por número no lleva icono: el foco ya va en cada card. */ byDate ? `<i class="fa-regular fa-calendar" aria-hidden="true"></i>` : ""}${
+            ${
+              /* Por fecha, el calendario. Por número, donde iba el foco, el
+                 emoji de Mis compras: «Para mí» si la cuenta es tuya y
+                 «Para otros» si es de alguien más. El foco ya va en cada card. */
+              byDate
+                ? `<i class="fa-regular fa-calendar" aria-hidden="true"></i>`
+                : `<span class="oky-flow-svc-group-emoji" aria-hidden="true">${svcMine(state.svc.accounts[g.corr]) ? EMOJI_SELF : EMOJI_OTHERS}</span>`
+            }${
               byDate
                 ? g.label
                 : /* El nombre es lo que se reconoce; el número, debajo. */
