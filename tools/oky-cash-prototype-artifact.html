@@ -29076,7 +29076,8 @@ function screenProcessing(state) {
 }
 
 /* El mini del Double Dash: lo que queda al deslizar hacia abajo. Una
-   pregunta, el total y dos salidas lado a lado (50/50): «Ir atrás» y
+   pregunta que repite el verbo del botón («¿Quieres ir atrás?»), el
+   total y dos salidas lado a lado (50/50): «Ir atrás» y
    «Pagar uno solo». El tiempo va en pausa. Fuera o otro deslizamiento
    abajo → checkout; arriba → el modal completo, con el tiempo desde cero. */
 function dashMiniSheet(state) {
@@ -29085,10 +29086,10 @@ function dashMiniSheet(state) {
   return `
     <section class="oky-flow-wait is-dash is-mini" role="dialog" aria-modal="true" aria-labelledby="oky-dash-mini-title">
       <button class="oky-dash-grabber" data-action="dash-full" type="button" aria-label="Ver más"><span aria-hidden="true"></span></button>
-      <h2 class="oky-dash-mini-title" id="oky-dash-mini-title">¿Seguro que quieres volver?</h2>
+      <h2 class="oky-dash-mini-title" id="oky-dash-mini-title">¿Quieres ir atrás?</h2>
       <p class="oky-dash-mini-note"><i class="fa-solid fa-pause" aria-hidden="true"></i> Tiempo en pausa · TOTAL ${money(orderDue(state))}</p>
       <div class="oky-dash-mini-actions">
-        ${/* Izquierda, secundaria: ir atrás (al checkout con lo agregado).
+        ${/* Izquierda, secundaria: ir atrás (al checkout, sin lo agregado).
              Derecha, primaria: pagar solo lo de antes, sin lo agregado. */ ""}
         <button class="btn btn-outlined btn-large" data-action="dash-back" type="button">Ir atrás</button>
         <button class="btn btn-primary btn-large" data-action="dash-pay-one" type="button">${svc ? "Pagar uno solo" : "Solo mi compra"}</button>
@@ -35407,13 +35408,15 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }, 250);
   }
 
-  /* Fuera del Double Dash (tocar fuera, la barrita o deslizar hacia
-     abajo): no se cobra y se vuelve al checkout con lo agregado. */
+  /* Fuera del Double Dash (tocar fuera, «Ir atrás» o deslizar hacia
+     abajo desde el mini): se aborta. No se cobra, se quita lo que se
+     sumó en el Double Dash y se vuelve al checkout solo con lo original. */
   function dashBack() {
     const dash = state.dash;
     if (!dash || dash.closing) return;
     clearInterval(dashTimer);
-    state.checkoutIndex = state.cart.length > dash.base ? dash.base : 0;
+    state.cart.splice(dash.base);
+    state.checkoutIndex = Math.min(state.checkoutIndex || 0, Math.max(state.cart.length - 1, 0));
     state.dash = null;
     state.dashSkip = true;
     go("checkout", {}, { push: false, market: false });
@@ -37339,9 +37342,8 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
-    /* Tocar fuera del Double Dash: no se cobra y se vuelve al checkout.
-       Lo agregado ya está en el carrito, así que el checkout lo enseña
-       con los totales al día; se abre en lo primero que se agregó. */
+    /* Tocar fuera del Double Dash: se aborta y se vuelve al checkout
+       solo con lo original (dashBack quita lo agregado). */
     if (action === "dash-back") return dashBack();
     if (action === "dash-mini") return dashMini();
     if (action === "dash-full") return dashFull();
