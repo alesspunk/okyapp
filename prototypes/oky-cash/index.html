@@ -29080,7 +29080,7 @@ function screenProcessing(state) {
 /* El mini del Double Dash: lo que queda al deslizar hacia abajo. Una
    pregunta, el total y dos salidas lado a lado (50/50): «Ir atrás» y
    «Pagar uno solo». El tiempo va en pausa. Fuera o otro deslizamiento
-   abajo → checkout; arriba → el modal completo, y el tiempo sigue. */
+   abajo → checkout; arriba → el modal completo, con el tiempo desde cero. */
 function dashMiniSheet(state) {
   const dash = state.dash;
   const svc = dash.mode === "svc";
@@ -35430,15 +35430,13 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     render({ keepScroll: true });
   }
 
-  /* Del mini al modal completo: el tiempo sigue corriendo desde donde
-     quedó (no vuelve a empezar). */
+  /* Del mini al modal completo: el tiempo vuelve a empezar desde cero,
+     porque al volver podía quedar muy poco para decidir. */
   function dashFull() {
     const dash = state.dash;
     if (!dash || dash.closing) return;
-    if (dash.pausedAt) {
-      dash.start += Date.now() - dash.pausedAt;
-      dash.pausedAt = 0;
-    }
+    dash.start = Date.now();
+    dash.pausedAt = 0;
     dash.mini = false;
     render({ keepScroll: true });
   }
