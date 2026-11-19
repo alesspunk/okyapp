@@ -26322,7 +26322,7 @@ function unitOfPurchase(state, purchase) {
 }
 
 /* Para quién fue la compra: lo marca el destinatario del pago. La luz
-   (EEGSA) ya tiene su flujo: la que se paga «Para mí» —la de «Mi luz»—
+   (EEGSA) ya tiene su flujo: la que se paga «Para mí» —la de «Para mí»—
    vive en Para mí. Los demás servicios y recargas —Claro se guarda con
    los vales, pero es una recarga— van siempre a "Para otros" mientras
    no tengan el suyo. */
@@ -27085,7 +27085,7 @@ function invoiceBody(state) {
           <div class="oky-invoice-item">
             ${line(`EEGSA · ${escapeHtml(acc(p.corr).alias || "Electricidad")}`, quetzalOf(p.quetzales))}
             <p class="oky-invoice-note">Correlativo #${p.corr}</p>
-            <p class="oky-invoice-note">Quien recibe: ${escapeHtml(acc(p.corr).contact || r.recipient)}</p>
+            <p class="oky-invoice-note">Quien recibe: ${escapeHtml(p.to || acc(p.corr).contact || r.recipient)}</p>
             <p class="oky-invoice-note">No. de transacción ${r.tx}${i}</p>
           </div>`,
             )
@@ -28470,7 +28470,7 @@ function svcCheckoutTitle(state, corr) {
   if (acc) return escapeHtml(acc.alias);
   const item = state.cart.find((x) => x.corr === corr);
   const who = item ? svcItemRecipient(state, item) : recipientOf(state);
-  return who.self || who.name === USA_RECIPIENT.name ? "Mi luz" : escapeHtml(`Luz de ${who.name}`);
+  return who.self || who.name === USA_RECIPIENT.name ? "Para mí" : escapeHtml(`Luz de ${who.name}`);
 }
 
 /* ── Checkout (99105:31768) ─────────────────────────────── */
@@ -31713,7 +31713,16 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
                de dos valores de yayo. */
             bottomLines: [
               ...(svcCorr && state.svc.accounts[svcCorr]
-                ? [{ label: "Quien recibe", value: escapeHtml(state.svc.accounts[svcCorr].contact), copyable: false }]
+                ? [
+                    {
+                      label: "Quien recibe",
+                      /* El elegido en el checkout para ese recibo, no el
+                         dueño de la cuenta: la luz de Marisol puede ir
+                         «Para mí». */
+                      value: escapeHtml((svcPurchase && svcPurchase.to) || state.svc.accounts[svcCorr].contact),
+                      copyable: false,
+                    },
+                  ]
                 : []),
               { label: "ID de pago", value: digitsOf(bottomSeed, 15), copyable: true },
             ],
@@ -31849,7 +31858,15 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               topFooterRightLabel: section0 === "gift" ? "Brand disclaimer" : "",
               middleCardPath: "Molecule/Middle Card/Amount",
               /* Yayo se llama como en su PDP: "OKY Vale Recargable". */
-              middleTitle: card.telco || card.key === "eegsa" ? card.cardTitle : kind,
+              /* Un pago de servicio se titula con su cuenta («Luz de
+                 Aracely», «Para mí»), como en la home de EEGSA y el
+                 checkout; sin cuenta, «Electricidad». */
+              middleTitle:
+                card.key === "eegsa"
+                  ? escapeHtml((state.svc.accounts[svcCorr] || {}).alias || card.cardTitle)
+                  : card.telco
+                  ? card.cardTitle
+                  : kind,
               /* Y el pie del medio dice lo que toca en cada uno: la gift
                  card de USA no se muestra en caja —lo único que hay que
                  abrir son las instrucciones de canje, que es además la
@@ -32978,10 +32995,10 @@ function svcStatus(state, corr) {
 /* La cuenta de luz propia: la que se pagó eligiendo «Para mí». */
 const svcMine = (acc) => !!acc && acc.contact === USA_RECIPIENT.name;
 
-/* Los nombres de las cuentas. Las tuyas son «Mi luz»; las de otra
+/* Los nombres de las cuentas. Las tuyas son «Para mí»; las de otra
    persona, «Luz de» + su nombre. Cuando hay más de una de la misma
    persona (o varias tuyas), cada una suma los últimos 4 dígitos del
-   correlativo, que es el dato que trae la factura: «Mi luz ·1234». */
+   correlativo, que es el dato que trae la factura: «Para mí ·1234». */
 function svcRelabel(svc) {
   const byOwner = {};
   Object.values(svc.accounts).forEach((acc) => {
@@ -32992,7 +33009,7 @@ function svcRelabel(svc) {
       const mine = svcMine(acc);
       /* Un nombre puesto a mano (los de ejemplo) se respeta mientras
          sea la única cuenta de esa persona. */
-      const base = mine ? "Mi luz" : acc.alias && !acc.alias.startsWith("Luz #") ? acc.alias.replace(/ ·\d{4}$/, "") : `Luz de ${acc.contact}`;
+      const base = mine ? "Para mí" : acc.alias && !acc.alias.startsWith("Luz #") ? acc.alias.replace(/ ·\d{4}$/, "") : `Luz de ${acc.contact}`;
       acc.alias = list.length > 1 ? `${base} ·${acc.corr.slice(-4)}` : base;
     });
   });
@@ -33184,7 +33201,7 @@ function payDetailSheet(state) {
   const refund = failedRows.reduce((sum, p) => sum + p.amount, 0) + (mixed ? 0 : r.fee || 0);
   /* Arriba, lo autorizado en la orden; abajo, lo que se devuelve. */
   const paid = allFailed ? refund : r.paid || 0;
-  const who = [...new Set(rows.map((p) => (state.svc.accounts[p.corr] || {}).contact).filter(Boolean))].join(", ");
+  const who = [...new Set(rows.map((p) => p.to || (state.svc.accounts[p.corr] || {}).contact).filter(Boolean))].join(", ");
   /* Es una hoja encima de la poscompra, no otra pantalla: sube al
      abrirse y el chevron la minimiza, que baja y deja ver lo de atrás. */
   return `
@@ -35810,6 +35827,8 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           /* Un pago de servicio guarda su correlativo: de él cuelga el
              recordatorio. */
           ...(item.corr ? { corr: item.corr } : {}),
+          /* A quién le llegó (lo elegido en «¿Para quién es?»). */
+          ...(item.to ? { to: item.to } : {}),
           ...(item.corr === SVC_FAIL_CORR || item.fail ? { failed: true } : {}),
         };
         /* Un pago fallido no deja vale: se ve en la poscompra y se
