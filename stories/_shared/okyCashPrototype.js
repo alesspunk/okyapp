@@ -716,7 +716,6 @@ function createInitialState(userType) {
     /* La ventana del Double Dash (OA-561) mientras «No cerrar app»:
        { start, base, baseTotal, corr, closing }. */
     dash: null,
-    dashSkip: false,
     /* Historial de ejemplo. Las entradas de una misma orden van juntas y
        en orden, que es como las agrupa la pantalla: las órdenes con más
        de un movimiento traen su desglose por marca detrás del toque. */
@@ -3212,10 +3211,10 @@ function screenProcessing(state) {
          el checkout real, con lo agregado ya en su carrusel y su total. */
       dash ? `<div class="oky-dash-behind" aria-hidden="true" inert>${screenCheckout(state)}</div>` : `${statusBar()}${titledHeader("")}`
     }
-    <div class="modal-molecule-backdrop${dash ? " is-dash-backdrop" : ""}" style="position:absolute;inset:0;z-index:15"${
-      /* En el Double Dash, tocar fuera regresa al checkout con lo agregado. */
-      dash && !dash.closing ? ` data-action="dash-back"` : ""
-    }></div>
+    ${/* En el Double Dash tocar fuera no hace nada: salir es muy fácil y
+         rompe la conversión. La única salida es deslizar al mini y
+         «Ir atrás». */ ""}
+    <div class="modal-molecule-backdrop${dash ? " is-dash-backdrop" : ""}" style="position:absolute;inset:0;z-index:15"></div>
 
     ${dash && dash.mini && !dash.closing ? dashMiniSheet(state) : `
     <section class="oky-flow-wait${dash ? " is-dash" : ""}">
@@ -3266,8 +3265,9 @@ function screenProcessing(state) {
 /* El mini del Double Dash: lo que queda al deslizar hacia abajo. Una
    pregunta que repite el verbo del botón («¿Quieres ir atrás?»), el
    total y dos salidas lado a lado (50/50): «Ir atrás» y
-   «Pagar uno solo». El tiempo va en pausa. Fuera o otro deslizamiento
-   abajo → checkout; arriba → el modal completo, con el tiempo desde cero. */
+   «Pagar uno solo». El tiempo va en pausa. «Ir atrás» es la única salida
+   al checkout (tocar fuera o deslizar abajo no hacen nada); arriba → el
+   modal completo, con el tiempo desde cero. Igual en servicios y vales. */
 function dashMiniSheet(state) {
   const dash = state.dash;
   const svc = dash.mode === "svc";
@@ -9569,8 +9569,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      Double Dash y se cobra todo junto al cerrarse. */
   function startProcessing() {
     clearInterval(dashTimer);
-    /* Si ya lo cerró tocando fuera, al volver a pagar no se insiste. */
-    const mode = state.dashSkip ? "" : dashModeOf(state);
+    /* Siempre que se paga sale el Double Dash, aunque antes se haya
+       abortado: por consistencia, cada pago se comporta igual. */
+    const mode = dashModeOf(state);
     if (!mode) {
       state.dash = null;
       go("processing", {}, { push: false });
@@ -9596,8 +9597,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }, 250);
   }
 
-  /* Fuera del Double Dash (tocar fuera, «Ir atrás» o deslizar hacia
-     abajo desde el mini): se aborta. No se cobra, se quita lo que se
+  /* «Ir atrás» en el mini, la única salida del Double Dash: se aborta. No se cobra, se quita lo que se
      sumó en el Double Dash y se vuelve al checkout solo con lo original. */
   function dashBack() {
     const dash = state.dash;
@@ -9606,7 +9606,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.cart.splice(dash.base);
     state.checkoutIndex = Math.min(state.checkoutIndex || 0, Math.max(state.cart.length - 1, 0));
     state.dash = null;
-    state.dashSkip = true;
     go("checkout", {}, { push: false, market: false });
   }
 
@@ -9648,8 +9647,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   window.addEventListener("pointermove", (event) => {
     if (!dashDrag) return;
     const raw = event.clientY - dashDrag.y;
-    /* Hacia arriba solo en el mini, y con resistencia. */
-    dashDrag.dy = dashDrag.mini ? (raw < 0 ? raw / 3 : raw) : Math.max(0, raw);
+    /* En el mini se mueve con resistencia (arriba vuelve al completo;
+       abajo rebota). En el completo, solo hacia abajo. */
+    dashDrag.dy = dashDrag.mini ? raw / 3 : Math.max(0, raw);
     if (Math.abs(raw) > 4) dashDrag.moved = true;
     dashDrag.raw = raw;
     dashDrag.sheet.style.transform = `translateY(${dashDrag.dy}px)`;
@@ -9669,7 +9669,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           dashSuppressClick = false;
         }, 0);
       }
-      if (mini && raw > 60) return dashBack();
       if (mini && raw < -40) return dashFull();
       if (!mini && dy > 90) return dashMini();
       {
@@ -9783,7 +9782,6 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        vacía aquí mismo, así que el latido se muda solo, pero queda
        dicho para cuando vuelva a entrar algo al carrito. */
     state.beacon = "wallet";
-    state.dashSkip = false;
     state.orderTab = "exitosas";
     /* El acuse abre por el primero de la orden. */
     state.orderIndex = 0;
@@ -11530,8 +11528,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
-    /* Tocar fuera del Double Dash: se aborta y se vuelve al checkout
-       solo con lo original (dashBack quita lo agregado). */
+    /* «Ir atrás» del mini: se aborta y se vuelve al checkout solo con
+       lo original (dashBack quita lo agregado). */
     if (action === "dash-back") return dashBack();
     if (action === "dash-mini") return dashMini();
     if (action === "dash-full") return dashFull();
