@@ -32438,9 +32438,14 @@ function recipientOf(state) {
 
 function screenContacts(state) {
   const list = contactsOf(state);
-  const chosen = list.some((c) => c.key === state.contactPick)
-    ? state.contactPick
-    : (list.find((c) => c.name === recipientOf(state).name) || list[0]).key;
+  /* "none": la agenda abre sin nadie marcado (pago de un número nuevo:
+     no se asume destinatario, se elige). Siguiente espera a que se elija. */
+  const chosen =
+    state.contactPick === "none"
+      ? ""
+      : list.some((c) => c.key === state.contactPick)
+        ? state.contactPick
+        : (list.find((c) => c.name === recipientOf(state).name) || list[0]).key;
 
   const row = (c) => `
     <div class="oky-flow-contact${c.self ? " is-self" : ""}${c.key === chosen ? " is-picked" : ""}"
@@ -32513,7 +32518,7 @@ function screenContacts(state) {
          suelo del teléfono y no 56px más arriba, que es donde la deja
          el hueco que las demás pantallas guardan para la navbar. */ ""}
     <div class="oky-flow-cta-bar is-floor">
-      <button class="btn btn-primary btn-large" data-action="confirm-contact" type="button">Siguiente</button>
+      <button class="btn btn-primary btn-large" data-action="confirm-contact" type="button"${chosen ? "" : " disabled"}>Siguiente</button>
     </div>
   `;
 }
@@ -35625,13 +35630,6 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.recipient = contact.name;
       state.recipientPhone = contact.phone;
       state.recipientMarket = "gua";
-    } else if ((contactByName(state.recipient) || {}).self) {
-      /* Número nuevo: va a otra persona por defecto, nunca a «Para mí».
-         Pagarse la luz a uno mismo queda semiescondido: se elige desde
-         «¿Para quién es?» del checkout, en la agenda. */
-      state.recipient = GUA_RECIPIENT.name;
-      state.recipientPhone = GUA_RECIPIENT.phone;
-      state.recipientMarket = "gua";
     }
     state.amounts.eegsa = cur.q;
     state.cart = state.cart
@@ -35644,13 +35642,18 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         corr: cur.corr,
         /* A quién le llega (notificación y pestaña de Mis compras): el
            dueño de la cuenta, o el elegido por defecto si es nueva. */
-        to: acc ? acc.contact : recipientOf(state).name,
+        ...(acc ? { to: acc.contact } : {}),
       });
     state.checkoutIndex = state.cart.length - 1;
-    /* Sin la hoja «Para mí / Para otros»: se va directo al checkout. Los
-       números que ya existen siguen con el contacto de la última vez; uno
-       nuevo, con otra persona, y desde «¿Para quién es?» se cambia (la
-       agenda ofrece «Para mí» arriba). */
+    /* Número nuevo (desde el input): primero «¿Para quién es?», la
+       agenda misma, sin nadie marcado. No se asume a Daniel Paz ni a
+       nadie: al elegir, la agenda lleva al checkout con esa persona. */
+    if (!acc) {
+      state.contactPick = "none";
+      return go("contacts");
+    }
+    /* Un número que ya existe va directo al checkout con el contacto de
+       la última vez; desde «¿Para quién es?» se cambia. */
     return go("checkout");
   }
 
@@ -36141,7 +36144,8 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "confirm-contact") {
-      const picked = CONTACTS.find((c) => c.key === state.contactPick) || contactsOf(state)[0];
+      const picked = CONTACTS.find((c) => c.key === state.contactPick);
+      if (!picked) return;
       /* En un pago de servicio se cambia a quién le llega esa card (la
          que se veía en el checkout); el correlativo que se paga es el
          mismo. Se vuelve a la misma card. */
