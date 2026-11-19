@@ -21924,6 +21924,12 @@ button.carrusel-dot:focus-visible {
   color: var(--text-secondary);
 }
 
+/* El mini se arrastra: que el gesto no seleccione el texto. */
+.oky-flow-wait.is-dash {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 @font-face {
   font-family: "FA Free Solid Fallback";
   font-style: normal;
