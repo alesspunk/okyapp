@@ -31943,10 +31943,11 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
           ? ""
           : V3_ROUTE
           ? asPurchase ||
-            /* En /miscompras "Archivar" es solo de Para mí con
-               gift cards de USA/Canadá: OKY Vales y servicios no lo
-               llevan. */
-            (V3_ROUTE && (state.params.deck !== "v3mio" || sectionOfVoucher(card.key) !== "gift"))
+            /* En /miscompras "Archivar" va en todo lo de Para mí: gift
+               cards de USA/Canadá, OKY Vales de monto y productos (también
+               los que llegan por el cross). Servicios lleva el suyo junto
+               al recordatorio (svcSelfSwitches); Para otros no archiva. */
+            (V3_ROUTE && (state.params.deck !== "v3mio" || sectionOfVoucher(card.key) === "servicios"))
             ? ""
             : `<div class="oky-flow-voucher-actions is-single">
         <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
