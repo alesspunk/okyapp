@@ -26317,12 +26317,13 @@ function unitOfPurchase(state, purchase) {
    vive en Para mí. Los demás servicios y recargas —Claro se guarda con
    los vales, pero es una recarga— van siempre a "Para otros" mientras
    no tengan el suyo. */
-function purchaseIsForSelf(state, productKey, corr = "") {
+function purchaseIsForSelf(state, productKey, corr = "", to = "") {
   if (productKey === "eegsa") {
-    /* Cada recibo es de quien es su cuenta, no del destinatario de la
-       orden: en el Double Dash se juntan «Mi luz» y la de Aracely, y
-       cada una va a su pestaña. Un número nuevo todavía no tiene cuenta:
-       ese sí lo decide lo elegido en «Para mí / Para otros». */
+    /* Cada recibo va a quien se eligió en «¿Para quién es?» para esa
+       card (item.to): se puede pagar la luz de Marisol y que la
+       notificación te llegue a ti; entonces cae en Para mí. Sin elección,
+       manda el dueño de la cuenta. */
+    if (to) return to === USA_RECIPIENT.name;
     const acc = corr && state.svc.accounts[corr];
     if (acc) return svcMine(acc);
     const who = recipientOf(state);
@@ -28425,10 +28426,19 @@ function cartDrawer(state) {
 }
 
 /* El título de un recibo en el checkout. */
+/* A quién le llega un recibo de la orden: lo elegido en «¿Para quién
+   es?» para su card, o el dueño de la cuenta. */
+function svcItemRecipient(state, item) {
+  const acc = state.svc.accounts[item.corr];
+  const name = item.to || (acc ? acc.contact : "");
+  return (name && contactByName(name)) || (acc && svcMine(acc) ? CONTACTS.find((c) => c.self) : null) || recipientOf(state);
+}
+
 function svcCheckoutTitle(state, corr) {
   const acc = state.svc.accounts[corr];
   if (acc) return escapeHtml(acc.alias);
-  const who = recipientOf(state);
+  const item = state.cart.find((x) => x.corr === corr);
+  const who = item ? svcItemRecipient(state, item) : recipientOf(state);
   return who.self || who.name === USA_RECIPIENT.name ? "Mi luz" : escapeHtml(`Luz de ${who.name}`);
 }
 
@@ -28449,8 +28459,7 @@ function screenCheckout(state) {
      ve: con varios recibos en la orden (el Double Dash) cada uno es de
      su cuenta, y al pasar el carrusel cambia. */
   const activeItem = state.cart[active] || {};
-  const activeAcc = activeItem.corr ? state.svc.accounts[activeItem.corr] : null;
-  const recipient = (activeAcc && (svcMine(activeAcc) ? CONTACTS.find((c) => c.self) : contactByName(activeAcc.contact))) || recipientOf(state);
+  const recipient = (activeItem.corr && svcItemRecipient(state, activeItem)) || recipientOf(state);
   /* Cada vale lleva su propio porcentaje en el wrap ribbon, igual que
      en el PDP: con el reloj en pausa aquí dentro, el 20% de Nike no se
      convierte en 5% mientras se ajusta el pago. */
@@ -35580,7 +35589,16 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     state.amounts.eegsa = cur.q;
     state.cart = state.cart
       .filter((item) => item.productKey !== "eegsa")
-      .concat({ productKey: "eegsa", amount: toUsd(cur.q), cashback: 0, quetzales: cur.q, corr: cur.corr });
+      .concat({
+        productKey: "eegsa",
+        amount: toUsd(cur.q),
+        cashback: 0,
+        quetzales: cur.q,
+        corr: cur.corr,
+        /* A quién le llega (notificación y pestaña de Mis compras): el
+           dueño de la cuenta, o el elegido por defecto si es nueva. */
+        to: acc ? acc.contact : recipientOf(state).name,
+      });
     state.checkoutIndex = state.cart.length - 1;
     /* Sin la hoja «Para mí / Para otros»: se va directo al checkout. Los
        números que ya existen siguen con el contacto de la última vez; uno
@@ -35749,7 +35767,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           used: i === 0 && u === 0 ? used : 0,
           date: stamp(0),
           /* Para quién fue: decide la pestaña de la variante 3. */
-          forSelf: purchaseIsForSelf(state, item.productKey, item.corr),
+          forSelf: purchaseIsForSelf(state, item.productKey, item.corr, item.to),
           /* Un pago de servicio guarda su correlativo: de él cuelga el
              recordatorio. */
           ...(item.corr ? { corr: item.corr } : {}),
@@ -35799,7 +35817,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         return;
       }
       if (!svc.accounts[item.corr]) {
-        const who = recipientOf(state);
+        const who = item.to ? { name: item.to } : recipientOf(state);
         svc.accounts[item.corr] = {
           corr: item.corr,
           /* Por número y no por contacto: Daniel Paz ya tiene su cuenta y
@@ -36062,7 +36080,9 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (state.sheet && state.sheet.type === "decision" && !state.sheet.svc) state.selfStreak = 0;
       state.sheet = null;
       const lista = contactsOf(state);
-      state.contactPick = (lista.find((c) => c.name === recipientOf(state).name) || lista[0]).key;
+      const svcItem = state.screen === "checkout" ? state.cart[clamp(state.checkoutIndex, 0, Math.max(state.cart.length - 1, 0))] : null;
+      const current = svcItem && svcItem.corr ? svcItemRecipient(state, svcItem).name : recipientOf(state).name;
+      state.contactPick = (lista.find((c) => c.name === current) || lista[0]).key;
       return go("contacts");
     }
 
@@ -36073,6 +36093,21 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "confirm-contact") {
       const picked = CONTACTS.find((c) => c.key === state.contactPick) || contactsOf(state)[0];
+      /* En un pago de servicio se cambia a quién le llega esa card (la
+         que se veía en el checkout); el correlativo que se paga es el
+         mismo. Se vuelve a la misma card. */
+      const svcAt = clamp(state.checkoutIndex, 0, Math.max(state.cart.length - 1, 0));
+      const svcItem = state.cart[svcAt];
+      if (svcItem && svcItem.corr) {
+        svcItem.to = picked.name;
+        /* Y es el destinatario de la orden: lo que se sume en el cross
+           (los vales del caso Marisol) va y se clasifica a quien se eligió. */
+        state.recipient = picked.name;
+        state.recipientPhone = picked.phone;
+        state.recipientMarket = "gua";
+        state.checkoutIndex = svcAt;
+        return go("checkout", {}, { push: false });
+      }
       state.recipient = picked.name;
       state.recipientPhone = picked.phone;
       state.recipientMarket = orderCountry(state);
@@ -37299,7 +37334,8 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         if (!acc) return;
         const at = extra((item) => item.corr === acc.corr);
         if (at >= 0) state.cart.splice(at, 1);
-        else state.cart.push({ productKey: "eegsa", amount: toUsd(acc.nextBill), cashback: 0, quetzales: acc.nextBill, corr: acc.corr });
+        else
+          state.cart.push({ productKey: "eegsa", amount: toUsd(acc.nextBill), cashback: 0, quetzales: acc.nextBill, corr: acc.corr, to: acc.contact });
         dash.justAdded = at >= 0 ? null : acc.corr;
       } else {
         const pick = DASH_PICKS.find((p) => p.key === el.dataset.product);
