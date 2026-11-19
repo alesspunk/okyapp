@@ -33114,10 +33114,6 @@ function svcDueCorrs(state) {
    SVG porque el prototipo suelto solo trae los glifos de Free. */
 const BELL_RING_SVG = `<svg class="oky-flow-svc-bell-icon" viewBox="0 0 512 512" width="24" height="24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M256 0C238.3 0 224 14.3 224 32V51.2C151 66 96 130.6 96 208V226.8C96 273.8 78.7 319.2 47.5 354.4L40.1 362.7C31.7 372.1 29.7 385.6 34.8 397.1C39.9 408.6 51.4 416 64 416H448C460.6 416 472 408.6 477.2 397.1C482.4 385.6 480.3 372.1 471.9 362.7L464.5 354.4C433.3 319.2 416 273.9 416 226.8V208C416 130.6 361 66 288 51.2V32C288 14.3 273.7 0 256 0ZM301.3 493.3C313.3 481.3 320 465 320 448H256H192C192 465 198.7 481.3 210.7 493.3C222.7 505.3 239 512 256 512C273 512 289.3 505.3 301.3 493.3ZM113.4 15.4C104.3 5.8 89.1 5.4 79.5 14.6C30.5 61.2 0 127.1 0 200C0 213.3 10.7 224 24 224C37.3 224 48 213.3 48 200C48 140.7 72.8 87.3 112.6 49.4C122.2 40.3 122.6 25.1 113.4 15.5ZM113.4 15.4ZM399.4 49.4C439.2 87.3 464 140.7 464 200C464 213.3 474.7 224 488 224C501.3 224 512 213.3 512 200C512 127.1 481.5 61.2 432.6 14.6C423 5.5 407.8 5.8 398.7 15.4C389.6 25 389.9 40.2 399.5 49.3ZM399.4 49.4Z"/></svg>`;
 
-/* La lupa sobre el edificio (landmark-magnifying-glass de FA Pro,
-   solid): consultar un número, no «siguiente». SVG por lo mismo que la
-   campana. */
-const LANDMARK_SEARCH_SVG = `<svg class="oky-flow-svc-go-icon" viewBox="0 0 640 512" width="22" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M448 288C425.2 288 403.6 283.2 384 274.7V416H344V249.6C335.1 242 327 233.4 320 224H280V416H232V224H168V416H128V224H64V420.3C63.4 420.6 62.8 421 62.2 421.4L14.2 453.4C2.5 461.2 -2.8 475.8 1.3 489.3C5.4 502.8 17.9 512 32 512H480C494.1 512 506.5 502.8 510.6 489.3C514.7 475.8 509.5 461.2 497.7 453.4L449.7 421.4C449.1 421 448.5 420.7 447.9 420.3L448 288ZM32 192H301.3C292.7 172.4 288 150.8 288 128C288 91.9 300 58.6 320.1 31.8L271.9 4.2C262.1 -1.4 250 -1.4 240.1 4.2L68.4 102.4L64 104V104.9L16.1 132.2C3.5 139.4 -2.7 154.2 1 168.2C4.7 182.2 17.5 192 32 192ZM448 48.1C476.6 48.1 503 63.3 517.3 88.1C531.6 112.9 531.6 143.3 517.3 168.1C503 192.9 476.6 208.1 448 208.1C419.4 208.1 393 192.9 378.7 168.1C364.4 143.3 364.4 112.9 378.7 88.1C393 63.3 419.4 48.1 448 48.1ZM448 48.1ZM448 256.1C474.7 256.1 499.4 247.9 519.9 234L599 313.1C608.4 322.5 623.6 322.5 632.9 313.1C642.2 303.7 642.3 288.5 632.9 279.2L553.8 200.1C567.8 179.6 575.9 154.8 575.9 128.2C575.9 57.5 518.6 0.2 447.9 0.2C377.2 0.2 319.9 57.5 319.9 128.2C319.9 198.9 377.2 256.2 447.9 256.2ZM448 256.1Z"/></svg>`;
 
 function svcBell(state) {
   const unseen = svcDueCorrs(state).filter((c) => !state.svc.seenDue.includes(c)).length;
@@ -33400,7 +33396,8 @@ function screenEegsa(state) {
              encima de la actividad. Se apaga hasta tener los 10 dígitos. */ ""}
         <button class="oky-flow-svc-go" data-action="svc-consult-typed" data-role="corr-cta" type="button"
           aria-label="Consultar saldo" ${valid ? "" : "disabled"}>
-          ${LANDMARK_SEARCH_SVG}
+          ${/* Una lupa sola: la del banco + lupa no se leía a este tamaño. */ ""}
+          <i class="fa-solid fa-magnifying-glass oky-flow-svc-go-icon" aria-hidden="true"></i>
         </button>
       </div>
     </div>
