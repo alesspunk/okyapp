@@ -3049,10 +3049,21 @@ const DASH_PICKS = [
    siempre. */
 const DASH_MAX_BILLS = 3;
 
+/* A quién se le prueba el cross de productos en un pago de servicio. */
+const DASH_SHOP_SVC_CONTACT = "Marisol";
+
 function dashModeOf(state) {
   if (!MISCOMPRAS_ROUTE || DASH_WINDOW_MS <= 0 || !state.cart.length) return "";
   if (!state.cart.every((item) => (PRODUCTS[item.productKey] || {}).country === "gua")) return "";
-  if (state.cart.some((item) => item.productKey === "eegsa")) return dashBillCorrs(state).length ? "svc" : "";
+  const bills = state.cart.filter((item) => item.productKey === "eegsa");
+  if (bills.length) {
+    /* Prueba de cross: pagándole la luz a Marisol se ofrecen OKY Vales y
+       comida (como en vales), no otros recibos. Así se comparan los dos
+       tipos de cross antes de decidir cuál va en servicios. */
+    const forMarisol = bills.every((item) => (state.svc.accounts[item.corr] || {}).contact === DASH_SHOP_SVC_CONTACT);
+    if (forMarisol) return dashPicksFor(state.cart).length ? "shop" : "";
+    return dashBillCorrs(state).length ? "svc" : "";
+  }
   return dashPicksFor(state.cart).length ? "shop" : "";
 }
 
@@ -3325,7 +3336,7 @@ function orderIsSingle(state) {
 /* Solo en /miscompras y solo en la pestaña Para otros: el vale
    abierto desde ahí lleva abajo "Mandale foto", el mismo aviso por WhatsApp de la poscompra, pensado
    para mandarle el vale a quien lo va a usar. Lo de Para mí (las gift
-   cards de USA) se queda solo con "Marcar como usado", y en /usa y
+   cards de USA) se queda solo con "Archivar", y en /usa y
    /latam (Mi wallet) no va. */
 function sendPhotoBar(brand, id = "") {
   return `
@@ -3900,7 +3911,7 @@ const WALLET_GROUPS = [
   /* En la variante 3 (Mis compras) la sección es la de lo ya usado:
      el vale se aparta porque se canjeó, no para guardarlo. */
   V3_ROUTE
-    ? { key: "archivados", label: "Usados", icon: "fa-box-archive", empty: "Aquí no has marcado nada como usado." }
+    ? { key: "archivados", label: "Archivados", icon: "fa-box-archive", empty: "Aquí no has archivado nada." }
     : { key: "archivados", label: "Guardados", icon: "fa-box-archive", empty: "Aquí no has guardado nada." },
 ];
 
@@ -6027,8 +6038,9 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               bottomShowButton: false,
               bottomMedia: {
                 type: "stamp",
-                src: V3_ROUTE ? "oky-seal-used.png" : "oky-seal-archived.png",
-                alt: V3_ROUTE ? "Usado" : "Guardado",
+                /* Mis compras archiva, no marca «usado»: mismo sello. */
+                src: "oky-seal-archived.png",
+                alt: V3_ROUTE ? "Archivado" : "Guardado",
                 caption: sharedOn,
               },
             }
@@ -6079,12 +6091,12 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
       ${
         /* Variante 3: en la poscompra no hay interruptores —el vale se
            acaba de comprar— y en Mis compras queda uno solo, centrado:
-           "Marcar como usado". Compartir sale de esta versión. */
+           "Archivar". Compartir sale de esta versión. */
         fromOrder
           ? ""
           : V3_ROUTE
           ? asPurchase ||
-            /* En /miscompras "Marcar como usado" es solo de Para mí con
+            /* En /miscompras "Archivar" es solo de Para mí con
                gift cards de USA/Canadá: OKY Vales y servicios no lo
                llevan. */
             (V3_ROUTE && (state.params.deck !== "v3mio" || sectionOfVoucher(card.key) !== "gift"))
@@ -6093,7 +6105,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
         <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
           data-key="${card.key}" data-unit="${slot}"
           type="button" role="switch" aria-checked="${archived}">
-          <span class="oky-flow-switch-label">Marcar como usado</span>
+          <span class="oky-flow-switch-label">Archivar</span>
           <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
         </button>
       </div>`
@@ -6353,16 +6365,17 @@ const CONFIRM_SHEETS = {
   },
   archive: {
     art: "oky-archive-hands.png",
-    /* Un pago de servicio es «el pago»: en masculino, como su
-       interruptor «Ya lo usé». La gift card sigue en femenino. */
-    title: (state) => (V3_ROUTE ? (state.sheet.key === "eegsa" ? "¿Ya lo usaste?" : "¿Ya la usaste?") : "¿Deseas guardarla?"),
+    /* Mis compras archiva (antes «Ya lo usé» / «Marcar como usado»). Un
+       pago de servicio es «el pago»: en masculino; la gift card, en
+       femenino. */
+    title: (state) => (V3_ROUTE ? (state.sheet.key === "eegsa" ? "¿Lo archivamos?" : "¿La archivamos?") : "¿Deseas guardarla?"),
     note: (state) =>
       V3_ROUTE
         ? state.sheet.key === "eegsa"
-          ? "Lo pasamos a la sección de usados sin perderlo: lo encuentras ahí cuando quieras."
-          : "La pasamos a la sección de usados sin perderla: la encuentras ahí cuando quieras."
+          ? "Lo pasamos a Archivados sin perderlo: lo encuentras ahí cuando quieras."
+          : "La pasamos a Archivados sin perderla: la encuentras ahí cuando quieras."
         : "La quitamos de en medio sin perderla: la encuentras cuando quieras en la sección de guardados.",
-    confirm: (state) => (V3_ROUTE ? (state.sheet.key === "eegsa" ? "Sí, ya lo usé" : "Sí, ya la usé") : "Guardar"),
+    confirm: (state) => (V3_ROUTE ? "Sí, archivar" : "Guardar"),
     dismiss: "Ahora no",
     action: "confirm-archive",
   },
@@ -7675,8 +7688,8 @@ function screenSvcReminders(state) {
   `;
 }
 
-/* El interruptor del recordatorio: el mismo de «Marcar como usado». */
-/* Para mí: «Ya lo usé» (el mismo marcar como usado de las gift cards) y
+/* El interruptor del recordatorio: el mismo de «Archivar». */
+/* Para mí: «Archivar» (el mismo de las gift cards) y
    «Recuérdame pagar» (el recordatorio), lado a lado. */
 function svcSelfSwitches(state, corr, key, slot, archived) {
   const acc = state.svc.accounts[corr];
@@ -7685,7 +7698,7 @@ function svcSelfSwitches(state, corr, key, slot, archived) {
     <div class="oky-flow-voucher-actions is-pair">
       <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
         data-key="${key}" data-unit="${slot}" type="button" role="switch" aria-checked="${archived}">
-        <span class="oky-flow-switch-label">Ya lo usé</span>
+        <span class="oky-flow-switch-label">Archivar</span>
         <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
       </button>
       <button class="oky-flow-switch${acc.reminder ? " is-on" : ""}" data-action="svc-toggle" data-corr="${corr}"
@@ -9741,20 +9754,23 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.recipient = contact.name;
       state.recipientPhone = contact.phone;
       state.recipientMarket = "gua";
+    } else if ((contactByName(state.recipient) || {}).self) {
+      /* Número nuevo: va a otra persona por defecto, nunca a «Para mí».
+         Pagarse la luz a uno mismo queda semiescondido: se elige desde
+         «¿Para quién es?» del checkout, en la agenda. */
+      state.recipient = GUA_RECIPIENT.name;
+      state.recipientPhone = GUA_RECIPIENT.phone;
+      state.recipientMarket = "gua";
     }
     state.amounts.eegsa = cur.q;
     state.cart = state.cart
       .filter((item) => item.productKey !== "eegsa")
       .concat({ productKey: "eegsa", amount: toUsd(cur.q), cashback: 0, quetzales: cur.q, corr: cur.corr });
     state.checkoutIndex = state.cart.length - 1;
-    /* Un número correlativo nuevo no tiene a quién pagársele todavía, y
-       es común pagarse la luz a uno mismo: se pregunta con la misma hoja
-       de USA, «Para mí» / «Para otros». Los números que ya existen
-       siguen con el contacto de la última vez, sin preguntar. */
-    if (!acc) {
-      state.sheet = { type: "decision", svc: true };
-      return render();
-    }
+    /* Sin la hoja «Para mí / Para otros»: se va directo al checkout. Los
+       números que ya existen siguen con el contacto de la última vez; uno
+       nuevo, con otra persona, y desde «¿Para quién es?» se cambia (la
+       agenda ofrece «Para mí» arriba). */
     return go("checkout");
   }
 
