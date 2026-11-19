@@ -3153,12 +3153,20 @@ function dashOffers(state) {
     </div>
   `;
   }
-  /* Con productos el encabezado dice qué pasa al agregar: entra a la
-     misma orden y se cobra junto. */
+  /* El encabezado dice para quién es lo que se agrega: va a la misma
+     persona que se eligió en «¿Para quién es?» del checkout (la del pago
+     de servicio, o la de la orden de vales), o a ti si fue «Para mí». */
   const picks = dashPicks(state);
+  const bill = state.cart.slice(0, dash.base).find((item) => item.corr);
+  const who = bill ? svcItemRecipient(state, bill) : recipientOf(state);
+  /* El beneficiario se resalta con el emoji de Para mí / Para otros,
+     el mismo de la agenda y de Mis compras. */
+  const forWho = `<span class="oky-dash-for">${who.self ? EMOJI_SELF : EMOJI_OTHERS}<span>${
+    who.self ? "ti" : escapeHtml(who.name.split(" ")[0])
+  }</span></span>`;
   return `
     <div class="oky-dash-body">
-      <p class="oky-dash-overline">Súmalo a tu orden</p>
+      <p class="oky-dash-overline">Algo más para ${forWho}</p>
       <div class="oky-dash-picks">
         ${picks
           .map((pick) => {

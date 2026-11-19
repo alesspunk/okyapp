@@ -10033,6 +10033,28 @@ body {
   color: var(--text-secondary);
 }
 
+/* El beneficiario del cross: emoji + nombre, en morado, para que se lea
+   a quién le llega lo que se agrega. */
+.oky-dash-for {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 2px;
+  color: var(--primary-main);
+}
+
+/* El renglón se centra en vertical con el emoji, que es más alto que
+   las mayúsculas. */
+.oky-dash-overline:has(.oky-dash-for) {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.oky-dash-for .oky-flow-emoji-img {
+  height: 1.6em;
+}
+
 .oky-dash-bill {
   display: flex;
   align-items: center;
