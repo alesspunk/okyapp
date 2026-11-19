@@ -3214,9 +3214,7 @@ function screenProcessing(state) {
       /* El Double Dash (completo o mini, servicios o vales) se ve siempre
          encima del checkout, no de una pantalla en blanco: detrás queda
          el checkout real, con lo agregado ya en su carrusel y su total. */
-      /* En pausa (mini o completo con pausa) no se ve el carrusel de
-         cards detrás: solo el resto del checkout. */
-      dash ? `<div class="oky-dash-behind${dash.pausedAt ? " is-paused" : ""}" aria-hidden="true" inert>${screenCheckout(state)}</div>` : `${statusBar()}${titledHeader("")}`
+      dash ? `<div class="oky-dash-behind" aria-hidden="true" inert>${dashBehind(state)}</div>` : `${statusBar()}${titledHeader("")}`
     }
     ${/* En el Double Dash tocar fuera no hace nada: salir es muy fácil y
          rompe la conversión. La única salida es deslizar al mini y
@@ -3267,6 +3265,16 @@ function screenProcessing(state) {
       }
     </section>`}
   `;
+}
+
+/* El checkout que se ve detrás del Double Dash. En pausa (mini, o
+   completo con pausa) se ve como era antes del cross: solo la card
+   original, sin el carrusel de lo agregado y con sus totales. */
+function dashBehind(state) {
+  const dash = state.dash;
+  if (!dash.pausedAt) return screenCheckout(state);
+  const cart = state.cart.slice(0, dash.base);
+  return screenCheckout({ ...state, cart, checkoutIndex: Math.min(state.checkoutIndex || 0, Math.max(cart.length - 1, 0)) });
 }
 
 /* El mini del Double Dash: lo que queda al deslizar hacia abajo. Una
@@ -7729,8 +7737,9 @@ function svcLoadingLayer(state) {
 }
 
 /* Con productos en el carrito: el mismo modal morado de cambiar de
-   país. Los pagos de servicios van solos. */
-function svcCartSheet() {
+   país, con el foco 3D de servicios. Los pagos de servicios van solos:
+   pagar uno borra lo que hay en el carrito. */
+function svcCartSheet(gate) {
   return `
     <div class="oky-flow-country-backdrop" aria-hidden="true"></div>
     <section class="oky-flow-country" role="dialog" aria-modal="true" aria-labelledby="oky-svccart-title">
@@ -7738,16 +7747,21 @@ function svcCartSheet() {
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
       <h2 class="oky-flow-country-title" id="oky-svccart-title">Tienes productos en el carrito</h2>
-      <p class="oky-flow-country-note">Los servicios se pagan solos.</p>
+      <p class="oky-flow-country-note">Pagar un servicio borra tu carrito.</p>
       <div class="oky-flow-country-art" aria-hidden="true">
-        <img src="oky-cart-savings.png" alt="" />
+        <img src="servicios.webp" alt="" />
       </div>
       <div class="oky-flow-country-actions">
         <button class="btn btn-large oky-flow-country-primary" data-action="svccart-checkout" type="button">
           Completar Compra
         </button>
-        ${/* Pagar el servicio vacía el carrito: el botón dice lo que se logra. */ ""}
-        <button class="oky-flow-country-link" data-action="svccart-clear" type="button">Pagar servicio</button>
+        ${/* Primario siempre «Completar Compra». El secundario dice a dónde
+             se va, no «Vaciar carrito»: los servicios no tienen carrito y
+             el borrado ya lo avisa la nota. Al entrar a Servicios, «Ir a
+             servicios»; al pagar uno, «Pagar servicio». */ ""}
+        <button class="oky-flow-country-link" data-action="svccart-clear" type="button">${
+          (gate || {}).next === "pay" ? "Pagar servicio" : "Ir a servicios"
+        }</button>
       </div>
     </section>
   `;
@@ -8128,7 +8142,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
             : ""
         }
         ${state.countrySheet ? countrySheet(state) : ""}
-        ${state.svcCartGate ? svcCartSheet() : ""}
+        ${state.svcCartGate ? svcCartSheet(state.svcCartGate) : ""}
         ${state.svcLoading ? svcLoadingLayer(state) : ""}
         ${state.marketSheet ? marketSheet(state) : ""}
         ${state.savingsSheet ? savingsSheet() : ""}
@@ -9530,7 +9544,18 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     return false;
   }
 
+  /* Los pagos de servicios no se guardan en el carrito: al salir del
+     checkout (y de sus pasos: métodos, contactos…) se borran, y se
+     puede agregar cualquier otro producto desde cero. */
+  const SVC_FUNNEL = ["checkout", "processing", "methods", "cashsolo", "carddesign", "contacts"];
+  function dropSvcCart(screen) {
+    if (SVC_FUNNEL.includes(screen) || !state.cart.some((item) => item.productKey === "eegsa")) return;
+    state.cart = state.cart.filter((item) => item.productKey !== "eegsa");
+    state.checkoutIndex = 0;
+  }
+
   function go(screen, params = {}, { push = true, market = true } = {}) {
+    dropSvcCart(screen);
     if (market && guardMarket(screen)) return;
     /* Al salir de EEGSA se recuerda dónde estaba, para volver ahí. */
     if (state.screen === "eegsa" && screen !== "eegsa") {
@@ -9736,6 +9761,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
   function goBack() {
     const prev = state.history.pop();
     if (!prev) return go(homeOfCountry(), {}, { push: false });
+    dropSvcCart(prev.screen);
     /* Atrás tampoco cruza de mercado en silencio: si el carrito está
        lleno se pregunta y el paso queda deshecho, no a medias. */
     if (crossesMarket(prev.screen)) {
@@ -11529,7 +11555,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         cta.style.setProperty("--dash-p", String(elapsed / dashWindow(dash)));
       }
       el.closest(".oky-dash-cta-wrap")?.classList.toggle("is-paused", paused);
-      root.querySelector(".oky-dash-behind")?.classList.toggle("is-paused", paused);
+      const behind = root.querySelector(".oky-dash-behind");
+      if (behind) behind.innerHTML = dashBehind(state);
       el.setAttribute("aria-label", paused ? "Reanudar el tiempo" : "Pausar el tiempo");
       el.innerHTML = `<i class="fa-solid ${paused ? "fa-play" : "fa-pause"}" aria-hidden="true"></i>`;
       return;
