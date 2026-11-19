@@ -21917,6 +21917,12 @@ button.carrusel-dot:focus-visible {
   color: var(--text-secondary);
 }
 
+/* El mini se arrastra: que el gesto no seleccione el texto. */
+.oky-flow-wait.is-dash {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 @font-face {
   font-family: "FA Free Solid Fallback";
   font-style: normal;
@@ -28838,6 +28844,12 @@ const DASH_WINDOW_MS = (() => {
   return Math.max(0, Number(raw)) * 1000;
 })();
 
+/* Tras «Siguiente» en el mini, la segunda vuelta es más corta: 20 s. */
+const DASH_RETRY_MS = Math.min(20000, DASH_WINDOW_MS);
+
+/* La ventana de esta vuelta: 30 s la primera, 20 s tras «Siguiente». */
+const dashWindow = (dash) => dash.windowMs || DASH_WINDOW_MS;
+
 /* Cross-selling: vales de monto (logo + «Vale QX») y comida con foto.
    Mismos filtros que OA-554: de GT, con stock y que no estén ya en la
    orden. Se enseñan hasta 3. */
@@ -28883,7 +28895,7 @@ const dashHas = (state, test) => state.cart.some((item, i) => i >= state.dash.ba
 
 /* Lo que ya corrió de la ventana; en pausa se queda donde se pausó. */
 function dashElapsed(dash) {
-  return Math.min((dash.pausedAt || Date.now()) - dash.start, DASH_WINDOW_MS);
+  return Math.min((dash.pausedAt || Date.now()) - dash.start, dashWindow(dash));
 }
 
 /* «0:14»: la cuenta del botón. */
@@ -28989,10 +29001,10 @@ function dashFooter(state) {
       <div class="oky-dash-cta-wrap${paused ? " is-paused" : ""}">
         <button class="btn btn-primary btn-large oky-dash-cta" data-action="dash-done" type="button"
           aria-describedby="oky-dash-sum${capped ? " oky-dash-cap" : ""}"
-          style="--dash-ms:${DASH_WINDOW_MS}ms;--dash-at:-${elapsed}ms;--dash-p:${elapsed / DASH_WINDOW_MS}">
+          style="--dash-ms:${dashWindow(dash)}ms;--dash-at:-${elapsed}ms;--dash-p:${elapsed / dashWindow(dash)}">
           <span class="oky-dash-cta-fill" aria-hidden="true"></span>
           <span class="oky-dash-cta-label">${added ? "Listo, pagar todo" : "Listo"}</span>
-          <span class="oky-dash-cta-time" aria-hidden="true">${dashClock(DASH_WINDOW_MS - elapsed)}</span>
+          <span class="oky-dash-cta-time" aria-hidden="true">${dashClock(dashWindow(dash) - elapsed)}</span>
         </button>
         <button class="oky-dash-cta-pause" data-action="dash-pause" type="button"
           aria-label="${paused ? "Reanudar el tiempo" : "Pausar el tiempo"}">
@@ -29075,24 +29087,23 @@ function screenProcessing(state) {
 }
 
 /* El mini del Double Dash: lo que queda al deslizar hacia abajo. Una
-   pregunta que repite el verbo del botón («¿Quieres ir atrás?»), el
-   total y dos salidas lado a lado (50/50): «Ir atrás» y
-   «Pagar uno solo». El tiempo va en pausa. «Ir atrás» es la única salida
+   estado («Tu pago está en pausa»), qué se pierde al ir atrás y dos
+   salidas lado a lado (50/50): «Ir atrás» y «Siguiente». El tiempo va en pausa. «Ir atrás» es la única salida
    al checkout (tocar fuera o deslizar abajo no hacen nada); arriba → el
    modal completo, con el tiempo desde cero. Igual en servicios y vales. */
 function dashMiniSheet(state) {
   const dash = state.dash;
-  const svc = dash.mode === "svc";
   return `
     <section class="oky-flow-wait is-dash is-mini" role="dialog" aria-modal="true" aria-labelledby="oky-dash-mini-title">
       <button class="oky-dash-grabber" data-action="dash-full" type="button" aria-label="Ver más"><span aria-hidden="true"></span></button>
-      <h2 class="oky-dash-mini-title" id="oky-dash-mini-title">¿Quieres ir atrás?</h2>
-      <p class="oky-dash-mini-note"><i class="fa-solid fa-pause" aria-hidden="true"></i> Tiempo en pausa · TOTAL ${money(orderDue(state))}</p>
+      <h2 class="oky-dash-mini-title" id="oky-dash-mini-title">Tu pago está en pausa</h2>
+      <p class="oky-dash-mini-note">Si vas atrás, se quita lo que agregaste</p>
       <div class="oky-dash-mini-actions">
         ${/* Izquierda, secundaria: ir atrás (al checkout, sin lo agregado).
-             Derecha, primaria: pagar solo lo de antes, sin lo agregado. */ ""}
+             Derecha, primaria: «Siguiente», al modal completo sin lo
+             agregado y con 20 s. Igual en servicios y vales. */ ""}
         <button class="btn btn-outlined btn-large" data-action="dash-back" type="button">Ir atrás</button>
-        <button class="btn btn-primary btn-large" data-action="dash-pay-one" type="button">${svc ? "Pagar uno solo" : "Solo mi compra"}</button>
+        <button class="btn btn-primary btn-large" data-action="dash-pay-one" type="button">Siguiente</button>
       </div>
     </section>
   `;
@@ -35402,7 +35413,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     dashTimer = setInterval(() => {
       if (!state.dash || state.screen !== "processing") return clearInterval(dashTimer);
       if (state.dash.pausedAt) return;
-      const left = DASH_WINDOW_MS - (Date.now() - state.dash.start);
+      const left = dashWindow(state.dash) - (Date.now() - state.dash.start);
       if (left <= 0) return closeDash();
       const time = root.querySelector(".oky-dash-cta-time");
       if (time) time.textContent = dashClock(left);
@@ -37332,7 +37343,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       const cta = root.querySelector(".oky-dash-cta");
       if (cta) {
         cta.style.setProperty("--dash-at", `-${elapsed}ms`);
-        cta.style.setProperty("--dash-p", String(elapsed / DASH_WINDOW_MS));
+        cta.style.setProperty("--dash-p", String(elapsed / dashWindow(dash)));
       }
       el.closest(".oky-dash-cta-wrap")?.classList.toggle("is-paused", paused);
       el.setAttribute("aria-label", paused ? "Reanudar el tiempo" : "Pausar el tiempo");
@@ -37348,11 +37359,12 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "dash-pay-one") {
       const dash = state.dash;
       if (!dash || dash.closing) return;
-      /* «Pagar uno solo»: fuera lo que se sumó y de vuelta al modal
-         completo con el tiempo desde cero. Se paga al terminar el tiempo
-         o con «Listo». */
+      /* «Siguiente»: fuera lo que se sumó (todo deseleccionado) y de
+         vuelta al modal completo, con una vuelta más corta de 20 s. Se
+         paga al terminar el tiempo o con «Listo». */
       state.cart.splice(dash.base);
       dash.mini = false;
+      dash.windowMs = DASH_RETRY_MS;
       dash.start = Date.now();
       dash.pausedAt = 0;
       return render({ keepScroll: true });
