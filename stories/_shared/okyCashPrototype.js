@@ -1213,6 +1213,9 @@ function invoiceBody(state) {
   const all = state.lastOrder.filter((p) => p.corr);
   const rows = all.filter((p) => !p.failed);
   const notDone = all.filter((p) => p.failed);
+  /* Un vale del cross que falló (el Domino's del demo): no se cobra y se
+     lista aparte, con el mismo aviso de cargo temporal. */
+  const valesFailed = state.lastOrder.filter((p) => !p.corr && p.failed);
   /* Lo cobrado es solo lo procesado; lo que falló se autorizó y se
      libera (el aviso de «Cargo temporal autorizado»). */
   const processed = rows.reduce((sum, p) => sum + p.amount, 0);
@@ -1237,7 +1240,7 @@ function invoiceBody(state) {
           ${line("Método de pago", escapeHtml(r.card))}
         </div>
         ${
-          notDone.length
+          notDone.length || valesFailed.length
             ? `<div class="oky-invoice-hold" role="note">
           <i class="fa-solid fa-building-columns" aria-hidden="true"></i>
           <div>
@@ -1271,6 +1274,25 @@ function invoiceBody(state) {
           <div class="oky-invoice-item">
             ${line(`EEGSA · ${escapeHtml(acc(p.corr).alias || "Electricidad")}`, quetzalOf(p.quetzales))}
             <p class="oky-invoice-note">Correlativo #${p.corr}</p>
+            <span class="oky-invoice-chip">Pago fallido - No cobrado</span>
+          </div>`,
+            )
+            .join("")}
+        </div>`
+            : ""
+        }
+        ${
+          valesFailed.length
+            ? `<div class="oky-invoice-block is-failed">
+          <p class="oky-invoice-section">Vales NO procesados:</p>
+          ${valesFailed
+            .map(
+              (p) => `
+          <div class="oky-invoice-item">
+            ${line(
+              `${escapeHtml((PRODUCTS[p.productKey] || {}).label || "")} · OKY Vale`,
+              p.quetzales != null ? quetzalOf(p.quetzales) : money(p.amount),
+            )}
             <span class="oky-invoice-chip">Pago fallido - No cobrado</span>
           </div>`,
             )
@@ -3058,20 +3080,18 @@ const DASH_PICKS = [
    siempre. */
 const DASH_MAX_BILLS = 3;
 
-/* A quién se le prueba el cross de productos en un pago de servicio. */
-const DASH_SHOP_SVC_CONTACT = "Marisol";
-
 function dashModeOf(state) {
   if (!MISCOMPRAS_ROUTE || DASH_WINDOW_MS <= 0 || !state.cart.length) return "";
   if (!state.cart.every((item) => (PRODUCTS[item.productKey] || {}).country === "gua")) return "";
   const bills = state.cart.filter((item) => item.productKey === "eegsa");
   if (bills.length) {
-    /* Prueba de cross: pagándole la luz a Marisol se ofrecen OKY Vales y
-       comida (como en vales), no otros recibos. Así se comparan los dos
-       tipos de cross antes de decidir cuál va en servicios. */
-    const forMarisol = bills.every((item) => (state.svc.accounts[item.corr] || {}).contact === DASH_SHOP_SVC_CONTACT);
-    if (forMarisol) return dashPicksFor(state.cart).length ? "shop" : "";
-    return dashBillCorrs(state).length ? "svc" : "";
+    /* En servicios el cross ofrece OKY Vales y comida (como en vales).
+       El cross de otros recibos queda solo para el demo de Byron (el
+       pago que falla): pagando su luz se suman otros recibos y sale la
+       orden mixta, Exitosas / Fallidas. */
+    const byron = bills.some((item) => item.corr === SVC_FAIL_CORR);
+    if (byron) return dashBillCorrs(state).length ? "svc" : "";
+    return dashPicksFor(state.cart).length ? "shop" : "";
   }
   return dashPicksFor(state.cart).length ? "shop" : "";
 }
@@ -7052,6 +7072,8 @@ const SVC_ACCOUNTS = [
    F08-48 y su detalle). Su recordatorio sigue apagado y, como no se
    pagó, ni entra a la actividad ni a Mis compras: se reembolsa. */
 const SVC_FAIL_CORR = "0011900714";
+/* El vale del cross que falla (demo de orden mixta con vales). */
+const DASH_FAIL_PICK = "gua-dominos";
 
 /* Lo que trae la consulta de un número que no está guardado. */
 const SVC_NEW_BILL = 212.75;
@@ -7371,12 +7393,19 @@ function payDetailSheet(state) {
             (p) => `
         <div class="oky-flow-paydetail-item${p.failed ? " is-failed" : ""}">
           <span class="oky-flow-paydetail-logo">
-            <img src="${PRODUCTS.eegsa.art}" alt="" />
+            <img src="${(PRODUCTS[p.productKey] || PRODUCTS.eegsa).art}" alt="" />
             ${p.failed ? `<span class="oky-flow-paydetail-x" aria-label="Falló"><i class="fa-solid fa-xmark" aria-hidden="true"></i></span>` : ""}
           </span>
           <div>
-            <p class="oky-flow-paydetail-brand">EEGSA${rows.length > 1 ? ` · ${escapeHtml((state.svc.accounts[p.corr] || {}).alias || "")}` : ""}</p>
-            <p class="oky-flow-paydetail-what">Pago a servicios por ${quetzalOf(p.quetzales)}</p>
+            ${
+              /* Un vale (el Domino's del cross) se nombra como vale, no
+                 como pago de servicio. */
+              p.corr
+                ? `<p class="oky-flow-paydetail-brand">EEGSA${rows.length > 1 ? ` · ${escapeHtml((state.svc.accounts[p.corr] || {}).alias || "")}` : ""}</p>
+            <p class="oky-flow-paydetail-what">Pago a servicios por ${quetzalOf(p.quetzales)}</p>`
+                : `<p class="oky-flow-paydetail-brand">${escapeHtml((PRODUCTS[p.productKey] || {}).label || "")}</p>
+            <p class="oky-flow-paydetail-what">${p.quetzales != null ? `OKY Vale por ${quetzalOf(p.quetzales)}` : `Por ${money(p.amount)}`}</p>`
+            }
           </div>
         </div>`,
           )
@@ -9953,7 +9982,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           /* Un pago de servicio guarda su correlativo: de él cuelga el
              recordatorio. */
           ...(item.corr ? { corr: item.corr } : {}),
-          ...(item.corr === SVC_FAIL_CORR ? { failed: true } : {}),
+          ...(item.corr === SVC_FAIL_CORR || item.fail ? { failed: true } : {}),
         };
         /* Un pago fallido no deja vale: se ve en la poscompra y se
            reembolsa, pero no queda en Mis compras. */
@@ -11527,7 +11556,16 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         else
           state.cart.push(
             pick.q
-              ? { productKey: pick.key, amount: toUsd(pick.q), cashback: 0, quetzales: pick.q }
+              ? {
+                  productKey: pick.key,
+                  amount: toUsd(pick.q),
+                  cashback: 0,
+                  quetzales: pick.q,
+                  /* Demo del pago fallido en el cross: el vale de Domino's
+                     sumado aquí falla, y la orden queda mixta (Exitosas /
+                     Fallidas), como pasaba con la luz de Byron. */
+                  ...(pick.key === DASH_FAIL_PICK ? { fail: true } : {}),
+                }
               : { productKey: pick.key, amount: PRODUCTS[pick.key].price, cashback: 0, qty: 1 },
           );
         dash.justAdded = at >= 0 ? null : pick.key;
@@ -11544,12 +11582,19 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     /* Demo del pago fallido (Byron): el modal, corregir y el detalle. */
     if (action === "svc-what") {
-      state.sheet = { type: "svcfail", key: (state.lastOrder.find((p) => p.failed) || {}).corr || "" };
+      const failedP = state.lastOrder.find((p) => p.failed) || {};
+      state.sheet = { type: "svcfail", key: failedP.corr || "", product: failedP.corr ? "" : failedP.productKey || "" };
       return render({ keepScroll: true });
     }
     if (action === "svc-fix") {
       const corr = (state.sheet || {}).key || "";
+      const product = (state.sheet || {}).product || "";
       state.sheet = null;
+      /* Un vale que falló (el Domino's del cross) se corrige en su PDP. */
+      if (product && PRODUCTS[product]) {
+        if (state.amounts[product] == null) state.amounts[product] = GUA_VALE_DEFAULT;
+        return go("guapdp", { product });
+      }
       /* De vuelta al campo del número, con el que falló ya escrito para
          corregirlo. */
       state.svc.corrInput = corr;
