@@ -21907,3 +21907,8 @@ button.carrusel-dot:focus-visible {
   -webkit-user-select: none;
   user-select: none;
 }
+
+/* Double Dash en pausa: detrás no se ve el carrusel de cards. */
+.oky-dash-behind.is-paused .checkout-brand-carrousel-shell {
+  visibility: hidden;
+}

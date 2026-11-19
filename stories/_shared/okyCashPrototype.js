@@ -2705,8 +2705,7 @@ function screenCheckout(state) {
   return `
     <div class="oky-flow-page">
     ${statusBar()}
-    ${/* El carrito vuelve también en pagos de servicios: con varios
-         recibos (el Double Dash) se puede quitar uno antes de pagar. */ productHeader(state)}
+    ${/* Pagando un servicio no hay carrito que mirar: fuera el icono. */ productHeader(state, { cart: !isSvcCart(state) })}
 
     <div class="oky-flow-section">
       ${
@@ -3215,7 +3214,9 @@ function screenProcessing(state) {
       /* El Double Dash (completo o mini, servicios o vales) se ve siempre
          encima del checkout, no de una pantalla en blanco: detrás queda
          el checkout real, con lo agregado ya en su carrusel y su total. */
-      dash ? `<div class="oky-dash-behind" aria-hidden="true" inert>${screenCheckout(state)}</div>` : `${statusBar()}${titledHeader("")}`
+      /* En pausa (mini o completo con pausa) no se ve el carrusel de
+         cards detrás: solo el resto del checkout. */
+      dash ? `<div class="oky-dash-behind${dash.pausedAt ? " is-paused" : ""}" aria-hidden="true" inert>${screenCheckout(state)}</div>` : `${statusBar()}${titledHeader("")}`
     }
     ${/* En el Double Dash tocar fuera no hace nada: salir es muy fácil y
          rompe la conversión. La única salida es deslizar al mini y
@@ -11528,6 +11529,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
         cta.style.setProperty("--dash-p", String(elapsed / dashWindow(dash)));
       }
       el.closest(".oky-dash-cta-wrap")?.classList.toggle("is-paused", paused);
+      root.querySelector(".oky-dash-behind")?.classList.toggle("is-paused", paused);
       el.setAttribute("aria-label", paused ? "Reanudar el tiempo" : "Pausar el tiempo");
       el.innerHTML = `<i class="fa-solid ${paused ? "fa-play" : "fa-pause"}" aria-hidden="true"></i>`;
       return;
