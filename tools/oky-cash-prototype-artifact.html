@@ -9849,6 +9849,8 @@ body {
   letter-spacing: var(--type-body1-150-ls);
   margin: 0;
   color: var(--text-secondary);
+  /* La hora nunca se parte, también en «No cerrar app» sin cross-selling. */
+  white-space: nowrap;
 }
 
 .oky-flow-wait-footer {
@@ -10155,10 +10157,10 @@ body {
   gap: 8px;
 }
 
-/* Con un solo item, la card mide lo mismo que con dos y va centrada. */
+/* Con un solo item, la card ocupa todo el ancho del container (sin
+   columna vacía). Con dos, se reparten el ancho en 1fr + 1fr con el gap. */
 .oky-dash-picks.is-one {
-  grid-template-columns: minmax(0, calc(50% - 4px));
-  justify-content: center;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .oky-dash-pick {
