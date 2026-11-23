@@ -5187,8 +5187,8 @@ const CATEGORY_PAGES = {
     })),
   },
   /* Pagar Servicios (home GT): la misma Category Page que Comida y
-     Recargas. Solo EEGSA está activa; las demás acompañan. Los pagos de
-     servicios van solos, así que aquí no hay carrito. */
+     Recargas. EEGSA y EMPAGUA están activas; las demás acompañan. Los
+     pagos de servicios van solos, así que aquí no hay carrito. */
   servicios: {
     title: "Pagar Servicios",
     section: "Proveedores",
@@ -5196,7 +5196,9 @@ const CATEGORY_PAGES = {
     brands: [
       { key: "eegsa", label: "EEGSA", art: "eggsa.webp", action: "open-eegsa" },
       { key: "tigohogar", label: "Tigo Residencial", art: "tigo.webp" },
-      { key: "empagua", label: "Empagua", art: "empagua.svg" },
+      /* Logo oficial: la gota de empagua.com (favicon a 300 px; el logo
+         completo con letras solo lo publican a 90 px). */
+      { key: "empagua", label: "EMPAGUA", art: "empagua.webp", action: "open-empagua" },
       { key: "clarohogar", label: "Claro Residencial", art: "claro.png" },
     ],
   },
@@ -7510,17 +7512,61 @@ function payDetailSheet(state) {
   `;
 }
 
-/* Brand item de EEGSA: el mismo átomo del PDP y del checkout. */
-function svcBrandItem() {
+/* Brand item de un servicio (EEGSA por defecto): el mismo átomo del PDP
+   y del checkout. */
+function svcBrandItem({ label = "EEGSA", art = PRODUCTS.eegsa.art } = {}) {
   return `
     <div class="oky-flow-brand-slot">
-      <section class="brand-item-atom is-with-label" aria-label="EEGSA">
-        <p class="brand-item-label token-product-text">EEGSA</p>
+      <section class="brand-item-atom is-with-label" aria-label="${label}">
+        <p class="brand-item-label token-product-text">${label}</p>
         <div class="brand-item-frame">
-          <div class="brand-item-base"><img src="${PRODUCTS.eegsa.art}" alt="EEGSA" /></div>
+          <div class="brand-item-base"><img src="${art}" alt="${label}" /></div>
         </div>
       </section>
     </div>
+  `;
+}
+
+/* ── EMPAGUA: servicio nuevo, sin nada todavía ─────────────
+   Usuario nuevo en EMPAGUA: sin pagos no hay actividad, y sin pagos
+   tampoco hay recordatorios (solo aparecen cuando ya pasaron los días de
+   un pago anterior). La pantalla es la de EEGSA con el campo para
+   consultar y, abajo, el estado vacío de servicios (Wallet / Estado
+   vacío › Pestaña=Servicios), sin CTA: la acción es el campo. La
+   consulta de EMPAGUA todavía no está definida (qué número pide y qué
+   devuelve), así que la lupa se queda apagada. */
+const SVC_EMPAGUA = { label: "EMPAGUA", art: "empagua.webp" };
+
+function screenEmpagua(state) {
+  const typed = state.empaguaInput || "";
+  return `
+    ${statusBar()}
+    ${productHeader(state, { backAction: "back", cart: false })}
+
+    <div class="oky-flow-stack-center oky-flow-svc">
+      ${svcBrandItem(SVC_EMPAGUA)}
+      <div class="input-wrapper oky-flow-svc-field" style="width:100%">
+        <label id="oky-empagua-label" class="input-label input-label-dinamic oky-flow-promo-label${typed ? " is-floating" : ""}"
+          for="oky-empagua">${typed ? "Número de cuenta" : "Ingresar número de cuenta"}</label>
+        <input id="oky-empagua" class="input-field input-dinamic oky-flow-promo-input ${typed ? "input-dinamic-hasvalue" : "input-dinamic-empty"}"
+          type="text" inputmode="numeric" maxlength="10" autocomplete="off" value="${escapeHtml(typed)}"
+          placeholder="Ingresar número de cuenta" data-action="input-empagua"
+          aria-labelledby="oky-empagua-label" />
+        <button class="oky-flow-svc-go" type="button" aria-label="Consultar saldo" disabled>
+          <i class="fa-solid fa-magnifying-glass oky-flow-svc-go-icon" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="oky-flow-section oky-flow-svc-empty-state">
+      <div class="oky-flow-cash-empty is-wallet">
+        <span class="oky-flow-cash-empty-art"><img src="${WALLET_EMPTY.servicios.art}" alt="" /></span>
+        <h2 class="oky-flow-cash-empty-title">${WALLET_EMPTY.servicios.title}</h2>
+        <p class="oky-flow-cash-empty-note">${WALLET_EMPTY.servicios.note}</p>
+      </div>
+    </div>
+
+    ${navbar("", state)}
   `;
 }
 
@@ -8020,6 +8066,7 @@ function renderScreen(state) {
     case "voucher": return screenVoucher(state);
     case "decision": return screenDecision();
     case "eegsa": return screenEegsa(state);
+    case "empagua": return screenEmpagua(state);
     case "svcconsulta": return screenSvcConsulta(state);
     case "svcreminders": return screenSvcReminders(state);
     default: return screenHome(state);
@@ -11048,6 +11095,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return go("eegsa");
     }
 
+    /* ── Pago de servicios · EMPAGUA (servicio nuevo, vacío) ── */
+    if (action === "open-empagua") return go("empagua");
+
     if (action === "menu:reminders" || action === "svc-open-reminders") {
       state.sheet = null;
       return leavePurchase("svcreminders");
@@ -11944,6 +11994,24 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
       const cta = root.querySelector("[data-role='corr-cta']");
       if (cta) cta.disabled = !SVC_CORR_RE.test(digits);
+      return;
+    }
+
+    /* El número de EMPAGUA: solo dígitos y la etiqueta flota, igual que
+       el correlativo de EEGSA. La lupa sigue apagada (consulta por definir). */
+    const empaguaInput = event.target.closest("[data-action='input-empagua']");
+    if (empaguaInput) {
+      const digits = empaguaInput.value.replace(/\D/g, "").slice(0, 10);
+      if (digits !== empaguaInput.value) empaguaInput.value = digits;
+      state.empaguaInput = digits;
+      const has = digits.length > 0;
+      empaguaInput.classList.toggle("input-dinamic-hasvalue", has);
+      empaguaInput.classList.toggle("input-dinamic-empty", !has);
+      const label = root.querySelector("#oky-empagua-label");
+      if (label) {
+        label.classList.toggle("is-floating", has);
+        label.textContent = has ? "Número de cuenta" : "Ingresar número de cuenta";
+      }
       return;
     }
 

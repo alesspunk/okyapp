@@ -10218,6 +10218,12 @@ body {
   aspect-ratio: 1;
 }
 
+/* Con un solo item (card a todo el ancho), la foto del producto va a
+   la izquierda, alineada con el título, el precio y el vale. */
+.oky-dash-picks.is-one .oky-dash-pick.is-photo .oky-dash-pick-media {
+  justify-content: flex-start;
+}
+
 .oky-dash-pick-chip {
   align-self: flex-start;
   font: var(--type-t11-bold);
