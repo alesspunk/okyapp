@@ -3352,10 +3352,7 @@ function dashFooter(state) {
           ? `<div class="oky-flow-savebar is-bar oky-dash-savebar" id="oky-dash-cap"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(orderSavings(state))}</div>`
           : ""
       }
-      ${/* Pausa/play va encima del CTA, en su extremo derecho, como
-           hermano y no adentro (un botón no puede llevar otro botón).
-           Solo esa área pausa o reanuda; el resto del CTA sigue siendo
-           «Listo». */ ""}
+      ${/* Sin pausa: el tiempo corre hasta «Listo» o hasta acabarse. */ ""}
       <div class="oky-dash-cta-wrap${paused ? " is-paused" : ""}">
         <button class="btn btn-primary btn-large oky-dash-cta" data-action="dash-done" type="button"
           aria-describedby="oky-dash-sum${capped ? " oky-dash-cap" : ""}"
@@ -3363,10 +3360,6 @@ function dashFooter(state) {
           <span class="oky-dash-cta-fill" aria-hidden="true"></span>
           <span class="oky-dash-cta-label">${added ? "Listo, pagar todo" : "Listo"}</span>
           <span class="oky-dash-cta-time" aria-hidden="true">${dashClock(dashWindow(dash) - elapsed)}</span>
-        </button>
-        <button class="oky-dash-cta-pause" data-action="dash-pause" type="button"
-          aria-label="${paused ? "Reanudar el tiempo" : "Pausar el tiempo"}">
-          <i class="fa-solid ${paused ? "fa-play" : "fa-pause"}" aria-hidden="true"></i>
         </button>
       </div>
     </div>
@@ -3406,14 +3399,9 @@ function screenProcessing(state) {
 
     ${dash && dash.mini && !dash.closing ? dashMiniSheet(state) : `
     <section class="oky-flow-wait${dash ? " is-dash" : ""}">
-      ${
-        /* La barrita gris (como las hojas de iOS): dice que se puede
-           deslizar hacia abajo. Deslizar o tocarla encoge el modal al
-           mini, con el tiempo en pausa. */
-        dash && !dash.closing
-          ? `<button class="oky-dash-grabber" data-action="dash-mini" type="button" aria-label="Minimizar"><span aria-hidden="true"></span></button>`
-          : ""
-      }
+      ${/* Sin barrita gris ni gesto de deslizar: el modal del cross-selling
+           no se minimiza ni se pausa. Se sale con «Listo» o al acabarse
+           el tiempo. */ ""}
       ${
         /* En el Double Dash el título vende (bien chapín), solo. */
         dash
@@ -7519,6 +7507,15 @@ function svcBell(state) {
    Quién, cuándo y cuánto; la marca con la equis roja; y el reembolso a
    la tarjeta en verde. Sin factura: el pago no se hizo. «Ver historial»
    todavía no lleva a ningún lado. */
+/* La marca de una línea del detalle: un producto de comida va con su
+   marca (FOOD_BRANDS: logo y nombre); vales, recargas y servicios ya
+   son la marca. */
+function payDetailBrandOf(p) {
+  const product = PRODUCTS[p.productKey] || PRODUCTS.eegsa;
+  const brand = product.food && FOOD_BRANDS[product.brand];
+  return brand ? { art: brand.art, label: brand.label } : { art: product.art, label: product.label };
+}
+
 function payDetailSheet(state) {
   const r = state.lastReceipt || {};
   /* Mixto (102195:138069): todos los de la orden, los fallidos con la
@@ -7578,7 +7575,9 @@ function payDetailSheet(state) {
             (p) => `
         <div class="oky-flow-paydetail-item${p.failed ? " is-failed" : ""}">
           <span class="oky-flow-paydetail-logo">
-            <img src="${(PRODUCTS[p.productKey] || PRODUCTS.eegsa).art}" alt="" />
+            ${/* Siempre el logo de la marca, nunca la foto del producto:
+                 la Cajita Feliz va con el logo de McDonald's. */ ""}
+            <img src="${payDetailBrandOf(p).art}" alt="" />
             ${p.failed ? `<span class="oky-flow-paydetail-x" aria-label="Falló"><i class="fa-solid fa-xmark" aria-hidden="true"></i></span>` : ""}
           </span>
           <div>
@@ -7588,8 +7587,14 @@ function payDetailSheet(state) {
               p.corr
                 ? `<p class="oky-flow-paydetail-brand">${(PRODUCTS[p.productKey] || PRODUCTS.eegsa).label}${rows.length > 1 ? ` · ${escapeHtml((state.svc.accounts[p.corr] || {}).alias || "")}` : ""}</p>
             <p class="oky-flow-paydetail-what">Pago a servicios por ${quetzalOf(p.quetzales)}</p>`
-                : `<p class="oky-flow-paydetail-brand">${escapeHtml((PRODUCTS[p.productKey] || {}).label || "")}</p>
-            <p class="oky-flow-paydetail-what">${p.quetzales != null ? `OKY Vale por ${quetzalOf(p.quetzales)}` : `Por ${money(p.amount)}`}</p>`
+                : `<p class="oky-flow-paydetail-brand">${escapeHtml(payDetailBrandOf(p).label)}</p>
+            <p class="oky-flow-paydetail-what">${
+              p.quetzales != null
+                ? `OKY Vale por ${quetzalOf(p.quetzales)}`
+                : (PRODUCTS[p.productKey] || {}).food
+                  ? `${escapeHtml(PRODUCTS[p.productKey].label)} por ${money(p.amount)}`
+                  : `Por ${money(p.amount)}`
+            }</p>`
             }
           </div>
         </div>`,
@@ -9946,7 +9951,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     const mini = !!state.dash.mini;
     const grip = mini
       ? !event.target.closest("button:not(.oky-dash-grabber)") && event.target.closest(".oky-flow-wait.is-mini")
-      : event.target.closest(".oky-dash-grabber, .oky-flow-wait.is-dash .oky-flow-wait-title");
+      : /* El modal completo ya no se desliza hacia abajo. */ null;
     if (!grip) return;
     const sheet = grip.closest(".oky-flow-wait");
     dashDrag = { y: event.clientY, dy: 0, sheet, moved: false, mini };
