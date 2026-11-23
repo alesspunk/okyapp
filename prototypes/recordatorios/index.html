@@ -21721,11 +21721,19 @@ button.carrusel-dot:focus-visible {
 }
 
 /* El rayo se llena de amarillo de abajo arriba mientras dura la consulta
-   y destella al final. */
+   y destella al final. En EMPAGUA la gota se llena del azul de su logo. */
+.oky-flow-svc-wait {
+  --svc-fill: #ffd23f;
+}
+
+.oky-flow-svc-wait.is-empagua {
+  --svc-fill: #5cc6f7;
+}
+
 .oky-flow-svc-scan-core i {
   font-size: 40px;
   color: transparent;
-  background: linear-gradient(to top, #ffd23f 50%, rgba(255, 255, 255, 0.35) 50%);
+  background: linear-gradient(to top, var(--svc-fill) 50%, rgba(255, 255, 255, 0.35) 50%);
   background-size: 100% 200%;
   background-position: 0 0;
   -webkit-background-clip: text;
@@ -21736,7 +21744,7 @@ button.carrusel-dot:focus-visible {
 @keyframes oky-flow-svc-charge {
   0% { background-position: 0 0; filter: none; }
   85% { background-position: 0 100%; filter: none; }
-  100% { background-position: 0 100%; filter: drop-shadow(0 0 8px #ffd23f); }
+  100% { background-position: 0 100%; filter: drop-shadow(0 0 8px var(--svc-fill)); }
 }
 
 .oky-flow-svc-wait .oky-flow-svc-wait-corr {

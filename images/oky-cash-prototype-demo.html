@@ -21721,11 +21721,19 @@ button.carrusel-dot:focus-visible {
 }
 
 /* El rayo se llena de amarillo de abajo arriba mientras dura la consulta
-   y destella al final. */
+   y destella al final. En EMPAGUA la gota se llena del azul de su logo. */
+.oky-flow-svc-wait {
+  --svc-fill: #ffd23f;
+}
+
+.oky-flow-svc-wait.is-empagua {
+  --svc-fill: #5cc6f7;
+}
+
 .oky-flow-svc-scan-core i {
   font-size: 40px;
   color: transparent;
-  background: linear-gradient(to top, #ffd23f 50%, rgba(255, 255, 255, 0.35) 50%);
+  background: linear-gradient(to top, var(--svc-fill) 50%, rgba(255, 255, 255, 0.35) 50%);
   background-size: 100% 200%;
   background-position: 0 0;
   -webkit-background-clip: text;
@@ -21736,7 +21744,7 @@ button.carrusel-dot:focus-visible {
 @keyframes oky-flow-svc-charge {
   0% { background-position: 0 0; filter: none; }
   85% { background-position: 0 100%; filter: none; }
-  100% { background-position: 0 100%; filter: drop-shadow(0 0 8px #ffd23f); }
+  100% { background-position: 0 100%; filter: drop-shadow(0 0 8px var(--svc-fill)); }
 }
 
 .oky-flow-svc-wait .oky-flow-svc-wait-corr {
@@ -27159,11 +27167,19 @@ function invoiceBody(state) {
     return `${prod.label} · ${escapeHtml(acc(p.corr).alias || prod.cardTitle)}`;
   };
   const svcIdLabel = (p) => (p.productKey === "empagua" ? "Cuenta" : "Correlativo");
-  const goodName = (p) => {
-    const prod = PRODUCTS[p.productKey] || {};
-    return prod.quetzal ? `${escapeHtml(prod.label || "")} · OKY Vale` : escapeHtml(prod.cartTitle || prod.label || "");
+  /* La columna de la derecha va siempre en dólares (lo cobrado), para
+     que sume hacia abajo. Los quetzales —el monto del recibo o del vale—
+     van en el nombre, a la izquierda. */
+  const goodName = (g) => {
+    const prod = PRODUCTS[g.p.productKey] || {};
+    return prod.quetzal
+      ? `${escapeHtml(prod.label || "")} · OKY Vale ${quetzalOf(g.p.quetzales * g.units)}`
+      : prod.food || !prod.cardTitle || prod.cardTitle === prod.label
+        ? escapeHtml(prod.cartTitle || prod.label || "")
+        : /* Una recarga dice qué es: «Claro · Recargas Tiempo Aire». */
+          `${escapeHtml(prod.label || "")} · ${escapeHtml(prod.cardTitle)}`;
   };
-  const goodValue = (g) => (g.p.quetzales != null ? quetzalOf(g.p.quetzales * g.units) : money(g.p.amount * g.units));
+  const goodValue = (g) => money(g.p.amount * g.units);
   const qtyOf = (g) => (g.units > 1 ? `${g.units} × ` : "");
   return `
     <article class="oky-invoice">
@@ -27201,7 +27217,7 @@ function invoiceBody(state) {
             .map(
               (p, i) => `
           <div class="oky-invoice-item">
-            ${line(svcName(p), quetzalOf(p.quetzales))}
+            ${line(`${svcName(p)} · ${quetzalOf(p.quetzales)}`, money(p.amount))}
             <p class="oky-invoice-note">${svcIdLabel(p)} #${p.corr}</p>
             <p class="oky-invoice-note">Quien recibe: ${escapeHtml(p.to || acc(p.corr).contact || r.recipient)}</p>
             <p class="oky-invoice-note">No. de transacción ${r.tx}${i}</p>
@@ -27219,8 +27235,7 @@ function invoiceBody(state) {
             .map(
               (g, i) => `
           <div class="oky-invoice-item">
-            ${line(`${qtyOf(g)}${goodName(g.p)}`, goodValue(g))}
-            ${g.p.quetzales != null ? `<p class="oky-invoice-note">Cobrado: ${money(g.p.amount * g.units)}</p>` : ""}
+            ${line(`${qtyOf(g)}${goodName(g)}`, goodValue(g))}
             <p class="oky-invoice-note">Quien recibe: ${escapeHtml(g.p.to || r.recipient)}</p>
             <p class="oky-invoice-note">No. de transacción ${r.tx}${rows.length + i}</p>
           </div>`,
@@ -27237,7 +27252,7 @@ function invoiceBody(state) {
             .map(
               (p) => `
           <div class="oky-invoice-item">
-            ${line(svcName(p), quetzalOf(p.quetzales))}
+            ${line(`${svcName(p)} · ${quetzalOf(p.quetzales)}`, money(p.amount))}
             <p class="oky-invoice-note">${svcIdLabel(p)} #${p.corr}</p>
             <span class="oky-invoice-chip">Pago fallido - No cobrado</span>
           </div>`,
@@ -27254,7 +27269,7 @@ function invoiceBody(state) {
             .map(
               (g) => `
           <div class="oky-invoice-item">
-            ${line(`${qtyOf(g)}${goodName(g.p)}`, goodValue(g))}
+            ${line(`${qtyOf(g)}${goodName(g)}`, goodValue(g))}
             <span class="oky-invoice-chip">Pago fallido - No cobrado</span>
           </div>`,
             )
@@ -27334,9 +27349,17 @@ function webviewSheet(state) {
           <strong>${invoice ? "Factura" : "OKY Cash"}</strong>
           <span><i class="fa-solid fa-lock" aria-hidden="true"></i>${invoice ? `okyapp.com/factura/${state.lastReceipt.order}` : "okyapp.com/oky-cash"}</span>
         </div>
-        <button class="oky-webview-icon" data-action="reload-webview" type="button" aria-label="Recargar">
+        ${
+          /* En la factura, compartir (el mismo ícono de compartir del vale)
+             en vez de recargar: lo que se hace con una factura es mandarla. */
+          invoice
+            ? `<button class="oky-webview-icon oky-webview-share" data-action="share-invoice" type="button" aria-label="Compartir la factura"${
+                phase === "ready" ? "" : " disabled"
+              }>${SHARE_ICON}</button>`
+            : `<button class="oky-webview-icon" data-action="reload-webview" type="button" aria-label="Recargar">
           <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
-        </button>
+        </button>`
+        }
         ${phase === "loading" ? `<span class="oky-webview-progress" aria-hidden="true"></span>` : ""}
       </header>
       <div class="oky-webview-body">${body}</div>
@@ -29468,9 +29491,10 @@ function purchaseHeader(state) {
         /* Solo en pagos de servicios, por ahora: el recibo (7600 ·
            102195:136567) lleva siempre al detalle del pago. La factura se
            abre desde ahí, con file-arrow-down, cuando algo salió. */
-        /* También cuando al pago de servicio se le sumó algo en el
-           cross-selling: la factura lo lista todo. */
-        state.lastOrder.some((p) => p.corr) && state.lastReceipt
+        /* Toda compra de Guatemala tiene factura: servicios, vales de
+           monto, productos y lo que se sumó en el cross-selling. USA no
+           (su recibo es otro: sin quetzales ni tipo de cambio). */
+        state.lastReceipt && state.lastOrder.length && orderMarketOf(state) !== "US"
           ? `<button class="oky-flow-header-icon oky-flow-purchase-invoice" data-action="svc-pay-detail" type="button" aria-label="Ver detalle del pago">${RECEIPT_SVG}</button>`
           : `<span class="oky-flow-header-icon oky-flow-header-spacer" aria-hidden="true"></span>`
       }
@@ -33850,23 +33874,28 @@ function svcReminderSwitch(state, corr, label) {
   `;
 }
 
-/* La consulta tarda (va a la API de EEGSA): la misma hoja de espera de
-   «No cerrar app», con el logo que late y el spinner de siempre. Sale en
-   los tres casos: con factura, al día y número nuevo. */
+/* La consulta tarda (va a la API del proveedor): la misma hoja de espera
+   de «No cerrar app», con el ícono que late y el spinner de siempre. Sale
+   en los tres casos: con factura, al día y número nuevo. Dice con quién
+   consulta: EEGSA (el rayo) o EMPAGUA (la gota). */
+const SVC_LOADING_ICON = { eegsa: "fa-bolt", empagua: "fa-droplet" };
+
 function svcLoadingLayer(state) {
+  const provider = state.svcLoading.provider || "eegsa";
+  const brand = (PRODUCTS[provider] || PRODUCTS.eegsa).label;
   return `
     <div class="modal-molecule-backdrop oky-flow-svc-wait-backdrop"></div>
-    <section class="oky-flow-wait oky-flow-svc-wait" role="status" aria-live="polite">
+    <section class="oky-flow-wait oky-flow-svc-wait is-${provider}" role="status" aria-live="polite">
       <h2 class="oky-flow-wait-title">Consultando tu saldo</h2>
       <div class="oky-flow-svc-scan" aria-hidden="true" style="--svc-ms:${SVC_LOADING_MS}ms">
         <span class="oky-flow-svc-scan-ring"></span>
         <span class="oky-flow-svc-scan-ring"></span>
         <span class="oky-flow-svc-scan-ring"></span>
-        <span class="oky-flow-svc-scan-core"><i class="fa-solid fa-bolt"></i></span>
+        <span class="oky-flow-svc-scan-core"><i class="fa-solid ${SVC_LOADING_ICON[provider] || "fa-bolt"}"></i></span>
       </div>
-      <p class="oky-flow-svc-wait-corr">EEGSA · #${state.svcLoading.corr}</p>
+      <p class="oky-flow-svc-wait-corr">${brand} · #${state.svcLoading.corr}</p>
       <ol class="oky-flow-svc-steps" style="--svc-ms:${SVC_LOADING_MS}ms">
-        <li style="--i:0">Conectando con EEGSA</li>
+        <li style="--i:0">Conectando con ${brand}</li>
         <li style="--i:1">Buscando tu factura</li>
         <li style="--i:2">Calculando tu saldo</li>
       </ol>
@@ -35389,7 +35418,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     return `https://okyapp.com/v/${code}?ref=foto`;
   }
 
-  function takeVoucherShot({ brand, id }) {
+  function takeVoucherShot({ brand, id, invoice = 0 }) {
     const frame = root.querySelector(".oky-flow-frame");
     if (!frame || frame.querySelector(".oky-shot")) return;
     const android = /Android/i.test(navigator.userAgent);
@@ -35399,8 +35428,12 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     /* El mensaje se arma igual para la hoja nativa y la HTML. */
     let turn = Math.floor(Math.random() * SHOT_TEASERS.length);
     const name = shotRecipientName();
-    const link = shotLink(id);
-    const compose = () => SHOT_TEASERS[turn % SHOT_TEASERS.length](name, brand || "OKY", link);
+    /* La factura no lleva chisme: un mensaje claro con su enlace. */
+    const link = invoice ? `https://okyapp.com/factura/${invoice}` : shotLink(id);
+    const compose = () =>
+      invoice
+        ? `Te comparto la factura de mi orden #${invoice} en OKY 🧾\n\n👉 ${link}`
+        : SHOT_TEASERS[turn % SHOT_TEASERS.length](name, brand || "OKY", link);
 
     /* Hoja nativa: solo con pantalla táctil y Web Share con archivos. */
     const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
@@ -35478,13 +35511,13 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           <div class="oky-shot-sheet-thumb"></div>
           <div class="oky-shot-sheet-meta">
             <strong>Captura de pantalla</strong>
-            <span>Foto del vale${brand ? ` de ${brand}` : ""} + mensaje</span>
+            <span>${invoice ? `Factura de la orden #${invoice} + enlace` : `Foto del vale${brand ? ` de ${brand}` : ""} + mensaje`}</span>
           </div>
           <button class="oky-shot-sheet-close" type="button" aria-label="Cerrar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
         </div>
-        <label class="oky-shot-sheet-label" for="oky-shot-msg">Mensaje para ${name}</label>
+        <label class="oky-shot-sheet-label" for="oky-shot-msg">${invoice ? "Mensaje" : `Mensaje para ${name}`}</label>
         <textarea id="oky-shot-msg" class="oky-shot-sheet-msg" rows="5"></textarea>
-        <button class="oky-shot-reroll" type="button"><i class="fa-solid fa-shuffle" aria-hidden="true"></i>Otro chisme</button>
+        ${invoice ? "" : `<button class="oky-shot-reroll" type="button"><i class="fa-solid fa-shuffle" aria-hidden="true"></i>Otro chisme</button>`}
         <div class="oky-shot-apps">
           ${[
             ["wa", "WhatsApp", "fa-brands fa-whatsapp"],
@@ -35524,10 +35557,12 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       msg.value = compose();
       requestAnimationFrame(() => sheet.classList.add("is-open"));
 
-      sheet.querySelector(".oky-shot-reroll").addEventListener("click", () => {
-        turn += 1;
-        msg.value = compose();
-      });
+      const reroll = sheet.querySelector(".oky-shot-reroll");
+      if (reroll)
+        reroll.addEventListener("click", () => {
+          turn += 1;
+          msg.value = compose();
+        });
       sheet.querySelector(".oky-shot-sheet-close").addEventListener("click", close);
       sheet.querySelector(".oky-shot-cancel").addEventListener("click", close);
 
@@ -35550,7 +35585,9 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
             return open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text.replace(link, "").trim())}`);
           if (app === "fb") return open(`fb-messenger://share/?link=${encodeURIComponent(link)}`);
           if (app === "mail")
-            return open(`mailto:?subject=${encodeURIComponent(`${name}, tenés que ver esto 👀`)}&body=${enc}`);
+            return open(
+              `mailto:?subject=${encodeURIComponent(invoice ? `Factura OKY · Orden #${invoice}` : `${name}, tenés que ver esto 👀`)}&body=${enc}`,
+            );
           if (app === "copy") {
             try {
               await navigator.clipboard.writeText(text);
@@ -37058,6 +37095,9 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     /* ── Pago de servicios · EEGSA ── */
     if (action === "open-eegsa") {
+      /* Viniendo de otro servicio (EMPAGUA), el número tecleado allá no
+         es de aquí: el campo empieza vacío. */
+      if (state.svc.provider && state.svc.provider !== "eegsa") state.svc.corrInput = "";
       state.svc.provider = "eegsa";
       if (state.svc.corrInput && !SVC_CORR_RE.test(state.svc.corrInput)) state.svc.corrInput = "";
       /* Entrar de nuevo desde la categoría empieza arriba. */
@@ -37093,7 +37133,7 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          nuevo, el de la pantalla donde se tecleó (EEGSA o EMPAGUA). */
       const provider = state.svc.accounts[corr] ? svcProviderOf(state.svc.accounts[corr]) : el.dataset.provider || state.svc.provider || "eegsa";
       state.sheet = null;
-      state.svcLoading = { corr };
+      state.svcLoading = { corr, provider };
       render({ keepScroll: true });
       clearTimeout(svcLoadingTimer);
       svcLoadingTimer = setTimeout(() => {
@@ -37830,6 +37870,12 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "send-photo") {
       return takeVoucherShot({ brand: el.dataset.label || "", id: el.dataset.id || "" });
+    }
+    /* Compartir la factura: la misma captura y hoja de compartir del
+       vale, con su propio mensaje y el enlace a la factura. */
+    if (action === "share-invoice") {
+      if (!state.lastReceipt) return;
+      return takeVoucherShot({ invoice: state.lastReceipt.order });
     }
     if (action === "close-order-voucher") {
       /* La X vuelve a la pila de la orden sin repetir la celebración. */
