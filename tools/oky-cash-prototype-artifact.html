@@ -33716,8 +33716,8 @@ function screenEegsa(state, provider = "eegsa") {
              encima de la actividad. Se apaga hasta tener los 10 dígitos. */ ""}
         <button class="oky-flow-svc-go" data-action="svc-consult-typed" data-provider="${provider}" data-role="corr-cta" type="button"
           aria-label="Consultar saldo" ${valid ? "" : "disabled"}>
-          ${/* Una lupa sola: la del banco + lupa no se leía a este tamaño. */ ""}
-          <i class="fa-solid fa-magnifying-glass oky-flow-svc-go-icon" aria-hidden="true"></i>
+          ${/* La flecha de vuelta (la lupa no gustó): consultar es avanzar. */ ""}
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
         </button>
       </div>
     </div>
