@@ -3064,14 +3064,52 @@ const dashWindow = (dash) => dash.windowMs || DASH_WINDOW_MS;
 
 /* Cross-selling: vales de monto (logo + «Vale QX») y comida con foto.
    Mismos filtros que OA-554: de GT, con stock y que no estén ya en la
-   orden. Se enseñan hasta 3. */
+   orden. Este es el catálogo de lo que se puede recomendar; qué se
+   enseña depende de la marca que se compró (DASH_RECS). */
 const DASH_PICKS = [
   { key: "gua-pollocampero", q: 50 },
   /* Con precio anterior: así se ve cómo luce un producto en oferta. */
   { key: "mcd-cajita", was: 6.5 },
   { key: "gua-dominos", q: 75 },
   { key: "gua-burgerking", q: 50 },
+  { key: "gua-pollogranjero", q: 50 },
+  { key: "gua-ihop", q: 75 },
+  { key: "mcd-mcnuggets" },
+  { key: "mcd-combo" },
+  { key: "mcd-cuarto" },
+  { key: "mcd-pollo" },
+  { key: "mcd-familiar" },
 ];
+
+/* Recomendaciones por marca: unas con 1 solo item y otras con 2 (un
+   producto y un vale, o dos de lo mismo). La clave es lo que se compró;
+   los productos de McDonald's comparten la suya («mcd»).
+   · Recarga de Claro (clave «tigo») → 1: la Cajita Feliz de McDonald's.
+   · Vale de Pollo Campero → 2: un producto (McNuggets) y un vale (Domino's).
+   · EEGSA → 2, con el Domino's que falla (demo de la orden mixta). */
+const DASH_RECS = {
+  tigo: ["mcd-cajita"],
+  "gua-pollocampero": ["mcd-mcnuggets", "gua-dominos"],
+  eegsa: ["mcd-cajita", "gua-dominos"],
+  "gua-burgerking": ["gua-pollocampero"],
+  "gua-pollogranjero": ["mcd-combo", "gua-ihop"],
+  "gua-ihop": ["mcd-cuarto"],
+  "gua-dominos": ["gua-burgerking", "mcd-pollo"],
+  "gua-claro": ["gua-pollogranjero"],
+  "gua-yayo": ["mcd-familiar", "gua-pollocampero"],
+  mcd: ["gua-burgerking"],
+};
+
+const dashRecKey = (productKey) => (productKey.startsWith("mcd-") ? "mcd" : productKey);
+
+/* Manda la primera marca de la orden que tenga recomendaciones. */
+function dashRecsFor(cart) {
+  for (const item of cart) {
+    const recs = DASH_RECS[dashRecKey(item.productKey)];
+    if (recs) return recs;
+  }
+  return [];
+}
 
 /* Dos casos, nunca juntos (la pantalla con los dos era mucho):
    · Pagas un servicio (EEGSA) → solo los otros recibos por pagar.
@@ -3104,7 +3142,10 @@ function dashBillCorrs(state) {
 
 function dashPicksFor(cart) {
   const inOrder = cart.map((item) => item.productKey);
-  return DASH_PICKS.filter((p) => PRODUCTS[p.key] && !inOrder.includes(p.key)).slice(0, 3);
+  return dashRecsFor(cart)
+    .map((key) => DASH_PICKS.find((p) => p.key === key))
+    .filter((p) => p && PRODUCTS[p.key] && !inOrder.includes(p.key))
+    .slice(0, 2);
 }
 
 const dashPicks = (state) => dashPicksFor(state.cart.slice(0, state.dash.base));
@@ -3167,7 +3208,7 @@ function dashOffers(state) {
   return `
     <div class="oky-dash-body">
       <p class="oky-dash-overline">Algo más para ${forWho}</p>
-      <div class="oky-dash-picks">
+      <div class="oky-dash-picks${picks.length === 1 ? " is-one" : ""}">
         ${picks
           .map((pick) => {
             const product = PRODUCTS[pick.key];
@@ -3255,6 +3296,10 @@ function screenProcessing(state) {
        haya o no Double Dash: es lo que la persona reconoce. */
     name: item.corr && state.svc.accounts[item.corr] ? escapeHtml(state.svc.accounts[item.corr].alias) : PRODUCTS[item.productKey].label,
     time: `7:${String(18 + i).padStart(2, "0")} PM`,
+    /* El check verde es solo para lo que se confirmó en el checkout con
+       «Comprar» o «Pagar». Lo que se suma en el Double Dash todavía se
+       está agregando: spinner morado con su ghost gris detrás. */
+    pending: Boolean(dash) && i >= dash.base,
   }));
 
   return `
@@ -3293,8 +3338,12 @@ function screenProcessing(state) {
         ${rows
           .map(
             (row) => `
-          <div class="oky-flow-timeline-row${dash && dash.justAdded === row.key ? " is-new" : ""}">
-            <img class="oky-flow-timeline-icon" src="oky-check-3d.png" alt="" />
+          <div class="oky-flow-timeline-row${row.pending ? " is-pending" : ""}${dash && dash.justAdded === row.key ? " is-new" : ""}">
+            ${
+              row.pending
+                ? `<span class="oky-flow-timeline-icon oky-flow-timeline-loader" role="img" aria-label="Agregando"></span>`
+                : `<img class="oky-flow-timeline-icon" src="oky-check-3d.png" alt="" />`
+            }
             <p class="oky-flow-timeline-name">${row.name}</p>
             <p class="oky-flow-timeline-time">${row.time}</p>
           </div>
