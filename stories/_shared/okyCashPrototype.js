@@ -500,7 +500,7 @@ function unitOfPurchase(state, purchase) {
    los vales, pero es una recarga— van siempre a "Para otros" mientras
    no tengan el suyo. */
 function purchaseIsForSelf(state, productKey, corr = "", to = "") {
-  if (productKey === "eegsa") {
+  if (isSvcKey(productKey)) {
     /* Cada recibo va a quien se eligió en «¿Para quién es?» para esa
        card (item.to): se puede pagar la luz de Marisol y que la
        notificación te llegue a ti; entonces cae en Para mí. Sin elección,
@@ -1063,6 +1063,27 @@ PRODUCTS.eegsa = {
   legal: false,
 };
 
+/* EMPAGUA, el agua de la Ciudad de Guatemala: el mismo flujo de pago de
+   servicios que EEGSA (consulta por número de 10 dígitos, ¿Para quién
+   es?, checkout, recordatorio). La card dice «Agua» y el recordatorio
+   nace como «Agua de» + el contacto elegido. */
+PRODUCTS.empagua = {
+  ...PRODUCTS.eegsa,
+  key: "empagua",
+  label: "EMPAGUA",
+  art: "empagua.webp",
+  hero: "empagua.webp",
+  cardTitle: "Agua",
+  cartTitle: "Agua EMPAGUA",
+};
+
+/* Los pagos de servicios que funcionan, y cómo se nombra cada cuenta. */
+const SVC_KEYS = ["eegsa", "empagua"];
+const isSvcKey = (key) => SVC_KEYS.includes(key);
+const SVC_NOUN = { eegsa: "Luz", empagua: "Agua" };
+/* El proveedor de una cuenta: las de ejemplo son todas de EEGSA. */
+const svcProviderOf = (acc) => (acc && acc.provider) || "eegsa";
+
 /* Cuántas unidades del carrito pagan costo por servicio: la comida y
    los vales de monto de Guatemala. Las recargas de Tigo no, ni nada de
    USA, así que tampoco cuentan para el tope. */
@@ -1210,18 +1231,48 @@ function receiptStamp(at) {
    okyapp.com: la factura real vivirá en una URL externa. */
 function invoiceBody(state) {
   const r = state.lastReceipt;
+  /* La factura lista todo lo de la orden, separado por tipo: los pagos
+     de servicios (EEGSA, EMPAGUA) y los vales y productos — también los
+     que se sumaron en el cross-selling (Double Dash). Lo que falló va
+     aparte y no se cobra. */
   const all = state.lastOrder.filter((p) => p.corr);
   const rows = all.filter((p) => !p.failed);
   const notDone = all.filter((p) => p.failed);
-  /* Un vale del cross que falló (el Domino's del demo): no se cobra y se
-     lista aparte, con el mismo aviso de cargo temporal. */
-  const valesFailed = state.lastOrder.filter((p) => !p.corr && p.failed);
+  /* Vales y productos: la orden guarda una línea por unidad; aquí se
+     juntan por producto y monto («2 × Cajita Feliz»). */
+  const groupGoods = (list) => {
+    const out = [];
+    list.forEach((p) => {
+      const k = `${p.productKey}|${p.quetzales != null ? p.quetzales : p.amount}`;
+      const g = out.find((x) => x.k === k);
+      if (g) g.units += 1;
+      else out.push({ k, p, units: 1 });
+    });
+    return out;
+  };
+  const goods = groupGoods(state.lastOrder.filter((p) => !p.corr && !p.failed));
+  const valesFailed = groupGoods(state.lastOrder.filter((p) => !p.corr && p.failed));
+  const goodsUnits = goods.reduce((n, g) => n + g.units, 0);
   /* Lo cobrado es solo lo procesado; lo que falló se autorizó y se
      libera (el aviso de «Cargo temporal autorizado»). */
-  const processed = rows.reduce((sum, p) => sum + p.amount, 0);
+  const svcProcessed = rows.reduce((sum, p) => sum + p.amount, 0);
+  const goodsProcessed = goods.reduce((sum, g) => sum + g.p.amount * g.units, 0);
+  const processed = svcProcessed + goodsProcessed;
   const charged = Math.max(processed + r.fee - r.used, 0);
   const acc = (corr) => state.svc.accounts[corr] || {};
   const line = (k, v, cls = "") => `<div class="oky-invoice-row${cls}"><span>${k}</span><span>${v}</span></div>`;
+  /* «EEGSA · Luz de Aracely» / «EMPAGUA · Agua de Daniel Paz». */
+  const svcName = (p) => {
+    const prod = PRODUCTS[p.productKey] || PRODUCTS.eegsa;
+    return `${prod.label} · ${escapeHtml(acc(p.corr).alias || prod.cardTitle)}`;
+  };
+  const svcIdLabel = (p) => (p.productKey === "empagua" ? "Cuenta" : "Correlativo");
+  const goodName = (p) => {
+    const prod = PRODUCTS[p.productKey] || {};
+    return prod.quetzal ? `${escapeHtml(prod.label || "")} · OKY Vale` : escapeHtml(prod.cartTitle || prod.label || "");
+  };
+  const goodValue = (g) => (g.p.quetzales != null ? quetzalOf(g.p.quetzales * g.units) : money(g.p.amount * g.units));
+  const qtyOf = (g) => (g.units > 1 ? `${g.units} × ` : "");
   return `
     <article class="oky-invoice">
       <header class="oky-invoice-head">
@@ -1250,20 +1301,42 @@ function invoiceBody(state) {
         </div>`
             : ""
         }
-        <div class="oky-invoice-block">
+        ${
+          rows.length
+            ? `<div class="oky-invoice-block">
           <p class="oky-invoice-section">Pagos de servicios procesados:</p>
           ${rows
             .map(
               (p, i) => `
           <div class="oky-invoice-item">
-            ${line(`EEGSA · ${escapeHtml(acc(p.corr).alias || "Electricidad")}`, quetzalOf(p.quetzales))}
-            <p class="oky-invoice-note">Correlativo #${p.corr}</p>
+            ${line(svcName(p), quetzalOf(p.quetzales))}
+            <p class="oky-invoice-note">${svcIdLabel(p)} #${p.corr}</p>
             <p class="oky-invoice-note">Quien recibe: ${escapeHtml(p.to || acc(p.corr).contact || r.recipient)}</p>
             <p class="oky-invoice-note">No. de transacción ${r.tx}${i}</p>
           </div>`,
             )
             .join("")}
-        </div>
+        </div>`
+            : ""
+        }
+        ${
+          goods.length
+            ? `<div class="oky-invoice-block">
+          <p class="oky-invoice-section">Vales y productos procesados:</p>
+          ${goods
+            .map(
+              (g, i) => `
+          <div class="oky-invoice-item">
+            ${line(`${qtyOf(g)}${goodName(g.p)}`, goodValue(g))}
+            ${g.p.quetzales != null ? `<p class="oky-invoice-note">Cobrado: ${money(g.p.amount * g.units)}</p>` : ""}
+            <p class="oky-invoice-note">Quien recibe: ${escapeHtml(g.p.to || r.recipient)}</p>
+            <p class="oky-invoice-note">No. de transacción ${r.tx}${rows.length + i}</p>
+          </div>`,
+            )
+            .join("")}
+        </div>`
+            : ""
+        }
         ${
           notDone.length
             ? `<div class="oky-invoice-block is-failed">
@@ -1272,8 +1345,8 @@ function invoiceBody(state) {
             .map(
               (p) => `
           <div class="oky-invoice-item">
-            ${line(`EEGSA · ${escapeHtml(acc(p.corr).alias || "Electricidad")}`, quetzalOf(p.quetzales))}
-            <p class="oky-invoice-note">Correlativo #${p.corr}</p>
+            ${line(svcName(p), quetzalOf(p.quetzales))}
+            <p class="oky-invoice-note">${svcIdLabel(p)} #${p.corr}</p>
             <span class="oky-invoice-chip">Pago fallido - No cobrado</span>
           </div>`,
             )
@@ -1284,15 +1357,12 @@ function invoiceBody(state) {
         ${
           valesFailed.length
             ? `<div class="oky-invoice-block is-failed">
-          <p class="oky-invoice-section">Vales NO procesados:</p>
+          <p class="oky-invoice-section">Vales y productos NO procesados:</p>
           ${valesFailed
             .map(
-              (p) => `
+              (g) => `
           <div class="oky-invoice-item">
-            ${line(
-              `${escapeHtml((PRODUCTS[p.productKey] || {}).label || "")} · OKY Vale`,
-              p.quetzales != null ? quetzalOf(p.quetzales) : money(p.amount),
-            )}
+            ${line(`${qtyOf(g)}${goodName(g.p)}`, goodValue(g))}
             <span class="oky-invoice-chip">Pago fallido - No cobrado</span>
           </div>`,
             )
@@ -1302,7 +1372,8 @@ function invoiceBody(state) {
         }
         <div class="oky-invoice-block">
           <p class="oky-invoice-section">Resumen:</p>
-          ${line(`${rows.length} ${rows.length === 1 ? "Pago de servicio procesado" : "Pagos de servicio procesados"}:`, money(processed))}
+          ${rows.length ? line(`${rows.length} ${rows.length === 1 ? "Pago de servicio procesado" : "Pagos de servicio procesados"}:`, money(svcProcessed)) : ""}
+          ${goodsUnits ? line(`${goodsUnits} ${goodsUnits === 1 ? "Vale o producto procesado" : "Vales y productos procesados"}:`, money(goodsProcessed)) : ""}
           ${line("Costo por servicio:", money(r.fee))}
           ${r.used > 0 ? line("OKY Cash:", `-${money(r.used)}`, " is-cash") : ""}
           ${line("TOTAL FINAL COBRADO:", money(charged), " is-total")}
@@ -2643,7 +2714,8 @@ function svcCheckoutTitle(state, corr) {
   if (acc) return escapeHtml(acc.alias);
   const item = state.cart.find((x) => x.corr === corr);
   const who = item ? svcItemRecipient(state, item) : recipientOf(state);
-  return who.self || who.name === USA_RECIPIENT.name ? "Para mí" : escapeHtml(`Luz de ${who.name}`);
+  const noun = SVC_NOUN[(item && item.productKey) || "eegsa"] || "Luz";
+  return who.self || who.name === USA_RECIPIENT.name ? "Para mí" : escapeHtml(`${noun} de ${who.name}`);
 }
 
 /* ── Checkout (99105:31768) ─────────────────────────────── */
@@ -2991,7 +3063,7 @@ function screenCheckout(state) {
 /* Un pago de servicio se paga, no se compra: el botón, el sello y el
    toast lo dicen. Cuenta solo si la orden es nada más eso. */
 function isServicePayment(keys) {
-  return keys.length > 0 && keys.every((key) => key === "eegsa");
+  return keys.length > 0 && keys.every((key) => isSvcKey(key));
 }
 
 function checkoutBuyButton(checkoutCard, toCard, label = "Comprar") {
@@ -3091,6 +3163,7 @@ const DASH_RECS = {
   tigo: ["mcd-cajita"],
   "gua-pollocampero": ["mcd-mcnuggets", "gua-dominos"],
   eegsa: ["mcd-cajita", "gua-dominos"],
+  empagua: ["gua-pollocampero"],
   "gua-burgerking": ["gua-pollocampero"],
   "gua-pollogranjero": ["mcd-combo", "gua-ihop"],
   "gua-ihop": ["mcd-cuarto"],
@@ -3121,7 +3194,7 @@ const DASH_MAX_BILLS = 3;
 function dashModeOf(state) {
   if (!MISCOMPRAS_ROUTE || DASH_WINDOW_MS <= 0 || !state.cart.length) return "";
   if (!state.cart.every((item) => (PRODUCTS[item.productKey] || {}).country === "gua")) return "";
-  const bills = state.cart.filter((item) => item.productKey === "eegsa");
+  const bills = state.cart.filter((item) => isSvcKey(item.productKey));
   if (bills.length) {
     /* En servicios el cross ofrece OKY Vales y comida (como en vales).
        El cross de otros recibos queda solo para el demo de Byron (el
@@ -3294,7 +3367,9 @@ function screenProcessing(state) {
     key: item.corr || item.productKey,
     /* Un pago de servicio se nombra como su cuenta («Luz de Marisol»),
        haya o no Double Dash: es lo que la persona reconoce. */
-    name: item.corr && state.svc.accounts[item.corr] ? escapeHtml(state.svc.accounts[item.corr].alias) : PRODUCTS[item.productKey].label,
+    /* Un número nuevo, todavía sin cuenta, se nombra como en el
+       checkout: «Agua de Erick», no «EMPAGUA». */
+    name: item.corr ? svcCheckoutTitle(state, item.corr) : PRODUCTS[item.productKey].label,
     time: `7:${String(18 + i).padStart(2, "0")} PM`,
     /* El check verde es solo para lo que se confirmó en el checkout con
        «Comprar» o «Pagar». Lo que se suma en el Double Dash todavía se
@@ -3501,7 +3576,9 @@ function purchaseHeader(state) {
         /* Solo en pagos de servicios, por ahora: el recibo (7600 ·
            102195:136567) lleva siempre al detalle del pago. La factura se
            abre desde ahí, con file-arrow-down, cuando algo salió. */
-        isServicePayment(state.lastOrder.map((p) => p.productKey)) && state.lastReceipt
+        /* También cuando al pago de servicio se le sumó algo en el
+           cross-selling: la factura lo lista todo. */
+        state.lastOrder.some((p) => p.corr) && state.lastReceipt
           ? `<button class="oky-flow-header-icon oky-flow-purchase-invoice" data-action="svc-pay-detail" type="button" aria-label="Ver detalle del pago">${RECEIPT_SVG}</button>`
           : `<span class="oky-flow-header-icon oky-flow-header-spacer" aria-hidden="true"></span>`
       }
@@ -6094,7 +6171,7 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
                  Aracely», «Para mí»), como en la home de EEGSA y el
                  checkout; sin cuenta, «Electricidad». */
               middleTitle:
-                card.key === "eegsa"
+                isSvcKey(card.key)
                   ? escapeHtml((state.svc.accounts[svcCorr] || {}).alias || card.cardTitle)
                   : card.telco
                   ? card.cardTitle
@@ -6474,10 +6551,10 @@ const CONFIRM_SHEETS = {
     /* Mis compras archiva (antes «Ya lo usé» / «Marcar como usado»). Un
        pago de servicio es «el pago»: en masculino; la gift card, en
        femenino. */
-    title: (state) => (V3_ROUTE ? (state.sheet.key === "eegsa" ? "¿Lo archivamos?" : "¿La archivamos?") : "¿Deseas guardarla?"),
+    title: (state) => (V3_ROUTE ? (isSvcKey(state.sheet.key) ? "¿Lo archivamos?" : "¿La archivamos?") : "¿Deseas guardarla?"),
     note: (state) =>
       V3_ROUTE
-        ? state.sheet.key === "eegsa"
+        ? isSvcKey(state.sheet.key)
           ? "Lo pasamos a Archivados sin perderlo: lo encuentras ahí cuando quieras."
           : "La pasamos a Archivados sin perderla: la encuentras ahí cuando quieras."
         : "La quitamos de en medio sin perderla: la encuentras cuando quieras en la sección de guardados.",
@@ -7159,6 +7236,8 @@ const DASH_FAIL_PICK = "gua-dominos";
 
 /* Lo que trae la consulta de un número que no está guardado. */
 const SVC_NEW_BILL = 212.75;
+/* Lo mismo por proveedor: la factura del agua es más baja que la luz. */
+const SVC_NEW_BILL_OF = { eegsa: SVC_NEW_BILL, empagua: 96.4 };
 
 /* Los filtros de la actividad: pagos mensuales, así que el rango más
    corto es de 45 días (con un mes casi siempre se ve uno solo). Por
@@ -7237,16 +7316,20 @@ const svcMine = (acc) => !!acc && acc.contact === USA_RECIPIENT.name;
    persona (o varias tuyas), cada una suma los últimos 4 dígitos del
    correlativo, que es el dato que trae la factura: «Para mí ·1234». */
 function svcRelabel(svc) {
+  /* Por persona y por proveedor: la luz y el agua de Daniel Paz son
+     «Luz de Daniel Paz» y «Agua de Daniel Paz», sin sufijo. */
   const byOwner = {};
   Object.values(svc.accounts).forEach((acc) => {
-    (byOwner[acc.contact] = byOwner[acc.contact] || []).push(acc);
+    const k = `${acc.contact}|${svcProviderOf(acc)}`;
+    (byOwner[k] = byOwner[k] || []).push(acc);
   });
   Object.values(byOwner).forEach((list) => {
     list.forEach((acc) => {
       const mine = svcMine(acc);
       /* Un nombre puesto a mano (los de ejemplo) se respeta mientras
          sea la única cuenta de esa persona. */
-      const base = mine ? "Para mí" : acc.alias && !acc.alias.startsWith("Luz #") ? acc.alias.replace(/ ·\d{4}$/, "") : `Luz de ${acc.contact}`;
+      const noun = SVC_NOUN[svcProviderOf(acc)];
+      const base = mine ? "Para mí" : acc.alias && !/^(Luz|Agua) #/.test(acc.alias) ? acc.alias.replace(/ ·\d{4}$/, "") : `${noun} de ${acc.contact}`;
       acc.alias = list.length > 1 ? `${base} ·${acc.corr.slice(-4)}` : base;
     });
   });
@@ -7274,7 +7357,9 @@ function svcDueCount(state) {
 function svcFiltered(state) {
   const { period, corr } = state.svc.filter;
   const def = SVC_PERIODS.find((p) => p.key === period) || SVC_DEFAULT_PERIOD;
+  const prov = state.svc.provider || "eegsa";
   return state.svc.payments
+    .filter((p) => svcProviderOf(state.svc.accounts[p.corr]) === prov)
     .filter((p) => p.ago <= def.days)
     .filter((p) => !corr || p.corr === corr)
     .sort((a, b) => a.ago - b.ago);
@@ -7318,16 +7403,18 @@ function svcReminderData(state, acc, { mini = false } = {}) {
       showCta: true,
     };
   }
+  const prov = PRODUCTS[svcProviderOf(acc)];
+  const what = prov.cardTitle.toLowerCase();
   const body = !acc.reminder
-    ? `Apagado. ${svcAgo(last.ago)} pagaste ${quetzalOf(last.q)} en electricidad.`
+    ? `Apagado. ${svcAgo(last.ago)} pagaste ${quetzalOf(last.q)} en ${what}.`
     : st.kind === "due"
-      ? `${svcAgo(last.ago)} pagaste ${quetzalOf(last.q)} en electricidad.`
+      ? `${svcAgo(last.ago)} pagaste ${quetzalOf(last.q)} en ${what}.`
       : `${svcAgo(last.ago)} pagaste ${quetzalOf(last.q)}. Te avisamos el ${svcShort(-st.notifyIn)}.`;
   return {
     ...base,
     title: escapeHtml(acc.alias),
     body,
-    brand: { src: "eggsa.webp", alt: "EEGSA" },
+    brand: { src: prov.art, alt: prov.label },
     ctaLabel: acc.reminder ? "Ver saldo" : "Activar",
     showMenu: acc.reminder,
     showCta: true,
@@ -7447,7 +7534,7 @@ function payDetailSheet(state) {
     }" role="dialog" aria-modal="true" aria-labelledby="oky-paydetail-title">
     ${statusBar()}
     <header class="oky-flow-paydetail-head">
-      <h1 id="oky-paydetail-title">${mixed ? "Detalle de la compra" : "Detalle del pago"}</h1>
+      <h1 id="oky-paydetail-title">${mixed || state.lastOrder.some((p) => !p.corr) ? "Detalle de la compra" : "Detalle del pago"}</h1>
       <button class="oky-flow-header-icon" data-action="paydetail-min" type="button" aria-label="Minimizar el detalle">
         <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
       </button>
@@ -7483,7 +7570,7 @@ function payDetailSheet(state) {
               /* Un vale (el Domino's del cross) se nombra como vale, no
                  como pago de servicio. */
               p.corr
-                ? `<p class="oky-flow-paydetail-brand">EEGSA${rows.length > 1 ? ` · ${escapeHtml((state.svc.accounts[p.corr] || {}).alias || "")}` : ""}</p>
+                ? `<p class="oky-flow-paydetail-brand">${(PRODUCTS[p.productKey] || PRODUCTS.eegsa).label}${rows.length > 1 ? ` · ${escapeHtml((state.svc.accounts[p.corr] || {}).alias || "")}` : ""}</p>
             <p class="oky-flow-paydetail-what">Pago a servicios por ${quetzalOf(p.quetzales)}</p>`
                 : `<p class="oky-flow-paydetail-brand">${escapeHtml((PRODUCTS[p.productKey] || {}).label || "")}</p>
             <p class="oky-flow-paydetail-what">${p.quetzales != null ? `OKY Vale por ${quetzalOf(p.quetzales)}` : `Por ${money(p.amount)}`}</p>`
@@ -7527,52 +7614,11 @@ function svcBrandItem({ label = "EEGSA", art = PRODUCTS.eegsa.art } = {}) {
   `;
 }
 
-/* ── EMPAGUA: servicio nuevo, sin nada todavía ─────────────
-   Usuario nuevo en EMPAGUA: sin pagos no hay actividad, y sin pagos
-   tampoco hay recordatorios (solo aparecen cuando ya pasaron los días de
-   un pago anterior). La pantalla es la de EEGSA con el campo para
-   consultar y, abajo, el estado vacío de servicios (Wallet / Estado
-   vacío › Pestaña=Servicios), sin CTA: la acción es el campo. La
-   consulta de EMPAGUA todavía no está definida (qué número pide y qué
-   devuelve), así que la lupa se queda apagada. */
-const SVC_EMPAGUA = { label: "EMPAGUA", art: "empagua.webp" };
-
-function screenEmpagua(state) {
-  const typed = state.empaguaInput || "";
-  return `
-    ${statusBar()}
-    ${productHeader(state, { backAction: "back", cart: false })}
-
-    <div class="oky-flow-stack-center oky-flow-svc">
-      ${svcBrandItem(SVC_EMPAGUA)}
-      <div class="input-wrapper oky-flow-svc-field" style="width:100%">
-        <label id="oky-empagua-label" class="input-label input-label-dinamic oky-flow-promo-label${typed ? " is-floating" : ""}"
-          for="oky-empagua">${typed ? "Número de cuenta" : "Ingresar número de cuenta"}</label>
-        <input id="oky-empagua" class="input-field input-dinamic oky-flow-promo-input ${typed ? "input-dinamic-hasvalue" : "input-dinamic-empty"}"
-          type="text" inputmode="numeric" maxlength="10" autocomplete="off" value="${escapeHtml(typed)}"
-          placeholder="Ingresar número de cuenta" data-action="input-empagua"
-          aria-labelledby="oky-empagua-label" />
-        <button class="oky-flow-svc-go" type="button" aria-label="Consultar saldo" disabled>
-          <i class="fa-solid fa-magnifying-glass oky-flow-svc-go-icon" aria-hidden="true"></i>
-        </button>
-      </div>
-    </div>
-
-    <div class="oky-flow-section oky-flow-svc-empty-state">
-      <div class="oky-flow-cash-empty is-wallet">
-        <span class="oky-flow-cash-empty-art"><img src="${WALLET_EMPTY.servicios.art}" alt="" /></span>
-        <h2 class="oky-flow-cash-empty-title">${WALLET_EMPTY.servicios.title}</h2>
-        <p class="oky-flow-cash-empty-note">${WALLET_EMPTY.servicios.note}</p>
-      </div>
-    </div>
-
-    ${navbar("", state)}
-  `;
-}
 
 /* Fila de pago hecho: la History Card «Service Payment» (99105:47460).
    Toda la fila consulta el saldo de ese número (99105:13972). */
-function svcPaymentRow(p, { byDate = false, alias = "" } = {}) {
+function svcPaymentRow(p, { byDate = false, alias = "", provider = "eegsa" } = {}) {
+  const brand = PRODUCTS[provider] || PRODUCTS.eegsa;
   return `
     <div class="oky-flow-svc-pay" data-action="svc-consult" data-corr="${p.corr}" role="button" tabindex="0"
       aria-label="Pago del ${stamp(p.ago)} por ${quetzalOf(p.q)}. Consultar el saldo de ${p.corr}">
@@ -7587,11 +7633,11 @@ function svcPaymentRow(p, { byDate = false, alias = "" } = {}) {
         amount: money(toUsd(p.q) + SERVICE_FEE_UNIT),
         meta: {
           type: "brand",
-          logo: "eggsa.webp",
-          logoAlt: "EEGSA",
+          logo: brand.art,
+          logoAlt: brand.label,
           /* Por número, la cuenta ya va de encabezado; por fecha, se dice
              de quién es el pago por su nombre, no por su número. */
-          brand: byDate ? escapeHtml(alias || `#${p.corr}`) : "EEGSA",
+          brand: byDate ? escapeHtml(alias || `#${p.corr}`) : brand.label,
           secondaryAmount: quetzalOf(p.q).replace(".00", ""),
         },
       })}
@@ -7680,7 +7726,7 @@ function svcActivity(state) {
         <div class="oky-flow-section-body ${open ? "" : "is-collapsed"}">
           <div>
             <div class="oky-flow-svc-group-list${more && !all ? " is-peek" : ""}${all && state.svc.justOpened === g.label ? " is-revealed" : ""}">
-              ${visible.map((p) => svcPaymentRow(p, { byDate, alias: (state.svc.accounts[p.corr] || {}).alias })).join("")}
+              ${visible.map((p) => svcPaymentRow(p, { byDate, alias: (state.svc.accounts[p.corr] || {}).alias, provider: svcProviderOf(state.svc.accounts[p.corr]) })).join("")}
             </div>
             ${
               more
@@ -7707,31 +7753,45 @@ function svcActivity(state) {
 }
 
 /* ── Pantalla de EEGSA (99105:14130 + 99105:13960) ──────── */
-function screenEegsa(state) {
+/* La pantalla de un servicio (EEGSA por defecto, o EMPAGUA): campo para
+   consultar, recordatorios por pagar y actividad, solo de ese proveedor.
+   Sin pagos todavía (usuario nuevo en EMPAGUA) no hay recordatorios ni
+   actividad: va el estado vacío de servicios, sin CTA. */
+const SVC_FIELD = {
+  eegsa: { empty: "Ingresar número correlativo", full: "Número correlativo" },
+  empagua: { empty: "Ingresar número de cuenta", full: "Número de cuenta" },
+};
+
+function screenEegsa(state, provider = "eegsa") {
   const svc = state.svc;
+  svc.provider = provider;
+  const brand = PRODUCTS[provider];
+  const field = SVC_FIELD[provider];
   const typed = svc.corrInput;
   const valid = SVC_CORR_RE.test(typed);
   const filterOn = svcFilterOn(state);
   /* Aquí solo los que ya tienen factura: lo que hay que pagar. Los que
      están al día viven en Menú › Recordatorios hasta que les toque. */
-  const eegsaReminders = svcActive(state).filter((a) => svcStatus(state, a.corr).kind === "due");
+  const eegsaReminders = svcActive(state).filter((a) => svcProviderOf(a) === provider && svcStatus(state, a.corr).kind === "due");
+  const hasPayments = svc.payments.some((p) => svcProviderOf(svc.accounts[p.corr]) === provider);
+  const hasAccounts = Object.values(svc.accounts).some((a) => svcProviderOf(a) === provider);
 
   return `
     ${statusBar()}
-    ${productHeader(state, { backAction: "back", cart: false, bell: true })}
+    ${productHeader(state, { backAction: "back", cart: false, bell: hasAccounts })}
 
     <div class="oky-flow-stack-center oky-flow-svc">
-      ${svcBrandItem()}
+      ${svcBrandItem({ label: brand.label, art: brand.art })}
       <div class="input-wrapper oky-flow-svc-field" style="width:100%">
         <label id="oky-corr-label" class="input-label input-label-dinamic oky-flow-promo-label${typed ? " is-floating" : ""}"
-          for="oky-corr">${typed ? "Número correlativo" : "Ingresar número correlativo"}</label>
+          for="oky-corr">${typed ? field.full : field.empty}</label>
         <input id="oky-corr" class="input-field input-dinamic oky-flow-promo-input ${typed ? "input-dinamic-hasvalue" : "input-dinamic-empty"}"
           type="text" inputmode="numeric" maxlength="10" autocomplete="off" value="${escapeHtml(typed)}"
-          placeholder="Ingresar número correlativo" data-action="input-corr"
+          placeholder="${field.empty}" data-action="input-corr" data-label-empty="${field.empty}" data-label-full="${field.full}"
           aria-labelledby="oky-corr-label" />
         ${/* Consultar va dentro del campo, como una búsqueda: sin barra flotante
              encima de la actividad. Se apaga hasta tener los 10 dígitos. */ ""}
-        <button class="oky-flow-svc-go" data-action="svc-consult-typed" data-role="corr-cta" type="button"
+        <button class="oky-flow-svc-go" data-action="svc-consult-typed" data-provider="${provider}" data-role="corr-cta" type="button"
           aria-label="Consultar saldo" ${valid ? "" : "disabled"}>
           ${/* Una lupa sola: la del banco + lupa no se leía a este tamaño. */ ""}
           <i class="fa-solid fa-magnifying-glass oky-flow-svc-go-icon" aria-hidden="true"></i>
@@ -7741,7 +7801,16 @@ function screenEegsa(state) {
 
     ${eegsaReminders.length ? `<div class="oky-flow-svc-reminders">${svcReminderCarousel(state, eegsaReminders)}</div>` : ""}
 
-    <div class="oky-flow-wallet-filter oky-flow-svc-filter">
+    ${
+      !hasPayments
+        ? `<div class="oky-flow-section oky-flow-svc-empty-state">
+      <div class="oky-flow-cash-empty is-wallet">
+        <span class="oky-flow-cash-empty-art"><img src="${WALLET_EMPTY.servicios.art}" alt="" /></span>
+        <h2 class="oky-flow-cash-empty-title">${WALLET_EMPTY.servicios.title}</h2>
+        <p class="oky-flow-cash-empty-note">${WALLET_EMPTY.servicios.note}</p>
+      </div>
+    </div>`
+        : `<div class="oky-flow-wallet-filter oky-flow-svc-filter">
       ${
         filterOn
           ? `<button class="oky-flow-wallet-filter-label is-tappable" data-action="svc-open-filter" type="button">${svcFilterLabel(state)}</button>`
@@ -7757,7 +7826,8 @@ function screenEegsa(state) {
             </button>`
       }
     </div>
-    <div class="oky-flow-section oky-flow-svc-activity">${svcActivity(state)}</div>
+    <div class="oky-flow-section oky-flow-svc-activity">${svcActivity(state)}</div>`
+    }
 
     ${navbar("", state)}
   `;
@@ -7772,13 +7842,16 @@ function screenSvcConsulta(state) {
   /* El título es el mismo del recordatorio de esa cuenta («Luz de
      Aracely»), para que se lea como la misma cosa. Un número nuevo, sin
      cuenta guardada, sigue diciendo «Electricidad». */
-  const cardTitle = acc ? escapeHtml(acc.alias) : PRODUCTS.eegsa.cardTitle;
+  const provider = cur.provider || svcProviderOf(acc);
+  const brand = PRODUCTS[provider];
+  /* Un número nuevo dice qué se paga: «Electricidad» o «Agua». */
+  const cardTitle = acc ? escapeHtml(acc.alias) : brand.cardTitle;
   return `
     ${statusBar()}
     ${productHeader(state, { backAction: "back", cart: false, bell: true })}
 
     <div class="oky-flow-stack-center">
-      ${svcBrandItem()}
+      ${svcBrandItem({ label: brand.label, art: brand.art })}
       <div>
         <section class="middle-card-shell is-pdp" aria-label="${cardTitle}">
           <article class="middle-card-molecule is-amount">
@@ -8066,7 +8139,7 @@ function renderScreen(state) {
     case "voucher": return screenVoucher(state);
     case "decision": return screenDecision();
     case "eegsa": return screenEegsa(state);
-    case "empagua": return screenEmpagua(state);
+    case "empagua": return screenEegsa(state, "empagua");
     case "svcconsulta": return screenSvcConsulta(state);
     case "svcreminders": return screenSvcReminders(state);
     default: return screenHome(state);
@@ -9724,8 +9797,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
      puede agregar cualquier otro producto desde cero. */
   const SVC_FUNNEL = ["checkout", "processing", "methods", "cashsolo", "carddesign", "contacts"];
   function dropSvcCart(screen) {
-    if (SVC_FUNNEL.includes(screen) || !state.cart.some((item) => item.productKey === "eegsa")) return;
-    state.cart = state.cart.filter((item) => item.productKey !== "eegsa");
+    if (SVC_FUNNEL.includes(screen) || !state.cart.some((item) => isSvcKey(item.productKey))) return;
+    state.cart = state.cart.filter((item) => !isSvcKey(item.productKey));
     state.checkoutIndex = 0;
   }
 
@@ -9917,11 +9990,13 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.recipientPhone = contact.phone;
       state.recipientMarket = "gua";
     }
-    state.amounts.eegsa = cur.q;
+    /* EEGSA o EMPAGUA: el producto es el del proveedor de la consulta. */
+    const svcKey = cur.provider || svcProviderOf(acc);
+    state.amounts[svcKey] = cur.q;
     state.cart = state.cart
-      .filter((item) => item.productKey !== "eegsa")
+      .filter((item) => !isSvcKey(item.productKey))
       .concat({
-        productKey: "eegsa",
+        productKey: svcKey,
         amount: toUsd(cur.q),
         cashback: 0,
         quetzales: cur.q,
@@ -10156,14 +10231,17 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       }
       if (!svc.accounts[item.corr]) {
         const who = item.to ? { name: item.to } : recipientOf(state);
+        const provider = isSvcKey(item.productKey) ? item.productKey : "eegsa";
         svc.accounts[item.corr] = {
           corr: item.corr,
+          provider,
           /* Por número y no por contacto: Daniel Paz ya tiene su cuenta y
-             dos «Luz de Daniel Paz» no se distinguen. */
-          alias: `Luz #${item.corr}`,
+             dos «Luz de Daniel Paz» no se distinguen. svcRelabel le pone
+             el nombre: «Luz de» o «Agua de» + el contacto elegido. */
+          alias: `${SVC_NOUN[provider]} #${item.corr}`,
           contact: who.name,
           reminder: true,
-          nextBill: SVC_NEW_BILL,
+          nextBill: SVC_NEW_BILL_OF[provider],
         };
       }
       svc.payments.push({ id: `${item.corr}-${Date.now()}`, corr: item.corr, ago: 0, q: item.quetzales });
@@ -10810,7 +10888,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (inCart) state.amounts[key] = inCart.quetzales != null ? inCart.quetzales : inCart.amount;
       /* Tigo se edita desde su slider, no desde el campo de monto. */
       if (key === "tigo") return go("tigopdp");
-      if (key === "eegsa") return state.svc.current ? go("svcconsulta") : go("eegsa");
+      if (isSvcKey(key)) return state.svc.current ? go("svcconsulta") : go(key);
       if ((PRODUCTS[key] || {}).quetzal) return go("guapdp", { product: key });
       return go("pdp", { product: key });
     }
@@ -11088,6 +11166,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     /* ── Pago de servicios · EEGSA ── */
     if (action === "open-eegsa") {
+      state.svc.provider = "eegsa";
+      if (state.svc.corrInput && !SVC_CORR_RE.test(state.svc.corrInput)) state.svc.corrInput = "";
       /* Entrar de nuevo desde la categoría empieza arriba. */
       state.svc.scrollMemo = null;
       /* …y con solo el primer grupo abierto. */
@@ -11096,7 +11176,14 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     /* ── Pago de servicios · EMPAGUA (servicio nuevo, vacío) ── */
-    if (action === "open-empagua") return go("empagua");
+    if (action === "open-empagua") {
+      state.svc.provider = "empagua";
+      state.svc.corrInput = "";
+      state.svc.filter = { period: "", corr: "" };
+      state.svc.scrollMemo = null;
+      state.svc.openGroup = null;
+      return go("empagua");
+    }
 
     if (action === "menu:reminders" || action === "svc-open-reminders") {
       state.sheet = null;
@@ -11110,6 +11197,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (state.svcLoading) return;
       const corr = action === "svc-consult" ? el.dataset.corr : state.svc.corrInput.trim();
       if (!SVC_CORR_RE.test(corr || "")) return;
+      /* De qué proveedor es: el de la cuenta guardada o, con un número
+         nuevo, el de la pantalla donde se tecleó (EEGSA o EMPAGUA). */
+      const provider = state.svc.accounts[corr] ? svcProviderOf(state.svc.accounts[corr]) : el.dataset.provider || state.svc.provider || "eegsa";
       state.sheet = null;
       state.svcLoading = { corr };
       render({ keepScroll: true });
@@ -11121,7 +11211,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           state.sheet = { type: "svcaldia", key: corr };
           return render({ keepScroll: true });
         }
-        state.svc.current = { corr, q: acc ? acc.nextBill : SVC_NEW_BILL, isNew: !acc };
+        state.svc.current = { corr, q: acc ? acc.nextBill : SVC_NEW_BILL_OF[provider], isNew: !acc, provider };
         go("svcconsulta");
       }, SVC_LOADING_MS);
       return;
@@ -11132,7 +11222,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
        el modal morado. */
     if (action === "svc-pay") {
       if (!state.svc.current) return;
-      if (state.cart.some((item) => item.productKey !== "eegsa")) {
+      if (state.cart.some((item) => !isSvcKey(item.productKey))) {
         state.svcCartGate = { next: "pay" };
         return render({ keepScroll: true });
       }
@@ -11146,7 +11236,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
 
     if (action === "svccart-checkout") {
       state.svcCartGate = null;
-      state.cart = state.cart.filter((item) => item.productKey !== "eegsa");
+      state.cart = state.cart.filter((item) => !isSvcKey(item.productKey));
       state.checkoutIndex = 0;
       return go("checkout");
     }
@@ -11200,7 +11290,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.sheet = null;
       state.svc.filter = { period: "", corr };
       state.svc.openGroup = null;
-      if (state.screen !== "eegsa") return go("eegsa");
+      /* A la pantalla del proveedor de esa cuenta (EEGSA o EMPAGUA). */
+      const home = svcProviderOf(state.svc.accounts[corr]);
+      state.svc.provider = home;
+      if (state.screen !== home) return go(home);
       return render({ keepScroll: true });
     }
 
@@ -11281,7 +11374,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "open-category") {
       /* Pagar Servicios no convive con el carrito: con productos dentro
          se pregunta antes de entrar. */
-      if (el.dataset.category === "servicios" && state.cart.some((item) => item.productKey !== "eegsa")) {
+      if (el.dataset.category === "servicios" && state.cart.some((item) => !isSvcKey(item.productKey))) {
         state.svcCartGate = { next: "category" };
         return render({ keepScroll: true });
       }
@@ -11730,7 +11823,9 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
          corregirlo. */
       state.svc.corrInput = corr;
       state.svc.scrollMemo = null;
-      return go("eegsa");
+      const home = svcProviderOf(state.svc.accounts[corr]);
+      state.svc.provider = home;
+      return go(home);
     }
     if (action === "svc-pay-detail") {
       state.payDetail = { closing: false, fresh: true };
@@ -11990,28 +12085,10 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (label) {
         label.classList.toggle("is-floating", has);
         /* Vacío invita a escribir; flotando, nombra el dato. */
-        label.textContent = has ? "Número correlativo" : "Ingresar número correlativo";
+        label.textContent = has ? corrInput.dataset.labelFull || "Número correlativo" : corrInput.dataset.labelEmpty || "Ingresar número correlativo";
       }
       const cta = root.querySelector("[data-role='corr-cta']");
       if (cta) cta.disabled = !SVC_CORR_RE.test(digits);
-      return;
-    }
-
-    /* El número de EMPAGUA: solo dígitos y la etiqueta flota, igual que
-       el correlativo de EEGSA. La lupa sigue apagada (consulta por definir). */
-    const empaguaInput = event.target.closest("[data-action='input-empagua']");
-    if (empaguaInput) {
-      const digits = empaguaInput.value.replace(/\D/g, "").slice(0, 10);
-      if (digits !== empaguaInput.value) empaguaInput.value = digits;
-      state.empaguaInput = digits;
-      const has = digits.length > 0;
-      empaguaInput.classList.toggle("input-dinamic-hasvalue", has);
-      empaguaInput.classList.toggle("input-dinamic-empty", !has);
-      const label = root.querySelector("#oky-empagua-label");
-      if (label) {
-        label.classList.toggle("is-floating", has);
-        label.textContent = has ? "Número de cuenta" : "Ingresar número de cuenta";
-      }
       return;
     }
 
