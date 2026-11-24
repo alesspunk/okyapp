@@ -3145,7 +3145,7 @@ function screenMethods(state) {
    servicio: los otros recibos que los recordatorios ya saben que están
    por pagar (pagas la luz de Aracely y de una vez la de Daniel). Con
    vales o productos de GT: 2–3 productos para la misma persona. El tiempo vive dentro del botón, como el «Looks good»
-   de Uber Eats: la barra se llena sola y «Listo» deja avanzar antes.
+   de Uber Eats: la barra se llena sola y «No, gracias» deja avanzar antes.
    Un solo cobro al cerrarse la ventana (opción A): lo agregado entra a
    la misma orden, al recibo y al Historial. Solo en /miscompras.
    ?dash=SEG cambia la ventana para demos; ?dash=0 la apaga. */
@@ -3365,7 +3365,7 @@ function dashFooter(state) {
           ? `<div class="oky-flow-savebar is-bar oky-dash-savebar" id="oky-dash-cap"><i class="fa-solid fa-tag" aria-hidden="true"></i>&nbsp;¡Ahorro total! ${money(orderSavings(state))}</div>`
           : ""
       }
-      ${/* Sin pausa: el tiempo corre hasta «Listo» o hasta acabarse. */ ""}
+      ${/* Sin pausa: el tiempo corre hasta «No, gracias» o hasta acabarse. */ ""}
       <div class="oky-dash-cta-wrap${paused ? " is-paused" : ""}">
         <button class="btn btn-primary btn-large oky-dash-cta" data-action="dash-done" type="button"
           aria-describedby="oky-dash-sum${capped ? " oky-dash-cap" : ""}"
@@ -3374,7 +3374,7 @@ function dashFooter(state) {
           ${/* Lo de la orden ya se pagó (su check en el timeline): el
                botón cobra solo lo que se sumó aquí. «Pagar todo» se leía
                como volver a pagar la electricidad. */ ""}
-          <span class="oky-dash-cta-label">${added ? "Pagar lo agregado" : "Listo"}</span>
+          <span class="oky-dash-cta-label">${added ? "Pagar lo agregado" : "No, gracias"}</span>
           <span class="oky-dash-cta-time" aria-hidden="true">${dashClock(dashWindow(dash) - elapsed)}</span>
         </button>
       </div>
@@ -3416,7 +3416,7 @@ function screenProcessing(state) {
     ${dash && dash.mini && !dash.closing ? dashMiniSheet(state) : `
     <section class="oky-flow-wait${dash ? " is-dash" : ""}">
       ${/* Sin barrita gris ni gesto de deslizar: el modal del cross-selling
-           no se minimiza ni se pausa. Se sale con «Listo» o al acabarse
+           no se minimiza ni se pausa. Se sale con «No, gracias» o al acabarse
            el tiempo. */ ""}
       ${
         /* En el Double Dash el título vende (bien chapín), solo. */
@@ -10037,7 +10037,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     true,
   );
 
-  /* Se acabó el tiempo o tocó «Listo»: el spinner de siempre y un solo
+  /* Se acabó el tiempo o tocó «No, gracias»: el spinner de siempre y un solo
      cobro con todo lo agregado. */
   function closeDash() {
     clearInterval(dashTimer);
@@ -11978,7 +11978,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (!dash || dash.closing) return;
       /* «Siguiente»: fuera lo que se sumó (todo deseleccionado) y de
          vuelta al modal completo, con una vuelta más corta de 20 s. Se
-         paga al terminar el tiempo o con «Listo». */
+         paga al terminar el tiempo o con «No, gracias». */
       state.cart.splice(dash.base);
       dash.mini = false;
       dash.windowMs = DASH_RETRY_MS;
