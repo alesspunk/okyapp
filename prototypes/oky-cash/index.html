@@ -10283,6 +10283,71 @@ body {
   min-height: 32px;
 }
 
+/* Con dos items, el arte llena el ancho de su card sin deformarse: el
+   logo de la marca recorta en su proporción de tarjeta (cover) y la
+   foto de un producto entra entera en el mismo marco (contain), así
+   las dos cards quedan parejas. */
+.oky-dash-picks:not(.is-one) .oky-dash-pick-media {
+  height: auto;
+}
+
+.oky-dash-picks:not(.is-one) .oky-dash-pick-media img {
+  width: 100%;
+  max-width: none;
+  height: auto;
+  aspect-ratio: 1.6;
+  object-fit: cover;
+}
+
+.oky-dash-picks:not(.is-one) .oky-dash-pick.is-photo .oky-dash-pick-media img {
+  object-fit: contain;
+}
+
+/* Con un solo item, la card va en horizontal: el logo a la izquierda;
+   en medio el vale, el título y el precio; el botón a la derecha. */
+.oky-dash-picks.is-one .oky-dash-pick {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  column-gap: 12px;
+  row-gap: 4px;
+  align-items: center;
+  padding: 12px;
+}
+
+.oky-dash-picks.is-one .oky-dash-pick > * {
+  grid-column: 2;
+}
+
+.oky-dash-picks.is-one .oky-dash-pick-media {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  height: auto;
+}
+
+.oky-dash-picks.is-one .oky-dash-pick-media img {
+  width: 88px;
+}
+
+/* En la grilla la pastilla del vale se estiraba a toda la columna. */
+.oky-dash-picks.is-one .oky-dash-pick-chip {
+  justify-self: start;
+}
+
+.oky-dash-picks.is-one .oky-dash-pick-title {
+  min-height: 0;
+}
+
+.oky-dash-picks.is-one .oky-dash-pick-price {
+  margin: 0;
+}
+
+.oky-dash-picks.is-one .oky-dash-pick-cta {
+  grid-column: 3;
+  grid-row: 1 / span 3;
+  width: auto;
+  padding-inline: 16px;
+}
+
 .oky-dash-footer {
   flex: 0 0 auto;
   padding: 12px 16px 20px;
@@ -28717,11 +28782,14 @@ function screenCheckout(state) {
     const itemTier = getTier(item.amount, product, state.promoLive);
     /* Lo que no es una gift card dice lo que es: un paquete de internet
        no se anuncia como gift card. */
-    /* Un pago de servicio se titula con su cuenta («Electricidad de Aracely»),
-       como en la consulta y el recordatorio: con varios recibos en la
-       orden (el Double Dash) se distingue de quién es cada uno. Un número
-       nuevo aún no tiene cuenta: se nombra con quien va a recibirlo. */
-    const itemTitle = item.corr ? svcCheckoutTitle(state, item.corr) : product.wallet ? product.cardTitle : "Gift Card";
+    /* En el checkout un pago de servicio se titula solo con lo que se
+       paga («Electricidad», «Agua»): el beneficiario ya está justo abajo,
+       en «¿Para quién es?», que sigue a la card del carrusel. */
+    const itemTitle = item.corr
+      ? SVC_NOUN[item.productKey] || "Electricidad"
+      : product.wallet
+        ? product.cardTitle
+        : "Gift Card";
     return `
     <section class="middle-card-shell is-checkout">
       <article class="middle-card-molecule is-egift">
@@ -29311,7 +29379,10 @@ function dashFooter(state) {
           aria-describedby="oky-dash-sum${capped ? " oky-dash-cap" : ""}"
           style="--dash-ms:${dashWindow(dash)}ms;--dash-at:-${elapsed}ms;--dash-p:${elapsed / dashWindow(dash)}">
           <span class="oky-dash-cta-fill" aria-hidden="true"></span>
-          <span class="oky-dash-cta-label">${added ? "Listo, pagar todo" : "Listo"}</span>
+          ${/* Lo de la orden ya se pagó (su check en el timeline): el
+               botón cobra solo lo que se sumó aquí. «Pagar todo» se leía
+               como volver a pagar la electricidad. */ ""}
+          <span class="oky-dash-cta-label">${added ? "Pagar lo agregado" : "Listo"}</span>
           <span class="oky-dash-cta-time" aria-hidden="true">${dashClock(dashWindow(dash) - elapsed)}</span>
         </button>
       </div>

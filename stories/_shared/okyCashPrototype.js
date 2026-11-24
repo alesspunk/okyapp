@@ -2774,11 +2774,14 @@ function screenCheckout(state) {
     const itemTier = getTier(item.amount, product, state.promoLive);
     /* Lo que no es una gift card dice lo que es: un paquete de internet
        no se anuncia como gift card. */
-    /* Un pago de servicio se titula con su cuenta («Electricidad de Aracely»),
-       como en la consulta y el recordatorio: con varios recibos en la
-       orden (el Double Dash) se distingue de quién es cada uno. Un número
-       nuevo aún no tiene cuenta: se nombra con quien va a recibirlo. */
-    const itemTitle = item.corr ? svcCheckoutTitle(state, item.corr) : product.wallet ? product.cardTitle : "Gift Card";
+    /* En el checkout un pago de servicio se titula solo con lo que se
+       paga («Electricidad», «Agua»): el beneficiario ya está justo abajo,
+       en «¿Para quién es?», que sigue a la card del carrusel. */
+    const itemTitle = item.corr
+      ? SVC_NOUN[item.productKey] || "Electricidad"
+      : product.wallet
+        ? product.cardTitle
+        : "Gift Card";
     return `
     <section class="middle-card-shell is-checkout">
       <article class="middle-card-molecule is-egift">
@@ -3368,7 +3371,10 @@ function dashFooter(state) {
           aria-describedby="oky-dash-sum${capped ? " oky-dash-cap" : ""}"
           style="--dash-ms:${dashWindow(dash)}ms;--dash-at:-${elapsed}ms;--dash-p:${elapsed / dashWindow(dash)}">
           <span class="oky-dash-cta-fill" aria-hidden="true"></span>
-          <span class="oky-dash-cta-label">${added ? "Listo, pagar todo" : "Listo"}</span>
+          ${/* Lo de la orden ya se pagó (su check en el timeline): el
+               botón cobra solo lo que se sumó aquí. «Pagar todo» se leía
+               como volver a pagar la electricidad. */ ""}
+          <span class="oky-dash-cta-label">${added ? "Pagar lo agregado" : "Listo"}</span>
           <span class="oky-dash-cta-time" aria-hidden="true">${dashClock(dashWindow(dash) - elapsed)}</span>
         </button>
       </div>

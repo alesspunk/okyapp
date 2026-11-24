@@ -10261,6 +10261,71 @@ body {
   min-height: 32px;
 }
 
+/* Con dos items, el arte llena el ancho de su card sin deformarse: el
+   logo de la marca recorta en su proporción de tarjeta (cover) y la
+   foto de un producto entra entera en el mismo marco (contain), así
+   las dos cards quedan parejas. */
+.oky-dash-picks:not(.is-one) .oky-dash-pick-media {
+  height: auto;
+}
+
+.oky-dash-picks:not(.is-one) .oky-dash-pick-media img {
+  width: 100%;
+  max-width: none;
+  height: auto;
+  aspect-ratio: 1.6;
+  object-fit: cover;
+}
+
+.oky-dash-picks:not(.is-one) .oky-dash-pick.is-photo .oky-dash-pick-media img {
+  object-fit: contain;
+}
+
+/* Con un solo item, la card va en horizontal: el logo a la izquierda;
+   en medio el vale, el título y el precio; el botón a la derecha. */
+.oky-dash-picks.is-one .oky-dash-pick {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  column-gap: 12px;
+  row-gap: 4px;
+  align-items: center;
+  padding: 12px;
+}
+
+.oky-dash-picks.is-one .oky-dash-pick > * {
+  grid-column: 2;
+}
+
+.oky-dash-picks.is-one .oky-dash-pick-media {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  height: auto;
+}
+
+.oky-dash-picks.is-one .oky-dash-pick-media img {
+  width: 88px;
+}
+
+/* En la grilla la pastilla del vale se estiraba a toda la columna. */
+.oky-dash-picks.is-one .oky-dash-pick-chip {
+  justify-self: start;
+}
+
+.oky-dash-picks.is-one .oky-dash-pick-title {
+  min-height: 0;
+}
+
+.oky-dash-picks.is-one .oky-dash-pick-price {
+  margin: 0;
+}
+
+.oky-dash-picks.is-one .oky-dash-pick-cta {
+  grid-column: 3;
+  grid-row: 1 / span 3;
+  width: auto;
+  padding-inline: 16px;
+}
+
 .oky-dash-footer {
   flex: 0 0 auto;
   padding: 12px 16px 20px;
