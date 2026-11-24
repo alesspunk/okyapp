@@ -10321,6 +10321,14 @@ body {
   width: 88px;
 }
 
+/* La foto de un producto va cuadrada (1:1) y llena su marco (cover). */
+.oky-dash-picks.is-one .oky-dash-pick.is-photo .oky-dash-pick-media img {
+  width: 72px;
+  height: 72px;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
 /* En la grilla la pastilla del vale se estiraba a toda la columna. */
 .oky-dash-picks.is-one .oky-dash-pick-chip {
   justify-self: start;
@@ -10334,11 +10342,13 @@ body {
   margin: 0;
 }
 
+/* Ancho fijo: «Agregar» y «✓ Agregado» ocupan lo mismo, así la columna
+   del medio no se angosta al agregar y la card no crece en alto. */
 .oky-dash-picks.is-one .oky-dash-pick-cta {
   grid-column: 3;
   grid-row: 1 / span 3;
-  width: auto;
-  padding-inline: 16px;
+  width: 128px;
+  padding-inline: 8px;
 }
 
 .oky-dash-footer {
