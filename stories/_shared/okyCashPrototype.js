@@ -2437,6 +2437,13 @@ function screenCheckout(state) {
      sale de la agenda, y el número es el del contacto elegido: lo que
      se lee aquí y lo que se lee en la agenda no pueden discrepar. */
   const recipient = recipientOf(state);
+  /* El (i) pegado a «Subtotal» abre el carrito para revisar lo que se
+     paga. Va en toda fila Subtotal del checkout, con OKY Cash marcado
+     o no (MARS · Summary Box, Where?=Payment). Pago de servicios no
+     tiene carrito, así que su resumen no lleva el (i). */
+  const subtotalLabel = `<span class="summary-label-strong oky-flow-subtotal">(${cartCount(state)}) Subtotal<button
+      class="oky-flow-info" data-action="open-cart" type="button" aria-label="Ver el carrito"><i
+      class="fa-solid fa-circle-info" aria-hidden="true"></i></button></span>`;
   /* Cada vale lleva su propio porcentaje en el wrap ribbon, igual que
      en el PDP: con el reloj en pausa aquí dentro, el 20% de Nike no se
      convierte en 5% mientras se ajusta el pago. */
@@ -2667,12 +2674,7 @@ function screenCheckout(state) {
                  TOTAL (Figma 99105:31768). */
               state.okyCashEnabled
                 ? `<div class="summary-row">
-                     <span class="summary-label-strong">(${cartCount(state)}) Subtotal
-                       <button class="oky-flow-info" data-action="open-cart" type="button"
-                         aria-label="Ver el carrito">
-                         <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                       </button>
-                     </span>
+                     ${subtotalLabel}
                      <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                    </div>
                    ${
@@ -2689,7 +2691,7 @@ function screenCheckout(state) {
                    ${cashRow(state)}`
                 : cartServiceCount(state) || appliedPromo(state) > 0
                   ? `<div class="summary-row">
-                       <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
+                       ${subtotalLabel}
                        <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                      </div>
                      ${
