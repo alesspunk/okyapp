@@ -11705,13 +11705,15 @@ button.header-icon {
   right: -8px;
 }
 
-/* El (i) del subtotal abre el carrito. */
+/* El (i) del subtotal abre el carrito. Va a 4px de la «l», igual que
+   en MARS (Summary Box · Where?=Payment). Toma el color del rótulo:
+   aqua oscuro si la fila lleva tachado, morado OKY si no. */
 .oky-flow-info {
-  margin-left: 6px;
+  margin-left: 4px;
   padding: 0;
   border: 0;
   background: none;
-  color: var(--primary-main);
+  color: inherit;
   font-size: 14px;
   line-height: 1;
   vertical-align: baseline;
@@ -22006,6 +22008,19 @@ button.carrusel-dot:focus-visible {
   -webkit-user-select: none;
   user-select: none;
 }
+/* Summary Box del carrito y del checkout: el rótulo de la izquierda
+   sigue al importe de la derecha. Si la fila lleva precio tachado
+   (.is-deal), el rótulo —y su (i), que hereda el color— va en el aqua
+   oscuro del tachado. Si no lo lleva, va en morado OKY: así un costo
+   por servicio sin rebaja ya no se pinta como si fuera un descuento. */
+.summary-row.is-deal > :first-child {
+  color: var(--secondary-dark);
+}
+
+.summary-row.oky-flow-feerow:not(.is-deal),
+.summary-row.oky-flow-feerow:not(.is-deal) > :first-child {
+  color: var(--primary-main);
+}
 
 @font-face {
   font-family: "FA Free Solid Fallback";
@@ -27036,6 +27051,11 @@ function dealAmount(now, was) {
     : money(now);
 }
 
+/* La fila sabe si lleva tachado: con rebaja, el rótulo de la izquierda
+   va en el aqua oscuro del tachado; sin rebaja, en morado OKY. Vale
+   para el Summary Box del carrito y del checkout. */
+const dealRowClass = (now, was) => (was > now + 0.001 ? " is-deal" : "");
+
 /* Códigos promocionales de Guatemala. Hoy solo vive uno; el objeto
    deja sitio para más sin tocar el flujo, y el valor es lo que rebaja
    en dólares. Se comparan en minúsculas: en el campo se teclea como
@@ -28566,13 +28586,13 @@ function cartDrawer(state) {
         <div class="summary-box summary-box-compact">
                 <div class="summary-card">
             <div class="summary-card-body">
-              <div class="summary-row summary-row-total">
+              <div class="summary-row summary-row-total${dealRowClass(cartSubtotal(state), cartSubtotalList(state))}">
                 <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
                 <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
               </div>
               ${
                 cartServiceCount(state)
-                  ? `<div class="summary-row oky-flow-feerow${isSvcCart(state) ? " is-plain" : ""}">
+                  ? `<div class="summary-row oky-flow-feerow${isSvcCart(state) ? " is-plain" : ""}${dealRowClass(cartServiceFee(state), cartServiceFeeList(state))}">
                       <span>Costo por servicio</span>
                       <span>${dealAmount(cartServiceFee(state), cartServiceFeeList(state))}</span>
                     </div>`
@@ -28653,6 +28673,17 @@ function screenCheckout(state) {
      su cuenta, y al pasar el carrusel cambia. */
   const activeItem = state.cart[active] || {};
   const recipient = (activeItem.corr && svcItemRecipient(state, activeItem)) || recipientOf(state);
+  /* El (i) pegado a «Subtotal» abre el carrito para revisar lo que se
+     paga. Va en toda fila Subtotal del checkout, con OKY Cash marcado
+     o no (MARS · Summary Box, Where?=Payment). Pago de servicios no
+     tiene carrito, así que su resumen no lleva el (i). */
+  const isServiceOrder = isSvcCart(state);
+  const subtotalLabel = `<span class="summary-label-strong oky-flow-subtotal">(${cartCount(state)}) Subtotal${
+    isServiceOrder
+      ? ""
+      : `<button class="oky-flow-info" data-action="open-cart" type="button" aria-label="Ver el carrito"><i
+      class="fa-solid fa-circle-info" aria-hidden="true"></i></button>`
+  }</span>`;
   /* Cada vale lleva su propio porcentaje en el wrap ribbon, igual que
      en el PDP: con el reloj en pausa aquí dentro, el 20% de Nike no se
      convierte en 5% mientras se ajusta el pago. */
@@ -28886,18 +28917,13 @@ function screenCheckout(state) {
                  marcar, Subtotal y TOTAL son el mismo número y basta el
                  TOTAL (Figma 99105:31768). */
               state.okyCashEnabled
-                ? `<div class="summary-row">
-                     <span class="summary-label-strong">(${cartCount(state)}) Subtotal
-                       <button class="oky-flow-info" data-action="open-cart" type="button"
-                         aria-label="Ver el carrito">
-                         <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-                       </button>
-                     </span>
+                ? `<div class="summary-row${dealRowClass(cartSubtotal(state), cartSubtotalList(state))}">
+                     ${subtotalLabel}
                      <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                    </div>
                    ${
                      cartServiceCount(state)
-                       ? `<div class="summary-row oky-flow-feerow${isSvcCart(state) ? " is-plain" : ""}">
+                       ? `<div class="summary-row oky-flow-feerow${isSvcCart(state) ? " is-plain" : ""}${dealRowClass(cartServiceFee(state), cartServiceFeeList(state))}">
                            <span>Costo por servicio</span>
                            <span>${dealAmount(cartServiceFee(state), cartServiceFeeList(state))}</span>
                          </div>`
@@ -28908,13 +28934,13 @@ function screenCheckout(state) {
                    ${promoRow(state)}
                    ${cashRow(state)}`
                 : cartServiceCount(state) || appliedPromo(state) > 0
-                  ? `<div class="summary-row">
-                       <span class="summary-label-strong">(${cartCount(state)}) Subtotal</span>
+                  ? `<div class="summary-row${dealRowClass(cartSubtotal(state), cartSubtotalList(state))}">
+                       ${subtotalLabel}
                        <span class="summary-label-strong">${dealAmount(cartSubtotal(state), cartSubtotalList(state))}</span>
                      </div>
                      ${
                        cartServiceCount(state)
-                         ? `<div class="summary-row oky-flow-feerow${isSvcCart(state) ? " is-plain" : ""}">
+                         ? `<div class="summary-row oky-flow-feerow${isSvcCart(state) ? " is-plain" : ""}${dealRowClass(cartServiceFee(state), cartServiceFeeList(state))}">
                              <span>Costo por servicio</span>
                              <span>${dealAmount(cartServiceFee(state), cartServiceFeeList(state))}</span>
                            </div>`
