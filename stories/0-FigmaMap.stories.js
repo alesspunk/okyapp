@@ -19,7 +19,7 @@ const FIGMA_MAP = [
   { mars: "OKY Cash / Diseño de tarjeta", node: "8367:206988", story: "/story/molecules-payment-card--oky-cash-designs", label: "Molecules/Payment Card › OKY Cash · Diseños", estado: "igual" },
   { mars: "OKY Cash / Ganaste", node: "8367:206999", story: "/docs/organisms-oky-cash-win--docs", label: "Organisms/OKY Cash Win", estado: "igual" },
   { mars: "Sheet / Tienes OKY Cash", node: "8367:207016", story: "/story/molecules-modal--oky-cash-sheets", label: "Molecules/Modal › OKY Cash · Hojas", estado: "igual" },
-  { mars: "Sheet / Confirmación", node: "8367:207283", story: "/story/molecules-modal--oky-cash-sheets", label: "Molecules/Modal › OKY Cash · Hojas («¿La archivamos?», «¿Eliminar esta tarjeta?»)", estado: "igual" },
+  { mars: "Sheet / Confirmación", node: "8367:207283", story: "/story/molecules-modal--oky-cash-sheets", label: "Molecules/Modal › OKY Cash · Hojas («¿Ya la usaste?», «¿Eliminar esta tarjeta?»)", estado: "igual" },
   { mars: "Sheet / Para quién es (pestañas)", node: "8367:207297", story: "/story/molecules-modal--oky-cash-sheets", label: "Molecules/Modal › OKY Cash · Hojas", estado: "igual" },
   { mars: "Sheet / Filtrar", node: "8367:207303", story: "/story/molecules-modal--oky-cash-sheets", label: "Molecules/Modal › OKY Cash · Hojas", estado: "igual" },
   { mars: "Sheet / Agrega más, paga menos", node: "8367:207391", story: "/story/molecules-modal--oky-cash-sheets", label: "Molecules/Modal › OKY Cash · Hojas", estado: "igual" },

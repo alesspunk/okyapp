@@ -37,7 +37,7 @@ export const REMINDER_CARD_VARIANTS = [
     key: "mini",
     kind: "mini",
     id: "",
-    title: "Luz de Daniel Paz",
+    title: "Electricidad de Daniel Paz",
     body: "Hace 27 días · Q302.00",
     ctaLabel: "Ver saldo",
     brand: {

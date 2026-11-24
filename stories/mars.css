@@ -15611,8 +15611,8 @@ button.tactic-offer {
   box-shadow: 0 0 0 2px var(--primary-main);
 }
 
-/* La estrella, los tres puntos y el lápiz acompañan: dicen qué se podrá
-   hacer con un contacto, pero aquí no abren nada. */
+/* La estrella y el lápiz acompañan. Los tres puntos abren el menú del
+   contacto (3200 · 10120:12153). */
 .oky-flow-contact-star,
 .oky-flow-contact-more,
 .oky-flow-contact-edit {
@@ -15626,8 +15626,25 @@ button.tactic-offer {
   font-size: 16px;
 }
 
+/* Favorito: la estrella llena, en el dorado del badge de la agenda. */
+.oky-flow-contact-star.is-fav {
+  color: var(--warning-main);
+}
+
 .oky-flow-contact-more {
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
   font-size: 20px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* Contacto al que no se le mandan alertas de los pagos de servicio. */
+.oky-flow-contact-muted {
+  margin-left: 6px;
+  font-size: 14px;
   color: var(--text-secondary);
 }
 

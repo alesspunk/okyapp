@@ -500,17 +500,10 @@ function unitOfPurchase(state, purchase) {
    los vales, pero es una recarga— van siempre a "Para otros" mientras
    no tengan el suyo. */
 function purchaseIsForSelf(state, productKey, corr = "", to = "") {
-  if (isSvcKey(productKey)) {
-    /* Cada recibo va a quien se eligió en «¿Para quién es?» para esa
-       card (item.to): se puede pagar la luz de Marisol y que la
-       notificación te llegue a ti; entonces cae en Para mí. Sin elección,
-       manda el dueño de la cuenta. */
-    if (to) return to === USA_RECIPIENT.name;
-    const acc = corr && state.svc.accounts[corr];
-    if (acc) return svcMine(acc);
-    const who = recipientOf(state);
-    return Boolean(who.self) || who.name === USA_RECIPIENT.name;
-  }
+  /* Un pago de servicio nunca es «Para mí» (24/11): la agenda no lo
+     ofrece, sea un número nuevo o una cuenta con saldo, y lo pagado se
+     guarda siempre en Para otros. */
+  if (isSvcKey(productKey)) return false;
   if (((PRODUCTS[productKey] || {}).wallet || "gift") === "servicios") return false;
   if (categoryOf(productKey) === "servicios") return false;
   const who = recipientOf(state);
@@ -520,6 +513,8 @@ function purchaseIsForSelf(state, productKey, corr = "", to = "") {
 /* El vale concreto ("nike#1") es de la compra con ese mismo número de
    vale; sin compra detrás —muestra— cuenta como propio. */
 function unitForSelf(state, key, unit = 0) {
+  /* Los servicios van siempre a Para otros, también los de muestra. */
+  if (isSvcKey(key) || sectionOfVoucher(key) === "servicios") return false;
   const p = state.purchases.find((x) => x.productKey === key && unitOfPurchase(state, x) === unit);
   return p ? p.forSelf !== false : true;
 }
@@ -842,6 +837,10 @@ function createInitialState(userType) {
        que se compre, y nacería ya guardada. */
     sharedVouchers: TEST_FEATURES.walletSeed ? ["underarmour#0", "pollocampero#0"] : [],
     archivedVouchers: TEST_FEATURES.walletSeed ? ["nike#0"] : [],
+    /* Del ⋮ de la agenda: favoritos y contactos a los que no se les
+       mandan alertas de los pagos de servicio (por key). */
+    favContacts: [],
+    mutedContacts: [],
     /* Hoja de confirmación abierta, si hay: {type, key}. */
     sheet: null,
     /* Categoría por la que se filtra la pestaña abierta del wallet;
@@ -1080,7 +1079,7 @@ PRODUCTS.empagua = {
 /* Los pagos de servicios que funcionan, y cómo se nombra cada cuenta. */
 const SVC_KEYS = ["eegsa", "empagua"];
 const isSvcKey = (key) => SVC_KEYS.includes(key);
-const SVC_NOUN = { eegsa: "Luz", empagua: "Agua" };
+const SVC_NOUN = { eegsa: "Electricidad", empagua: "Agua" };
 /* El proveedor de una cuenta: las de ejemplo son todas de EEGSA. */
 const svcProviderOf = (acc) => (acc && acc.provider) || "eegsa";
 
@@ -1266,7 +1265,7 @@ function invoiceBody(state) {
   const charged = Math.max(processed + r.fee - r.used, 0);
   const acc = (corr) => state.svc.accounts[corr] || {};
   const line = (k, v, cls = "") => `<div class="oky-invoice-row${cls}"><span>${k}</span><span>${v}</span></div>`;
-  /* «EEGSA · Luz de Aracely» / «EMPAGUA · Agua de Daniel Paz». */
+  /* «EEGSA · Electricidad de Aracely» / «EMPAGUA · Agua de Daniel Paz». */
   const svcName = (p) => {
     const prod = PRODUCTS[p.productKey] || PRODUCTS.eegsa;
     return `${prod.label} · ${escapeHtml(acc(p.corr).alias || prod.cardTitle)}`;
@@ -2734,7 +2733,7 @@ function svcCheckoutTitle(state, corr) {
   if (acc) return escapeHtml(acc.alias);
   const item = state.cart.find((x) => x.corr === corr);
   const who = item ? svcItemRecipient(state, item) : recipientOf(state);
-  const noun = SVC_NOUN[(item && item.productKey) || "eegsa"] || "Luz";
+  const noun = SVC_NOUN[(item && item.productKey) || "eegsa"] || "Electricidad";
   return who.self || who.name === USA_RECIPIENT.name ? "Para mí" : escapeHtml(`${noun} de ${who.name}`);
 }
 
@@ -2775,7 +2774,7 @@ function screenCheckout(state) {
     const itemTier = getTier(item.amount, product, state.promoLive);
     /* Lo que no es una gift card dice lo que es: un paquete de internet
        no se anuncia como gift card. */
-    /* Un pago de servicio se titula con su cuenta («Luz de Aracely»),
+    /* Un pago de servicio se titula con su cuenta («Electricidad de Aracely»),
        como en la consulta y el recordatorio: con varios recibos en la
        orden (el Double Dash) se distingue de quién es cada uno. Un número
        nuevo aún no tiene cuenta: se nombra con quien va a recibirlo. */
@@ -3384,7 +3383,7 @@ function screenProcessing(state) {
      se agrega abajo entra aquí como un check más y sale si se quita. */
   const rows = state.cart.map((item, i) => ({
     key: item.corr || item.productKey,
-    /* Un pago de servicio se nombra como su cuenta («Luz de Marisol»),
+    /* Un pago de servicio se nombra como su cuenta («Electricidad de Marisol»),
        haya o no Double Dash: es lo que la persona reconoce. */
     /* Un número nuevo, todavía sin cuenta, se nombra como en el
        checkout: «Agua de Erick», no «EMPAGUA». */
@@ -3511,7 +3510,7 @@ function orderIsSingle(state) {
 /* Solo en /miscompras y solo en la pestaña Para otros: el vale
    abierto desde ahí lleva abajo "Mandale foto", el mismo aviso por WhatsApp de la poscompra, pensado
    para mandarle el vale a quien lo va a usar. Lo de Para mí (las gift
-   cards de USA) se queda solo con "Archivar", y en /usa y
+   cards de USA) se queda solo con "Marcar como usado", y en /usa y
    /latam (Mi wallet) no va. */
 function sendPhotoBar(brand, id = "") {
   return `
@@ -4087,9 +4086,10 @@ const WALLET_GROUPS = [
      perderlo, y así lo diría cualquiera. La clave interna no se toca:
      es la misma sección de siempre. */
   /* En la variante 3 (Mis compras) la sección es la de lo ya usado:
-     el vale se aparta porque se canjeó, no para guardarlo. */
+     el vale se aparta porque se canjeó, no para guardarlo. Vuelve a
+     «Usados» (24/11): «Archivados» no decía por qué se apartaba. */
   V3_ROUTE
-    ? { key: "archivados", label: "Archivados", icon: "fa-box-archive", empty: "Aquí no has archivado nada." }
+    ? { key: "archivados", label: "Usados", icon: "fa-box-archive", empty: "Aquí no has marcado nada como usado." }
     : { key: "archivados", label: "Guardados", icon: "fa-box-archive", empty: "Aquí no has guardado nada." },
 ];
 
@@ -4525,7 +4525,7 @@ const WALLET_EMPTY = {
   servicios: {
     art: "wallet-tab-servicios.png",
     title: "Aún no tienes servicios",
-    note: "Los comprobantes de lo que pagues —luz, agua o internet— se guardan aquí.",
+    note: "Los comprobantes de lo que pagues —electricidad, agua o internet— se guardan aquí.",
     cta: "Pagar un servicio",
     action: "nav:homegua",
     cash: "Úsalo para pagar tus servicios",
@@ -6235,9 +6235,9 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
               bottomShowButton: false,
               bottomMedia: {
                 type: "stamp",
-                /* Mis compras archiva, no marca «usado»: mismo sello. */
-                src: "oky-seal-archived.png",
-                alt: V3_ROUTE ? "Archivado" : "Guardado",
+                /* Mis compras marca como usado: sello Usado. */
+                src: V3_ROUTE ? "oky-seal-used.png" : "oky-seal-archived.png",
+                alt: V3_ROUTE ? "Usado" : "Guardado",
                 caption: sharedOn,
               },
             }
@@ -6288,22 +6288,21 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
       ${
         /* Variante 3: en la poscompra no hay interruptores —el vale se
            acaba de comprar— y en Mis compras queda uno solo, centrado:
-           "Archivar". Compartir sale de esta versión. */
+           "Marcar como usado". Compartir sale de esta versión. */
         fromOrder
           ? ""
           : V3_ROUTE
           ? asPurchase ||
-            /* En /miscompras "Archivar" va en todo lo de Para mí: gift
-               cards de USA/Canadá, OKY Vales de monto y productos (también
-               los que llegan por el cross). Servicios lleva el suyo junto
-               al recordatorio (svcSelfSwitches); Para otros no archiva. */
-            (V3_ROUTE && (state.params.deck !== "v3mio" || sectionOfVoucher(card.key) === "servicios"))
+            /* En /miscompras "Marcar como usado" es solo de las gift cards
+               de USA en Para mí. Los OKY Vales, los productos y los
+               servicios no lo llevan, y Para otros tampoco. */
+            (V3_ROUTE && (state.params.deck !== "v3mio" || sectionOfVoucher(card.key) !== "gift"))
             ? ""
             : `<div class="oky-flow-voucher-actions is-single">
         <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
           data-key="${card.key}" data-unit="${slot}"
           type="button" role="switch" aria-checked="${archived}">
-          <span class="oky-flow-switch-label">Archivar</span>
+          <span class="oky-flow-switch-label">Marcar como usado</span>
           <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
         </button>
       </div>`
@@ -6335,12 +6334,9 @@ function screenVoucher(state, { asPurchase = false, celebrate = false, cashWin =
            la poscompra sale junto a «Mandale foto»; en Mis compras
            compartir se va arriba a la derecha (SRV-01 / SRV-06). */
         svcCorr && !fromOrder && !failed
-          ? !asPurchase && V3_ROUTE && state.params.deck === "v3mio"
-            ? /* En Para mí un pago de servicio también se marca como
-                 usado, igual que una gift card: dos interruptores en una
-                 fila, con copy en primera persona y de todos los días. */
-              svcSelfSwitches(state, svcCorr, card.key, slot, archived)
-            : svcReminderSwitch(state, svcCorr, asPurchase ? "Te recordaremos el próximo pago" : "Recuérdame pagar")
+          ? /* Un pago de servicio no se marca como usado: lleva un solo
+               interruptor, el del recordatorio (sin doble toggle). */
+            svcReminderSwitch(state, svcCorr, asPurchase ? "Te recordaremos el próximo pago" : "Recuérdame pagar")
           : ""
       }
     </div>
@@ -6563,17 +6559,14 @@ const CONFIRM_SHEETS = {
   },
   archive: {
     art: "oky-archive-hands.png",
-    /* Mis compras archiva (antes «Ya lo usé» / «Marcar como usado»). Un
-       pago de servicio es «el pago»: en masculino; la gift card, en
-       femenino. */
-    title: (state) => (V3_ROUTE ? (isSvcKey(state.sheet.key) ? "¿Lo archivamos?" : "¿La archivamos?") : "¿Deseas guardarla?"),
-    note: (state) =>
+    /* Mis compras marca como usado (24/11 vuelve de «Archivar»). Solo
+       lo llevan las gift cards de USA en Para mí: va en femenino. */
+    title: () => (V3_ROUTE ? "¿Ya la usaste?" : "¿Deseas guardarla?"),
+    note: () =>
       V3_ROUTE
-        ? isSvcKey(state.sheet.key)
-          ? "Lo pasamos a Archivados sin perderlo: lo encuentras ahí cuando quieras."
-          : "La pasamos a Archivados sin perderla: la encuentras ahí cuando quieras."
+        ? "La pasamos a la sección de usados sin perderla: la encuentras ahí cuando quieras."
         : "La quitamos de en medio sin perderla: la encuentras cuando quieras en la sección de guardados.",
-    confirm: (state) => (V3_ROUTE ? "Sí, archivar" : "Guardar"),
+    confirm: () => (V3_ROUTE ? "Sí, ya la usé" : "Guardar"),
     dismiss: "Ahora no",
     action: "confirm-archive",
   },
@@ -6742,6 +6735,9 @@ function contactsOf(state) {
   /* En la variante 3 (Mis compras) la agenda de Guatemala también
      ofrece "Para mí": es la única forma de que un OKY Vale cuente como
      tuyo. En la de siempre la compra de Guatemala va siempre a alguien. */
+  /* Pagando un servicio —número nuevo o cuenta que ya existe— no se
+     ofrece "Para mí": el recibo es siempre de alguien de la agenda. */
+  if (state.cart.some((item) => item.corr || isSvcKey(item.productKey))) return rest;
   return gua && !TEST_FEATURES.walletV3 ? rest : [CONTACTS.find((c) => c.self), ...rest];
 }
 
@@ -6797,14 +6793,21 @@ function screenContacts(state) {
         }
       </span>
       <span class="oky-flow-contact-copy">
-        <span class="oky-flow-contact-name">${c.name}</span>
+        <span class="oky-flow-contact-name">${c.name}${
+          /* Sin alertas: la campana tachada junto al nombre (en la
+             línea del teléfono no cabe, que ya se corta). */
+          (state.mutedContacts || []).includes(c.key)
+            ? `<i class="fa-regular fa-bell-slash oky-flow-contact-muted" role="img" aria-label="Sin alertas"></i>`
+            : ""
+        }</span>
         <span class="oky-flow-contact-phone">${c.phone}</span>
       </span>
       ${
         c.self
           ? `<i class="fa-regular fa-pen-to-square oky-flow-contact-edit" aria-hidden="true"></i>`
-          : `<i class="fa-regular fa-star oky-flow-contact-star" aria-hidden="true"></i>
-             <i class="fa-solid fa-ellipsis-vertical oky-flow-contact-more" aria-hidden="true"></i>`
+          : `<i class="fa-${(state.favContacts || []).includes(c.key) ? "solid is-fav" : "regular"} fa-star oky-flow-contact-star" aria-hidden="true"></i>
+             <button class="oky-flow-contact-more" data-action="contact-menu" data-contact="${c.key}" type="button"
+               aria-label="Opciones de ${escapeHtml(c.name)}"><i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i></button>`
       }
     </div>
   `;
@@ -7192,7 +7195,7 @@ const SVC_PEEK = 3;
 const SVC_ACCOUNTS = [
   {
     corr: "0011900222",
-    alias: "Luz de Daniel Paz",
+    alias: "Electricidad de Daniel Paz",
     contact: "Daniel Paz",
     reminder: true,
     ago: 27,
@@ -7201,7 +7204,7 @@ const SVC_ACCOUNTS = [
   },
   {
     corr: "0011900471",
-    alias: "Luz de Marisol",
+    alias: "Electricidad de Marisol",
     contact: "Marisol",
     reminder: true,
     ago: 26,
@@ -7210,7 +7213,7 @@ const SVC_ACCOUNTS = [
   },
   {
     corr: "0011900633",
-    alias: "Luz de Aracely",
+    alias: "Electricidad de Aracely",
     contact: "Aracely",
     reminder: true,
     ago: 29,
@@ -7222,7 +7225,7 @@ const SVC_ACCOUNTS = [
      SVC_BILL_AFTER). */
   {
     corr: "0011900714",
-    alias: "Luz de Byron",
+    alias: "Electricidad de Byron",
     contact: "Byron",
     reminder: false,
     ago: 26,
@@ -7231,7 +7234,7 @@ const SVC_ACCOUNTS = [
   },
   {
     corr: "0011900588",
-    alias: "Luz de Wendy",
+    alias: "Electricidad de Wendy",
     contact: "Wendy",
     /* Se apagó al pagar (opt-out): vive en «Apagados». Está al día, así
        que su pago en la actividad da «¡Estás al día!». */
@@ -7327,12 +7330,12 @@ function svcStatus(state, corr) {
 const svcMine = (acc) => !!acc && acc.contact === USA_RECIPIENT.name;
 
 /* Los nombres de las cuentas. Las tuyas son «Para mí»; las de otra
-   persona, «Luz de» + su nombre. Cuando hay más de una de la misma
+   persona, «Electricidad de» + su nombre. Cuando hay más de una de la misma
    persona (o varias tuyas), cada una suma los últimos 4 dígitos del
    correlativo, que es el dato que trae la factura: «Para mí ·1234». */
 function svcRelabel(svc) {
   /* Por persona y por proveedor: la luz y el agua de Daniel Paz son
-     «Luz de Daniel Paz» y «Agua de Daniel Paz», sin sufijo. */
+     «Electricidad de Daniel Paz» y «Agua de Daniel Paz», sin sufijo. */
   const byOwner = {};
   Object.values(svc.accounts).forEach((acc) => {
     const k = `${acc.contact}|${svcProviderOf(acc)}`;
@@ -7344,7 +7347,7 @@ function svcRelabel(svc) {
       /* Un nombre puesto a mano (los de ejemplo) se respeta mientras
          sea la única cuenta de esa persona. */
       const noun = SVC_NOUN[svcProviderOf(acc)];
-      const base = mine ? "Para mí" : acc.alias && !/^(Luz|Agua) #/.test(acc.alias) ? acc.alias.replace(/ ·\d{4}$/, "") : `${noun} de ${acc.contact}`;
+      const base = mine ? "Para mí" : acc.alias && !/^(Electricidad|Luz|Agua) #/.test(acc.alias) ? acc.alias.replace(/ ·\d{4}$/, "") : `${noun} de ${acc.contact}`;
       acc.alias = list.length > 1 ? `${base} ·${acc.corr.slice(-4)}` : base;
     });
   });
@@ -7954,28 +7957,7 @@ function screenSvcReminders(state) {
   `;
 }
 
-/* El interruptor del recordatorio: el mismo de «Archivar». */
-/* Para mí: «Archivar» (el mismo de las gift cards) y
-   «Recuérdame pagar» (el recordatorio), lado a lado. */
-function svcSelfSwitches(state, corr, key, slot, archived) {
-  const acc = state.svc.accounts[corr];
-  if (!acc) return "";
-  return `
-    <div class="oky-flow-voucher-actions is-pair">
-      <button class="oky-flow-switch${archived ? " is-on" : ""}" data-action="toggle-archived"
-        data-key="${key}" data-unit="${slot}" type="button" role="switch" aria-checked="${archived}">
-        <span class="oky-flow-switch-label">Archivar</span>
-        <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
-      </button>
-      <button class="oky-flow-switch${acc.reminder ? " is-on" : ""}" data-action="svc-toggle" data-corr="${corr}"
-        type="button" role="switch" aria-checked="${acc.reminder}">
-        <span class="oky-flow-switch-label">Recuérdame pagar</span>
-        <span class="oky-flow-switch-track"><span class="oky-flow-switch-knob"></span></span>
-      </button>
-    </div>
-  `;
-}
-
+/* El interruptor del recordatorio de un pago de servicio. */
 function svcReminderSwitch(state, corr, label) {
   const acc = state.svc.accounts[corr];
   if (!acc) return "";
@@ -8075,6 +8057,40 @@ function svcFilterSheet(state) {
         ${option("", SVC_DEFAULT_PERIOD.label, !period)}
         ${SVC_PERIODS.map((p) => option(p.key, p.label, period === p.key)).join("")}
       </div>
+    </section>
+  `;
+}
+
+/* El ⋮ de un contacto en «¿Para quién es?» (3200 · 10120:12153): la
+   misma hoja corta del menú de la Reminder Card. Editar y Eliminar
+   están en el diseño pero aquí solo cierran. Pagando un servicio suma
+   la opción de no mandarle alertas del pago a ese contacto. */
+function contactMenuSheet(state) {
+  const c = CONTACTS.find((x) => x.key === state.sheet.key);
+  if (!c) return "";
+  const fav = (state.favContacts || []).includes(c.key);
+  const muted = (state.mutedContacts || []).includes(c.key);
+  const svc = state.cart.some((item) => item.corr || isSvcKey(item.productKey));
+  const row = (action, icon, label) => `
+    <button class="oky-flow-cardmenu-row" data-action="${action}" data-contact="${c.key}" type="button">
+      <span class="oky-flow-cardmenu-icon oky-flow-svc-menu-icon"><i class="fa-regular fa-${icon}" aria-hidden="true"></i></span>
+      <span class="oky-flow-cardmenu-label">${label}</span>
+      <i class="fa-solid fa-chevron-right oky-flow-cardmenu-go" aria-hidden="true"></i>
+    </button>`;
+  return `
+    <button class="oky-flow-sheet-backdrop" data-action="close-sheet" type="button" aria-label="Cerrar"></button>
+    <section class="oky-flow-cardmenu" role="dialog" aria-modal="true" aria-label="Opciones de ${escapeHtml(c.name)}">
+      <p class="oky-flow-cardmenu-title">${escapeHtml(c.name)}</p>
+      ${row("close-sheet", "pen-to-square", "Editar contacto")}
+      ${row("contact-fav", "star", fav ? "Desmarcar como favorito" : "Marcar como favorito")}
+      ${
+        svc
+          ? muted
+            ? row("contact-mute", "bell", `Volver a enviar alertas a ${escapeHtml(c.name)}`)
+            : row("contact-mute", "bell-slash", `No enviar alertas a ${escapeHtml(c.name)}`)
+          : ""
+      }
+      ${row("close-sheet", "trash-can", "Eliminar contacto")}
     </section>
   `;
 }
@@ -8421,6 +8437,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
                 ? svcFilterSheet(state)
                 : state.sheet.type === "svcmenu"
                   ? svcMenuSheet(state)
+                  : state.sheet.type === "contactmenu"
+                  ? contactMenuSheet(state)
                   : state.sheet.type === "cardmenu"
                 ? cardMenuSheet(state)
                 : confirmSheet(state)
@@ -10281,8 +10299,8 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           corr: item.corr,
           provider,
           /* Por número y no por contacto: Daniel Paz ya tiene su cuenta y
-             dos «Luz de Daniel Paz» no se distinguen. svcRelabel le pone
-             el nombre: «Luz de» o «Agua de» + el contacto elegido. */
+             dos «Electricidad de Daniel Paz» no se distinguen. svcRelabel le pone
+             el nombre: «Electricidad de» o «Agua de» + el contacto elegido. */
           alias: `${SVC_NOUN[provider]} #${item.corr}`,
           contact: who.name,
           reminder: true,
@@ -11324,6 +11342,20 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     if (action === "svc-off-confirm") {
       const acc = state.svc.accounts[(state.sheet || {}).key];
       if (acc) acc.reminder = false;
+      state.sheet = null;
+      return render({ keepScroll: true });
+    }
+
+    if (action === "contact-menu") {
+      state.sheet = { type: "contactmenu", key: el.dataset.contact };
+      return render({ keepScroll: true });
+    }
+
+    if (action === "contact-fav" || action === "contact-mute") {
+      const listKey = action === "contact-fav" ? "favContacts" : "mutedContacts";
+      const list = state[listKey] || [];
+      const key = el.dataset.contact;
+      state[listKey] = list.includes(key) ? list.filter((k) => k !== key) : list.concat(key);
       state.sheet = null;
       return render({ keepScroll: true });
     }

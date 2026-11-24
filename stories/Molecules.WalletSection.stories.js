@@ -12,10 +12,10 @@ export default {
     docs: {
       description: {
         component:
-          "**Wallet Section** es la cabecera de cada sección de Mis compras (Comprados, Compartidos, Archivados): " +
+          "**Wallet Section** es la cabecera de cada sección de Mis compras (Comprados, Compartidos, Usados): " +
           "ícono y nombre a la izquierda, la cantidad entre paréntesis y el chevron a la derecha. Tocarla pliega o " +
           "abre la sección; abierta cambia de fondo y el chevron gira. Si hay vales sin abrir, el número sale en la " +
-          "esquina (Archivados no avisa). MARS: `Wallet / Sección plegada` · Prototipo: `.oky-flow-section-head`.",
+          "esquina (Usados no avisa). MARS: `Wallet / Sección plegada` · Prototipo: `.oky-flow-section-head`.",
       },
     },
   },
@@ -26,7 +26,7 @@ export default {
     news: { control: { type: "number", min: 0 }, description: "Vales sin abrir (0 = sin aviso)." },
     open: { control: "boolean" },
   },
-  args: { label: "Archivados", icon: "fa-box-archive", count: 1, news: 0, open: false },
+  args: { label: "Usados", icon: "fa-box-archive", count: 1, news: 0, open: false },
 };
 
 export const Playground = { render: (args) => renderSectionHead(args) };
@@ -36,6 +36,6 @@ export const Variants = {
     <div style="display:flex;flex-direction:column;gap:16px">
       ${renderSectionHead({ label: "Comprados", icon: "fa-gift", count: 3, news: 2 })}
       ${renderSectionHead({ label: "Compartidos", icon: "fa-paper-plane", count: 1, open: true })}
-      ${renderSectionHead({ label: "Archivados", icon: "fa-box-archive", count: 1 })}
+      ${renderSectionHead({ label: "Usados", icon: "fa-box-archive", count: 1 })}
     </div>`,
 };

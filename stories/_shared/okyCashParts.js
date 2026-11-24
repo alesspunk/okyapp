@@ -63,7 +63,7 @@ export function renderStatusToast({ estado = "Exito" } = {}) {
 
 /* Cabecera de sección de Mis compras (MARS · Wallet / Sección plegada):
    pliega, dice cuántas guarda y avisa las nuevas con un número. */
-export function renderSectionHead({ label = "Archivados", icon = "fa-box-archive", count = 1, news = 0, open = false } = {}) {
+export function renderSectionHead({ label = "Usados", icon = "fa-box-archive", count = 1, news = 0, open = false } = {}) {
   return `
     <button class="oky-flow-section-head is-tappable" data-action="toggle-section" type="button" aria-expanded="${open}" style="width:328px">
       ${news ? `<span class="oky-flow-section-news" aria-label="${news} sin abrir">${news}</span>` : ""}
@@ -433,7 +433,7 @@ export const SHARE_ICON_ANDROID = `<svg width="24" height="24" viewBox="0 0 24 2
 
 export const SHEET_KINDS = [
   "Tienes OKY Cash",
-  "¿La archivamos?",
+  "¿Ya la usaste?",
   "¿Eliminar esta tarjeta?",
   "¿Es para ti o para alguien más?",
   "Filtrar",
@@ -569,15 +569,15 @@ export function renderSheet(kind, { balance = 5 } = {}) {
         </div>
       </section>`;
   }
-  /* ¿La archivamos? — la hoja de confirmación morada. */
+  /* ¿Ya la usaste? — la hoja de confirmación morada. */
   return `${backdrop}
-    <section class="oky-flow-sheet is-archive" role="dialog" aria-label="¿La archivamos?">
+    <section class="oky-flow-sheet is-archive" role="dialog" aria-label="¿Ya la usaste?">
       ${close()}
-      <h2 class="oky-flow-sheet-title">¿La archivamos?</h2>
-      <p class="oky-flow-sheet-note">La pasamos a Archivados sin perderla: la encuentras ahí cuando quieras.</p>
+      <h2 class="oky-flow-sheet-title">¿Ya la usaste?</h2>
+      <p class="oky-flow-sheet-note">La pasamos a la sección de usados sin perderla: la encuentras ahí cuando quieras.</p>
       <div class="oky-flow-sheet-art"><img src="oky-archive-hands.png" alt="" /></div>
       <div class="oky-flow-sheet-actions">
-        <button class="oky-flow-sheet-confirm" type="button">Sí, archivar</button>
+        <button class="oky-flow-sheet-confirm" type="button">Sí, ya la usé</button>
         <button class="oky-flow-sheet-dismiss" type="button">Ahora no</button>
       </div>
     </section>`;
