@@ -7944,11 +7944,18 @@ function screenSvcReminders(state) {
     ${statusBar()}
     ${titledHeader("Recordatorios")}
     <div class="oky-flow-section oky-flow-svc-list">
-      <h2 class="oky-flow-history-label">ACTIVOS</h2>
       ${
         on.length
-          ? on.map((a) => svcReminderCard(state, a)).join("")
-          : `<p class="oky-flow-svc-help">No tienes recordatorios activos. Se encienden al pagar un servicio.</p>`
+          ? `<h2 class="oky-flow-history-label">ACTIVOS</h2>
+             ${on.map((a) => svcReminderCard(state, a)).join("")}`
+          : /* Sin activos: el estado vacío de siempre (Wallet / Estado
+               vacío, como la actividad sin pagos), con la campana 3D de
+               Recordatorios. MARS · PSV-29B. */
+            `<div class="oky-flow-cash-empty is-wallet oky-flow-svc-reminders-empty">
+              <span class="oky-flow-cash-empty-art"><img src="oky-campana-3d.png" alt="" /></span>
+              <h2 class="oky-flow-cash-empty-title">No tienes recordatorios activos</h2>
+              <p class="oky-flow-cash-empty-note">Se encienden al pagar un servicio: te avisamos cuando llegue la próxima factura.</p>
+            </div>`
       }
       ${
         /* Los apagados se ven deshabilitados; solo «Activar» queda en
@@ -8092,7 +8099,7 @@ function contactMenuSheet(state) {
       ${
         svc
           ? muted
-            ? row("contact-mute", "bell", `Volver a enviar alertas a ${escapeHtml(c.name)}`)
+            ? row("contact-mute", "bell", `Enviar alertas a ${escapeHtml(c.name)}`)
             : row("contact-mute", "bell-slash", `No enviar alertas a ${escapeHtml(c.name)}`)
           : ""
       }

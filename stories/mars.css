@@ -22098,3 +22098,9 @@ button.carrusel-dot:focus-visible {
 .summary-row.oky-flow-feerow:not(.is-deal) > :first-child {
   color: var(--primary-main);
 }
+
+/* Recordatorios sin activos: el estado vacío baja hacia el centro de la
+   pantalla, como en MARS (PSV-29B). Si hay apagados, quedan debajo. */
+.oky-flow-svc-reminders-empty {
+  margin: 96px 0 24px;
+}
