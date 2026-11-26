@@ -13561,6 +13561,47 @@ button.tactic-offer {
   text-align: center;
 }
 
+/* ── Pagos (macro-categoría de servicios, como staging) ─────
+   El plateu de MARS con las tres subcategorías. Los rótulos van como
+   se escriben y en dos líneas, igual que en staging y en PSV-01B. */
+.oky-flow-category.is-pagos .oky-flow-cat-plateu {
+  margin-bottom: 0;
+}
+
+.oky-flow-cat-plateu .plateu-track.is-static {
+  align-items: flex-start;
+  padding: 16px 12px 14px;
+}
+
+.oky-flow-cat-plateu .plateu-item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.oky-flow-cat-plateu .plateu-label,
+.oky-flow-cat-plateu .plateu-chip {
+  max-width: 96px;
+  white-space: normal;
+  text-transform: none;
+  font-size: 10px;
+  line-height: 1.3;
+  letter-spacing: 0.2px;
+}
+
+.oky-flow-cat-plateu .plateu-chip {
+  padding: 4px 10px;
+}
+
+/* Los logos de staging no comparten proporción (Claro, sky y Génesis
+   son cuadrados): se ven completos dentro del marco redondeado. */
+.oky-flow-category.is-pagos .homecard-tile-logo {
+  object-fit: contain;
+}
+
+.oky-flow-category.is-pagos .homecard-organism {
+  scroll-margin-top: 12px;
+}
+
 /* ── Comida: PLP, PDP y costo por servicio ──────────────── */
 /* Cabecera de marca: el logo a sangre y, debajo, las secciones de la
    marca. Va pegada al header para que se lea como una sola pieza. */

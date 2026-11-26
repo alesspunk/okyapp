@@ -5284,20 +5284,59 @@ const CATEGORY_PAGES = {
       product: key,
     })),
   },
-  /* Pagar Servicios (home GT): la misma Category Page que Comida y
-     Recargas. EEGSA y EMPAGUA están activas; las demás acompañan. Los
-     pagos de servicios van solos, así que aquí no hay carrito. */
+  /* Pagos (home GT › Pagar Servicios): igual que la macro-categoría de
+     staging (/app/macro-categories/5): arriba el plateu con las tres
+     subcategorías y, debajo, una card por subcategoría con sus marcas.
+     Tocar una subcategoría baja a su card. Íconos y logos son los de
+     staging. EEGSA y EMPAGUA están activas; las demás acompañan. Los
+     pagos de servicios van solos, así que aquí no hay carrito
+     (MARS PSV-01B / PSV-01C). */
   servicios: {
-    title: "Pagar Servicios",
-    section: "Proveedores",
+    title: "Pagos",
     noCart: true,
-    brands: [
-      { key: "eegsa", label: "EEGSA", art: "eggsa.webp", action: "open-eegsa" },
-      { key: "tigohogar", label: "Tigo Residencial", art: "tigo.webp" },
-      /* Logo oficial: la gota de empagua.com (favicon a 300 px; el logo
-         completo con letras solo lo publican a 90 px). */
-      { key: "empagua", label: "EMPAGUA", art: "empagua.webp", action: "open-empagua" },
-      { key: "clarohogar", label: "Claro Residencial", art: "claro.png" },
+    groups: [
+      {
+        key: "electrica",
+        label: "Pago Energía Eléctrica",
+        title: "Pago Energía Eléctrica",
+        icon: "pagos-ic-electrica.png",
+        brands: [
+          { key: "deocsa", label: "Deocsa Energuate", art: "pagos-deocsa.png" },
+          { key: "eegsa", label: "EEGSA", art: "pagos-eegsa.png", action: "open-eegsa" },
+          { key: "deorsa", label: "Deorsa Energuate", art: "pagos-deorsa.png" },
+        ],
+      },
+      {
+        key: "telcos",
+        label: "Pago Internet, Cable O Móvil",
+        title: "Pago Internet, Cable o Móvil",
+        icon: "pagos-ic-telcos.png",
+        brands: [
+          { key: "clarohogar", label: "Claro Hogar", art: "pagos-claro-hogar.png" },
+          { key: "clarofactura", label: "Claro - Pagar Factura", art: "pagos-claro-hogar.png" },
+          { key: "tigopostpago", label: "Tigo - Postpago", art: "pagos-tigo.png" },
+          { key: "tigohogar", label: "Tigo Residencial", art: "pagos-tigo.png" },
+          { key: "sky", label: "sky", art: "pagos-sky.png" },
+        ],
+      },
+      {
+        key: "servicios",
+        label: "Pago De Servicios",
+        title: "Pago de Servicios",
+        icon: "pagos-ic-servicios.png",
+        brands: [
+          { key: "cuscatlan", label: "Tarjetas Cuscatlan", art: "pagos-cuscatlan.png" },
+          { key: "yayo", label: "Yayo", art: "pagos-yayo.png" },
+          { key: "empagua", label: "EMPAGUA", art: "pagos-empagua.png", action: "open-empagua" },
+          { key: "genesis", label: "Fundación Génesis Empresarial", art: "pagos-genesis.png" },
+          { key: "siman", label: "Siman", art: "pagos-siman.png" },
+          { key: "leonisa", label: "Leonisa", art: "pagos-leonisa.png" },
+          { key: "krediya", label: "KrediYa", art: "pagos-krediya.png" },
+          { key: "esika", label: "Ésika", art: "pagos-esika.png" },
+          { key: "crediopciones", label: "CrediOpciones", art: "pagos-crediopciones.png" },
+          { key: "lecleire", label: "Le Cleire", art: "pagos-lecleire.png" },
+        ],
+      },
     ],
   },
   recargas: {
@@ -5445,24 +5484,49 @@ function screenCategory(state) {
     `;
   };
 
+  const card = (title, brands, key) => `
+      <section class="homecard-organism"${key ? ` data-cat-sec="${key}"` : ""}>
+        <header class="homecard-header">
+          <h2 class="token-h6 homecard-title">${title}</h2>
+        </header>
+        <div class="homecard-content homecard-content-default">
+          <div class="homecard-grid">${brands.map(tile).join("")}</div>
+        </div>
+      </section>`;
+
+  /* Con subcategorías (Pagos), el plateu va arriba como en staging y la
+     marcada es la de la card a la que se bajó. */
+  const groups = page.groups || null;
+  const sub = groups ? (groups.find((g) => g.key === state.params.sub) || groups[0]).key : "";
+  const plateu = groups
+    ? `
+      <section class="plateu-molecule is-static is-default oky-flow-order-plateu oky-flow-cat-plateu" role="tablist" aria-label="Subcategorías">
+        <div class="plateu-track is-static">
+          ${groups
+            .map(
+              (g) => `
+            <button class="plateu-item${g.key === sub ? " is-on" : ""}" type="button" role="tab"
+              data-action="category-sub" data-sub="${g.key}" aria-selected="${g.key === sub}">
+              <div class="plateu-icon-wrap"><img class="plateu-icon" src="${g.icon}" alt="" /></div>
+              ${g.key === sub ? `<span class="plateu-chip is-outlined">${g.label}</span>` : `<span class="plateu-label">${g.label}</span>`}
+            </button>`,
+            )
+            .join("")}
+        </div>
+      </section>`
+    : "";
+
   return `
     ${statusBar()}
     ${productHeader(state, { title: page.title, cart: !page.noCart, bell: !!page.noCart })}
 
-    <div class="oky-flow-section oky-flow-category">
+    <div class="oky-flow-section oky-flow-category${groups ? " is-pagos" : ""}">
+      ${plateu}
       <div class="input-wrapper" style="width:100%" data-action="open-search" role="button">
         <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
-        <input class="input-field search-input search-input-empty" value="" placeholder="Buscar marcas" readonly tabindex="-1" />
+        <input class="input-field search-input search-input-empty" value="" placeholder="Buscar ${groups ? "Marcas" : "marcas"}" readonly tabindex="-1" />
       </div>
-
-      <section class="homecard-organism">
-        <header class="homecard-header">
-          <h2 class="token-h6 homecard-title">${page.section}</h2>
-        </header>
-        <div class="homecard-content homecard-content-default">
-          <div class="homecard-grid">${page.brands.map(tile).join("")}</div>
-        </div>
-      </section>
+      ${groups ? groups.map((g) => card(g.title, g.brands, g.key)).join("") : card(page.section, page.brands)}
     </div>
 
     ${/* Aquí la pastilla sale de entrada: la category page no tiene
@@ -11606,6 +11670,20 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
           items.slice(from, to).map((v) => walletVoucherButton(v, section, group)).join(""),
         );
       if (items.length <= to) el.parentElement.remove();
+      return;
+    }
+
+    if (action === "category-sub") {
+      /* Pagos: como en staging, la subcategoría no filtra; marca su
+         chip y baja hasta su card, que queda arriba. */
+      const key = el.dataset.sub;
+      state.params = { ...state.params, sub: key };
+      render({ keepScroll: true });
+      const target = root.querySelector(`[data-cat-sec="${key}"]`);
+      if (target) {
+        const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        target.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+      }
       return;
     }
 
