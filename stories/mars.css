@@ -9846,6 +9846,9 @@ body {
   align-items: center;
   justify-content: center;
   gap: 12px;
+  /* «Se acabó el tiempo · Pagando lo agregado…» ocupa dos líneas en
+     360: margen a los lados para que no toque el borde. */
+  padding: 0 24px;
   border-top: 1px solid var(--border-main);
   color: var(--text-secondary);
 }

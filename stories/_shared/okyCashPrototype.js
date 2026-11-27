@@ -3348,6 +3348,22 @@ function dashOffers(state) {
   `;
 }
 
+/* Lo que dice el cierre de la ventana sigue al botón que estaba en
+   pantalla, para que se lea como su continuación:
+   · Sin agregados (tocó «No, gracias» o se acabó el tiempo): «Listo,
+     vamos a tu compra…». Da igual cómo cerró: el resultado es el mismo y
+     lo original ya estaba pagado.
+   · Con agregados y tocó «Pagar lo agregado»: «Pagando lo agregado…».
+   · Con agregados y se acabó el tiempo: «Se acabó el tiempo» y, abajo,
+     «Pagando lo agregado…». Ahí no tocó nada y se le cobra igual: el aviso va
+     primero para que el cobro no lo agarre por sorpresa. */
+function dashClosingText(state) {
+  const dash = state.dash;
+  if (!dashHas(state, () => true)) return "Listo, vamos a tu compra…";
+  /* En dos líneas: en una sola se partía en «Pagando lo / agregado…». */
+  return dash.closedBy === "timeout" ? "Se acabó el tiempo<br />Pagando lo agregado…" : "Pagando lo agregado…";
+}
+
 /* El pie de la ventana: cuánto se suma y el botón con el tiempo. La
    barra se dibuja con una animación CSS que arranca atrasada lo que ya
    pasó, así que repintar al agregar algo no la reinicia. */
@@ -3458,9 +3474,9 @@ function screenProcessing(state) {
       ${
         dash && !dash.closing
           ? dashFooter(state)
-          : `<div class="oky-flow-wait-footer">
+          : `<div class="oky-flow-wait-footer" role="status">
         <img class="oky-flow-spinner" src="oky-spinner.svg" alt="" />
-        <span>Redireccionando…</span>
+        <span>${dash ? dashClosingText(state) : "Redireccionando…"}</span>
       </div>`
       }
     </section>`}
@@ -10023,7 +10039,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       if (!state.dash || state.screen !== "processing") return clearInterval(dashTimer);
       if (state.dash.pausedAt) return;
       const left = dashWindow(state.dash) - (Date.now() - state.dash.start);
-      if (left <= 0) return closeDash();
+      if (left <= 0) return closeDash("timeout");
       const time = root.querySelector(".oky-dash-cta-time");
       if (time) time.textContent = dashClock(left);
     }, 250);
@@ -10121,17 +10137,22 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     true,
   );
 
-  /* Se acabó el tiempo o tocó «No, gracias»: el spinner de siempre y un solo
-     cobro con todo lo agregado. */
-  function closeDash() {
+  /* Se acabó el tiempo o tocó el botón: el spinner de siempre y un solo
+     cobro con todo lo agregado. Se guarda cómo se cerró para que el texto
+     del cierre diga lo que pasó (ver dashClosingText). Si se acabó el
+     tiempo con algo agregado, el cierre dura un poco más: ese cobro no lo
+     pidió con un toque y tiene que alcanzar a leerlo. */
+  function closeDash(reason = "button") {
     clearInterval(dashTimer);
     if (!state.dash || state.dash.closing) return;
     state.dash.closing = true;
+    state.dash.closedBy = reason;
+    const added = dashHas(state, () => true);
     render({ keepScroll: true });
     setTimeout(() => {
       state.dash = null;
       completePurchase();
-    }, 1000);
+    }, reason === "timeout" && added ? 1800 : 1000);
   }
 
   function svcStartPay() {
@@ -11997,7 +12018,7 @@ export function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
-    if (action === "dash-done") return closeDash();
+    if (action === "dash-done") return closeDash("button");
 
     /* Demo del pago fallido (Byron): el modal, corregir y el detalle. */
     if (action === "svc-what") {
