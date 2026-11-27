@@ -5314,8 +5314,11 @@ const CATEGORY_PAGES = {
         brands: [
           { key: "clarohogar", label: "Claro Hogar", art: "pagos-claro-hogar.png" },
           { key: "clarofactura", label: "Claro - Pagar Factura", art: "pagos-claro-hogar.png" },
-          { key: "tigopostpago", label: "Tigo - Postpago", art: "pagos-tigo.png" },
-          { key: "tigohogar", label: "Tigo Residencial", art: "pagos-tigo.png" },
+          /* El logo de Tigo es un círculo azul: con su mismo azul de fondo
+             el círculo se funde y la tile queda azul completa, como en
+             staging y en MARS (PSV-01B). */
+          { key: "tigopostpago", label: "Tigo - Postpago", art: "pagos-tigo.png", bg: "#00377B" },
+          { key: "tigohogar", label: "Tigo Residencial", art: "pagos-tigo.png", bg: "#00377B" },
           { key: "sky", label: "sky", art: "pagos-sky.png" },
         ],
       },
@@ -5476,7 +5479,7 @@ function screenCategory(state) {
       : "";
     return `
       <article class="homecard-tile${live}">
-        <div class="homecard-tile-logo-wrap">
+        <div class="homecard-tile-logo-wrap"${brand.bg ? ` style="background:${brand.bg}"` : ""}>
           <img class="homecard-tile-logo" src="${brand.art}" alt="${brand.label}" />
         </div>
         <p class="token-brand homecard-tile-name">${brand.label}</p>
