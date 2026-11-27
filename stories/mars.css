@@ -10182,7 +10182,7 @@ body {
   justify-content: flex-start;
 }
 
-.oky-dash-pick-media img {
+.oky-dash-pick-frame > img {
   display: block;
   box-sizing: border-box;
   width: 100%;
@@ -10195,12 +10195,45 @@ body {
   background: var(--white);
 }
 
+/* El marco envuelve la foto (o el arte del vale) para poder poner el
+   logo de la marca encima, en su esquina. */
+.oky-dash-pick-frame {
+  position: relative;
+  display: block;
+  max-width: 100%;
+}
+
+/* Logo de la marca sobre la foto de un producto, como en Ofertas: chico,
+   en su proporción de tarjeta (38 × 24), esquinas redondeadas y el borde
+   gris de los logos, arriba a la izquierda. Así «Combo Familiar de 6
+   Hamburguesas» dice que es de McDonald's sin sumar otra línea. */
+.oky-dash-pick-brand {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 38px;
+  height: 24px;
+  box-sizing: border-box;
+  border: 1px solid var(--divider);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--white);
+  pointer-events: none;
+}
+
+.oky-dash-pick-brand img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* La foto 1:1 de un producto va centrada en su container. */
 .oky-dash-pick.is-photo .oky-dash-pick-media {
   justify-content: center;
 }
 
-.oky-dash-pick.is-photo .oky-dash-pick-media img {
+.oky-dash-pick.is-photo .oky-dash-pick-frame > img {
   width: 64px;
   height: 64px;
   aspect-ratio: 1;
@@ -10269,7 +10302,11 @@ body {
   height: auto;
 }
 
-.oky-dash-picks:not(.is-one) .oky-dash-pick-media img {
+.oky-dash-picks:not(.is-one) .oky-dash-pick-frame {
+  width: 100%;
+}
+
+.oky-dash-picks:not(.is-one) .oky-dash-pick-frame > img {
   width: 100%;
   max-width: none;
   height: auto;
@@ -10277,7 +10314,7 @@ body {
   object-fit: cover;
 }
 
-.oky-dash-picks:not(.is-one) .oky-dash-pick.is-photo .oky-dash-pick-media img {
+.oky-dash-picks:not(.is-one) .oky-dash-pick.is-photo .oky-dash-pick-frame > img {
   object-fit: contain;
 }
 
@@ -10302,16 +10339,26 @@ body {
   height: auto;
 }
 
-.oky-dash-picks.is-one .oky-dash-pick-media img {
+.oky-dash-picks.is-one .oky-dash-pick-frame > img {
   width: 88px;
 }
 
 /* La foto de un producto va cuadrada (1:1) y llena su marco (cover). */
-.oky-dash-picks.is-one .oky-dash-pick.is-photo .oky-dash-pick-media img {
+.oky-dash-picks.is-one .oky-dash-pick.is-photo .oky-dash-pick-frame > img {
   width: 72px;
   height: 72px;
   aspect-ratio: 1;
   object-fit: cover;
+}
+
+/* Con un solo item la foto es de 72 px: el logo baja a 28 × 18 para no
+   tapar el producto. */
+.oky-dash-picks.is-one .oky-dash-pick-brand {
+  top: 4px;
+  left: 4px;
+  width: 28px;
+  height: 18px;
+  border-radius: 3px;
 }
 
 /* En la grilla la pastilla del vale se estiraba a toda la columna. */

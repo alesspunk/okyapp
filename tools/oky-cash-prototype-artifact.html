@@ -10197,7 +10197,7 @@ body {
   justify-content: flex-start;
 }
 
-.oky-dash-pick-media img {
+.oky-dash-pick-frame > img {
   display: block;
   box-sizing: border-box;
   width: 100%;
@@ -10210,12 +10210,45 @@ body {
   background: var(--white);
 }
 
+/* El marco envuelve la foto (o el arte del vale) para poder poner el
+   logo de la marca encima, en su esquina. */
+.oky-dash-pick-frame {
+  position: relative;
+  display: block;
+  max-width: 100%;
+}
+
+/* Logo de la marca sobre la foto de un producto, como en Ofertas: chico,
+   en su proporción de tarjeta (38 × 24), esquinas redondeadas y el borde
+   gris de los logos, arriba a la izquierda. Así «Combo Familiar de 6
+   Hamburguesas» dice que es de McDonald's sin sumar otra línea. */
+.oky-dash-pick-brand {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 38px;
+  height: 24px;
+  box-sizing: border-box;
+  border: 1px solid var(--divider);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--white);
+  pointer-events: none;
+}
+
+.oky-dash-pick-brand img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* La foto 1:1 de un producto va centrada en su container. */
 .oky-dash-pick.is-photo .oky-dash-pick-media {
   justify-content: center;
 }
 
-.oky-dash-pick.is-photo .oky-dash-pick-media img {
+.oky-dash-pick.is-photo .oky-dash-pick-frame > img {
   width: 64px;
   height: 64px;
   aspect-ratio: 1;
@@ -10284,7 +10317,11 @@ body {
   height: auto;
 }
 
-.oky-dash-picks:not(.is-one) .oky-dash-pick-media img {
+.oky-dash-picks:not(.is-one) .oky-dash-pick-frame {
+  width: 100%;
+}
+
+.oky-dash-picks:not(.is-one) .oky-dash-pick-frame > img {
   width: 100%;
   max-width: none;
   height: auto;
@@ -10292,7 +10329,7 @@ body {
   object-fit: cover;
 }
 
-.oky-dash-picks:not(.is-one) .oky-dash-pick.is-photo .oky-dash-pick-media img {
+.oky-dash-picks:not(.is-one) .oky-dash-pick.is-photo .oky-dash-pick-frame > img {
   object-fit: contain;
 }
 
@@ -10317,16 +10354,26 @@ body {
   height: auto;
 }
 
-.oky-dash-picks.is-one .oky-dash-pick-media img {
+.oky-dash-picks.is-one .oky-dash-pick-frame > img {
   width: 88px;
 }
 
 /* La foto de un producto va cuadrada (1:1) y llena su marco (cover). */
-.oky-dash-picks.is-one .oky-dash-pick.is-photo .oky-dash-pick-media img {
+.oky-dash-picks.is-one .oky-dash-pick.is-photo .oky-dash-pick-frame > img {
   width: 72px;
   height: 72px;
   aspect-ratio: 1;
   object-fit: cover;
+}
+
+/* Con un solo item la foto es de 72 px: el logo baja a 28 × 18 para no
+   tapar el producto. */
+.oky-dash-picks.is-one .oky-dash-pick-brand {
+  top: 4px;
+  left: 4px;
+  width: 28px;
+  height: 18px;
+  border-radius: 3px;
 }
 
 /* En la grilla la pastilla del vale se estiraba a toda la columna. */
@@ -29361,12 +29408,21 @@ function dashOffers(state) {
             const product = PRODUCTS[pick.key];
             const on = dashHas(state, (item) => item.productKey === pick.key);
             const title = product.label;
+            /* Un producto (comida) no dice de qué marca es: la foto de 6
+               hamburguesas no cuenta que son de McDonald's. Va el logo de
+               la marca en la esquina superior izquierda de la foto, chico
+               y en su proporción de tarjeta, como en Ofertas. Los vales ya
+               son el logo, así que no lo llevan. */
+            const brand = product.food && product.brand ? BRANDS[product.brand] : null;
+            const brandLabel = brand ? ` de ${brand.label}` : "";
             return `
           ${/* Toda la card agrega (o quita), no solo el botón. El botón
                sigue siendo el control para teclado y lector de pantalla. */ ""}
           <article class="oky-dash-pick${on ? " is-added" : ""}${product.food ? " is-photo" : ""}"
             data-action="dash-pick" data-product="${pick.key}">
-            <div class="oky-dash-pick-media"><img src="${product.art}" alt="" /></div>
+            <div class="oky-dash-pick-media"><span class="oky-dash-pick-frame"><img src="${product.art}" alt="" />${
+              brand ? `<span class="oky-dash-pick-brand"><img src="${brand.art}" alt="${escapeHtml(brand.label)}" /></span>` : ""
+            }</span></div>
             ${pick.q ? `<span class="oky-dash-pick-chip">Vale Q${bigQuetzal(pick.q)}</span>` : ""}
             <p class="oky-dash-pick-title">${escapeHtml(title)}</p>
             <p class="oky-dash-pick-price">${money(dashPickUsd(pick))}${
@@ -29374,7 +29430,7 @@ function dashOffers(state) {
             }</p>
             <button class="btn ${on ? "btn-primary" : "btn-outlined"} btn-small oky-dash-pick-cta" data-action="dash-pick"
               data-product="${pick.key}" type="button" aria-pressed="${on ? "true" : "false"}"
-              aria-label="${on ? "Quitar" : "Agregar"} ${escapeHtml(title)}${pick.q ? ` de Q${bigQuetzal(pick.q)}` : ""}">
+              aria-label="${on ? "Quitar" : "Agregar"} ${escapeHtml(title)}${escapeHtml(brandLabel)}${pick.q ? ` de Q${bigQuetzal(pick.q)}` : ""}">
               ${on ? `<i class="fa-solid fa-check" aria-hidden="true"></i> Agregado` : "Agregar"}
             </button>
           </article>`;

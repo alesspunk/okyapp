@@ -3315,12 +3315,21 @@ function dashOffers(state) {
             const product = PRODUCTS[pick.key];
             const on = dashHas(state, (item) => item.productKey === pick.key);
             const title = product.label;
+            /* Un producto (comida) no dice de qué marca es: la foto de 6
+               hamburguesas no cuenta que son de McDonald's. Va el logo de
+               la marca en la esquina superior izquierda de la foto, chico
+               y en su proporción de tarjeta, como en Ofertas. Los vales ya
+               son el logo, así que no lo llevan. */
+            const brand = product.food && product.brand ? BRANDS[product.brand] : null;
+            const brandLabel = brand ? ` de ${brand.label}` : "";
             return `
           ${/* Toda la card agrega (o quita), no solo el botón. El botón
                sigue siendo el control para teclado y lector de pantalla. */ ""}
           <article class="oky-dash-pick${on ? " is-added" : ""}${product.food ? " is-photo" : ""}"
             data-action="dash-pick" data-product="${pick.key}">
-            <div class="oky-dash-pick-media"><img src="${product.art}" alt="" /></div>
+            <div class="oky-dash-pick-media"><span class="oky-dash-pick-frame"><img src="${product.art}" alt="" />${
+              brand ? `<span class="oky-dash-pick-brand"><img src="${brand.art}" alt="${escapeHtml(brand.label)}" /></span>` : ""
+            }</span></div>
             ${pick.q ? `<span class="oky-dash-pick-chip">Vale Q${bigQuetzal(pick.q)}</span>` : ""}
             <p class="oky-dash-pick-title">${escapeHtml(title)}</p>
             <p class="oky-dash-pick-price">${money(dashPickUsd(pick))}${
@@ -3328,7 +3337,7 @@ function dashOffers(state) {
             }</p>
             <button class="btn ${on ? "btn-primary" : "btn-outlined"} btn-small oky-dash-pick-cta" data-action="dash-pick"
               data-product="${pick.key}" type="button" aria-pressed="${on ? "true" : "false"}"
-              aria-label="${on ? "Quitar" : "Agregar"} ${escapeHtml(title)}${pick.q ? ` de Q${bigQuetzal(pick.q)}` : ""}">
+              aria-label="${on ? "Quitar" : "Agregar"} ${escapeHtml(title)}${escapeHtml(brandLabel)}${pick.q ? ` de Q${bigQuetzal(pick.q)}` : ""}">
               ${on ? `<i class="fa-solid fa-check" aria-hidden="true"></i> Agregado` : "Agregar"}
             </button>
           </article>`;
