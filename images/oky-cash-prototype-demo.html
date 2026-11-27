@@ -22208,6 +22208,13 @@ button.carrusel-dot:focus-visible {
   margin: 96px 0 24px;
 }
 
+/* «PAGOS DEL MES» en el home de GUA (MARS PSV-01): entre la pastilla de
+   saldo y las macrocategorías, a sangre para que asome la siguiente card. */
+.oky-flow-gua-pagosmes {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
 @font-face {
   font-family: "FA Free Solid Fallback";
   font-style: normal;
@@ -33070,12 +33077,23 @@ function screenContacts(state) {
    de saldo se cuela justo antes, después del carrusel. */
 const GUA_TILES_ANCHOR = `<section class="mockup-block mockup-left-tiles-block"`;
 
+/* «PAGOS DEL MES» (MARS PSV-01 · 8924:89611, PSV-EXP-051): debajo de la
+   pastilla de saldo, el mismo carrusel de Mini Cards del home de EEGSA
+   pero con los recordatorios activos de todas las marcas. «Ver saldo»
+   consulta esa cuenta directo y el ⋮ lleva a Recordatorios. Sin
+   recordatorios activos el módulo no sale; en USA nunca sale. */
+function guaPagosDelMes(state) {
+  const accounts = svcActive(state);
+  if (!accounts.length) return "";
+  return `<div class="oky-flow-svc-reminders oky-flow-gua-pagosmes">${svcReminderCarousel(state, accounts, { label: "Pagos del mes" })}</div>`;
+}
+
 function screenHomeGua(state) {
   const body = GUA_HOME_MARKUP.replace(
     GUA_TILES_ANCHOR,
     /* Sin píldora tampoco va su hueco, o quedaría un palmo de blanco
        entre el carrusel y las categorías. */
-    `${cashStrip(state) ? `<div class="oky-flow-gua-cash">${cashStrip(state)}</div>` : ""}${GUA_TILES_ANCHOR}`,
+    `${cashStrip(state) ? `<div class="oky-flow-gua-cash">${cashStrip(state)}</div>` : ""}${guaPagosDelMes(state)}${GUA_TILES_ANCHOR}`,
   );
 
   return `
@@ -33666,11 +33684,11 @@ function svcReminderCard(state, acc) {
 }
 
 /* Carrusel de recordatorios (99105:14130), el organismo de Storybook. */
-function svcReminderCarousel(state, accounts) {
+function svcReminderCarousel(state, accounts, { label = "Recordatorios" } = {}) {
   if (!accounts.length) return "";
   let html = svcWire(
     /* En la pantalla de la marca va la Mini: una fila, menos alto. */
-    renderReminderCarousel(accounts.map((acc) => svcReminderData(state, acc, { mini: true })), { label: "Recordatorios" }),
+    renderReminderCarousel(accounts.map((acc) => svcReminderData(state, acc, { mini: true })), { label }),
     accounts,
   );
   /* Con un solo recordatorio no hay a dónde moverse: fuera los puntos. */
@@ -34321,9 +34339,10 @@ function svcMenuSheet(state) {
       <p class="oky-flow-cardmenu-title">${escapeHtml(acc.alias)}</p>
       ${row("svc-see-payments", "file-lines", "Ver pagos de este número")}
       ${
-        /* En el home de EEGSA el ⋮ no apaga: lleva a Recordatorios, que
-           es donde se administran (mismo icono que en el Menú). */
-        state.screen === "eegsa"
+        /* En el home de EEGSA y en «Pagos del mes» del home de GUA el ⋮
+           no apaga: lleva a Recordatorios, que es donde se administran
+           (mismo icono que en el Menú). */
+        state.screen === "eegsa" || state.screen === "homegua"
           ? row("svc-open-reminders", "calendar-check", "Ver recordatorios")
           : row("svc-ask-off", "bell-slash", "Apagar recordatorio")
       }

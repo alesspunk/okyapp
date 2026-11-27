@@ -22185,3 +22185,10 @@ button.carrusel-dot:focus-visible {
 .oky-flow-svc-reminders-empty {
   margin: 96px 0 24px;
 }
+
+/* «PAGOS DEL MES» en el home de GUA (MARS PSV-01): entre la pastilla de
+   saldo y las macrocategorías, a sangre para que asome la siguiente card. */
+.oky-flow-gua-pagosmes {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
