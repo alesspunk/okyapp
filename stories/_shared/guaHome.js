@@ -119,7 +119,7 @@ export const GUA_HOME_MARKUP = `
                 </article>
                 <article class="homecard-tile is-live" data-action="open-guapdp" data-product="gua-yayo"
                   role="button" tabindex="0">
-                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="yayo.webp" alt="Yayo logo" /></div>
+                  <div class="homecard-tile-logo-wrap"><img class="homecard-tile-logo" src="yayo-card.webp" alt="Yayo logo" /></div>
                   <p class="token-brand homecard-tile-name">Yayo</p>
                 </article>
 

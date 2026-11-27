@@ -21845,19 +21845,16 @@ button.carrusel-dot:focus-visible {
   overflow: visible;
 }
 
-/* Ícono 3D oficial del servicio (foco, llave del agua). El PNG trae
-   margen transparente, así que va más grande que el círculo. Late
-   suave mientras dura la consulta. */
+/* Ícono 3D oficial del servicio (foco, llave del agua). Los PNG van
+   recortados al dibujo y centrados en un lienzo cuadrado, así que el
+   ícono queda al centro del círculo con el mismo aire en todos los
+   lados. Late suave mientras dura la consulta. */
 .oky-flow-svc-scan-art {
-  width: 108px;
-  height: 108px;
+  display: block;
+  width: 60px;
+  height: 60px;
   object-fit: contain;
   animation: oky-flow-svc-beat 1.5s ease-in-out infinite;
-}
-
-.oky-flow-svc-wait.is-empagua .oky-flow-svc-scan-art {
-  width: 120px;
-  height: 120px;
 }
 
 @keyframes oky-flow-svc-beat {

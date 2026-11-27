@@ -583,7 +583,7 @@ function requestModal(state) {
                   <p class="modal-detail-title">${r.merchant}</p>
                   <p class="modal-detail-note">ID: ${r.id}</p>
                 </div>
-                <span class="modal-detail-logo"><img src="yayo.webp" alt="yayo" /></span>
+                <span class="modal-detail-logo"><img src="yayo-card.webp" alt="yayo" /></span>
               </div>
               <hr class="modal-detail-divider" />
               <div class="modal-detail-row">
