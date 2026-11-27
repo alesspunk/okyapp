@@ -5329,7 +5329,7 @@ const CATEGORY_PAGES = {
         icon: "pagos-ic-servicios.png",
         brands: [
           { key: "cuscatlan", label: "Tarjetas Cuscatlan", art: "pagos-cuscatlan.png" },
-          { key: "yayo", label: "Yayo", art: "pagos-yayo.png", action: "open-guapdp", product: "gua-yayo" },
+          { key: "yayo", label: "Yayo", art: "yayo-card.webp", action: "open-guapdp", product: "gua-yayo" },
           { key: "empagua", label: "EMPAGUA", art: "pagos-empagua.png", action: "open-empagua" },
           { key: "genesis", label: "Fundación Génesis Empresarial", art: "pagos-genesis.png" },
           { key: "siman", label: "Siman", art: "pagos-siman.png" },
