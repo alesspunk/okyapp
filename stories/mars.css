@@ -21839,36 +21839,30 @@ button.carrusel-dot:focus-visible {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 35% 30%, #7a3ad1, var(--primary-main) 70%);
-  box-shadow: 0 10px 24px rgba(65, 0, 136, 0.35);
-  overflow: hidden;
+  /* El círculo lila de los íconos 3D (como los estados vacíos): el foco
+     es morado y sobre el morado sólido de antes no se distinguía. */
+  background: var(--primary-surface);
+  overflow: visible;
 }
 
-/* El rayo se llena de amarillo de abajo arriba mientras dura la consulta
-   y destella al final. En EMPAGUA la gota se llena del azul de su logo. */
-.oky-flow-svc-wait {
-  --svc-fill: #ffd23f;
+/* Ícono 3D oficial del servicio (foco, llave del agua). El PNG trae
+   margen transparente, así que va más grande que el círculo. Late
+   suave mientras dura la consulta. */
+.oky-flow-svc-scan-art {
+  width: 108px;
+  height: 108px;
+  object-fit: contain;
+  animation: oky-flow-svc-beat 1.5s ease-in-out infinite;
 }
 
-.oky-flow-svc-wait.is-empagua {
-  --svc-fill: #5cc6f7;
+.oky-flow-svc-wait.is-empagua .oky-flow-svc-scan-art {
+  width: 120px;
+  height: 120px;
 }
 
-.oky-flow-svc-scan-core i {
-  font-size: 40px;
-  color: transparent;
-  background: linear-gradient(to top, var(--svc-fill) 50%, rgba(255, 255, 255, 0.35) 50%);
-  background-size: 100% 200%;
-  background-position: 0 0;
-  -webkit-background-clip: text;
-  background-clip: text;
-  animation: oky-flow-svc-charge var(--svc-ms, 1800ms) ease-in-out forwards;
-}
-
-@keyframes oky-flow-svc-charge {
-  0% { background-position: 0 0; filter: none; }
-  85% { background-position: 0 100%; filter: none; }
-  100% { background-position: 0 100%; filter: drop-shadow(0 0 8px var(--svc-fill)); }
+@keyframes oky-flow-svc-beat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
 }
 
 .oky-flow-svc-wait .oky-flow-svc-wait-corr {
@@ -21967,9 +21961,8 @@ button.carrusel-dot:focus-visible {
     transform: scale(1.3);
   }
 
-  .oky-flow-svc-scan-core i {
+  .oky-flow-svc-scan-art {
     animation: none;
-    background-position: 0 100%;
   }
 
   .oky-flow-svc-steps li,

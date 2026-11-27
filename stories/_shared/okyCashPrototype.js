@@ -8055,8 +8055,9 @@ function svcReminderSwitch(state, corr, label) {
 /* La consulta tarda (va a la API del proveedor): la misma hoja de espera
    de «No cerrar app», con el ícono que late y el spinner de siempre. Sale
    en los tres casos: con factura, al día y número nuevo. Dice con quién
-   consulta: EEGSA (el rayo) o EMPAGUA (la gota). */
-const SVC_LOADING_ICON = { eegsa: "fa-bolt", empagua: "fa-droplet" };
+   consulta con los íconos 3D oficiales de servicios (7800 handoff):
+   EEGSA el foco y EMPAGUA la llave del agua. */
+const SVC_LOADING_ART = { eegsa: "servicio-3d-electrica.png", empagua: "servicio-3d-agua.png" };
 
 function svcLoadingLayer(state) {
   const provider = state.svcLoading.provider || "eegsa";
@@ -8069,7 +8070,7 @@ function svcLoadingLayer(state) {
         <span class="oky-flow-svc-scan-ring"></span>
         <span class="oky-flow-svc-scan-ring"></span>
         <span class="oky-flow-svc-scan-ring"></span>
-        <span class="oky-flow-svc-scan-core"><i class="fa-solid ${SVC_LOADING_ICON[provider] || "fa-bolt"}"></i></span>
+        <span class="oky-flow-svc-scan-core"><img class="oky-flow-svc-scan-art" src="${SVC_LOADING_ART[provider] || SVC_LOADING_ART.eegsa}" alt="" /></span>
       </div>
       <p class="oky-flow-svc-wait-corr">${brand} · #${state.svcLoading.corr}</p>
       <ol class="oky-flow-svc-steps" style="--svc-ms:${SVC_LOADING_MS}ms">
