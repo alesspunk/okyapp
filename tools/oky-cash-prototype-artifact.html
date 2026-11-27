@@ -34150,8 +34150,8 @@ function svcCartSheet(gate) {
         </button>
         ${/* Primario siempre «Completar Compra». El secundario dice a dónde
              se va, no «Vaciar carrito»: los servicios no tienen carrito y
-             el borrado ya lo avisa la nota. Al entrar a Servicios, «Ir a
-             servicios»; al pagar uno, «Pagar servicio». */ ""}
+             el borrado ya lo avisa la nota. Al tocar un proveedor (EEGSA,
+             EMPAGUA), «Ir a servicios»; al pagar uno, «Pagar servicio». */ ""}
         <button class="oky-flow-country-link" data-action="svccart-clear" type="button">${
           (gate || {}).next === "pay" ? "Pagar servicio" : "Ir a servicios"
         }</button>
@@ -36541,6 +36541,30 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     setTimeout(() => row.querySelectorAll(".oky-flow-confetti-piece").forEach((p) => p.remove()), 1100);
   }
 
+  /* Pago de servicios · EEGSA. */
+  function openEegsa() {
+    /* Viniendo de otro servicio (EMPAGUA), el número tecleado allá no
+       es de aquí: el campo empieza vacío. */
+    if (state.svc.provider && state.svc.provider !== "eegsa") state.svc.corrInput = "";
+    state.svc.provider = "eegsa";
+    if (state.svc.corrInput && !SVC_CORR_RE.test(state.svc.corrInput)) state.svc.corrInput = "";
+    /* Entrar de nuevo desde la categoría empieza arriba… */
+    state.svc.scrollMemo = null;
+    /* …y con solo el primer grupo abierto. */
+    state.svc.openGroup = null;
+    return go("eegsa");
+  }
+
+  /* Pago de servicios · EMPAGUA (servicio nuevo, vacío). */
+  function openEmpagua() {
+    state.svc.provider = "empagua";
+    state.svc.corrInput = "";
+    state.svc.filter = { period: "", corr: "" };
+    state.svc.scrollMemo = null;
+    state.svc.openGroup = null;
+    return go("empagua");
+  }
+
   root.addEventListener("click", (event) => {
     const el = event.target.closest("[data-action]");
     if (!el || el.disabled) return;
@@ -37354,29 +37378,18 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       return;
     }
 
-    /* ── Pago de servicios · EEGSA ── */
-    if (action === "open-eegsa") {
-      /* Viniendo de otro servicio (EMPAGUA), el número tecleado allá no
-         es de aquí: el campo empieza vacío. */
-      if (state.svc.provider && state.svc.provider !== "eegsa") state.svc.corrInput = "";
-      state.svc.provider = "eegsa";
-      if (state.svc.corrInput && !SVC_CORR_RE.test(state.svc.corrInput)) state.svc.corrInput = "";
-      /* Entrar de nuevo desde la categoría empieza arriba. */
-      state.svc.scrollMemo = null;
-      /* …y con solo el primer grupo abierto. */
-      state.svc.openGroup = null;
-      return go("eegsa");
+    /* Los pagos de servicios no conviven con el carrito: con productos
+       dentro, se pregunta al tocar el proveedor (EEGSA, EMPAGUA), no al
+       entrar a la categoría. En Pagos también hay vales con carrito
+       (yayo) y no tiene sentido pedir borrar un yayo para ver otro. */
+    if ((action === "open-eegsa" || action === "open-empagua") && state.cart.some((item) => !isSvcKey(item.productKey))) {
+      state.svcCartGate = { next: action === "open-eegsa" ? "eegsa" : "empagua" };
+      return render({ keepScroll: true });
     }
 
-    /* ── Pago de servicios · EMPAGUA (servicio nuevo, vacío) ── */
-    if (action === "open-empagua") {
-      state.svc.provider = "empagua";
-      state.svc.corrInput = "";
-      state.svc.filter = { period: "", corr: "" };
-      state.svc.scrollMemo = null;
-      state.svc.openGroup = null;
-      return go("empagua");
-    }
+    /* ── Pago de servicios · EEGSA y EMPAGUA ── */
+    if (action === "open-eegsa") return openEegsa();
+    if (action === "open-empagua") return openEmpagua();
 
     if (action === "menu:reminders" || action === "svc-open-reminders") {
       state.sheet = null;
@@ -37444,6 +37457,8 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
       state.promo = null;
       state.cashOffByPromo = false;
       if (next === "pay") return svcStartPay();
+      if (next === "eegsa") return openEegsa();
+      if (next === "empagua") return openEmpagua();
       return go("category", { category: "servicios" });
     }
 
@@ -37579,12 +37594,8 @@ function mountOkyCashPrototype(root, { userType = "first-time" } = {}) {
     }
 
     if (action === "open-category") {
-      /* Pagar Servicios no convive con el carrito: con productos dentro
-         se pregunta antes de entrar. */
-      if (el.dataset.category === "servicios" && state.cart.some((item) => !isSvcKey(item.productKey))) {
-        state.svcCartGate = { next: "category" };
-        return render({ keepScroll: true });
-      }
+      /* Entrar a Pagos no pregunta nada: el aviso del carrito sale al
+         tocar un proveedor de servicios. */
       return go("category", { category: el.dataset.category || "recargas" });
     }
 
